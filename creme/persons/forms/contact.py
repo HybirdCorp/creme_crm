@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType, Relation
-from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 
@@ -39,7 +39,7 @@ from .base import _BasePersonForm
 
 class ContactForm(_BasePersonForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
-    image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
+    image    = CreatorEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
 #    position = ModelChoiceField(label=_('Position'), 
 #                                queryset=Position.objects.all(), 
 #                                required=False, 

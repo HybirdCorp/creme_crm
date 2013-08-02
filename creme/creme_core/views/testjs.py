@@ -66,7 +66,7 @@ class MockImage(object):
         self.height = height or width
 
     def html(self, entity):
-        return mark_safe(print_image(entity, self, entity.user));
+        return mark_safe(print_image(entity, self, entity.user))
 
 
 class MockManyToMany(object):
@@ -84,7 +84,7 @@ class Dummy(object):
     def __init__(self, id, user):
         self.user = user
         self.name = u'Dummy (%d)' % id
-        self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self);
+        self.image = MockImage(media_url(TEST_IMAGE_URLS[randint(0, len(TEST_IMAGE_URLS) - 1)]), randint(16, 64)).html(self)
         self.url = mark_safe(print_urlfield(self, media_url('images/add_16.png'), self.user))
         self.datetime = mark_safe(print_datetime(self, now(), user))
         self.date = mark_safe(print_date(self, date.today(), user))

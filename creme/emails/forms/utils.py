@@ -25,7 +25,7 @@ from creme.emails.utils import get_images_from_html, ImageFromHTMLError
 
 
 def create_image_validation_error(filename):
-     return ValidationError(_(u"The image «%s» no longer exists or isn't valid.") % filename)
+    return ValidationError(_(u"The image «%s» no longer exists or isn't valid.") % filename)
 
 def validate_images_in_html(html, user):
     try:

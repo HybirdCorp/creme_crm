@@ -205,8 +205,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         fname = field.name
         related_model = field.rel.to
         #rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
-                           #('id',)
-                          #)
+                            #('id',)
+                            #)
 
         for subfield in related_model._meta.fields:
             #sfname = subfield.name
@@ -229,11 +229,11 @@ class RegularFieldsConditionsField(_ConditionsField):
 
             #if fname not in excluded and not is_date_field(field):
             if field.get_tag('viewable') and not is_date_field(field):
-               if field.get_internal_type() == 'ForeignKey':
+                if field.get_internal_type() == 'ForeignKey':
                     self._build_related_fields(field, fields)
-               else:
-                   #fields[fname] = [field]
-                   fields[field.name] = [field]
+                else:
+                    #fields[fname] = [field]
+                    fields[field.name] = [field]
 
         for field in model._meta.many_to_many:
             self._build_related_fields(field, fields)
@@ -692,7 +692,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         build_condition = EntityFilterCondition.build_4_relation_subfilter
 
         try:
-             conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
+            conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
         except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
@@ -865,7 +865,7 @@ class EntityFilterEditForm(_EntityFilterForm):
             try:
                 self.instance.check_cycle(conditions)
             except EntityFilter.CycleError as e:
-                 raise ValidationError(e)
+                raise ValidationError(e)
 
             cdata['all_conditions'] = conditions
 

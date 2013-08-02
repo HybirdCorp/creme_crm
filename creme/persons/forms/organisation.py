@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 
 from creme.media_managers.models import Image
 from creme.media_managers.forms.widgets import ImageM2MWidget
@@ -31,7 +31,7 @@ from .base import _BasePersonForm
 
 class OrganisationForm(_BasePersonForm):
     creation_date = CremeDateTimeField(label=_(u"Creation date"), required=False)
-    image         = CremeEntityField(label=_(u"Logo"), required=False, model=Image, widget=ImageM2MWidget())
+    image         = CreatorEntityField(label=_(u"Logo"), required=False, model=Image, widget=ImageM2MWidget())
 
     class Meta(_BasePersonForm.Meta):
         model = Organisation

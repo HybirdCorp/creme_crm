@@ -2,10 +2,12 @@
 
 try:
     import filecmp
-    from os.path import join, exists, split
+    from os.path import join, exists, split, basename
+    from tempfile import NamedTemporaryFile
 
     from django.core.serializers.json import simplejson
     from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -167,3 +169,66 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get('/media_managers/tiny_mce/image').status_code)
 
         #TODO: improve this test....
+
+
+class ImageQuickFormTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'media_managers')
+
+    def setUp(self):
+        self.images = []
+        self.login()
+
+    def tearDown(self):
+        for img in self.images:
+            img.delete()
+
+    def _build_filedata(self, content_str, suffix='.txt'):
+        tmpfile = NamedTemporaryFile(suffix=suffix, delete=False)
+        tmpfile.write(content_str)
+        tmpfile.flush()
+
+        #we close and reopen in order to have a file with the right name (so we must specify delete=False)
+        tmpfile.close()
+
+        name = tmpfile.name
+
+        return open(name, 'rb'), basename(name)
+
+    def quickform_data(self, count):
+        return {'form-INITIAL_FORMS': '0',
+                'form-MAX_NUM_FORMS': '',
+                'form-TOTAL_FORMS':   '%s' % count,
+               }
+
+    def quickform_data_append(self, data, id, user='', image=''):
+        return data.update({'form-%d-user' % id:  user,
+                            'form-%d-image' % id: image,
+                           }
+                          )
+
+    def test_add(self):
+        self.assertFalse(Image.objects.exists())
+
+        url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Image).pk, 1)
+        self.assertGET200(url)
+
+        with open(join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png'), 'r') as f:
+            content = f.read()
+
+        file_obj, file_name = self._build_filedata(content)
+
+        data = self.quickform_data(1)
+        self.quickform_data_append(data, 0, user=self.user.pk, image=file_obj)
+
+        self.assertNoFormError(self.client.post(url, follow=True, data=data))
+
+        image = Image.objects.get()
+
+        self.assertEqual('upload/images/%s_%s' % (image.id, file_name), image.image.name)
+        self.assertSequenceEqual([], image.categories.all())
+
+        filedata = image.image
+        filedata.open()
+        self.assertEqual(content, filedata.read())

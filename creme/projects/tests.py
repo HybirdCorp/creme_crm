@@ -65,7 +65,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'status':       status.id,
                                           'start_date':   start_date,
                                           'end_date':     end_date,
-                                          'responsibles': manager.id,
+                                          'responsibles': '[%d]' % manager.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -130,7 +130,7 @@ class ProjectsTestCase(CremeTestCase):
                                             'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2011-10-11',
                                             'end_date':     '2011-12-31',
-                                            'responsibles': manager.id,
+                                            'responsibles': '[%d]' % manager.id,
                                            }
                                      )
         self.assertFormError(response, 'form', 'responsibles',
@@ -151,7 +151,7 @@ class ProjectsTestCase(CremeTestCase):
                                             'status':       ProjectStatus.objects.all()[0].id,
                                             'start_date':   '2012-2-16',
                                             'end_date':     '2012-2-15',
-                                            'responsibles': manager.id,
+                                            'responsibles': '[%d]' % manager.id,
                                            }
                                      )
         self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
@@ -242,7 +242,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':                 '2010-10-11 17:30',
                                           'duration':            180,
                                           'tstatus':             TaskStatus.objects.all()[0].id,
-                                          'parent_tasks':        task1.id,
+                                          'parent_tasks':        '[%d]' % task1.id,
                                           'participating_users': user.id,
                                           'type_selector':       self._build_type_value(),
                                          }
@@ -279,15 +279,12 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':           '2010-10-30',
                                           'duration':      50,
                                           'tstatus':       TaskStatus.objects.all()[0].id,
-                                          'parent_tasks':  task01.id,
+                                          'parent_tasks':  '[%d]' % task01.id,
                                           'type_selector': self._build_type_value(),
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
-                                 'value': task01.id,
-                               }
-                             ]
+                             [_(u"This entity doesn't exist.")]
                             )
 
     def test_task_createview03(self):
@@ -469,19 +466,16 @@ class ProjectsTestCase(CremeTestCase):
         url = self.ADD_TASK_PARENT_URL % task03.id
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'parents': '%s,%s' % (task01.id, task02.id)}))
+        self.assertNoFormError(self.client.post(url, data={'parents': '[%d,%d]' % (task01.id, task02.id)}))
         self.assertEqual(set([task01, task02]), set(task03.parent_tasks.all()))
 
         self.assertPOST200('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual([task02], list(task03.parent_tasks.all()))
 
         #Error: already parent
-        self.assertFormError(self.client.post(url, data={'parents': task02.id}),
+        self.assertFormError(self.client.post(url, data={'parents': '[%d]' % task02.id}),
                              'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
-                                    'value': task02.id,
-                                }
-                             ]
+                             [_(u"This entity doesn't exist.")]
                             )
 
     def test_task_add_parent02(self):
@@ -495,13 +489,10 @@ class ProjectsTestCase(CremeTestCase):
         task02 = self.create_task(project02, 'Task02')
 
         response = self.client.post(self.ADD_TASK_PARENT_URL % task02.id,
-                                    data={'parents': task01.id}
+                                    data={'parents': '[%d]' % task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
-                                    'value': task01.id,
-                                }
-                             ]
+                             [_(u"This entity doesn't exist.")]
                             )
 
     def test_task_add_parent03(self):
@@ -516,18 +507,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([task01], list(task01.get_subtasks()))
 
         url = self.ADD_TASK_PARENT_URL
-        self.assertNoFormError(self.client.post(url % task02.id, data={'parents': task01.id}))
+        self.assertNoFormError(self.client.post(url % task02.id, data={'parents': '[%d]' % task01.id}))
         self.assertEqual(set([task01, task02]), set(task01.get_subtasks()))
 
-        self.assertNoFormError(self.client.post(url % task03.id, data={'parents': task02.id}))
+        self.assertNoFormError(self.client.post(url % task03.id, data={'parents': '[%d]' % task02.id}))
         self.assertEqual(set([task01, task02, task03]), set(task01.get_subtasks()))
 
-        response = self.client.post(url % task01.id, data={'parents': task03.id})
+        response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
         self.assertFormError(response, 'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
-                                    'value': task03.id,
-                                 }
-                             ]
+                             [_(u"This entity doesn't exist.")]
                             )
 
     def test_resource_n_period01(self):

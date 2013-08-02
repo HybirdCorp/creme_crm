@@ -67,7 +67,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-                                    data={'mailing_lists': '%s,' % mlist.id, #see MultiCremeEntityField
+                                    data={'mailing_lists': '[%s]' % mlist.id, #see MultiCreatorEntityField
                                          }
                                    )
         self.assertNoFormError(response)
@@ -129,7 +129,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
                       create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
                      ]
-        response = self.client.post(url, data={'recipients': ','.join(str(c.id) for c in recipients) #see MultiCremeEntityField
+        response = self.client.post(url, data={'recipients': '[%s]' % ','.join(str(c.id) for c in recipients) #see MultiCreatorEntityField
                                               }
                                    )
         self.assertNoFormError(response)
@@ -202,7 +202,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
                       create(name='Seele', email='contact@seele.jp'),
                      ]
-        response = self.client.post(url, data={'recipients': ','.join(str(c.id) for c in recipients), #see MultiCremeEntityField
+        response = self.client.post(url, data={'recipients': '[%s]' % ','.join(str(c.id) for c in recipients), #see MultiCreatorEntityField
                                               }
                                    )
         self.assertNoFormError(response)

@@ -35,10 +35,16 @@ ul.ui-layout.hbox li input { margin: 0px 2px; }
 ul.ui-layout.vbox li { position:relative; display:block; }
 
 /*----------------------------------*/
-.ui-creme-selectorlist > div.add ul { margin-top:0.2em; margin-bottom:0.2em; }
-.ui-creme-selectorlist > div.add ul:hover { cursor:pointer; }
-.ui-creme-selectorlist > div.add ul li { height:1em; vertical-align:middle; }
-.ui-creme-selectorlist > div.add ul li img { position:relative; top:0.2em; }
+.ui-creme-selectorlist > div.add {
+    background-repeat: no-repeat;
+    background-image: url("chantilly/images/add_16.png");
+    padding-left: 20px;
+    margin: 4px 0px 4px 0px;
+}
+
+.ui-creme-selectorlist > div.add:hover {
+    cursor: pointer;
+}
 
 .ui-creme-selectorlist img.delete { border:0; vertical-align:middle; margin-left:2px; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
@@ -154,7 +160,10 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 /*----------------------------------*/
-ul.ui-creme-actionbuttonlist { display: inline; }
+ul.ui-creme-actionbuttonlist {
+    display: inline;
+    padding: 0px 4px 0px 0px;
+}
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton {
     padding: 1px 6px 1px 6px;

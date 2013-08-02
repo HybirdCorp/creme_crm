@@ -25,7 +25,7 @@ from django.forms import DateTimeField, ValidationError, ModelMultipleChoiceFiel
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm #FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import DateTimeWidget, UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation
@@ -93,7 +93,7 @@ class TaskEditForm(_TaskForm):
 
 class TaskCreateForm(_TaskForm):
     type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
-    parent_tasks = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
     participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
                                                    queryset=User.objects.all(),
                                                    required=False,
@@ -118,7 +118,7 @@ class TaskCreateForm(_TaskForm):
 
         fields = self.fields
         fields['participating_users'].widget.attrs = {'reduced': 'true'}
-        fields['parent_tasks'].q_filter = {'project': entity.id}
+        fields['parent_tasks'].qfilter_options({'project': entity.id})
 
     def clean_participating_users(self):
         users = self.cleaned_data['participating_users']
@@ -152,7 +152,7 @@ class TaskCreateForm(_TaskForm):
 
 
 class TaskAddParentForm(CremeForm):
-    parents = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    parents = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
 
     class Meta:
         model = ProjectTask
@@ -160,11 +160,11 @@ class TaskAddParentForm(CremeForm):
     def __init__(self, instance, *args, **kwargs):
         super(TaskAddParentForm, self).__init__(*args, **kwargs)
         self.task = instance
-        self.fields['parents'].q_filter = {
+        self.fields['parents'].qfilter_options({
                 'project':       instance.project_id,
                 '~id__in':       [t.id for t in instance.get_subtasks()],
                 '~children_set': instance.pk,
-            }
+            })
 
     def save(self, *args, **kwargs):
         add_parent = self.task.parent_tasks.add

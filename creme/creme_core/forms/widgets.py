@@ -306,7 +306,7 @@ class ChainedInput(TextInput):
         self.inputs.append((name, widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget))
 
     def _render_inputs(self, attrs):
-        direction = attrs.get('direction', ChainedInput.HORIZONTAL);
+        direction = attrs.get('direction', ChainedInput.HORIZONTAL)
         output = ['<ul class="ui-layout %s">' % direction]
 
         output.extend('<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
@@ -332,24 +332,21 @@ class SelectorList(TextInput):
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
+        clonelast = 'cloneLast' if attrs.pop('clonelast', True) else ''
 
         context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add=_(u'Add'),
+                                        clonelast=clonelast,
                                         selector=self.selector.render('', '', {'auto': False,'reset': False}))
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
 
-        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
+        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s>
                                 %(input)s
                                 <div class="inner-selector-model" style="display:none;">%(selector)s</div>
                                 <ul class="selectors ui-layout"></ul>
-                                <div class="add">
-                                    <ul class="ui-layout hbox">
-                                        <li><img src="%(img_url)s" alt="%(add)s" title="%(add)s"/></li>
-                                        <li><span>%(add)s</span></li>
-                                    </ul>
-                                </div>
+                                <div class="add">%(add)s</div>
                             </div>""" % context)
 
 
@@ -362,11 +359,13 @@ class EntitySelector(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         selection_mode = '0' if attrs.pop('multiple', False) else '1'
+        autoselect_mode = 'popupAuto' if attrs.pop('autoselect', False) else ''
 
         context = widget_render_context('ui-creme-entityselector', attrs,
                                         url=self.url,
                                         text_url=self.text_url,
                                         selection=selection_mode,
+                                        autoselect=autoselect_mode,
                                         style=attrs.pop('style', ''),
                                         label=_(u'Select...'),
                                        )
@@ -377,11 +376,14 @@ class EntitySelector(TextInput):
         context['qfilter'] = escape(JSONEncoder().encode(qfilter)) if qfilter else ''
 
         html_output = """
-            <span class="%(css)s" style="%(style)s" widget="%(typename)s" labelURL="%(text_url)s" label="%(label)s" popupURL="%(url)s" popupSelection="%(selection)s" qfilter="%(qfilter)s">
+            <span class="%(css)s" style="%(style)s" widget="%(typename)s" 
+                  labelURL="%(text_url)s" label="%(label)s"
+                  popupURL="%(url)s" popupSelection="%(selection)s" %(autoselect)s
+                  qfilter="%(qfilter)s">
                 %(input)s
                 <button type="button">%(label)s</button>
             </span>
-        """ % context;
+        """ % context
 
         return mark_safe(html_output)
 

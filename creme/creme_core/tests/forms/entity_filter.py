@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.exceptions import ValidationError
     from django.utils.simplejson import loads as jsonloads
-    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.forms.entity_filter import *
-    from creme.creme_core.models import CremePropertyType, RelationType
     from .base import FieldTestCase
 
     from creme.persons.models import Organisation, Contact
@@ -38,10 +35,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RegularFieldsConditionsField().clean
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '"{}"')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '1')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '"{}"')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidtype', clean, '1')
 
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -421,9 +418,9 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = PropertiesConditionsField(model=Contact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '"{}"')
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '{"foobar":{"ptype":"test-foobar","has":"true"}}')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"{}"')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '{"foobar":{"ptype":"test-foobar","has":"true"}}')
 
 #    def test_clean_invalid_data(self):
 #        clean = PropertiesConditionsField(model=Contact).clean
@@ -483,9 +480,9 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '"{}"')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '{"foobar":{"rtype":"test-foobar","has":"true"}}')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"{}"')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '{"foobar":{"rtype":"test-foobar","has":"true"}}')
 
     def test_clean_invalid_data(self):
         clean = RelationsConditionsField(model=Contact).clean

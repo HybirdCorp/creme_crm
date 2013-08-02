@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import EntityFilter
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 
 from creme.persons.models import Contact, Organisation
 
@@ -38,7 +38,7 @@ class MailingListForm(CremeEntityForm):
 
 
 class AddContactsForm(CremeForm):
-    recipients = MultiCremeEntityField(label=_(u'Contacts'), required=False, model=Contact)# other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_(u'Contacts'), required=False, model=Contact)# other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Contacts recipients'), '*'))
 
@@ -55,7 +55,7 @@ class AddContactsForm(CremeForm):
 
 
 class AddOrganisationsForm(CremeForm): #TODO: factorise
-    recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
+    recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation) # other filter (name + email)??
 
     blocks = FieldBlockManager(('general', _(u'Organisations recipients'), '*'))
 
@@ -120,7 +120,7 @@ class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
 
 
 class AddChildForm(CremeForm):
-    child = CremeEntityField(label=_(u'List'), required=True, model=MailingList)
+    child = CreatorEntityField(label=_(u'List'), required=True, model=MailingList)
 
     blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 

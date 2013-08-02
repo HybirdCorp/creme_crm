@@ -33,7 +33,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType, Relation
-from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeEntityField, CremeModelWithUserForm
+from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, CremeModelWithUserForm
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -58,7 +58,7 @@ class VcfForm(CremeForm):
         try:
             vcf_data = read_vcf(file_obj)
         except Exception as e:
-           raise ValidationError(ugettext(u'VCF file is invalid') + ' [%s]' % str(e))
+            raise ValidationError(ugettext(u'VCF file is invalid') + ' [%s]' % str(e))
 
         return vcf_data
 
@@ -90,7 +90,7 @@ class VcfImportForm(CremeModelWithUserForm):
     region        = CharField(label=_('Region'),         required=False)
 
     create_or_attach_orga = BooleanField(label=_('Create or attach organisation'), required=False, initial=False)
-    organisation          = CremeEntityField(label=_('Organisation'), required=False, model=Organisation)
+    organisation          = CreatorEntityField(label=_('Organisation'), required=False, model=Organisation)
 
     #TODO : Composite field
     update_orga_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_(u'Update organisation selected name'))

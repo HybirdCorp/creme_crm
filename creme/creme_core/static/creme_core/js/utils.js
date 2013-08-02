@@ -292,6 +292,10 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
 
             var close_button = {};
             close_button[gettext("Close")] = function() { //$(this).dialog('close');
+                                                             if (Object.isFunc(options.cancel)) {
+                                                                 options.cancel($(this));
+                                                             }
+
                                                              creme.utils.closeDialog($(this), false);
                                                         }
 

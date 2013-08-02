@@ -13,10 +13,48 @@
                 <h5>entity</h5>
                 <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                      popupURL="/creme_core/lv_popup/94/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                      popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                     <button type="button">Sélectionner...</button>
                 </div>
+            </li>
+            <li>
+                <h5>entity + creator</h5>
+                <ul class="ui-layout hbox ui-creme-widget ui-creme-actionbuttonlist widget-auto" widget="ui-creme-actionbuttonlist">
+                    <li class="delegate">
+                        <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" popupSelection="1" qfilter="">
+                            <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </div>
+                    </li>
+                    <li>
+                        <button class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/30/add/1">
+                            Créer
+                        </button>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <h5>combo + creator</h5>
+                <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist widget-active widget-ready" style="" widget="ui-creme-actionbuttonlist">
+                    <li class="delegate">
+                         <select url="" widget="ui-creme-dselect" name="status" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
+                              <option value="" selected="selected">---------</option>
+                              <option value="1">Prévue</option>
+                              <option value="2">En cours</option>
+                              <option value="3">Finie</option>
+                              <option value="4">En retard</option>
+                              <option value="5">Annulée</option>
+                         </select>
+                   </li>
+                   <li>
+                       <button class="ui-creme-actionbutton" name="create" title="Add" alt="Add" url="/creme_config/activities/status/add_widget/">
+                           Créer
+                       </button>
+                   </li>
+                </ul>
             </li>
             <li>
                 <h5>content type > entity</h5>
@@ -68,6 +106,58 @@
         </ul>
     </li>
     <li>
+        <h3>List : entity </h3>
+        <ul>
+            <li><h5>Default</h5>
+                <div class="ui-creme-widget widget-auto ui-creme-selectorlist" widget="ui-creme-selectorlist">
+                    <input type="hidden" name="relations" class="ui-creme-input ui-creme-selectorlist" value="[]"></input>
+                    <div class="inner-selector-model" style="display:none;">
+                        <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0" qfilter="">
+                            <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </span>
+                   </div>
+                   <ul class="selectors ui-layout"></ul>
+                   <div class="add">Ajouter</div>
+               </div>
+           </li>
+           <li><h5>Clone last</h5>
+                <div class="ui-creme-widget widget-auto ui-creme-selectorlist" widget="ui-creme-selectorlist" cloneLast>
+                    <input type="hidden" name="relations" class="ui-creme-input ui-creme-selectorlist" value="[]"></input>
+                    <div class="inner-selector-model" style="display:none;">
+                        <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0"
+                              qfilter="">
+                            <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </span>
+                   </div>
+                   <ul class="selectors ui-layout"></ul>
+                   <div class="add">Ajouter</div>
+               </div>
+           </li>
+           <li><h5>Auto select</h5>
+                <div class="ui-creme-widget widget-auto ui-creme-selectorlist" widget="ui-creme-selectorlist">
+                    <input type="hidden" name="relations" class="ui-creme-input ui-creme-selectorlist" value="[]"></input>
+                    <div class="inner-selector-model" style="display:none;">
+                        <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0" popupAuto
+                              qfilter="">
+                            <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </span>
+                   </div>
+                   <ul class="selectors ui-layout"></ul>
+                   <div class="add">Ajouter</div>
+               </div>
+           </li>
+        </ul>
+    </li>
+    <li>
         <h3>List : relation > content type > entity </h3>
         <ul>
             <li><h5>Default</h5>
@@ -111,12 +201,51 @@
                        </div>
                    </div>
                    <ul class="selectors ui-layout"></ul>
-                   <div class="add">
-                       <ul class="ui-layout hbox">
-                            <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"/></li>
-                            <li><span>Ajouter</span></li>
-                       </ul>
+                   <div class="add">Ajouter</div>
+               </div>
+           </li>
+           <li><h5>Default (clone last)</h5>
+                <div class="ui-creme-widget widget-auto ui-creme-selectorlist" widget="ui-creme-selectorlist" clonelast>
+                    <input type="hidden" name="relations" class="ui-creme-input ui-creme-selectorlist" value="[]"></input>
+                    <div class="inner-selector-model" style="display:none;">
+                        <div class="ui-creme-widget ui-creme-chainedselect" style="" widget="ui-creme-chainedselect">
+                            <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                            <ul class="ui-layout hbox">
+                                <li chained-name="rtype" class="ui-creme-chainedselect-item">
+                                    <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                        <option value="email-object_mail_sended">a envoyé le e-mail — (e-mail) a été envoyé</option>
+                                        <option value="commercial-object_sold_by">a été vendu par — a vendu</option>
+                                        <option value="persons-object_inactive_customer">a pour client inactif — est un client inactif de</option>
+                                        <option value="persons-object_suspect">a pour suspect — est suspect de</option>
+                                        <option value="email-object_mail_received">a reçu le e-mail — (e-mail) a été reçu par</option>
+                                        <option value="commercial-subject_sold_by">a vendu — a été vendu par</option>
+                                        <option value="creme_core-object_has">appartient à — possède</option>
+                                        <option value="documents-subject_related_2_doc">concerne le document — document concerné par</option>
+                                        <option value="persons-subject_employed_by">est salarié de — emploie</option>
+                                        <option value="activities-subject_activity_subject">est sujet de l&#39;activité — (activité) a pour sujet</option>
+                                        <option value="persons-subject_suspect">est suspect de — a pour suspect</option>
+                                        <option value="persons-subject_inactive_customer">est un client inactif de — a pour client inactif</option>
+                                        <option value="opportunities-subject_linked_contact">intervient dans l&#39;opportunité — met en scène</option>
+                                        <option value="creme_core-subject_has">possède — appartient à</option>
+                                    </select>
+                                </li>
+                                <li chained-name="ctype" class="ui-creme-chainedselect-item">
+                                    <select url="/creme_core/relation/predicate/${rtype}/content_types/json" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                    </select>
+                                </li>
+                                <li chained-name="entity" class="ui-creme-chainedselect-item">
+                                    <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+                                          labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                                          popupURL="/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                                        <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                                        <button type="button">Sélectionner...</button>
+                                    </span>
+                                </li>
+                            </ul>
+                       </div>
                    </div>
+                   <ul class="selectors ui-layout"></ul>
+                   <div class="add">Ajouter</div>
                </div>
            </li>
            <li><h5>Autocomplete</h5>
@@ -160,12 +289,7 @@
                        </div>
                    </div>
                    <ul class="selectors ui-layout"></ul>
-                   <div class="add">
-                       <ul class="ui-layout hbox">
-                            <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"/></li>
-                            <li><span>Ajouter</span></li>
-                       </ul>
-                   </div>
+                   <div class="add">Ajouter</div>
                </div>
            </li>
        </ul>
@@ -298,12 +422,7 @@
                        </div>
                    </div>
                    <ul class="selectors ui-layout"></ul>
-                   <div class="add">
-                        <ul class="ui-layout hbox">
-                            <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"></li>
-                            <li><span>Ajouter</span></li>
-                        </ul>
-                   </div>
+                   <div class="add">Ajouter</div>
                </div>
            </li>
            <li><h5>Autocomplete</h5>
@@ -431,12 +550,7 @@
                        </div>
                    </div>
                    <ul class="selectors ui-layout"></ul>
-                   <div class="add">
-                        <ul class="ui-layout hbox">
-                            <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"></li>
-                            <li><span>Ajouter</span></li>
-                        </ul>
-                   </div>
+                   <div class="add">Ajouter</div>
                </div>
            </li>
        </ul>

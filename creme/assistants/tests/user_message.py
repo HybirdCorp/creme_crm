@@ -200,7 +200,7 @@ class UserMessageTestCase(AssistantsTestCase):
                                           'my_calendar':         my_calendar.pk,
                                           'participating_users': other_user.pk,
                                           'informed_users':      [user.id, other_user.id],
-                                          'other_participants':  genma.id,
+                                          'other_participants':  '[%d]' % genma.id,
                                           'subjects':            field_format % (akane.entity_type_id, akane.id),
                                          }
                                    )

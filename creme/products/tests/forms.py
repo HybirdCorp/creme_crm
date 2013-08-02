@@ -100,8 +100,8 @@ class CategoryFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = CategoryField(required=False).clean
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, "12")
+        self.assertFieldValidationError(CategoryField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(CategoryField, 'invalidtype', clean, "12")
 
     def test_clean_invalid_data(self):
         clean = CategoryField(required=False).clean

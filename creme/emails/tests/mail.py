@@ -62,7 +62,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         subject = 'Under arrest'
         response = self.client.post(url, data={'user':         user.id,
                                                'sender':       sender,
-                                               'c_recipients': contact.id,
+                                               'c_recipients': '[%d]' % contact.id,
                                                'subject':      subject,
                                                'body':         body,
                                                'body_html':    body_html,
@@ -100,17 +100,17 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         #TODO
         #folder = Folder.objects.create(user=self.user, title=u'Test folder', parent_folder=None,
-                                       #category=FolderCategory.objects.create(name=u'Test category'),
-                                      #)
+                                        #category=FolderCategory.objects.create(name=u'Test category'),
+                                        #)
         #docs = [Document.objects.create(user=self.user, title='Doc01', folder=folder),
                 #Document.objects.create(user=self.user, title='Doc02', folder=folder),
-               #]
+                #]
 
         sender = 're-l.mayer@rpd.rmd'
         signature = EmailSignature.objects.create(user=self.user, name="Re-l's signature", body='I love you... not')
         response = self.client.post(url, data={'user':         user.id,
                                                'sender':       sender,
-                                               'o_recipients': orga.id,
+                                               'o_recipients': '[%d]' % orga.id,
                                                'subject':      'Cryogenisation',
                                                'body':         'I want to be freezed !',
                                                'body_html':    '<p>I want to be freezed !</p>',
@@ -147,8 +147,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertPOST200('/emails/mail/add/%s' % contact01.id,
                                       data={'user':         user.id,
                                             'sender':       self.user_contact.email,
-                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
-                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                            'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
+                                            'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
                                             'subject':      'Under arrest',
                                             'body':         'Freeze !',
                                             'body_html':    '<p>Freeze !</p>',
@@ -225,8 +225,8 @@ class EntityEmailTestCase(_EmailsTestCase):
             return self.client.post('/emails/mail/add/%s' % contact.id,
                                     data={'user':         user.id,
                                           'sender':       self.user_contact.email,
-                                          'c_recipients': '%s,%s' % (contact01.id, contact02.id),
-                                          'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                          'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
+                                          'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
                                           'subject':      'Under arrest',
                                           'body':         'Freeze !',
                                           'body_html':    '<p>Freeze !</p>',
@@ -296,7 +296,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.client.post(url, data={'step':         2,
                                                'user':         user.id,
                                                'sender':       self.user_contact.email,
-                                               'c_recipients': contact.id,
+                                               'c_recipients': '[%d]' % contact.id,
                                                'subject':      subject,
                                                'body':         ini_get('body'),
                                                'body_html':    ini_get('body_html'),
@@ -329,7 +329,7 @@ class EntityEmailTestCase(_EmailsTestCase):
                                       data={'step':         2,
                                             'user':         user.id,
                                             'sender':       self.user_contact.email,
-                                            'c_recipients': contact.id,
+                                            'c_recipients': '[%d]' % contact.id,
                                             'subject':      template.subject,
                                             'body':         template.body,
                                             'body_html':    template.body_html,
@@ -357,8 +357,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         response = self.client.post(url, data={'user':         user.id,
                                                'sender':       're-l.mayer@rpd.rmd',
-                                               'c_recipients': '%s,%s' % (contacts[0].id, contacts[1].id),
-                                               'o_recipients': '%s,%s' % (orgas[0].id, orgas[1].id),
+                                               'c_recipients': '[%d,%d]' % (contacts[0].id, contacts[1].id),
+                                               'o_recipients': '[%d,%d]' % (orgas[0].id, orgas[1].id),
                                                'subject':      'Under arrest',
                                                'body':         'Freeze',
                                                'body_html':    '<p>Freeze !</p>',
@@ -373,7 +373,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
     def test_listview01(self):
         self.login()
-        emails = self._create_emails()
+        self._create_emails()
 
         response = self.assertGET200('/emails/mails')
 

@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.models import Relation, RelationType, UserRole, Mutex
 from creme.creme_core.models.fields import CremeUserForeignKey
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 from creme.persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
@@ -44,8 +44,8 @@ class UserAddForm(CremeModelForm):
     password_2   = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
     role         = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False,
                                     help_text=_(u"You must choose a role for a non-super user."))
-    contact      = CremeEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
-                                    help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
+    contact      = CreatorEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
+                                      help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
     organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme())
     relation     = ModelChoiceField(label=_(u"Position in the organisation"),
                                     queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)))

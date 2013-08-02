@@ -22,7 +22,7 @@ from functools import partial
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.base import CremeModelForm, CremeForm
 from creme.creme_core.models.relation import Relation
@@ -50,7 +50,7 @@ class CreditNotePopupEditForm(CremeModelForm):
 
 
 class CreditNoteRelatedForm(CremeForm):
-    credit_notes = MultiCremeEntityField(label=_(u'Credit notes'), model=CreditNote)
+    credit_notes = MultiCreatorEntityField(label=_(u'Credit notes'), model=CreditNote)
 
     def __init__(self, entity, *args, **kwargs):
         super(CreditNoteRelatedForm, self).__init__(*args, **kwargs)
@@ -66,7 +66,7 @@ class CreditNoteRelatedForm(CremeForm):
                     'relations__object_entity': entity.get_real_entity().get_target().id,
                    }
 
-        self.fields['credit_notes'].q_filter = q_filter
+        self.fields['credit_notes'].qfilter_options(q_filter)
 
     def clean_credit_notes(self):
         return validate_linkable_entities(self.cleaned_data['credit_notes'], self.user)

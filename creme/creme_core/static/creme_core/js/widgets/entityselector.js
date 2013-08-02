@@ -29,6 +29,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     options : {
         popupURL: '',
         popupSelection: creme.widget.EntitySelectorMode.SINGLE,
+        popupAuto: undefined,
         labelURL: '',
         label: gettext('Select'),
         qfilter: '',
@@ -43,12 +44,18 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             self._select(element, $(this));
         });
 
+        $(element).bind('selectorlist-added', function(e, selector) {
+            self._autoselect(element);
+        });
+
         var selection = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
 
         this._popupURL = new creme.string.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
                                                        selection: selection
                                                    });
+
+        this._isPopupAuto = !Object.isNone(options.popupAuto)
 
         this._reloadLabel(element, cb, undefined, sync);
         element.addClass('widget-ready');
@@ -86,7 +93,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         // TODO : hack that automatically add lines when multiselection is enabled
         if (this.isMultiple(element) && (values.length > 1))
         {
-            var list = element.parents('.ui-creme-selectorlist:first').creme().widget();
+            var list = this.parentSelectorList(element).creme().widget();
             var chainname = element.parent().attr('chained-name');
             var chain = chainname ? element.parents('.ui-creme-chainedselect:first').creme().widget() : undefined;
 
@@ -94,10 +101,8 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                 return;
 
             if (creme.object.isempty(chain)) {
-                var data = this.val(element);
-
                 for(var index = 1; index < values.length; ++index) {
-                    var selector = list.appendSelector(data);
+                    var selector = list.appendSelector(values[index]);
                 }
             } else {
                 var data = creme.widget.cleanval(chain.val());
@@ -110,7 +115,21 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         }
     },
 
-    _select: function(element, content_type, cb)
+    _autoselect: function(element)
+    {
+        var self = this;
+
+        if (this._isPopupAuto && Object.isEmpty(this.val(element)))
+        {
+            this._select(element, function(element, result) {
+                if (Object.isEmpty(self.val(element))) {
+                    self.parentSelectorList(element).creme().widget().removeSelector(element);
+                }
+            });
+        }
+    },
+
+    _select: function(element, cb)
     {
         var self = this;
         var url = this.popupURL(element);
@@ -120,8 +139,8 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             url = url.replace('?q_filter=', '');
 
         creme.utils.showInnerPopup(url, {
-                                    'send_button_label': gettext("Validate the selection"),
-                                    'send_button': function(dialog) {
+                                    send_button_label: gettext("Validate the selection"),
+                                    send_button: function(dialog) {
                                             var lv = $('form[name="list_view_form"]');
                                             var result = lv.list_view("getSelectedEntitiesAsArray");
 
@@ -132,7 +151,11 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
                                             self._update(element, result);
                                             creme.utils.closeDialog(dialog, false);
-                                        }
+                                            creme.object.invoke(cb, element, result);
+                                        },
+                                    cancel: function(ui) {
+                                        creme.object.invoke(cb, element);
+                                    }
                                    });
     },
 
@@ -170,6 +193,10 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     multiple: function(element, value) {
         var value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
         this._popupURL.update({selection:value});
+    },
+
+    parentSelectorList: function(element) {
+        return element.parents('.ui-creme-selectorlist:first');
     },
 
     qfilter: function(element, value) {
