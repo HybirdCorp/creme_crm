@@ -414,6 +414,8 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/frame.js',
 
                     'creme_core/js/widgets/component/component.js',
+                    'creme_core/js/widgets/component/events.js',
+                    'creme_core/js/widgets/component/action.js',
                     'creme_core/js/widgets/component/dialog.js',
                     'creme_core/js/widgets/component/chosen.js',
 
@@ -460,6 +462,8 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/ajax/mockajax.js',
     'creme_core/js/tests/ajax/cacheajax.js',
     'creme_core/js/tests/component/component.js',
+    'creme_core/js/tests/component/events.js',
+    'creme_core/js/tests/component/action.js',
     'creme_core/js/tests/utils.js',
     'creme_core/js/tests/fallbacks.js',
     'creme_core/js/tests/converters.js',

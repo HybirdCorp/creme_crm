@@ -153,7 +153,7 @@ creme.component.FormDialog = creme.component.Dialog.sub({
     {
         var self = this;
 
-        this._super_()._populate_buttons(buttons, options);
+        this._super_(creme.component.Dialog, '_populate_buttons', buttons, options);
 
         buttons[gettext('Send')] = {'name':'send',
                                     'text': gettext('Send'),
