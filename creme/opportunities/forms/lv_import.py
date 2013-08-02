@@ -27,7 +27,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.list_view_import import (ImportForm4CremeEntity,
-                             ExtractorWidget, Extractor, EntityExtractorField)
+        ExtractorWidget, Extractor, EntityExtractorField)
 
 from creme.persons.models import Organisation, Contact
 
@@ -42,46 +42,45 @@ class SalesPhaseExtractor(Extractor):
         self._default_value = default_value
         self._create = create_if_unfound
 
-    def extract_value(self, line, import_errors):
-        if not self._column_index: #0 -> not in csv
-            return None
+    def extract_value(self, line):
+        extracted = err_msg = None
 
-        value = line[self._column_index - 1]
-        extracted = None
+        if self._column_index: #0 -> not in csv
+            value = line[self._column_index - 1]
 
-        if value:
-            try:
-                extracted = SalesPhase.objects.get(name=value)
-            except SalesPhase.DoesNotExist as e:
-                if self._create:
-                    aggr = SalesPhase.objects.aggregate(Max('order'))
-                    sales_phase = SalesPhase(name=value,
-                                                order=(aggr['order__max'] or 0) + 1,
-                                            )
-                    try:
-                        sales_phase.full_clean()
-                        sales_phase.save()
-                    except Exception as e:
-                        #TODO: factorise with parent ?
-                        import_errors.append((line, _(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
-                                                            'raw_error': e,
-                                                            'value': value,
-                                                            'model': SalesPhase._meta.verbose_name,
-                                                        }
-                                            ))
+            if value:
+                try:
+                    extracted = SalesPhase.objects.get(name=value)
+                except SalesPhase.DoesNotExist as e:
+                    if self._create:
+                        aggr = SalesPhase.objects.aggregate(Max('order'))
+                        sales_phase = SalesPhase(name=value,
+                                                 order=(aggr['order__max'] or 0) + 1,
+                                                )
+                        try:
+                            sales_phase.full_clean()
+                            sales_phase.save()
+                        except Exception as e:
+                            err_msg = _(u'Error while extracting value [%(raw_error)s]: '
+                                         'tried to retrieve and then build "%(value)s" on %(model)s') % {
+                                                'raw_error': e,
+                                                'value':     value,
+                                                'model':     SalesPhase._meta.verbose_name,
+                                            }
+                        else:
+                            extracted = sales_phase
                     else:
-                        extracted = sales_phase
-                else:
-                    import_errors.append((line, _(u'Error while extracting value [%(raw_error)s]: tried to retrieve "%(value)s" on %(model)s') % {
-                                                        'raw_error': e,
-                                                        'value':     value,
-                                                        'model':     SalesPhase._meta.verbose_name,
-                                                    }
-                                        ))
-        if not extracted:
-            extracted = self._default_value
+                        err_msg = _(u'Error while extracting value [%(raw_error)s]: '
+                                     'tried to retrieve "%(value)s" on %(model)s') % {
+                                            'raw_error': e,
+                                            'value':     value,
+                                            'model':     SalesPhase._meta.verbose_name,
+                                        }
 
-        return extracted
+            if not extracted:
+                extracted = self._default_value
+
+        return extracted, err_msg
 
 
 class SalesPhaseExtractorWidget(ExtractorWidget):
@@ -203,8 +202,13 @@ def get_csv_form_builder(header_dict, choices):
 
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data
-            instance.emitter = cdata['emitter']
-            instance.target  = cdata['target'].extract_value(line, self.user, self.import_errors)
+
+            if not instance.pk: #creation
+                instance.emitter = cdata['emitter']
+
+            target, err_msg = cdata['target'].extract_value(line, self.user)
+            instance.target = target
+            self.append_error(line, err_msg, instance)
 
 
     return OpportunityCSVImportForm

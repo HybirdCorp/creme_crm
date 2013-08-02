@@ -21,6 +21,40 @@ __all__ = ('OrganisationTestCase',)
 
 
 class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
+    lv_import_data = {
+            'step':     1,
+            #'document': doc.id, 'user': self.user.id,
+            'name_colselect': 1,
+
+            'sector_colselect':         0,
+            'creation_date_colselect':  0,
+            'staff_size_colselect':     0,
+            'email_colselect':          0,
+            'fax_colselect':            0,
+            'phone_colselect':          0,
+            'description_colselect':    0,
+            'siren_colselect':          0,
+            'naf_colselect':            0,
+            'annual_revenue_colselect': 0,
+            'url_site_colselect':       0,
+            'legal_form_colselect':     0,
+            'rcs_colselect':            0,
+            'tvaintra_colselect':       0,
+            'subject_to_vat_colselect': 0,
+            'capital_colselect':        0,
+            'siret_colselect':          0,
+
+            #'property_types', 'fixed_relations', 'dyn_relations',
+
+            'billaddr_address_colselect':    0,   'shipaddr_address_colselect':    0,
+            'billaddr_po_box_colselect':     0,   'shipaddr_po_box_colselect':     0,
+            'billaddr_city_colselect':       0,   'shipaddr_city_colselect':       0,
+            'billaddr_state_colselect':      0,   'shipaddr_state_colselect':      0,
+            'billaddr_zipcode_colselect':    0,   'shipaddr_zipcode_colselect':    0,
+            'billaddr_country_colselect':    0,   'shipaddr_country_colselect':    0,
+            'billaddr_department_colselect': 0,   'shipaddr_department_colselect': 0,
+        }
+
     def test_createview01(self):
         self.login()
 
@@ -591,7 +625,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.staff_size)
 
-    def test_csv_import(self):
+    def test_csv_import01(self):
         self.login()
 
         name1 = 'Nerv'
@@ -602,51 +636,12 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Organisation),
-                                    data={'step':     1,
-                                          'document': doc.id,
-                                          #csv_has_header
-
-                                          'user':           self.user.id,
-                                          'name_colselect': 1,
-
-                                          'sector_colselect':         0,
-                                          'creation_date_colselect':  0,
-                                          'staff_size_colselect':     0,
-                                          'email_colselect':          0,
-                                          'fax_colselect':            0,
-                                          'phone_colselect':          0,
-                                          'description_colselect':    0,
-                                          'siren_colselect':          0,
-                                          'naf_colselect':            0,
-                                          'annual_revenue_colselect': 0,
-                                          'url_site_colselect':       0,
-                                          'legal_form_colselect':     0,
-                                          'rcs_colselect':            0,
-                                          'tvaintra_colselect':       0,
-                                          'subject_to_vat_colselect': 0,
-                                          'capital_colselect':        0,
-                                          'siret_colselect':          0,
-
-                                          #'property_types',
-                                          #'fixed_relations',
-                                          #'dyn_relations',
-
-                                          'billaddr_address_colselect':    0,
-                                          'billaddr_po_box_colselect':     0,
-                                          'billaddr_city_colselect':       2,
-                                          'billaddr_state_colselect':      0,
-                                          'billaddr_zipcode_colselect':    0,
-                                          'billaddr_country_colselect':    0,
-                                          'billaddr_department_colselect': 0,
-
-                                          'shipaddr_address_colselect':    0,
-                                          'shipaddr_po_box_colselect':     0,
-                                          'shipaddr_city_colselect':       3,
-                                          'shipaddr_state_colselect':      0,
-                                          'shipaddr_zipcode_colselect':    0,
-                                          'shipaddr_country_colselect':    0,
-                                          'shipaddr_department_colselect': 0,
-                                         }
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              billaddr_city_colselect=2,
+                                              shipaddr_city_colselect=3,
+                                             )
                                    )
         self.assertNoFormError(response)
 
@@ -662,3 +657,52 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         shipping_address = self.get_object_or_fail(Organisation, name=name2).shipping_address
         self.assertIsNotNone(shipping_address)
         self.assertEqual(city2, shipping_address.city)
+
+    def test_csv_import02(self):
+        "Update (with address)"
+        self.login()
+
+        user = self.user
+
+        name = 'Bebop'
+        city1 = 'Red city'
+        city2 = 'Crater city'
+
+        bebop = Organisation.objects.create(user=user, name=name)
+        create_address = partial(Address.objects.create, object_id=bebop.id,
+                                 address='XXX', country='Mars',
+                                 content_type=ContentType.objects.get_for_model(Organisation),
+                                )
+        bebop.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
+        bebop.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
+        bebop.save()
+
+        addr_count = Address.objects.count()
+
+        address_val1 = '213 Gauss Street'
+        address_val2 = '56 Einstein Avenue'
+        email = 'contact@bebop.mrs'
+        doc = self._build_csv_doc([(name, address_val1, address_val2, email)])
+        response = self.client.post(self._build_import_url(Organisation),
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              key_fields=['name'],
+                                              email_colselect=4,
+                                              billaddr_address_colselect=2,
+                                              shipaddr_address_colselect=3,
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        bebop = self.refresh(bebop)
+        self.assertEqual(email, bebop.email)
+
+        self.assertEqual(addr_count, Address.objects.count())
+
+        addr1 = self.refresh(addr1)
+        self.assertEqual(city1, addr1.city)
+        self.assertEqual(address_val1, addr1.address)
+
+        addr2 = self.refresh(addr2)
+        self.assertEqual(city2, addr2.city)

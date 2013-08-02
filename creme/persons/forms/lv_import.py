@@ -43,17 +43,34 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
 
     def _save_address(self, attr_name, prefix, person, data, line):
         import_errors = self.import_errors
-        address_dict = {'name': attr_name}
+        address_dict = {}
+        save = False
 
         for field_name in _FIELD_NAMES:
-            address_dict[field_name] = data[prefix + field_name].extract_value(line, import_errors)
+            #address_dict[field_name], err_msg = data[prefix + field_name].extract_value(line)
+            extr_value, err_msg = data[prefix + field_name].extract_value(line)
+            if extr_value:
+                address_dict[field_name] = extr_value
 
-        if any(address_dict.itervalues()):
+            self.append_error(line, err_msg, person)
+
+        #if any(address_dict.itervalues()):
+        if address_dict:
             address_dict['owner'] = person
-            setattr(person, attr_name, Address.objects.create(**address_dict))
-            return True
+            address_dict['name'] = attr_name
+            address = getattr(person, attr_name, None)
 
-        return False
+            if address is not None: #update
+                for fname, fvalue in address_dict.iteritems():
+                    #if fvalue:
+                        #setattr(address, fname, fvalue)
+                    setattr(address, fname, fvalue)
+                address.save()
+            else:
+                setattr(person, attr_name, Address.objects.create(**address_dict))
+                save = True
+
+        return save
 
     def _post_instance_creation(self, instance, line):
         super(_PersonCSVImportForm, self)._post_instance_creation(instance, line)

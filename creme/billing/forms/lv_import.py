@@ -45,9 +45,13 @@ def get_import_form_builder(header_dict, choices):
             super(InvoiceLVImportForm, self)._post_instance_creation(instance, line)
             cdata = self.cleaned_data
             user = self.user
-            import_errors = self.import_errors
-            source = cdata['source'].extract_value(line, user, import_errors)
-            target = cdata['target'].extract_value(line, user, import_errors)
+
+            append_error = self.append_error
+            source, err_msg = cdata['source'].extract_value(line, user)
+            append_error(line, err_msg, instance)
+
+            target, err_msg  = cdata['target'].extract_value(line, user)
+            append_error(line, err_msg, instance)
 
             create_rel = partial(Relation.objects.create, subject_entity=instance,
                                  user=instance.user,
@@ -55,7 +59,7 @@ def get_import_form_builder(header_dict, choices):
             create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
             create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
-            instance.billing_address  = copy_or_create_address(target.billing_address, instance,  _(u'Billing address'))
+            instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
             instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
             instance.save()
 
