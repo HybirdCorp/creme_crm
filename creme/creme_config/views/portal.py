@@ -21,10 +21,19 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
+from creme.creme_core.utils.unicode_collation import collator
+
 from ..registry import config_registry
 
 
 @login_required
 @permission_required('creme_config.can_admin')
 def portal(request):
-    return render(request, 'creme_config/portal.html', {'app_configs': config_registry.apps()})
+    #return render(request, 'creme_config/portal.html', {'app_configs': config_registry.apps()})
+    sort_key = collator.sort_key
+    return render(request, 'creme_config/portal.html',
+                  {'app_configs': sorted(config_registry.apps(),
+                                         key=lambda app: sort_key(app.verbose_name)
+                                        )
+                  }
+                 )

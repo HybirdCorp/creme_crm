@@ -54,8 +54,11 @@ def get_ct_or_404(ct_id):
     return ct
 
 def build_ct_choices(ctypes):
+    from .unicode_collation import collator
     choices = [(ct.id, unicode(ct)) for ct in ctypes]
-    choices.sort(key=lambda k: k[1]) #TODO: unicode collation
+    #choices.sort(key=lambda k: k[1])
+    sort_key = collator.sort_key
+    choices.sort(key=lambda k: sort_key(k[1]))
 
     return choices
 
