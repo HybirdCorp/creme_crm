@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.component= {};
+
 creme.object = {
     isnone: function(obj) {
         return obj === undefined || obj === null;
@@ -138,6 +140,16 @@ creme.object.JSON.prototype = {
         return jQuery.toJSON(data);
     },
 
+    isJSON: function(data)
+    {
+        // Make sure the incoming data is actual JSON
+        // Logic borrowed from http://json.org/json2.js
+        return typeof data === 'string' && 
+               (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+                                         .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
+                                         .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
+    },
+
     decode: function(data, defaults)
     {
         if (defaults !== undefined) {
@@ -162,11 +174,7 @@ creme.object.JSON.prototype = {
             throw 'JSON parse error: ' + err;
         }
 
-        // Make sure the incoming data is actual JSON
-        // Logic borrowed from http://json.org/json2.js
-        var isvalid = (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-                                      .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
-                                      .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
+        var isvalid = this.isJSON(data);
 
         if (!isvalid)
             throw 'JSON parse error (fallback)';
@@ -299,7 +307,6 @@ creme.string.Template = function(pattern, parameters, renderer) {
 }
 
 creme.widget = {};
-creme.widget.component = {};
 
 creme.widget.Widget = function() {
     return {
