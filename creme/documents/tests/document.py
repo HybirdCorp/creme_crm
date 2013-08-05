@@ -365,6 +365,13 @@ class DocumentTestCase(_DocumentsTestCase):
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
         self.assertIsNone(folder.category)
 
+    #TODO (block not yet injected in all apps)
+    #def test_orga_block(self):
+        #self.login()
+        #orga = Organisation.objects.create(user=self.user, name='NERV')
+        #response = self.assertGET200(orga.get_absolute_url())
+        #self.assertTemplateUsed(response, 'documents/templatetags/block_linked_docs.html')
+
     #TODO complete
 
 

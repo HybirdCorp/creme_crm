@@ -14,6 +14,8 @@ try:
                                          CremePropertyType, CremeProperty)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
+    from creme.creme_config.models import SettingValue
+
     from creme.persons.models import Contact, Organisation, Address
 
     from creme.products.models import Product, Service, Category, SubCategory
@@ -343,6 +345,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         self.assertGET200('/billing/')
 
+    def _set_managed(self, orga):
+        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
+        CremeProperty.objects.create(type=ptype, creme_entity=orga)
+
     def test_algoconfig(self):
         self.login()
 
@@ -351,8 +357,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))
         self.assertFalse(SimpleBillingAlgo.objects.filter(organisation=orga))
 
-        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
-        CremeProperty.objects.create(type=ptype, creme_entity=orga)
+        self._set_managed(orga)
 
         algoconfs = ConfigBillingAlgo.objects.filter(organisation=orga)
         self.assertEqual(['SIMPLE_ALGO'] * 3, [algoconf.name_algo for algoconf in algoconfs])
@@ -365,6 +370,49 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(set([Quote, Invoice, SalesOrder]),
                          set(simpleconf.ct.model_class() for simpleconf in simpleconfs)
                         )
+
+    def _get_setting_value(self):
+        return self.get_object_or_fail(SettingValue, key__pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+
+    def test_block_orga01(self):
+        self.login()
+
+        sv = self._get_setting_value()
+        self.assertIs(True, sv.value)
+
+        orga = Organisation.objects.create(user=self.user, name='NERV')
+
+        response = self.assertGET200(orga.get_absolute_url())
+        payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        self.assertTemplateNotUsed(response, payment_info_tlpt)
+        self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
+        self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+
+        sv.value = False
+        sv.save()
+
+        response = self.assertGET200(orga.get_absolute_url())
+        self.assertTemplateUsed(response, payment_info_tlpt)
+
+    def test_block_orga02(self):
+        "Managed organisation"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='NERV')
+        self._set_managed(orga)
+
+        response = self.assertGET200(orga.get_absolute_url())
+        payment_info_tlpt = 'billing/templatetags/block_payment_information.html'
+        self.assertTemplateUsed(response, payment_info_tlpt)
+        self.assertTemplateUsed(response, 'billing/templatetags/block_received_invoices.html')
+        self.assertTemplateUsed(response, 'billing/templatetags/block_received_billing_document.html')
+
+        sv = self._get_setting_value()
+        sv.value = False
+        sv.save()
+
+        response = self.assertGET200(orga.get_absolute_url())
+        self.assertTemplateUsed(response, payment_info_tlpt)
 
 
 class VatTestCase(CremeTestCase):
