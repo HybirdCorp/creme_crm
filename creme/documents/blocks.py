@@ -40,18 +40,17 @@ class FolderDocsBlock(QuerysetBlock):
     target_ctypes = (Folder,)
 
     def detailview_display(self, context):
-        folder = context['object']
-        q_dict = {'folder':  folder.id}
-        btc = self.get_block_template_context(context,
-                                              Document.objects.filter(**q_dict),
-                                              #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
-                                              ct_id=_CT_DOC.id,
-                                              q_filter=JSONEncoder().encode(q_dict),
-                                             )
-        ##CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        folder_id = context['object'].id
+        q_dict = {'folder':  folder_id}
+        return self._render(self.get_block_template_context(
+                        context,
+                        Document.objects.filter(**q_dict),
+                        #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
+                        ct_id=_CT_DOC.id,
+                        q_filter=JSONEncoder().encode(q_dict),
+                       )
+                   )
 
 
 class LinkedDocsBlock(QuerysetBlock):
@@ -60,11 +59,9 @@ class LinkedDocsBlock(QuerysetBlock):
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
     verbose_name  = _(u'Linked documents')
     template_name = 'documents/templatetags/block_linked_docs.html'
-    #configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']
-        #user   = context['user']
         btc = self.get_block_template_context(context,
                                               Document.get_linkeddoc_relations(entity),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
@@ -75,8 +72,6 @@ class LinkedDocsBlock(QuerysetBlock):
         docs = dict((c.id, c) for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
                                                        .select_related('folder')
                    )
-
-        #CremeEntity.populate_credentials(docs.values(), user)
 
         for relation in relations:
             relation.object_entity = docs[relation.object_entity_id]

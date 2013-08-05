@@ -182,7 +182,6 @@ class PaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'payment_information')
     verbose_name  = _(u"Payment information")
     template_name = "billing/templatetags/block_payment_information.html"
-    #configurable  = True
     target_ctypes = (Organisation, )
     order_by      = 'name'
 
@@ -191,10 +190,8 @@ class PaymentInformationBlock(QuerysetBlock):
         has_to_be_displayed = True
 
         try:
-            has_to_be_displayed_cfg = SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value
-            is_managed_by_creme     = organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME)
-
-            if has_to_be_displayed_cfg and not is_managed_by_creme:
+            if SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
+               and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
             #Populate error ?
