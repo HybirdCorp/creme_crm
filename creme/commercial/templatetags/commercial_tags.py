@@ -24,7 +24,7 @@ from django.utils.html import escape
 
 register = Library()
 
-@register.simple_tag #TODO: inclusion_tag ?? takes_context ??????
+@register.simple_tag
 def get_segments_for_category(strategy, orga, category):
     return u'<ul>%s</ul>' % (u'\n'.join(u'<li><h3>%s</h3></li>' % escape(segment)
                                             for segment in strategy.get_segments_for_category(orga, category)

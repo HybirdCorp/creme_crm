@@ -249,13 +249,29 @@ class StrategyTestCase(CommercialBaseTestCase):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         orga     = Organisation.objects.create(user=self.user, name='Nerv')
 
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
+        charm = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
+
         url = '/commercial/strategy/%s/add/organisation/' % strategy.id
         self.assertGET200(url)
         self.assertPOST200(url, data={'organisations': '[%d]' % orga.id})
         self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 
-        self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (strategy.id, orga.id))
-        self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis'  % (strategy.id, orga.id))
+        response = self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (
+                                            strategy.id, orga.id
+                                        )
+                                    )
+        #self.assertTemplateUsed(response, 'commercial/templatetags/widget_score.html') #TODO: do not work ??
+        self.assertContains(response, '<select name="asset_score_%s_%s"' % (asset.id, segment_desc.id))
+        self.assertContains(response, '<select name="charm_score_%s_%s"' % (charm.id, segment_desc.id))
+
+        response = self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis'  % (
+                                            strategy.id, orga.id
+                                        )
+                                    )
+        #self.assertTemplateUsed(response, 'commercial/templatetags/widget_category.html') #TODO: do not work ??
+        self.assertContains(response, '<select name="segment_catselect_%s"' % segment_desc.id)
 
     def test_delete_evaluated_orga(self):
         create_strategy = partial(Strategy.objects.create, user=self.user)
