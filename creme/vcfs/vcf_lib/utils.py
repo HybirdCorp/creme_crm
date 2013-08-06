@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from .base import ParseError
 
+
+logger = logging.getLogger(__name__)
 escapableCharList = '\\;,Nn"'
 
 
@@ -17,8 +21,8 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
         if strict:
             raise ParseError(msg)
         else:
-            #logger.error(msg)
-            print msg
+            logger.error(msg)
+            #print msg
 
     #vars which control state machine
     charIterator = enumerate(s)

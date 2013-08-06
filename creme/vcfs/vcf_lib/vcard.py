@@ -1,6 +1,6 @@
 """Definitions and behavior for vCard 3.0"""
 
-from .base import registerBehavior, backslashEscape, ascii, ContentLine
+from .base import behavior_registry, backslashEscape, ContentLine # ascii
 from .behavior import Behavior
 from .utils import stringToTextValues
 
@@ -16,31 +16,31 @@ class Name(object):
         self.prefix     = prefix
         self.suffix     = suffix
 
-    @staticmethod
-    def toString(val):
-        """Turn a string or array value into a string."""
-        if type(val) in (list, tuple): #TODO: isinstance()...
-            return ' '.join(val)
+    #@staticmethod
+    #def toString(val):
+        #"""Turn a string or array value into a string."""
+        #if type(val) in (list, tuple): #todo: isinstance()...
+            #return ' '.join(val)
 
-        return val
+        #return val
 
-    def __str__(self):
-        eng_order = ('prefix', 'given', 'additional', 'family', 'suffix')
-        out = ' '.join(self.toString(getattr(self, val)) for val in eng_order)
-        return ascii(out)
+    #def __str__(self):
+        #eng_order = ('prefix', 'given', 'additional', 'family', 'suffix')
+        #out = ' '.join(self.toString(getattr(self, val)) for val in eng_order)
+        #return ascii(out)
 
     def __repr__(self):
         return "<Name: %s>" % self.__str__()
 
-    def __eq__(self, other):
-        try:
-            return (self.family == other.family and
-                    self.given == other.given and
-                    self.additional == other.additional and
-                    self.prefix == other.prefix and
-                    self.suffix == other.suffix)
-        except:
-            return False
+    #def __eq__(self, other):
+        #try:
+            #return (self.family == other.family and
+                    #self.given == other.given and
+                    #self.additional == other.additional and
+                    #self.prefix == other.prefix and
+                    #self.suffix == other.suffix)
+        #except:
+            #return False
 
 class Address(object):
     def __init__(self, street = '', city = '', region = '', code = '',
@@ -54,38 +54,38 @@ class Address(object):
         self.code     = code
         self.country  = country
 
-    @staticmethod
-    def toString(val, join_char='\n'):
-        """Turn a string or array value into a string."""
-        if type(val) in (list, tuple):
-            return join_char.join(val)
-        return val
+    #@staticmethod
+    #def toString(val, join_char='\n'):
+        #"""Turn a string or array value into a string."""
+        #if type(val) in (list, tuple):
+            #return join_char.join(val)
+        #return val
 
-    lines = ('box', 'extended', 'street')
-    one_line = ('city', 'region', 'code')
+    #lines = ('box', 'extended', 'street')
+    #one_line = ('city', 'region', 'code')
 
-    def __str__(self):
-        lines = '\n'.join(self.toString(getattr(self, val)) for val in self.lines if getattr(self, val))
-        one_line = tuple(self.toString(getattr(self, val), ' ') for val in self.one_line)
-        lines += "\n%s, %s %s" % one_line
-        if self.country:
-            lines += '\n' + self.toString(self.country)
-        return ascii(lines)
+    #def __str__(self):
+        #lines = '\n'.join(self.toString(getattr(self, val)) for val in self.lines if getattr(self, val))
+        #one_line = tuple(self.toString(getattr(self, val), ' ') for val in self.one_line)
+        #lines += "\n%s, %s %s" % one_line
+        #if self.country:
+            #lines += '\n' + self.toString(self.country)
+        #return ascii(lines)
 
     def __repr__(self):
         return "<Address: %s>" % repr(str(self))[1:-1]
 
-    def __eq__(self, other):
-        try:
-            return (self.box == other.box and
-                    self.extended == other.extended and
-                    self.street == other.street and
-                    self.city == other.city and
-                    self.region == other.region and
-                    self.code == other.code and
-                    self.country == other.country)
-        except:
-            return False
+    #def __eq__(self, other):
+        #try:
+            #return (self.box == other.box and
+                    #self.extended == other.extended and
+                    #self.street == other.street and
+                    #self.city == other.city and
+                    #self.region == other.region and
+                    #self.code == other.code and
+                    #self.country == other.country)
+        #except:
+            #return False
 
 #------------------------ Registered Behavior subclasses -----------------------
 
@@ -140,6 +140,8 @@ class VCardBehavior(Behavior):
     allowGroup = True
     defaultBehavior = VCardTextBehavior
 
+
+@behavior_registry.register(default=True)
 class VCard3_0(VCardBehavior):
     """vCard 3.0 behavior."""
     name = 'VCARD'
@@ -165,38 +167,34 @@ class VCard3_0(VCardBehavior):
 
         VTIMEZONEs will need to exist whenever TZID parameters exist or when
         datetimes with tzinfo exist.
-
         """
         if not hasattr(obj, 'version'):
             obj.add(ContentLine('VERSION', [], cls.versionString))
 
-registerBehavior(VCard3_0, default=True) #TODO: class decorator
 
-
+@behavior_registry.register
 class FN(VCardTextBehavior):
     name = "FN"
     description = 'Formatted name'
 
-registerBehavior(FN)
 
-
+@behavior_registry.register
 class Label(VCardTextBehavior):
     name = "Label"
     description = 'Formatted address'
 
-registerBehavior(Label)
 
 wacky_apple_photo_serialize = True
 REALLY_LARGE = 1E50
 
-
+@behavior_registry.register
 class Photo(VCardTextBehavior):
     name = "Photo"
     description = 'Photograph'
 
     @classmethod
     def valueRepr( cls, line ):
-        return " (BINARY PHOTO DATA at 0x%s) " % id( line.value )
+        return " (BINARY PHOTO DATA at 0x%s) " % id(line.value)
 
     @classmethod
     def serialize(cls, obj, buf, lineLength, validate):
@@ -208,7 +206,6 @@ class Photo(VCardTextBehavior):
 
         VCardTextBehavior.serialize(obj, buf, lineLength, validate)
 
-registerBehavior(Photo)
 
 def toListOrString(string):
     stringList = stringToTextValues(string)
@@ -218,7 +215,7 @@ def toListOrString(string):
         return stringList
 
 def splitFields(string):
-    """Return a list of strings or lists from a Name or Address."""
+    "Return a list of strings or lists from a Name or Address."
     return [toListOrString(i)
                 for i in stringToTextValues(string, listSeparator=';', charList=';')
            ]
@@ -245,65 +242,65 @@ def serializeFields(obj, order=None):
 
     return ';'.join(fields)
 
-NAME_ORDER = ('family', 'given', 'additional', 'prefix', 'suffix')
 
+@behavior_registry.register('N')
 class NameBehavior(VCardBehavior):
     """A structured name."""
     hasNative = True
+    _ORDER = ('family', 'given', 'additional', 'prefix', 'suffix')
 
-    @staticmethod
-    def transformToNative(obj):
-        """Turn obj.value into a Name."""
+    @classmethod
+    def transformToNative(cls, obj):
+        "Turn obj.value into a Name."
         if obj.isNative: return obj
         obj.isNative = True
-        obj.value = Name(**dict(zip(NAME_ORDER, splitFields(obj.value))))
+        obj.value = Name(**dict(zip(cls._ORDER, splitFields(obj.value))))
+
         return obj
 
-    @staticmethod
-    def transformFromNative(obj):
-        """Replace the Name in obj.value with a string."""
+    @classmethod
+    def transformFromNative(cls, obj):
+        "Replace the Name in obj.value with a string."
         obj.isNative = False
-        obj.value = serializeFields(obj.value, NAME_ORDER)
+        obj.value = serializeFields(obj.value, cls._ORDER)
+
         return obj
 
-registerBehavior(NameBehavior, 'N')
 
-
-ADDRESS_ORDER = ('box', 'extended', 'street', 'city', 'region', 'code', 'country')
-
+@behavior_registry.register('ADR')
 class AddressBehavior(VCardBehavior):
     """A structured address."""
     hasNative = True
+    _ORDER = ('box', 'extended', 'street', 'city', 'region', 'code', 'country')
 
-    @staticmethod
-    def transformToNative(obj):
-        """Turn obj.value into an Address."""
+    @classmethod
+    def transformToNative(cls, obj):
+        "Turn obj.value into an Address."
         if obj.isNative:
             return obj
 
         obj.isNative = True
-        obj.value = Address(**dict(zip(ADDRESS_ORDER, splitFields(obj.value))))
+        obj.value = Address(**dict(zip(cls._ORDER, splitFields(obj.value))))
 
         return obj
 
-    @staticmethod
-    def transformFromNative(obj):
-        """Replace the Address in obj.value with a string."""
+    @classmethod
+    def transformFromNative(cls, obj):
+        "Replace the Address in obj.value with a string."
         obj.isNative = False
-        obj.value = serializeFields(obj.value, ADDRESS_ORDER)
+        obj.value = serializeFields(obj.value, cls._ORDER)
 
         return obj
 
-registerBehavior(AddressBehavior, 'ADR')
 
-
+@behavior_registry.register('ORG')
 class OrgBehavior(VCardBehavior):
     """A list of organization values and sub-organization values."""
     hasNative = True
 
     @staticmethod
     def transformToNative(obj):
-        """Turn obj.value into a list."""
+        "Turn obj.value into a list."
         if obj.isNative: 
             return obj
 
@@ -314,7 +311,7 @@ class OrgBehavior(VCardBehavior):
 
     @staticmethod
     def transformFromNative(obj):
-        """Replace the list in obj.value with a string."""
+        "Replace the list in obj.value with a string."
         if not obj.isNative:
             return obj
 
@@ -322,5 +319,3 @@ class OrgBehavior(VCardBehavior):
         obj.value = serializeFields(obj.value)
 
         return obj
-
-registerBehavior(OrgBehavior, 'ORG')
