@@ -2,10 +2,16 @@
 
 try:
     #from datetime import datetime
+    from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
 
+    from creme.creme_core.models import BlockDetailviewLocation
+
+    from creme.persons.models import Contact
+
+    from ..blocks import actions_it_block, actions_nit_block
     from ..models import Action
     from .base import AssistantsTestCase
 except Exception as e:
@@ -64,6 +70,16 @@ class ActionTestCase(AssistantsTestCase):
                         )
 
         self.assertEqual(title, unicode(action))
+
+        create_bdi = partial(BlockDetailviewLocation.create, model=Contact,
+                             zone=BlockDetailviewLocation.RIGHT
+                            )
+        create_bdi(block_id=actions_it_block.id_,  order=500)
+        create_bdi(block_id=actions_nit_block.id_, order=501)
+
+        response = self.assertGET200(entity.get_absolute_url())
+        self.assertTemplateUsed(response, 'assistants/block_actions_it.html')
+        self.assertTemplateUsed(response, 'assistants/block_actions_nit.html')
 
     def test_edit(self):
         title    = 'TITLE'
