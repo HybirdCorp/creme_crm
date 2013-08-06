@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
+
 """Behavior (validation, encoding, and transformations) for vobjects."""
 
 from .base import ContentLine, Component, defaultSerialize, VObjectError, ValidateError, NativeError
 
-#------------------------ Abstract class for behavior --------------------------
 class Behavior(object):
     """Abstract class to describe vobject options, requirements and encodings.
 
@@ -125,7 +126,6 @@ class Behavior(object):
 
         If appropriate, turn dates or datetime strings into Python objects.
         Components containing VTIMEZONEs turn into VtimezoneComponents.
-
         """
         return obj
 
@@ -147,7 +147,6 @@ class Behavior(object):
         after implicit parameters are generated.
 
         Default is to call base.defaultSerialize.
-
         """
         cls.generateImplicitParameters(obj)
 
@@ -167,7 +166,7 @@ class Behavior(object):
 
         return out
 
-    @classmethod
-    def valueRepr(cls, line):
-        """return the representation of the given content line value"""
-        return line.value
+    #@classmethod
+    #def valueRepr(cls, line):
+        #"""return the representation of the given content line value"""
+        #return line.value

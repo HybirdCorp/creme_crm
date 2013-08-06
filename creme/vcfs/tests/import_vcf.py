@@ -4,9 +4,10 @@ try:
     from os import path as os_path
     from tempfile import NamedTemporaryFile
 
-    from django.utils.translation import ugettext as _
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.encoding import smart_str
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -15,8 +16,9 @@ try:
     from creme.persons.models import Contact, Organisation, Address
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    from ..vcf_lib import readOne as read_vcf
     from ..forms import vcf as vcf_forms
+    from ..vcf_lib import readOne as read_vcf
+    from ..vcf_lib.base import ContentLine
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -26,11 +28,11 @@ class VcfImportTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
+        cls.populate('creme_config', 'persons')
 
-    def _post_step0(self, content_str):
+    def _post_step0(self, content):
         tmpfile = NamedTemporaryFile()
-        tmpfile.write(content_str)
+        tmpfile.write(smart_str(content))
         tmpfile.flush()
 
         filedata = tmpfile.file
@@ -80,19 +82,51 @@ class VcfImportTestCase(CremeTestCase):
         self.assertEqual(form['first_name'].field.initial, firt_name)
         self.assertEqual(form['last_name'].field.initial,  last_name)
 
-    def test_parsing_vcf01(self):
+    def test_parsing_vcf01(self): #TODO: use BDAY
         self.login()
 
-        content  = """BEGIN:VCARD
-N:Nom;Prénom;;Civilité;
-TITLE:Directeur adjoint
-ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
-TEL;TYPE=HOME:00 00 00 00 00
-TEL;TYPE=CELL:11 11 11 11 11
-TEL;TYPE=FAX:22 22 22 22 22
-EMAIL;TYPE=HOME:email@email.com
-URL;TYPE=HOME:www.my-website.com
-END:VCARD"""
+        first_name = u'Yûna'
+        last_name = 'Akashi'
+        civility = 'Sempai'
+        position = 'Directeur adjoint'
+        phone = '00 00 00 00 00'
+        mobile = '11 11 11 11 11'
+        fax = '22 22 22 22 22'
+        email = 'email@email.com'
+        site = 'www.my-website.com'
+        box = '666'
+        street = 'Main avenue'
+        city = 'Mahora'
+        region = 'Kanto'
+        code = '42'
+        country = 'Japan'
+        content  = u"""BEGIN:VCARD
+N:%(last_name)s;%(first_name)s;;%(civility)s;
+TITLE:%(position)s
+BDAY;value=date:02-10
+ADR;TYPE=HOME:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
+TEL;TYPE=HOME:%(phone)s
+TEL;TYPE=CELL:%(mobile)s
+TEL;TYPE=FAX:%(fax)s
+EMAIL;TYPE=HOME:%(email)s
+URL;TYPE=HOME:%(site)s
+END:VCARD""" % {'last_name':  last_name,
+                'first_name': first_name,
+                'civility':   civility,
+                'position':   position,
+                'phone':      phone,
+                'mobile':     mobile,
+                'fax':        fax,
+                'email':      email,
+                'site':       site,
+
+                'box':     box,
+                'street':  street,
+                'city':    city,
+                'region':  region,
+                'code':    code,
+                'country': country,
+               }
         response = self._post_step0(content)
 
         with self.assertNoException():
@@ -100,100 +134,241 @@ END:VCARD"""
 
         vobj = read_vcf(content)
         n_value = vobj.n.value
+        self.assertEqual(civility, n_value.prefix)
+        self.assertEqual(_(u'Read in VCF File : ') + civility,
+                         fields['civility'].help_text
+                        )
 
-        self.assertEqual(fields['civility'].help_text, _(u'Read in VCF File : ') + n_value.prefix)
-        self.assertEqual(fields['first_name'].initial, n_value.given)
-        self.assertEqual(fields['last_name'].initial,  n_value.family)
+        self.assertEqual(first_name, n_value.given)
+        self.assertEqual(first_name, fields['first_name'].initial)
+
+        self.assertEqual(last_name,  n_value.family)
+        self.assertEqual(last_name, fields['last_name'].initial)
+
+        #print '=====>', vobj, vobj.bday, type(vobj.bday)
 
         tel = vobj.contents['tel']
-        self.assertEqual(fields['phone'].initial,  tel[0].value)
-        self.assertEqual(fields['mobile'].initial, tel[1].value)
-        self.assertEqual(fields['fax'].initial,    tel[2].value)
+        self.assertEqual(phone, tel[0].value)
+        self.assertEqual(phone, fields['phone'].initial)
 
-        self.assertEqual(fields['position'].help_text, ''.join([_(u'Read in VCF File : '), vobj.title.value]))
-        self.assertEqual(fields['email'].initial,       vobj.email.value)
-        self.assertEqual(fields['url_site'].initial,    vobj.url.value)
+        self.assertEqual(mobile, tel[1].value)
+        self.assertEqual(mobile, fields['mobile'].initial)
+
+        self.assertEqual(fax, tel[2].value)
+        self.assertEqual(fax, fields['fax'].initial)
+
+        self.assertEqual(position, vobj.title.value)
+        self.assertEqual(fields['position'].help_text,
+                         _(u'Read in VCF File : ') + position
+                        )
+
+        self.assertEqual(email, vobj.email.value)
+        self.assertEqual(email, fields['email'].initial)
+
+        self.assertEqual(site, vobj.url.value)
+        self.assertEqual(site, fields['url_site'].initial)
 
         adr_value = vobj.adr.value
-        self.assertEqual(fields['adr_last_name'].initial, n_value.family)
-        self.assertEqual(fields['address'].initial,       ' '.join([adr_value.box, adr_value.street]))
-        self.assertEqual(fields['city'].initial,          adr_value.city)
-        self.assertEqual(fields['country'].initial,       adr_value.country)
-        self.assertEqual(fields['code'].initial,          adr_value.code)
-        self.assertEqual(fields['region'].initial,        adr_value.region)
+        self.assertEqual(last_name, fields['adr_last_name'].initial)
+
+        self.assertEqual(street, adr_value.street)
+        self.assertEqual(box,    adr_value.box)
+        self.assertEqual(fields['address'].initial, '%s %s' %(box, street))
+
+        self.assertEqual(city, adr_value.city)
+        self.assertEqual(city, fields['city'].initial)
+
+        self.assertEqual(country, adr_value.country)
+        self.assertEqual(country, fields['country'].initial)
+
+        self.assertEqual(code, adr_value.code)
+        self.assertEqual(code, fields['code'].initial)
+
+        self.assertEqual(region, adr_value.region)
+        self.assertEqual(region, fields['region'].initial)
 
     def test_parsing_vcf02(self):
         self.login()
 
-        content  = """BEGIN:VCARD
-FN:Prénom Nom
-ORG:Corporate
-ADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays
-TEL;TYPE=WORK:00 00 00 00 00
-EMAIL;TYPE=WORK:corp@corp.com
-URL;TYPE=WORK:www.corp.com
-END:VCARD"""
+        name = 'Negima'
+        phone = '00 00 00 00 00'
+        email = 'corp@corp.com'
+        site = 'www.corp.com'
+        box = '8989'
+        street = 'Magic street'
+        city = 'Tokyo'
+        region = 'Tokyo region'
+        code = '8888'
+        country = 'Zipangu'
+        content = u"""BEGIN:VCARD
+FN:Evangéline McDowell
+ORG:%(name)s
+ADR;TYPE=WORK:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
+TEL;TYPE=WORK:%(phone)s
+EMAIL;TYPE=WORK:%(email)s
+URL;TYPE=WORK:%(site)s
+END:VCARD""" % {'name':  name,
+                'phone': phone,
+                'email': email,
+                'site':  site,
+
+                'box':     box,
+                'street':  street,
+                'city':    city,
+                'region':  region,
+                'code':    code,
+                'country': country,
+               }
         response = self._post_step0(content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
 
         vobj = read_vcf(content)
-        self.assertEqual(fields['work_name'].initial,     vobj.org.value[0])
-        self.assertEqual(fields['work_phone'].initial,    vobj.tel.value)
-        self.assertEqual(fields['work_email'].initial,    vobj.email.value)
-        self.assertEqual(fields['work_url_site'].initial, vobj.url.value)
-        self.assertEqual(fields['work_adr_name'].initial, vobj.org.value[0])
+
+        self.assertEqual(name, vobj.org.value[0])
+        self.assertEqual(name, fields['work_name'].initial)
+
+        self.assertEqual(phone, vobj.tel.value)
+        self.assertEqual(phone, fields['work_phone'].initial)
+
+        self.assertEqual(email, vobj.email.value)
+        self.assertEqual(email, fields['work_email'].initial)
+
+        self.assertEqual(site, vobj.url.value)
+        self.assertEqual(site, fields['work_url_site'].initial)
+
+        self.assertEqual(fields['work_adr_name'].initial, name)
 
         adr = vobj.adr.value
-        self.assertEqual(fields['work_address'].initial,  '%s %s' % (adr.box, adr.street))
-        self.assertEqual(fields['work_city'].initial,     adr.city)
-        self.assertEqual(fields['work_region'].initial,   adr.region)
-        self.assertEqual(fields['work_code'].initial,     adr.code)
-        self.assertEqual(fields['work_country'].initial,  adr.country)
+        self.assertEqual(box,    adr.box)
+        self.assertEqual(street, adr.street)
+        self.assertEqual(fields['work_address'].initial,  '%s %s' % (box, street))
+
+        self.assertEqual(city, adr.city)
+        self.assertEqual(city, fields['work_city'].initial)
+
+        self.assertEqual(region, adr.region)
+        self.assertEqual(region, fields['work_region'].initial)
+
+        self.assertEqual(code, adr.code)
+        self.assertEqual(code, fields['work_code'].initial)
+
+        self.assertEqual(country, adr.country)
+        self.assertEqual(country, fields['work_country'].initial)
 
     def test_parsing_vcf03(self):
+        "Address without type"
         self.login()
 
-        content  = """BEGIN:VCARD
-FN:Prénom Nom
-ADR:Numéro de rue;;Nom de la rue;Ville;Région;Code Postal;Pays
-TEL:00 00 00 00 00
-EMAIL:email@email.com
-URL:www.url.com
-END:VCARD"""
+        box = '852'
+        street = '21 Run street'
+        city = 'Mahora'
+        region = 'Kansai'
+        code = '434354'
+        country = 'Japan'
+        content = u"""begin:vcard
+fn:Misora Kasoga
+adr:%(box)s;;%(street)s;%(city)s;%(region)s;%(code)s;%(country)s
+tel:00 00 00 00 00
+email:email@email.com
+x-mozilla-html:FALSE
+url:www.url.com
+version:2.1
+end:vcard""" % {'box':     box,
+                'street':  street,
+                'city':    city,
+                'region':  region,
+                'code':    code,
+                'country': country
+               }
         response = self._post_step0(content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
 
         vobj = read_vcf(content)
+        #self.assertEqual('<VERSION{}2.1>', str(vobj.version))
+
         help_prefix = _(u'Read in VCF File without type : ')
         adr_value = vobj.adr.value
-        adr = ', '.join([adr_value.box, adr_value.street, adr_value.city, adr_value.region, adr_value.code, adr_value.country])
-        self.assertEqual(fields['address'].help_text,  ''.join([help_prefix, adr]))
-        self.assertEqual(fields['phone'].help_text,    ''.join([help_prefix, vobj.tel.value]))
-        self.assertEqual(fields['email'].help_text,    ''.join([help_prefix, vobj.email.value]))
-        self.assertEqual(fields['url_site'].help_text, ''.join([help_prefix, vobj.url.value]))
+
+        self.assertEqual(box,     adr_value.box)
+        self.assertEqual(street,  adr_value.street)
+        self.assertEqual(city,    adr_value.city)
+        self.assertEqual(region,  adr_value.region)
+        self.assertEqual(code,    adr_value.code)
+        self.assertEqual(country, adr_value.country)
+
+        self.assertEqual(fields['address'].help_text,
+                         help_prefix + ', '.join([box, street, city, region, code, country])
+                        )
+        self.assertEqual(fields['phone'].help_text,    help_prefix + vobj.tel.value)
+        self.assertEqual(fields['email'].help_text,    help_prefix + vobj.email.value)
+        self.assertEqual(fields['url_site'].help_text, help_prefix + vobj.url.value)
 
     def test_parsing_vcf04(self):
+        "Existing Organisation"
         self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Corporate')
-        content  = """BEGIN:VCARD
-N:Prénom Nom
-ORG:Corporate
-ADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays
+        name = 'Negima'
+        orga = Organisation.objects.create(user=self.user, name=name)
+        content = u"""BEGIN:VCARD
+N:Konoe Konoka
+ORG:%(name)s
+ADR;TYPE=WORK:56;;Second street;Kyoto;Kyoto region;7777;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:email@email.com
 URL;TYPE=WORK:www.web-site.com
-END:VCARD"""
+END:VCARD""" % {'name': name}
         response = self._post_step0(content)
 
         with self.assertNoException():
             form = response.context['form']
 
         self.assertEqual(form['organisation'].field.initial, orga.id)
+
+    def test_parsing_vcf05(self):
+        "Multi line, escape chars"
+        self.login()
+
+        first_name = u'Fûka'
+        last_name = 'Naritaki'
+        content  = r"""BEGIN:VCARD
+VERSION:3.0
+FN:%(long_name)s
+N:%(last_name)s;%(first_name)s
+NICKNAME:The twins
+ACCOUNT;type=HOME:123-145789-10
+ADR;type=HOME:;;Main Street 256\;\n1rst floor\, Pink door;Mahora;;598;Japan
+ORG:University of Mahora\, Department of
+  Robotics
+END:VCARD""" % {'first_name': first_name,
+                'last_name':  last_name,
+                'long_name':  first_name + last_name + ' (& Fumika)',
+               }
+        response = self._post_step0(content)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        vobj = read_vcf(content)
+
+        version = vobj.version
+        self.assertIsInstance(version, ContentLine)
+        #self.assertEqual('<VERSION{}3.0>', str(version))
+
+        n_value = vobj.n.value
+        self.assertEqual(first_name, n_value.given)
+        self.assertEqual(last_name,  n_value.family)
+
+        self.assertEqual('University of Mahora, Department of Robotics',
+                         vobj.org.value[0]
+                        )
+
+        self.assertEqual('Main Street 256;\n1rst floor, Pink door',
+                         vobj.adr.value.street
+                        )
 
     def test_add_contact_vcf00(self):
         self.login()
@@ -202,8 +377,9 @@ END:VCARD"""
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = u"""BEGIN:VCARD
+VERSION:3.0
+FN:Ako IZUMI
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -225,21 +401,22 @@ END:VCARD"""
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
         response = self._post_step1(data={'user':        user_id,
-                                           'first_name':  first_name,
-                                           'last_name':   last_name,
-                                           'phone':       phone,
-                                           'mobile':      mobile,
-                                           'fax':         fax,
-                                           'email':       email,
-                                           'url_site':    url_site,
-                                           'create_or_attach_orga': False,
-                                          }
-                                         )
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'phone':       phone,
+                                          'mobile':      mobile,
+                                          'fax':         fax,
+                                          'email':       email,
+                                          'url_site':    url_site,
+                                          'create_or_attach_orga': False,
+                                         }
+                                   )
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name,
+        contact = self.get_object_or_fail(Contact, first_name=first_name,
+                                          last_name=last_name,
                                           phone=phone, mobile=mobile, fax=fax,
                                           email=email, url_site=url_site,
                                          )
@@ -251,8 +428,8 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = u"""BEGIN:VCARD
+FN:Yue AYASE
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -284,7 +461,7 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
         content = """BEGIN:VCARD
-FN:Jean HUDARD
+FN:Asuna Kagurazaka
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -330,7 +507,7 @@ ORG:Corporate\nEND:VCARD"""
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
         content = """BEGIN:VCARD
-FN:Jean HUDARD
+FN:Tchao LINSHEN
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -395,8 +572,8 @@ END:VCARD"""
                                           )
         self.assertEqual(orga_count + 1, Organisation.objects.count())
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = u"""BEGIN:VCARD
+FN:Haruna Saotome
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -446,9 +623,9 @@ END:VCARD"""
 
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
-        content = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
+        content = u"""BEGIN:VCARD
+FN:Chisame Hasegawa
+ADR;TYPE=HOME:78;;Geek avenue;New-York;;6969;USA
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -498,10 +675,10 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
         orga_count    = Organisation.objects.count()
-        content = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
-ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+        content = u"""BEGIN:VCARD
+FN:Nodoka Myiazaki
+ADR;TYPE=HOME:55;;Moe street;Mahora;Kanto;123;Japan
+ADR;TYPE=WORK:26;;Eva house;Eva city;Eva region;666;Eva land
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -579,9 +756,9 @@ END:VCARD"""
         Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
                                     email='corp@corp.com', url_site='www.corp.com',
                                    )
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+        content = """BEGIN:VCARD
+FN:Setsuna Sakurazaki
+ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
@@ -626,10 +803,9 @@ END:VCARD"""
         self.login()
 
         contact_count = Contact.objects.count()
-
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+        content = """BEGIN:VCARD
+FN:Makie SASAKI
+ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
@@ -673,13 +849,14 @@ END:VCARD"""
     def test_add_contact_vcf09(self):
         self.login()
 
-        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+        name = 'Negima'
+        Organisation.objects.create(user=self.user, name=name, phone='00 00 00 00 00',
                                     email='corp@corp.com', url_site='www.corp.com',
                                    )
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
-ORG:Corporate
-END:VCARD"""
+        content = u"""BEGIN:VCARD
+FN:Akira Ookôchi
+ORG:%s
+END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
         response = self._post_step1(errors=True,
                                     data={'user':                 fields['user'].initial,
@@ -705,7 +882,8 @@ END:VCARD"""
     def test_add_contact_vcf10(self):
         self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+        name = 'Robotic club'
+        orga = Organisation.objects.create(user=self.user, name=name, phone='00 00 00 00 00',
                                            email='corp@corp.com', url_site='www.corp.com',
                                           )
         orga.billing_address = Address.objects.create(name='Org_name',
@@ -723,14 +901,14 @@ END:VCARD"""
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+        content = u"""BEGIN:VCARD
+FN:Chachamaru KARAKURI
+ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
-ORG:Corporate
-END:VCARD"""
+ORG:%s
+END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
         self._post_step1(data={'user':                 fields['user'].initial,
                                'first_name':           fields['first_name'].initial,
@@ -780,7 +958,8 @@ END:VCARD"""
     def test_add_contact_vcf11(self):
         self.login()
 
-        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+        name = 'Astronomy club'
+        Organisation.objects.create(user=self.user, name=name, phone='00 00 00 00 00',
                                     email='corp@corp.com', url_site='www.corp.com',
                                    )
 
@@ -789,10 +968,10 @@ END:VCARD"""
         address_count = Address.objects.count()
 
         content  = """BEGIN:VCARD
-FN:Jean HUDARD
-ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
-ORG:Corporate
-END:VCARD"""
+FN:Chizuru NABA
+ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
+ORG:%s
+END:VCARD""" % name
         fields = self._post_step0(content).context['form'].fields
         orga_id       = fields['organisation'].initial
         work_adr_name = fields['work_adr_name'].initial
@@ -847,8 +1026,8 @@ END:VCARD"""
         image_count   = Image.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = """BEGIN:VCARD
+FN:Kazumi ASAKURA
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=CELL:11 11 11 11 11
 TEL;TYPE=FAX:22 22 22 22 22
@@ -907,23 +1086,27 @@ PHOTO:""" \
         self.login()
 
         contact_count = Contact.objects.count()
-        content  = 'BEGIN:VCARD\nN;ENCODING=8BIT:HUDARD;Jean;;%(civility)s;\nTITLE:%(position)s\nEND:VCARD' % {
-                            'civility': _('Mr.'),
-                            'position': _('CEO'),
+        first_name = 'Negi'
+        last_name  = 'Springfield'
+        content = 'BEGIN:VCARD\nN;ENCODING=8BIT:%(last_name)s;%(first_name)s;;%(civility)s;\nTITLE:%(position)s\nEND:VCARD' % {
+                            'first_name': first_name,
+                            'last_name':  last_name,
+                            'civility':   _('Mr.'),
+                            'position':   _('CEO'),
                         }
         response = self._post_step0(content)
 
         with self.assertNoException():
-            form = response.context['form']
-            user_id     = form.fields['user'].initial
-            first_name  = form.fields['first_name'].initial
-            last_name   = form.fields['last_name'].initial
-            civility_id = form.fields['civility'].initial
-            position_id = form.fields['position'].initial
+            fields = response.context['form'].fields
+            user_id      = fields['user'].initial
+            first_name_f = fields['first_name']
+            last_name_f  = fields['last_name']
+            civility_id  = fields['civility'].initial
+            position_id  = fields['position'].initial
 
         self.assertEqual(self.user.id, user_id)
-        self.assertEqual('Jean', first_name)
-        self.assertEqual('HUDARD', last_name)
+        self.assertEqual(first_name, first_name_f.initial)
+        self.assertEqual(last_name, last_name_f.initial)
         self.assertEqual(3, civility_id) #pk=3 see persons.populate
         self.assertEqual(1, position_id) #pk=1 idem
 
@@ -947,8 +1130,8 @@ PHOTO:""" \
         image_count   = Image.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = """BEGIN:VCARD
+FN:Sakurako SHIINA
 PHOTO;TYPE=JPEG:""" \
 '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCg' \
 'oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABIAEgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBR' \
@@ -998,7 +1181,7 @@ PHOTO;TYPE=JPEG:""" \
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         path_base = os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png')
-        self.assert_(os_path.exists(path_base))
+        self.assertTrue(os_path.exists(path_base))
         path = 'file:///' + os_path.normpath(path_base)
 
         contact_count = Contact.objects.count()
@@ -1006,7 +1189,7 @@ PHOTO;TYPE=JPEG:""" \
         self.assertEqual(0, Image.objects.count())
 
         content  = """BEGIN:VCARD
-FN:Jean HUDARD
+FN:Ayaka YUKIHIRO
 PHOTO;VALUE=URL:%s
 END:VCARD""" % path
         fields = self._post_step0(content).context['form'].fields
@@ -1038,8 +1221,8 @@ END:VCARD""" % path
         contact_count = Contact.objects.count()
         image_count   = Image.objects.count()
 
-        content  = """BEGIN:VCARD
-FN:Jean HUDARD
+        content = u"""BEGIN:VCARD
+FN:Kaede NAGASE
 PHOTO;VALUE=URL:http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg
 END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
@@ -1062,7 +1245,7 @@ END:VCARD"""
         contact_count = Contact.objects.count()
         image_count   = Image.objects.count()
         content  = """BEGIN:VCARD
-FN:Jean HUDARD
+FN:Satomi HAKASE
 PHOTO;VALUE=URL:file:///%s
 END:VCARD""" % os_path.normpath(os_path.join(settings.CREME_ROOT, 'static', 'images', '500.png'))
         fields = self._post_step0(content).context['form'].fields
