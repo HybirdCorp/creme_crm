@@ -24,7 +24,7 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.models import Relation
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
 from creme.creme_config.models import SettingValue
@@ -66,8 +66,6 @@ class ApproachesBlock(QuerysetBlock):
 
         for comapp in comapps:
             comapp.creme_entity = entities_map[comapp.entity_id]
-
-        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
         entity = context['object']
@@ -121,10 +119,12 @@ class SegmentsBlock(QuerysetBlock):
     permission    = 'commercial' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, MarketSegment.objects.all(),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            #has_perm=context['request'].user.has_perm('commercial'), #todo: better credentials ?
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context, MarketSegment.objects.all(),
+                        update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                        #has_perm=context['request'].user.has_perm('commercial'), #todo: better credentials ?
+                       )
+                    )
 
 
 class SegmentDescriptionsBlock(PaginatedBlock):
@@ -138,10 +138,12 @@ class SegmentDescriptionsBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         strategy = context['object']
-        return self._render(self.get_block_template_context(context, strategy.get_segment_descriptions_list(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=self._SEGMENTDESC_CT_ID,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context, strategy.get_segment_descriptions_list(),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                        ct_id=self._SEGMENTDESC_CT_ID,
+                       )
+                    )
 
 
 class AssetsBlock(QuerysetBlock):
@@ -156,10 +158,13 @@ class AssetsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         strategy = context['object']
-        return self._render(self.get_block_template_context(context, strategy.assets.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=self._ASSET_CT_ID,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context, strategy.assets.all(),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                        ct_id=self._ASSET_CT_ID,
+                       )
+                    )
+
 
 class CharmsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'charms')
@@ -173,10 +178,12 @@ class CharmsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         strategy = context['object']
-        return self._render(self.get_block_template_context(context, strategy.charms.all(),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=self._CHARM_CT_ID,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context, strategy.charms.all(),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                        ct_id=self._CHARM_CT_ID,
+                       )
+                    )
 
 
 class EvaluatedOrgasBlock(QuerysetBlock):
@@ -189,13 +196,12 @@ class EvaluatedOrgasBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         strategy = context['object']
-        btc = self.get_block_template_context(context, strategy.evaluated_orgas.all(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                        context, strategy.evaluated_orgas.all(),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
+                       )
+                    )
 
 
 class AssetsMatrixBlock(Block):
@@ -209,12 +215,14 @@ class AssetsMatrixBlock(Block):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
-        return self._render(self.get_block_template_context(context,
-                                                            assets=strategy.get_assets_list(),
-                                                            segment_info=strategy.get_segment_descriptions_list(),
-                                                            totals=strategy.get_assets_totals(orga),
-                                                            update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context,
+                        assets=strategy.get_assets_list(),
+                        segment_info=strategy.get_segment_descriptions_list(),
+                        totals=strategy.get_assets_totals(orga),
+                        update_url='/commercial/blocks/assets_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                       )
+                    )
 
 
 class CharmsMatrixBlock(Block):
@@ -228,12 +236,15 @@ class CharmsMatrixBlock(Block):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
-        return self._render(self.get_block_template_context(context,
-                                                            charms=strategy.get_charms_list(),
-                                                            segment_info=strategy.get_segment_descriptions_list(),
-                                                            totals=strategy.get_charms_totals(orga),
-                                                            update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context,
+                        charms=strategy.get_charms_list(),
+                        segment_info=strategy.get_segment_descriptions_list(),
+                        totals=strategy.get_charms_totals(orga),
+                        update_url='/commercial/blocks/charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                       )
+                    )
+
 
 class AssetsCharmsMatrixBlock(Block):
     id_           = Block.generate_id('commercial', 'assets_charms_matrix')
@@ -246,10 +257,12 @@ class AssetsCharmsMatrixBlock(Block):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
         strategy = context['strategy']
         orga = context['orga']
-        return self._render(self.get_block_template_context(context,
-                                                            segment_info=strategy.get_segment_descriptions_list(),
-                                                            update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context,
+                        segment_info=strategy.get_segment_descriptions_list(),
+                        update_url='/commercial/blocks/assets_charms_matrix/%s/%s/' % (strategy.pk, orga.pk),
+                       )
+                    )
 
 
 class ActObjectivesBlock(QuerysetBlock):
@@ -265,11 +278,13 @@ class ActObjectivesBlock(QuerysetBlock):
     def detailview_display(self, context):
         act_id = context['object'].id
         #TODO: pre-populate EntityFilters ??
-        return self._render(self.get_block_template_context(context,
-                                                            ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
-                                                            ct_id=self._OBJECTIVE_CT_ID,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context,
+                        ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
+                        ct_id=self._OBJECTIVE_CT_ID,
+                       )
+                    )
 
 
 class RelatedOpportunitiesBlock(PaginatedBlock):
@@ -284,15 +299,14 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         act = context['object']
-        btc = self.get_block_template_context(context, act.get_related_opportunities(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
-                                              predicate_id=REL_OBJ_COMPLETE_GOAL,
-                                              opp_ct=self._OPPORT_CT,
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                        context, act.get_related_opportunities(),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
+                        predicate_id=REL_OBJ_COMPLETE_GOAL,
+                        opp_ct=self._OPPORT_CT,
+                       )
+                    )
 
 
 class PatternComponentsBlock(Block):
@@ -316,11 +330,13 @@ class PatternComponentsBlock(Block):
 
         explore_tree(pattern.get_components_tree(), 0)
 
-        return self._render(self.get_block_template_context(context,
-                                                            components=flattened_tree,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
-                                                            ct_id=self._PATTERNCOMP_CT_ID,
-                                                           ))
+        return self._render(self.get_block_template_context(
+                        context,
+                        components=flattened_tree,
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
+                        ct_id=self._PATTERNCOMP_CT_ID,
+                       )
+                    )
 
 del get_ct
 
