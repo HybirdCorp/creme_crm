@@ -3,22 +3,24 @@
 {% load creme_core_tags creme_block %}
 
 {% block header %}
-    {% get_block_title _('%s related Product') _('%s related Products') 'product_48.png' _('Product') %}
+    <table style="margin:0px;padding:0px;">
+        <tr>
+            <td valign="middle"><img src="{% creme_media_url 'images/product_22.png' %}" alt="{% trans "Product" %}" title="{% trans "Product" %}"/></td>
+            <td>
+                {% blocktrans count item_count=item_count %}
+                    {{item_count}} Product
+                {% plural %}
+                    {{item_count}} Products
+                {% endblocktrans %}
+            </td>
+        </tr>
+    </table>
 {% endblock %}
 
 {% block add_buttons %}
     {% has_perm_to change object as has_perm %}
-    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_multiple' with_label _("Add one or more product") with_perms has_perm %}
-    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_on_the_fly' with_label _("Add a line on the fly") with_perms has_perm %}
     {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}
+    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_multiple' with_label _("Add one or more product") with_perms has_perm %}
 {% endblock %}
-
-{% block item_name %}{% trans "Product" %}{% endblock %}
 
 {% block empty_msg %}{% trans "No product in this document" %}{% endblock %}
-
-{% block line_actions %}
-    {% has_perm_to change object as has_perm %}
-    {% get_line_editor at_url '/billing/productline/{{line.id}}/edit' with_perms has_perm %}
-    {{block.super}}
-{% endblock %}

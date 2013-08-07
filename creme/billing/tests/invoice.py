@@ -371,7 +371,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
 
         invoice = self.refresh(invoice)
-        self.assertEqual([product_line], invoice.product_lines)
+        self.assertEqual([product_line], list(invoice.product_lines))
 
         product_line.delete()
         self.assertFalse(self.refresh(invoice).product_lines)
@@ -385,7 +385,7 @@ class InvoiceTestCase(_BillingTestCase):
         product_line1 = create_pline(on_the_fly_item='Flyyy product')
         product_line2 = create_pline(on_the_fly_item='Flyyy product2')
         ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
-        self.assertEqual([product_line1, product_line2], self.refresh(invoice).product_lines)
+        self.assertEqual([product_line1, product_line2], list(self.refresh(invoice).product_lines))
 
     def test_service_lines_property01(self):
         self.login()
@@ -395,7 +395,7 @@ class InvoiceTestCase(_BillingTestCase):
         service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item='Flyyyyy'
                                                  )
-        self.assertEqual([service_line], self.refresh(invoice).service_lines)
+        self.assertEqual([service_line], list(self.refresh(invoice).service_lines))
 
         service_line.delete()
         self.assertFalse(self.refresh(invoice).service_lines)
@@ -411,7 +411,7 @@ class InvoiceTestCase(_BillingTestCase):
         service_line1 = create_sline(on_the_fly_item='Flyyy service1')
         service_line2 = create_sline(on_the_fly_item='Flyyy service2')
 
-        self.assertEqual([service_line1, service_line2], self.refresh(invoice).service_lines)
+        self.assertEqual([service_line1, service_line2], list(self.refresh(invoice).service_lines))
 
     def test_get_lines01(self):
         self.login()

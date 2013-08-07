@@ -164,8 +164,9 @@ class Base(CremeEntity):
     @property
     def product_lines(self):
         if self._productlines_cache is None:
-            #force the retrieving all lines (no slice)
-            self._productlines_cache = list(ProductLine.objects.filter(relations__object_entity=self.id))
+            queryset = ProductLine.objects.filter(relations__object_entity=self.id)
+            bool(queryset) #force the retrieving all lines (no slice)
+            self._productlines_cache = queryset
         else:
             logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
 
@@ -174,7 +175,9 @@ class Base(CremeEntity):
     @property
     def service_lines(self):
         if self._servicelines_cache is None:
-            self._servicelines_cache = list(ServiceLine.objects.filter(relations__object_entity=self.id))
+            queryset = ServiceLine.objects.filter(relations__object_entity=self.id)
+            bool(queryset)
+            self._servicelines_cache = queryset
         else:
             logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
 

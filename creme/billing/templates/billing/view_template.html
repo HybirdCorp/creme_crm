@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load creme_block %}
 {% block extra_menu_buttons %}
+    {{block.super}}
     {% if object.ct.model == 'quote' %}
         <li>{% include "billing/frags/button_convert2order.html" with has_perm=can_create_order %}</li>
         <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>

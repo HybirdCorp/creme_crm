@@ -6,6 +6,7 @@ try:
 
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials
@@ -25,6 +26,8 @@ __all__ = ('LineTestCase',)
 
 
 class LineTestCase(_BillingTestCase):
+    clean_files_in_teardown = False
+
     @classmethod
     def setUpClass(cls):
         #cls.populate('creme_core', 'creme_config', 'products', 'billing')
@@ -67,110 +70,110 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal('3.2'), invoice.total_no_vat) # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat) # 3.2 * 1.07 = 3.38
 
-    def test_add_product_lines02(self):
-        "On-the-fly"
-        self.login()
+    # def test_add_product_lines02(self):
+    #     "On-the-fly"
+    #     self.login()
+    #
+    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+    #     url = '/billing/%s/product_line/add_on_the_fly' % invoice.id
+    #     self.assertGET200(url)
+    #
+    #     unit_price = Decimal('1.0')
+    #     name = 'Awesomo'
+    #     response = self.client.post(url, data={'on_the_fly_item': name,
+    #                                            'comment':         'no comment !',
+    #                                            'quantity':        1,
+    #                                            'unit_price':      unit_price,
+    #                                            'unit':            'Box',
+    #                                            'discount':        Decimal(),
+    #                                            'discount_unit':   1,
+    #                                            'vat_value':       Vat.objects.get(value='0.0').id,
+    #                                          }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     lines = invoice.product_lines
+    #     self.assertEqual(1, len(lines))
+    #
+    #     line = lines[0]
+    #     self.assertEqual(name, line.on_the_fly_item)
+    #     self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
+    #     self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
+    #
+    #     self.assertEqual(unit_price, invoice._get_total())
+    #     self.assertEqual(unit_price, invoice._get_total_with_tax())
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        url = '/billing/%s/product_line/add_on_the_fly' % invoice.id
-        self.assertGET200(url)
+    # def test_add_product_lines03(self):
+    #     "On-the-fly + product creation"
+    #     self.login()
+    #
+    #     self.assertEqual(0, Product.objects.count())
+    #
+    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+    #     unit_price = Decimal('1.0')
+    #     name    = 'Awesomo'
+    #     cat, subcat = self.create_cat_n_subcat()
+    #     response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+    #                                 data={'on_the_fly_item':    name,
+    #                                       'comment':            'no comment !',
+    #                                       'quantity':           1,
+    #                                       'unit_price':         unit_price,
+    #                                       'unit':               'Box',
+    #                                       'discount':           Decimal(),
+    #                                       'discount_unit':      1,
+    #                                       'vat_value':          Vat.objects.get(value='0.0').id,
+    #                                       'has_to_register_as': 'on',
+    #                                       'sub_category':       '{"category":%s, "subcategory":%s}' % (cat.id, subcat.id)
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     product = self.get_object_or_fail(Product, name=name)
+    #     self.assertEqual(cat,        product.category)
+    #     self.assertEqual(subcat,     product.sub_category)
+    #     self.assertEqual(unit_price, product.unit_price)
+    #
+    #     lines = invoice.product_lines
+    #     self.assertEqual(1, len(lines))
+    #
+    #     line = lines[0]
+    #     self.assertFalse(line.on_the_fly_item)
+    #     self.assertEqual(product, line.related_item)
 
-        unit_price = Decimal('1.0')
-        name = 'Awesomo'
-        response = self.client.post(url, data={'on_the_fly_item': name,
-                                               'comment':         'no comment !',
-                                               'quantity':        1,
-                                               'unit_price':      unit_price,
-                                               'unit':            'Box',
-                                               'discount':        Decimal(),
-                                               'discount_unit':   1,
-                                               'vat_value':       Vat.objects.get(value='0.0').id,
-                                             }
-                                   )
-        self.assertNoFormError(response)
-
-        lines = invoice.product_lines
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
-        self.assertEqual(name, line.on_the_fly_item)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
-        self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
-
-        self.assertEqual(unit_price, invoice._get_total())
-        self.assertEqual(unit_price, invoice._get_total_with_tax())
-
-    def test_add_product_lines03(self):
-        "On-the-fly + product creation"
-        self.login()
-
-        self.assertEqual(0, Product.objects.count())
-
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        unit_price = Decimal('1.0')
-        name    = 'Awesomo'
-        cat, subcat = self.create_cat_n_subcat()
-        response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
-                                    data={'on_the_fly_item':    name,
-                                          'comment':            'no comment !',
-                                          'quantity':           1,
-                                          'unit_price':         unit_price,
-                                          'unit':               'Box',
-                                          'discount':           Decimal(),
-                                          'discount_unit':      1,
-                                          'vat_value':          Vat.objects.get(value='0.0').id,
-                                          'has_to_register_as': 'on',
-                                          'sub_category':       '{"category":%s, "subcategory":%s}' % (cat.id, subcat.id)
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        product = self.get_object_or_fail(Product, name=name)
-        self.assertEqual(cat,        product.category)
-        self.assertEqual(subcat,     product.sub_category)
-        self.assertEqual(unit_price, product.unit_price)
-
-        lines = invoice.product_lines
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
-        self.assertFalse(line.on_the_fly_item)
-        self.assertEqual(product, line.related_item)
-
-    def test_add_product_lines04(self):
-        "On-the-fly + product creation + no creation creds"
-        self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                   creatable_models=[Invoice, Contact, Organisation] #not 'Product'
-                  )
-
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.LINK   |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        cat    = Category.objects.create(name='Cat', description='DESCRIPTION')
-        subcat = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
-        response = self.assertPOST200('/billing/%s/product_line/add_on_the_fly' % invoice.id,
-                                      data={'on_the_fly_item':     'Awesomo',
-                                            'comment':             'no comment !',
-                                            'quantity':            1,
-                                            'unit_price':          Decimal('1.0'),
-                                            'discount':            Decimal(),
-                                            'discount_unit':       1,
-                                            'vat_value':           Vat.objects.get(value='0.0').id,
-                                            'has_to_register_as':  'on',
-                                            'category':            cat.id,
-                                            'sub_category':        subcat.id,
-                                           }
-                                   )
-        self.assertFormError(response, 'form', 'has_to_register_as',
-                             [_(u'You are not allowed to create this entity')]
-                            )
-        self.assertFalse(invoice.product_lines)
-        self.assertFalse(Product.objects.exists())
+    # def test_add_product_lines04(self):
+    #     "On-the-fly + product creation + no creation creds"
+    #     self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
+    #                creatable_models=[Invoice, Contact, Organisation] #not 'Product'
+    #               )
+    #
+    #     SetCredentials.objects.create(role=self.role,
+    #                                   value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+    #                                         EntityCredentials.DELETE | EntityCredentials.LINK   |
+    #                                         EntityCredentials.UNLINK,
+    #                                   set_type=SetCredentials.ESET_OWN
+    #                                  )
+    #
+    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+    #     cat    = Category.objects.create(name='Cat', description='DESCRIPTION')
+    #     subcat = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
+    #     response = self.assertPOST200('/billing/%s/product_line/add_on_the_fly' % invoice.id,
+    #                                   data={'on_the_fly_item':     'Awesomo',
+    #                                         'comment':             'no comment !',
+    #                                         'quantity':            1,
+    #                                         'unit_price':          Decimal('1.0'),
+    #                                         'discount':            Decimal(),
+    #                                         'discount_unit':       1,
+    #                                         'vat_value':           Vat.objects.get(value='0.0').id,
+    #                                         'has_to_register_as':  'on',
+    #                                         'category':            cat.id,
+    #                                         'sub_category':        subcat.id,
+    #                                        }
+    #                                )
+    #     self.assertFormError(response, 'form', 'has_to_register_as',
+    #                          [_(u'You are not allowed to create this entity')]
+    #                         )
+    #     self.assertFalse(invoice.product_lines)
+    #     self.assertFalse(Product.objects.exists())
 
     def test_delete_product_line01(self):
         self.login()
@@ -222,108 +225,108 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal('21.6'), invoice.total_no_vat) # 2 * 5.4 + 2 * 5.4
         self.assertEqual(Decimal('25.84'), invoice.total_vat) # 21.6 * 1.196 = 25.84
 
-    def test_add_service_lines02(self):
-        "On-the-fly"
-        self.login()
+    # def test_add_service_lines02(self):
+    #     "On-the-fly"
+    #     self.login()
+    #
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #     url = '/billing/%s/service_line/add_on_the_fly' % invoice.id
+    #     self.assertGET200(url)
+    #
+    #     unit_price = Decimal('1.33')
+    #     name = 'Car wash'
+    #     response = self.client.post(url, data={'on_the_fly_item': name,
+    #                                            'comment':         'no comment !',
+    #                                            'quantity':        2,
+    #                                            'unit_price':      unit_price,
+    #                                            'unit':            'Day',
+    #                                            'discount':        Decimal(),
+    #                                            'discount_unit':   1,
+    #                                            'vat_value':       Vat.objects.get(value='0.0').id,
+    #                                           }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     invoice = self.refresh(invoice) #refresh lines cache
+    #     lines = invoice.service_lines
+    #     self.assertEqual(1, len(lines))
+    #
+    #     line = lines[0]
+    #     self.assertEqual(name, line.on_the_fly_item)
+    #     self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
+    #     self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        url = '/billing/%s/service_line/add_on_the_fly' % invoice.id
-        self.assertGET200(url)
+    # def test_add_service_lines03(self):
+    #     "On-the-fly + Service creation"
+    #     self.login()
+    #
+    #     self.assertEqual(0, Service.objects.count())
+    #
+    #     invoice = self.create_invoice_n_orgas('Invoice001')[0]
+    #     unit_price = Decimal('1.33')
+    #     name = 'Car wash'
+    #     cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
+    #     subcat  = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
+    #     response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
+    #                                 data={'on_the_fly_item':    name,
+    #                                       'comment':            'no comment !',
+    #                                       'quantity':           2,
+    #                                       'unit_price':         unit_price,
+    #                                       'unit':               'Day',
+    #                                       'discount':           Decimal(),
+    #                                       'discount_unit':      1,
+    #                                       'vat_value':          Vat.get_default_vat().id,
+    #                                       'has_to_register_as': 'on',
+    #                                       'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     service = self.get_object_or_fail(Service, name=name)
+    #     self.assertEqual(cat,        service.category)
+    #     self.assertEqual(subcat,     service.sub_category)
+    #     self.assertEqual(unit_price, service.unit_price)
+    #
+    #     invoice = self.refresh(invoice) #refresh lines cache
+    #     lines = invoice.service_lines
+    #     self.assertEqual(1, len(lines))
+    #
+    #     line = lines[0]
+    #     self.assertFalse(line.on_the_fly_item)
+    #     self.assertEqual(service, line.related_item)
 
-        unit_price = Decimal('1.33')
-        name = 'Car wash'
-        response = self.client.post(url, data={'on_the_fly_item': name,
-                                               'comment':         'no comment !',
-                                               'quantity':        2,
-                                               'unit_price':      unit_price,
-                                               'unit':            'Day',
-                                               'discount':        Decimal(),
-                                               'discount_unit':   1,
-                                               'vat_value':       Vat.objects.get(value='0.0').id,
-                                              }
-                                   )
-        self.assertNoFormError(response)
-
-        invoice = self.refresh(invoice) #refresh lines cache
-        lines = invoice.service_lines
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
-        self.assertEqual(name, line.on_the_fly_item)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
-        self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
-
-    def test_add_service_lines03(self):
-        "On-the-fly + Service creation"
-        self.login()
-
-        self.assertEqual(0, Service.objects.count())
-
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        unit_price = Decimal('1.33')
-        name = 'Car wash'
-        cat     = Category.objects.create(name='Cat', description='DESCRIPTION')
-        subcat  = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
-        response = self.client.post('/billing/%s/service_line/add_on_the_fly' % invoice.id,
-                                    data={'on_the_fly_item':    name,
-                                          'comment':            'no comment !',
-                                          'quantity':           2,
-                                          'unit_price':         unit_price,
-                                          'unit':               'Day',
-                                          'discount':           Decimal(),
-                                          'discount_unit':      1,
-                                          'vat_value':          Vat.get_default_vat().id,
-                                          'has_to_register_as': 'on',
-                                          'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        service = self.get_object_or_fail(Service, name=name)
-        self.assertEqual(cat,        service.category)
-        self.assertEqual(subcat,     service.sub_category)
-        self.assertEqual(unit_price, service.unit_price)
-
-        invoice = self.refresh(invoice) #refresh lines cache
-        lines = invoice.service_lines
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
-        self.assertFalse(line.on_the_fly_item)
-        self.assertEqual(service, line.related_item)
-
-    def test_add_service_lines04(self):
-        "On-the-fly + service creation + no creation creds"
-        self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-                   creatable_models=[Invoice, Contact, Organisation], #not 'Service'
-                  )
-
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                            EntityCredentials.DELETE | EntityCredentials.LINK |
-                                            EntityCredentials.UNLINK,
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-        cat, subcat = self.create_cat_n_subcat()
-        response = self.assertPOST200('/billing/%s/service_line/add_on_the_fly' % invoice.id,
-                                      data={'on_the_fly_item':    'Car wash',
-                                            'comment':            'no comment !',
-                                            'quantity':           2,
-                                            'unit_price':         Decimal('1.33'),
-                                            'discount':           Decimal(),
-                                            'discount_unit':      1,
-                                            'vat_value':          Vat.objects.get(value='0.0').id,
-                                            'has_to_register_as': 'on',
-                                            'sub_category':       '{"category": %s, "subcategory": %s}' % (cat.id, subcat.id)
-                                         }
-                                   )
-        self.assertFormError(response, 'form', 'has_to_register_as',
-                             [_(u'You are not allowed to create this entity')]
-                            )
-        self.assertFalse(invoice.service_lines)
-        self.assertFalse(Service.objects.exists())
+    # def test_add_service_lines04(self):
+    #     "On-the-fly + service creation + no creation creds"
+    #     self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
+    #                creatable_models=[Invoice, Contact, Organisation], #not 'Service'
+    #               )
+    #
+    #     SetCredentials.objects.create(role=self.role,
+    #                                   value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+    #                                         EntityCredentials.DELETE | EntityCredentials.LINK |
+    #                                         EntityCredentials.UNLINK,
+    #                                   set_type=SetCredentials.ESET_OWN
+    #                                  )
+    #
+    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+    #     cat, subcat = self.create_cat_n_subcat()
+    #     response = self.assertPOST200('/billing/%s/service_line/add_on_the_fly' % invoice.id,
+    #                                   data={'on_the_fly_item':    'Car wash',
+    #                                         'comment':            'no comment !',
+    #                                         'quantity':           2,
+    #                                         'unit_price':         Decimal('1.33'),
+    #                                         'discount':           Decimal(),
+    #                                         'discount_unit':      1,
+    #                                         'vat_value':          Vat.objects.get(value='0.0').id,
+    #                                         'has_to_register_as': 'on',
+    #                                         'sub_category':       '{"category": %s, "subcategory": %s}' % (cat.id, subcat.id)
+    #                                      }
+    #                                )
+    #     self.assertFormError(response, 'form', 'has_to_register_as',
+    #                          [_(u'You are not allowed to create this entity')]
+    #                         )
+    #     self.assertFalse(invoice.service_lines)
+    #     self.assertFalse(Service.objects.exists())
 
     def test_related_document01(self):
         self.login()
@@ -412,39 +415,39 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(verbose_type, unicode(sl.get_verbose_type()))
         self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl).for_html())
 
-    def test_inline_edit(self):
-        self.login()
-
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-        pl = ProductLine.objects.create(user=self.user, unit_price=Decimal("10"),
-                                        vat_value=Vat.get_default_vat(),
-                                        related_document=invoice, on_the_fly_item='Flyyyyy',
-                                       )
-
-        self.assertEqual(DEFAULT_VAT, pl.vat_value.value)
-        self.assertEqual(Decimal('0'), pl.discount)
-        self.assertFalse(pl.total_discount)
-
-        null_vat = Vat.objects.get(value=0)
-        response = self.client.post('/billing/line/%s/edit_inner' % pl.id, follow=True,
-                                    data={'unit_price':       20,
-                                          'quantity':         20,
-                                          'discount':         10,
-                                          'discount_unit':    AMOUNT_PK,
-                                          'total_discount':   '2',
-                                          'vat':              null_vat.id,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        pl = self.refresh(pl)
-        invoice = self.refresh(invoice)
-
-        self.assertEqual(Decimal('20'),  pl.unit_price)
-        self.assertEqual(Decimal('20'),  pl.quantity)
-        self.assertEqual(null_vat,       pl.vat_value)
-        self.assertEqual(Decimal('200'), invoice.total_no_vat)
-        self.assertEqual(Decimal('200'), invoice.total_vat)
+    # def test_inline_edit(self):
+    #     self.login()
+    #
+    #     invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+    #     pl = ProductLine.objects.create(user=self.user, unit_price=Decimal("10"),
+    #                                     vat_value=Vat.get_default_vat(),
+    #                                     related_document=invoice, on_the_fly_item='Flyyyyy',
+    #                                    )
+    #
+    #     self.assertEqual(DEFAULT_VAT, pl.vat_value.value)
+    #     self.assertEqual(Decimal('0'), pl.discount)
+    #     self.assertFalse(pl.total_discount)
+    #
+    #     null_vat = Vat.objects.get(value=0)
+    #     response = self.client.post('/billing/line/%s/edit_inner' % pl.id, follow=True,
+    #                                 data={'unit_price':       20,
+    #                                       'quantity':         20,
+    #                                       'discount':         10,
+    #                                       'discount_unit':    AMOUNT_PK,
+    #                                       'total_discount':   '2',
+    #                                       'vat':              null_vat.id,
+    #                                      }
+    #                                )
+    #     self.assertNoFormError(response)
+    #
+    #     pl = self.refresh(pl)
+    #     invoice = self.refresh(invoice)
+    #
+    #     self.assertEqual(Decimal('20'),  pl.unit_price)
+    #     self.assertEqual(Decimal('20'),  pl.quantity)
+    #     self.assertEqual(null_vat,       pl.vat_value)
+    #     self.assertEqual(Decimal('200'), invoice.total_no_vat)
+    #     self.assertEqual(Decimal('200'), invoice.total_vat)
 
     def test_multiple_delete01(self):
         self.login()
@@ -505,60 +508,60 @@ class LineTestCase(_BillingTestCase):
                           )
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 
-    def _build_bulk_url(self, line_class, *lines):
-        return u'/creme_core/entity/bulk_update/%(ct_id)s/?persist=ids&ids=%(ids)s' % { #TODO: ids=&ids=9 etc.... ok ??
-                'ct_id': ContentType.objects.get_for_model(line_class).id,
-                'ids':   '&ids='.join(str(line.id) for line in lines),
-                }
-
-    def test_bulk_update(self):
-        self.login()
-
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-
-        def create_line(cls, price):
-            return cls.objects.create(user=self.user, related_document=invoice,
-                                      on_the_fly_item='Fly ' + price,
-                                      unit_price=Decimal(price),
-                                      quantity=1,
-                                     )
-
-        pl1 = create_line(ProductLine, '10')
-        pl2 = create_line(ProductLine, '20')
-        sl1 = create_line(ServiceLine, '100')
-        sl2 = create_line(ServiceLine, '300')
-
-        invoice.save() # updates totals
-
-        self.assertEqual(2, len(invoice.product_lines))
-        self.assertEqual(2, len(invoice.service_lines))
-
-        expected_total = Decimal('430')
-        self.assertEqual(expected_total, invoice.total_no_vat)
-        self.assertEqual(expected_total, invoice.total_vat)
-
-        url = self._build_bulk_url(ProductLine, pl1, pl2)
-        self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'field_name':   'quantity',
-                                                           'field_value':  2,
-                                                           'entities_lbl': 'whatever',
-                                                          }
-                                                )
-                              )
-
-        url = self._build_bulk_url(ServiceLine, sl1, sl2)
-        self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'field_name':   'unit_price',
-                                                           'field_value':  500,
-                                                           'entities_lbl': 'whatever',
-                                                          }
-                                               )
-                              )
-
-        invoice = self.refresh(invoice)
-        expected_total = Decimal('1060')
-        self.assertEqual(expected_total, invoice.total_no_vat)
-        self.assertEqual(expected_total, invoice.total_vat)
+    # def _build_bulk_url(self, line_class, *lines):
+    #     return u'/creme_core/entity/bulk_update/%(ct_id)s/?persist=ids&ids=%(ids)s' % { #TODO: ids=&ids=9 etc.... ok ??
+    #             'ct_id': ContentType.objects.get_for_model(line_class).id,
+    #             'ids':   '&ids='.join(str(line.id) for line in lines),
+    #             }
+    #
+    # def test_bulk_update(self):
+    #     self.login()
+    #
+    #     invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+    #
+    #     def create_line(cls, price):
+    #         return cls.objects.create(user=self.user, related_document=invoice,
+    #                                   on_the_fly_item='Fly ' + price,
+    #                                   unit_price=Decimal(price),
+    #                                   quantity=1,
+    #                                  )
+    #
+    #     pl1 = create_line(ProductLine, '10')
+    #     pl2 = create_line(ProductLine, '20')
+    #     sl1 = create_line(ServiceLine, '100')
+    #     sl2 = create_line(ServiceLine, '300')
+    #
+    #     invoice.save() # updates totals
+    #
+    #     self.assertEqual(2, len(invoice.product_lines))
+    #     self.assertEqual(2, len(invoice.service_lines))
+    #
+    #     expected_total = Decimal('430')
+    #     self.assertEqual(expected_total, invoice.total_no_vat)
+    #     self.assertEqual(expected_total, invoice.total_vat)
+    #
+    #     url = self._build_bulk_url(ProductLine, pl1, pl2)
+    #     self.assertGET200(url)
+    #     self.assertNoFormError(self.client.post(url, data={'field_name':   'quantity',
+    #                                                        'field_value':  2,
+    #                                                        'entities_lbl': 'whatever',
+    #                                                       }
+    #                                             )
+    #                           )
+    #
+    #     url = self._build_bulk_url(ServiceLine, sl1, sl2)
+    #     self.assertGET200(url)
+    #     self.assertNoFormError(self.client.post(url, data={'field_name':   'unit_price',
+    #                                                        'field_value':  500,
+    #                                                        'entities_lbl': 'whatever',
+    #                                                       }
+    #                                            )
+    #                           )
+    #
+    #     invoice = self.refresh(invoice)
+    #     expected_total = Decimal('1060')
+    #     self.assertEqual(expected_total, invoice.total_no_vat)
+    #     self.assertEqual(expected_total, invoice.total_vat)
 
     def test_delete_vat01(self):
         self.login()
@@ -589,6 +592,269 @@ class LineTestCase(_BillingTestCase):
         self.assertGET404(self._build_import_url(Line))
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
+
+    def _build_add2catalog_url(self, line):
+        return '/billing/line/%s/add_to_catalog' % line.id
+
+    def _build_dict_cat_subcat(self, cat, subcat):
+        return {'sub_category': '{"category": %s, "subcategory": %s}' % (cat.id, subcat.id)}
+
+    def test_convert_on_the_fly_line_to_real_item01(self):
+        "convert on the fly product"
+        self.login()
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        unit_price = Decimal('50.0')
+        product_name = 'on the fly product'
+        user = self.user
+        product_line = ProductLine.objects.create(user=user, related_document=invoice,
+                                                  on_the_fly_item=product_name,
+                                                  unit_price=unit_price, unit='',
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+        self.assertGET200(self._build_add2catalog_url(product_line))
+        response = self.client.post(self._build_add2catalog_url(product_line),
+                                      data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertNoFormError(response)
+        self.assertTrue(Product.objects.exists())
+
+        self.get_object_or_fail(Product, name=product_name, unit_price=unit_price, user=user)
+
+    def test_convert_on_the_fly_line_to_real_item02(self):
+        "convert on the fly service"
+        self.login()
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        unit_price = Decimal('50.0')
+        service_name = 'on the fly service'
+        user = self.user
+        service_line = ServiceLine.objects.create(user=user, related_document=invoice,
+                                                  on_the_fly_item=service_name,
+                                                  unit_price=unit_price, unit='',
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+
+        response = self.client.post(self._build_add2catalog_url(service_line),
+                                      data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertNoFormError(response)
+        self.assertTrue(Service.objects.exists())
+
+        self.get_object_or_fail(Service, name=service_name, unit_price=unit_price, user=user)
+
+    def test_convert_on_the_fly_line_to_real_item03(self):
+        "On-the-fly + product creation + no creation creds"
+        self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
+                   creatable_models=[Invoice, Contact, Organisation], #not 'Product'
+                  )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE | EntityCredentials.LINK |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item='on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+        self.assertPOST403(self._build_add2catalog_url(product_line),
+                           data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertFalse(Product.objects.exists())
+
+    def test_convert_on_the_fly_line_to_real_item04(self):
+        "On-the-fly + service creation + no creation creds"
+        self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
+                   creatable_models=[Invoice, Contact, Organisation], #not 'Service'
+                  )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE | EntityCredentials.LINK |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item='on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+        self.assertPOST403(self._build_add2catalog_url(service_line),
+                           data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertFalse(Service.objects.exists())
+
+    def test_convert_on_the_fly_line_to_real_item05(self):
+        "already related item product line"
+        self.login()
+
+        product = self.create_product()
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
+                                                  related_item=product,
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+        response = self.assertPOST200(self._build_add2catalog_url(product_line),
+                                      data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertFormError(response, 'form', None,
+                             _(u'You are not allowed to add this item to the catalog because it is not on the fly')
+                            )
+        self.assertEqual(1, Product.objects.count())
+
+    def test_convert_on_the_fly_line_to_real_item06(self):
+        "already related item service line"
+        self.login()
+
+        service = self.create_service()
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  related_item=service,
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        cat, subcat = self.create_cat_n_subcat()
+        response = self.assertPOST200(self._build_add2catalog_url(service_line),
+                                      data=self._build_dict_cat_subcat(cat, subcat))
+
+        self.assertFormError(response, 'form', None,
+                             _(u'You are not allowed to add this item to the catalog because it is not on the fly')
+                            )
+        self.assertEqual(1, Service.objects.count())
+
+
+    def test_multi_save_lines01(self):
+        "1 service line updated"
+        self.login()
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item=u'on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        service_line_ct_id = ContentType.objects.get_for_model(ServiceLine).id
+        # (name, unit price, quantity, discount, disocunt unit, vat, unit)
+        data = [('on the fly service updated', '100.0', '2', '20', '1', '1', 'day')]
+
+        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+                                    data={service_line_ct_id: JSONEncoder().encode({
+                                                        'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
+                                                        'service_line_formset-INITIAL_FORMS':      1,
+                                                        'service_line_formset-MAX_NUM_FORMS':      u'',
+                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-user':             self.user.id,
+                                                        'service_line_formset-0-on_the_fly_item':  data[0][0],
+                                                        'service_line_formset-0-unit_price':       data[0][1],
+                                                        'service_line_formset-0-quantity':         data[0][2],
+                                                        'service_line_formset-0-discount':         data[0][3],
+                                                        'service_line_formset-0-discount_unit':    data[0][4],
+                                                        'service_line_formset-0-vat_value':        data[0][5],
+                                                        'service_line_formset-0-unit':             data[0][6],
+                                                    })
+                                           }
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertEqual(1, ServiceLine.objects.count())
+        service_line = self.refresh(service_line)
+        self.assertEqual('on the fly service updated', service_line.on_the_fly_item)
+        self.assertEqual(Decimal('100.0'), service_line.unit_price)
+        self.assertEqual(Decimal('2'), service_line.quantity)
+        self.assertEqual('day', service_line.unit)
+
+    def test_multi_save_lines02(self):
+        "1 product line created on the fly and 1 deleted"
+        self.login()
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item=u'on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        product_line_ct_id = ContentType.objects.get_for_model(ProductLine).id
+
+        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+                                    data={product_line_ct_id: JSONEncoder().encode({
+                                                        'product_line_formset-TOTAL_FORMS':        len(invoice.product_lines) + 1,
+                                                        'product_line_formset-INITIAL_FORMS':      1,
+                                                        'product_line_formset-MAX_NUM_FORMS':      u'',
+                                                        'product_line_formset-0-DELETE':           True,
+                                                        'product_line_formset-0-line_ptr':         product_line.id,
+                                                        'product_line_formset-0-user':             self.user.id,
+                                                        'product_line_formset-0-on_the_fly_item':  "whatever",
+                                                        'product_line_formset-0-unit_price':       "whatever",
+                                                        'product_line_formset-0-quantity':         "whatever",
+                                                        'product_line_formset-0-discount':         "whatever",
+                                                        'product_line_formset-0-discount_unit':    "whatever",
+                                                        'product_line_formset-0-vat_value':        "whatever",
+                                                        'product_line_formset-0-unit':             "whatever",
+                                                        'product_line_formset-1-user':             self.user.id,
+                                                        'product_line_formset-1-on_the_fly_item':  "new on the fly product",
+                                                        'product_line_formset-1-unit_price':       "69.0",
+                                                        'product_line_formset-1-quantity':         "2",
+                                                        'product_line_formset-1-discount':         "50.00",
+                                                        'product_line_formset-1-discount_unit':    "1",
+                                                        'product_line_formset-1-vat_value':        "1",
+                                                        'product_line_formset-1-unit':             "month",
+                                                    })
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        product_lines = ProductLine.objects.all()
+        self.assertEqual(1, len(product_lines))
+
+        product_line = product_lines[0]
+        self.assertEqual('new on the fly product', product_line.on_the_fly_item)
+        self.assertEqual(Decimal('69.0'), product_line.unit_price)
+        self.assertEqual(Decimal('2'), product_line.quantity)
+        self.assertEqual('month', product_line.unit)
+
+    def test_multi_save_lines03(self):
+        "no creds"
+        self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
+                   creatable_models=[Invoice, Contact, Organisation],
+                  )
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.DELETE | EntityCredentials.LINK |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item=u'on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+        service_line_ct_id = ContentType.objects.get_for_model(ServiceLine).id
+        # (name, unit price, quantity, discount, disocunt unit, vat, unit)
+        data = [('on the fly service updated', '100.0', '2', '20', '1', '1', 'day')]
+
+        self.assertPOST403('/billing/%s/multi_save_lines' % invoice.id,
+                           data={service_line_ct_id: JSONEncoder().encode({
+                                                'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
+                                                'service_line_formset-INITIAL_FORMS':      1,
+                                                'service_line_formset-MAX_NUM_FORMS':      u'',
+                                                'service_line_formset-0-line_ptr':         service_line.id,
+                                                'service_line_formset-0-user':             self.user.id,
+                                                'service_line_formset-0-on_the_fly_item':  data[0][0],
+                                                'service_line_formset-0-unit_price':       data[0][1],
+                                                'service_line_formset-0-quantity':         data[0][2],
+                                                'service_line_formset-0-discount':         data[0][3],
+                                                'service_line_formset-0-discount_unit':    data[0][4],
+                                                'service_line_formset-0-vat_value':        data[0][5],
+                                                'service_line_formset-0-unit':             data[0][6],
+                                            })
+                                }
+                           )
 
     def test_global_discount_change(self):
         self.login()

@@ -135,7 +135,7 @@ class Line(CremeEntity):
 
     def get_price_exclusive_of_tax(self, document=None):
         document                = document if document else self.related_document
-        discount_document       = document.discount
+        discount_document       = document.discount if document else None
         discount_line           = self.discount
         global_discount_line    = self.total_discount
         unit_price_line         = self.unit_price

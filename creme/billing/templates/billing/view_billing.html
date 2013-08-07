@@ -10,3 +10,29 @@
     {% endif %}
     {{block.super}}
 {% endblock %}
+
+{% block extrahead %}
+    {{block.super}}
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $(window).bind('beforeunload', creme.billing.checkModifiedOnUnload);
+            creme.billing.initBlockLines('{{ object.currency.local_symbol }}');
+        });
+    </script>
+{% endblock %}
+
+{% block extra_menu_buttons %}
+    <li>{% has_perm_to change object as change_perm %}{% trans "Save all lines" as verbose_name %}
+        {% if change_perm %}
+            <a class="menu_button" onclick="creme.billing.multi_save_lines('{{object.pk}}');return false;">
+                <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{verbose_name}}" alt="{{verbose_name}}" />
+                {{verbose_name}}
+            </a>
+        {% else %}
+            <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+                <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{verbose_name}}" alt="{{verbose_name}}" />
+                {{verbose_name}}
+            </span>
+        {% endif %}
+    </li>
+{% endblock %}

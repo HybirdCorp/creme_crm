@@ -3,22 +3,24 @@
 {% load creme_core_tags creme_block %}
 
 {% block header %}
-    {% get_block_title _('%s related Service') _('%s related Services') 'service_48.png' _('Service') %}
+    <table style="margin:0px;padding:0px;">
+        <tr>
+            <td valign="middle"><img src="{% creme_media_url 'images/service_22.png' %}" alt="{% trans "Service" %}" title="{% trans "Service" %}"/></td>
+            <td>
+                {% blocktrans count item_count=item_count %}
+                    {{item_count}} Service
+                {% plural %}
+                    {{item_count}} Services
+                {% endblocktrans %}
+            </td>
+        </tr>
+    </table>
 {% endblock %}
 
 {% block add_buttons %}
     {% has_perm_to change object as has_perm %}
-    {% get_line_adder at_url '/billing/{{object.id}}/service_line/add_multiple' with_label _("Add one or more service") with_perms has_perm %}
-    {% get_line_adder at_url '/billing/{{object.id}}/service_line/add_on_the_fly' with_label _("Add a line on the fly") with_perms has_perm %}
     {% get_listview_button with_ct_id ct_id with_label _("List of related services") with_q_filter q_filter %}
+    {% get_line_adder at_url '/billing/{{object.id}}/service_line/add_multiple' with_label _("Add one or more service") with_perms has_perm %}
 {% endblock %}
-
-{% block item_name %}{% trans "Service" %}{% endblock %}
 
 {% block empty_msg %}{% trans "No service in this document" %}{% endblock %}
-
-{% block line_actions %}
-    {% has_perm_to change object as has_perm %}
-    {% get_line_editor at_url '/billing/serviceline/{{line.id}}/edit' with_perms has_perm %}
-    {{block.super}}
-{% endblock %}
