@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.forms.models import modelformset_factory
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -31,9 +32,13 @@ from creme.creme_config.models.setting import SettingValue
 from creme.persons.models import Contact, Organisation
 from creme.persons.blocks import AddressBlock
 
+from creme.products.models import Product, Service
+
 from .models import *
 from .models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from .forms.line import LineEditForm
 from .constants import *
+from .views.line import LINE_FORMSET_PREFIX
 
 
 class BillingBlock(Block):
@@ -48,46 +53,73 @@ class BillingBlock(Block):
                            )
 
 
-#NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
-#   queryset of lines : we retrieve all the lines to compute the totals any way.
-class ProductLinesBlock(PaginatedBlock):
-    id_           = PaginatedBlock.generate_id('billing', 'product_lines')
-    dependencies  = (ProductLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
-    verbose_name  = _(u'Product lines')
-    template_name = 'billing/templatetags/block_product_line.html'
-    relation_type_deps = (REL_SUB_HAS_LINE, )
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+class _LineBlock(SimpleBlock):
+    dependencies        = (Base, CreditNote, Quote, Invoice, SalesOrder)
+    target_ctypes       = (Base, CreditNote, Quote, Invoice, SalesOrder)
+    line_model          = "OVERLOAD_ME"
+    line_type           = "OVERLOAD_ME"
+    related_item_ct     = "OVERLOAD_ME"
+    related_item_label  = "OVERLOAD_ME"
+
+    def _get_document_lines(self, document):
+        raise NotImplementedError
 
     def detailview_display(self, context):
         document = context['object']
-        for i, product_line in enumerate(document.product_lines, start=1):
-            product_line.number = i
-        return self._render(self.get_block_template_context(context, document.product_lines,
+        lines = self._get_document_lines(document)
+
+        class _LineForm(LineEditForm):
+            def __init__(self, *args, **kwargs):
+                self.empty_permitted = False
+                super(_LineForm, self).__init__(user=context['user'], related_document=document, *args, **kwargs)
+
+        lineformset_class = modelformset_factory(self.line_model,
+                                                 # TODO can always delete ??? for example a quote accepted
+                                                 # can we really delete a line of this document ???
+                                                 can_delete=True,
+                                                 form=_LineForm,
+                                                 extra=0)
+
+        lineformset = lineformset_class(prefix=LINE_FORMSET_PREFIX[self.line_model], queryset=lines)
+
+        return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                                                            ct_id=ContentType.objects.get_for_model(ProductLine).id,
-                                                            q_filter=JSONEncoder().encode({'type':PRODUCT_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
-                                                            vat_list = Vat.objects.all(), # TODO better way ?
-                                                           ))
+                                                            ct_id=ContentType.objects.get_for_model(self.line_model).id,
+                                                            formset=lineformset,
+                                                            item_count=lines.count(),
+                                                            related_item_ct=self.related_item_ct,
+                                                            related_item_label=self.related_item_label,
+                                                            q_filter=JSONEncoder().encode({'type':self.line_type,
+                                                                                           'relations__type': REL_OBJ_HAS_LINE,
+                                                                                           'relations__object_entity': document.id}),
+                                                            )
+        )
 
 
-class ServiceLinesBlock(PaginatedBlock):
-    id_           = PaginatedBlock.generate_id('billing', 'service_lines')
-    dependencies  = (ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
-    verbose_name  = _(u'Service lines')
-    template_name = 'billing/templatetags/block_service_line.html'
-    relation_type_deps = (REL_SUB_HAS_LINE, )
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+class ProductLinesBlock(_LineBlock):
+    id_                 = SimpleBlock.generate_id('billing', 'product_lines')
+    verbose_name        = _(u'Product lines')
+    template_name       = 'billing/templatetags/block_product_line.html'
+    line_model          = ProductLine
+    line_type           = PRODUCT_LINE_TYPE
+    related_item_ct     = ContentType.objects.get_for_model(Product)
+    related_item_label  = _(u'Product')
 
-    def detailview_display(self, context):
-        document = context['object']
-        for i, service_line in enumerate(document.service_lines, start=1):
-            service_line.number = i
-        return self._render(self.get_block_template_context(context, document.service_lines,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                                                            ct_id=ContentType.objects.get_for_model(ServiceLine).id,
-                                                            q_filter=JSONEncoder().encode({'type':SERVICE_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
-                                                            vat_list = Vat.objects.all(), # TODO better way ?
-                                                            ))
+    def _get_document_lines(self, document):
+        return document.product_lines
+
+
+class ServiceLinesBlock(_LineBlock):
+    id_                 = SimpleBlock.generate_id('billing', 'service_lines')
+    verbose_name        = _(u'Service lines')
+    template_name       = 'billing/templatetags/block_service_line.html'
+    line_model          = ServiceLine
+    line_type           = SERVICE_LINE_TYPE
+    related_item_ct     = ContentType.objects.get_for_model(Service)
+    related_item_label  = _(u'Service')
+
+    def _get_document_lines(self, document):
+        return document.service_lines
 
 
 class CreditNoteBlock(QuerysetBlock):

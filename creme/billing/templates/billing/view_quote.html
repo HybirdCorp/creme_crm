@@ -1,5 +1,6 @@
 {% extends "billing/view_billing.html" %}
 {% block extra_menu_buttons %}{% comment %}TODO: create true buttons ??{% endcomment %}
+    {{block.super}}
     <li>{% include "billing/frags/button_convert2order.html" with has_perm=can_create_order %}</li>
     <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>
 {% endblock %}

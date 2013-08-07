@@ -1,109 +1,102 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
-<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=12 %}
-        <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
-        <th class="actions">
-            <div class="buttons">
-                {% block add_buttons %}BUTTONS HERE{% endblock %}
-            </div>
-        </th>
-    {% end_get_block_header %}
-    <tbody class="collapsable">
-        {% if page.paginator.count %}
-            <tr class="header">
-                <th class="block_header_line_dark">
-                    <a onclick="creme.billing.bulkLineUpdate({% get_block_reload_uri %}, {{ ct_id }});">
-                        <img src="{% creme_media_url 'images/edit_22.png' %}" border="0">
+
+{# /!\ See view_billing.html for javascrip document ready related to block lines #}
+
+<script type='text/javascript'>
+    // init block after a json reload
+    creme.billing.initBlockLines('{{object.currency.local_symbol}}');
+</script>
+
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id={{block_name}}>
+
+    <thead>
+        <tr>
+            <th class="collapser label" align="left">
+                {% block header %}HEADER{% endblock %}
+            </th>
+            <th>
+                {% comment %} TODO more than one on the fly line at the same time ?? {% endcomment %}
+                <div class="buttons">
+                    {% block add_buttons %}BUTTONS HERE{% endblock %}
+                    <a class="add add_on_the_fly_{{ ct_id }}" onclick="creme.billing.showEmptyForm($(this), '{{ ct_id }}', '{{formset.prefix}}', {{item_count}});return false;">
+                        {% trans "Add a line on the fly" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+                        {{img_title}}
                     </a>
-                    <a onclick="creme.billing.multipleLineDelete({% get_block_reload_uri %});">
-                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0">
-                    </a>
-                </th>
-                <td bgcolor="#b3d2df" colspan="12" name="error_lines" id="error_lines" align="left">&nbsp;
-                    {% trans "No line errors for the moment" %}
+                </div>
+            </th>
+        </tr>
+    </thead>
+    {% comment %} TODO improve the opti of reload block that only have been modified {% endcomment %}
+    <tbody class="collapsable" ct_id="{{ ct_id }}" id="form_id_{{ ct_id }}" block_name="{{block_name}}" reload_url={% get_block_reload_uri %}>
+        {% csrf_token %}
+        {{formset.management_form}}
+
+        {% for form in formset %}
+            <tr style="display: none">
+                <td>{{form.user}} {{form.DELETE}} {{form.line_ptr}}</td>
+            </tr>
+
+            <tr class="content">
+                <td colspan="13" style="padding:0px 0px;">
+                    <table class="table_detail_view" style="margin:0px;padding:0px;">
+
+                        <th class="block_header_line_dark" align="center" width="2%" id="line_content_{{form.instance.id}}">
+                            {{forloop.counter}}
+                            <br /><br />
+                            <a onclick="creme.billing.markDelete('{{form.prefix}}', '{{ct_id}}', '{{form.instance.id}}');">
+                                <img src="{% creme_media_url 'images/delete_16.png' %}" border="0" title="{% trans "flag for delete" %}" alt="{% trans "flag for delete" %}">
+                            </a>
+                            <br /><br />
+                            <a onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ ct_id }}');">
+                                <img src="{% creme_media_url 'images/refresh_16.png' %}" border="0" title="{% trans "reset" %}" alt="{% trans "reset" %}">
+                            </a>
+                        </th>
+
+                        <td class="restorable_{{form.instance.id}}" style="padding:0px 0px;background-color: #F4FAFD;">
+                            {% include "billing/frags/generic_billing_line_frag.html" %}
+                        </td>
+
+                    </table>
                 </td>
             </tr>
-            <tr class="header">
-                <th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>
-                <th class="block_header_line_dark" width="2%">N°</th>
-                <th class="block_header_line_dark" width="17%">{% block item_name %}ITEM NAME{% endblock %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "Unit price" %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "Unit" %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "Quantity" %}</th>
-                <th class="block_header_line_dark" width="13%">{% trans "Comment" %}</th>
-                <th class="block_header_line_dark" width="18%">{% trans "Discount" %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "VAT" %}</th>
-                <th class="block_header_line_dark" width="7%">{% trans "Total (exclusive of tax)" %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
-                <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
+
+            {% if not forloop.last %}<tr><td class="line-background-color" colspan="10">&nbsp;</td></tr>{% endif %}
+
+        {% empty %}
+            <tr class="empty_msg_{{ct_id}}"><td>{% block empty_msg %}HEADER{% endblock %}</td></tr>
+        {% endfor %}
+
+        {% if formset %}
+            <tr class="empty_form_{{ct_id}} space_line_{{ct_id}}" style="display: none">
+                <td class="line-background-color">&nbsp;</td>
             </tr>
-            {% for line in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content" name="tr_line_{{line.id}}" id="tr_line_{{line.id}}" method="POST" action="/billing/line/{{line.id}}/edit_inner">
-                    {% csrf_token %}
-                    <td class="{{row_color}}" align="center">
-                        <input name="select_one" value="{{line.pk}}" type="checkbox" />
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        <input type="hidden" id="line_number" value="{{line.number}}">{{line.number}}
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        {% if line.related_item %}
-                            {% widget_entity_hyperlink line.related_item user %}
-                        {% else %}
-                            <input class="line-on_the_fly" type="textbox" name="on_the_fly" id="on_the_fly{{line.pk}}" value="{{line.on_the_fly_item}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkValue);">
-                        {% endif %}
-                    </td>
-                    <td class="{{row_color}}" align="right">
-                        <input class="line-unit_price" type="textbox" name="unit_price" id="unit_price{{line.pk}}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkDecimal);">
-                        {{ object.currency.local_symbol }}
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        / <input class="line-unit" type="textbox" name="unit" id="unit{{line.pk}}" value="{% if line.unit %}{{line.unit}}{% endif %}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        <input class="line-quantity_discount" type="textbox" name="quantity" id="quantity{{line.pk}}" value="{{line.quantity}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
-                    </td>
-                    <td class="{{row_color}}" align="center" id="comment{{ line.pk }}" name="comment{{line.pk}}" {% if line.comment %}title="{{line.comment}}"{% endif %}>
-                        {% if line.comment %}
-                            {{line.comment|truncatewords:3}}
-                        {% endif %}
-                        {% has_perm_to change object as has_perm %}
-                        {% get_line_editor at_url '/billing/line/{{line.id}}/edit' with_perms has_perm %}
-                        <script type='text/javascript'>
-                            $('#comment{{line.pk}}').twipsy ({live: true});
-                        </script>
-                    </td>
-                    <td class="{{row_color}}" align="center" id="discount_td" name="discount_td">
-                        <input class="line-quantity_discount" type="textbox" name="discount" id="discount{{line.pk}}" value="{{line.discount}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                        <select name="discount_unit" id="discount_unit{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                            <option value="1" {% ifequal line.discount_unit 1 %}selected="true"{% endifequal %}>%</option>
-                            <option value="2" {% ifnotequal line.discount_unit 1 %}selected="true"{% endifnotequal %}>{{ object.currency.local_symbol }}</option>
-                        </select>
-                        <select name="total_discount" id="total_discount{{line.pk}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                            <option value="1" {% if line.total_discount %}selected="true"{% endif %}>{% trans "On the line" %}</option>
-                            <option value="2" {% if not line.total_discount %}selected="true"{% endif %}>{% trans " On product/service" %}</option>
-                        </select>
-                    </td>
-                    <td class="{{row_color}}" align="center">
-                        <select style="text-align:right;" name="vat" name="vat{{line.id}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                            {% for vat in vat_list %}
-                                <option value="{{vat.id}}" {% ifequal line.vat_value vat %}selected="true"{% endifequal %}>{{vat.value}}</option>
-                            {% endfor %}
-                        </select> %
-                    </td>
-                    {% with object.currency.pk as currency_id %}
-                    <td class="{{row_color}}" align="right">{{line.get_raw_price|format_amount:currency_id}}</td>
-                    <td class="{{row_color}}" align="right">{{line.get_price_exclusive_of_tax|format_amount:currency_id}}</td>
-                    <td class="{{row_color}}" align="right">{{line.get_price_inclusive_of_tax|format_amount:currency_id}}</td>
-                    {% endwith %}
-                    </tr>
-            {% endfor %}
-        {% else %}
-            <tr class="content empty">
-                <td class="block_line_dark">{% block empty_msg %}EMPTY{% endblock %}</td>
+
+            {% with formset.empty_form as form %}
+            <tr class="content empty_form_{{ct_id}}" style="display: none">
+                <td colspan="13" style="padding:0px 0px;">
+
+                    <table class="table_detail_view empty_form_inputs_{{ct_id}}" style="margin:0px;padding:0px;">
+                        <tr>
+                            <td style="display: none"> {{form.user}} {{form.DELETE}} {{form.line_ptr}} </td>
+
+                            <th class="block_header_line_dark" align="center" width="2%" id="line_content_{{ct_id}}_{{form.prefix}}">
+                                <a onclick="creme.billing.hideEmptyForm('{{ ct_id }}', '{{formset.prefix}}', {{item_count}});">
+                                    <img src="{% creme_media_url 'images/delete_16.png' %}" border="0" alt="{% trans "flag for delete" %}">
+                                </a>
+                            </th>
+
+                            <td style="padding:0px 0px;background-color: #F4FAFD;">
+                                {% include "billing/frags/generic_billing_line_frag.html" %}
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
             </tr>
+            {% endwith %}
         {% endif %}
+
     </tbody>
-    {% get_block_footer 12 %}
+
 </table>

@@ -12,7 +12,7 @@ td.line-error {
 
 input.line-on_the_fly {
     text-align: center;
-    width: 200px;
+    width: 250px;
 }
 
 input.line-unit {
@@ -22,11 +22,33 @@ input.line-unit {
 
 input.line-unit_price {
     text-align: right;
-    width: 60px;
+    width: 80px;
 }
 
 input.line-quantity_discount {
     text-align: right;
+    width: 60px;
+}
+
+input.line-quantity {
+    text-align: right;
     width: 40px;
 }
 
+input.line-unit {
+    text-align: right;
+    width: 120px;
+}
+
+textarea.line-comment {
+    width: 100%;
+    height: 65px;
+}
+
+select.line-vat {
+    text-align: right;
+}
+
+line-background-color {
+    background-color: #ffffff;
+}
