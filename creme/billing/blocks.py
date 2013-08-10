@@ -36,9 +36,7 @@ from creme.products.models import Product, Service
 
 from .models import *
 from .models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-from .forms.line import LineEditForm
 from .constants import *
-from .views.line import LINE_FORMSET_PREFIX
 
 
 class BillingBlock(Block):
@@ -65,6 +63,9 @@ class _LineBlock(SimpleBlock):
         raise NotImplementedError
 
     def detailview_display(self, context):
+        from .forms.line import LineEditForm
+        from .views.line import LINE_FORMSET_PREFIX
+
         document = context['object']
         lines = self._get_document_lines(document)
 

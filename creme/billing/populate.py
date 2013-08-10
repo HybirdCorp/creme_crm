@@ -77,7 +77,7 @@ class Populator(BasePopulator):
 
         existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
         if not existing_vats:
-            values = set(Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60'])
+            values = set(Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '21.20'])
             values.add(DEFAULT_VAT)
 
             create_vat = Vat.objects.create
