@@ -41,13 +41,16 @@ class BaseReportsTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
-    def create_report(self, name='Report #1', efilter=None):
+    def create_report(self, name='Report #1', efilter=None, extra_hfitems=()):
         hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
-                      HeaderFilterItem.build_4_field(model=Contact, name='user'),
-                      HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_HAS)),
-                      HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
-                     ])
+
+        hf_items = [HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+                    HeaderFilterItem.build_4_field(model=Contact, name='user'),
+                    HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_HAS)),
+                    HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
+                   ]
+        hf_items.extend(extra_hfitems)
+        hf.set_items(hf_items)
 
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':   self.user.pk,

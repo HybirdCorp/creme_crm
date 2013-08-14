@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 from itertools import chain
+import logging
 
 from django.db.models.query_utils import Q
 from django.forms.fields import MultipleChoiceField, ChoiceField
@@ -44,6 +45,9 @@ from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
 
 
+logger = logging.getLogger(__name__)
+
+
 def _save_field(name, title, order, type):
     return Field.objects.create(name=name, title=title, order=order, type=type)
 
@@ -53,8 +57,8 @@ def save_hfi_field(model, column, order):
 def save_hfi_related_field(model, related_field_name, order):
     return _save_field(related_field_name, get_related_field_verbose_name(model, related_field_name), order, HFI_RELATED)
 
-def save_hfi_cf(name, title, order):
-    return _save_field(name, title, order, HFI_CUSTOM)
+def save_hfi_cf(custom_field, order):
+    return _save_field(custom_field.id, custom_field.name, order, HFI_CUSTOM)
 
 def save_hfi_relation(relation, order):
     try:
@@ -90,11 +94,11 @@ def get_hfi_related_field_or_save(columns_get, model, column, order):
         f = save_hfi_related_field(model, column, order)
     return f
 
-def get_hfi_cf_or_save(columns_get, column, order):
+def get_hfi_cf_or_save(columns_get, custom_field, order):
     try:
-        f = _get_field(columns_get, column, HFI_CUSTOM, order)
+        f = _get_field(columns_get, custom_field.id, HFI_CUSTOM, order)
     except Field.DoesNotExist:
-        f = save_hfi_cf(column, column, order)
+        f = save_hfi_cf(custom_field, order)
     return f
 
 def get_hfi_relation_or_save(columns_get, relation, order):
@@ -199,6 +203,9 @@ class CreateForm(CremeEntityForm):
 
         #To hande a validation error get ct_id data to rebuild all ?
 
+    #TODO: clean_hf
+    #TODO: clean_filter
+
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
@@ -255,9 +262,18 @@ class CreateForm(CremeEntityForm):
                 report_fields.append(save_hfi_related_field(model, related_field, i))
                 i += 1
 
-            for custom_field in get_data('custom_fields'):
-                report_fields.append(save_hfi_cf(custom_field, custom_field, i))
-                i += 1
+            cf_ids = get_data('custom_fields')
+            if cf_ids:
+                cfields = CustomField.objects.filter(content_type=report.ct).in_bulk(cf_ids)
+
+                for cf_id in cf_ids:
+                    try:
+                        cfield = cfields[int(cf_id)]
+                    except (ValueError, KeyError):
+                        logger.exception('CreateForm.save()')
+                    else:
+                        report_fields.append(save_hfi_cf(cfield, i))
+                        i += 1
 
             for relation in get_data('relations'):
                 report_fields.append(save_hfi_relation(relation, i))
@@ -330,11 +346,13 @@ class AddFieldToReportForm(CremeForm):
         model = ct.model_class()
 
         fields = self.fields
+        self.custom_fields = cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ct))
 
         #fields['columns'].choices        = get_flds_with_fk_flds_str(model, 1)
         fields['regular_fields'].choices = ModelFieldEnumerator(model, deep=1).filter(viewable=True).choices()
         fields['related_fields'].choices = Report.get_related_fields_choices(model)
-        fields['custom_fields'].choices  = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
+        #fields['custom_fields'].choices  = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
+        fields['custom_fields'].choices  = [(str(cf.id), cf.name) for cf in cfields.itervalues()]
         fields['relations'].choices      = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
         fields['functions'].choices      = [(f.name, f.verbose_name) for f in model.function_fields]
 
@@ -384,8 +402,8 @@ class AddFieldToReportForm(CremeForm):
             fields_to_keep.append(get_hfi_related_field_or_save(columns_get, model, related_field, i))
             i += 1
 
-        for custom_field in custom_fields:
-            fields_to_keep.append(get_hfi_cf_or_save(columns_get, custom_field, i))
+        for cf_id in custom_fields:
+            fields_to_keep.append(get_hfi_cf_or_save(columns_get, self.custom_fields[int(cf_id)], i))
             i += 1
 
         for relation in relations:
