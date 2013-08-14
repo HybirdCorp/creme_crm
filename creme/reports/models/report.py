@@ -233,11 +233,11 @@ class Field(CremeModel):
 
                     try:
                         cf = CustomField.objects.get(id=column_name, content_type=entity.entity_type)
-                    except ValueError: #TODO: remove when DataMigration is done
-                        try:
-                            cf = CustomField.objects.filter(name=column_name, content_type=entity.entity_type)[0]
-                        except IndexError:
-                            pass
+                    #except ValueError: #todo: remove when DataMigration is done
+                        #try:
+                            #cf = CustomField.objects.filter(name=column_name, content_type=entity.entity_type)[0]
+                        #except IndexError:
+                            #pass
                     except CustomField.DoesNotExist:
                         #TODO: remove the Field ??
                         logger.debug('Field.get_value(): CustomField "%s" does not exist any more', column_name)
