@@ -47,7 +47,7 @@ verbose_report_graph_types = {
     RGT_YEAR     : _(u"By years"),
     RGT_RANGE    : _(u"By X days"),
     RGT_FK       : _(u"By values"),
-    RGT_RELATION : _(u"By values"),
+    RGT_RELATION : _(u"By values (of related entities)"),
 }
 
 
@@ -56,9 +56,9 @@ class ReportGraph(CremeEntity):
     report   = ForeignKey(Report)
     abscissa = CharField(_(u'Abscissa axis'), max_length=100)
     ordinate = CharField(_(u'Ordinate axis'), max_length=100)
-    type     = PositiveIntegerField(_(u'Type'))
+    type     = PositiveIntegerField(_(u'Type')) #see RGT_*
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
-    is_count = BooleanField(_(u'Make a count instead of aggregate?'))
+    is_count = BooleanField(_(u'Make a count instead of aggregate?')) #TODO: 'count' function instead ???
 
     creation_label = _("Add a report's graph")
 

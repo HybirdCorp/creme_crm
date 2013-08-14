@@ -13,7 +13,8 @@ try:
     from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
     from creme.creme_core.utils.meta import get_verbose_field_name
 
-    from creme.persons.models import Organisation
+    from creme.persons.models import Organisation, Contact
+    from creme.persons.constants import REL_OBJ_EMPLOYED_BY
 
     from creme.billing.models import Invoice
     from creme.billing.constants import REL_SUB_BILL_RECEIVED
@@ -30,7 +31,10 @@ __all__ = ('ReportGraphTestCase',)
 
 
 class ReportGraphTestCase(BaseReportsTestCase):
-    def _build_add_graph_url(self, rgraph):
+    def _build_add_graph_url(self, report):
+        return '/reports/graph/%s/add' % report.id
+
+    def _build_add_block_url(self, rgraph):
         return '/reports/graph/%s/block/add' % rgraph.id
 
     def _builf_fetch_url(self, rgraph, order='ASC'):
@@ -67,7 +71,6 @@ class ReportGraphTestCase(BaseReportsTestCase):
         return rgraph
 
     def _create_report_n_graph_with_date_range(self, report, days):
-
         #TODO: we need a helper ReportGraph.create() ??
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"number of organisation created / 15 days",
@@ -77,32 +80,290 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         return rgraph
 
-    def test_aggregates_fields_not_required_with_count(self):
-        report = Report.objects.create(user=self.user,
-                                       name=u"All organisations",
-                                       ct=ContentType.objects.get_for_model(Organisation),
-                                       )
+    def test_createview01(self):
+        "RGT_FK"
+        report = self.create_simple_organisations_report()
 
-        url = '/reports/graph/%s/add' % report.id
+        url = self._build_add_graph_url(report)
         response = self.assertGET200(url)
         self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
-            fields_choices = fields['abscissa_fields'].choices[0][1]
+            fields_choices = fields['abscissa_field'].choices[0][1]
+            aggrfields_choices = fields['aggregate_field'].choices
 
         choices_set = set(c[0] for c in fields_choices)
         self.assertIn('created', choices_set)
         self.assertIn('sector', choices_set)
         self.assertNotIn('name', choices_set)
 
+        self.assertEqual([('capital', _(u'Capital'))], aggrfields_choices)
+
+        name = 'My Graph #1'
+        abscissa = 'sector'
+        gtype = RGT_FK
         response = self.client.post(url, data={'user': self.user.pk, #TODO: report.user used instead ??
-                                               'name':              'My Graph #1',
-                                               'abscissa_fields':   'sector',
-                                               'abscissa_group_by': RGT_FK,
+                                               'name':              name,
+                                               'abscissa_field':    abscissa,
+                                               'abscissa_group_by': gtype,
                                                'is_count':          True,
                                               })
         self.assertNoFormError(response)
+
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        self.assertEqual(self.user, rgraph.user)
+        self.assertEqual(abscissa,  rgraph.abscissa)
+        self.assertEqual('',        rgraph.ordinate)
+        self.assertEqual(gtype,     rgraph.type)
+        self.assertIsNone(rgraph.days)
+        self.assertIs(rgraph.is_count, True)
+
+        #------------------------------------------------------------
+        response = self.assertGET200(rgraph.get_absolute_url())
+        self.assertTemplateUsed(response, 'reports/view_graph.html')
+
+        #------------------------------------------------------------
+        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        #TODO: test collected data !!!!!!!!!!!!!
+
+        self.assertGET200(self._builf_fetch_url(rgraph, 'DESC'))
+        self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
+
+    def test_createview02(self):
+        "Ordinate with aggregate + RGT_DAY"
+        report = self.create_simple_organisations_report()
+        url = self._build_add_graph_url(report)
+
+        name = 'My Graph #1'
+        ordinate = 'capital'
+        gtype = RGT_DAY
+
+        def post(**kwargs):
+            data = {'user': self.user.pk,
+                    'name':              name,
+                    'abscissa_group_by': gtype,
+                   }
+            data.update(**kwargs)
+            return self.client.post(url, data=data)
+
+        response = post(abscissa_field='modified')
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', None,
+                             _(u"If you don't choose an ordinate field (or none available) "
+                                "you have to check 'Make a count instead of aggregate ?'"
+                              )
+                            )
+
+        response = post(abscissa_field='staff_size', aggregate_field=ordinate)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'abscissa_field',
+                             '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By days')
+                            )
+        self.assertFormError(response, 'form', 'aggregate',
+                             _(u'This field is required if you choose a field to aggregate.')
+                            )
+
+        aggregate = 'max'
+        abscissa = 'created'
+        self.assertNoFormError(post(abscissa_field=abscissa,
+                                    aggregate_field=ordinate,
+                                    aggregate=aggregate,
+                                   )
+                              )
+
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        self.assertEqual(self.user,                        rgraph.user)
+        self.assertEqual(abscissa,                         rgraph.abscissa)
+        self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(gtype,                            rgraph.type)
+        self.assertIsNone(rgraph.days)
+        self.assertFalse(rgraph.is_count)
+
+    def test_createview03(self):
+        "'aggregate_field' empty ==> 'is_count' mandatory"
+        report = Report.objects.create(user=self.user,
+                                       name=u"All contacts",
+                                       ct=ContentType.objects.get_for_model(Contact),
+                                      )
+
+        url = self._build_add_graph_url(report)
+        response = self.assertGET200(url)
+        self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            fields_choices = fields['abscissa_field'].choices[0][1]
+
+        choices_set = set(c[0] for c in fields_choices)
+        self.assertIn('created', choices_set)
+        self.assertIn('sector', choices_set)
+        self.assertIn('civility', choices_set)
+        self.assertNotIn('last_name', choices_set)
+
+        name = 'My Graph #1'
+        abscissa = 'sector'
+        self.assertNoFormError(self.client.post(url,
+                                                data={'user': self.user.pk, #TODO: report.user used instead ??
+                                                      'name':             name,
+                                                      'abscissa_field':   abscissa,
+                                                      'abscissa_group_by': RGT_FK,
+                                                      #'is_count': True, #useless
+                                                    }
+                                               )
+                              )
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        #self.assertEqual(self.user,                        rgraph.user)
+        self.assertEqual(abscissa,                         rgraph.abscissa)
+        #self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual('', rgraph.ordinate)
+        #self.assertEqual(gtype,                            rgraph.type)
+        #self.assertIsNone(rgraph.days)
+        self.assertTrue(rgraph.is_count)
+
+    def test_createview04(self):
+        "RGT_RELATION"
+        report = self.create_simple_organisations_report()
+        url = self._build_add_graph_url(report)
+
+        name = 'My Graph #1'
+        gtype = RGT_RELATION
+
+        def post(abscissa):
+            return self.client.post(url, data={'user': self.user.pk,
+                    'name':              name,
+                    'abscissa_field':    abscissa,
+                    'abscissa_group_by': gtype,
+                    'is_count': True,
+                   })
+
+        fname = 'staff_size'
+        response = post(fname)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'abscissa_field',
+                             'Unknown relationship type.'
+                            )
+
+        rtype_id = REL_OBJ_EMPLOYED_BY
+        self.assertNoFormError(post(rtype_id))
+
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        self.assertEqual(self.user, rgraph.user)
+        self.assertEqual(rtype_id,  rgraph.abscissa)
+        self.assertEqual('',        rgraph.ordinate)
+        self.assertTrue(rgraph.is_count)
+
+    def _aux_test_createview_with_date(self, gtype, gtype_vname):
+        report = self.create_simple_organisations_report()
+        url = self._build_add_graph_url(report)
+
+        name = 'My Graph #1'
+        ordinate = 'capital'
+
+        def post(**kwargs):
+            data = {'user': self.user.pk,
+                    'name':              name,
+                    'abscissa_group_by': gtype,
+                    'aggregate_field':   ordinate,
+                    'aggregate':         'max',
+                   }
+            data.update(**kwargs)
+            return self.client.post(url, data=data)
+
+        response = post(abscissa_field='staff_size')
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'abscissa_field',
+                             '"%s" groups are only compatible with {DateField, DateTimeField}' % gtype_vname
+                            )
+
+        aggregate = 'min'
+        abscissa = 'created'
+        self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate))
+
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        self.assertEqual(self.user,                        rgraph.user)
+        self.assertEqual(abscissa,                         rgraph.abscissa)
+        self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(gtype,                            rgraph.type)
+        self.assertIsNone(rgraph.days)
+        self.assertFalse(rgraph.is_count)
+
+    def test_createview05(self):
+        "RGT_MONTH"
+        self._aux_test_createview_with_date(RGT_MONTH, _('By months'))
+
+    def test_createview06(self):
+        "RGT_YEAR"
+        self._aux_test_createview_with_date(RGT_YEAR, _('By years'))
+
+    def test_createview07(self):
+        "RGT_RANGE"
+        report = self.create_simple_organisations_report()
+        url = self._build_add_graph_url(report)
+
+        name = 'My Graph #1'
+        ordinate = 'capital'
+        gtype = RGT_RANGE
+
+        def post(**kwargs):
+            data = {'user': self.user.pk,
+                    'name':              name,
+                    'abscissa_group_by': gtype,
+                    'aggregate_field':   ordinate,
+                    'aggregate':       'max',
+                   }
+            data.update(**kwargs)
+            return self.client.post(url, data=data)
+
+        response = post(abscissa_field='staff_size')
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'abscissa_field',
+                             '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By X days')
+                            )
+        self.assertFormError(response, 'form', 'days',
+                             "You have to specify a day range if you use 'by X days'"
+                            )
+
+        aggregate = 'avg'
+        abscissa = 'modified'
+        days = 25
+        self.assertNoFormError(post(abscissa_field=abscissa, aggregate=aggregate, days=days))
+
+        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
+        self.assertEqual(self.user,                        rgraph.user)
+        self.assertEqual(abscissa,                         rgraph.abscissa)
+        self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
+        self.assertEqual(gtype,                            rgraph.type)
+        self.assertEqual(days,                             rgraph.days)
+        self.assertFalse(rgraph.is_count)
+
+    def test_editview(self):
+        rgraph = self._create_report_n_graph()
+        url = '/reports/graph/edit/%s'  % rgraph.id
+        self.assertGET200(url)
+
+        name = rgraph.name[:10] + '...'
+        abscissa = 'created'
+        gtype = RGT_DAY
+        response = self.client.post(url, data={'user':              self.user.pk,
+                                               'name':              name,
+                                               'abscissa_field':    abscissa,
+                                               'abscissa_group_by': gtype,
+                                               'aggregate_field':   'total_vat',
+                                               'aggregate':         'avg',
+                                              })
+        self.assertNoFormError(response)
+
+        rgraph = self.refresh(rgraph)
+        self.assertEqual(abscissa,         rgraph.abscissa)
+        self.assertEqual('total_vat__avg', rgraph.ordinate)
+        self.assertEqual(gtype,            rgraph.type)
+        self.assertIsNone(rgraph.days)
+        self.assertFalse(rgraph.is_count)
+
+        #------------------------------------------------------------
+        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        #TODO: test collected data !!!!!!!!!!!!!
 
     def test_fetch_with_date_range(self):
         self.report_organisation = report = Report.objects.create(user=self.user,
@@ -130,7 +391,6 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(y_desc[0][0], 2)
         self.assertEqual(y_desc[1][0], 4)
 
-
         rgraph_one_day = self._create_report_n_graph_with_date_range(report, 1)
         x_one_day, y_one_day = rgraph_one_day.fetch()
         self.assertEqual(len(y_one_day), 30)
@@ -143,91 +403,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(y_one_day[16][0], 0)
         self.assertEqual(y_one_day[29][0], 1)
 
-    def test_createview01(self):
-        report = self.create_report()
-
-        url = '/reports/graph/%s/add' % report.id
-        response = self.assertGET200(url)
-        self.assertGET200(url)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            fields_choices = fields['abscissa_fields'].choices[0][1]
-
-        choices_set = set(c[0] for c in fields_choices)
-        self.assertIn('created', choices_set)
-        self.assertIn('sector', choices_set)
-        self.assertNotIn('name', choices_set)
-
-        name = 'My Graph #1'
-        abscissa = 'sector'
-        gtype = RGT_FK
-        response = self.client.post(url, data={'user': self.user.pk, #TODO: report.user used instead ??
-                                               'name':              name,
-                                               'abscissa_fields':   abscissa,
-                                               'abscissa_group_by': gtype,
-                                               'is_count':          True,
-                                              })
-        self.assertNoFormError(response)
-
-        rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
-        self.assertEqual(self.user, rgraph.user)
-        self.assertEqual(abscissa,  rgraph.abscissa)
-        self.assertEqual('',        rgraph.ordinate)
-        self.assertEqual(gtype,     rgraph.type)
-        self.assertIsNone(rgraph.days)
-        self.assertIs(rgraph.is_count, True)
-
-        #------------------------------------------------------------
-        response = self.assertGET200(rgraph.get_absolute_url())
-        self.assertTemplateUsed(response, 'reports/view_graph.html')
-
-        #------------------------------------------------------------
-        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
-        #TODO: test collected data !!!!!!!!!!!!!
-
-        self.assertGET200(self._builf_fetch_url(rgraph, 'DESC'))
-        self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
-
-    def test_editview(self):
-        rgraph = self._create_report_n_graph()
-        url = '/reports/graph/edit/%s'  % rgraph.id
-        self.assertGET200(url)
-
-        name = rgraph.name[:10] + '...'
-        abscissa = 'created'
-        gtype = RGT_DAY
-        #TODO: if 'aggregates_fields'= 'total_vat' but no 'aggregates ==> ordinate = 'total_vat__' ?!
-        response = self.client.post(url, data={'user':              self.user.pk,
-                                               'name':              name,
-                                               'abscissa_fields':   abscissa,
-                                               'abscissa_group_by': gtype,
-                                               'aggregates_fields': 'total_vat',
-                                               'aggregates':        'avg',
-                                              })
-        self.assertNoFormError(response)
-
-        rgraph = self.refresh(rgraph)
-        self.assertEqual(abscissa,         rgraph.abscissa)
-        self.assertEqual('total_vat__avg', rgraph.ordinate)
-        self.assertEqual(gtype,            rgraph.type)
-        self.assertIsNone(rgraph.days)
-        self.assertFalse(rgraph.is_count)
-
-        #------------------------------------------------------------
-        self.assertGET200(rgraph.get_absolute_url())
-
-        #------------------------------------------------------------
-        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
-        #TODO: test collected data !!!!!!!!!!!!!
-
-    #TODO: RGT_RANGE + 'days'
-
     def test_add_graph_instance_block01(self):
         rgraph = self._create_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
-        url = self._build_add_graph_url(rgraph)
+        url = self._build_add_block_url(rgraph)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'graph': rgraph.name}))
 
@@ -294,7 +474,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         "Volatile relation"
         rgraph = self._create_report_n_graph()
         rtype_id = self.rtype.id
-        response = self.client.post(self._build_add_graph_url(rgraph),
+        response = self.client.post(self._build_add_block_url(rgraph),
                                     data={'graph':           rgraph.name,
                                           'volatile_column': '%s|%s' % (rtype_id, HFI_RELATION),
                                          }
@@ -340,6 +520,6 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         )
 
         response = self.assertPOST200(url, data={'record_id': REL_SUB_BILL_RECEIVED})
-        self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values")}]},
+        self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values (of related entities)")}]},
                          simplejson.loads(response.content)
                         )
