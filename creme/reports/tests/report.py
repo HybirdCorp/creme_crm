@@ -1006,92 +1006,93 @@ class ReportTestCase(BaseReportsTestCase):
         report.columns = [ #TODO: create Field builder like HFI...
             create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
             create_field(name=cf.id,        title=cf.name,      type=HFI_CUSTOM, order=2),
+            create_field(name=1024,         title='Invalid',    type=HFI_CUSTOM, order=3), #simulates deleted CustomField
           ]
 
-        self.assertEqual([[aria.first_name, '150'],
-                          [ned.first_name,  '190'],
-                          [robb.first_name, ''],
+        self.assertEqual([[aria.first_name, '150', ''],
+                          [ned.first_name,  '190', ''],
+                          [robb.first_name, '',    ''],
                          ],
                          report.fetch_all_lines()
                         )
 
-    def test_fetch02_fix01(self): #TODO: remove when DataMigration is done
-        "Custom fields: get by name"
-        create_contact = partial(Contact.objects.create, user=self.user)
-        ned  = create_contact(first_name='Eddard', last_name='Stark')
-        robb = create_contact(first_name='Robb',   last_name='Stark')
-        aria = create_contact(first_name='Aria',   last_name='Stark')
+    #def test_fetch02_fix01(self): #todo: remove when datamigration is done
+        #"Custom fields: get by name"
+        #create_contact = partial(Contact.objects.create, user=self.user)
+        #ned  = create_contact(first_name='Eddard', last_name='Stark')
+        #robb = create_contact(first_name='Robb',   last_name='Stark')
+        #aria = create_contact(first_name='Aria',   last_name='Stark')
 
-        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=[ned.last_name]
-                                                                   )
-                               ])
+        #efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        #efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    #operator=EntityFilterCondition.IEQUALS,
+                                                                    #name='last_name', values=[ned.last_name]
+                                                                   #)
+                               #])
 
-        cf = self._create_cf_int()
-        #same name to be annoying
-        CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
-                                   name=cf.name, field_type=CustomField.INT
-                                  )
+        #cf = self._create_cf_int()
+        ##same name to be annoying
+        #CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
+                                   #name=cf.name, field_type=CustomField.INT
+                                  #)
 
-        create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
-        create_cfval(entity=ned,  value=190)
-        create_cfval(entity=aria, value=150)
+        #create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
+        #create_cfval(entity=ned,  value=190)
+        #create_cfval(entity=aria, value=150)
 
-        report = self.create_report('Contacts with CField', efilter=efilter)
+        #report = self.create_report('Contacts with CField', efilter=efilter)
 
-        create_field = partial(Field.objects.create, selected=False, report=None)
-        report.columns = [
-            create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
-            create_field(name=cf.name,      title=cf.name,      type=HFI_CUSTOM, order=2), #<====
-          ]
+        #create_field = partial(Field.objects.create, selected=False, report=None)
+        #report.columns = [
+            #create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
+            #create_field(name=cf.name,      title=cf.name,      type=HFI_CUSTOM, order=2), #<====
+          #]
 
-        self.assertEqual([[aria.first_name, '150'],
-                          [ned.first_name,  '190'],
-                          [robb.first_name, ''],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        #self.assertEqual([[aria.first_name, '150'],
+                          #[ned.first_name,  '190'],
+                          #[robb.first_name, ''],
+                         #],
+                         #report.fetch_all_lines()
+                        #)
 
-    def test_fetch02_fix02(self):  #TODO: remove when DataMigration is done
-        "Custom fields: get by name, but name changed"
-        create_contact = partial(Contact.objects.create, user=self.user)
-        ned  = create_contact(first_name='Eddard', last_name='Stark')
-        robb = create_contact(first_name='Robb',   last_name='Stark')
-        aria = create_contact(first_name='Aria',   last_name='Stark')
+    #def test_fetch02_fix02(self):  #todo: remove when DataMigration is done
+        #"Custom fields: get by name, but name changed"
+        #create_contact = partial(Contact.objects.create, user=self.user)
+        #ned  = create_contact(first_name='Eddard', last_name='Stark')
+        #robb = create_contact(first_name='Robb',   last_name='Stark')
+        #aria = create_contact(first_name='Aria',   last_name='Stark')
 
-        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=[ned.last_name]
-                                                                   )
-                               ])
+        #efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        #efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    #operator=EntityFilterCondition.IEQUALS,
+                                                                    #name='last_name', values=[ned.last_name]
+                                                                   #)
+                               #])
 
-        cf = self._create_cf_int()
-        #same name to be annoying
-        CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
-                                   name=cf.name, field_type=CustomField.INT
-                                  )
+        #cf = self._create_cf_int()
+        ##same name to be annoying
+        #CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
+                                   #name=cf.name, field_type=CustomField.INT
+                                  #)
 
-        create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
-        create_cfval(entity=ned,  value=190)
-        create_cfval(entity=aria, value=150)
+        #create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
+        #create_cfval(entity=ned,  value=190)
+        #create_cfval(entity=aria, value=150)
 
-        report = self.create_report('Contacts with CField', efilter=efilter)
+        #report = self.create_report('Contacts with CField', efilter=efilter)
 
-        create_field = partial(Field.objects.create, selected=False, report=None)
-        report.columns = [
-            create_field(name='first_name',    title='First Name', type=HFI_FIELD,  order=1),
-            create_field(name=cf.name + 'foo', title=cf.name,      type=HFI_CUSTOM, order=2), #<====
-          ]
+        #create_field = partial(Field.objects.create, selected=False, report=None)
+        #report.columns = [
+            #create_field(name='first_name',    title='First Name', type=HFI_FIELD,  order=1),
+            #create_field(name=cf.name + 'foo', title=cf.name,      type=HFI_CUSTOM, order=2), #<====
+          #]
 
-        self.assertEqual([[aria.first_name, ''],
-                          [ned.first_name,  ''],
-                          [robb.first_name, ''],
-                         ],
-                         report.fetch_all_lines()
-                        )
+        #self.assertEqual([[aria.first_name, ''],
+                          #[ned.first_name,  ''],
+                          #[robb.first_name, ''],
+                         #],
+                         #report.fetch_all_lines()
+                        #)
 
     #def test_get_aggregate_fields(self):
         #url = '/reports/get_aggregate_fields'
