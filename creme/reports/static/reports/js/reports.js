@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,12 @@
 
 if(!creme.reports) creme.reports = {};
 
+//TODO: in creme_core ??
 creme.reports.loading_options = {
-    beforeSend : function(request){
+    beforeSend : function(request) {
           creme.utils.loading('loading', false, {});
       },
-    complete:function (XMLHttpRequest, textStatus) {
+    complete: function (XMLHttpRequest, textStatus) {
           creme.utils.loading('loading', true, {});
       }
 };
@@ -36,25 +37,25 @@ creme.reports.load = function(options) {
     if(!options || options == undefined) return;
 
     var ct_id = $(options.ct).val();
-    if(!ct_id || ct_id =="") {
-        $(options.show_after_ct).hide();
-        return;
-    }
+//     if(!ct_id || ct_id =="") {
+//         $(options.show_after_ct).hide();
+//         return;
+//     }
 
     var $hf = $(options.hf);
     this.loadHeaderFilters(ct_id, $hf);
 
-    var $filter   = $(options.filter);
+    var $filter = $(options.filter);
     this.loadFilters(ct_id, $filter);
 
-    this.loadRegularFields(ct_id, options);
-    this.loadRelatedFields(ct_id, options);
-    this.loadCf(ct_id, options);
-    this.loadRelations(ct_id,  options);
-    this.loadFunctions(ct_id,  options);
-    this.loadAggregates(ct_id, options);
-
-    $(options.show_after_ct).show();
+//     this.loadRegularFields(ct_id, options);
+//     this.loadRelatedFields(ct_id, options);
+//     this.loadCf(ct_id, options);
+//     this.loadRelations(ct_id,  options);
+//     this.loadFunctions(ct_id,  options);
+//     this.loadAggregates(ct_id, options);
+// 
+//     $(options.show_after_ct).show();
 }
 
 //Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
@@ -70,14 +71,14 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 
     var $def_option = $('<option value="">' + params.err_label + '</option>');
 
-    var success_cb = function(data, textStatus, req){
+    var success_cb = function(data, textStatus, req) {
         $target_select.empty();
 
         //TODO: factorise 'data.length == 0'
-        if(data.length == 0 && !params.empty_option){
+        if(data.length == 0 && !params.empty_option) {
             $target_select.append($def_option);
         }
-        if(data.length == 0 && params.empty_option){
+        if(data.length == 0 && params.empty_option) {
             $target_select.append(params.empty_option);
         }
         if(data.length > 0 && params.always_option) {
@@ -106,7 +107,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
     var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
     var params = {
-        'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
+//         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')
     };
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
@@ -124,7 +125,8 @@ creme.reports.loadFilters = function(ct_id, $target_select) {
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
-//TODO: refactor when OrderedMultiSelect can be properly reload
+/*
+//todo: refactor when OrderedMultiSelect can be properly reload
 creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_name) {
     var $columns_table = $('#' + table_id);
 
@@ -208,7 +210,7 @@ creme.reports.loadAggregates = function(ct_id, options) {
                                            current_aggregate.input_name);
     }
 }
-
+*/
 creme.reports.unlink_report = function(field_id, block_url) {
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
@@ -220,7 +222,10 @@ creme.reports.unlink_report = function(field_id, block_url) {
 
     };
 
-    creme.ajax.json.post('/reports/report/field/unlink_report', {'field_id': field_id}, success_cb, success_cb, false, this.loading_options);
+    creme.ajax.json.post('/reports/report/field/unlink_report',
+                         {'field_id': field_id}, success_cb, success_cb,
+                         false, this.loading_options
+                        );
 }
 
 creme.reports.link_report = function(report_id, field_id, block_url) {
@@ -304,8 +309,7 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
     creme.ajax.json.post('/reports/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
 };
 
-creme.reports.toggleDisableOthers = function(me, others)
-{
+creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked;//More generic with all node types ?
     $.each(others, function(i, n){
         $(n).attr('disabled', is_checked)

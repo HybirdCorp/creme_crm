@@ -20,11 +20,13 @@
 
 from collections import defaultdict
 from itertools import chain
-import logging
+#import logging
 
-from django.db.models.query_utils import Q
+#from django.db.models.query_utils import Q
+from django.db.transaction import commit_on_success
 from django.forms.fields import MultipleChoiceField, ChoiceField
-from django.forms import ValidationError
+from django.forms.util import ErrorList #ValidationError
+from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -32,264 +34,262 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.registry import export_backend_registry #creme_registry
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CreatorEntityField, DateRangeField
+from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField #AjaxMultipleChoiceField
 from creme.creme_core.models import EntityFilter, RelationType, CustomField
 from creme.creme_core.models.header_filter import (HeaderFilter, HFI_FIELD, HFI_RELATION,
                                                    HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name,
-                                         get_date_fields, get_related_field_verbose_name,
-                                         ModelFieldEnumerator) #get_flds_with_fk_flds get_flds_with_fk_flds_str
+        get_date_fields, get_related_field_verbose_name, ModelFieldEnumerator)
 
 from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
-def _save_field(name, title, order, type):
-    return Field.objects.create(name=name, title=title, order=order, type=type)
+#def _save_field(name, title, order, type):
+    #return Field.objects.create(name=name, title=title, order=order, type=type)
 
-def save_hfi_field(model, column, order):
-    return _save_field(column, get_verbose_field_name(model, column), order, HFI_FIELD)
+#def save_hfi_field(model, column, order):
+    #return _save_field(column, get_verbose_field_name(model, column), order, HFI_FIELD)
 
-def save_hfi_related_field(model, related_field_name, order):
-    return _save_field(related_field_name, get_related_field_verbose_name(model, related_field_name), order, HFI_RELATED)
+#def save_hfi_related_field(model, related_field_name, order):
+    #return _save_field(related_field_name, get_related_field_verbose_name(model, related_field_name), order, HFI_RELATED)
 
-def save_hfi_cf(custom_field, order):
-    return _save_field(custom_field.id, custom_field.name, order, HFI_CUSTOM)
+#def save_hfi_cf(custom_field, order):
+    #return _save_field(custom_field.id, custom_field.name, order, HFI_CUSTOM)
 
-def save_hfi_relation(relation, order):
-    try:
-        predicate_verbose = RelationType.objects.get(pk=relation)
-    except RelationType.DoesNotExist:
-        predicate_verbose = relation
+#def save_hfi_relation(relation, order):
+    #try:
+        #predicate_verbose = RelationType.objects.get(pk=relation)
+    #except RelationType.DoesNotExist:
+        #predicate_verbose = relation
 
-    return _save_field(relation, predicate_verbose, order, HFI_RELATION)
+    #return _save_field(relation, predicate_verbose, order, HFI_RELATION)
 
-def save_hfi_function(model, function_name, order):
-    return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, HFI_FUNCTION)
+#def save_hfi_function(model, function_name, order):
+    #return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, HFI_FUNCTION)
 
-def save_hfi_calculated(calculated, title, order):
-    return _save_field(calculated, title, order, HFI_CALCULATED)
+#def save_hfi_calculated(calculated, title, order):
+    #return _save_field(calculated, title, order, HFI_CALCULATED)
 
-def _get_field(columns_get, column, type, order):
-    f = columns_get(name=column, type=type)
-    f.order = order
-    f.save()
-    return f
+#def _get_field(columns_get, column, type, order):
+    #f = columns_get(name=column, type=type)
+    #f.order = order
+    #f.save()
+    #return f
 
-def get_hfi_field_or_save(columns_get, model, column, order):
-    try:
-        f = _get_field(columns_get, column, HFI_FIELD, order)
-    except Field.DoesNotExist:
-        f = save_hfi_field(model, column, order)
-    return f
+#def get_hfi_field_or_save(columns_get, model, column, order):
+    #try:
+        #f = _get_field(columns_get, column, HFI_FIELD, order)
+    #except Field.DoesNotExist:
+        #f = save_hfi_field(model, column, order)
+    #return f
 
-def get_hfi_related_field_or_save(columns_get, model, column, order):
-    try:
-        f = _get_field(columns_get, column, HFI_RELATED, order)
-    except Field.DoesNotExist:
-        f = save_hfi_related_field(model, column, order)
-    return f
+#def get_hfi_related_field_or_save(columns_get, model, column, order):
+    #try:
+        #f = _get_field(columns_get, column, HFI_RELATED, order)
+    #except Field.DoesNotExist:
+        #f = save_hfi_related_field(model, column, order)
+    #return f
 
-def get_hfi_cf_or_save(columns_get, custom_field, order):
-    try:
-        f = _get_field(columns_get, custom_field.id, HFI_CUSTOM, order)
-    except Field.DoesNotExist:
-        f = save_hfi_cf(custom_field, order)
-    return f
+#def get_hfi_cf_or_save(columns_get, custom_field, order):
+    #try:
+        #f = _get_field(columns_get, custom_field.id, HFI_CUSTOM, order)
+    #except Field.DoesNotExist:
+        #f = save_hfi_cf(custom_field, order)
+    #return f
 
-def get_hfi_relation_or_save(columns_get, relation, order):
-    try:
-        f = _get_field(columns_get, relation, HFI_RELATION, order)
-    except Field.DoesNotExist:
-        f = save_hfi_relation(relation, order)
-    return f
+#def get_hfi_relation_or_save(columns_get, relation, order):
+    #try:
+        #f = _get_field(columns_get, relation, HFI_RELATION, order)
+    #except Field.DoesNotExist:
+        #f = save_hfi_relation(relation, order)
+    #return f
 
-def get_hfi_function_or_save(columns_get, model, function, order):
-    try:
-        f = _get_field(columns_get, function, HFI_FUNCTION, order)
-    except Field.DoesNotExist:
-        f = save_hfi_function(model, function, order)
-    return f
+#def get_hfi_function_or_save(columns_get, model, function, order):
+    #try:
+        #f = _get_field(columns_get, function, HFI_FUNCTION, order)
+    #except Field.DoesNotExist:
+        #f = save_hfi_function(model, function, order)
+    #return f
 
-def _get_hfi_calculated_title(aggregate, calculated_column, model):
-    field_name, sep, aggregate_name = calculated_column.rpartition('__')
+#def _get_hfi_calculated_title(aggregate, calculated_column, model):
+    #field_name, sep, aggregate_name = calculated_column.rpartition('__')
 
-    cfs_info = field_name.split('__')
-    if cfs_info[0] == 'cf':
-        cf_id   = cfs_info[1]
-        try:
-            cf_name = CustomField.objects.get(pk=cf_id).name
-        except CustomField.DoesNotExist:
-            cf_name = ""
-        return u"%s - %s" % (unicode(aggregate.title), cf_name)
+    #cfs_info = field_name.split('__')
+    #if cfs_info[0] == 'cf':
+        #cf_id   = cfs_info[1]
+        #try:
+            #cf_name = CustomField.objects.get(pk=cf_id).name
+        #except CustomField.DoesNotExist:
+            #cf_name = ""
+        #return u"%s - %s" % (unicode(aggregate.title), cf_name)
 
-    return u"%s - %s" % (unicode(aggregate.title), get_verbose_field_name(model, field_name))
+    #return u"%s - %s" % (unicode(aggregate.title), get_verbose_field_name(model, field_name))
 
+#def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
+    #try:
+        #f = _get_field(columns_get, calculated_column, HFI_CALCULATED, order)
+    #except Field.DoesNotExist:
+        #title = _get_hfi_calculated_title(aggregate, calculated_column, model)
+        #f = save_hfi_calculated(calculated_column, title, order)
+    #return f
 
-def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
-    try:
-        f = _get_field(columns_get, calculated_column, HFI_CALCULATED, order)
-    except Field.DoesNotExist:
-        title = _get_hfi_calculated_title(aggregate, calculated_column, model)
-        f = save_hfi_calculated(calculated_column, title, order)
-    return f
+_CFIELD_PREFIX = 'cf__'
 
-def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: generator expression...
-    return [(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)
-            for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                                 field_type__in=[CustomField.INT, CustomField.FLOAT])
-            ]
-
-
-def get_aggregate_fields(fields, model, initial_data=None): #TODO: move to AddFieldToReportForm ??
-    authorized_fields = field_aggregation_registry.authorized_fields
-
-    for aggregate in field_aggregation_registry.itervalues():
-        aggregate_pattern = aggregate.pattern
-
-        #choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
-        choices = [(aggregate_pattern % f_name, f_vname)
-                        for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
-                                                .filter((lambda f: isinstance(f, authorized_fields)), viewable=True)
-                                                .choices()
-                  ]
-
-#        cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model), field_type__in=[CustomField.INT,CustomField.FLOAT])
-#        for cf in cfs:
-#            choices.extend([(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)])
-        choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
-
-        fields[aggregate.name] = MultipleChoiceField(label=_(aggregate.title), required=False, choices=choices, widget=OrderedMultipleChoiceWidget)
-        if initial_data is not None:
-            fields[aggregate.name].initial = initial_data
+def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: move to utils ?? as protected method ??
+    for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
+                                         field_type__in=[CustomField.INT, CustomField.FLOAT]
+                                        ):
+        yield ('%s%s__%s' % (_CFIELD_PREFIX, cf.field_type, aggregate_pattern % cf.id),
+               cf.name
+              )
 
 
 class CreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), required=False)
+    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), #required=True,
+                                  help_text=_('The columns of the report will be copied from the list view.')
+                                 )
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
-    regular_fields = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields  = AjaxMultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    related_fields = AjaxMultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations      = AjaxMultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions      = AjaxMultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    #regular_fields = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    #custom_fields  = AjaxMultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    #related_fields = AjaxMultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    #relations      = AjaxMultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    #functions      = AjaxMultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
-    blocks = CremeEntityForm.blocks.new(
-        ('hf_block',         _(u'Select from a existing view : '), ['hf']),
-        ('fields_block',     _(u'Or'), ['regular_fields', 'related_fields', 'custom_fields','relations', 'functions']),
-        ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
-    )
+    #blocks = CremeEntityForm.blocks.new(
+        #('hf_block',         _(u'Select from a existing view : '), ['hf']),
+        #('fields_block',     _(u'Or'), ['regular_fields', 'related_fields', 'custom_fields','relations', 'functions']),
+        #('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
+    #)
 
     class Meta(CremeEntityForm.Meta):
         model = Report
 
-    def __init__(self, *args, **kwargs):
-        super(CreateForm, self).__init__(*args, **kwargs)
-        fields = self.fields
+    #def __init__(self, *args, **kwargs):
+        #super(CreateForm, self).__init__(*args, **kwargs)
+        #fields = self.fields
 
-        #get_ct = ContentType.objects.get_for_model
-        #cts    = [(ct.id, unicode(ct)) for ct in (get_ct(model) for model in creme_registry.iter_entity_models())]
-        #cts.sort(key=lambda ct_tuple: ct_tuple[1]) #sort by alphabetical order
-        #fields['ct'].choices = cts
+        #self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
 
-        self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
-
-        for aggregate in self.aggregates:
-            fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+        #for aggregate in self.aggregates:
+            #fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
         #To hande a validation error get ct_id data to rebuild all ?
 
-    #TODO: clean_hf
-    #TODO: clean_filter
-
     def clean(self):
         cleaned_data = self.cleaned_data
-        get_data     = cleaned_data.get
-        fields       = self.fields
+        #get_data     = cleaned_data.get
+        #fields       = self.fields
 
-        hf             = get_data('hf')
-        regular_fields = get_data('regular_fields')
-        related_fields = get_data('related_fields')
-        custom_fields  = get_data('custom_fields')
-        relations      = get_data('relations')
-        functions      = get_data('functions')
+        #hf             = get_data('hf')
+        #regular_fields = get_data('regular_fields')
+        #related_fields = get_data('related_fields')
+        #custom_fields  = get_data('custom_fields')
+        #relations      = get_data('relations')
+        #functions      = get_data('functions')
 
-        aggregates = self.aggregates
+        #aggregates = self.aggregates
 
-        is_one_aggregate_selected = False
-        for aggregate in aggregates:
-            for data in get_data(aggregate.name):
-                is_one_aggregate_selected |= bool(data)
+        #is_one_aggregate_selected = False
+        #for aggregate in aggregates:
+            #for data in get_data(aggregate.name):
+                #is_one_aggregate_selected |= bool(data)
 
-        if not hf and not (regular_fields or related_fields or custom_fields or relations or functions or is_one_aggregate_selected):
-            rfield_fields = ['regular_fields', 'related_fields', 'custom_fields', 'relations', 'functions']
-            rfield_fields.extend(aggregate.name for aggregate in aggregates)
-            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") %
-                                    u", ".join(unicode(fields[f].label) for f in rfield_fields)
-                                 )
+        #if not hf and not (regular_fields or related_fields or custom_fields or relations or functions or is_one_aggregate_selected):
+            #rfield_fields = ['regular_fields', 'related_fields', 'custom_fields', 'relations', 'functions']
+            #rfield_fields.extend(aggregate.name for aggregate in aggregates)
+            #raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") %
+                                    #u", ".join(unicode(fields[f].label) for f in rfield_fields)
+                                 #)
 
-        #TODO: Do a real validation
+        if not self._errors:
+            get_data = cleaned_data.get
+            ct = get_data('ct')
+            hf = get_data('hf')
+
+            if hf.entity_type != ct:
+                self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
+
+            efilter = get_data('filter')
+            if efilter and efilter.entity_type != ct:
+                self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
 
         return cleaned_data
 
+    #def save(self, *args, **kwargs):
+        #report = super(CreateForm, self).save(*args, **kwargs)
+        #report_fields = []
+        #get_data = self.cleaned_data.get
+        #hf = get_data('hf')
+
+        #if hf is not None:
+            ##Have to build from an existant header filter
+            #field_get_instance_from_hf_item = Field.get_instance_from_hf_item
+
+            #for hf_item in hf.items:
+                #f = field_get_instance_from_hf_item(hf_item)
+                #f.save()
+                #report_fields.append(f)
+        #else:
+            #model = report.ct.model_class()
+            #i = 1
+
+            #for regular_field in get_data('regular_fields'):
+                #report_fields.append(save_hfi_field(model, regular_field, i))
+                #i += 1
+
+            #for related_field in get_data('related_fields'):
+                #report_fields.append(save_hfi_related_field(model, related_field, i))
+                #i += 1
+
+            #cf_ids = get_data('custom_fields')
+            #if cf_ids:
+                #cfields = CustomField.objects.filter(content_type=report.ct).in_bulk(cf_ids)
+
+                #for cf_id in cf_ids:
+                    #try:
+                        #cfield = cfields[int(cf_id)]
+                    #except (ValueError, KeyError):
+                        #logger.exception('CreateForm.save()')
+                    #else:
+                        #report_fields.append(save_hfi_cf(cfield, i))
+                        #i += 1
+
+            #for relation in get_data('relations'):
+                #report_fields.append(save_hfi_relation(relation, i))
+                #i += 1
+
+            #for function in get_data('functions'):
+                #report_fields.append(save_hfi_function(model, function, i))
+                #i += 1
+
+            #for aggregate in self.aggregates:
+                #for calculated_column in get_data(aggregate.name):
+                    #title = _get_hfi_calculated_title(aggregate, calculated_column, model)
+                    #report_fields.append(save_hfi_calculated(calculated_column, title, i))
+                    #i += 1
+
+        #report.columns = report_fields
+
+        #return report
+
+    def _build_field_from_hf_item(self, hf_item):
+        hf_type = hf_item.type
+        name = hf_item.relation_predicat_id if hf_type == HFI_RELATION else hf_item.name
+
+        return Field.objects.create(name=name, title=hf_item.title, order=hf_item.order, type=hf_type)
+
+    @commit_on_success
     def save(self, *args, **kwargs):
         report = super(CreateForm, self).save(*args, **kwargs)
-        report_fields = []
-        get_data = self.cleaned_data.get
-        hf = get_data('hf')
 
-        if hf is not None:
-            #Have to build from an existant header filter
-            field_get_instance_from_hf_item = Field.get_instance_from_hf_item
-
-            for hf_item in hf.items:
-                f = field_get_instance_from_hf_item(hf_item)
-                f.save()
-                report_fields.append(f)
-        else:
-            model = report.ct.model_class()
-            i = 1
-
-            for regular_field in get_data('regular_fields'):
-                report_fields.append(save_hfi_field(model, regular_field, i))
-                i += 1
-
-            for related_field in get_data('related_fields'):
-                report_fields.append(save_hfi_related_field(model, related_field, i))
-                i += 1
-
-            cf_ids = get_data('custom_fields')
-            if cf_ids:
-                cfields = CustomField.objects.filter(content_type=report.ct).in_bulk(cf_ids)
-
-                for cf_id in cf_ids:
-                    try:
-                        cfield = cfields[int(cf_id)]
-                    except (ValueError, KeyError):
-                        logger.exception('CreateForm.save()')
-                    else:
-                        report_fields.append(save_hfi_cf(cfield, i))
-                        i += 1
-
-            for relation in get_data('relations'):
-                report_fields.append(save_hfi_relation(relation, i))
-                i += 1
-
-            for function in get_data('functions'):
-                report_fields.append(save_hfi_function(model, function, i))
-                i += 1
-
-            for aggregate in self.aggregates:
-                for calculated_column in get_data(aggregate.name):
-                    title = _get_hfi_calculated_title(aggregate, calculated_column, model)
-                    report_fields.append(save_hfi_calculated(calculated_column, title, i))
-                    i += 1
-
-        report.columns = report_fields
+        build_field = self._build_field_from_hf_item
+        report.columns = [build_field(hf_item) for hf_item in self.cleaned_data['hf'].items]
 
         return report
 
@@ -297,18 +297,13 @@ class CreateForm(CremeEntityForm):
 class EditForm(CremeEntityForm):
     class Meta:
         model = Report
-        #exclude = CremeEntityForm.Meta.exclude + ('ct', 'columns')
         exclude = CremeEntityForm.Meta.exclude + ('ct',)
 
     def __init__(self, *args, **kwargs):
         super(EditForm, self).__init__(*args, **kwargs)
-        ct = self.instance.ct
-        fields = self.fields
-
-        base_filter = [('', ugettext(u'All'))]
-        base_filter.extend(EntityFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
-        fields['filter'].choices = base_filter
-        fields['filter'].initial = ct.id
+        filter_f = self.fields['filter']
+        filter_f.empty_label = ugettext(u'All')
+        filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
 
 
 class LinkFieldToReportForm(CremeForm):
@@ -318,8 +313,8 @@ class LinkFieldToReportForm(CremeForm):
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         self.rfield = field
         self.fields['report'].q_filter = {
-                'ct__id' :  ct.id,
-                '~id__in' : [r.id for r in chain(report.get_ascendants_reports(), [report])]
+                'ct__id':  ct.id,
+                '~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]
             }
 
     def save(self):
@@ -332,8 +327,8 @@ class AddFieldToReportForm(CremeForm):
     regular_fields = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     related_fields = MultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields  = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations      = MultipleChoiceField(label=_(u'Relations'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions      = MultipleChoiceField(label=_(u'Functions'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    relations      = MultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    functions      = MultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     blocks = CremeEntityForm.blocks.new(
         ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
@@ -346,85 +341,123 @@ class AddFieldToReportForm(CremeForm):
         model = ct.model_class()
 
         fields = self.fields
-        self.custom_fields = cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ct))
-
-        #fields['columns'].choices        = get_flds_with_fk_flds_str(model, 1)
-        fields['regular_fields'].choices = ModelFieldEnumerator(model, deep=1).filter(viewable=True).choices()
-        fields['related_fields'].choices = Report.get_related_fields_choices(model)
-        #fields['custom_fields'].choices  = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
-        fields['custom_fields'].choices  = [(str(cf.id), cf.name) for cf in cfields.itervalues()]
-        fields['relations'].choices      = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
-        fields['functions'].choices      = [(f.name, f.verbose_name) for f in model.function_fields]
-
+        self.rfields = rfields = list(entity.columns.all()) #pool of Fields
         initial_data = defaultdict(list)
 
-        for f in entity.columns.all(): #TODO: cache columns
-            #initial_data[f.type].append(f)
-            initial_data[f.type].append(f.name)
+        for rfield in rfields:
+            initial_data[rfield.type].append(rfield.name)
 
-        #fields['columns'].initial        = [f.name for f in initial_data[HFI_FIELD]]
-        #fields['related_fields'].initial = [f.name for f in initial_data[HFI_RELATED]]
-        #fields['custom_fields'].initial  = [f.name for f in initial_data[HFI_CUSTOM]]
-        #fields['relations'].initial      = [f.name for f in initial_data[HFI_RELATION]]
-        #fields['functions'].initial      = [f.name for f in initial_data[HFI_FUNCTION]]
-        fields['regular_fields'].initial = initial_data[HFI_FIELD]
-        fields['related_fields'].initial = initial_data[HFI_RELATED]
-        fields['custom_fields'].initial  = initial_data[HFI_CUSTOM]
-        fields['relations'].initial      = initial_data[HFI_RELATION]
-        fields['functions'].initial      = initial_data[HFI_FUNCTION]
+        regular_fields_f = fields['regular_fields']
+        regular_fields_f.choices = ModelFieldEnumerator(model, deep=1) \
+                                        .filter(viewable=True) \
+                                        .choices()
+        regular_fields_f.initial = initial_data[HFI_FIELD]
 
-        #get_aggregate_fields(fields, model, initial_data=[f.name for f in initial_data[HFI_CALCULATED]])
-        get_aggregate_fields(fields, model, initial_data=initial_data[HFI_CALCULATED])
+        related_fields_f = fields['related_fields']
+        related_fields_f.choices = Report.get_related_fields_choices(model)
+        related_fields_f.initial = initial_data[HFI_RELATED]
 
+        custom_fields_f = fields['custom_fields']
+        self.custom_fields = cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ct)) #TODO: remove when title is now more store in Field
+        custom_fields_f.choices = [(str(cf.id), cf.name) for cf in cfields.itervalues()]
+        custom_fields_f.initial = initial_data[HFI_CUSTOM]
+
+        relations_f = fields['relations']
+        self.rtypes = rtypes = OrderedDict(RelationType.get_compatible_ones(ct)
+                                                       .order_by('predicate') #TODO: unicode collation
+                                                       .values_list('id', 'predicate')
+                                          )
+        relations_f.choices = rtypes.items()
+        relations_f.initial = initial_data[HFI_RELATION]
+
+        function_fields_f = fields['functions']
+        function_fields_f.choices = [(f.name, f.verbose_name) for f in model.function_fields] #TODO: unicode collation ??
+        function_fields_f.initial = initial_data[HFI_FUNCTION]
+
+        self._set_aggregate_fields(model, initial_data=initial_data[HFI_CALCULATED])
+
+    def _get_calculated_title(self, aggregation, aggregate_id, model):
+        field_name, sep, aggregate_name = aggregate_id.rpartition('__')
+        cf_prefix, sep, cf_id = field_name.rpartition('__')
+        verbose_name = self.custom_fields[int(cf_id)].name \
+                        if cf_prefix.startswith(_CFIELD_PREFIX) \
+                        else get_verbose_field_name(model, field_name)
+
+        return u"%s - %s" % (aggregation.title, verbose_name)
+
+    def _set_aggregate_fields(self, model, initial_data=None):
+        fields = self.fields
+        authorized_fields = field_aggregation_registry.authorized_fields
+
+        for aggregate in field_aggregation_registry.itervalues():
+            pattern = aggregate.pattern
+            choices = [(pattern % f_name, f_vname)
+                            for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
+                                                    .filter((lambda f: isinstance(f, authorized_fields)),
+                                                            viewable=True,
+                                                           )
+                                                    .choices()
+                      ]
+
+            choices.extend(get_aggregate_custom_fields(model, pattern))
+
+            fields[aggregate.name] = MultipleChoiceField(label=aggregate.title,
+                                                         required=False, choices=choices,
+                                                         widget=OrderedMultipleChoiceWidget,
+                                                         initial=initial_data,
+                                                        )
+
+    @commit_on_success
     def save(self):
         get_data = self.cleaned_data.get
         report = self.report
-        ct = report.ct
-        model = ct.model_class()
-        report_columns = report.columns.all()
+        model = report.ct.model_class()
 
-        regular_fields = get_data('regular_fields')
-        related_fields = get_data('related_fields')
-        custom_fields  = get_data('custom_fields')
-        relations      = get_data('relations')
-        functions      = get_data('functions')
+        old_rfields = self.rfields
+        new_rfields = []
 
-        fields_to_keep = []
+        def add_rfield(name, title, ftype):
+            rfield = Field(pk=old_rfields.pop(0).pk if old_rfields else None,
+                           name=name, title=title, type=ftype,
+                           order=len(new_rfields) + 1,
+                          )
+            rfield.save() #TODO: only if different than the old one
+            new_rfields.append(rfield)
 
-        columns_get = report.columns.get
+        for field_name in get_data('regular_fields'):
+            add_rfield(name=field_name, ftype=HFI_FIELD,
+                       title=get_verbose_field_name(model, field_name),
+                      )
 
-        i = 1
-        for regular_field in regular_fields:
-            fields_to_keep.append(get_hfi_field_or_save(columns_get, model, regular_field, i))
-            i += 1
+        for related_field_name in get_data('related_fields'):
+            add_rfield(name=related_field_name, ftype=HFI_RELATED,
+                       title=get_related_field_verbose_name(model, related_field_name)
+                      )
 
-        for related_field in related_fields:
-            fields_to_keep.append(get_hfi_related_field_or_save(columns_get, model, related_field, i))
-            i += 1
+        for cf_id in get_data('custom_fields'):
+            cfield = self.custom_fields[int(cf_id)]
+            add_rfield(name=cfield.id, title=cfield.name, ftype=HFI_CUSTOM)
 
-        for cf_id in custom_fields:
-            fields_to_keep.append(get_hfi_cf_or_save(columns_get, self.custom_fields[int(cf_id)], i))
-            i += 1
+        for rtype_id in get_data('relations'):
+            add_rfield(name=rtype_id, title=self.rtypes[rtype_id], ftype=HFI_RELATION)
 
-        for relation in relations:
-            fields_to_keep.append(get_hfi_relation_or_save(columns_get, relation, i))
-            i += 1
+        for funfield_name in get_data('functions'):
+            add_rfield(name=funfield_name, ftype=HFI_FUNCTION,
+                       title=get_function_field_verbose_name(model, funfield_name)
+                      )
 
-        for function in functions:
-            fields_to_keep.append(get_hfi_function_or_save(columns_get, model, function, i))
-            i += 1
+        for aggregation in field_aggregation_registry.itervalues():
+            for aggregate_id in get_data(aggregation.name):
+                add_rfield(name=aggregate_id, ftype=HFI_CALCULATED,
+                           title=self._get_calculated_title(aggregation, aggregate_id, model)
+                          )
 
-        for aggregate in field_aggregation_registry.itervalues():
-            for calculated_column in get_data(aggregate.name):
-                fields_to_keep.append(get_hfi_calculated(columns_get, calculated_column, aggregate, model, i))
-                i += 1
+        for col in old_rfields:
+            report.columns.remove(col) #Remove from the m2m before deleting it(postgresql)
 
-        for col in set(report_columns) - set(fields_to_keep):
-            report.columns.remove(col)#Remove from the m2m before deleting it(postgresql)
-            col.delete()
+        Field.objects.filter(pk__in=[rfield.id for rfield in old_rfields]).delete()
 
-        report.columns = fields_to_keep
-        report.save()
+        report.columns = new_rfields
 
 
 class DateReportFilterForm(CremeForm):

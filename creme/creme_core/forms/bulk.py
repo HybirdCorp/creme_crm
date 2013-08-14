@@ -69,7 +69,7 @@ def _get_choices(model_field, user):
 class _EntitiesEditForm(CremeForm):
     entities_lbl = CharField(label=_(u"Entities to update"), required=False, widget=Label)
     field_name   = ChoiceField(label=_(u"Field to update"))
-    field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
+    field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False) #TODO:remove AjaxMultipleChoiceField class when no more used here...
 
     def get_cfields_cache(self):
         return dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
