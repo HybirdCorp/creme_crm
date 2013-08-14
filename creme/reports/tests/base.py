@@ -64,11 +64,22 @@ class BaseReportsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Report, name=name)
 
-    def create_simple_report(self, name):
+    def create_simple_contacts_report(self, name):
         ct = ContentType.objects.get_for_model(Contact)
         report = Report.objects.create(name=name, ct=ct, user=self.user)
         report.columns.add(Field.objects.create(name=u'last_name',
                                                 title=u'Last name',
+                                                order=1, type=HFI_FIELD,
+                                               )
+                          )
+
+        return report
+
+    def create_simple_organisations_report(self, name='Orga report'):
+        ct = ContentType.objects.get_for_model(Organisation)
+        report = Report.objects.create(name=name, ct=ct, user=self.user)
+        report.columns.add(Field.objects.create(name=u'name',
+                                                title=u'Name',
                                                 order=1, type=HFI_FIELD,
                                                )
                           )

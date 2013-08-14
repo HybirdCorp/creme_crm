@@ -311,7 +311,7 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
 
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked;//More generic with all node types ?
-    $.each(others, function(i, n){
+    $.each(others, function(i, n) {
         $(n).attr('disabled', is_checked)
     });
 };

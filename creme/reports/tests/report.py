@@ -426,7 +426,7 @@ class ReportTestCase(BaseReportsTestCase):
         return '/reports/report/%s/field/add' % report.id
 
     def test_add_field01(self):
-        report = self.create_simple_report('Report #1')
+        report = self.create_simple_contacts_report('Report #1')
         url = self._build_editfields_url(report)
         response = self.assertGET200(url)
 
@@ -850,7 +850,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         create_contact(last_name='Mister X', is_deleted=True)
 
-        report = self.create_simple_report("Contacts report")
+        report = self.create_simple_contacts_report("Contacts report")
 
         self.assertEqual(set(Contact.objects.filter(is_deleted=False)
                                             .values_list('last_name', flat=True)
