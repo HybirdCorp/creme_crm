@@ -426,7 +426,7 @@ class UnicodeCollationTestCase(CremeTestCase):
                         )
 
     #def test_uca02(self):
-        #"Orignal lib"
+        #"Original lib"
         #from os.path import join
         #from pyuca import Collator
 

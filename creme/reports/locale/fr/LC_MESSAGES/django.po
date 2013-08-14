@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-31 15:36+0200\n"
+"POT-Creation-Date: 2013-08-12 16:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +28,7 @@ msgstr "Graphiques de rapport"
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: creme_core_register.py:30 models/report.py:358
+#: creme_core_register.py:30 models/report.py:397
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
@@ -73,15 +73,10 @@ msgstr "Colonne volatile"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:85 models/graph.py:245
+#: forms/blocks.py:85 models/graph.py:243
 #: templates/reports/templatetags/block_report_graph.html:19
 msgid "None"
 msgstr "Aucun"
-
-#: forms/graph.py:44 models/report.py:357
-#: templates/reports/preview_report.html:10
-msgid "Report"
-msgstr "Rapport"
 
 #: forms/graph.py:46
 msgid "Ordinate aggregate"
@@ -119,7 +114,7 @@ msgstr "Informations sur les ordonnées"
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/graph.py:105 forms/report.py:174 forms/report.py:320
+#: forms/graph.py:105 forms/report.py:330
 msgid "Relations"
 msgstr "Relations"
 
@@ -133,69 +128,63 @@ msgid ""
 "If you don't choose an ordinate field (or none available) you have to check "
 "'Make a count instead of aggregate ?'"
 msgstr ""
-"Si vous ne choisissez aucun champ d'ordonée (ou qu'aucun n'est disponible) "
+"Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:168
+#: forms/report.py:153
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:169 models/report.py:351
+#: forms/report.py:154
+msgid "The columns of the report will be copied from the list view."
+msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
+
+#: forms/report.py:156 models/report.py:390
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/report.py:171 forms/report.py:317
-msgid "Regular fields"
-msgstr "Champs normaux"
-
-#: forms/report.py:172 forms/report.py:319
-msgid "Custom fields"
-msgstr "Champs personnalisés"
-
-#: forms/report.py:173 forms/report.py:318
-msgid "Related fields"
-msgstr "Champs relatifs"
-
-#: forms/report.py:175 forms/report.py:321
-msgid "Functions"
-msgstr "Fonctions"
-
-#: forms/report.py:178
-msgid "Select from a existing view : "
-msgstr "Sélectionnez à partir d'une vue de liste existante : "
-
-#: forms/report.py:179
-msgid "Or"
-msgstr "Ou"
-
-#: forms/report.py:180 forms/report.py:324
-msgid "Calculated values"
-msgstr "Valeurs calculées"
-
-#: forms/report.py:225
-#, python-format
-msgid "You must select an existing view, or at least one field from : %s"
+# from creme_core
+#: forms/report.py:216 forms/report.py:220
+msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
-"Vous devez sélectionner soit une vue existante, soit au moins un champs "
-"parmi : %s"
 
-#: forms/report.py:293
+#: forms/report.py:305
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:300
+#: forms/report.py:310
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:414 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:327
+msgid "Regular fields"
+msgstr "Champs normaux"
+
+#: forms/report.py:328
+msgid "Related fields"
+msgstr "Champs relatifs"
+
+#: forms/report.py:329
+msgid "Custom fields"
+msgstr "Champs personnalisés"
+
+#: forms/report.py:331
+msgid "Functions"
+msgstr "Fonctions"
+
+#: forms/report.py:334
+msgid "Calculated values"
+msgstr "Valeurs calculées"
+
+#: forms/report.py:465 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:415
+#: forms/report.py:466
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:416
+#: forms/report.py:467
 msgid "Date filter"
 msgstr "Filtre temporel"
 
@@ -254,42 +243,46 @@ msgstr "Ajouter un graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:252
+#: models/graph.py:250
 #, python-format
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
 
-#: models/report.py:61
+#: models/report.py:67
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:70
+#: models/report.py:76
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:71
+#: models/report.py:77
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: models/report.py:255
+#: models/report.py:292
 msgid "N/A"
 msgstr "NC"
 
-#: models/report.py:345
+#: models/report.py:384
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:347
+#: models/report.py:386
 msgid "Entity type"
 msgstr "Type de fiche"
 
-#: models/report.py:348
+#: models/report.py:387
 msgid "Displayed columns"
 msgstr "Colonnes affichées"
 
-#: models/report.py:353
+#: models/report.py:392
 msgid "Add a report"
 msgstr "Ajouter un rapport"
+
+#: models/report.py:396 templates/reports/preview_report.html:10
+msgid "Report"
+msgstr "Rapport"
 
 #: templates/reports/portal.html:5
 msgid "Reports portal"
@@ -577,7 +570,7 @@ msgstr "Valeur calculée"
 msgid "Related field"
 msgstr "Champ relatif"
 
-#: templatetags/reports_tags.py:130
+#: templatetags/reports_tags.py:131
 msgid "Count"
 msgstr "Comptage"
 
@@ -614,10 +607,21 @@ msgstr "Liaison de la colonne <%s>"
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
 
-#: views/report.py:366
+#: views/report.py:369
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"
+
+#~ msgid "Select from a existing view : "
+#~ msgstr "Sélectionnez à partir d'une vue de liste existante : "
+
+#~ msgid "Or"
+#~ msgstr "Ou"
+
+#~ msgid "You must select an existing view, or at least one field from : %s"
+#~ msgstr ""
+#~ "Vous devez sélectionner soit une vue existante, soit au moins un champs "
+#~ "parmi : %s"
 
 #~ msgid "Generation date"
 #~ msgstr "Date de génération"

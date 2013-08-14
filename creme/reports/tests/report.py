@@ -11,13 +11,13 @@ try:
     from django.utils.translation import ugettext as _
     from django.utils.encoding import smart_str
     from django.utils.unittest.case import skipIf
-    from django.core.serializers.json import simplejson
+    #from django.core.serializers.json import simplejson
 
     from creme.creme_core.models import (RelationType, Relation,
         EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger)
 
     from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
-                            HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION)
+            HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED)
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
 
@@ -60,60 +60,61 @@ class ReportTestCase(BaseReportsTestCase):
                                           name='Size (cm)', field_type=CustomField.INT
                                          )
 
+    #def test_report_createview01(self):
+        #cf = self._create_cf_int()
+
+        #url = self.ADD_URL
+        #response = self.assertGET200(url)
+
+        #with self.assertNoException():
+            #response.context['form'].fields['regular_fields']
+
+        #name = 'My report on Contact'
+        #data = {'user': self.user.pk,
+                #'name': name,
+                #'ct':   ContentType.objects.get_for_model(Contact).id,
+               #}
+        #self.assertFormError(self.client.post(url, data=data), 'form', None,
+                             #[_(u"You must select an existing view, or at least one field from : %s") % 
+                                #', '.join([_(u'Regular fields'), _(u'Related fields'),
+                                           #_(u'Custom fields'), _(u'Relations'), _(u'Functions'),
+                                           #_(u'Maximum'), _(u'Sum'), _(u'Average'), _(u'Minimum'),
+                                          #])
+                             #]
+                            #)
+
+        #response = self.client.post(url, follow=True,
+                                    #data=dict(data,
+                                              #**{'regular_fields_check_%s' % 1: 'on',
+                                                 #'regular_fields_value_%s' % 1: 'last_name',
+                                                 #'regular_fields_order_%s' % 1: 1,
+
+                                                 #'custom_fields_check_%s' %  1: 'on',
+                                                 #'custom_fields_value_%s' %  1: cf.id,
+                                                 #'custom_fields_order_%s' %  1: 2,
+                                                #}
+                                             #)
+                                   #)
+        #self.assertNoFormError(response)
+
+        #report = self.get_object_or_fail(Report, name=name)
+        #columns = list(report.columns.all())
+        #self.assertEqual(2, len(columns))
+
+        #field = columns[0]
+        #self.assertEqual('last_name',     field.name)
+        #self.assertEqual(_(u'Last name'), field.title)
+        #self.assertEqual(HFI_FIELD,       field.type)
+        #self.assertFalse(field.selected)
+        #self.assertFalse(field.report)
+
+        #field = columns[1]
+        #self.assertEqual(str(cf.id), field.name)
+        #self.assertEqual(cf.name,    field.title)
+        #self.assertEqual(HFI_CUSTOM, field.type)
+
+    #def test_report_createview02(self):
     def test_report_createview01(self):
-        cf = self._create_cf_int()
-
-        url = self.ADD_URL
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            response.context['form'].fields['regular_fields']
-
-        name = 'My report on Contact'
-        data = {'user': self.user.pk,
-                'name': name,
-                'ct':   ContentType.objects.get_for_model(Contact).id,
-               }
-        self.assertFormError(self.client.post(url, data=data), 'form', None,
-                             [_(u"You must select an existing view, or at least one field from : %s") % 
-                                ', '.join([_(u'Regular fields'), _(u'Related fields'),
-                                           _(u'Custom fields'), _(u'Relations'), _(u'Functions'),
-                                           _(u'Maximum'), _(u'Sum'), _(u'Average'), _(u'Minimum'),
-                                          ])
-                             ]
-                            )
-
-        response = self.client.post(url, follow=True,
-                                    data=dict(data,
-                                              **{'regular_fields_check_%s' % 1: 'on',
-                                                 'regular_fields_value_%s' % 1: 'last_name',
-                                                 'regular_fields_order_%s' % 1: 1,
-
-                                                 'custom_fields_check_%s' %  1: 'on',
-                                                 'custom_fields_value_%s' %  1: cf.id,
-                                                 'custom_fields_order_%s' %  1: 2,
-                                                }
-                                             )
-                                   )
-        self.assertNoFormError(response)
-
-        report = self.get_object_or_fail(Report, name=name)
-        columns = list(report.columns.all())
-        self.assertEqual(2, len(columns))
-
-        field = columns[0]
-        self.assertEqual('last_name',     field.name)
-        self.assertEqual(_(u'Last name'), field.title)
-        self.assertEqual(HFI_FIELD,       field.type)
-        self.assertFalse(field.selected)
-        self.assertFalse(field.report)
-
-        field = columns[1]
-        self.assertEqual(str(cf.id), field.name)
-        self.assertEqual(cf.name,    field.title)
-        self.assertEqual(HFI_CUSTOM, field.type)
-
-    def test_report_createview02(self):
         cf = self._create_cf_int()
 
         name  = 'trinita'
@@ -153,7 +154,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(cf.name,    field.title)
         self.assertEqual(HFI_CUSTOM, field.type)
 
-    def test_report_createview03(self):
+    #def test_report_createview03(self):
+    def test_report_createview02(self):
+        "With EntityFilter"
         efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.IEQUALS,
@@ -163,6 +166,29 @@ class ReportTestCase(BaseReportsTestCase):
 
         report  = self.create_report('My awesome report', efilter)
         self.assertEqual(efilter, report.filter)
+
+    def test_report_createview03(self):
+        "Validation errors"
+        def post(hf_id, filter_id):
+            return self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'user':   self.user.pk,
+                                            'name':   'Report #1',
+                                            'ct':     ContentType.objects.get_for_model(Contact).id,
+                                            'hf':     hf_id,
+                                            'filter': filter_id,
+                                           }
+                                     )
+
+        response = post('unknown', 'unknown')
+        msg = _('Select a valid choice. That choice is not one of the available choices.')
+        self.assertFormError(response, 'form', 'hf',     msg)
+        self.assertFormError(response, 'form', 'filter', msg)
+
+        hf = HeaderFilter.create(pk='test_hf', name='name', model=Organisation)
+        efilter = EntityFilter.create('test-filter', 'Bad filter', Organisation, is_custom=True)
+        response = post(hf.id, efilter.id)
+        self.assertFormError(response, 'form', 'hf',     msg)
+        self.assertFormError(response, 'form', 'filter', msg)
 
     def test_report_editview(self):
         name = 'my report'
@@ -374,20 +400,20 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(["Ayanami", "Kirika", "", "Kawaii"], result[1])
         self.assertEqual(["Langley", "Kirika", "", ""],       result[2])
 
-    def test_get_related_fields(self):
-        url = '/reports/get_related_fields'
-        self.assertGET404(url)
+    #def test_get_related_fields(self):
+        #url = '/reports/get_related_fields'
+        #self.assertGET404(url)
 
-        get_ct = ContentType.objects.get_for_model
+        #get_ct = ContentType.objects.get_for_model
 
-        def post(model):
-            response = self.assertPOST200(url, data={'ct_id': get_ct(model).id})
-            return simplejson.loads(response.content)
+        #def post(model):
+            #response = self.assertPOST200(url, data={'ct_id': get_ct(model).id})
+            #return simplejson.loads(response.content)
 
-        self.assertEqual([], post(Organisation))
-        self.assertEqual([['document', _('Document')]],
-                         post(Folder)
-                        )
+        #self.assertEqual([], post(Organisation))
+        #self.assertEqual([['document', _('Document')]],
+                         #post(Folder)
+                        #)
 
     def _find_choice(self, searched, choices):
         for i, (k, v) in enumerate(choices):
@@ -396,14 +422,18 @@ class ReportTestCase(BaseReportsTestCase):
         else:
             self.fail('No "%s" choice' % searched)
 
-    def test_report_field_add01(self):
-        report = self.create_report('trinita')
-        url = '/reports/report/%s/field/add' % report.id
+    def _build_editfields_url(self, report):
+        return '/reports/report/%s/field/add' % report.id
+
+    def test_add_field01(self):
+        report = self.create_simple_report('Report #1')
+        url = self._build_editfields_url(report)
         response = self.assertGET200(url)
 
+        rfield = report.columns.all()[0]
+
         with self.assertNoException():
-            form = response.context['form']
-            choices = form.fields['regular_fields'].choices
+            choices = response.context['form'].fields['regular_fields'].choices
 
         f_name = 'last_name'
         rf_index = self._find_choice(f_name, choices)
@@ -425,26 +455,42 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(HFI_FIELD,       column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.report)
+        self.assertEqual(rfield.id, column.id)
+        self.assertEqual(rfield, column)
 
-    def test_report_field_add02(self):
-        "Custom fields"
+    def test_add_field02(self):
+        "Custom field, aggregate on CustomField; additional old Field deleted"
         cf = self._create_cf_int()
 
-        report = self.create_report('trinita')
-        url = '/reports/report/%s/field/add' % report.id
-        response = self.assertGET200(url)
+        report = self.create_report('My beloved Report')
+        old_rfields = list(report.columns.all())
+        self.assertEqual(4, len(old_rfields))
 
+        url = self._build_editfields_url(report)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
             rf_choices = fields['regular_fields'].choices
             cf_choices = fields['custom_fields'].choices
 
+            max_choices = fields['max'].choices
+            min_choices = fields['min'].choices
+            sum_choices = fields['sum'].choices
+            avg_choices = fields['avg'].choices
+
         f_name = 'last_name'
         rf_index = self._find_choice(f_name, rf_choices)
 
         cf_id = str(cf.id)
         cf_index = self._find_choice(cf_id, cf_choices)
+
+        aggr_id_base = 'cf__%s__%s' % (cf.field_type, cf_id)
+        aggr_id = aggr_id_base + '__max'
+        aggr_index = self._find_choice(aggr_id, max_choices)
+        self._find_choice(aggr_id_base + '__min', min_choices)
+        self._find_choice(aggr_id_base + '__sum', sum_choices)
+        self._find_choice(aggr_id_base + '__avg', avg_choices)
 
         response = self.client.post(url, data={'user': self.user.pk,
                                                'regular_fields_check_%s' % rf_index: 'on',
@@ -453,7 +499,133 @@ class ReportTestCase(BaseReportsTestCase):
 
                                                'custom_fields_check_%s' %  cf_index: 'on',
                                                'custom_fields_value_%s' %  cf_index: cf_id,
-                                               'custom_fields_order_%s' %  cf_index: 2,
+                                               'custom_fields_order_%s' %  cf_index: 1,
+
+                                               'max_check_%s' %  aggr_index: 'on',
+                                               'max_value_%s' %  aggr_index: aggr_id,
+                                               'max_order_%s' %  aggr_index: 1,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        columns = list(report.columns.all())
+        self.assertEqual(3, len(columns))
+
+        column = columns[0]
+        self.assertEqual(f_name, column.name)
+        self.assertEqual(old_rfields[0].id, column.id)
+
+        column = columns[1]
+        self.assertEqual(cf_id,      column.name)
+        self.assertEqual(cf.name,    column.title)
+        self.assertEqual(2,          column.order)
+        self.assertEqual(HFI_CUSTOM, column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+        self.assertEqual(old_rfields[1].id, column.id)
+
+        column = columns[2]
+        self.assertEqual(aggr_id,                             column.name)
+        self.assertEqual('%s - %s' % (_('Maximum'), cf.name), column.title)
+        self.assertEqual(3,                                   column.order)
+        self.assertEqual(HFI_CALCULATED,                      column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+        self.assertEqual(old_rfields[2].id, column.id)
+
+        self.assertDoesNotExist(old_rfields[3])
+
+    def test_add_field03(self):
+        "Other types: relationships, function fields"
+        report = self.create_report('My beloved Report')
+
+        url = self._build_editfields_url(report)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            rf_choices = fields['regular_fields'].choices
+            rt_choices = fields['relations'].choices
+            ff_choices = fields['functions'].choices
+
+        f_name = 'last_name'
+        rf_index = self._find_choice(f_name, rf_choices)
+
+        rtype_id = REL_SUB_EMPLOYED_BY
+        rtype = self.get_object_or_fail(RelationType, pk=rtype_id)
+        rt_index = self._find_choice(rtype_id, rt_choices)
+
+        funfield = Contact.function_fields.get('get_pretty_properties')
+        self.assertIsNotNone(funfield)
+        ff_index = self._find_choice(funfield.name, ff_choices)
+
+        response = self.client.post(url, data={'user': self.user.pk,
+                                               'regular_fields_check_%s' % rf_index: 'on',
+                                               'regular_fields_value_%s' % rf_index: f_name,
+                                               'regular_fields_order_%s' % rf_index: 1,
+
+                                               'relations_check_%s' %  rt_index: 'on',
+                                               'relations_value_%s' %  rt_index: rtype_id,
+                                               'relations_order_%s' %  rt_index: 1,
+
+                                               'functions_check_%s' %  ff_index: 'on',
+                                               'functions_value_%s' %  ff_index: funfield.name,
+                                               'functions_order_%s' %  ff_index: 1,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        columns = list(report.columns.all())
+        self.assertEqual(3, len(columns))
+
+        self.assertEqual(f_name, columns[0].name)
+
+        column = columns[1]
+        self.assertEqual(rtype_id,        column.name)
+        self.assertEqual(rtype.predicate, column.title)
+        self.assertEqual(2,               column.order)
+        self.assertEqual(HFI_RELATION,    column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+
+        column = columns[2]
+        self.assertEqual(funfield.name,         column.name)
+        self.assertEqual(funfield.verbose_name, column.title)
+        self.assertEqual(3,                     column.order)
+        self.assertEqual(HFI_FUNCTION,          column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+
+    def test_add_field04(self):
+        "Aggregate on regular fields"
+        ct = ContentType.objects.get_for_model(Organisation)
+        report = Report.objects.create(name='Secret report', ct=ct, user=self.user)
+
+        url = self._build_editfields_url(report)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            rf_choices = fields['regular_fields'].choices
+            max_choices = fields['max'].choices
+            min_choices = fields['min'].choices
+
+        f_name = 'name'
+        rf_index = self._find_choice(f_name, rf_choices)
+
+        vname = _('Capital')
+        self.assertEqual([('capital__max', vname)], max_choices)
+        aggr_id = 'capital__min'
+        self.assertEqual([(aggr_id, vname)], min_choices)
+
+        response = self.client.post(url, data={'user': self.user.pk,
+                                               'regular_fields_check_%s' % rf_index: 'on',
+                                               'regular_fields_value_%s' % rf_index: f_name,
+                                               'regular_fields_order_%s' % rf_index: 1,
+
+                                               'min_check_%s' %  0: 'on',
+                                               'min_value_%s' %  0: aggr_id,
+                                               'min_order_%s' %  0: 1,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -464,10 +636,54 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(f_name, columns[0].name)
 
         column = columns[1]
-        self.assertEqual(cf_id,      column.name)
-        self.assertEqual(cf.name,    column.title)
-        self.assertEqual(2,          column.order)
-        self.assertEqual(HFI_CUSTOM, column.type)
+        self.assertEqual(aggr_id,                           column.name)
+        self.assertEqual('%s - %s' % (_('Minimum'), vname), column.title)
+        self.assertEqual(2,                                 column.order)
+        self.assertEqual(HFI_CALCULATED,                    column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+
+    def test_add_field05(self):
+        "Related entity"
+        ct = ContentType.objects.get_for_model(Folder)
+        report = Report.objects.create(name='Folder report', ct=ct, user=self.user)
+
+        url = self._build_editfields_url(report)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            rf_choices = fields['regular_fields'].choices
+            rel_choices = fields['related_fields'].choices
+
+        f_name = 'title'
+        rf_index = self._find_choice(f_name, rf_choices)
+
+        rel_name = 'document'
+        rel_index = self._find_choice(rel_name, rel_choices)
+
+        response = self.client.post(url, data={'user': self.user.pk,
+                                               'regular_fields_check_%s' % rf_index: 'on',
+                                               'regular_fields_value_%s' % rf_index: f_name,
+                                               'regular_fields_order_%s' % rf_index: 1,
+
+                                               'related_fields_check_%s' %  rel_index: 'on',
+                                               'related_fields_value_%s' %  rel_index: rel_name,
+                                               'related_fields_order_%s' %  rel_index: 1,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        columns = list(report.columns.all())
+        self.assertEqual(2, len(columns))
+
+        self.assertEqual(f_name, columns[0].name)
+
+        column = columns[1]
+        self.assertEqual(rel_name,      column.name)
+        self.assertEqual(_('Document'), column.title)
+        self.assertEqual(2,             column.order)
+        self.assertEqual(HFI_RELATED,   column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.report)
 
@@ -636,31 +852,30 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.create_simple_report("Contacts report")
 
-        self.assertEqual(set(str(cid) for cid in Contact.objects.filter(is_deleted=False)
-                                                                .values_list('id', flat=True)
+        self.assertEqual(set(Contact.objects.filter(is_deleted=False)
+                                            .values_list('last_name', flat=True)
                             ),
                          set(chain.from_iterable(report.fetch()))
                         )
 
-    def test_get_predicates_choices_4_ct(self):
-        response = self.assertPOST200('/reports/get_predicates_choices_4_ct',
-                                      data={'ct_id': ContentType.objects.get_for_model(Report).id}
-                                     )
-        self.assertEqual('text/javascript', response['Content-Type'])
+    #def test_get_predicates_choices_4_ct(self):
+        #response = self.assertPOST200('/reports/get_predicates_choices_4_ct',
+                                      #data={'ct_id': ContentType.objects.get_for_model(Report).id}
+                                     #)
+        #self.assertEqual('text/javascript', response['Content-Type'])
 
-        content = simplejson.loads(response.content)
-        self.assertIsInstance(content, list)
-        self.assertTrue(content)
+        #content = simplejson.loads(response.content)
+        #self.assertIsInstance(content, list)
+        #self.assertTrue(content)
 
-        def relationtype_2_tuple(rtype_id):
-            rt = RelationType.objects.get(pk=rtype_id)
-            return [rt.id, rt.predicate]
+        #def relationtype_2_tuple(rtype_id):
+            #rt = RelationType.objects.get(pk=rtype_id)
+            #return [rt.id, rt.predicate]
 
-        self.assertIn(relationtype_2_tuple(REL_SUB_HAS), content)
-        self.assertNotIn(relationtype_2_tuple(REL_SUB_EMPLOYED_BY), content)
+        #self.assertIn(relationtype_2_tuple(REL_SUB_HAS), content)
+        #self.assertNotIn(relationtype_2_tuple(REL_SUB_EMPLOYED_BY), content)
 
     def test_fetch01(self):
-        #self.populate('creme_core', 'persons', 'opportunities', 'billing')
         self._create_reports()
         self._setUp_data_for_big_report()
         user = self.user
@@ -878,21 +1093,21 @@ class ReportTestCase(BaseReportsTestCase):
                          report.fetch_all_lines()
                         )
 
-    def test_get_aggregate_fields(self):
-        url = '/reports/get_aggregate_fields'
-        self.assertGET404(url)
-        self.assertPOST404(url)
+    #def test_get_aggregate_fields(self):
+        #url = '/reports/get_aggregate_fields'
+        #self.assertGET404(url)
+        #self.assertPOST404(url)
 
-        data = {'ct_id': ContentType.objects.get_for_model(Organisation).id}
-        response = self.assertPOST200(url, data=data)
-        self.assertEqual([], simplejson.loads(response.content))
+        #data = {'ct_id': ContentType.objects.get_for_model(Organisation).id}
+        #response = self.assertPOST200(url, data=data)
+        #self.assertEqual([], simplejson.loads(response.content))
 
-        response = self.assertPOST200(url, data=dict(data, aggregate_name='stuff'))
-        self.assertEqual([], simplejson.loads(response.content))
+        #response = self.assertPOST200(url, data=dict(data, aggregate_name='stuff'))
+        #self.assertEqual([], simplejson.loads(response.content))
 
-        response = self.assertPOST200(url, data=dict(data, aggregate_name='sum'))
-        self.assertEqual([['capital__sum', _('Capital')]],
-                         simplejson.loads(response.content)
-                        )
+        #response = self.assertPOST200(url, data=dict(data, aggregate_name='sum'))
+        #self.assertEqual([['capital__sum', _('Capital')]],
+                         #simplejson.loads(response.content)
+                        #)
 
 #TODO: test with subreports, expanding etc...

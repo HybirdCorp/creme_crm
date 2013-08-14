@@ -2,13 +2,14 @@
 
 {% block extrahead %}
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function() {
             $('#{{form.ct.auto_id}}').change(function() {
                 var opts = {
-                    'ct':this,
-                    'hf':'#{{form.hf.auto_id}}',//'#hf',
+                    'ct': this,
+                    'hf': '#{{form.hf.auto_id}}',
+                    'filter': '#{{form.filter.auto_id}}',
+{% comment %}
                     'show_after_ct':'.show_after_ct',
-                    'filter':'#{{form.filter.auto_id}}',
                     'regular_fields': {
                             'table_id':'{{form.regular_fields.auto_id}}',
                             'name' : '{{form.regular_fields.name}}'
@@ -38,13 +39,16 @@
                                 }{% if not forloop.last %},{% endif %}{# Prevent trailing comma incompatible with IE #}
                             {% endfor %}
                         ]
+{% endcomment %}
                 };
                 creme.reports.load(opts);
             });
 
+{% comment %}
             {% if ct_posted %}
                 $('#{{form.ct.auto_id}}').val('{{ct_posted}}');
             {% endif %}
+{% endcomment %}
 
             $('#{{form.ct.auto_id}}').change();
         });

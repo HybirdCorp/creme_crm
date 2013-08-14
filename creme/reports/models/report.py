@@ -24,16 +24,18 @@ import logging
 
 #from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-from django.db.models.fields.related import ManyToManyField, ForeignKey
-from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
+from django.db.models import (CharField, PositiveIntegerField, 
+        PositiveSmallIntegerField, BooleanField, ManyToManyField, ForeignKey)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme.creme_core.models.custom_field import CustomField, _TABLES
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
-                                   filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
-from creme.creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
+        filter_entities_on_ct, get_fk_entity, get_m2m_entities,
+        get_related_field, get_verbose_field_name)
+from creme.creme_core.models.header_filter import (HFI_FUNCTION, HFI_RELATION,
+        HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 
 from ..report_aggregation_registry import field_aggregation_registry
 
@@ -78,15 +80,29 @@ class Field(CremeModel):
     def __unicode__(self):
         return self.title
 
-    @staticmethod
-    def get_instance_from_hf_item(hf_item):
-        """
-            @returns : A Field instance (not saved !) built from an HeaderFilterItem instance
-        """
-        if hf_item.type == HFI_RELATION:
-            return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
-        else:
-            return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
+    def __repr__(self):
+        return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
+                    self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
+                )
+
+    def __eq__(self, other):
+        return (self.id == other.id and
+                self.name == other.name and
+                self.title == other.title and
+                self.order == other.order and
+                self.type == other.type and
+                self.selected == other.selected and
+                self.report_id == other.report_id)
+
+    #@staticmethod
+    #def get_instance_from_hf_item(hf_item):
+        #"""
+            #@returns : A Field instance built from an HeaderFilterItem instance
+        #"""
+        #if hf_item.type == HFI_RELATION:
+            #return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
+        #else:
+            #return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
 
     def get_children_fields_flat(self):
         cols = []
@@ -301,6 +317,7 @@ class Field(CremeModel):
 
         elif column_type == HFI_CALCULATED:
             #No credential check
+            #TODO: factorise with form code (_get_calculated_title)
             field_name, sep, aggregate = column_name.rpartition('__')
             aggregation = field_aggregation_registry.get(aggregate)
 
@@ -318,6 +335,7 @@ class Field(CremeModel):
                     return entity.__class__._default_manager.all().aggregate(aggregation.func(field_name)).get(column_name)
 
         elif column_type == HFI_RELATED:
+            #TODO:factorise 'entity is None'
             if entity is None and report and selected:
                 return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
             if entity is None:
@@ -406,16 +424,8 @@ class Report(CremeEntity):
 
     def fetch(self, limit_to=None, extra_q=None, user=None):
         lines   = []
-        model = self.ct.model_class() #TODO: used once
-        #model_manager = model.objects
         columns = self.get_children_fields_with_hierarchy()
-
-        ##if self.filter is not None:
-            ##entities = model_manager.filter(self.filter.get_q())
-        ##else:
-            ##entities = model_manager.all()
-        #entities = model_manager.all()
-        entities = model.objects.filter(is_deleted=False)
+        entities = self.ct.model_class().objects.filter(is_deleted=False)
 
         if self.filter is not None:
             entities = self.filter.filter(entities)
@@ -424,23 +434,25 @@ class Report(CremeEntity):
             entities = entities.filter(extra_q)
 
         entities_with_limit = entities[:limit_to]
-        #if user is not None:
-            #model.populate_credentials(entities_with_limit, user)
-
         lines_append = lines.append
 
         for entity in entities_with_limit:
-            entity_line = []
-            entity_line_append = entity_line.append
+            #entity_line = []
+            #entity_line_append = entity_line.append
 
             try:
-                for column in columns:
-                    field = column.get('field')
-                    entity_line_append(field.get_value(entity, query=entities, user=user))#TODO: %s/entities/entities_with_limit ?? => Not mysql 5.1 compliant
+                #for column in columns:
+                    #field = column.get('field')
+                    #entity_line_append(field.get_value(entity, query=entities, user=user))#TODO: %s/entities/entities_with_limit ?? => Not mysql 5.1 compliant
 
-                lines_append(entity_line)
+                #lines_append(entity_line)
+                entity_line = [column.get('field').get_value(entity, query=entities, user=user)
+                                    for column in columns
+                              ]
             except DropLine:
                 pass
+            else:
+                lines_append(entity_line)
 
         return lines
 
@@ -521,16 +533,10 @@ class Report(CremeEntity):
         return lines
 
     def get_children_fields_with_hierarchy(self):
-        return [c.get_children_fields_with_hierarchy() for c in self.columns.all()]
+        return [c.get_children_fields_with_hierarchy() for c in self.columns.all()] #TODO; cache for columns
 
     def get_children_fields_flat(self):
         return chain.from_iterable(c.get_children_fields_flat() for c in self.columns.all())
-#        children = []
-#
-#        for c in self.columns.all():
-#            children.extend(c.get_children_fields_flat())
-#
-#        return children
 
     def _post_save_clone(self, source):
         for graph in source.reportgraph_set.all():
@@ -541,7 +547,10 @@ class Report(CremeEntity):
     @staticmethod
     def get_related_fields_choices(model):
         allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
-        related_fields = chain(model._meta.get_all_related_objects(), model._meta.get_all_related_many_to_many_objects())
+        meta = model._meta
+        related_fields = chain(meta.get_all_related_objects(),
+                               meta.get_all_related_many_to_many_objects()
+                              )
 
         return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
                     for related_field in related_fields
