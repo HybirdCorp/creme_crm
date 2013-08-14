@@ -180,6 +180,7 @@ def get_fields(request):
 
     return HttpResponse(msg, mimetype="text/javascript", status=status)
 
+#TODO: use jsonify (and remove Exception handling)
 @login_required
 def _get_ct_info(request, generator):
     try:
@@ -198,11 +199,11 @@ def _get_ct_info(request, generator):
 
 @login_required
 def get_custom_fields(request):
-    """@return Custom fields for a model [('cfield1_name', 'cfield1_name'), ...]"""
+    "@return Custom fields for a model [('cfield1_id', 'cfield1_name'), ...]"
     return _get_ct_info(request,
-                        lambda ct: [(cf.name, cf.name)
-                                        for cf in CustomField.objects.filter(content_type=ct)
-                                   ]
+                        lambda ct: list(CustomField.objects.filter(content_type=ct)
+                                                           .values_list('id', 'name')
+                                       )
                        )
 
 @login_required

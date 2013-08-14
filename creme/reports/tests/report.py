@@ -14,9 +14,10 @@ try:
     from django.core.serializers.json import simplejson
 
     from creme.creme_core.models import (RelationType, Relation,
-                                         EntityFilter, EntityFilterCondition)
+        EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger)
+
     from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
-                                                       HFI_FIELD, HFI_RELATION, HFI_FUNCTION)
+                            HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION)
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
 
@@ -54,7 +55,14 @@ class ReportTestCase(BaseReportsTestCase):
     def test_portal(self):
         self.assertGET200('/reports/')
 
+    def _create_cf_int(self):
+        return CustomField.objects.create(content_type=ContentType.objects.get_for_model(Contact),
+                                          name='Size (cm)', field_type=CustomField.INT
+                                         )
+
     def test_report_createview01(self):
+        cf = self._create_cf_int()
+
         url = self.ADD_URL
         response = self.assertGET200(url)
 
@@ -80,25 +88,44 @@ class ReportTestCase(BaseReportsTestCase):
                                               **{'regular_fields_check_%s' % 1: 'on',
                                                  'regular_fields_value_%s' % 1: 'last_name',
                                                  'regular_fields_order_%s' % 1: 1,
+
+                                                 'custom_fields_check_%s' %  1: 'on',
+                                                 'custom_fields_value_%s' %  1: cf.id,
+                                                 'custom_fields_order_%s' %  1: 2,
                                                 }
                                              )
                                    )
         self.assertNoFormError(response)
 
         report = self.get_object_or_fail(Report, name=name)
-        self.assertEqual(1, report.columns.count())
+        columns = list(report.columns.all())
+        self.assertEqual(2, len(columns))
+
+        field = columns[0]
+        self.assertEqual('last_name',     field.name)
+        self.assertEqual(_(u'Last name'), field.title)
+        self.assertEqual(HFI_FIELD,       field.type)
+        self.assertFalse(field.selected)
+        self.assertFalse(field.report)
+
+        field = columns[1]
+        self.assertEqual(str(cf.id), field.name)
+        self.assertEqual(cf.name,    field.title)
+        self.assertEqual(HFI_CUSTOM, field.type)
 
     def test_report_createview02(self):
+        cf = self._create_cf_int()
+
         name  = 'trinita'
         self.assertFalse(Report.objects.filter(name=name).exists())
 
-        report  = self.create_report(name)
+        report = self.create_report(name, extra_hfitems=[HeaderFilterItem.build_4_customfield(cf)])
         self.assertEqual(self.user, report.user)
         self.assertEqual(Contact,   report.ct.model_class())
         self.assertIsNone(report.filter)
 
         columns = list(report.columns.all())
-        self.assertEqual(4, len(columns))
+        self.assertEqual(5, len(columns))
 
         field = columns[0]
         self.assertEqual('last_name',     field.name)
@@ -120,6 +147,11 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual('get_pretty_properties', field.name)
         self.assertEqual(_(u'Properties'),        field.title)
         self.assertEqual(HFI_FUNCTION,            field.type)
+
+        field = columns[4]
+        self.assertEqual(str(cf.id), field.name)
+        self.assertEqual(cf.name,    field.title)
+        self.assertEqual(HFI_CUSTOM, field.type)
 
     def test_report_createview03(self):
         efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
@@ -357,6 +389,13 @@ class ReportTestCase(BaseReportsTestCase):
                          post(Folder)
                         )
 
+    def _find_choice(self, searched, choices):
+        for i, (k, v) in enumerate(choices):
+            if k == searched:
+                return i
+        else:
+            self.fail('No "%s" choice' % searched)
+
     def test_report_field_add01(self):
         report = self.create_report('trinita')
         url = '/reports/report/%s/field/add' % report.id
@@ -367,15 +406,11 @@ class ReportTestCase(BaseReportsTestCase):
             choices = form.fields['regular_fields'].choices
 
         f_name = 'last_name'
-        for i, (fname, fvname) in enumerate(choices):
-            if fname == f_name: created_index = i; break
-        else:
-            self.fail('No "last_name" field')
-
+        rf_index = self._find_choice(f_name, choices)
         response = self.client.post(url, data={'user': self.user.pk,
-                                               'regular_fields_check_%s' % created_index: 'on',
-                                               'regular_fields_value_%s' % created_index: f_name,
-                                               'regular_fields_order_%s' % created_index: 1,
+                                               'regular_fields_check_%s' % rf_index: 'on',
+                                               'regular_fields_value_%s' % rf_index: f_name,
+                                               'regular_fields_order_%s' % rf_index: 1,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -391,7 +426,50 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(column.selected)
         self.assertIsNone(column.report)
 
-    #def test_report_field_add02(self): TODO: other types
+    def test_report_field_add02(self):
+        "Custom fields"
+        cf = self._create_cf_int()
+
+        report = self.create_report('trinita')
+        url = '/reports/report/%s/field/add' % report.id
+        response = self.assertGET200(url)
+
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            rf_choices = fields['regular_fields'].choices
+            cf_choices = fields['custom_fields'].choices
+
+        f_name = 'last_name'
+        rf_index = self._find_choice(f_name, rf_choices)
+
+        cf_id = str(cf.id)
+        cf_index = self._find_choice(cf_id, cf_choices)
+
+        response = self.client.post(url, data={'user': self.user.pk,
+                                               'regular_fields_check_%s' % rf_index: 'on',
+                                               'regular_fields_value_%s' % rf_index: f_name,
+                                               'regular_fields_order_%s' % rf_index: 1,
+
+                                               'custom_fields_check_%s' %  cf_index: 'on',
+                                               'custom_fields_value_%s' %  cf_index: cf_id,
+                                               'custom_fields_order_%s' %  cf_index: 2,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        columns = list(report.columns.all())
+        self.assertEqual(2, len(columns))
+
+        self.assertEqual(f_name, columns[0].name)
+
+        column = columns[1]
+        self.assertEqual(cf_id,      column.name)
+        self.assertEqual(cf.name,    column.title)
+        self.assertEqual(2,          column.order)
+        self.assertEqual(HFI_CUSTOM, column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
 
     def _build_image_report(self):
         img_report = Report.objects.create(user=self.user, name="Report on images",
@@ -581,7 +659,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertIn(relationtype_2_tuple(REL_SUB_HAS), content)
         self.assertNotIn(relationtype_2_tuple(REL_SUB_EMPLOYED_BY), content)
 
-    def test_big_report_fetch01(self):
+    def test_fetch01(self):
         #self.populate('creme_core', 'persons', 'opportunities', 'billing')
         self._create_reports()
         self._setUp_data_for_big_report()
@@ -686,7 +764,119 @@ class ReportTestCase(BaseReportsTestCase):
                        self.report_contact.fetch_all_lines()
                       )
 
-        #TODO: test HFI_RELATED, HFI_CUSTOM
+        #TODO: test HFI_RELATED
+
+    def test_fetch02(self):
+        "Custom fields"
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ned  = create_contact(first_name='Eddard', last_name='Stark')
+        robb = create_contact(first_name='Robb',   last_name='Stark')
+        aria = create_contact(first_name='Aria',   last_name='Stark')
+
+        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[ned.last_name]
+                                                                   )
+                               ])
+
+        cf = self._create_cf_int()
+        create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
+        create_cfval(entity=ned,  value=190)
+        create_cfval(entity=aria, value=150)
+
+        report = self.create_report('Contacts with CField', efilter=efilter)
+
+        create_field = partial(Field.objects.create, selected=False, report=None)
+        report.columns = [ #TODO: create Field builder like HFI...
+            create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
+            create_field(name=cf.id,        title=cf.name,      type=HFI_CUSTOM, order=2),
+          ]
+
+        self.assertEqual([[aria.first_name, '150'],
+                          [ned.first_name,  '190'],
+                          [robb.first_name, ''],
+                         ],
+                         report.fetch_all_lines()
+                        )
+
+    def test_fetch02_fix01(self): #TODO: remove when DataMigration is done
+        "Custom fields: get by name"
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ned  = create_contact(first_name='Eddard', last_name='Stark')
+        robb = create_contact(first_name='Robb',   last_name='Stark')
+        aria = create_contact(first_name='Aria',   last_name='Stark')
+
+        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[ned.last_name]
+                                                                   )
+                               ])
+
+        cf = self._create_cf_int()
+        #same name to be annoying
+        CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
+                                   name=cf.name, field_type=CustomField.INT
+                                  )
+
+        create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
+        create_cfval(entity=ned,  value=190)
+        create_cfval(entity=aria, value=150)
+
+        report = self.create_report('Contacts with CField', efilter=efilter)
+
+        create_field = partial(Field.objects.create, selected=False, report=None)
+        report.columns = [
+            create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
+            create_field(name=cf.name,      title=cf.name,      type=HFI_CUSTOM, order=2), #<====
+          ]
+
+        self.assertEqual([[aria.first_name, '150'],
+                          [ned.first_name,  '190'],
+                          [robb.first_name, ''],
+                         ],
+                         report.fetch_all_lines()
+                        )
+
+    def test_fetch02_fix02(self):  #TODO: remove when DataMigration is done
+        "Custom fields: get by name, but name changed"
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ned  = create_contact(first_name='Eddard', last_name='Stark')
+        robb = create_contact(first_name='Robb',   last_name='Stark')
+        aria = create_contact(first_name='Aria',   last_name='Stark')
+
+        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[ned.last_name]
+                                                                   )
+                               ])
+
+        cf = self._create_cf_int()
+        #same name to be annoying
+        CustomField.objects.create(content_type=ContentType.objects.get_for_model(Organisation),
+                                   name=cf.name, field_type=CustomField.INT
+                                  )
+
+        create_cfval = partial(CustomFieldInteger.objects.create, custom_field=cf)
+        create_cfval(entity=ned,  value=190)
+        create_cfval(entity=aria, value=150)
+
+        report = self.create_report('Contacts with CField', efilter=efilter)
+
+        create_field = partial(Field.objects.create, selected=False, report=None)
+        report.columns = [
+            create_field(name='first_name',    title='First Name', type=HFI_FIELD,  order=1),
+            create_field(name=cf.name + 'foo', title=cf.name,      type=HFI_CUSTOM, order=2), #<====
+          ]
+
+        self.assertEqual([[aria.first_name, ''],
+                          [ned.first_name,  ''],
+                          [robb.first_name, ''],
+                         ],
+                         report.fetch_all_lines()
+                        )
 
     def test_get_aggregate_fields(self):
         url = '/reports/get_aggregate_fields'

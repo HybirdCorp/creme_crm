@@ -111,11 +111,13 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual([], simplejson.loads(response.content))
 
         create_cf = partial(CustomField.objects.create, content_type=ct)
-        create_cf(name='cf01', field_type=CustomField.INT)
-        create_cf(name='cf02', field_type=CustomField.FLOAT)
+        cf1 = create_cf(name='Size',   field_type=CustomField.INT)
+        cf2 = create_cf(name='Weight', field_type=CustomField.FLOAT)
 
         response = get_cf(ct.id)
-        self.assertEqual([['cf01', 'cf01'], ['cf02', 'cf02']], simplejson.loads(response.content))
+        self.assertEqual([[cf1.id, cf1.name], [cf2.id, cf2.name]],
+                         simplejson.loads(response.content)
+                        )
 
         response = get_cf(0)
         self.assertEqual(404,               response.status_code)

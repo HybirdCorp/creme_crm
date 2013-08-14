@@ -20,6 +20,7 @@
 
 from functools import partial
 from itertools import chain
+import logging
 
 #from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
@@ -35,6 +36,9 @@ from creme.creme_core.utils.meta import (get_instance_field_info, get_model_fiel
 from creme.creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 
 from ..report_aggregation_registry import field_aggregation_registry
+
+
+logger = logging.getLogger(__name__)
 
 
 class DropLine(Exception):
@@ -147,7 +151,7 @@ class Field(CremeModel):
         selected = selected or self.selected
         empty_value = u""
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        check_user = user is not None and not user.is_superuser #Don't check for superuser
+        check_user = user is not None and not user.is_superuser #Don't check for superuser #TODO: user.has_perm_to_view() do not emit query for super user -> bad optimization...
 
         if column_type == HFI_FIELD:
             #TODO: factorise "entity is None"
@@ -203,17 +207,34 @@ class Field(CremeModel):
             return unicode(value or empty_value)
 
         elif column_type == HFI_CUSTOM:
-            if entity is None:
-                return empty_value
+            value = empty_value
 
-            try:
-                cf = CustomField.objects.get(name=column_name, content_type=entity.entity_type)
-            except CustomField.DoesNotExist:
-                return empty_value
+            if entity is not None:
+                cf = getattr(self, 'custom_field_cache', None)
 
-            value = entity.get_custom_value(cf)
-            if value and check_user and not user.has_perm_to_view(entity):
-                return HIDDEN_VALUE
+                if cf is None: #'None' means CustomField has not been retrieved yet
+                    cf = False #'False' means CustomField is unfoundable
+
+                    try:
+                        cf = CustomField.objects.get(id=column_name, content_type=entity.entity_type)
+                    except ValueError: #TODO: remove when DataMigration is done
+                        try:
+                            cf = CustomField.objects.filter(name=column_name, content_type=entity.entity_type)[0]
+                        except IndexError:
+                            pass
+                    except CustomField.DoesNotExist:
+                        #TODO: remove the Field ??
+                        logger.debug('Field.get_value(): CustomField "%s" does not exist any more', column_name)
+
+                    self.custom_field_cache = cf
+
+                if not cf:
+                    value = empty_value
+                else:
+                    value = entity.get_custom_value(cf)
+
+                    if value and check_user and not user.has_perm_to_view(entity):
+                        value = HIDDEN_VALUE
 
             return value
 
