@@ -15,7 +15,6 @@ try:
 
     from creme.creme_core.models import (RelationType, Relation,
         EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger)
-
     from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
             HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED)
     from creme.creme_core.constants import REL_SUB_HAS
