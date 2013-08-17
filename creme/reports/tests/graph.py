@@ -8,13 +8,14 @@ try:
     from django.utils.translation import ugettext as _
     from django.core.serializers.json import simplejson
 
-    from creme.creme_core.models import (RelationType, InstanceBlockConfigItem,
-                                BlockDetailviewLocation, BlockPortalLocation)
+    from creme.creme_core.models import (RelationType, Relation,
+            InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
+            EntityFilter, EntityFilterCondition)
     from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
     from creme.creme_core.utils.meta import get_verbose_field_name
 
-    from creme.persons.models import Organisation, Contact
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY
+    from creme.persons.models import Organisation, Contact, Position, Sector
+    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
     from creme.billing.models import Invoice
     from creme.billing.constants import REL_SUB_BILL_RECEIVED
@@ -66,16 +67,6 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             abscissa='issuing_date',
                                             ordinate='total_no_vat__sum',
                                             type=RGT_MONTH, is_count=False,
-                                           )
-
-        return rgraph
-
-    def _create_report_n_graph_with_date_range(self, report, days):
-        #TODO: we need a helper ReportGraph.create() ??
-        rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                            name=u"number of organisation created / 15 days",
-                                            abscissa='creation_date',
-                                            type=RGT_RANGE, days=days, is_count=True,
                                            )
 
         return rgraph
@@ -182,10 +173,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview03(self):
         "'aggregate_field' empty ==> 'is_count' mandatory"
-        report = Report.objects.create(user=self.user,
-                                       name=u"All contacts",
-                                       ct=ContentType.objects.get_for_model(Contact),
-                                      )
+        report = self.create_simple_contacts_report()
 
         url = self._build_add_graph_url(report)
         response = self.assertGET200(url)
@@ -213,12 +201,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                )
                               )
         rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
-        #self.assertEqual(self.user,                        rgraph.user)
-        self.assertEqual(abscissa,                         rgraph.abscissa)
-        #self.assertEqual('%s__%s' % (ordinate, aggregate), rgraph.ordinate)
-        self.assertEqual('', rgraph.ordinate)
-        #self.assertEqual(gtype,                            rgraph.type)
-        #self.assertIsNone(rgraph.days)
+        self.assertEqual(abscissa, rgraph.abscissa)
+        self.assertEqual('',       rgraph.ordinate)
         self.assertTrue(rgraph.is_count)
 
     def test_createview04(self):
@@ -365,13 +349,96 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
         #TODO: test collected data !!!!!!!!!!!!!
 
-    def test_fetch_with_date_range(self):
-        self.report_organisation = report = Report.objects.create(user=self.user,
-                                                     name=u"All organisations",
-                                                     ct=ContentType.objects.get_for_model(Organisation),
-                                                    )
+    def test_fetch_with_fk_01(self):
+        "Count"
+        create_position = Position.objects.create
+        hand = create_position(title='Hand of the king')
+        lord = create_position(title='Lord')
 
-        rgraph = self._create_report_n_graph_with_date_range(report, 15)
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ned  = create_contact(first_name='Eddard', last_name='Stark', position=hand)
+        robb = create_contact(first_name='Robb',   last_name='Stark', position=lord)
+        bran = create_contact(first_name='Bran',   last_name='Stark', position=lord)
+        aria = create_contact(first_name='Aria',   last_name='Stark')
+
+        efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[ned.last_name]
+                                                                   )
+                               ])
+
+        report = self.create_simple_contacts_report(efilter=efilter)
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='Contacts by position',
+                                            abscissa='position', type=RGT_FK,
+                                            ordinate='', is_count=True,
+                                           )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch()
+
+        self.assertEqual(list(Position.objects.values_list('title', flat=True)), x_asc)
+
+        self.assertIsInstance(y_asc, list)
+        self.assertEqual(len(x_asc), len(y_asc))
+
+        fmt = '/persons/contacts?q_filter={"position": %s}'
+        self.assertEqual([1, fmt % hand.id], y_asc[x_asc.index(hand.title)])
+        self.assertEqual([2, fmt % lord.id], y_asc[x_asc.index(lord.title)])
+
+        # DESC ---------------------------------------------------------------
+        desc_x_asc, desc_y_asc = rgraph.fetch(order='DESC')
+        self.assertEqual(x_asc, desc_x_asc)
+        self.assertEqual(y_asc, desc_y_asc)
+
+    def test_fetch_with_fk_02(self):
+        "Aggregate"
+        create_sector = Sector.objects.create
+        war   = create_sector(title='War')
+        trade = create_sector(title='Trade')
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        lannisters = create_orga(name='House Lannister', capital=1000, sector=trade)
+        starks     = create_orga(name='House Stark',     capital=100,  sector=war)
+        targaryens = create_orga(name='House Targaryen', capital=10,   sector=war)
+
+        efilter = EntityFilter.create('test-filter', 'Houses', Organisation, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                    operator=EntityFilterCondition.ISTARTSWITH,
+                                                                    name='name', values=['House '],
+                                                                   )
+                               ])
+
+        report = self.create_simple_organisations_report(efilter=efilter)
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='Capital max by sector',
+                                            abscissa='sector', type=RGT_FK,
+                                            ordinate='capital__max', is_count=False,
+                                           )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch()
+
+        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+
+        fmt = '/persons/organisations?q_filter={"sector": %s}'
+        self.assertEqual([100,  fmt % war.id],   y_asc[x_asc.index(war.title)])
+        self.assertEqual([1000, fmt % trade.id], y_asc[x_asc.index(trade.title)])
+
+    def test_fetch_with_date_range01(self):
+        "Count"
+        report = self.create_simple_organisations_report()
+
+        def create_graph(days):
+            return ReportGraph.objects.create(user=self.user, report=report,
+                                              name=u"Number of organisation created / %s day(s)" % days,
+                                              abscissa='creation_date',
+                                              type=RGT_RANGE, days=days,
+                                              is_count=True,
+                                             )
+
+        rgraph = create_graph(15)
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_orga(name='Target Orga1', creation_date='2013-06-01')
         create_orga(name='Target Orga2', creation_date='2013-06-05')
@@ -380,28 +447,235 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_orga(name='Target Orga5', creation_date='2013-06-16')
         create_orga(name='Target Orga6', creation_date='2013-06-30')
 
+        #ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['01/06/2013-15/06/2013', '16/06/2013-30/06/2013'],
+                         x_asc
+                        )
+
         self.assertEqual(len(y_asc), 2)
-        first_count = y_asc[0][0]
-        second_count = y_asc[1][0]
-        self.assertEqual(first_count, 4)
-        self.assertEqual(second_count, 2)
+        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        self.assertEqual([4, fmt % ("2013-06-01", "2013-06-15")], y_asc[0])
+        self.assertEqual([2, fmt % ("2013-06-16", "2013-06-30")], y_asc[1])
 
+        #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(None, 'DESC')
-        self.assertEqual(y_desc[0][0], 2)
-        self.assertEqual(y_desc[1][0], 4)
+        self.assertEqual(['30/06/2013-16/06/2013', '15/06/2013-01/06/2013'],
+                         x_desc
+                        )
+        self.assertEqual([2, fmt % ('2013-06-16', '2013-06-30')], y_desc[0])
+        self.assertEqual([4, fmt % ('2013-06-01', '2013-06-15')], y_desc[1])
 
-        rgraph_one_day = self._create_report_n_graph_with_date_range(report, 1)
+        #Days = 1 ------------------------------------------------------------
+        rgraph_one_day = create_graph(1)
         x_one_day, y_one_day = rgraph_one_day.fetch()
         self.assertEqual(len(y_one_day), 30)
-        self.assertEqual(y_one_day[0][0], 1)
-        self.assertEqual(y_one_day[1][0], 0)
+        self.assertEqual(y_one_day[0][0],  1)
+        self.assertEqual(y_one_day[1][0],  0)
         self.assertEqual(y_one_day[12][0], 0)
         self.assertEqual(y_one_day[13][0], 1)
         self.assertEqual(y_one_day[14][0], 1)
         self.assertEqual(y_one_day[15][0], 1)
         self.assertEqual(y_one_day[16][0], 0)
         self.assertEqual(y_one_day[29][0], 1)
+
+    def test_fetch_with_date_range02(self):
+        "Aggregate"
+        report = self.create_simple_organisations_report()
+
+        days = 10
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Minimum of capital by creation date (period of %s days)" % days,
+                                            abscissa='creation_date',
+                                            type=RGT_RANGE, days=days,
+                                            ordinate='capital__sum',
+                                            is_count=False,
+                                           )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
+        create_orga(name='Orga2', creation_date='2013-06-25', capital=200)
+        create_orga(name='Orga3', creation_date='2013-07-5',  capital=150)
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'],
+                         x_asc
+                        )
+        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        self.assertEqual([300, fmt % ('2013-06-22', '2013-07-01')], y_asc[0])
+        self.assertEqual([150, fmt % ('2013-07-02', '2013-07-11')], y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(['05/07/2013-26/06/2013', '25/06/2013-16/06/2013'],
+                         x_desc
+                        )
+        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        self.assertEqual([150, fmt % ('2013-06-26', '2013-07-05')], y_desc[0])
+        self.assertEqual([300, fmt % ('2013-06-16', '2013-06-25')], y_desc[1])
+
+    def test_fetch_by_day01(self):
+        "Aggregate"
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Minimum of capital by creation date (by day)",
+                                            abscissa='creation_date',
+                                            type=RGT_DAY,
+                                            ordinate='capital__avg',
+                                            is_count=False,
+                                           )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
+        create_orga(name='Orga2', creation_date='2013-06-22', capital=200)
+        create_orga(name='Orga3', creation_date='2013-07-5',  capital=130)
+
+        ##ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['22/06/2013', '05/07/2013'], x_asc)
+        fmt = '/persons/organisations?q_filter={"creation_date__day": %s, "creation_date__month": %s, "creation_date__year": %s}'
+        self.assertEqual([150, fmt % (22, 6, 2013)], y_asc[0])
+        self.assertEqual([130, fmt % (5, 7, 2013)], y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(['05/07/2013', '22/06/2013'], x_desc)
+        self.assertEqual([130, fmt % (5, 7, 2013)], y_desc[0])
+        self.assertEqual([150, fmt % (22, 6, 2013)], y_desc[1])
+
+    def test_fetch_by_month01(self):
+        "Count"
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Minimum of capital by creation date (period of 1 month)",
+                                            abscissa='creation_date',
+                                            type=RGT_MONTH,
+                                            ordinate='', is_count=True,
+                                           )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Orga1', creation_date='2013-06-22')
+        create_orga(name='Orga2', creation_date='2013-06-25')
+        create_orga(name='Orga3', creation_date='2013-08-5')
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['06/2013', '08/2013'], x_asc)
+        fmt = '/persons/organisations?q_filter={"creation_date__month": %s, "creation_date__year": %s}'
+        self.assertEqual([2, fmt % (6, 2013)], y_asc[0])
+        self.assertEqual([1, fmt % (8, 2013)], y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(['08/2013', '06/2013'], x_desc)
+        self.assertEqual([1, fmt % (8, 2013)], y_desc[0])
+        self.assertEqual([2, fmt % (6, 2013)], y_desc[1])
+
+    def test_fetch_by_year01(self):
+        "Count"
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Minimum of capital by creation date (period of 1 year)",
+                                            abscissa='creation_date',
+                                            type=RGT_YEAR,
+                                            ordinate='', is_count=True,
+                                           )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Orga1', creation_date='2013-06-22')
+        create_orga(name='Orga2', creation_date='2013-07-25')
+        create_orga(name='Orga3', creation_date='2014-08-5')
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['2013', '2014'], x_asc)
+        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
+        self.assertEqual([2, fmt % 2013], y_asc[0])
+        self.assertEqual([1, fmt % 2014], y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(['2014', '2013'], x_desc)
+        self.assertEqual([1, fmt % 2014], y_desc[0])
+        self.assertEqual([2, fmt % 2013], y_desc[1])
+
+    def test_fetch_by_relation01(self):
+        "Count"
+        user = self.user
+        create_orga = partial(Organisation.objects.create, user=user)
+        lannisters = create_orga(name='House Lannister')
+        starks     = create_orga(name='House Stark')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        tyrion = create_contact(first_name='Tyrion', last_name='Lannister')
+        ned    = create_contact(first_name='Eddard', last_name='Stark')
+        aria   = create_contact(first_name='Aria',   last_name='Stark')
+
+        create_rel = partial(Relation.objects.create, user=user, type_id=REL_OBJ_EMPLOYED_BY)
+        create_rel(subject_entity=lannisters, object_entity=tyrion)
+        create_rel(subject_entity=starks,     object_entity=ned)
+        create_rel(subject_entity=starks,     object_entity=aria)
+
+        report = self.create_simple_contacts_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name="Number of employees",
+                                            abscissa=REL_SUB_EMPLOYED_BY,
+                                            type=RGT_RELATION,
+                                            ordinate='', is_count=True,
+                                           )
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual([unicode(lannisters), unicode(starks)], x_asc)
+        self.assertEqual(1, y_asc[0])
+        self.assertEqual(2, y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(x_asc, x_desc)
+        self.assertEqual(y_asc, y_asc)
+
+    def test_fetch_by_relation02(self):
+        "Aggregate"
+        user = self.user
+        create_orga = partial(Organisation.objects.create, user=user)
+        lannisters = create_orga(name='House Lannister', capital=100)
+        starks     = create_orga(name='House Stark',     capital=50)
+        tullies    = create_orga(name='House Tully',     capital=40)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        tywin = create_contact(first_name='Tywin',  last_name='Lannister')
+        ned   = create_contact(first_name='Eddard', last_name='Stark')
+
+        rtype = RelationType.create(('reports-subject_obeys',   'obeys to', [Organisation]),
+                                    ('reports-object_commands', 'commands', [Contact]),
+                                   )[0]
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
+        create_rel(subject_entity=lannisters, object_entity=tywin)
+        create_rel(subject_entity=starks,     object_entity=ned)
+        create_rel(subject_entity=tullies,    object_entity=ned)
+
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name="Capital by lords",
+                                            abscissa=rtype.id,
+                                            type=RGT_RELATION,
+                                            ordinate='capital__sum',
+                                            is_count=False,
+                                           )
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual([unicode(tywin), unicode(ned)], x_asc)
+        self.assertEqual(100, y_asc[0])
+        self.assertEqual(90,  y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC')
+        self.assertEqual(x_asc, x_desc)
+        self.assertEqual(y_asc, y_asc)
 
     def test_add_graph_instance_block01(self):
         rgraph = self._create_report_n_graph()

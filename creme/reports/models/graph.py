@@ -19,11 +19,12 @@
 ################################################################################
 
 from datetime import timedelta
+from json import dumps as json_encode
 
-from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, FieldDoesNotExist, Min, Max
+from django.db.models import (PositiveIntegerField, CharField, BooleanField,
+                              ForeignKey, FieldDoesNotExist, Min, Max)
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
-from django.utils.simplejson import JSONEncoder
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
 from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
@@ -49,6 +50,11 @@ verbose_report_graph_types = {
     RGT_FK       : _(u"By values"),
     RGT_RELATION : _(u"By values (of related entities)"),
 }
+
+#TODO: move to creme_core ?
+#TODO: use a builder (to reduce the number of temp strings) ?
+def listview_url(model, q_filter):
+    return '%s?q_filter=%s' % (model.get_lv_absolute_url(), json_encode(q_filter))
 
 
 class ReportGraph(CremeEntity):
@@ -82,17 +88,23 @@ class ReportGraph(CremeEntity):
 
     def fetch(self, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
-        report        = self.report
-        ct            = report.ct
-        model         = ct.model_class()
-        gtype         = self.type
-        abscissa      = self.abscissa
-        ordinate      = self.ordinate
-        is_count      = self.is_count
-        ordinate_col, sep, aggregate = ordinate.rpartition('__')
-        aggregate_field = field_aggregation_registry.get(aggregate)
-        aggregate_func  = aggregate_field.func if aggregate_field else None #Seems to be a count
-        aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None #Seems to be a count
+        report   = self.report
+        ct       = report.ct
+        model    = ct.model_class()
+        gtype    = self.type
+        abscissa = self.abscissa
+        ordinate = self.ordinate
+        is_count = self.is_count
+        #ordinate_col, sep, aggregate = ordinate.rpartition('__')
+        #aggregate_field = field_aggregation_registry.get(aggregate)
+        #aggregate_func  = aggregate_field.func if aggregate_field else None #Seems to be a count
+        #aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None #Seems to be a count
+
+        if not is_count:
+            ordinate_col, sep, aggregate = ordinate.rpartition('__')
+            aggregate_col = field_aggregation_registry.get(aggregate).func(ordinate_col) #TODO: if field does not exit anymore ??
+        else:
+            aggregate_col = None
 
         entities = model.objects.all()
 
@@ -104,43 +116,45 @@ class ReportGraph(CremeEntity):
 
         entities_filter = entities.filter
 
-        x, y = [], []
+        x = []
+        y = []
         x_append = x.append
         y_append = y.append
 
-        json_encoder = JSONEncoder()
-
-        def listview_url(model, q_filter):
-            return model.get_lv_absolute_url() + '?q_filter=' + json_encoder.encode(q_filter)
-
-        #TODO: map of functions ???
+        #TODO: map of functions ??? or objects (see form)
         if gtype == RGT_DAY:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
-                                     aggregate_func, entities_filter, 'day',
-                                     q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}) & Q(**{str('%s__day' % abscissa): date.day}),
+            year_key  = '%s__year' % abscissa
+            month_key = '%s__month' % abscissa
+            day_key   ='%s__day' % abscissa
+            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'day',
+                                     qdict_builder=lambda date: {year_key:  date.year,
+                                                                 month_key: date.month,
+                                                                 day_key:   date.day,
+                                                                },
                                      date_format="%d/%m/%Y", order=order, is_count=is_count,
-                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year, '%s__month' % abscissa: date.month, '%s__day' % abscissa: date.day})
                                     )
-
         elif gtype == RGT_MONTH:
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
-                                     aggregate_func, entities_filter, 'month',
-                                     q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}),
+            year_key  = '%s__year' % abscissa
+            month_key = '%s__month' % abscissa
+            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'month',
+                                     qdict_builder=lambda date: {year_key:  date.year,
+                                                                 month_key: date.month,
+                                                                },
                                      date_format="%m/%Y", order=order, is_count=is_count,
-                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year, '%s__month' % abscissa: date.month})
                                     )
-        elif gtype == RGT_YEAR: #TODO: unit test
-            x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
-                                     aggregate_func, entities_filter, 'year',
-                                     q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}),
+        elif gtype == RGT_YEAR:
+            year_key  = '%s__year' % abscissa
+            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'year',
+                                     qdict_builder=lambda date: {year_key: date.year},
                                      date_format="%Y", order=order, is_count=is_count,
-                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year})
                                     )
+        elif gtype == RGT_RANGE:
+            date_aggregates = entities.aggregate(min_date=Min(abscissa), max_date=Max(abscissa))
+            min_date = date_aggregates['min_date']
+            max_date = date_aggregates['max_date']
 
-        elif gtype == RGT_RANGE: #TODO: unit test
-            min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
-            max_date = entities.aggregate(max_date=Max(abscissa)).get('max_date')
             days = timedelta((self.days or 1) - 1)
+            query_cmd = '%s__range' % abscissa
 
             if min_date is not None and max_date is not None:
                 #TODO: factorise the 2 'while' loops
@@ -148,10 +162,14 @@ class ReportGraph(CremeEntity):
                     while min_date <= max_date:
                         begin = min_date
                         end   = min_date + days
-                        x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
+                        x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y"))) #TODO: use format from settings ??
 
-                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))  #TODO: Q useless
-                        url = listview_url(model, {'%s__range' % abscissa: [begin.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")]})
+                        sub_entities = entities_filter(**{query_cmd: (begin, end)})
+                        url = listview_url(model, {query_cmd: [begin.strftime("%Y-%m-%d"),
+                                                               end.strftime("%Y-%m-%d"),
+                                                              ]
+                                                  }
+                                          )
 
                         if is_count:
                             y_append([sub_entities.count(), url])
@@ -165,8 +183,12 @@ class ReportGraph(CremeEntity):
                         end   = max_date - days
                         x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
-                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))  #TODO: Q useless
-                        url = listview_url(model, {'%s__range' % abscissa: [end.strftime("%Y-%m-%d"), begin.strftime("%Y-%m-%d")]})
+                        sub_entities = entities_filter(**{query_cmd: (end, begin)})
+                        url = listview_url(model, {query_cmd: [end.strftime("%Y-%m-%d"),
+                                                               begin.strftime("%Y-%m-%d"),
+                                                              ]
+                                                  }
+                                          )
 
                         if is_count:
                             y_append([sub_entities.count(), url])
@@ -175,23 +197,25 @@ class ReportGraph(CremeEntity):
 
                         max_date = end - timedelta(days=1)
         elif gtype == RGT_FK:
-            _fks_model = entities.model._meta.get_field(abscissa).rel.to
-            _fks = _fks_model.objects.all() #TODO: rename
+            related_instances = model._meta.get_field(abscissa).rel.to.objects.all()
 
             if order == 'DESC':
-                #_fks.reverse()#Seems useless on models which haven't ordering
-                _fks = _fks.reverse()
+                related_instances = related_instances.reverse()
 
-            for fk in _fks:
-                x_append(unicode(fk))
-                sub_entities = entities_filter(**{str('%s' % abscissa): fk.id})
-                url = listview_url(model, {'%s' % abscissa: fk.id})
+            for instance in related_instances:
+                x_append(unicode(instance))
 
+                kwargs = {abscissa: instance.id}
+                sub_entities = entities_filter(**kwargs)
+                url = listview_url(model, kwargs)
+
+                #TODO: factorise this pattern
                 if is_count:
                     y_append([sub_entities.count(), url])
                 else:
                     y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
-        elif gtype == RGT_RELATION: #TODO: unit test
+        elif gtype == RGT_RELATION:
+            #TODO: use filter & extra_q
             #TODO: Optimize !
             #TODO: make listview url for this case
             #      the q_filter {"pk__in": ub_relations.values_list('subject_entity__id')} may create too long urls
@@ -201,9 +225,7 @@ class ReportGraph(CremeEntity):
                 pass
             else:
                 relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
-
-                obj_ids = set(relations.values_list('object_entity__id', flat=True))
-
+                obj_ids = set(relations.values_list('object_entity', flat=True)) #TODO: set -> distinct ??
                 ce_objects_get = CremeEntity.objects.get
                 model_objects_filter = model.objects.filter
 
@@ -213,12 +235,12 @@ class ReportGraph(CremeEntity):
                     except CremeEntity.DoesNotExist:
                         continue
 
-                    sub_relations = relations.filter(Q(object_entity__id=obj_id))
+                    sub_relations = relations.filter(object_entity=obj_id)
 
                     if is_count:
                         y_append(sub_relations.count())
                     else:
-                        sub_entities = model_objects_filter(pk__in=sub_relations.values_list('subject_entity__id'))
+                        sub_entities = model_objects_filter(pk__in=sub_relations.values_list('subject_entity'))
                         y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
 
         for i, item in enumerate(y):
@@ -227,7 +249,8 @@ class ReportGraph(CremeEntity):
 
         return (x, y)
 
-    class InstanceBlockConfigItemError(Exception): pass
+    class InstanceBlockConfigItemError(Exception):
+        pass
 
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from creme.reports.blocks import ReportGraphBlock
@@ -263,28 +286,35 @@ class ReportGraph(CremeEntity):
         return ibci
 
 
-def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func,
-                      qfilter, range, q_func=None, url_func=None, date_format=None,
-                      order='ASC', is_count=False):
+def _get_dates_values(entities, abscissa, ordinate, aggregate_col,
+                      kind, qdict_builder, date_format, order, is_count):
+    """
+    @param kind 'day', 'month' or 'year'
+    @param order 'ASC' or 'DESC'
+    @param date_format Format compatible with strftime()
+    """
+    model = entities.model
+    entities_filter = entities.filter
     x = []
     y = []
 
-    for date in entities.dates(abscissa, range, order):
-        sub_entities = qfilter(q_func(date))
-        #TODO: unit test count
+    for date in entities.dates(abscissa, kind, order):
+        qdict = qdict_builder(date)
+        sub_entities = entities_filter(**qdict)
+
         value = sub_entities.count() if is_count else \
-                sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate)
+                sub_entities.aggregate(aggregate_col).get(ordinate)
 
         x.append(date.strftime(date_format))
-        y.append([value, url_func(date)])
+        y.append([value, listview_url(model, qdict)])
 
     return x, y
 
 #TODO: move to utils ???
 def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
-    volatile_column   = instance_block.data
-    graph             = instance_block.entity.get_real_entity()
-    ct_entity         = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
+    volatile_column = instance_block.data
+    graph           = instance_block.entity.get_real_entity()
+    ct_entity       = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
 
     columns = volatile_column.split('|')
     volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)

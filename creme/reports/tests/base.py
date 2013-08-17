@@ -64,9 +64,9 @@ class BaseReportsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Report, name=name)
 
-    def create_simple_contacts_report(self, name):
+    def create_simple_contacts_report(self, name='Contact report', efilter=None):
         ct = ContentType.objects.get_for_model(Contact)
-        report = Report.objects.create(name=name, ct=ct, user=self.user)
+        report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         report.columns.add(Field.objects.create(name=u'last_name',
                                                 title=u'Last name',
                                                 order=1, type=HFI_FIELD,
@@ -75,9 +75,9 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
-    def create_simple_organisations_report(self, name='Orga report'):
+    def create_simple_organisations_report(self, name='Orga report', efilter=None):
         ct = ContentType.objects.get_for_model(Organisation)
-        report = Report.objects.create(name=name, ct=ct, user=self.user)
+        report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         report.columns.add(Field.objects.create(name=u'name',
                                                 title=u'Name',
                                                 order=1, type=HFI_FIELD,
