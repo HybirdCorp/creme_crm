@@ -67,8 +67,8 @@ class BaseReportsTestCase(CremeTestCase):
     def create_simple_contacts_report(self, name='Contact report', efilter=None):
         ct = ContentType.objects.get_for_model(Contact)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
-        report.columns.add(Field.objects.create(name=u'last_name',
-                                                title=u'Last name',
+        report.columns.add(Field.objects.create(name='last_name',
+                                                title=_(u'Last name'),
                                                 order=1, type=HFI_FIELD,
                                                )
                           )
