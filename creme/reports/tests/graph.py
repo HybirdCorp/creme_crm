@@ -305,7 +305,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                              '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By X days')
                             )
         self.assertFormError(response, 'form', 'days',
-                             "You have to specify a day range if you use 'by X days'"
+                             _("You have to specify a day range if you use 'by X days'")
                             )
 
         aggregate = 'avg'
@@ -668,9 +668,16 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         #ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()
-        self.assertEqual([unicode(tywin), unicode(ned)], x_asc)
-        self.assertEqual(100, y_asc[0])
-        self.assertEqual(90,  y_asc[1])
+        self.assertEqual(2, len(x_asc))
+
+        ned_index = x_asc.index(unicode(ned))
+        self.assertNotEqual(-1,  ned_index)
+
+        tywin_index = x_asc.index(unicode(tywin))
+        self.assertNotEqual(-1,  tywin_index)
+
+        self.assertEqual(100, y_asc[tywin_index])
+        self.assertEqual(90,  y_asc[ned_index])
 
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
