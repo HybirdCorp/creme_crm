@@ -62,24 +62,24 @@ def print_node_chart(context, node, diameter=100):
     max_legend_length = 0
     count = 0
 
-    if node.answer_stats:
-        for answer, stat, percent in node.answer_stats:
-            label = escape(unicode(answer))
-            fmt = u'%3d %% - %s' if percent.is_integer() else u'%3.2f %% - %s'
-            legend = fmt % (percent, label)
-            max_legend_length = max(max_legend_length, len(legend))
-            count += 1
+    #if node.answer_stats:
+    for answer, stat, percent in node.answer_stats:
+        label = escape(unicode(answer))
+        fmt = u'%3d %% - %s' if percent.is_integer() else u'%3.2f %% - %s'
+        legend = fmt % (percent, label)
+        max_legend_length = max(max_legend_length, len(legend))
+        count += 1
 
-            data.append((label, stat))
-            legends.append(legend)
-    else: #TODO: should be useless --> remove
-        label = _('No available answer')
-        legend = u'100 %% - %s' % label
-        max_legend_length = len(legend)
-        count = 1
+        data.append((label, stat))
+        legends.append(legend)
+    #else: #todo: should be useless --> remove
+        #label = _('No available answer')
+        #legend = u'100 %% - %s' % label
+        #max_legend_length = len(legend)
+        #count = 1
 
-        data = [[label, 1]]
-        legends = [legend]
+        #data = [[label, 1]]
+        #legends = [legend]
 
     encode = JSONEncoder().encode
     context.update({

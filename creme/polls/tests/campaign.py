@@ -22,9 +22,6 @@ class PollCampaignsTestCase(_PollsTestCase):
     def setUp(self):
         self.login()
 
-    def _build_preply_from_pform_url(self, campaign):
-        return '/polls/poll_reply/add_from_campaign/%s' % campaign.id
-
     def _create_segment(self, name, label): #TODO: inline ?
         ptype = CremePropertyType.create('polls-prop_%s' % name, u'is from segment "%s"' % label)
         return MarketSegment.objects.create(name=label, property_type=ptype)
@@ -108,8 +105,7 @@ class PollCampaignsTestCase(_PollsTestCase):
         self.assertEqual(len(camps), camps_page.paginator.count)
         self.assertEqual(set(camps), set(camps_page.object_list))
 
-    def test_create_preply01(self):
-        "Create several replies linked to the campaign"
+    def _create_pform_n_campaign(self):
         user  = self.user
         camp  = PollCampaign.objects.create(user=user, name='Camp#1')
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -118,14 +114,42 @@ class PollCampaignsTestCase(_PollsTestCase):
         create_line('What is the name of your swallow ?')
         create_line('What type of swallow is it ?')
 
+        return pform, camp
+
+    def test_create_preply01(self):
+        "Create several replies linked to the campaign"
+        pform, camp = self._create_pform_n_campaign()
+
         name = 'Reply'
         reply_number = 2
         response = self.client.post(self.ADD_REPLY_URL, follow=True,
-                                    data={'user':     user.id,
+                                    data={'user':     self.user.id,
                                           'name':     name,
                                           'pform':    pform.id,
                                           'number':   reply_number,
                                           'campaign': camp.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        for i in xrange(1, reply_number + 1):
+            preply = self.get_object_or_fail(PollReply, name="%s#%s" % (name, i))
+            self.assertEqual(camp, preply.campaign)
+
+    def test_create_preply02(self):
+        "Create several replies linked to a given campaign"
+        pform, camp = self._create_pform_n_campaign()
+
+        url = '/polls/poll_reply/add_from_campaign/%s' % camp.id
+        self.assertGET200(url)
+
+        name = 'Reply'
+        reply_number = 2
+        response = self.client.post(url, follow=True,
+                                    data={'user':   self.user.id,
+                                          'name':   name,
+                                          'pform':  pform.id,
+                                          'number': reply_number,
                                          }
                                    )
         self.assertNoFormError(response)
