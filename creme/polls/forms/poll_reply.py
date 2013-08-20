@@ -27,7 +27,7 @@ from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
-    CremeEntityField, MultiGenericEntityField, MultiCremeEntityField)
+        CremeEntityField, MultiGenericEntityField, MultiCremeEntityField)
 from creme.creme_core.forms.validators import validate_editable_entities
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.validators import validate_linkable_entity
