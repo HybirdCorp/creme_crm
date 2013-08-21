@@ -27,12 +27,12 @@ def _add_tags_to_fields():
     """Hook Django models.Field to add a tag system.
     DO NOT CALL THIS METHOD, CREME DO IT FOR YOU !!
     """
-    from django.db.models import Field, AutoField, OneToOneField
+    from django.db.models import Field, AutoField, OneToOneField, ForeignKey
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
     def _set_tags(self, **kwargs):
-        for tag_name in ('clonable', 'viewable'):
+        for tag_name in ('clonable', 'viewable', 'enumerable'):
             value = kwargs.pop(tag_name, None)
             if value is not None:
                 setattr(self, '_cremetag_%s' % tag_name, value)
@@ -60,6 +60,11 @@ def _add_tags_to_fields():
     Field._cremetag_clonable = True
     AutoField._cremetag_clonable = False
     OneToOneField._cremetag_clonable = False
+
+    #enumerable
+    Field._cremetag_enumerable = False
+    ForeignKey._cremetag_enumerable = True
+    OneToOneField._cremetag_enumerable = False
 
     #User hooking #TODO: move in models.auth ??
     get_user_field = User._meta.get_field_by_name
