@@ -31,7 +31,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import dumps
 from django.contrib.contenttypes.models import ContentType
 
-from mediagenerator.templatetags.media import include_media
+#from mediagenerator.templatetags.media import include_media
+from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
@@ -354,11 +355,30 @@ class HasPermToNode(TemplateNode):
 def creme_media_url(context, url):
     return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
 
-@register.tag
-def include_creme_media(parser, token):
-    contents = token.split_contents()
-    contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
-    return include_media(parser, Token(token.token_type, ' '.join(contents)))
+#@register.tag
+#def include_creme_media(parser, token):
+    #contents = token.split_contents()
+    #contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
+    #return include_media(parser, Token(token.token_type, ' '.join(contents)))
+
+@register.tag(name='include_creme_media')
+def do_include_creme_media(parser, token):
+    try:
+        # Splitting by None == splitting by spaces.
+        tag_name, arg = token.contents.split(None, 1)
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
+
+class MediaNode(TemplateNode):
+    def __init__(self, bundle_var):
+        self.bundle_var = bundle_var
+
+    def render(self, context):
+        bundle = self.bundle_var.eval(context)
+
+        return _render_include_media(get_current_theme() + bundle, variation={})
 
 @register.assignment_tag
 def get_export_backends():
