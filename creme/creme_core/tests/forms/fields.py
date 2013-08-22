@@ -58,6 +58,10 @@ class DateRangeFieldTestCase(FieldTestCase):
                          drange.get_dates(datetime(year=2013, month=5, day=29, hour=11))
                         )
 
+    def test_ok03(self):
+        drange = DateRangeField(required=False).clean(['', '', ''])
+        self.assertIsNone(drange)
+
 
 class ColorFieldTestCase(FieldTestCase):
     def test_empty01(self):

@@ -230,8 +230,10 @@ def preview(request, report_id):
         filter_form = DateReportFilterForm(report=report, user=user, data=request.POST)
 
         if filter_form.is_valid():
-            extra_q_filter = Q(**filter_form.get_q_dict())
+            q_dict = filter_form.get_q_dict()
             start, end = filter_form.get_dates()
+            if q_dict is not None:
+                extra_q_filter = Q(**filter_form.get_q_dict())
     else:
         filter_form = DateReportFilterForm(report=report, user=user)
 
@@ -356,7 +358,7 @@ def date_filter_form(request, report_id):
     if request.method == 'POST':
         form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
         if form.is_valid():
-            callback_url = '/reports/report/export/%s/%s?%s' % (
+            callback_url = '/reports/report/export/%s/%s%s' % (
                                     report_id,
                                     form.cleaned_data.get('doc_type'),
                                     form.forge_url_data,

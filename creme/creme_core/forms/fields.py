@@ -1139,11 +1139,11 @@ class DateRangeField(MultiValueField):
     """
     widget = DateRangeWidget
     default_error_messages = {
-        'customized_empty': _(u'If you select customized you have to specify a start date and/or an end date.'),
+        'customized_empty': _(u'If you select «customized» you have to specify a start date and/or an end date.'),
         'customized_invalid': _(u'Start date has to be before end date.'),
     }
 
-    def __init__(self, render_as="table", required=False, *args, **kwargs):
+    def __init__(self, render_as="table", required=True, *args, **kwargs):
         self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()))
         self.start_date = DateField()
         self.end_date   = DateField()
@@ -1159,10 +1159,16 @@ class DateRangeField(MultiValueField):
         return u'', u'', u''
 
     def clean(self, value):
+        # MultiValueField manages "required" for all fields together
+        # thought we need to manage them independently (range or end_date
+        # can be an empty string) so we have to hook it.
+        previous_required = self.required
+        self.required = False
         range_name, start, end = super(DateRangeField, self).clean(value)
+        self.required = previous_required
 
         if range_name == "":
-            if not start and not end:
+            if not start and not end and self.required:
                 raise ValidationError(self.error_messages['customized_empty'])
 
             if start and end and start > end:

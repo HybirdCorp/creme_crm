@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-12 16:01+0200\n"
+"POT-Creation-Date: 2013-08-22 16:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: blocks.py:81 models/graph.py:67
+#: blocks.py:81 models/graph.py:73
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
@@ -73,57 +73,70 @@ msgstr "Colonne volatile"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:85 models/graph.py:243
+#: forms/blocks.py:85 forms/report.py:472 models/graph.py:266
 #: templates/reports/templatetags/block_report_graph.html:19
 msgid "None"
 msgstr "Aucun"
 
-#: forms/graph.py:46
-msgid "Ordinate aggregate"
-msgstr "Valeur calculée (Ordonnée)"
-
-#: forms/graph.py:49
-msgid "Ordinate aggregate field"
-msgstr "Champ de valeur calculée (Ordonnée)"
-
-#: forms/graph.py:51
+#: forms/graph.py:44
 msgid "Abscissa field"
 msgstr "Champ d'abscisse"
 
-#: forms/graph.py:54
+#: forms/graph.py:47
 msgid "Abscissa : Group by"
 msgstr "Abscisse : Grouper par"
 
-#: forms/graph.py:58
+#: forms/graph.py:50
+msgid "Ordinate aggregate"
+msgstr "Valeur calculée (Ordonnée)"
+
+#: forms/graph.py:53
+msgid "Ordinate aggregate field"
+msgstr "Champ de valeur calculée (Ordonnée)"
+
+#: forms/graph.py:54
 msgid "Entities count"
 msgstr "Comptage de fiches"
 
-#: forms/graph.py:58
+#: forms/graph.py:55
 msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: forms/graph.py:63
+#: forms/graph.py:60
 msgid "Abscissa informations"
 msgstr "Informations sur les abscisses"
 
-#: forms/graph.py:64
+#: forms/graph.py:61
 msgid "Ordinates informations"
 msgstr "Informations sur les ordonnées"
 
-#: forms/graph.py:104
+#: forms/graph.py:96
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/graph.py:105 forms/report.py:330
-msgid "Relations"
+#: forms/graph.py:97
+#, fuzzy
+msgid "Relationships"
 msgstr "Relations"
 
-#: forms/graph.py:171
+#: forms/graph.py:111
+msgid "No field is usable for aggregation"
+msgstr ""
+
+#: forms/graph.py:118
+msgid "You must make a count because no field is usable for aggregation"
+msgstr ""
+
+#: forms/graph.py:211
 msgid "You have to specify a day range if you use 'by X days'"
 msgstr ""
 "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
 
-#: forms/graph.py:174
+#: forms/graph.py:215
+msgid "This field is required if you choose a field to aggregate."
+msgstr ""
+
+#: forms/graph.py:217
 msgid ""
 "If you don't choose an ordinate field (or none available) you have to check "
 "'Make a count instead of aggregate ?'"
@@ -168,6 +181,10 @@ msgstr "Champs relatifs"
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
+#: forms/report.py:330
+msgid "Relations"
+msgstr "Relations"
+
 #: forms/report.py:331
 msgid "Functions"
 msgstr "Fonctions"
@@ -176,74 +193,87 @@ msgstr "Fonctions"
 msgid "Calculated values"
 msgstr "Valeurs calculées"
 
-#: forms/report.py:465 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:464 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:466
+#: forms/report.py:465
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:467
+#: forms/report.py:466
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: models/graph.py:45
+#: forms/report.py:511
+#, fuzzy
+msgid ""
+"If you chose a Date field, and select «customized» you have to specify a "
+"start date and/or an end date."
+msgstr ""
+"Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
+"spécifier une date de début et/ou une date de fin."
+
+#: models/graph.py:46
 msgid "By days"
 msgstr "Par jours"
 
-#: models/graph.py:46
+#: models/graph.py:47
 msgid "By months"
 msgstr "Par mois"
 
-#: models/graph.py:47
+#: models/graph.py:48
 msgid "By years"
 msgstr "Par années"
 
-#: models/graph.py:48
+#: models/graph.py:49
 msgid "By X days"
 msgstr "Par X jours"
 
-#: models/graph.py:49 models/graph.py:50
+#: models/graph.py:50
 msgid "By values"
 msgstr "Par valeurs"
 
-#: models/graph.py:55
+#: models/graph.py:51
+msgid "By values (of related entities)"
+msgstr ""
+
+#: models/graph.py:61
 msgctxt "reports-graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:57
+#: models/graph.py:63
 msgid "Abscissa axis"
 msgstr "Axe des abscisses"
 
-#: models/graph.py:58
+#: models/graph.py:64
 msgid "Ordinate axis"
 msgstr "Axe des ordonnées"
 
-#: models/graph.py:59
+#: models/graph.py:65
 #: templates/reports/templatetags/block_report_fields.html:37
 #: templates/reports/templatetags/block_report_graphs.html:25
 msgid "Type"
 msgstr "Type"
 
-#: models/graph.py:60
+#: models/graph.py:66
 msgid "Days"
 msgstr "Jours"
 
-#: models/graph.py:61
+#: models/graph.py:67
 msgid "Make a count instead of aggregate?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: models/graph.py:63
+#: models/graph.py:69
 msgid "Add a report's graph"
 msgstr "Ajouter un graphique de rapport"
 
-#: models/graph.py:68
+#: models/graph.py:74
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:250
+#: models/graph.py:273
 #, python-format
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
@@ -607,7 +637,7 @@ msgstr "Liaison de la colonne <%s>"
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
 
-#: views/report.py:369
+#: views/report.py:371
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"
