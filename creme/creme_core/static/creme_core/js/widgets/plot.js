@@ -287,7 +287,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 
     _onDrawError: function(element, err, data, cb)
     {
-        //console.error(element, (err && err.message) ? err.message : err, (err && err.stack) ? err.stack : '');
+        console.error(element ? element[0] : undefined, (err && err.message) ? err.message : err, (err && err.stack) ? err.stack : '');
         element.addClass('widget-ready').attr("status", "error");
         element.trigger('plotError', [err, data]);
         creme.object.invoke(cb, element);

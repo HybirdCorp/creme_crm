@@ -25,8 +25,12 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
         "yaxis": {
+            {% if report.is_count %}
+            "tickInterval": 1,
+            "min": 0.0,
+            {% endif %}
             "tickOptions": {
-                "formatString": "%.2f €"
+                "formatString": {% if report.is_count %}"%d"{% else %}"%.2f"{% endif %}
             },
             "label": "{{report|verbose_ordinate:report.ordinate}}",
             "labelOptions": {
