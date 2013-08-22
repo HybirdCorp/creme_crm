@@ -48,10 +48,12 @@ class Contact(CremeEntity):
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False).set_tags(viewable=False) #TODO: remove this field
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-                                  blank=True, null=True, related_name='billing_address_contact_set', editable=False
-                                 ).set_tags(enumerable=False) #.set_tags(clonable=False) useless
+                                  blank=True, null=True,  editable=False,
+                                  related_name='billing_address_contact_set', #TODO: remove ? (with '+')
+                                 ).set_tags(enumerable=False) #clonable=False useless
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-                                  blank=True, null=True, related_name='shipping_address_contact_set', editable=False
+                                  blank=True, null=True, editable=False,
+                                  related_name='shipping_address_contact_set',
                                  ).set_tags(enumerable=False)
     is_user         = ForeignKey(User, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
                                  blank=True, null=True, related_name='related_contact',
@@ -75,10 +77,11 @@ class Contact(CremeEntity):
     def __unicode__(self):
         if self.civility:
 #            return u'%s %s %s' % (self.civility.shortcut, self.first_name, self.last_name)
-            return ugettext('%(civility)s %(first_name)s %(last_name)s') % {'civility':     self.civility.shortcut,
-                                                                            'first_name':   self.first_name,
-                                                                            'last_name':    self.last_name
-                                                                           }
+            return ugettext('%(civility)s %(first_name)s %(last_name)s') % {
+                        'civility':   self.civility.shortcut,
+                        'first_name': self.first_name,
+                        'last_name':  self.last_name,
+                    }
 
         return u'%s %s' % (self.first_name, self.last_name)
 

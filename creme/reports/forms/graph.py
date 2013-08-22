@@ -37,7 +37,6 @@ from ..models.graph import (ReportGraph, verbose_report_graph_types,
 
 
 AUTHORIZED_AGGREGATE_FIELD = field_aggregation_registry.authorized_fields
-AUTHORIZED_ABSCISSA_TYPES = (DateField, DateTimeField, ForeignKey)
 
 
 class ReportGraphForm(CremeEntityForm):
@@ -86,9 +85,7 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_predicates.sort(key=lambda k: sort_key(k[1]))
 
         abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
-                                    .filter((lambda f: isinstance(f, AUTHORIZED_ABSCISSA_TYPES)),
-                                            viewable=True
-                                           ) \
+                                    .filter(self._filter_abcissa_field, viewable=True) \
                                     .choices()
         abscissa_model_fields.sort(key=lambda x: x[1])
 
@@ -144,6 +141,15 @@ class ReportGraphForm(CremeEntityForm):
             disabled_attrs = {'disabled': True}
             aggregate_field_f.widget.attrs = disabled_attrs
             fields['aggregate'].widget.attrs = disabled_attrs
+
+    def _filter_abcissa_field(self, field):
+        if isinstance(field, DateField): #TODO: meta.is_date_field ?
+            return True
+
+        if isinstance(field, ForeignKey):
+            return field.get_tag('enumerable')
+
+        return False
 
     def clean_abscissa_group_by(self):
         str_val = self.cleaned_data.get('abscissa_group_by')

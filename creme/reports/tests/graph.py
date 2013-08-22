@@ -87,7 +87,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         choices_set = set(c[0] for c in fields_choices)
         self.assertIn('created', choices_set)
         self.assertIn('sector', choices_set)
-        self.assertNotIn('name', choices_set)
+        self.assertNotIn('name', choices_set) #string can not be used to group
+        self.assertNotIn('billing_address', choices_set) #not enumerable
 
         self.assertEqual([('capital', _(u'Capital'))], aggrfields_choices)
 
