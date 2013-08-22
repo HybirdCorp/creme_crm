@@ -20,7 +20,7 @@
         "showMarker": false,
         "useAxesFormatters": false,
         "tooltipAxes": "xy",
-        "formatString": "<center>%s</center><center>%.2f €</center>",
+        "formatString": "<center>%s</center><center>{% if report.is_count %}%d{% else %}%.2f{% endif %}</center>",
         "tooltipLocation": "cursor",
         "cursorStyle": "pointer"
     },

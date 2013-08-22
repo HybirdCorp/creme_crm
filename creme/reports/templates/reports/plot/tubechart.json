@@ -69,7 +69,7 @@
         "showMarker": false,
         "yvalues": 4,
         "tooltipAxes": "yx",
-        "formatString": "<center>%2$s</center><center>%4$.2f €</center><center>%3$s</center>",
+        "formatString": "<center>%2$s</center><center>{% if report.is_count %}%4$d{% else %}%4$.2f{% endif %}</center><center>%3$s</center>",
         "tooltipLocation": "w",
         "cursorStyle": "pointer"
     },
