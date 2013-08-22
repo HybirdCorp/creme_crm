@@ -611,13 +611,22 @@ class ReportGraphTestCase(BaseReportsTestCase):
         tyrion = create_contact(first_name='Tyrion', last_name='Lannister')
         ned    = create_contact(first_name='Eddard', last_name='Stark')
         aria   = create_contact(first_name='Aria',   last_name='Stark')
+        jon    = create_contact(first_name='Jon',    last_name='Snow')
+
+        efilter = EntityFilter.create('test-filter', 'Not bastard', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=[tyrion.last_name, ned.last_name]
+                                                                   )
+                               ])
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_OBJ_EMPLOYED_BY)
         create_rel(subject_entity=lannisters, object_entity=tyrion)
         create_rel(subject_entity=starks,     object_entity=ned)
         create_rel(subject_entity=starks,     object_entity=aria)
+        create_rel(subject_entity=starks,     object_entity=jon)
 
-        report = self.create_simple_contacts_report()
+        report = self.create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name="Number of employees",
                                             abscissa=REL_SUB_EMPLOYED_BY,
@@ -629,7 +638,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         x_asc, y_asc = rgraph.fetch()
         self.assertEqual([unicode(lannisters), unicode(starks)], x_asc)
         self.assertEqual(1, y_asc[0])
-        self.assertEqual(2, y_asc[1])
+        self.assertEqual(2, y_asc[1]) #not 3, because of the filter
 
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
