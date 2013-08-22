@@ -47,6 +47,8 @@ def get_last_day_of_a_month(date):
 
 
 def check_activity_collisions(activity_start, activity_end, participants, busy=True, exclude_activity_id=None):
+    if not activity_start:
+        return
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
     collisions     = []
 

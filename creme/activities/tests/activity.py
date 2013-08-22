@@ -1324,6 +1324,27 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(qs.all())
         self.assertFalse(phone_call.calendars.all())
 
+    def test_participants05(self):
+        "Fix a bug when checking for collision for a floating activities"
+        activity = self._create_activity_by_view()
+        self.assertIsNone(activity.start)
+        self.assertIsNone(activity.end)
+        self.assertEqual(FLOATING, activity.floating_type)
+
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
+               create_contact(first_name='Kojiro',  last_name='Sasaki').id,
+              )
+
+        uri = self._buid_add_participants_url(activity)
+        self.assertGET200(uri)
+        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(3, len(relations))
+        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)), set(r.object_entity_id for r in relations))
+
     def test_add_subjects01(self):
         self.login()
 
