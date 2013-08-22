@@ -282,7 +282,7 @@ def get_date_fields(model, exclude_func=lambda f: False):
 
 
 class _FilterModelFieldQuery(object):
-    _TAGS = ('viewable', 'clonable') #TODO: use a constants in fields_tags ??
+    _TAGS = ('viewable', 'clonable', 'enumerable') #TODO: use a constants in fields_tags ??
 
     def __init__(self, function=None, **kwargs):
         self._conditions = conditions = []

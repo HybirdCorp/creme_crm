@@ -51,8 +51,14 @@ class Organisation(CremeEntity):
     subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
     legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True, on_delete=SET_NULL)
     staff_size      = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True, on_delete=SET_NULL)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_orga_set', editable=False) #.set_tags(clonable=False) useless
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_orga_set', editable=False)
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+                                  blank=True, null=True, editable=False,
+                                  related_name='billing_address_orga_set',
+                                 ).set_tags(enumerable=False) #clonable=False useless
+    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+                                  blank=True, null=True, editable=False,
+                                  related_name='shipping_address_orga_set',
+                                 ).set_tags(enumerable=False)
     annual_revenue  = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)
     description     = TextField(_(u'Description'), blank=True, null=True)
     creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
