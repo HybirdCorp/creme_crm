@@ -215,7 +215,6 @@ class ReportGraph(CremeEntity):
                 else:
                     y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
         elif gtype == RGT_RELATION:
-            #TODO: use filter & extra_q
             #TODO: Optimize !
             #TODO: make listview url for this case
             #      the q_filter {"pk__in": ub_relations.values_list('subject_entity__id')} may create too long urls
@@ -225,9 +224,8 @@ class ReportGraph(CremeEntity):
                 pass
             else:
                 relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
-                obj_ids = set(relations.values_list('object_entity', flat=True)) #TODO: set -> distinct ??
+                obj_ids = relations.values_list('object_entity', flat=True).distinct()
                 ce_objects_get = CremeEntity.objects.get
-                model_objects_filter = model.objects.filter
 
                 for obj_id in obj_ids:
                     try:
@@ -236,11 +234,11 @@ class ReportGraph(CremeEntity):
                         continue
 
                     sub_relations = relations.filter(object_entity=obj_id)
+                    sub_entities = entities_filter(pk__in=sub_relations.values_list('subject_entity'))
 
                     if is_count:
-                        y_append(sub_relations.count())
+                        y_append(sub_entities.count())
                     else:
-                        sub_entities = model_objects_filter(pk__in=sub_relations.values_list('subject_entity'))
                         y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
 
         for i, item in enumerate(y):
