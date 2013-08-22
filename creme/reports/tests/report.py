@@ -286,7 +286,7 @@ class ReportTestCase(BaseReportsTestCase):
                                 }
                           )
 
-    def test_date_filter_form(self):
+    def test_date_filter_form01(self):
         report = self.create_report('My report')
         url = '/reports/date_filter_form/%s' % report.id
         response = self.assertGET200(url)
@@ -309,6 +309,46 @@ class ReportTestCase(BaseReportsTestCase):
                                                    '&start=01|01|1990|00|00|00'
                                                    '&end=31|12|1990|23|59|59' % (
                                 report.id, date_field,
+                            ),
+                         callback_url
+                        )
+
+    def test_date_filter_form02(self):
+        report = self.create_report('My report')
+        url = '/reports/date_filter_form/%s' % report.id
+        response = self.assertGET200(url)
+
+        date_field = 'birthday'
+        response = self.assertPOST200(url, data={'date_field': date_field,
+                                                 'date_filter_0': '',
+                                                }
+                                     )
+        self.assertFormError(response, 'form', 'date_filter',
+                             [_(u"If you chose a Date field, and select «customized» "
+                                 "you have to specify a start date and/or an end date."
+                               )
+                             ]
+                            )
+
+    def test_date_filter_form03(self):
+        report = self.create_report('My report')
+        url = '/reports/date_filter_form/%s' % report.id
+        response = self.assertGET200(url)
+
+        date_field = ''
+        doc_type = 'csv'
+        response = self.client.post(url, data={'doc_type':      doc_type,
+                                               'date_filter_0': '',
+                                               'date_field':    date_field,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            callback_url = response.context['callback_url']
+
+        self.assertEqual('/reports/report/export/%s/%s' % (
+                                report.id, doc_type,
                             ),
                          callback_url
                         )
