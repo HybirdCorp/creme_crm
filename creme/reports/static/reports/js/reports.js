@@ -336,6 +336,8 @@ $.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data
             item = [tick, clean_float(value), undefined];
         } else if ($.isArray(value)) {
             item = [tick, clean_float(value[0]), value[1]];
+        } else {
+            item = [tick, value, undefined];
         }
 
         jqplotData.push(item);
