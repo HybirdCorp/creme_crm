@@ -165,6 +165,14 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         }
     },
 
+    // TODO : use a better method for plot cache issue in reports. As temporary fix all cache is cleaned before popupNReload.
+    resetBackend: function(element)
+    {
+        if (this.options.backend && this.options.backend.entries) {
+            this.options.backend.entries = {};
+        }
+    },
+
     reset: function(element)
     {
         this._plot_data_url.parameters = {};
