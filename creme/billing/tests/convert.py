@@ -27,6 +27,7 @@ __all__ = ('ConvertTestCase',)
 class ConvertTestCase(_BillingTestCase):
     @classmethod
     def setUpClass(cls):
+        _BillingTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config', 'persons', 'billing')
 
     def _convert(self, status_code, src, dest_type):
