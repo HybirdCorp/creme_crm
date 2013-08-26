@@ -29,7 +29,6 @@ from creme.creme_core.models import CremeEntity, EntityCredentials
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.gui.listview import ListViewState
-from creme.creme_core.views.header_filter import add as add_header_filter
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 from .popup import inner_popup
@@ -197,6 +196,7 @@ def list_view(request, model, *args, **kwargs):
     try:
         template_name, template_dict = list_view_content(request, model, *args, **kwargs)
     except NoHeaderFilterAvailable:
+        from creme.creme_core.views.header_filter import add as add_header_filter
         return add_header_filter(request, ContentType.objects.get_for_model(model).id,
                                  {'help_message': _(u"The desired list does not have any view, please create one.")}
                                 )
