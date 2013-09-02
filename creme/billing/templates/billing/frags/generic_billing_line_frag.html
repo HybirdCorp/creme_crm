@@ -40,7 +40,7 @@
     <tr class="content">
         <td class="line-background-color" align="center" colspan="3">
             {% if line.pk %}
-                {% with form.instance.related_item as related_item %}
+                {% with line.related_item as related_item %}
                     {% if related_item %}
                         <a href="{{related_item.get_absolute_url}}">{{related_item}}</a>
                     {% else %}
