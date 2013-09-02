@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_widgets creme_block %}
 
-{% with line=form.instance related_item=form.instance.related_item currency_id=object.currency.pk %}
+{% with line=form.instance currency_id=object.currency.pk %}
 
 <table class="table_detail_view linetable linetable_{{ ct_id }}" style="border:0px;margin:0px;padding:0px;">
 
@@ -39,19 +39,23 @@
 
     <tr class="content">
         <td class="line-background-color" align="center" colspan="3">
-            {% if related_item %}
-                <a href="{{related_item.get_absolute_url}}">{{related_item}}</a>
+            {% if line.pk %}
+                {% with form.instance.related_item as related_item %}
+                    {% if related_item %}
+                        <a href="{{related_item.get_absolute_url}}">{{related_item}}</a>
+                    {% else %}
+                        {{form.on_the_fly_item}}
+                        {% has_perm_to create related_item_ct as item_create_perm %}
+                        <br/>
+                        {% if item_create_perm %}
+                            <a onclick="creme.utils.innerPopupNReload('/billing/line/{{line.id}}/add_to_catalog', {% get_block_reload_uri %});">[{% trans "add to catalog" %}]</a>
+                        {% else %}
+                            <a class="forbidden">[{% trans "add to catalog" %}]</a>
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
             {% else %}
                 {{form.on_the_fly_item}}
-                {% has_perm_to create related_item_ct as item_create_perm %}
-                {% if form.instance.pk %}
-                    <br/>
-                    {% if item_create_perm %}
-                        <a onclick="creme.utils.innerPopupNReload('/billing/line/{{line.id}}/add_to_catalog', {% get_block_reload_uri %});">[{% trans "add to catalog" %}]</a>
-                    {% else %}
-                        <a class="forbidden">[{% trans "add to catalog" %}]</a>
-                    {% endif %}
-                {% endif %}
             {% endif %}
         </td>
         <td class="line-background-color" align="left" colspan="5">{{form.comment}}</td>
