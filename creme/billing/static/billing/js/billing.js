@@ -381,6 +381,8 @@ creme.billing.hideEmptyForm = function(ct_id, formset_prefix, line_count) {
 }
 
 creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
+    if (btn.hasClass('forbidden')) return;
+
     btn.addClass('forbidden');
 
     var form_count_hidden_input = $('#id_' + prefix + '-TOTAL_FORMS');
