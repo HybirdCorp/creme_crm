@@ -72,6 +72,28 @@ class AirSync(Base):
             self.send_for_folder(policy_key, folder, synckey, fetch, headers)
             folder.save()
 
+    def _parse_xml_for_create(self, user, app_data, mapping):
+        data = {'user': user}
+        if app_data is not None:
+            app_data_find = app_data.find
+            for ns, field_dict in mapping.iteritems():
+                for c_field, x_field in field_dict.iteritems():
+                    d = app_data_find('{%s}%s' % (ns, x_field))
+                    if d is not None:
+                        if callable(c_field):
+                            c_field = c_field(needs_attr=True)
+
+                        if c_field and c_field.strip() != '':
+                            data[c_field] = smart_unicode(d.text)
+        else:
+            for ns, field_dict in mapping.iteritems():
+                for c_field, x_field in field_dict.iteritems():
+                    if callable(c_field):
+                        c_field = c_field(needs_attr=True)
+                    data[c_field] = u""
+        return data
+
+
     def send_for_folder(self, policy_key, folder, synckey=None, fetch=True, headers=None):
         """
             @param policy_key string set in the header to be authorized
@@ -202,9 +224,9 @@ class AirSync(Base):
 
 #            commands_node = xml2.find('%(ns0)sCollections/%(ns0)sCollection/%(ns0)sCommands' % d_ns)
             commands_node = xml2_collection_find('%(ns0)sCommands' % d_ns)
-            add_nodes     = commands_node.findall('%(ns0)sAdd' % d_ns)    if commands_node else []
-            change_nodes  = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node else []
-            delete_nodes  = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node else []
+            add_nodes     = commands_node.findall('%(ns0)sAdd' % d_ns)    if commands_node is not None else []
+            change_nodes  = commands_node.findall('%(ns0)sChange' % d_ns) if commands_node is not None else []
+            delete_nodes  = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node is not None else []
 
             #TODO: Singular / Plural
             self.add_info_message(_(u"There is %(count)s new %(model)s from the server")     % {'count': len(add_nodes),    'model': creme_model_verbose_name})
@@ -213,37 +235,19 @@ class AirSync(Base):
 
             save_entity = creme_model_AS_values['save']
 
-            if user.has_perm_to_create(creme_model):
+            if add_nodes and user.has_perm_to_create(creme_model):
                 for add_node in add_nodes:
                     add_node_find = add_node.find
 
                     server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns).text#This is the object pk on the server map it whith cremepk
                     app_data      = add_node_find('%(ns0)sApplicationData' % d_ns)
 
-                    data = {'user': user}
-                    if app_data is not None:
-                        app_data_find = app_data.find
-                        for ns, field_dict in mapping.iteritems():
-                            for c_field, x_field in field_dict.iteritems():
-                                d = app_data_find('{%s}%s' % (ns, x_field))
-                                if d is not None:
-                                    if callable(c_field):
-                                        c_field = c_field(needs_attr=True)
-
-                                    if c_field and c_field.strip() != '':
-                                        data[c_field] = smart_unicode(d.text)
-                    else:
-                        for ns, field_dict in mapping.iteritems():
-                            for c_field, x_field in field_dict.iteritems():
-                                if callable(c_field):
-                                    c_field = c_field(needs_attr=True)
-                                data[c_field] = u""
-
-                    uid_google = data['UID']
+                    data = self._parse_xml_for_create(user, app_data, mapping)
+                    optionnal_uid = data.get('UID', None)
                     from creme.activesync.models import EntityASData
-                    uids = EntityASData.objects.filter(field_value=uid_google).order_by('-id')
-                    if uids.count() > 0:
-                        entity= uids[0].entity
+                    uids = EntityASData.objects.filter(field_value=optionnal_uid).order_by('-id')
+                    if len(uids):
+                        entity = uids[0].entity
                         try:
                             entity_mapping = exch_map_manager_get(creme_entity_id=entity.id, user=user)
                             entity_mapping.exchange_entity_id = server_id_pk

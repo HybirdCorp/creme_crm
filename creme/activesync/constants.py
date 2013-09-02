@@ -93,5 +93,5 @@ SYNC_AIRSYNC_STATUS_RETRY                = 16 # Something on the server caused a
 
 COMMONS_SERVER_URL_CFG = (
     ('https://m.google.com/Microsoft-Server-ActiveSync',  'Gmail'),
-    ('https://m.hotmail.com/Microsoft-Server-ActiveSync', 'Hotmail'),
+    ('https://m.hotmail.com/Microsoft-Server-ActiveSync', 'Outlook.fr-Outlook.com'),
 )
