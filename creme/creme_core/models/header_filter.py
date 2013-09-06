@@ -234,7 +234,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     _CF_PATTERNS = {
             CustomField.BOOL:       '%s__value__creme-boolean',
-            CustomField.DATETIME:   '%s__value__range',
+            CustomField.DATETIME:   '%s__value__range', #TODO: quick search overload this, to use gte/lte when it is needed
             CustomField.ENUM:       '%s__value__exact',
             CustomField.MULTI_ENUM: '%s__value__exact',
         }
@@ -275,7 +275,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
                 field = field_info[1]['field'] #The sub-field is considered as the main field
 
         if isinstance(field, (DateField, DateTimeField)):
-            pattern = "%s__range"
+            pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
         #elif isinstance(field, ManyToManyField) and len(field_info) > 1:

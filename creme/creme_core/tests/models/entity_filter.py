@@ -23,6 +23,7 @@ __all__ = ('EntityFiltersTestCase',)
 class EntityFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         Contact.objects.all().delete()
         Organisation.objects.all().delete()
 
@@ -940,6 +941,66 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                   )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [faye.id])
+
+    def test_datetime01(self):
+        "Previous year"
+        faye = self.contacts['faye']
+        Contact.objects.filter(pk=faye.id).update(created=faye.created - timedelta(days=faye.created.month * 31))
+
+        efilter = EntityFilter.create('test-filter01', name='Created during previous year', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='created',
+                                                                   date_range='previous_year',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye'))
+
+    def test_datetime02(self):
+        "Current year"
+        faye = self.contacts['faye']
+        Contact.objects.filter(pk=faye.id).update(created=faye.created - timedelta(days=faye.created.month * 31))
+
+        efilter = EntityFilter.create('test-filter01', name='Created during current year', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='created',
+                                                                   date_range='current_year',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
+
+    def test_datetime03(self):
+        "Next year"
+        faye = self.contacts['faye']
+        Contact.objects.filter(pk=faye.id).update(created=faye.created + timedelta(days=(13 - faye.created.month) * 31))
+
+        efilter = EntityFilter.create('test-filter01', name='Created during next year (?!)', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='created',
+                                                                   date_range='next_year',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye'))
+
+    def test_datetime04(self):
+        "Current month"
+        faye = self.contacts['faye']
+        Contact.objects.filter(pk=faye.id).update(created=faye.created - timedelta(days=31))
+
+        efilter = EntityFilter.create('test-filter01', name='Created during current month', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='created',
+                                                                   date_range='current_month',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
+
+    def test_datetime05(self):
+        "Current quarter"
+        faye = self.contacts['faye']
+        Contact.objects.filter(pk=faye.id).update(created=faye.created - timedelta(days=4*31))
+
+        efilter = EntityFilter.create('test-filter01', name='Created during current quarter', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='created',
+                                                                   date_range='current_quarter',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
 
     def test_build_date(self):
         "Errors"

@@ -4,6 +4,7 @@ from datetime import datetime
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
 from tempfile import NamedTemporaryFile
+import warnings
 
 from django.test import TestCase, TransactionTestCase
 from django.conf import settings
@@ -52,6 +53,10 @@ class _CremeTestCase(object):
         else:
             makedirs(documents_dir, 0755)
             cls.existing_doc_files = set()
+
+        warnings.filterwarnings('error', r"DateTimeField received a naive datetime",
+                                RuntimeWarning, r'django\.db\.models\.fields',
+                               )
 
     def tearDown(self):
         if not getattr(self, 'clean_files_in_teardown', False):
