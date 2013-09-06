@@ -27,12 +27,13 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.views.generic import view_entity, add_to_entity, edit_related_to_entity
-from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType
+from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType, CustomField
 from creme.creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 
-from ..models.graph import (ReportGraph, verbose_report_graph_types,
-                            RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
-                            RGT_RELATION, fetch_graph_from_instance_block)
+from ..models.graph import (ReportGraph, VERBOSE_REPORT_GRAPH_TYPES,
+        RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY, RGT_FK, RGT_RELATION, 
+        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK,
+        fetch_graph_from_instance_block)
 from ..forms.graph import ReportGraphForm
 
 
@@ -56,45 +57,64 @@ def edit(request, graph_id):
 @permission_required('reports')
 def detailview(request, graph_id):
     return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
-                       extra_template_dict={'verbose_report_graph_types': verbose_report_graph_types,
+                       extra_template_dict={'verbose_report_graph_types': VERBOSE_REPORT_GRAPH_TYPES,
                                             'user_can_admin_report':      request.user.has_perm('reports.can_admin'),
                                            }
                       )
+
+def _get_available_report_graph_types(ct, name):
+    model = ct.model_class()
+
+    try:
+        field = model._meta.get_field(name)
+    except FieldDoesNotExist:
+        if name.isdigit():
+            try:
+                cf = CustomField.objects.get(pk=name, content_type=ct)
+            except CustomField.DoesNotExist:
+                logger.debug('get_available_report_graph_types(): "%s" is not a field or a CustomField id', name)
+            else:
+                field_type = cf.field_type
+
+                if field_type == CustomField.DATETIME:
+                     return (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE)
+
+                if field_type == CustomField.ENUM:
+                    return (RGT_CUSTOM_FK,)
+
+                logger.debug('get_available_report_graph_types(): only ENUM & DATETIME CustomField are allowed.')
+        else:
+            try:
+                RelationType.objects.get(pk=name)
+            except RelationType.DoesNotExist:
+                logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', name)
+            else:
+                #TODO: check compatible ??
+                return (RGT_RELATION,)
+    else:
+        if isinstance(field, (DateField, DateTimeField)):
+            return (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE)
+
+        if isinstance(field, ForeignKey):
+            return (RGT_FK,)
+
+        logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
 #TODO: can be factorised with ReportGraphForm (better graph type system)
 @jsonify
 #@permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
     ct = get_ct_or_404(ct_id)
-    model = ct.model_class()
-
-    #abscissa_field = request.POST.get('record_id')
     abscissa_field = get_from_POST_or_404(request.POST, 'record_id') #TODO: POST ??!
+    gtypes = _get_available_report_graph_types(ct, abscissa_field)
 
-    field = None
-    result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}] #TODO: is the translation useful ??
-
-    try:
-        field = model._meta.get_field(abscissa_field)
-    except FieldDoesNotExist:
-        #Assume the field is a relation
-        try:
-            RelationType.objects.get(pk=abscissa_field)
-        except RelationType.DoesNotExist:
-            logger.debug('get_available_report_graph_types(): "%s" is not a field or a RelationType id', abscissa_field)
-        else:
-            #TODO: check compatible ??
-            result = [{'id': RGT_RELATION, 'text': unicode(verbose_report_graph_types.get(RGT_RELATION))}]
+    if gtypes is None:
+        result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}] #TODO: is the translation useful ??
     else:
-        if isinstance(field, (DateField, DateTimeField)):
-            verbose_report_graph_types_get = verbose_report_graph_types.get
-            result = [{'id': type_id, 'text': unicode(verbose_report_graph_types_get(type_id))}
-                        for type_id in (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE)
-                     ]
-        elif isinstance(field, ForeignKey):
-            result = [{'id': RGT_FK, 'text': unicode(verbose_report_graph_types.get(RGT_FK))}]
-        else:
-            logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', abscissa_field)
+        result = [{'id':   type_id,
+                   'text': unicode(VERBOSE_REPORT_GRAPH_TYPES[type_id]),
+                  } for type_id in gtypes
+                 ]
 
     return {'result': result}
 

@@ -26,7 +26,7 @@ from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_R
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
 from .models import Report, Field
-from .models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
+from .models.graph import ReportGraph, VERBOSE_REPORT_GRAPH_TYPES, fetch_graph_from_instance_block
 
 
 class ReportFieldsBlock(Block):
@@ -65,7 +65,7 @@ class ReportGraphsBlock(QuerysetBlock):
         btc = self.get_block_template_context(context,
                                               ReportGraph.objects.filter(report=report),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                              verbose_report_graph_types=verbose_report_graph_types,
+                                              verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
                                               is_ajax=request.is_ajax(),
                                               user_can_admin_report=user_can_admin
                                              )
@@ -106,7 +106,7 @@ class ReportGraphBlock(Block):
                                                             volatile_column=self.verbose.split(' - ')[1],
                                                             instance_block_id=self.instance_block_id,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            verbose_report_graph_types=verbose_report_graph_types,
+                                                            verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
                                                             is_ajax=request.is_ajax(),
                                                            )
                            )
@@ -127,7 +127,7 @@ class ReportGraphBlock(Block):
                                                             y=y,
                                                             volatile_column=self.verbose.split(' - ')[1],
                                                             instance_block_id=self.instance_block_id,
-                                                            verbose_report_graph_types=verbose_report_graph_types,
+                                                            verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
                                                             is_ajax=request.is_ajax(),
                                                            )
                             )

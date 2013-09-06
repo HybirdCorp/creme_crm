@@ -22,6 +22,8 @@ from django.db import models
 #from django.db.models import Avg, Min, Max, Sum#, Count
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.models import CustomField
+
 
 class FieldAggregation(object):
     def __init__(self, name, func, pattern, title):
@@ -35,6 +37,7 @@ class FieldAggregationRegistry(object):
     authorized_fields = (models.DecimalField, models.FloatField, models.PositiveIntegerField,
                          models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField,
                         )
+    authorized_customfields = (CustomField.INT, CustomField.FLOAT)
 
     def __init__(self):
         self._aggregations = {}

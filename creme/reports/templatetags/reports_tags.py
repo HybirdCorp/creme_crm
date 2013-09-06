@@ -23,13 +23,14 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.utils.meta import get_model_field_info, get_verbose_field_name
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import RelationType, CustomField
 from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
                                                    HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
 #from ..constants import DATETIME_FILTER_FORMAT
-from ..models.graph import RGT_RELATION
+from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
+                            RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -115,25 +116,52 @@ def get_report_chart_selectors(context):
 #def to_filter_format(date):
     #return date.strftime(DATETIME_FILTER_FORMAT)
 
+#TODO: factorise with ReportGraph.fetch() (+caching)
+#TODO: unit tests
+#TODO: use a tag and not a filter (see below)
 @register.filter(name="verbose_abscissa")
 def get_verbose_abscissa(report_graph, graph_abscissa):
-    if report_graph.type == RGT_RELATION:
+    gtype = report_graph.type
+
+    if gtype == RGT_RELATION:
         try:
             return RelationType.objects.get(pk=graph_abscissa).predicate
         except RelationType.DoesNotExist:
             return u""
 
+    if gtype in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK):
+        try:
+            cf = CustomField.objects.get(pk=graph_abscissa)
+        except CustomField.DoesNotExist:
+            #logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
+            return '??'
+        else:
+            return cf.name
+
     return get_verbose_field_name(report_graph.report.ct.model_class(), graph_abscissa)
 
+#TODO: factorise with ReportGraph.fetch() (+caching)
+#TODO: unit tests
+#TODO: use a tag and not a filter (stupid to give graph, & ordinate, because graph contains ordinate...)
 @register.filter(name="verbose_ordinate")
 def get_verbose_ordinate(report_graph, graph_ordinate):
     if report_graph.is_count:
         return ugettext(u"Count")
 
-    ordinate, sep, aggregate = graph_ordinate.rpartition('__')
+    ordinate, sep, aggregation = graph_ordinate.rpartition('__')
 
-    verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
-    field_aggregate = field_aggregation_registry.get(aggregate)
-    field_aggregate = field_aggregate.title if field_aggregate else u''
+    if ordinate.isdigit(): #CustomField
+        try:
+            cf = CustomField.objects.get(pk=ordinate)
+        except CustomField.DoesNotExist:
+            #logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
+            verbose_field_name = '??'
+        else:
+            verbose_field_name = cf.name
+    else: #Regular Field
+        verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
 
-    return u"%s - %s" % (verbose_field_name, unicode(field_aggregate))
+    field_aggregate = field_aggregation_registry.get(aggregation)
+    aggregate_verbose_name = unicode(field_aggregate.title) if field_aggregate else u''
+
+    return u"%s - %s" % (verbose_field_name, aggregate_verbose_name)
