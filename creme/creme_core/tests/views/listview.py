@@ -30,6 +30,8 @@ __all__ = ('ListViewTestCase', )
 class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
+
         cls.populate('creme_core', 'creme_config', 'billing')
         cls.url = Organisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(Organisation)
@@ -375,6 +377,44 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
+
+    def test_search_datetimefields01(self):
+        self.login()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='Redtail')
+
+        def set_created(orga, dt):
+            Organisation.objects.filter(pk=orga.id).update(created=dt)
+
+        create_dt = partial(self.create_datetime, utc=True)
+        set_created(bebop,     create_dt(year=2075, month=3, day=26))
+        set_created(swordfish, create_dt(year=2074, month=6, day=5))
+        set_created(redtail,   create_dt(year=2076, month=7, day=25))
+
+        self._build_hf(HeaderFilterItem.build_4_field(model=Organisation, name='created'))
+
+        url = self.url
+        data = {'_search': 1}
+        response = self.assertPOST200(url, data=dict(data, created=['1-1-2075']))
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name,        content)
+        self.assertNotIn(swordfish.name, content)
+        self.assertIn(redtail.name,      content)
+
+        response = self.assertPOST200(url, data=dict(data, created=['', '1-1-2075']))
+        content = self._get_lv_content(response)
+        self.assertNotIn(bebop.name,   content)
+        self.assertIn(swordfish.name,  content)
+        self.assertNotIn(redtail.name, content)
+
+        response = self.assertPOST200(url, data=dict(data, created=['1-1-2074', '31-12-2074']))
+        content = self._get_lv_content(response)
+        self.assertNotIn(bebop.name,   content)
+        self.assertIn(swordfish.name,  content)
+        self.assertNotIn(redtail.name, content)
 
     def test_search_fk(self):
         self.login()
@@ -809,6 +849,91 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish, orgas_set)
         self.assertIn(eva02,        orgas_set)
         self.assertNotIn(valkyrie,  orgas_set)
+
+    def test_search_customfield08(self):
+        "DATETIME"
+        self.login()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='Redtail')
+        dragons   = create_orga(name='Red Dragons')
+
+        cfield = CustomField.objects.create(name='First flight',
+                                            content_type=self.ctype,
+                                            field_type=CustomField.DATETIME,
+                                           )
+        create_cf_value = partial(cfield.get_value_class().objects.create, custom_field=cfield)
+        create_dt = partial(self.create_datetime, utc=True)
+        create_cf_value(entity=bebop,     value=create_dt(year=2075, month=3, day=26))
+        create_cf_value(entity=swordfish, value=create_dt(year=2074, month=6, day=5))
+        create_cf_value(entity=redtail,   value=create_dt(year=2076, month=7, day=25))
+
+        self._build_hf(HeaderFilterItem.build_4_customfield(cfield))
+
+        def post(dates):
+            response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
+            return self._get_lv_content(response)
+
+        content = post(['2075-1-1'])
+        self.assertIn(bebop.name,        content)
+        self.assertNotIn(swordfish.name, content)
+        self.assertIn(redtail.name,      content)
+        self.assertNotIn(dragons.name,   content)
+
+        content = post(['', '1-1-2075'])
+        self.assertNotIn(bebop.name,   content)
+        self.assertIn(swordfish.name,  content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        content = post(['1-1-2074', '31-12-2074'])
+        self.assertNotIn(bebop.name,   content)
+        self.assertIn(swordfish.name,  content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+    def test_search_customfield09(self):
+        "2 x DATETIME"
+        self.login()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop      = create_orga(name='Bebop')
+        swordfish  = create_orga(name='Swordfish')
+        redtail    = create_orga(name='Redtail')
+        hammerhead = create_orga(name='HammerHead')
+        dragons    = create_orga(name='Red Dragons')
+
+        create_cfield = partial(CustomField.objects.create, content_type=self.ctype,
+                                field_type=CustomField.DATETIME,
+                               )
+        cfield_flight = create_cfield(name='First flight')
+        cfield_blood  = create_cfield(name='First blood')
+
+        create_cf_value = partial(cfield_flight.get_value_class().objects.create)
+        create_dt = partial(self.create_datetime, utc=True)
+        create_cf_value(entity=bebop,      custom_field=cfield_flight, value=create_dt(year=2075, month=3, day=26))
+        create_cf_value(entity=swordfish,  custom_field=cfield_flight, value=create_dt(year=2074, month=6, day=5))
+        create_cf_value(entity=redtail,    custom_field=cfield_flight, value=create_dt(year=2076, month=7, day=25))
+        create_cf_value(entity=hammerhead, custom_field=cfield_flight, value=create_dt(year=2074, month=7, day=6))
+
+        create_cf_value(entity=swordfish,  custom_field=cfield_blood, value=create_dt(year=2074, month=6, day=8))
+        create_cf_value(entity=hammerhead, custom_field=cfield_blood, value=create_dt(year=2075, month=7, day=6))
+
+        build_hfi = HeaderFilterItem.build_4_customfield
+        self._build_hf(build_hfi(cfield_flight), build_hfi(cfield_blood))
+
+        response = self.assertPOST200(self.url, data={'_search': 1,
+                                                      cfield_flight.pk: ['1-1-2074', '31-12-2074'],
+                                                      cfield_blood.pk:  ['',         '1-1-2075'],
+                                                     })
+        content = self._get_lv_content(response)
+        self.assertNotIn(bebop.name,      content)
+        self.assertIn(swordfish.name,     content)
+        self.assertNotIn(redtail.name,    content)
+        self.assertNotIn(hammerhead.name, content)
+        self.assertNotIn(dragons.name,    content)
 
     def test_search_functionfield01(self):
         "Can not search on this FunctionField"

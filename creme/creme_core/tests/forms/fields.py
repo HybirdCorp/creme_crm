@@ -41,21 +41,23 @@ class DateRangeFieldTestCase(FieldTestCase):
 
     def test_ok01(self):
         drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
+        dt = self.create_datetime
         self.assertIsInstance(drange, DateRange)
         self.assertIsInstance(drange, CustomRange)
-        self.assertEqual((datetime(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
-                          datetime(year=2013, month=6, day=16, hour=23, minute=59, second=59),
+        self.assertEqual((dt(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
+                          dt(year=2013, month=6, day=16, hour=23, minute=59, second=59),
                          ),
                          drange.get_dates(now())
                         )
 
     def test_ok02(self):
         drange = DateRangeField().clean([CurrentYearRange.name, '', ''])
+        dt = self.create_datetime
         self.assertIsInstance(drange, CurrentYearRange)
-        self.assertEqual((datetime(year=2013, month=1, day=1,   hour=0,  minute=0,  second=0),
-                          datetime(year=2013, month=12, day=31, hour=23, minute=59, second=59),
+        self.assertEqual((dt(year=2013, month=1, day=1,   hour=0,  minute=0,  second=0),
+                          dt(year=2013, month=12, day=31, hour=23, minute=59, second=59),
                          ),
-                         drange.get_dates(datetime(year=2013, month=5, day=29, hour=11))
+                         drange.get_dates(dt(year=2013, month=5, day=29, hour=11))
                         )
 
     def test_ok03(self):

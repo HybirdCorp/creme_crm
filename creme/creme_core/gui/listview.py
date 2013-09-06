@@ -22,7 +22,7 @@ from collections import defaultdict
 from functools import partial
 import logging
 
-from django.db.models import Q, FieldDoesNotExist
+from django.db.models import Q, FieldDoesNotExist, DateField, DateTimeField
 #from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
@@ -31,7 +31,7 @@ from ..models import Relation, CustomField #CustomFieldEnumValue
 from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
-from ..utils.meta import get_date_fields
+from ..utils.meta import get_model_field_info
 
 #TODO: rename to listview_state.py
 
@@ -200,9 +200,19 @@ class ListViewState(object):
         except (IndexError, AttributeError):
             pass
 
-    def _build_date_range_q(self, name, value):
+    def _datetime_or_None(self, value, index):
+        try:
+            return get_dt_from_str(value[index])
+        except (IndexError, AttributeError):
+            pass
+
+    def _build_date_range_dict(self, name, value):
         don = partial(self._date_or_None, value=value)
-        return Q(**CustomRange(don(index=0), don(index=1)).get_q_dict(name, now()))
+        return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
+
+    def _build_datetime_range_dict(self, name, value):
+        don = partial(self._datetime_or_None, value=value)
+        return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
     def _get_item_by_pk(self, hf_items, pk):
         try:
@@ -215,7 +225,6 @@ class ListViewState(object):
     def get_q_with_research(self, model, hf_items):
         query = Q()
         cf_searches = defaultdict(list)
-        date_fields_names = set(field.name for field in get_date_fields(model))
 
         for item in self.research:
             name, hfi_pk, hfi_type, pattern, value = item #TODO: only hfi_pk & value are really useful
@@ -225,10 +234,21 @@ class ListViewState(object):
                 continue
 
             if hfi_type == HFI_FIELD:
-                if name in date_fields_names: #TODO: Hack for dates => refactor
-                    query &= self._build_date_range_q(name, value)
+                try:
+                    field = get_model_field_info(model, name, silent=False)[-1]['field']
+                except FieldDoesNotExist:
+                    logger.warn('Field does not exist: %s', name)
+                    continue
                 else:
-                    query &= Q(**self._build_condition(pattern, value))
+                    #TODO: Hacks for dates => refactor
+                    if isinstance(field, DateTimeField):
+                        condition = self._build_datetime_range_dict(name, value)
+                    elif isinstance(field, DateField):
+                        condition = self._build_date_range_dict(name, value)
+                    else:
+                        condition = self._build_condition(pattern, value)
+
+                    query &= Q(**condition)
             elif hfi_type == HFI_RELATION:
                 rct = hf_item.relation_content_type
                 model_class = rct.model_class() if rct is not None else Relation
@@ -246,29 +266,33 @@ class ListViewState(object):
                 cf, pattern, value = searches[0]
                 related_name = cf.get_value_class().get_related_name()
 
-                if cf.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                    #value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
-                    value = value[0]
+                if field_type == CustomField.DATETIME:
+                    condition = self._build_datetime_range_dict('%s__value' % related_name, value)
+                else:
+                    if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+                        value = value[0]
 
-                condition = self._build_condition(pattern, value)
+                    condition = self._build_condition(pattern, value)
+
                 condition.update({'%s__custom_field' % related_name: cf})
 
                 query &= Q(**condition)
-            else:
+            else: #TODO; factorise...
                 for cf, pattern, value in searches:
                     pattern = pattern.partition('__')[2] #remove 'tableprefix__'
 
-                    if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                        #todo: DoesNotExist
-                        #todo: group the queries on CustomFieldEnumValue
-                        #value = CustomFieldEnumValue.objects.get(custom_field=cf, value=value[0]).id
-                        value = value[0]
+                    if field_type == CustomField.DATETIME:
+                        condition = self._build_datetime_range_dict('value', value)
+                    else:
+                        if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+                            value = value[0]
 
-                    query &= Q(pk__in=cf.get_value_class().objects
-                                                          .filter(custom_field=cf, 
-                                                                  **self._build_condition(pattern, value)
-                                                                 )
-                                                          .values_list('entity_id', flat=True)
+                        condition = self._build_condition(pattern, value)
+
+                    query &= Q(pk__in=cf.get_value_class()
+                                        .objects
+                                        .filter(custom_field=cf, **condition)
+                                        .values_list('entity_id', flat=True)
                               )
 
         return query

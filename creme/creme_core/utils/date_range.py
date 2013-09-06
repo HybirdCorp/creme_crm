@@ -26,6 +26,8 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 
+from .dates import make_aware_dt
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +45,8 @@ def get_quarter_dates(year, quarter):
     """@param quarter 1 <= integer <= 4"""
     month = quarter * 3
 
-    return (datetime(year=year, month=month - 2, day=1,                               **_DAY_START),
-            datetime(year=year, month=month,     day=get_month_last_day(year, month), **_DAY_END)
+    return (make_aware_dt(datetime(year=year, month=month - 2, day=1,                               **_DAY_START)),
+            make_aware_dt(datetime(year=year, month=month,     day=get_month_last_day(year, month), **_DAY_END))
            )
 
 
@@ -73,10 +75,10 @@ class DateRange(object):
 class CustomRange(DateRange):
     def __init__(self, start=None, end=None):
         if start and not isinstance(start, datetime):
-            start = datetime(year=start.year, month=start.month, day=start.day, **_DAY_START)
+            start = make_aware_dt(datetime(year=start.year, month=start.month, day=start.day, **_DAY_START))
 
         if end and not isinstance(end, datetime):
-            end = datetime(year=end.year, month=end.month, day=end.day, **_DAY_END)
+            end = make_aware_dt(datetime(year=end.year, month=end.month, day=end.day, **_DAY_END))
 
         self._start = start
         self._end   = end
@@ -92,8 +94,8 @@ class PreviousYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year - 1
-        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
-                datetime(year=year, month=12, day=31, **_DAY_END)
+        return (make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
+                make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
                )
 
 
@@ -104,8 +106,8 @@ class CurrentYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year
-        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
-                datetime(year=year, month=12, day=31, **_DAY_END)
+        return (make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
+                make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
                )
 
 
@@ -116,9 +118,10 @@ class NextYearRange(DateRange):
     @staticmethod
     def get_dates(now):
         year = now.year + 1
-        return (datetime(year=year, month=1,  day=1,  **_DAY_START),
-                datetime(year=year, month=12, day=31, **_DAY_END)
+        return (make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
+                make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
                )
+
 
 class PreviousMonthRange(DateRange):
     name = 'previous_month'
