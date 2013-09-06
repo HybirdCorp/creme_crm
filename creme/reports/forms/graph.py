@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import map
+
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
 from django.forms.util import ValidationError, ErrorList
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import RelationType, CustomField
 from creme.creme_core.forms.base import CremeEntityForm
 from creme.creme_core.forms.widgets import DependentSelect
 from creme.creme_core.forms.fields import AjaxChoiceField
@@ -32,11 +34,9 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 from ..report_aggregation_registry import field_aggregation_registry
-from ..models.graph import (ReportGraph, verbose_report_graph_types,
-        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION)
-
-
-AUTHORIZED_AGGREGATE_FIELD = field_aggregation_registry.authorized_fields
+from ..models.graph import (ReportGraph, VERBOSE_REPORT_GRAPH_TYPES,
+        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
+        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 
 
 class ReportGraphForm(CremeEntityForm):
@@ -65,7 +65,7 @@ class ReportGraphForm(CremeEntityForm):
         exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type', 'report')
 
     def __init__(self, entity, *args, **kwargs):
-        super(ReportGraphForm, self).__init__(*args,  **kwargs)
+        super(ReportGraphForm, self).__init__(*args, **kwargs)
         self.report = entity
         report_ct = entity.ct
         model = report_ct.model_class()
@@ -76,37 +76,64 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_field_f  = fields['abscissa_field']
         is_count_f        = fields['is_count']
 
+        sort_key = collator.sort_key
+        sort_choices = lambda k: sort_key(k[1])
+
         #Abscissa -----------------------------------------------------------
+        abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
+                                    .filter(self._filter_abcissa_field, viewable=True) \
+                                    .choices()
+        abscissa_model_fields.sort(key=sort_choices)
+
         self.rtypes = rtypes = dict(RelationType.get_compatible_ones(report_ct, include_internals=True)
                                                 .values_list('id', 'predicate')
                                    )
         sort_key = collator.sort_key
         abscissa_predicates = rtypes.items()
-        abscissa_predicates.sort(key=lambda k: sort_key(k[1]))
+        abscissa_predicates.sort(key=sort_choices)
 
-        abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
-                                    .filter(self._filter_abcissa_field, viewable=True) \
-                                    .choices()
-        abscissa_model_fields.sort(key=lambda x: x[1])
+        abscissa_choices = [(_('Fields'),        abscissa_model_fields),
+                            (_('Relationships'), abscissa_predicates),
+                           ]
+
+        self.abs_cfields = cfields = \
+            dict((cf.id, cf) for cf in CustomField.objects.filter(field_type__in=(CustomField.ENUM,
+                                                                                  CustomField.DATETIME,
+                                                                                 ),
+                                                                  content_type=report_ct,
+                                                                 )
+                )
+
+        if cfields:
+            abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()])) #TODO: sort ?
 
         #TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
-        abscissa_field_f.choices = ((_('Fields'),        abscissa_model_fields),
-                                    (_('Relationships'), abscissa_predicates),
-                                   )
+        abscissa_field_f.choices = abscissa_choices
         abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
 
         #Ordinate -----------------------------------------------------------
-        agg_choices = ModelFieldEnumerator(model, deep=0).filter((lambda f: isinstance(f, AUTHORIZED_AGGREGATE_FIELD)),
-                                                                  viewable=True
-                                                                ) \
-                                                         .choices()
+        aggfield_choices = ModelFieldEnumerator(model, deep=0) \
+                                .filter((lambda f: isinstance(f, field_aggregation_registry.authorized_fields)),
+                                        viewable=True
+                                       ) \
+                                .choices()
+        aggcustom_choices = list(CustomField.objects.filter(field_type__in=field_aggregation_registry.authorized_customfields,
+                                                            content_type=report_ct,
+                                                           ) \
+                                                    .values_list('id', 'name')
+                                )
+        ordinate_choices = aggfield_choices or aggcustom_choices
 
-        if agg_choices:
-            aggregate_field_f.choices = agg_choices
+        if ordinate_choices:
             self.force_count = False
+
+            if aggcustom_choices and aggfield_choices:
+                ordinate_choices = [(_('Fields'),        aggfield_choices),
+                                    (_('Custom fields'), aggcustom_choices),
+                                   ]
         else:
-            aggregate_field_f.choices = [('', _('No field is usable for aggregation'))]
             self.force_count = True
+            ordinate_choices = [('', _('No field is usable for aggregation'))]
 
             disabled_attrs = {'disabled': True}
             aggregate_field_f.widget.attrs = disabled_attrs
@@ -115,6 +142,8 @@ class ReportGraphForm(CremeEntityForm):
             is_count_f.help_text = _('You must make a count because no field is usable for aggregation')
             is_count_f.initial = True
             is_count_f.widget.attrs = disabled_attrs
+
+        aggregate_field_f.choices = ordinate_choices
 
         #Initial data --------------------------------------------------------
         data = self.data
@@ -125,16 +154,15 @@ class ReportGraphForm(CremeEntityForm):
             widget = abscissa_field_f.widget
             widget.source_val = get_data('abscissa_field')
             widget.target_val = get_data('abscissa_group_by')
-        else:
-            if instance.pk is not None:
-                ordinate, sep, aggregate    = instance.ordinate.rpartition('__')
-                fields['aggregate'].initial = aggregate
-                aggregate_field_f.initial   = ordinate
-                abscissa_field_f.initial    = instance.abscissa
+        elif instance.pk is not None:
+            ordinate, sep, aggregate    = instance.ordinate.rpartition('__')
+            fields['aggregate'].initial = aggregate
+            aggregate_field_f.initial   = ordinate
+            abscissa_field_f.initial    = instance.abscissa
 
-                widget = abscissa_field_f.widget
-                widget.source_val = instance.abscissa
-                widget.target_val = instance.type
+            widget = abscissa_field_f.widget
+            widget.source_val = instance.abscissa
+            widget.target_val = instance.type
 
         #TODO: remove this sh*t when is_count is a real widget well initialized (disabling set by JS)
         if is_count_f.initial or instance.is_count or data.get('is_count'):
@@ -162,11 +190,11 @@ class ReportGraphForm(CremeEntityForm):
         except Exception as e:
             raise ValidationError('Invalid value: %s  [%s]', str_val, e)
 
-        self.verbose_graph_type = verbose_gtype = verbose_report_graph_types.get(graph_type)
+        self.verbose_graph_type = verbose_gtype = VERBOSE_REPORT_GRAPH_TYPES.get(graph_type)
 
         if verbose_gtype is None:
             raise ValidationError('Invalid value: %s  not in %s', graph_type,
-                                  verbose_report_graph_types.keys()
+                                  VERBOSE_REPORT_GRAPH_TYPES.keys()
                                  )
 
         return graph_type
@@ -193,6 +221,22 @@ class ReportGraphForm(CremeEntityForm):
             else:
                 return field
 
+    def _clean_customfield(self, name, cfield_types, formfield_name='abscissa_field'):
+        if not name or not name.isdigit():
+            self.errors[formfield_name] = ErrorList([u'Unknown or invalid custom field.'])
+        else:
+            cfield = self.abs_cfields[int(name)]
+
+            if cfield.field_type not in cfield_types:
+                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
+                                                                self.verbose_graph_type,
+                                                                ', '.join(map(str, cfield_types)), #TODO: verbose type
+                                                            )
+                                                        ]
+                                                       )
+            else:
+                return cfield
+
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
@@ -204,17 +248,27 @@ class ReportGraphForm(CremeEntityForm):
         #TODO: use a better system to check compatible Field types (each type could be associated to an object with own compatibilities)
         if abscissa_group_by == RGT_FK:
             self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
+        elif abscissa_group_by == RGT_CUSTOM_FK:
+            self._clean_customfield(abscissa_name, cfield_types=(CustomField.ENUM,))
         elif abscissa_group_by == RGT_RELATION:
             if abscissa_name not in self.rtypes:
                 self.errors['abscissa_field'] = ErrorList([u'Unknown relationship type.'])
         elif abscissa_group_by in (RGT_DAY, RGT_MONTH, RGT_YEAR):
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
-        else:
-            assert abscissa_group_by == RGT_RANGE
+        elif abscissa_group_by == RGT_RANGE:
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
 
             if not cleaned_data.get('days'):
                 self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+        elif abscissa_group_by in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR):
+            self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
+        elif abscissa_group_by == RGT_CUSTOM_RANGE:
+            self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
+
+            if not cleaned_data.get('days'): #TODO: factorise
+                self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+        else:
+            raise ValidationError('Unknown graph type')
 
         if get_data('aggregate_field'):
             if not field_aggregation_registry.get(get_data('aggregate')):
@@ -229,7 +283,7 @@ class ReportGraphForm(CremeEntityForm):
 
     def save(self, *args, **kwargs):
         get_data = self.cleaned_data.get
-        graph    =  self.instance
+        graph    = self.instance
         graph.report   = self.report
         graph.abscissa = get_data('abscissa_field')
         graph.type = get_data('abscissa_group_by')

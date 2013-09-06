@@ -20,13 +20,15 @@
 
 from datetime import timedelta
 from json import dumps as json_encode
+import logging
 
 from django.db.models import (PositiveIntegerField, CharField, BooleanField,
                               ForeignKey, FieldDoesNotExist, Min, Max)
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
-from creme.creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
+from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+        InstanceBlockConfigItem, CustomField, CustomFieldEnumValue, CustomFieldEnum)
 from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
 from creme.creme_core.utils.meta import get_verbose_field_name
 
@@ -34,21 +36,33 @@ from ..report_aggregation_registry import field_aggregation_registry
 from .report import Report
 
 
-#ReportGraph types
-RGT_DAY      = 1
-RGT_MONTH    = 2
-RGT_YEAR     = 3
-RGT_RANGE    = 4
-RGT_FK       = 5
-RGT_RELATION = 6
+logger = logging.getLogger(__name__)
 
-verbose_report_graph_types = {
-    RGT_DAY      : _(u"By days"),
-    RGT_MONTH    : _(u"By months"),
-    RGT_YEAR     : _(u"By years"),
-    RGT_RANGE    : _(u"By X days"),
-    RGT_FK       : _(u"By values"),
-    RGT_RELATION : _(u"By values (of related entities)"),
+#ReportGraph types
+RGT_DAY             = 1
+RGT_MONTH           = 2
+RGT_YEAR            = 3
+RGT_RANGE           = 4
+RGT_FK              = 5
+RGT_RELATION        = 6
+RGT_CUSTOM_DAY      = 11
+RGT_CUSTOM_MONTH    = 12
+RGT_CUSTOM_YEAR     = 13
+RGT_CUSTOM_RANGE    = 14
+RGT_CUSTOM_FK       = 15
+
+VERBOSE_REPORT_GRAPH_TYPES = {
+    RGT_DAY:            _(u"By days"),
+    RGT_MONTH:          _(u"By months"),
+    RGT_YEAR:           _(u"By years"),
+    RGT_RANGE:          _(u"By X days"),
+    RGT_FK:             _(u"By values"),
+    RGT_RELATION:       _(u"By values (of related entities)"),
+    RGT_CUSTOM_DAY:     _(u"By days"),
+    RGT_CUSTOM_MONTH:   _(u"By months"),
+    RGT_CUSTOM_YEAR:    _(u"By years"),
+    RGT_CUSTOM_RANGE:   _(u"By X days"),
+    RGT_CUSTOM_FK:      _(u"By values (of custom choices)"),
 }
 
 #TODO: move to creme_core ?
@@ -95,16 +109,35 @@ class ReportGraph(CremeEntity):
         abscissa = self.abscissa
         ordinate = self.ordinate
         is_count = self.is_count
-        #ordinate_col, sep, aggregate = ordinate.rpartition('__')
-        #aggregate_field = field_aggregation_registry.get(aggregate)
-        #aggregate_func  = aggregate_field.func if aggregate_field else None #Seems to be a count
-        #aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None #Seems to be a count
 
-        if not is_count:
-            ordinate_col, sep, aggregate = ordinate.rpartition('__')
-            aggregate_col = field_aggregation_registry.get(aggregate).func(ordinate_col) #TODO: if field does not exit anymore ??
-        else:
+        if is_count:
             aggregate_col = None
+
+            def y_value(sub_entities):
+                return sub_entities.count()
+
+        else:
+            ordinate_col, sep, aggregation = ordinate.rpartition('__')
+            aggregate_func = field_aggregation_registry.get(aggregation).func
+
+            if ordinate_col.isdigit(): #CustomField
+                try:
+                    cf = CustomField.objects.get(pk=ordinate_col)
+                except CustomField.DoesNotExist: #TODO: test this
+                    logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
+                    return [], [] #TODO: notify the user that this graph is deprecated ??
+
+                cf_agg_key = '%s__value' % cf.get_value_class().get_related_name()
+
+                def y_value(sub_entities):
+                    return sub_entities.aggregate(cf_agg=aggregate_func(cf_agg_key)).get('cf_agg') or 0
+
+            else: #Regular Field
+                aggregate_col = aggregate_func(ordinate_col) #TODO: if field does not exit anymore ??
+
+                def y_value(sub_entities):
+                    return sub_entities.aggregate(aggregate_col).get(ordinate) or 0
+
 
         entities = model.objects.all()
 
@@ -126,37 +159,37 @@ class ReportGraph(CremeEntity):
             year_key  = '%s__year' % abscissa
             month_key = '%s__month' % abscissa
             day_key   ='%s__day' % abscissa
-            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'day',
+            x, y = _get_dates_values(entities, abscissa, y_value, 'day',
                                      qdict_builder=lambda date: {year_key:  date.year,
                                                                  month_key: date.month,
                                                                  day_key:   date.day,
                                                                 },
-                                     date_format="%d/%m/%Y", order=order, is_count=is_count,
+                                     date_format="%d/%m/%Y", order=order,
                                     )
         elif gtype == RGT_MONTH:
             year_key  = '%s__year' % abscissa
             month_key = '%s__month' % abscissa
-            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'month',
+            x, y = _get_dates_values(entities, abscissa, y_value, 'month',
                                      qdict_builder=lambda date: {year_key:  date.year,
                                                                  month_key: date.month,
                                                                 },
-                                     date_format="%m/%Y", order=order, is_count=is_count,
+                                     date_format="%m/%Y", order=order,
                                     )
         elif gtype == RGT_YEAR:
             year_key  = '%s__year' % abscissa
-            x, y = _get_dates_values(entities, abscissa, ordinate, aggregate_col, 'year',
+            x, y = _get_dates_values(entities, abscissa, y_value, 'year',
                                      qdict_builder=lambda date: {year_key: date.year},
-                                     date_format="%Y", order=order, is_count=is_count,
+                                     date_format="%Y", order=order,
                                     )
         elif gtype == RGT_RANGE:
             date_aggregates = entities.aggregate(min_date=Min(abscissa), max_date=Max(abscissa))
             min_date = date_aggregates['min_date']
             max_date = date_aggregates['max_date']
 
-            days = timedelta((self.days or 1) - 1)
-            query_cmd = '%s__range' % abscissa
-
             if min_date is not None and max_date is not None:
+                days = timedelta((self.days or 1) - 1)
+                query_cmd = '%s__range' % abscissa
+
                 #TODO: factorise the 2 'while' loops
                 if order == 'ASC':
                     while min_date <= max_date:
@@ -171,10 +204,7 @@ class ReportGraph(CremeEntity):
                                                   }
                                           )
 
-                        if is_count:
-                            y_append([sub_entities.count(), url])
-                        else:
-                            y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
+                        y_append([y_value(sub_entities), url])
 
                         min_date = end + timedelta(days=1)
                 else:
@@ -190,14 +220,11 @@ class ReportGraph(CremeEntity):
                                                   }
                                           )
 
-                        if is_count:
-                            y_append([sub_entities.count(), url])
-                        else:
-                            y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
+                        y_append([y_value(sub_entities), url])
 
                         max_date = end - timedelta(days=1)
         elif gtype == RGT_FK:
-            related_instances = model._meta.get_field(abscissa).rel.to.objects.all()
+            related_instances = model._meta.get_field(abscissa).rel.to.objects.all() #TODO: list (reverse seems useless in most cases)
 
             if order == 'DESC':
                 related_instances = related_instances.reverse()
@@ -206,16 +233,94 @@ class ReportGraph(CremeEntity):
                 x_append(unicode(instance))
 
                 kwargs = {abscissa: instance.id}
-                sub_entities = entities_filter(**kwargs)
-                url = listview_url(model, kwargs)
+                y_append([y_value(entities_filter(**kwargs)), listview_url(model, kwargs)])
+        if gtype == RGT_CUSTOM_DAY:
+            x, y = _get_custom_dates_values(entities, abscissa, y_value, 'day',
+                                            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
+                                                                        'customfielddatetime__value__month': date.month,
+                                                                        'customfielddatetime__value__day':   date.day,
+                                                                       },
+                                            date_format="%d/%m/%Y", order=order,
+                                           )
+        elif gtype == RGT_CUSTOM_MONTH:
+            x, y = _get_custom_dates_values(entities, abscissa, y_value, 'month',
+                                            qdict_builder=lambda date: {'customfielddatetime__value__year':  date.year,
+                                                                        'customfielddatetime__value__month': date.month,
+                                                                       },
+                                            date_format="%m/%Y", order=order,
+                                           )
+        elif gtype == RGT_CUSTOM_YEAR:
+            x, y = _get_custom_dates_values(entities, abscissa, y_value, 'year',
+                                            qdict_builder=lambda date: {'customfielddatetime__value__year': date.year},
+                                            date_format="%Y", order=order,
+                                           )
+        elif gtype == RGT_CUSTOM_RANGE:
+            try:
+                cf = CustomField.objects.get(pk=abscissa)
+            except CustomField.DoesNotExist:
+                pass #TODO: notify the user that this graph is deprecated ??
+            else:
+                date_aggregates = entities.aggregate(min_date=Min('customfielddatetime__value'),
+                                                     max_date=Max('customfielddatetime__value'),
+                                                    ) #TODO: several cf...
+                min_date = date_aggregates['min_date']
+                max_date = date_aggregates['max_date']
 
-                #TODO: factorise this pattern
-                if is_count:
-                    y_append([sub_entities.count(), url])
-                else:
-                    y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
+                if min_date is not None and max_date is not None:
+                    days = timedelta((self.days or 1) - 1)
+
+                    #TODO: factorise the 2 'while' loops
+                    if order == 'ASC':
+                        while min_date <= max_date:
+                            begin = min_date
+                            end   = min_date + days
+                            x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y"))) #TODO: use format from settings ??
+
+                            sub_entities = entities_filter(customfielddatetime__value__range=(begin, end))
+                            url = listview_url(model,
+                                               {'customfielddatetime__value__range': [begin.strftime("%Y-%m-%d"),
+                                                                                      end.strftime("%Y-%m-%d"),
+                                                                                     ],
+                                               }
+                                              )
+
+                            y_append([y_value(sub_entities), url])
+
+                            min_date = end + timedelta(days=1)
+                    else:
+                        while max_date >= min_date:
+                            begin = max_date
+                            end   = max_date - days
+                            x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
+
+                            sub_entities = entities_filter(customfielddatetime__value__range=(end, begin))
+                            url = listview_url(model,
+                                               {'customfielddatetime__value__range': [end.strftime("%Y-%m-%d"),
+                                                                                      begin.strftime("%Y-%m-%d"),
+                                                                                     ],
+                                               }
+                                              )
+                            y_append([y_value(sub_entities), url])
+
+                            max_date = end - timedelta(days=1)
+        elif gtype == RGT_CUSTOM_FK: #TODO: factorise with RGT_FK case ??
+            try:
+                cf = CustomField.objects.get(pk=abscissa)
+            except CustomField.DoesNotExist:
+                logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', abscissa)
+                pass #TODO: notify the user that this graph is deprecated ??
+            else:
+                related_instances = list(CustomFieldEnumValue.objects.filter(custom_field=cf))
+                if order == 'DESC':
+                    related_instances.reverse()
+
+                for instance in related_instances:
+                    x_append(unicode(instance))
+
+                    kwargs = {'customfieldenum__value': instance.id}
+                    y_append([y_value(entities_filter(**kwargs)), listview_url(model, kwargs)])
         elif gtype == RGT_RELATION:
-            #TODO: Optimize !
+            #TODO: Optimize ! (populate real entities)
             #TODO: make listview url for this case
             #      the q_filter {"pk__in": ub_relations.values_list('subject_entity__id')} may create too long urls
             try:
@@ -226,6 +331,7 @@ class ReportGraph(CremeEntity):
                 relations = Relation.objects.filter(type=rt, subject_entity__entity_type=ct)
                 obj_ids = relations.values_list('object_entity', flat=True).distinct()
                 ce_objects_get = CremeEntity.objects.get
+                rel_filter = relations.filter
 
                 for obj_id in obj_ids:
                     try:
@@ -233,17 +339,9 @@ class ReportGraph(CremeEntity):
                     except CremeEntity.DoesNotExist:
                         continue
 
-                    sub_relations = relations.filter(object_entity=obj_id)
-                    sub_entities = entities_filter(pk__in=sub_relations.values_list('subject_entity'))
+                    subj_ids = rel_filter(object_entity=obj_id).values_list('subject_entity')
 
-                    if is_count:
-                        y_append(sub_entities.count())
-                    else:
-                        y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
-
-        for i, item in enumerate(y):
-            if item is None:
-                y[i] = 0
+                    y_append(y_value(entities_filter(pk__in=subj_ids)))
 
         return (x, y)
 
@@ -284,8 +382,7 @@ class ReportGraph(CremeEntity):
         return ibci
 
 
-def _get_dates_values(entities, abscissa, ordinate, aggregate_col,
-                      kind, qdict_builder, date_format, order, is_count):
+def _get_dates_values(entities, abscissa, y_value_func, kind, qdict_builder, date_format, order):
     """
     @param kind 'day', 'month' or 'year'
     @param order 'ASC' or 'DESC'
@@ -298,13 +395,38 @@ def _get_dates_values(entities, abscissa, ordinate, aggregate_col,
 
     for date in entities.dates(abscissa, kind, order):
         qdict = qdict_builder(date)
-        sub_entities = entities_filter(**qdict)
-
-        value = sub_entities.count() if is_count else \
-                sub_entities.aggregate(aggregate_col).get(ordinate)
-
         x.append(date.strftime(date_format))
-        y.append([value, listview_url(model, qdict)])
+        y.append([y_value_func(entities_filter(**qdict)), listview_url(model, qdict)])
+
+    return x, y
+
+def _get_custom_dates_values(entities, abscissa, y_value_func, kind, qdict_builder, date_format, order):
+    """
+    @param kind 'day', 'month' or 'year'
+    @param order 'ASC' or 'DESC'
+    @param date_format Format compatible with strftime()
+    """
+    x = []
+    y = []
+
+    try:
+        cf = CustomField.objects.get(pk=abscissa)
+    except CustomField.DoesNotExist:
+        logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', abscissa)
+        pass #TODO: notify the user that this graph is deprecated ??
+    else:
+        model = entities.model
+        entities_filter = entities.filter
+
+        #TODO: collision with other join on customfielddatetime ???? -> test with quick search when repaired
+
+        #for date in entities.dates('customfielddatetime__value', kind, order):
+        for date in entities_filter(customfielddatetime__custom_field=cf).dates('customfielddatetime__value', kind, order):
+            qdict = qdict_builder(date)
+            qdict['customfielddatetime__custom_field'] = cf.id
+
+            x.append(date.strftime(date_format))
+            y.append([y_value_func(entities_filter(**qdict)), listview_url(model, qdict)])
 
     return x, y
 

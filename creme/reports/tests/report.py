@@ -495,7 +495,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(column.selected)
         self.assertIsNone(column.report)
         self.assertEqual(rfield.id, column.id)
-        self.assertEqual(rfield, column)
+        self.assertEqual(rfield,    column)
 
     def test_add_field02(self):
         "Custom field, aggregate on CustomField; additional old Field deleted"
