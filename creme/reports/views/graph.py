@@ -30,11 +30,10 @@ from creme.creme_core.views.generic import view_entity, add_to_entity, edit_rela
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType, CustomField
 from creme.creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 
-from ..models.graph import (ReportGraph, VERBOSE_REPORT_GRAPH_TYPES,
-        RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY, RGT_FK, RGT_RELATION, 
-        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK,
-        fetch_graph_from_instance_block)
+from ..constants import *
+from ..models import ReportGraph
 from ..forms.graph import ReportGraphForm
+from ..core.graph import HANDS_MAP, fetch_graph_from_instance_block
 
 
 logger = logging.getLogger(__name__)
@@ -57,11 +56,11 @@ def edit(request, graph_id):
 @permission_required('reports')
 def detailview(request, graph_id):
     return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
-                       extra_template_dict={'verbose_report_graph_types': VERBOSE_REPORT_GRAPH_TYPES,
-                                            'user_can_admin_report':      request.user.has_perm('reports.can_admin'),
+                       extra_template_dict={'user_can_admin_report': request.user.has_perm('reports.can_admin'), #TODO: template tag instead ??
                                            }
                       )
 
+#TODO: use prefix ?? (rfield-, ctield-, rtype-)
 def _get_available_report_graph_types(ct, name):
     model = ct.model_class()
 
@@ -100,7 +99,7 @@ def _get_available_report_graph_types(ct, name):
 
         logger.debug('get_available_report_graph_types(): "%s" is not a valid field for abscissa', name)
 
-#TODO: can be factorised with ReportGraphForm (better graph type system)
+#TODO: can be factorised with ReportGraphForm (use ReportGraphHand)
 @jsonify
 #@permission_required('reports') ??
 def get_available_report_graph_types(request, ct_id):
@@ -112,7 +111,7 @@ def get_available_report_graph_types(request, ct_id):
         result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}] #TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
-                   'text': unicode(VERBOSE_REPORT_GRAPH_TYPES[type_id]),
+                   'text': unicode(HANDS_MAP[type_id].verbose_name),
                   } for type_id in gtypes
                  ]
 

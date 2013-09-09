@@ -19,3 +19,18 @@
 ################################################################################
 
 DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
+
+
+#ReportGraph types
+RGT_DAY             = 1
+RGT_MONTH           = 2
+RGT_YEAR            = 3
+RGT_RANGE           = 4
+RGT_FK              = 5
+RGT_RELATION        = 6
+RGT_CUSTOM_DAY      = 11
+RGT_CUSTOM_MONTH    = 12
+RGT_CUSTOM_YEAR     = 13
+RGT_CUSTOM_RANGE    = 14
+RGT_CUSTOM_FK       = 15
+

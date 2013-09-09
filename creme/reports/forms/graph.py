@@ -33,10 +33,11 @@ from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
-from ..report_aggregation_registry import field_aggregation_registry
-from ..models.graph import (ReportGraph, VERBOSE_REPORT_GRAPH_TYPES,
-        RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
+from ..core.graph import HANDS_MAP
+from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
+from ..models.graph import ReportGraph
+from ..report_aggregation_registry import field_aggregation_registry
 
 
 class ReportGraphForm(CremeEntityForm):
@@ -190,12 +191,14 @@ class ReportGraphForm(CremeEntityForm):
         except Exception as e:
             raise ValidationError('Invalid value: %s  [%s]', str_val, e)
 
-        self.verbose_graph_type = verbose_gtype = VERBOSE_REPORT_GRAPH_TYPES.get(graph_type)
+        hand = HANDS_MAP.get(graph_type)
 
-        if verbose_gtype is None:
+        if hand is None:
             raise ValidationError('Invalid value: %s  not in %s', graph_type,
-                                  VERBOSE_REPORT_GRAPH_TYPES.keys()
+                                  [h.hand_id for h in HANDS_MAP]
                                  )
+
+        self.verbose_graph_type = hand.verbose_name
 
         return graph_type
 
@@ -245,7 +248,7 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_name = get_data('abscissa_field')
         abscissa_group_by = cleaned_data['abscissa_group_by']
 
-        #TODO: use a better system to check compatible Field types (each type could be associated to an object with own compatibilities)
+        #TODO: use a better system to check compatible Field types (use ReportGraphHands)
         if abscissa_group_by == RGT_FK:
             self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
         elif abscissa_group_by == RGT_CUSTOM_FK:

@@ -9,7 +9,7 @@
         "show": true,
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
-            {% if reportLegendRows %}"numberRows": {{reportLegendRows}},{% endif %}
+            {% if legend_rows %}"numberRows": {{legend_rows}},{% endif %}
             "disableIEFading": false
         },
         "placement": "outsideGrid",
@@ -20,13 +20,13 @@
         "showMarker": false,
         "useAxesFormatters": false,
         "tooltipAxes": "xy",
-        "formatString": "<center>%s</center><center>{% if report.is_count %}%d{% else %}%.2f{% endif %}</center>",
+        "formatString": "<center>%s</center><center>{% if rgraph.is_count %}%d{% else %}%.2f{% endif %}</center>",
         "tooltipLocation": "cursor",
         "cursorStyle": "pointer"
     },
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
-    "title": "{{report}}",
+    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData"
 }

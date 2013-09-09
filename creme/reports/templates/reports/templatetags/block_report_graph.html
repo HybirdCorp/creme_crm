@@ -27,7 +27,8 @@
                          style="margin:0px;padding:0px;border:0px;">
                         <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
                         <ul class="ui-layout hbox" style="padding:2px;">
-                            {% get_report_chart_selectors %}
+                            {% comment %}{% get_report_chart_selectors %}{% endcomment %}
+                            {% include 'reports/templatetags/report_chart_selectors.html' %}
                         </ul>
                         <div chained-name="plot" class="ui-creme-chainedselect-item">
                             <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"

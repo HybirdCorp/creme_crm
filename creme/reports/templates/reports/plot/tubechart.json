@@ -1,5 +1,5 @@
-{% load creme_core_tags %}
-{% load reports_tags %}
+{% comment %} {% load creme_core_tags %} {% endcomment %}
+{% comment %}{% load reports_tags %}{% endcomment %}
 {
     "stackSeries": true,
     "seriesDefaults": {
@@ -20,7 +20,7 @@
         "show": true,
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
-            {% if reportLegendRows %}"numberRows": {{reportLegendRows}},{% endif %}
+            {% if legend_rows %}"numberRows": {{legend_rows}},{% endif %}
             "disableIEFading": false
         },
         "labels": "preprocess.formatEntryLabel",
@@ -37,7 +37,8 @@
                 "fontSize": "10pt",
                 "formatString": "%d%%"
             },
-            "label": "{{report|verbose_ordinate:report.ordinate}}",
+            {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
+            "label": "{{rgraph.hand.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",
@@ -55,7 +56,8 @@
                 "show": false
             },
             "ticks": [""],
-            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",
+            {% comment %}"label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",{% endcomment %}
+            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",
@@ -69,14 +71,14 @@
         "showMarker": false,
         "yvalues": 4,
         "tooltipAxes": "yx",
-        "formatString": "<center>%2$s</center><center>{% if report.is_count %}%4$d{% else %}%4$.2f{% endif %}</center><center>%3$s</center>",
+        "formatString": "<center>%2$s</center><center>{% if rgraph.is_count %}%4$d{% else %}%4$.2f{% endif %}</center><center>%3$s</center>",
         "tooltipLocation": "w",
         "cursorStyle": "pointer"
     },
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%5$s"}
     ],
-    "title": "{{report}}",
+    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataPreprocessors": ["tee",
                           {
