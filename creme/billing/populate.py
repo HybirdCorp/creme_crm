@@ -245,7 +245,7 @@ class Populator(BasePopulator):
         from creme.creme_core.utils.meta import get_verbose_field_name
 
         from creme.reports.models import Report, Field, ReportGraph
-        from creme.reports.models.graph import RGT_FK, RGT_MONTH
+        from creme.reports.constants import RGT_FK, RGT_MONTH
 
         if not (resulted and resulted_collection):
             logger.info("Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'")

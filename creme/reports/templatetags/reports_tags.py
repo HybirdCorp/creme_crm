@@ -20,18 +20,18 @@
 
 from django.template import Library
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ #, ugettext
 
-from creme.creme_core.utils.meta import get_model_field_info, get_verbose_field_name
-from creme.creme_core.models import RelationType, CustomField
+from creme.creme_core.utils.meta import get_model_field_info # get_verbose_field_name
+#from creme.creme_core.models import CustomField, RelationType
 from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
                                                    HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
 #from ..constants import DATETIME_FILTER_FORMAT
-from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
-                            RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
-from ..report_aggregation_registry import field_aggregation_registry
+#from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
+                            #RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
+#from ..report_aggregation_registry import field_aggregation_registry
 
 
 register = Library()
@@ -82,86 +82,80 @@ def get_verbose_type(type_id):
         #return u''
 
 @register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
-def report_barchart_json(context, report):
-    context['report'] = report
+def report_barchart_json(context, rgraph):
+    context['rgraph'] = rgraph
     return context
 
 @register.inclusion_tag('reports/plot/small_barchart.json', takes_context=True)
-def report_small_barchart_json(context, report):
-    context['report'] = report
+def report_small_barchart_json(context, rgraph):
+    context['rgraph'] = rgraph
     return context
 
 @register.inclusion_tag('reports/plot/piechart.json', takes_context=True)
-def report_piechart_json(context, report, legendRows=None):
-    context['report'] = report
-    context['reportLegendRows'] = legendRows
+def report_piechart_json(context, rgraph, legend_rows=None):
+    context['rgraph'] = rgraph
+    context['legend_rows'] = legend_rows
     return context
 
 @register.inclusion_tag('reports/plot/tubechart.json', takes_context=True)
-def report_tubechart_json(context, report, legendRows=1):
-    context['report'] = report
-    context['reportLegendRows'] = legendRows
+def report_tubechart_json(context, rgraph, legend_rows=1):
+    context['rgraph'] = rgraph
+    context['legend_rows'] = legend_rows
     return context
 
-@register.inclusion_tag('reports/templatetags/report_chart.html', takes_context=True)
-def get_report_chart(context, report): #TODO: rename 'report' to 'rgraph' ! or leave 'object' & use and {% include %}
-    context['report'] = report
-    return context
+#@register.inclusion_tag('reports/templatetags/report_chart.html', takes_context=True)
+#def get_report_chart(context, report):
+    #context['report'] = report
+    #return context
 
-@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
-def get_report_chart_selectors(context):
-    return context
+#@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
+#def get_report_chart_selectors(context):
+    #return context
 
 #@register.filter
 #def to_filter_format(date):
     #return date.strftime(DATETIME_FILTER_FORMAT)
 
-#TODO: factorise with ReportGraph.fetch() (+caching)
-#TODO: unit tests
-#TODO: use a tag and not a filter (see below)
-@register.filter(name="verbose_abscissa")
-def get_verbose_abscissa(report_graph, graph_abscissa):
-    gtype = report_graph.type
+#@register.filter(name="verbose_abscissa")
+#def get_verbose_abscissa(report_graph, graph_abscissa):
+    #gtype = report_graph.type
 
-    if gtype == RGT_RELATION:
-        try:
-            return RelationType.objects.get(pk=graph_abscissa).predicate
-        except RelationType.DoesNotExist:
-            return u""
+    #if gtype == RGT_RELATION:
+        #try:
+            #return RelationType.objects.get(pk=graph_abscissa).predicate
+        #except RelationType.DoesNotExist:
+            #return u""
 
-    if gtype in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK):
-        try:
-            cf = CustomField.objects.get(pk=graph_abscissa)
-        except CustomField.DoesNotExist:
-            #logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
-            return '??'
-        else:
-            return cf.name
+    #if gtype in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK):
+        #try:
+            #cf = CustomField.objects.get(pk=graph_abscissa)
+        #except CustomField.DoesNotExist:
+            ##logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
+            #return '??'
+        #else:
+            #return cf.name
 
-    return get_verbose_field_name(report_graph.report.ct.model_class(), graph_abscissa)
+    #return get_verbose_field_name(report_graph.report.ct.model_class(), graph_abscissa)
 
-#TODO: factorise with ReportGraph.fetch() (+caching)
-#TODO: unit tests
-#TODO: use a tag and not a filter (stupid to give graph, & ordinate, because graph contains ordinate...)
-@register.filter(name="verbose_ordinate")
-def get_verbose_ordinate(report_graph, graph_ordinate):
-    if report_graph.is_count:
-        return ugettext(u"Count")
+#@register.filter(name="verbose_ordinate")
+#def get_verbose_ordinate(report_graph, graph_ordinate):
+    #if report_graph.is_count:
+        #return ugettext(u"Count")
 
-    ordinate, sep, aggregation = graph_ordinate.rpartition('__')
+    #ordinate, sep, aggregation = graph_ordinate.rpartition('__')
 
-    if ordinate.isdigit(): #CustomField
-        try:
-            cf = CustomField.objects.get(pk=ordinate)
-        except CustomField.DoesNotExist:
-            #logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
-            verbose_field_name = '??'
-        else:
-            verbose_field_name = cf.name
-    else: #Regular Field
-        verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
+    #if ordinate.isdigit(): #CustomField
+        #try:
+            #cf = CustomField.objects.get(pk=ordinate)
+        #except CustomField.DoesNotExist:
+            ##logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', ordinate_col)
+            #verbose_field_name = '??'
+        #else:
+            #verbose_field_name = cf.name
+    #else: #Regular Field
+        #verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
 
-    field_aggregate = field_aggregation_registry.get(aggregation)
-    aggregate_verbose_name = unicode(field_aggregate.title) if field_aggregate else u''
+    #field_aggregate = field_aggregation_registry.get(aggregation)
+    #aggregate_verbose_name = unicode(field_aggregate.title) if field_aggregate else u''
 
-    return u"%s - %s" % (verbose_field_name, aggregate_verbose_name)
+    #return u"%s - %s" % (verbose_field_name, aggregate_verbose_name)

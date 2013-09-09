@@ -1,5 +1,5 @@
-{% load creme_core_tags %}
-{% load reports_tags %}
+{% comment %} {% load creme_core_tags %} {% endcomment %}
+{% comment %}{% load reports_tags %}{% endcomment %}
 {
     "seriesDefaults": {
         "renderer": "jqplot.BarRenderer", 
@@ -13,7 +13,8 @@
         "xaxis": {
             "renderer": "jqplot.CategoryAxisRenderer",
             "ticks": [],
-            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",
+            {% comment %}"label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",{% endcomment %}
+            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
@@ -23,14 +24,15 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
         "yaxis": {
-            {% if report.is_count %}
+            {% if rgraph.is_count %}
             "tickInterval": 1,
             "min": 0.0,
             {% endif %}
             "tickOptions": {
-                "formatString": {% if report.is_count %}"%d"{% else %}"%.2f"{% endif %}
+                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%.2f"{% endif %}
             },
-            "label": "{{report|verbose_ordinate:report.ordinate}}",
+            {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
+            "label": "{{rgraph.hand.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",
@@ -50,7 +52,7 @@
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
-    "title": "{{report}}",
+    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataDefaults": [[["", 0.0]]]
 }

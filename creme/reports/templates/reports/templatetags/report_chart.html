@@ -3,16 +3,17 @@
 <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
     <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
     <ul class="ui-layout hbox" style="padding:2px;">
-        {% get_report_chart_selectors %}
+        {% comment %}{% get_report_chart_selectors %}{% endcomment %}
+        {% include 'reports/templatetags/report_chart_selectors.html' %}
     </ul>
     <div chained-name="plot" class="ui-creme-chainedselect-item">
         <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
-             plot-data-url="/reports/graph/fetch_graph/{{report.id}}/${sort}"
+             plot-data-url="/reports/graph/fetch_graph/{{object.id}}/${sort}"
              plot-name="${graph}"
              style="width:100%;">
-                    <script name="histogram" type="text/json">{% report_barchart_json report %}</script>
-                    <script name="pie" type="text/json">{% report_piechart_json report %}</script>
-                    <script name="tube" type="text/json">{% report_tubechart_json report %}</script>
+                    <script name="histogram" type="text/json">{% report_barchart_json object %}</script>
+                    <script name="pie" type="text/json">{% report_piechart_json object %}</script>
+                    <script name="tube" type="text/json">{% report_tubechart_json object %}</script>
             <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" 
                  savable="true" style="height:300px;margin:5px 10px 5px 5px;border:0px;" format="creme.graphael.BargraphData">
             </div>

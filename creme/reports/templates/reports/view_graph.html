@@ -26,6 +26,7 @@
 {% endblock %}
 
 {% block content %}
-    {% comment %} NEW VERSION OF GRAPH ! {% endcomment %}
-    {% get_report_chart object %}
+    {% comment %}NEW VERSION OF GRAPH ! {% endcomment %}
+    {% comment %}{% get_report_chart object %}{% endcomment %}
+    {% include 'reports/templatetags/report_chart.html' %}
 {% endblock %}

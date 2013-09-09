@@ -18,15 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import InstanceBlockConfigItem #CremeEntity
+from creme.creme_core.models import InstanceBlockConfigItem
 from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from .models import Report, Field
-from .models.graph import ReportGraph, VERBOSE_REPORT_GRAPH_TYPES, fetch_graph_from_instance_block
+from .models import Report, Field, ReportGraph
+from .core.graph import fetch_graph_from_instance_block
 
 
 class ReportFieldsBlock(Block):
@@ -57,22 +56,15 @@ class ReportGraphsBlock(QuerysetBlock):
     target_ctypes = (Report,)
 
     def detailview_display(self, context):
-        report  = context['object']
-        request = context['request']
-        user    = context['user']
-        user_can_admin = user.has_perm('reports.can_admin')
+        report = context['object']
 
-        btc = self.get_block_template_context(context,
-                                              ReportGraph.objects.filter(report=report),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                              verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
-                                              is_ajax=request.is_ajax(),
-                                              user_can_admin_report=user_can_admin
-                                             )
-
-        #CremeEntity.populate_credentials(btc['page'].object_list, user)
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context,
+                                ReportGraph.objects.filter(report=report),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                #is_ajax=context['request'].is_ajax(),
+                                user_can_admin_report=context['user'].has_perm('reports.can_admin'),
+                               )
+                           )
 
 
 class ReportGraphBlock(Block):
@@ -94,7 +86,6 @@ class ReportGraphBlock(Block):
 
     def detailview_display(self, context):
         entity  = context['object']
-        request = context['request']
         graph   = self.graph
 
         x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
@@ -106,8 +97,7 @@ class ReportGraphBlock(Block):
                                                             volatile_column=self.verbose.split(' - ')[1],
                                                             instance_block_id=self.instance_block_id,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
-                                                            is_ajax=request.is_ajax(),
+                                                            #is_ajax=context['request'].is_ajax(),
                                                            )
                            )
 
@@ -116,7 +106,6 @@ class ReportGraphBlock(Block):
         return self.home_display(context)
 
     def home_display(self, context): #TODO: factorise detailview_display()
-        request = context['request']
         graph = self.graph
         x, y = graph.fetch()
 
@@ -127,8 +116,7 @@ class ReportGraphBlock(Block):
                                                             y=y,
                                                             volatile_column=self.verbose.split(' - ')[1],
                                                             instance_block_id=self.instance_block_id,
-                                                            verbose_report_graph_types=VERBOSE_REPORT_GRAPH_TYPES,
-                                                            is_ajax=request.is_ajax(),
+                                                            #is_ajax=context['request'].is_ajax(),
                                                            )
                             )
 

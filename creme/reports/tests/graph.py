@@ -22,11 +22,9 @@ try:
     from creme.billing.models import Invoice
     from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
-    from ..models import Field, Report, ReportGraph
-    from ..models.graph import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
-        RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
-
     from .base import BaseReportsTestCase
+    from ..models import Field, Report, ReportGraph
+    from ..constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -146,6 +144,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsNone(rgraph.days)
         self.assertIs(rgraph.is_count, True)
 
+        self.assertEqual(_('Sector'), rgraph.hand.verbose_abscissa)
+        self.assertEqual(_('Count'),  rgraph.hand.verbose_ordinate)
+
         #------------------------------------------------------------
         response = self.assertGET200(rgraph.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/view_graph.html')
@@ -223,6 +224,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
 
+        self.assertEqual(_('Creation date'), rgraph.hand.verbose_abscissa)
+        self.assertEqual(u'%s - %s' % (_('Capital'), _('Maximum')),
+                         rgraph.hand.verbose_ordinate
+                        )
+
     def test_createview03(self):
         "'aggregate_field' empty ==> 'is_count' mandatory"
         report = self.create_simple_contacts_report()
@@ -288,6 +294,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(rtype_id,  rgraph.abscissa)
         self.assertEqual('',        rgraph.ordinate)
         self.assertTrue(rgraph.is_count)
+
+        self.assertEqual(_('employs'), rgraph.hand.verbose_abscissa)
 
     def _aux_test_createview_with_date(self, gtype, gtype_vname):
         report = self.create_simple_organisations_report()
@@ -460,10 +468,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         name = 'My Graph #1'
 
         def post(**kwargs):
-            data = {'user': self.user.pk,
+            data = {'user':              self.user.pk,
                     'name':              name,
                     'abscissa_group_by': gtype,
-                    'is_count': True,
+                    'is_count':          True,
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -474,14 +482,14 @@ class ReportGraphTestCase(BaseReportsTestCase):
                              'Unknown or invalid custom field.'
                             )
 
-        aggregate = 'min'
-        abscissa = 'created'
         self.assertNoFormError(post(abscissa_field=cf_dt.id))
 
         rgraph = self.get_object_or_fail(ReportGraph, report=report, name=name)
         self.assertEqual(self.user,     rgraph.user)
         self.assertEqual(str(cf_dt.id), rgraph.abscissa)
         self.assertEqual(gtype,         rgraph.type)
+
+        self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
     def test_createview09(self):
         "RGT_CUSTOM_DAY"
@@ -508,7 +516,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         gtype = RGT_CUSTOM_RANGE
 
         def post(**kwargs):
-            data = {'user': self.user.pk,
+            data = {'user':              self.user.pk,
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'is_count':          True,
@@ -533,6 +541,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(str(cf_dt.id), rgraph.abscissa)
         self.assertEqual(gtype,         rgraph.type)
         self.assertEqual(days,          rgraph.days)
+
+        self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
     def test_editview(self):
         rgraph = self._create_report_n_graph()
@@ -565,16 +575,17 @@ class ReportGraphTestCase(BaseReportsTestCase):
         hand = create_position(title='Hand of the king')
         lord = create_position(title='Lord')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
-        ned  = create_contact(first_name='Eddard', last_name='Stark', position=hand)
-        robb = create_contact(first_name='Robb',   last_name='Stark', position=lord)
-        bran = create_contact(first_name='Bran',   last_name='Stark', position=lord)
-        aria = create_contact(first_name='Aria',   last_name='Stark')
+        last_name = 'Stark'
+        create_contact = partial(Contact.objects.create, user=self.user, last_name=last_name)
+        create_contact(first_name='Eddard', position=hand)
+        create_contact(first_name='Robb',   position=lord)
+        create_contact(first_name='Bran',   position=lord)
+        create_contact(first_name='Aria')
 
         efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=[ned.last_name]
+                                                                    name='last_name', values=[last_name]
                                                                    )
                                ])
 
@@ -599,8 +610,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         # DESC ---------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
-        self.assertEqual(x_asc, x_desc)
-        self.assertEqual(y_asc, y_desc)
+        self.assertEqual(list(reversed(x_asc)), x_desc)
+        self.assertEqual([1, fmt % hand.id], y_asc[x_asc.index(hand.title)])
 
     def test_fetch_with_fk_02(self):
         "Aggregate"
@@ -610,9 +621,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         peace = create_sector(title='Peace')
 
         create_orga = partial(Organisation.objects.create, user=self.user)
-        lannisters = create_orga(name='House Lannister', capital=1000, sector=trade)
-        starks     = create_orga(name='House Stark',     capital=100,  sector=war)
-        targaryens = create_orga(name='House Targaryen', capital=10,   sector=war)
+        create_orga(name='House Lannister', capital=1000, sector=trade)
+        create_orga(name='House Stark',     capital=100,  sector=war)
+        create_orga(name='House Targaryen', capital=10,   sector=war)
 
         efilter = EntityFilter.create('test-filter', 'Houses', Organisation, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
@@ -668,6 +679,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             is_count=False,
                                            )
 
+        self.assertEqual(u'%s - %s' % (cf, _('Maximum')), rgraph.hand.verbose_ordinate)
+
         x_asc, y_asc = rgraph.fetch()
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
@@ -691,8 +704,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        self.assertFalse(x_asc)
-        self.assertFalse(y_asc)
+        #self.assertFalse(x_asc)
+        #self.assertFalse(y_asc)
+        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+                         y_asc[0]
+                        )
 
     def test_fetch_with_date_range01(self):
         "Count"
@@ -947,6 +964,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([], x_asc)
         self.assertEqual([], y_asc)
 
+        self.assertEqual('', rgraph.hand.verbose_abscissa)
+        #TODO: error
+
     def test_fetch_by_month01(self):
         "Count"
         report = self.create_simple_organisations_report()
@@ -1042,7 +1062,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         lannisters = create_orga(name='House Lannister', creation_date='2013-06-22')
         starks     = create_orga(name='House Stark',     creation_date='2013-07-25')
         baratheons = create_orga(name='House Baratheon', creation_date='2014-08-5')
-        targaryens = create_orga(name='House Baratheon', creation_date='2015-08-5')
+        targaryens = create_orga(name='House Targaryen', creation_date='2015-08-5')
         tullies    = create_orga(name='House Tully',     creation_date='2016-08-5')
 
         cf = CustomField.objects.create(content_type=self.ct_orga,
@@ -1248,6 +1268,23 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(600, y_asc[index(unicode(lannisters))])
         self.assertEqual(800, y_asc[index(unicode(starks))])
 
+    def test_fetch_by_relation04(self):
+        "Invalid RelationType"
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Minimum of capital by creation date (by day)",
+                                            abscissa='invalidrtype', # <====
+                                            type=RGT_RELATION,
+                                            ordinate='capital__avg',
+                                            is_count=False,
+                                           )
+
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
+
+        self.assertEqual('', rgraph.hand.verbose_abscissa)
+
     def test_fetch_with_customfk_01(self):
         report = self.create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
@@ -1263,6 +1300,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([], x_asc)
         self.assertEqual([], y_asc)
 
+        self.assertEqual('', rgraph.hand.verbose_abscissa)
+
     def test_fetch_with_customfk_02(self):
         "Count"
         cf = CustomField.objects.create(content_type=self.ct_contact,
@@ -1272,11 +1311,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         hand = create_enum_value(value='Hand')
         lord = create_enum_value(value='Lord')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
-        ned  = create_contact(first_name='Eddard', last_name='Stark')
-        robb = create_contact(first_name='Robb',   last_name='Stark')
-        bran = create_contact(first_name='Bran',   last_name='Stark')
-        aria = create_contact(first_name='Aria',   last_name='Stark')
+        create_contact = partial(Contact.objects.create, user=self.user, last_name='Stark')
+        ned  = create_contact(first_name='Eddard')
+        robb = create_contact(first_name='Robb')
+        bran = create_contact(first_name='Bran')
+        create_contact(first_name='Aria')
 
         create_enum = partial(CustomFieldEnum.objects.create, custom_field=cf)
         create_enum(entity=ned,  value=hand)
@@ -1329,6 +1368,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             abscissa=cf.id, type=RGT_CUSTOM_FK,
                                             ordinate='capital__sum', is_count=False,
                                            )
+
+        self.assertEqual(cf.name, rgraph.hand.verbose_abscissa)
 
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
