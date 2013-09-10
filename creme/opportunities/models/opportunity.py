@@ -26,7 +26,7 @@ from django.core.exceptions import ValidationError
 from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
                               DateField, PROTECT, SET_NULL)
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -291,8 +291,8 @@ class Opportunity(CremeEntity):
         else:
             self._opp_target = organisation
 
-    def update_estimated_sales(self, document):
-        self.estimated_sales = document.total_no_vat
+    def update_estimated_sales(self, document=None):
+        self.estimated_sales = document.total_no_vat if document else 0
         self.save()
 
     @commit_on_success
@@ -330,10 +330,19 @@ def _handle_current_quote_change(sender, instance, **kwargs):
         for r in relations:
             r.object_entity.get_real_entity().update_estimated_sales(instance)
 
-@receiver(post_save, sender=Relation)
-def _handle_current_quote_set(sender, instance, **kwargs):
+
+def _handle_current_quote_set(sender, instance, delete=False, **kwargs):
     if instance.type_id == REL_SUB_CURRENT_DOC:
         doc = instance.subject_entity.get_real_entity()
-
         if isinstance(doc, Quote) and Opportunity.use_current_quote():
-            instance.object_entity.get_real_entity().update_estimated_sales(doc)
+            instance.object_entity.get_real_entity().update_estimated_sales(doc if not delete else None)
+
+
+@receiver(post_save, sender=Relation)
+def _handle_current_quote_set_post_save(sender, instance, **kwargs):
+    _handle_current_quote_set(sender, instance, **kwargs)
+
+
+@receiver(post_delete, sender=Relation)
+def _handle_current_quote_set_post_delete(sender, instance, **kwargs):
+    _handle_current_quote_set(sender, instance, delete=True, **kwargs)
