@@ -823,6 +823,30 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(300, self.refresh(quote).total_no_vat)
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
+    def test_current_quote_5(self):
+        self.login()
+        self._set_quote_config(True)
+
+        opportunity = self._create_opportunity_n_organisations()[0]
+        self.client.post(self._build_gendoc_url(opportunity))
+
+        quote = Quote.objects.all()[0]
+        self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
+        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote), follow=True)
+
+        self.assertEqual(0, self.refresh(quote).total_no_vat)
+        self.assertEqual(0, self.refresh(opportunity).estimated_sales)
+
+        ServiceLine.objects.create(user=self.user, related_document=quote,
+                                   on_the_fly_item='Stuff', unit_price=Decimal("300"),
+                                  )
+        self.assertEqual(300, self.refresh(quote).total_no_vat)
+        self.assertEqual(300, self.refresh(opportunity).estimated_sales)
+
+        Relation.objects.filter(type__in=(REL_SUB_CURRENT_DOC, REL_OBJ_CURRENT_DOC)).delete()
+
+        self.assertEqual(0, self.refresh(opportunity).estimated_sales)
+
     def test_get_weighted_sales(self):
         self.login()
 
