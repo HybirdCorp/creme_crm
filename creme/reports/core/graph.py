@@ -465,27 +465,31 @@ class RGHCustomRange(_RGHCustom):
         cfield = self._cfield
 
         if cfield:
-            date_aggregates = entities.aggregate(min_date=Min('customfielddatetime__value'),
-                                                 max_date=Max('customfielddatetime__value'),
-                                                ) #TODO: several cf...
+            entities_filter = entities.filter
+            date_aggregates = entities_filter(customfielddatetime__custom_field=cfield) \
+                                             .aggregate(min_date=Min('customfielddatetime__value'),
+                                                        max_date=Max('customfielddatetime__value'),
+                                                       )
             min_date = date_aggregates['min_date']
             max_date = date_aggregates['max_date']
 
             if min_date is not None and max_date is not None:
-                entities_filter = entities.filter
                 y_value_func = self._y_calculator
                 build_url = self._listview_url_builder()
 
                 for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
                     before = interval.before
                     after  = interval.after
-                    sub_entities = entities_filter(customfielddatetime__value__range=(before, after))
+                    sub_entities = entities_filter(customfielddatetime__custom_field=cfield,
+                                                   customfielddatetime__value__range=(before, after),
+                                                  )
 
                     yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
                                       interval.end.strftime("%d/%m/%Y"),
                                      ),
                            [y_value_func(sub_entities),
-                            build_url({'customfielddatetime__value__range': [before.strftime("%Y-%m-%d"),
+                            build_url({'customfielddatetime__custom_field': cfield.id,
+                                       'customfielddatetime__value__range': [before.strftime("%Y-%m-%d"),
                                                                              after.strftime("%Y-%m-%d"),
                                                                             ],
                                       }
