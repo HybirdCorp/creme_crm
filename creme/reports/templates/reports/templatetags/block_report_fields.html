@@ -36,7 +36,9 @@
                 <th class="block_header_line_light">{% trans "Displayed in the report" %}</th>
                 <th class="block_header_line_light">{% trans "Type" %}</th>
                 <th class="block_header_line_light action">{% trans "Action(s)" %}</th>
-                <th class="block_header_line_light action">{% trans "Expand ?" %}</th>
+                {% if expand %}
+                    <th class="block_header_line_light action">{% trans "Expand ?" %}</th>
+                {% endif %}
             </tr>
             {% for column in columns %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
@@ -119,11 +121,13 @@
                             </tbody>
                         </table>
                     </td>
-                    <td class="{{row_color}} action">
-                        {% if column.report %}
-                            <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
-                        {% endif %}
-                    </td>
+                    {% if expand %}
+                        <td class="{{row_color}} action">
+                            {% if column.report %}
+                                <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
+                            {% endif %}
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         {% else %}

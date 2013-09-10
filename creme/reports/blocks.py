@@ -39,7 +39,9 @@ class ReportFieldsBlock(Block):
         report = context['object']
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                                            #TODO: use cache
                                                             columns=report.columns.all(),
+                                                            expand=any(field.report_id for field in report.columns.all()),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION,
                                                             HFI_RELATED=HFI_RELATED,
