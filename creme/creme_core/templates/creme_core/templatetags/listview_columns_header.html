@@ -37,7 +37,7 @@
                                        onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="second"/>
                             </span>
                             <script type="text/javascript">
-                                $("#id_{{column.name}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}{{ whoami }}_2').val(dateText);}});
+                                $("#id_{{column.name}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                                 $("#id_{{column.name}}{{ whoami }}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                             </script>
                         {% elif widget_type == "text" %}
