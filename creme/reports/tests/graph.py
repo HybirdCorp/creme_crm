@@ -802,10 +802,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_custom_date_range01(self):
         "Count"
-        cf = CustomField.objects.create(content_type=self.ct_orga,
-                                        name='First victory',
-                                        field_type=CustomField.DATETIME,
-                                       )
+        create_cf = partial(CustomField.objects.create, content_type=self.ct_orga,
+                            field_type=CustomField.DATETIME,
+                           )
+        cf = create_cf(name='First victory')
+        cf2 = create_cf(name='First defeat') #this one is annoying because the values are in the same table
+                                             #so the query must be more complex to not retrieve them
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         targaryens = create_orga(name='House Targaryen')
@@ -824,10 +826,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cf_value(entity=tullies,    value=create_dt(year=2014, month=1,  day=5))
         create_cf_value(entity=arryns,     value=create_dt(year=2014, month=1,  day=7))
 
-        report = self.create_simple_organisations_report()
+        create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(year=2013, month=11, day=6))
+        create_cf_value(custom_field=cf2, entity=starks,     value=create_dt(year=2014, month=1,  day=6))
 
         days = 15
-        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+        rgraph = ReportGraph.objects.create(user=self.user,
+                                            report=self.create_simple_organisations_report(),
                                             name='First victory / %s day(s)' % days,
                                             abscissa=cf.id,
                                             type=RGT_CUSTOM_RANGE, days=days,
@@ -840,17 +844,33 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          x_asc
                         )
 
-        fmt = '/persons/organisations?q_filter={"customfielddatetime__value__range": ["%s", "%s"]}'
-        self.assertEqual([4, fmt % ('2013-12-21', '2014-01-04')], y_asc[0])
-        self.assertEqual([2, fmt % ('2014-01-05', '2014-01-19')], y_asc[1])
+        base_url = '/persons/organisations?q_filter='
+        base_qdict = {'customfielddatetime__custom_field': cf.id}
+        self.assertEqual(4, y_asc[0][0])
+        self.assertURL(y_asc[0][1], base_url,
+                       dict(base_qdict, customfielddatetime__value__range=['2013-12-21', '2014-01-04'])
+                      )
+
+        self.assertEqual(2, y_asc[1][0])
+        self.assertURL(y_asc[1][1], base_url,
+                       dict(base_qdict, customfielddatetime__value__range=['2014-01-05', '2014-01-19'])
+                      )
 
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
         self.assertEqual(['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'],
                          x_desc
                         )
-        self.assertEqual([5, fmt % ('2013-12-24', '2014-01-07')], y_desc[0])
-        self.assertEqual([1, fmt % ('2013-12-09', '2013-12-23')], y_desc[1])
+
+        self.assertEqual(5, y_desc[0][0])
+        self.assertURL(y_desc[0][1], base_url,
+                       dict(base_qdict, customfielddatetime__value__range=['2013-12-24', '2014-01-07'])
+                      )
+
+        self.assertEqual(1, y_desc[1][0])
+        self.assertURL(y_desc[1][1], base_url,
+                       dict(base_qdict, customfielddatetime__value__range=['2013-12-09', '2013-12-23'])
+                      )
 
     def test_fetch_with_custom_date_range02(self):
         "Invalid CustomField"

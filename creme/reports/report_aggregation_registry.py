@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,8 @@ class FieldAggregation(object):
 
 
 class FieldAggregationRegistry(object):
+    __slots__ = ('_aggregations',)
+
     authorized_fields = (models.DecimalField, models.FloatField, models.PositiveIntegerField,
                          models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField,
                         )
@@ -53,6 +55,7 @@ class FieldAggregationRegistry(object):
 
     def itervalues(self):
         return self._aggregations.itervalues()
+
 
 field_aggregation_registry = FieldAggregationRegistry()
 field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '%s__avg', _(u'Average')))
