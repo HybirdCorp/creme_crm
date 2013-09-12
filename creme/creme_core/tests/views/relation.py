@@ -104,6 +104,15 @@ class RelationViewsTestCase(ViewsTestCase):
     def _build_add_url(self, subject):
         return '/creme_core/relation/add/%s' % subject.id
 
+    def count_relations(self, rtype):
+        return Relation.objects.filter(type=rtype).count()
+
+    def assert_relation_count(self, counts):
+        assertEqual = self.assertEqual
+        rcount = self.count_relations
+        for rtype, count in counts:
+            assertEqual(count, rcount(rtype))
+
     def test_add_relations01(self):
         self._aux_test_add_relations()
 
@@ -1087,8 +1096,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertPOST403(self.DELETE_ALL_URL, data={'subject_id': self.subject.id})
         self.assertEqual(4 + 4, Relation.objects.count())#4 internals and 4 the user can't unlink because there are not his
 
-    def test_not_copiable_relations(self):
+    def test_not_copiable_relations01(self):
         self.login()
+
         self.assertEqual(0, Relation.objects.count())
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
                                              ('test-object_foobar',  'is loved by'),
@@ -1105,21 +1115,45 @@ class RelationViewsTestCase(ViewsTestCase):
                                             subject_entity=entity1,
                                             object_entity=entity2,
                                            )
-        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
-
+        self.assert_relation_count(((rtype1, 1), (rtype2, 1)))
         relation2 = Relation.objects.create(user=self.user, type=rtype3,
                                             subject_entity=entity1,
                                             object_entity=entity2,
                                            )
-        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+        self.assert_relation_count(((rtype3, 1), (rtype4, 1)))
+        entity1.clone()
 
-        copy = entity1.clone()
-        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
-        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
-        self.assertEqual(2, Relation.objects.filter(type=rtype3).count())
-        self.assertEqual(2, Relation.objects.filter(type=rtype4).count())
+        self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
+
+    def test_not_copiable_relations02(self):
+        self.login()
+        self.assertEqual(0, Relation.objects.count())
+        rtype1, rtype2 = RelationType.create(('test-subject_foobar_copiable', 'is loving', (Contact, Organisation)),
+                                             ('test-object_foobar_copiable',  'is loved by', (Contact,)))
+        rtype3, rtype4 = RelationType.create(('test-subject_foobar', 'is loving', (Contact,)),
+                                             ('test-object_foobar',  'is loved by', (Organisation,)),
+                                             )
+
+        contact1 = Contact.objects.create(user=self.user, last_name="Toto")
+        contact2 = Contact.objects.create(user=self.user, last_name="Titi")
+        orga = Organisation.objects.create(user=self.user, name="Toto CORP")
+
+        #Contact1 <------> Orga
+        Relation.objects.create(user=self.user, type=rtype1,
+                                subject_entity=contact1,
+                                object_entity=orga)
+        Relation.objects.create(user=self.user, type=rtype3,
+                                subject_entity=contact1,
+                                object_entity=orga)
+
+        self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
+        
+        #Contact2 < ---- > Orga
+        contact2._copy_relations(contact1)
+        self.assert_relation_count(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
+
+        orga._copy_relations(contact1)
+        self.assert_relation_count(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
 
     def test_json_entity_rtypes01(self):
         self.login()

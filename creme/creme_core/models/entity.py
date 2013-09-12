@@ -23,6 +23,7 @@ import logging
 import warnings
 
 #from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import ForeignKey, Q
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -415,8 +416,9 @@ class CremeEntity(CremeAbstractEntity):
         """@param allowed_internal Sequence of RelationTypes pk with is_internal=True.
                                    Relationships with these types will be cloned anyway.
         """
-        relation_create  = Relation.objects.create
-        query = Q(type__is_internal=False, type__is_copiable=True)
+        relation_create = Relation.objects.create
+
+        query = Q(type__in=RelationType.get_compatible_ones(self.entity_type).filter(Q(is_copiable=True)))
 
         if allowed_internal:
             query |= Q(type__in=allowed_internal)
@@ -450,6 +452,6 @@ class CremeEntity(CremeAbstractEntity):
         self.save()
 
 
-from relation import Relation
+from relation import Relation, RelationType
 from creme_property import CremeProperty
 from custom_field import CustomField, CustomFieldValue
