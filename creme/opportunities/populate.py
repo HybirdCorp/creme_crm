@@ -87,7 +87,7 @@ class Populator(BasePopulator):
             create_sphase = SalesPhase.objects.create
             create_sphase(name=_(u"Forthcoming"),       order=1)
             create_sphase(name=_(u"Abandoned"),         order=4)
-            won  = create_sphase(name=_(u"Won"),        order=5)
+            won  = create_sphase(name=_(u"Won"),        order=5, won=True)
             lost = create_sphase(name=_(u"Lost"),       order=6)
             create_sphase(name=_(u"Under negotiation"), order=3)
             create_sphase(name=_(u"In progress"),       order=2)

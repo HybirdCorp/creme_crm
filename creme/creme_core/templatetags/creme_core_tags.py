@@ -164,9 +164,9 @@ def _str(object1):
 def absolute(integer):
     return abs(integer)
 
-#@register.filter(name="in")
-#def in_list(obj, list):
-   #return obj in list
+@register.filter(name="in")
+def in_list(obj, list):
+   return obj in list
 
 @register.filter
 def idiv(integer, integer2):

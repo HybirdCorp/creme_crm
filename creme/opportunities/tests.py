@@ -26,7 +26,7 @@ try:
 
     from creme.products.models import Product, Service
 
-    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
+    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus #Vat
     from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from .models import Opportunity, SalesPhase, Origin
@@ -651,7 +651,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
         self.assertRelationCount(1, quote1, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(0, quote1, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
@@ -717,9 +717,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         create_sc(value=EntityCredentials.LINK, ctype=quote_ct)
         self.assertPOST200(url, follow=True)
 
-    def _build_setcurrentquote_url(self, opportunity, quote):
-        return '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (
-                    opportunity.id, quote.id
+    def _build_currentquote_url(self, opportunity, quote, action='set_current'):
+        return '/opportunities/opportunity/%s/linked/quote/%s/%s/' % (
+                    opportunity.id, quote.id, action
                 )
 
     def test_current_quote_1(self):
@@ -734,14 +734,19 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.client.post(gendoc_url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
 
-        url = self._build_setcurrentquote_url(opportunity, quote1)
+        self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
+        self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
+        self.assertRelationCount(1, quote2, REL_SUB_LINKED_QUOTE,  opportunity)
+        self.assertRelationCount(1, quote2, REL_SUB_CURRENT_DOC,   opportunity)
+
+        url = self._build_currentquote_url(opportunity, quote1)
         self.assertGET404(url)
         self.assertPOST200(url, follow=True)
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
         self.assertRelationCount(1, quote2, REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(0, quote2, REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertRelationCount(1, quote2, REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
@@ -761,28 +766,39 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         url = self._build_gendoc_url(opportunity)
 
         opportunity.estimated_sales = Decimal('1000')
+        opportunity.made_sales = Decimal('0')
         opportunity.save()
 
         create_sline = partial(ServiceLine.objects.create, user=self.user)
-
         self.client.post(url)
         quote1 = Quote.objects.all()[0]
         create_sline(related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
 
         self.client.post(url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
+        quote2.status = QuoteStatus.objects.create(name="WONStatus", order=15, won=True)
+        quote2.save()
+
         create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote1, action='unset_current'), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote2, action='unset_current'), follow=True)
 
         self._set_quote_config(True)
-        url = self._build_setcurrentquote_url(opportunity, quote1)
-        self.assertPOST200(url, follow=True)
-
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat) # 300
+        self.assertEqual(opportunity.made_sales, Decimal('0')) # 300
 
-        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote2), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote1, action='unset_current'), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote2), follow=True)
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote2.total_no_vat) # 500
+        self.assertEqual(opportunity.made_sales, quote2.total_no_vat) # 300
+
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
+        opportunity = self.refresh(opportunity)
+        self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat + quote2.total_no_vat) # 800
+        self.assertEqual(opportunity.made_sales, quote2.total_no_vat) # 300
 
     def test_current_quote_3(self):
         self.login()
@@ -800,7 +816,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                    on_the_fly_item='Foobar', unit_price=Decimal("300")
                                   )
 
-        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote1), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote1), follow=True)
 
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, opportunity.get_total()) # 69
@@ -815,7 +831,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         quote = Quote.objects.all()[0]
         self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
-        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote), follow=True)
 
         ServiceLine.objects.create(user=self.user, related_document=quote,
                                    on_the_fly_item='Stuff', unit_price=Decimal("300"),
@@ -832,7 +848,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         quote = Quote.objects.all()[0]
         self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
-        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote), follow=True)
+        self.assertPOST200(self._build_currentquote_url(opportunity, quote), follow=True)
 
         self.assertEqual(0, self.refresh(quote).total_no_vat)
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
