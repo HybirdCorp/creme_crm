@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-18 15:47+0200\n"
+"POT-Creation-Date: 2013-08-20 11:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -145,24 +145,29 @@ msgstr ""
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
-#: forms/creme_property_type.py:31
+#: forms/creme_property_type.py:29
 #: templates/creme_config/templatetags/block_property_types.html:19
 msgid "Text"
 msgstr "Texte"
 
-#: forms/creme_property_type.py:31
+#: forms/creme_property_type.py:29
 msgid "For example: 'is pretty'"
 msgstr "Par exemple: 'est joli'"
 
-#: forms/creme_property_type.py:32
+#: forms/creme_property_type.py:30
+#: templates/creme_config/templatetags/block_property_types.html:21
+msgid "Is copiable"
+msgstr ""
+
+#: forms/creme_property_type.py:31
 msgid "Related to types of entities"
 msgstr "S'applique aux types de fiches"
 
-#: forms/creme_property_type.py:33
+#: forms/creme_property_type.py:32
 msgid "No selected type means that all types are accepted"
 msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 
-#: forms/creme_property_type.py:45
+#: forms/creme_property_type.py:41
 msgid "A property type with this name already exists"
 msgstr "Un type de propriété avec ce nom existe déjà"
 
@@ -241,44 +246,52 @@ msgstr "Types de relation"
 msgid "Menu entries"
 msgstr "Entrées du menu"
 
-#: forms/relation_type.py:33
-msgid "No constraint means that all types are accepted"
-msgstr "Aucune contrainte signifiera que tous les types sont acceptés"
-
 #: forms/relation_type.py:34
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
 
-#: forms/relation_type.py:37
+#: forms/relation_type.py:35
+msgid "No constraint means that all types are accepted"
+msgstr "Aucune contrainte signifiera que tous les types sont acceptés"
+
+#: forms/relation_type.py:38
 msgid "Properties constraint"
 msgstr "Contrainte sur les propriétés"
 
-#: forms/relation_type.py:47
+#: forms/relation_type.py:50
 msgid "Subject => object"
 msgstr "Sujet => objet"
 
-#: forms/relation_type.py:48
+#: forms/relation_type.py:51
+msgid "Direct relationship is copiable"
+msgstr "La relation directe est copiable"
+
+#: forms/relation_type.py:52
 msgid "Object => subject"
 msgstr "Objet => sujet"
 
-#: forms/relation_type.py:55
+#: forms/relation_type.py:53
+msgid "Symmetrical relationship is copiable"
+msgstr "La relation symétrique est copiable"
+
+#: forms/relation_type.py:58
 msgid "Subject"
 msgstr "Sujet"
 
-#: forms/relation_type.py:56
+#: forms/relation_type.py:59
 msgid "Verb/Predicate"
 msgstr "Verbe/Prédicat"
 
-#: forms/relation_type.py:57
+#: forms/relation_type.py:61
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:19
 msgid "Object"
 msgstr "Objet"
 
-#: forms/relation_type.py:106
+#: forms/relation_type.py:107
 msgid "Type and object"
 msgstr "Type et objet"
 
-#: forms/relation_type.py:128
+#: forms/relation_type.py:122
 msgid ""
 "A semi-fixed type of relationship with this type and this object already "
 "exists."
@@ -638,7 +651,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_historyconfig.html:17
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
 #: templates/creme_config/templatetags/block_models.html:37
-#: templates/creme_config/templatetags/block_property_types.html:22
+#: templates/creme_config/templatetags/block_property_types.html:23
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:17
 #: templates/creme_config/templatetags/block_searchconfig.html:22
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:21
@@ -691,7 +704,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_custom_fields.html:18
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:25
 #: templates/creme_config/templatetags/block_models.html:36
-#: templates/creme_config/templatetags/block_property_types.html:21
+#: templates/creme_config/templatetags/block_property_types.html:22
 #: templates/creme_config/templatetags/block_searchconfig.html:21
 #: templates/creme_config/templatetags/block_settings.html:20
 msgid "Edit"
@@ -829,11 +842,11 @@ msgstr "Nouveau type de propriété personnalisé"
 msgid "Applies on entities with following types"
 msgstr "S'applique aux fiches des types suivants"
 
-#: templates/creme_config/templatetags/block_property_types.html:28
+#: templates/creme_config/templatetags/block_property_types.html:29
 msgid "No related type of resource"
 msgstr "Pas de type de ressource associé"
 
-#: templates/creme_config/templatetags/block_property_types.html:40
+#: templates/creme_config/templatetags/block_property_types.html:44
 msgid "No type of property for the moment"
 msgstr "Aucun type de propriété enregistré pour le moment"
 
@@ -1042,7 +1055,7 @@ msgid "%s Roles"
 msgstr "%s Rôles"
 
 #: templates/creme_config/templatetags/block_user_roles.html:16
-#: views/user_role.py:37
+#: views/user_role.py:38
 msgid "New role"
 msgstr "Nouveau rôle"
 
@@ -1168,12 +1181,12 @@ msgstr "Modifier \"Ma page\""
 msgid "Edit the type \"%s\""
 msgstr "Modifier le type \"%s\""
 
-#: views/generics_views.py:57
+#: views/generics_views.py:58
 #, python-format
 msgid "New value: %s"
 msgstr "Nouvelle valeur : %s"
 
-#: views/generics_views.py:120
+#: views/generics_views.py:121
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
@@ -1205,12 +1218,12 @@ msgstr "Supprimer %s et réassigner ses fiches"
 msgid "You can't delete this user."
 msgstr "Vous ne pouvez pas supprimer cet utilisateur."
 
-#: views/user_role.py:59
+#: views/user_role.py:60
 #, python-format
 msgid "Add creddentials to <%s>"
 msgstr "Ajouter des droits à <%s>"
 
-#: views/user_role.py:87
+#: views/user_role.py:85
 #, python-format
 msgid "Delete role <%s>"
 msgstr "Supprimer le rôle <%s>"

@@ -1087,6 +1087,40 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertPOST403(self.DELETE_ALL_URL, data={'subject_id': self.subject.id})
         self.assertEqual(4 + 4, Relation.objects.count())#4 internals and 4 the user can't unlink because there are not his
 
+    def test_not_copiable_relations(self):
+        self.login()
+        self.assertEqual(0, Relation.objects.count())
+        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                             ('test-object_foobar',  'is loved by'),
+                                             is_copiable=False)
+        rtype3, rtype4 = RelationType.create(('test-subject_foobar_copiable', 'is loving'),
+                                             ('test-object_foobar_copiable',  'is loved by'),
+                                             )
+
+        create_entity = CremeEntity.objects.create
+        entity1 = create_entity(user=self.user)
+        entity2 = create_entity(user=self.user)
+
+        relation1 = Relation.objects.create(user=self.user, type=rtype1,
+                                            subject_entity=entity1,
+                                            object_entity=entity2,
+                                           )
+        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
+
+        relation2 = Relation.objects.create(user=self.user, type=rtype3,
+                                            subject_entity=entity1,
+                                            object_entity=entity2,
+                                           )
+        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+
+        copy = entity1.clone()
+        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
+        self.assertEqual(2, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(2, Relation.objects.filter(type=rtype4).count())
+
     def test_json_entity_rtypes01(self):
         self.login()
 

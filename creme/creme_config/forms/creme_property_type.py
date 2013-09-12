@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField, ValidationError
+from django.forms import CharField, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremePropertyType
@@ -27,6 +27,7 @@ from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
 
 class _CremePropertyTypeBaseForm(CremeForm):
     text           = CharField(label=_(u'Text'), help_text=_("For example: 'is pretty'"))
+    is_copiable    = BooleanField(label=_(u"Is copiable"), initial=True, required=False)
     subject_ctypes = MultiEntityCTypeChoiceField(label=_(u'Related to types of entities'),
                                                  help_text=_(u'No selected type means that all types are accepted'),
                                                  required=False,
@@ -46,6 +47,7 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         CremePropertyType.create('creme_config-userproperty',
                                  get_data('text'), get_data('subject_ctypes'),
                                  is_custom=True, generate_pk=True,
+                                 is_copiable=get_data('is_copiable'),
                                 )
         super(CremePropertyTypeAddForm, self).save()
 
@@ -58,11 +60,13 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
         fields = self.fields
 
         fields['text'].initial           = instance.text
+        fields['is_copiable'].initial    = instance.is_copiable
         fields['subject_ctypes'].initial = [ct.id for ct in instance.subject_ctypes.all()]
 
     def save(self):
         get_data = self.cleaned_data.get
         CremePropertyType.create(self.instance.id, get_data('text'),
                                  get_data('subject_ctypes'), is_custom=True,
+                                 is_copiable=get_data('is_copiable'),
                                 )
         super(CremePropertyTypeEditForm, self).save()

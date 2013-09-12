@@ -33,6 +33,7 @@ class CremePropertyType(CremeModel):
     text           = CharField(max_length=200, unique=True)
     subject_ctypes = ManyToManyField(ContentType, blank=True, null=True, related_name='subject_ctypes_creme_property_set')
     is_custom      = BooleanField(default=False) #TODO: editable=False ??
+    is_copiable    = BooleanField(default=True)  # if True, the properties with this type can be copied (ie when cloning or converting an entity)
 
     def __unicode__(self):
         return self.text
@@ -48,17 +49,17 @@ class CremePropertyType(CremeModel):
         super(CremePropertyType, self).delete()
 
     @staticmethod
-    def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False):
+    def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):
         """Helps the creation of new CremePropertyType.
         @param subject_ctypes Sequence of CremeEntity classes/ContentType objects.
         @param generate_pk If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
             from creme.creme_core.utils import create_or_update
-            property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom)
+            property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom, is_copiable=is_copiable)
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
-            property_type = CremePropertyType(text=text, is_custom=is_custom)
+            property_type = CremePropertyType(text=text, is_custom=is_custom, is_copiable=is_copiable)
             generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
         #property_type.property_i18n_set.all().delete()

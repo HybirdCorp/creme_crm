@@ -20,7 +20,7 @@
 
 from functools import partial
 
-from django.forms import CharField, ModelMultipleChoiceField
+from django.forms import CharField, ModelMultipleChoiceField, BooleanField
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -48,13 +48,16 @@ class RelationTypeCreateForm(CremeForm):
 
     #TODO: language....
     subject_predicate  = CharField(label=_(u'Subject => object'))
+    subject_is_copiable= BooleanField(label=_(u"Direct relationship is copiable"), initial=True, required=False)
     object_predicate   = CharField(label=_(u'Object => subject'))
+    object_is_copiable = BooleanField(label=_(u"Symmetrical relationship is copiable"), initial=True, required=False)
 
     object_ctypes      = _CTypesField()
     object_properties  = _PropertyTypesField()
 
     blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
-                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'object_predicate')),
+                               ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'subject_is_copiable',
+                                                                    'object_predicate', 'object_is_copiable')),
                                ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')),
                               )
 
@@ -69,7 +72,7 @@ class RelationTypeCreateForm(CremeForm):
 
         return RelationType.create((pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
                                    (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                                   is_custom=True, generate_pk=generate_pk,
+                                   is_custom=True, generate_pk=generate_pk, is_copiable=(get_data('subject_is_copiable'), get_data('object_is_copiable')),
                                   )
 
 
@@ -87,6 +90,9 @@ class RelationTypeEditForm(RelationTypeCreateForm):
 
         fields['object_ctypes'].initial     = instance.object_ctypes.values_list('id', flat=True)
         fields['object_properties'].initial = instance.object_properties.values_list('id', flat=True)
+
+        fields['subject_is_copiable'].initial = instance.is_copiable
+        fields['object_is_copiable'].initial = instance.symmetric_type.is_copiable
 
     def save(self,  *args, **kwargs):
         instance = self.instance
