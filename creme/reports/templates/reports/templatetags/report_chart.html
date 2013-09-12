@@ -6,6 +6,7 @@
         {% comment %}{% get_report_chart_selectors %}{% endcomment %}
         {% include 'reports/templatetags/report_chart_selectors.html' %}
     </ul>
+    {% include 'reports/frags/graph_errors.html' with hand=object.hand %}
     <div chained-name="plot" class="ui-creme-chainedselect-item">
         <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
              plot-data-url="/reports/graph/fetch_graph/{{object.id}}/${sort}"
