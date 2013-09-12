@@ -26,6 +26,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.auth.decorators import superuser_required
 from creme.creme_core.models import UserRole, SetCredentials
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
@@ -65,12 +66,9 @@ def add_credentials(request, role_id):
 
 @login_required
 @superuser_required
+@POST_only
 def delete_credentials(request):
-    if request.method != 'POST':
-        raise Http404('This view uses POST method')
-
     get_object_or_404(SetCredentials, pk=get_from_POST_or_404(request.POST, 'id')).delete()
-
     return HttpResponse()
 
 @login_required

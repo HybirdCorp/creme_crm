@@ -124,7 +124,9 @@ class PaymentInformationTestCase(_BillingTestCase):
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertPOST200('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
+        url = '/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)
+        self.assertGET404(url)
+        self.assertPOST200(url)
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 
     def test_set_default_in_invoice02(self):

@@ -24,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.utils import jsonify
 
 from creme.billing.models import Base, PaymentInformation
@@ -48,10 +49,8 @@ def edit(request, payment_information_id):
 @jsonify
 @login_required
 @permission_required('billing')
+@POST_only
 def set_default(request, payment_information_id, billing_id):
-    if request.method != 'POST':
-        raise Http404('This view uses POST method.')
-
     pi      = get_object_or_404(PaymentInformation, pk=payment_information_id)
     billing_doc = get_object_or_404(Base, pk=billing_id)
     user    = request.user
