@@ -217,13 +217,15 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, len(invoices))
         self.assertEqual(1, invoices[0].status_id)
 
-
     def test_not_copiable_relations(self):
         self.login()
         self.assertEqual(0, Relation.objects.count())
         quote, source, target = self.create_quote_n_orgas('My Quote')
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving', (Quote, Invoice)),
                                              ('test-object_foobar',  'is loved by', (Organisation,)))
+
+        self.assertTrue(rtype1.is_copiable)
+        self.assertTrue(rtype2.is_copiable)
 
         Relation.objects.create(user=self.user, type=rtype1,
                                 subject_entity=quote,
@@ -234,6 +236,9 @@ class ConvertTestCase(_BillingTestCase):
         rtype3, rtype4 = RelationType.create(('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
                                              ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
                                              is_copiable=False)
+
+        self.assertFalse(rtype3.is_copiable)
+        self.assertFalse(rtype4.is_copiable)
 
         Relation.objects.create(user=self.user, type=rtype3,
                                 subject_entity=quote,
@@ -258,3 +263,29 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
+
+    def test_converted_relations(self):
+        self.login()
+        from ..registry import relationtype_converter
+
+        self.assertEqual(0, Relation.objects.count())
+        quote, source, target = self.create_quote_n_orgas('My Quote')
+        rtype1, rtype2 = RelationType.create(('test-CONVERT-subject_foobar', 'is loving', (Quote,)),
+                                             ('test-CONVERT-object_foobar',  'is loved by', (Organisation,)))
+        rtype3, rtype4 = RelationType.create(('test-CONVERT-subject_foobar_not_copiable', 'is loving', (Invoice,)),
+                                             ('test-CONVERT-object_foobar_not_copiable',  'is loved by', (Organisation,)))
+        relationtype_converter.register(Quote, rtype1, Invoice, rtype3)
+
+        Relation.objects.create(user=self.user, type=rtype1,
+                                subject_entity=quote,
+                                object_entity=source)
+        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
+        self.assertEqual(0, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(0, Relation.objects.filter(type=rtype4).count())
+
+        self._convert(200, quote, 'invoice')
+        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())

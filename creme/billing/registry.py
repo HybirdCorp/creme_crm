@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from imp import find_module
 import logging
 
@@ -72,3 +73,29 @@ for app in settings.INSTALLED_APPS:
 
     algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
     algo_registry.register(*algos_import.to_register)
+
+
+class RelationTypeConverterRegistry(object):
+    """ This registry is used when converting a billing document into another billing document.
+    The relationtypes which contenttypes doesn't match after the conversion also have to be
+    converted into a compatible one."""
+    def __init__(self):
+        self._registry = defaultdict(dict)
+
+    def generate_key(self, source, target):
+        return "%s__%s" % (getattr(source, '__name__', source.__class__.__name__),
+                           getattr(target, '__name__', target.__class__.__name__))
+
+    def register(self, source_class, initial_relationtype, target_class, final_relationtype):
+        key = self.generate_key(source_class, target_class)
+        self._registry[key][initial_relationtype] = final_relationtype
+
+    def get_class_map(self, source_object, target_object):
+        "Takes instances as arguments"
+        return self._registry[self.generate_key(source_object, target_object)]
+
+    def convert_relationtype(self, source_object, target_object, relationtype_id):
+        "Takes instances as arguments"
+        return self.get_class_map(source_object, target_object).get(relationtype_id, None)
+
+relationtype_converter = RelationTypeConverterRegistry()
