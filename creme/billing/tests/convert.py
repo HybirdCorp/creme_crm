@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import timedelta #datetime
+    from datetime import timedelta, date #datetime
     from decimal import Decimal
     from functools import partial
 
@@ -47,8 +47,9 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, len(invoices))
 
         invoice = invoices[0]
-        self.assertEqual(quote.issuing_date,    invoice.issuing_date)
-        self.assertEqual(quote.expiration_date, invoice.expiration_date)
+        today = date.today()
+        self.assertEqual(today,                 invoice.issuing_date)
+        self.assertEqual(today,                 invoice.expiration_date)
         self.assertEqual(quote.discount,        invoice.discount)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
@@ -164,8 +165,9 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(product_line.related_item,     invoice_product_line.related_item)
         self.assertEqual(product_line_otf.related_item, invoice_product_line_otf.related_item)
 
-        self.assertEqual(quote.issuing_date,    invoice.issuing_date)
-        self.assertEqual(quote.expiration_date, invoice.expiration_date)
+        today = date.today()
+        self.assertEqual(today,                 invoice.issuing_date)
+        self.assertEqual(today,                 invoice.expiration_date)
         self.assertEqual(quote.discount,        invoice.discount)
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
