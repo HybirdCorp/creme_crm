@@ -127,25 +127,27 @@ def js_testview_or_404(request, message, error):
     logger.warn(message)
 
 def js_testview_context(request, viewname):
-    test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html')
+    test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html$')
     test_views = []
 
     for filename in listdir(TEST_TEMPLATE_PATH):
         matches = test_view_pattern.match(filename)
-        name = matches.group('name') if matches is not None else None 
+        name = matches.group('name') if matches is not None else None
 
-        if name is not None:
-            test_views.append((name, name.capitalize(),))
+        if name:
+            test_views.append((name, name.capitalize()))
 
-    context = {
-        'THEME_LIST':      [(name, unicode(label)) for name, label in settings.THEMES],
-        'THEME_NAME':      request.GET.get('theme', get_current_theme()),
+    get = request.GET.get
+
+    return  {
+        'THEME_LIST':      [(theme_id, unicode(theme_vname))
+                                for theme_id, theme_vname in settings.THEMES
+                           ],
+        'THEME_NAME':      get('theme', get_current_theme()),
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,
-        'TEST_SCREEN':     request.GET.get('screen', ''),
+        'TEST_SCREEN':     get('screen', ''),
     }
-
-    return context
 
 @login_required
 def test_js(request):
