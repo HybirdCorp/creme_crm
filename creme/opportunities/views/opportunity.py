@@ -146,6 +146,7 @@ def generate_new_doc(request, opp_id, ct_id):
                                        ).select_related('object_entity')
     Relation.populate_real_object_entities(relations)
 
+    #TODO: Missing test case
     for relation in relations:
         item = relation.object_entity.get_real_entity()
         line_klass = ProductLine if isinstance(item, Product) else ServiceLine
@@ -156,11 +157,12 @@ def generate_new_doc(request, opp_id, ct_id):
                                   vat_value=Vat.get_default_vat(), #TODO: cache ?
                                  )
 
-    for relation in Relation.objects.filter(object_entity=opp.id,
-                                            type=REL_SUB_CURRENT_DOC,
-                                            subject_entity__entity_type=ct_doc,
-                                           ):
-        relation.delete()
+    # Now, there can be several current docs
+    # for relation in Relation.objects.filter(object_entity=opp.id,
+    #                                         type=REL_SUB_CURRENT_DOC,
+    #                                         subject_entity__entity_type=ct_doc,
+    #                                        ):
+    #     relation.delete()
 
     if set_as_current:
         create_relation(type_id=REL_SUB_CURRENT_DOC, object_entity=opp)

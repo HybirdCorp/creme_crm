@@ -62,6 +62,8 @@ class InvoiceStatus(AbstractStatus):
 
 
 class QuoteStatus(AbstractStatus):
+    won = BooleanField(_(u'Won'), default=False)
+
     class Meta(AbstractStatus.Meta):
         abstract = False
         verbose_name        = _(u'Quote status')

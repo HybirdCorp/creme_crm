@@ -25,7 +25,7 @@ import warnings
 from django.core.exceptions import ValidationError
 from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
-                              DateField, PROTECT, SET_NULL)
+                              DateField, PROTECT, SET_NULL, Sum, BooleanField)
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -59,6 +59,7 @@ class SalesPhase(CremeModel):
     name        = CharField(_(u"Name"), max_length=100, blank=False, null=False)
     #description = TextField(_(u"Description"))
     order       = PositiveIntegerField(_(u"Order"), default=1, editable=False)
+    won         = BooleanField(_(u'Won'), default=False)
 
     def __unicode__(self):
         return self.name
@@ -225,26 +226,13 @@ class Opportunity(CremeEntity):
                                     relations__type=REL_SUB_LINKED_QUOTE,
                                    )
 
-    def get_current_quote_id(self):
+    def get_current_quote_ids(self):
         ct        = ContentType.objects.get_for_model(Quote)
-        quote_ids = Relation.objects.filter(object_entity=self.id,
-                                            type=REL_SUB_CURRENT_DOC,
-                                            subject_entity__entity_type=ct,
-                                           ) \
-                                    .values_list('subject_entity_id', flat=True)
-
-        if len(quote_ids) > 1:
-            logger.error('Several current quotes for opportunity: %s', self)
-
-        if quote_ids:
-            quote_id = quote_ids[0]
-
-            # TODO When unlink a quote in opp, the current quote relation should be unlink too
-            if Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_QUOTE,
-                                       subject_entity=quote_id,
+        return Relation.objects.filter(object_entity=self.id,
+                                       type=REL_SUB_CURRENT_DOC,
+                                       subject_entity__entity_type=ct,
                                       ) \
-                               .exists():
-                return quote_id
+                               .values_list('subject_entity_id', flat=True)
 
     #TODO: test
     def get_salesorder(self):
@@ -291,8 +279,11 @@ class Opportunity(CremeEntity):
         else:
             self._opp_target = organisation
 
-    def update_estimated_sales(self, document=None):
-        self.estimated_sales = document.total_no_vat if document else 0
+    def update_sales(self):
+        quotes = Quote.objects.filter(id__in=self.get_current_quote_ids,
+                                      total_no_vat__isnull=False)
+        self.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        self.made_sales = quotes.filter(status__won=True).aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
         self.save()
 
     @commit_on_success
@@ -324,25 +315,17 @@ class Opportunity(CremeEntity):
 # If one day it does we will only have to add senders to the signal
 @receiver(post_save, sender=Quote)
 def _handle_current_quote_change(sender, instance, **kwargs):
-    relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
+    if Opportunity.use_current_quote():
+        relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
 
-    if relations and Opportunity.use_current_quote(): #optimisation for use_current_quote query
-        for r in relations:
-            r.object_entity.get_real_entity().update_estimated_sales(instance)
+        if relations:
+            for r in relations:
+                r.object_entity.get_real_entity().update_sales()
 
-
-def _handle_current_quote_set(sender, instance, delete=False, **kwargs):
+@receiver(post_delete, sender=Relation)
+@receiver(post_save, sender=Relation)
+def _handle_current_quote_set(sender, instance, **kwargs):
     if instance.type_id == REL_SUB_CURRENT_DOC:
         doc = instance.subject_entity.get_real_entity()
         if isinstance(doc, Quote) and Opportunity.use_current_quote():
-            instance.object_entity.get_real_entity().update_estimated_sales(doc if not delete else None)
-
-
-@receiver(post_save, sender=Relation)
-def _handle_current_quote_set_post_save(sender, instance, **kwargs):
-    _handle_current_quote_set(sender, instance, **kwargs)
-
-
-@receiver(post_delete, sender=Relation)
-def _handle_current_quote_set_post_delete(sender, instance, **kwargs):
-    _handle_current_quote_set(sender, instance, delete=True, **kwargs)
+            instance.object_entity.get_real_entity().update_sales()

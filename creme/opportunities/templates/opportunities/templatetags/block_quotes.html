@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load creme_core_tags creme_block creme_widgets opportunities_tags %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% comment %}{% has_perm_to create ct as creation_perm %}{% endcomment %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
@@ -19,24 +19,24 @@
                 <th class="block_header_line_dark action">{% trans "Current quote ?" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
-            {% with object.get_current_quote_id as current_quote_id %}
+            {% with current_quote_ids=object.get_current_quote_ids %}
                 {% for quote in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                    <tr class="content">
-                        <td class="{{row_color}}">{{quote.number}}</td>
-                        <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>
-                        <td class="{{row_color}} action">
-                            {% if quote.pk == current_quote_id %}
-                                <strong>{% trans "Yes" %}</strong>
-                            {% else %}
+                    {% with quote_is_current=quote.id|in:current_quote_ids %}
+                        <tr class="content">
+                            <td class="{{row_color}}">{{quote.number}}</td>
+                            <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>
+                            <td class="{{row_color}} action">
                                 {% has_perm_to link quote as quote_link_perm %}
-                                <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
-                            {% endif %}
-                        </td>
-                        <td class="{{row_color}} action">
-                            {% has_perm_to unlink quote as quote_unlink_perm %}{% comment %}TODO: specilized view to delete 'current doc' relation too ??{% endcomment %}
-                            {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
-                        </td>
-                    </tr>
+                                {% has_perm_to unlink quote as quote_unlink_perm %}
+                                    <input{% if quote_is_current %} checked{% endif %} type="radio" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})}"{% endif %} name="CurrentQuote_{{quote.id}}" value="false">{% trans "Yes" %}
+                                    <input{% if not quote_is_current %} checked{% endif %} type="radio" {% if not unlink_perm or not quote_unlink_perm %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/unset_current/', {% get_block_reload_uri %})}"{% endif %} name="CurrentQuote_{{quote.id}}" value="true">{% trans "No" %}
+                            </td>
+                            <td class="{{row_color}} action">
+                                {% has_perm_to unlink quote as quote_unlink_perm %}{% comment %}TODO: specilized view to delete 'current doc' relation too ??{% endcomment %}
+                                {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
+                            </td>
+                        </tr>
+                    {% endwith %}
                 {% endfor %}
             {% endwith %}
         {% else %}
