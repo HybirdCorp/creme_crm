@@ -10,8 +10,9 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials
+    from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials, Relation, RelationType
 
+    from creme.persons.models import Organisation
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
     from ..models import *
@@ -215,3 +216,45 @@ class ConvertTestCase(_BillingTestCase):
         invoices = Invoice.objects.all()
         self.assertEqual(1, len(invoices))
         self.assertEqual(1, invoices[0].status_id)
+
+
+    def test_not_copiable_relations(self):
+        self.login()
+        self.assertEqual(0, Relation.objects.count())
+        quote, source, target = self.create_quote_n_orgas('My Quote')
+        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving', (Quote, Invoice)),
+                                             ('test-object_foobar',  'is loved by', (Organisation,)))
+
+        Relation.objects.create(user=self.user, type=rtype1,
+                                subject_entity=quote,
+                                object_entity=source)
+        self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
+
+        rtype3, rtype4 = RelationType.create(('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
+                                             ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
+                                             is_copiable=False)
+
+        Relation.objects.create(user=self.user, type=rtype3,
+                                subject_entity=quote,
+                                object_entity=source)
+        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+
+        rtype5, rtype6 = RelationType.create(('test-subject_foobar_wrong_ctype', 'is loving', (Quote,)),
+                                             ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)))
+
+        Relation.objects.create(user=self.user, type=rtype5,
+                                subject_entity=quote,
+                                object_entity=source)
+        self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
+
+        #Contact2 < ---- > Orga
+        self._convert(200, quote, 'invoice')
+        self.assertEqual(2, Relation.objects.filter(type=rtype1).count())
+        self.assertEqual(2, Relation.objects.filter(type=rtype2).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype5).count())
+        self.assertEqual(1, Relation.objects.filter(type=rtype6).count())
