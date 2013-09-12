@@ -19,10 +19,9 @@
                 {% blocktrans with volatile_column|default:_("None") as vc %}Volatile column : {{vc}}{% endblocktrans %}
             </th>
         </tr>
-        {% if x and y %}
+        {% if x %}{% comment %}{% if x and y %}{% endcomment %}
             <tr class="content">
                 <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
-                    {% comment %} NEW VERSION OF GRAPH ! {% endcomment %}
                     <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
                          style="margin:0px;padding:0px;border:0px;">
                         <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
@@ -30,6 +29,7 @@
                             {% comment %}{% get_report_chart_selectors %}{% endcomment %}
                             {% include 'reports/templatetags/report_chart_selectors.html' %}
                         </ul>
+                        {% include 'reports/frags/graph_errors.html' with hand=graph.hand %}
                         <div chained-name="plot" class="ui-creme-chainedselect-item">
                             <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
                                  {% if object %}
@@ -53,7 +53,7 @@
         {% else %}
             <tr class="content empty">
                 <td colspan="2">
-                    {% trans 'No values or graph is not applicable here' %}
+                    {% include 'reports/frags/graph_errors.html' with hand=graph.hand empty_message=_('No values or graph is not applicable here') %}
                 </td>
             </tr>
         {% endif %}

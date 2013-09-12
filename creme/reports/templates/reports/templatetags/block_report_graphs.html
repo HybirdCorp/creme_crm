@@ -7,9 +7,6 @@
         <th class="collapser label">{% get_block_title _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}</th>
         <th class="actions">
             <div class="buttons">
-                {% comment %}<a class="add" onclick="creme.utils.innerPopupNReload('/reports/graph/{{object.id}}/add', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans 'Add new graph' %}" alt="{% trans 'Add' %}" />{% trans 'New' %}
-                </a>{% endcomment %}
                 {% get_line_adder at_url '/reports/graph/{{object.id}}/add' with_label _("Add new graph") with_perms has_perm %}
             </div>
         </th>
@@ -28,69 +25,69 @@
 {% trans 'Expand' as expand_label %}{% trans 'Reduce' as reduce_label %}
 {% trans 'Create a block with this graph' as addblock_label %}{% trans "Can't create block"  as noaddblock_label %}
             {% for graph in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle"
-                    ontoggle="$('.ui-creme-toggle.widget-ready#graph-{{graph.id}}').creme().widget().toggle(!collapsed);">
-                    <td class="{{row_color}} action">
-                        <div class="toggle-icon toggle-trigger" style="width:16px;height:16px;"
-                             toggle-close-alt="{{expand_label}}" toggle-close-title="{{expand_label}}"
-                             toggle-open-alt="{{reduce_label}}" toggle-open-title="{{reduce_label}}"/>
-                    </td>
-                    <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
-                    {% comment %}<td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>{% endcomment %}
-                    <td class="{{row_color}}">{{graph.hand.verbose_abscissa}}</td>
-                    {% comment %}<td class="{{row_color}}">{{graph|verbose_ordinate:graph.ordinate}}</td>{% endcomment %}
-                    <td class="{{row_color}}">{{graph.hand.verbose_ordinate}}</td>
-                    {% comment %}<td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}{% if graph.days %} ({{graph.days}}){% endif %}</td>{% endcomment %}
-                    <td class="{{row_color}}">{{graph.hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
-                    <td class="{{row_color}} action">
-                        {% has_perm_to change graph as graph_edit_perm %}{% has_perm_to delete graph as graph_delete_perm %}
-                        {% if graph_edit_perm %}
-                            {% comment %}TODO : use a better method for plot cache issue. As temporary fix all cache is cleaned before popupNReload.{% endcomment %}
-                            <a onclick="$('#graph-{{graph.id}} .ui-creme-plotselector').creme().widget().resetBackend();creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
-                                <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{{edit_label}}" title="{{edit_label}}" border="0">
-                            </a>
-                        {% else %}
-                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{noedit_label}}" alt="{{noedit_label}}" />
-                        {% endif %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
-                    </td>
-                </tr>
-                <tr class="ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle" id="graph-{{graph.id}}">
-                    <td class="{{row_color}} toggle-target" colspan="6" toggle-close-colspan="6">
-                        <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
-                             style="margin:0px;padding:0px;border:0px;">
-                            <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
-                            <ul class="ui-layout hbox" style="padding:2px;">
-                                {% comment %}{% get_report_chart_selectors %}{% endcomment %}
-                                {% include 'reports/templatetags/report_chart_selectors.html' %}
-                                <li class="ui-creme-chainedselect-item" style="float:right;">
-                                {% if user_can_admin_report %}
-                                    <button onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});"
-                                            style="padding: 1px 1px;vertical-align:middle;">
-                                        <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" title="{{addblock_label}}"
-                                             style="border:0; vertical-align:middle;"/>
-                                    </button>
-                                {% else %}
-                                    <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{{noaddblock_label}}" title="{{noaddblock_label}}" />
-                                {% endif %}
-                                </li>
-                            </ul>
-                            <div chained-name="plot" class="ui-creme-chainedselect-item">
-                                <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
-                                     plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}"
-                                     plot-name="${graph}"
-                                     style="width:100%;margin:0px;padding:0px;border:0px;">
-                                            <script name="histogram" type="text/json">{% report_small_barchart_json graph %}</script>
-                                            <script name="pie" type="text/json">{% report_piechart_json graph %}</script>
-                                            <script name="tube" type="text/json">{% report_tubechart_json graph 2 %}</script>
-                                    <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot" 
-                                         savable="false" style="height:300px;margin:5px;border:0px;" format="creme.graphael.BargraphData">
+                {% with hand=graph.hand %}
+                    <tr class="content ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle"
+                        ontoggle="$('.ui-creme-toggle.widget-ready#graph-{{graph.id}}').creme().widget().toggle(!collapsed);">
+                        <td class="{{row_color}} action">
+                            <div class="toggle-icon toggle-trigger" style="width:16px;height:16px;"
+                                toggle-close-alt="{{expand_label}}" toggle-close-title="{{expand_label}}"
+                                toggle-open-alt="{{reduce_label}}" toggle-open-title="{{reduce_label}}" />
+                        </td>
+                        <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
+                        <td class="{{row_color}}{% if hand.abscissa_error %} td_error{% endif %}">{{hand.verbose_abscissa}}</td>
+                        <td class="{{row_color}}{% if hand.ordinate_error %} td_error{% endif %}">{{hand.verbose_ordinate}}</td>
+                        <td class="{{row_color}}">{{hand.verbose_name}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
+                        <td class="{{row_color}} action">
+                            {% has_perm_to change graph as graph_edit_perm %}{% has_perm_to delete graph as graph_delete_perm %}
+                            {% if graph_edit_perm %}
+                                {% comment %}TODO : use a better method for plot cache issue. As temporary fix all cache is cleaned before popupNReload.{% endcomment %}
+                                <a onclick="$('#graph-{{graph.id}} .ui-creme-plotselector').creme().widget().resetBackend();creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
+                                    <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{{edit_label}}" title="{{edit_label}}" border="0">
+                                </a>
+                            {% else %}
+                                <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{noedit_label}}" alt="{{noedit_label}}" />
+                            {% endif %}
+                            {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
+                        </td>
+                    </tr>
+                    <tr class="ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle" id="graph-{{graph.id}}">
+                        <td class="{{row_color}} toggle-target" colspan="6" toggle-close-colspan="6">
+                            <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
+                                style="margin:0px;padding:0px;border:0px;">
+                                <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                                <ul class="ui-layout hbox" style="padding:2px;">
+                                    {% comment %}{% get_report_chart_selectors %}{% endcomment %}
+                                    {% include 'reports/templatetags/report_chart_selectors.html' %}
+                                    <li class="ui-creme-chainedselect-item" style="float:right;">
+                                        {% if user_can_admin_report %}
+                                            <button onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});"
+                                                    style="padding: 1px 1px;vertical-align:middle;">
+                                                <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" title="{{addblock_label}}"
+                                                    style="border:0; vertical-align:middle;"/>
+                                            </button>
+                                        {% else %}
+                                            <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{{noaddblock_label}}" title="{{noaddblock_label}}" />
+                                        {% endif %}
+                                    </li>
+                                </ul>
+                                {% include 'reports/frags/graph_errors.html' %}
+                                <div chained-name="plot" class="ui-creme-chainedselect-item">
+                                    <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
+                                        plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}"
+                                        plot-name="${graph}"
+                                        style="width:100%;margin:0px;padding:0px;border:0px;">
+                                                <script name="histogram" type="text/json">{% report_small_barchart_json graph %}</script>
+                                                <script name="pie" type="text/json">{% report_piechart_json graph %}</script>
+                                                <script name="tube" type="text/json">{% report_tubechart_json graph 2 %}</script>
+                                        <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot"
+                                            savable="false" style="height:300px;margin:5px;border:0px;" format="creme.graphael.BargraphData">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                {% endwith %}
             {% endfor %}
         {% else %}
             <tr class="content empty">

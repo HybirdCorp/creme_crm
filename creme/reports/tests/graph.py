@@ -144,8 +144,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsNone(rgraph.days)
         self.assertIs(rgraph.is_count, True)
 
-        self.assertEqual(_('Sector'), rgraph.hand.verbose_abscissa)
-        self.assertEqual(_('Count'),  rgraph.hand.verbose_ordinate)
+        hand = rgraph.hand
+        self.assertEqual(_('Sector'), hand.verbose_abscissa)
+        self.assertEqual(_('Count'),  hand.verbose_ordinate)
+        self.assertIsNone(hand.abscissa_error)
+        self.assertIsNone(hand.ordinate_error)
 
         #------------------------------------------------------------
         response = self.assertGET200(rgraph.get_absolute_url())
@@ -692,9 +695,30 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([0,   fmt % peace.id], y_asc[index(peace.title)])
 
     def test_fetch_with_fk_04(self):
+        "Aggregate ordinate with invalid field"
+        rgraph = ReportGraph.objects.create(user=self.user,
+                                            report=self.create_simple_organisations_report(),
+                                            name='Max soldiers by sector',
+                                            abscissa='sector', type=RGT_FK,
+                                            ordinate='unknown__max', #<=====
+                                            is_count=False,
+                                           )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch()
+
+        self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
+        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+                         y_asc[0]
+                        )
+        self.assertEqual(_('the field does not exist any more.'),
+                         rgraph.hand.ordinate_error
+                        )
+
+    def test_fetch_with_fk_05(self):
         "Aggregate ordinate with invalid custom field"
-        report = self.create_simple_organisations_report()
-        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+        rgraph = ReportGraph.objects.create(user=self.user,
+                                            report=self.create_simple_organisations_report(),
                                             name='Max soldiers by sector',
                                             abscissa='sector', type=RGT_FK,
                                             ordinate='1000__max', #<=====
@@ -704,11 +728,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch()
 
-        #self.assertFalse(x_asc)
-        #self.assertFalse(y_asc)
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
         self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
                          y_asc[0]
+                        )
+        self.assertEqual(_('the custom field does not exist any more.'),
+                         rgraph.hand.ordinate_error
                         )
 
     def test_fetch_with_date_range01(self):
@@ -984,8 +1009,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([], x_asc)
         self.assertEqual([], y_asc)
 
-        self.assertEqual('', rgraph.hand.verbose_abscissa)
-        #TODO: error
+        hand = rgraph.hand
+        self.assertEqual('??', hand.verbose_abscissa)
+        self.assertEqual(_('the custom field does not exist any more.'),
+                         hand.abscissa_error
+                        )
 
     def test_fetch_by_month01(self):
         "Count"
@@ -1112,6 +1140,26 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([Decimal('100'),   fmt % 2014], y_asc[1])
         self.assertEqual([0,                fmt % 2015], y_asc[2])
         self.assertEqual([0,                fmt % 2016], y_asc[3])
+
+    def test_fetch_by_year03(self):
+        "Invalid field"
+        report = self.create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Number of orgas by creation date (period of 1 year)",
+                                            abscissa='invalid', #<=====
+                                            type=RGT_YEAR,
+                                            ordinate='', is_count=True,
+                                           )
+
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
+
+        hand = rgraph.hand
+        self.assertEqual('??', hand.verbose_abscissa)
+        self.assertEqual(_('the field does not exist any more.'),
+                         hand.abscissa_error
+                        )
 
     def test_fetch_by_customyear01(self):
         "Count"
@@ -1303,7 +1351,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([], x_asc)
         self.assertEqual([], y_asc)
 
-        self.assertEqual('', rgraph.hand.verbose_abscissa)
+        hand = rgraph.hand
+        self.assertEqual('??', hand.verbose_abscissa)
+        self.assertEqual(_('the relationship type does not exist any more.'),
+                         hand.abscissa_error
+                        )
 
     def test_fetch_with_customfk_01(self):
         report = self.create_simple_contacts_report()
@@ -1320,7 +1372,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([], x_asc)
         self.assertEqual([], y_asc)
 
-        self.assertEqual('', rgraph.hand.verbose_abscissa)
+        hand = rgraph.hand
+        self.assertEqual('??', hand.verbose_abscissa)
+        self.assertEqual(_('the custom field does not exist any more.'),
+                         hand.abscissa_error
+                        )
 
     def test_fetch_with_customfk_02(self):
         "Count"

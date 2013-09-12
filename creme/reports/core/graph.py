@@ -20,20 +20,19 @@
 
 from datetime import timedelta
 from json import dumps as json_encode
-import logging
+#import logging
 
 from django.db.models import Min, Max, FieldDoesNotExist, Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, CustomField, CustomFieldEnumValue
 from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
-from creme.creme_core.utils.meta import get_verbose_field_name
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
 #TODO: move to creme_core ?
@@ -75,6 +74,9 @@ HANDS_MAP = ReportGraphHandRegistry()
 
 
 class ReportGraphYCalculator(object):
+    def __init__(self):
+        self.error = None
+
     def __call__(self, entities):
         return 0
 
@@ -91,18 +93,22 @@ class ReportGraphYCalculator(object):
                 try:
                     calculator = RGYCCustomField(CustomField.objects.get(pk=ordinate_col), aggregation)
                 except CustomField.DoesNotExist:
-                    logger.warn('ReportGraphHand: CustomField with id="%s" does not exist', ordinate_col)
-                    #TODO: error (notify the user that this graph is deprecated)
                     calculator = ReportGraphYCalculator()
+                    calculator.error = _('the custom field does not exist any more.')
             else: #Regular Field
-                #TODO: if field does not exit anymore : notify the user that this graph is deprecated.
-                calculator = RGYCField(graph.report.ct.model_class(), ordinate, aggregation, ordinate_col)
+                try:
+                    field = graph.report.ct.model_class()._meta.get_field(ordinate_col) #TODO: method model() in ReportGraph ??
+                except FieldDoesNotExist:
+                    calculator = ReportGraphYCalculator()
+                    calculator.error = _('the field does not exist any more.')
+                else:
+                    calculator = RGYCField(field, aggregation)
 
         return calculator
 
     @property
     def verbose_name(self):
-        return  '??'
+        return '??'
 
 
 class RGYCCount(ReportGraphYCalculator):
@@ -116,6 +122,7 @@ class RGYCCount(ReportGraphYCalculator):
 
 class RGYCAggregation(ReportGraphYCalculator):
     def __init__(self, aggregation, aggregate_value):
+        super(RGYCAggregation, self).__init__()
         self._aggregation = aggregation
         self._aggregate_value = aggregate_value
 
@@ -131,13 +138,12 @@ class RGYCAggregation(ReportGraphYCalculator):
 
 
 class RGYCField(RGYCAggregation):
-    def __init__(self, model, ordinate, aggregation, field_name): #TODO: store field too ??
-        super(RGYCField, self).__init__(aggregation, aggregation.func(field_name))
-        self._model = model
-        self._field_name = field_name
+    def __init__(self, field, aggregation):
+        super(RGYCField, self).__init__(aggregation, aggregation.func(field.name))
+        self._field = field
 
     def _name(self):
-        return get_verbose_field_name(self._model, self._field_name)
+        return self._field.verbose_name
 
 
 class RGYCCustomField(RGYCAggregation):
@@ -159,7 +165,9 @@ class ReportGraphHand(object):
 
     def __init__(self, graph):
         self._graph = graph
-        self._y_calculator = ReportGraphYCalculator.build(graph)
+        self._y_calculator = y_calculator = ReportGraphYCalculator.build(graph)
+        self.abscissa_error = None
+        self.ordinate_error = y_calculator.error
 
     def _listview_url_builder(self):
         return ListViewURLBuilder(self._graph.report.ct.model_class())
@@ -176,14 +184,39 @@ class ReportGraphHand(object):
         @return A tuple (X, Y). X is a list of string labels.
                 Y is a list of numerics, or of tuple (numeric, URL).
         """
-        x_values = []; x_append = x_values.append
-        y_values = []; y_append = y_values.append
+        x_values = []
+        y_values = []
 
-        for x, y in self._fetch(entities, order):
-            x_append(x)
-            y_append(y)
+        if not self.abscissa_error:
+            x_append = x_values.append
+            y_append = y_values.append
+
+            for x, y in self._fetch(entities, order):
+                x_append(x)
+                y_append(y)
 
         return x_values, y_values
+
+    @property
+    def verbose_abscissa(self):
+        raise NotImplementedError
+
+    @property
+    def verbose_ordinate(self):
+        return self._y_calculator.verbose_name
+
+
+class _RGHRegularField(ReportGraphHand):
+    def __init__(self, graph):
+        super(_RGHRegularField, self).__init__(graph)
+
+        try:
+            field = graph.report.ct.model_class()._meta.get_field(graph.abscissa) #TODO: method model() in ReportGraph ??
+        except FieldDoesNotExist:
+            field = None
+            self.abscissa_error = _('the field does not exist any more.')
+
+        self._field = field
 
     def _get_dates_values(self, entities, abscissa, kind, qdict_builder, date_format, order):
         """
@@ -195,22 +228,18 @@ class ReportGraphHand(object):
         entities_filter = entities.filter
         y_value_func = self._y_calculator
 
-        for date in entities.dates(abscissa, kind, order):
+        for date in entities.dates(self._field.name, kind, order):
             qdict = qdict_builder(date)
             yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
 
     @property
     def verbose_abscissa(self):
-        graph = self._graph
-        return get_verbose_field_name(graph.report.ct.model_class(), graph.abscissa)
-
-    @property
-    def verbose_ordinate(self):
-        return self._y_calculator.verbose_name
+        field = self._field
+        return field.verbose_name if field else '??'
 
 
 @HANDS_MAP(RGT_DAY)
-class RGHDay(ReportGraphHand):
+class RGHDay(_RGHRegularField):
     verbose_name = _(u"By days")
 
     def _fetch(self, entities, order):
@@ -227,8 +256,9 @@ class RGHDay(ReportGraphHand):
                                       date_format="%d/%m/%Y", order=order,
                                      )
 
+
 @HANDS_MAP(RGT_MONTH)
-class RGHMonth(ReportGraphHand):
+class RGHMonth(_RGHRegularField):
     verbose_name = _(u"By months")
 
     def _fetch(self, entities, order):
@@ -245,7 +275,7 @@ class RGHMonth(ReportGraphHand):
 
 
 @HANDS_MAP(RGT_YEAR)
-class RGHYear(ReportGraphHand):
+class RGHYear(_RGHRegularField):
     verbose_name =_(u"By years")
 
     def _fetch(self, entities, order):
@@ -285,7 +315,7 @@ class DateInterval(object):
 
 
 @HANDS_MAP(RGT_RANGE)
-class RGHRange(ReportGraphHand):
+class RGHRange(_RGHRegularField):
     verbose_name = _(u"By X days")
 
     def _fetch(self, entities, order):
@@ -321,7 +351,7 @@ class RGHRange(ReportGraphHand):
 
 
 @HANDS_MAP(RGT_FK)
-class RGHForeignKey(ReportGraphHand):
+class RGHForeignKey(_RGHRegularField):
     verbose_name = _(u"By values")
 
     def _fetch(self, entities, order):
@@ -350,46 +380,42 @@ class RGHRelation(ReportGraphHand):
             rtype = RelationType.objects.get(pk=self._graph.abscissa)
         except RelationType.DoesNotExist:
             rtype = None
-            #TODO: self.error
+            self.abscissa_error = _('the relationship type does not exist any more.')
 
         self._rtype = rtype
 
     def _fetch(self, entities, order):
-        rtype = self._rtype
-
         #TODO: Optimize ! (populate real entities)
         #TODO: make listview url for this case
-        if rtype:
-            relations = Relation.objects.filter(type=rtype, subject_entity__entity_type=self._graph.report.ct)
-            rel_filter = relations.filter
-            ce_objects_get = CremeEntity.objects.get
-            entities_filter = entities.filter
-            y_value_func = self._y_calculator
+        relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
+        rel_filter = relations.filter
+        ce_objects_get = CremeEntity.objects.get
+        entities_filter = entities.filter
+        y_value_func = self._y_calculator
 
-            for obj_id in relations.values_list('object_entity', flat=True).distinct():
-                subj_ids = rel_filter(object_entity=obj_id).values_list('subject_entity')
+        for obj_id in relations.values_list('object_entity', flat=True).distinct():
+            subj_ids = rel_filter(object_entity=obj_id).values_list('subject_entity')
 
-                yield (unicode(ce_objects_get(pk=obj_id).get_real_entity()),
-                       y_value_func(entities_filter(pk__in=subj_ids)),
-                      )
+            yield (unicode(ce_objects_get(pk=obj_id).get_real_entity()),
+                   y_value_func(entities_filter(pk__in=subj_ids)),
+                  )
 
     @property
     def verbose_abscissa(self):
         rtype = self._rtype
-        return rtype.predicate if rtype else ''
+        return rtype.predicate if rtype else '??'
 
 
-class _RGHCustom(ReportGraphHand):
+class _RGHCustomField(ReportGraphHand):
     def __init__(self, graph):
-        super(_RGHCustom, self).__init__(graph)
+        super(_RGHCustomField, self).__init__(graph)
         abscissa = self._graph.abscissa
 
         try:
             cfield = CustomField.objects.get(pk=abscissa)
         except CustomField.DoesNotExist:
-            logger.warn('ReportGraph.fetch: CustomField with id="%s" does not exist', abscissa)
             cfield = None
-            #TODO: self.error (notify the user that this graph is deprecated)
+            self.abscissa_error = _('the custom field does not exist any more.')
 
         self._cfield = cfield
 
@@ -400,27 +426,25 @@ class _RGHCustom(ReportGraphHand):
         @param date_format Format compatible with strftime()
         """
         cfield = self._cfield
+        build_url = self._listview_url_builder()
+        entities_filter = entities.filter
+        y_value_func = self._y_calculator
 
-        if cfield:
-            build_url = self._listview_url_builder()
-            entities_filter = entities.filter
-            y_value_func = self._y_calculator
+        for date in entities_filter(customfielddatetime__custom_field=cfield) \
+                                   .dates('customfielddatetime__value', kind, order):
+            qdict = qdict_builder(date)
+            qdict['customfielddatetime__custom_field'] = cfield.id
 
-            for date in entities_filter(customfielddatetime__custom_field=cfield) \
-                                       .dates('customfielddatetime__value', kind, order):
-                qdict = qdict_builder(date)
-                qdict['customfielddatetime__custom_field'] = cfield.id
-
-                yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
+            yield date.strftime(date_format), [y_value_func(entities_filter(**qdict)), build_url(qdict)]
 
     @property
     def verbose_abscissa(self):
         cfield = self._cfield
-        return cfield.name if cfield else ''
+        return cfield.name if cfield else '??'
 
 
 @HANDS_MAP(RGT_CUSTOM_DAY)
-class RGHCustomDay(_RGHCustom):
+class RGHCustomDay(_RGHCustomField):
     verbose_name = _(u"By days")
 
     def _fetch(self, entities, order):
@@ -434,7 +458,7 @@ class RGHCustomDay(_RGHCustom):
 
 
 @HANDS_MAP(RGT_CUSTOM_MONTH)
-class RGHCustomMonth(_RGHCustom):
+class RGHCustomMonth(_RGHCustomField):
     verbose_name = _(u"By months")
 
     def _fetch(self, entities, order):
@@ -447,7 +471,7 @@ class RGHCustomMonth(_RGHCustom):
 
 
 @HANDS_MAP(RGT_CUSTOM_YEAR)
-class RGHCustomYear(_RGHCustom):
+class RGHCustomYear(_RGHCustomField):
     verbose_name = _(u"By years")
 
     def _fetch(self, entities, order):
@@ -458,66 +482,61 @@ class RGHCustomYear(_RGHCustom):
 
 
 @HANDS_MAP(RGT_CUSTOM_RANGE)
-class RGHCustomRange(_RGHCustom):
+class RGHCustomRange(_RGHCustomField):
     verbose_name = _(u"By X days")
 
     def _fetch(self, entities, order):
         cfield = self._cfield
+        entities_filter = entities.filter
+        date_aggregates = entities_filter(customfielddatetime__custom_field=cfield) \
+                                         .aggregate(min_date=Min('customfielddatetime__value'),
+                                                    max_date=Max('customfielddatetime__value'),
+                                                   )
+        min_date = date_aggregates['min_date']
+        max_date = date_aggregates['max_date']
 
-        if cfield:
-            entities_filter = entities.filter
-            date_aggregates = entities_filter(customfielddatetime__custom_field=cfield) \
-                                             .aggregate(min_date=Min('customfielddatetime__value'),
-                                                        max_date=Max('customfielddatetime__value'),
-                                                       )
-            min_date = date_aggregates['min_date']
-            max_date = date_aggregates['max_date']
+        if min_date is not None and max_date is not None:
+            y_value_func = self._y_calculator
+            build_url = self._listview_url_builder()
 
-            if min_date is not None and max_date is not None:
-                y_value_func = self._y_calculator
-                build_url = self._listview_url_builder()
+            for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
+                before = interval.before
+                after  = interval.after
+                sub_entities = entities_filter(customfielddatetime__custom_field=cfield,
+                                               customfielddatetime__value__range=(before, after),
+                                              )
 
-                for interval in DateInterval.generate((self._graph.days or 1) - 1, min_date, max_date, order):
-                    before = interval.before
-                    after  = interval.after
-                    sub_entities = entities_filter(customfielddatetime__custom_field=cfield,
-                                                   customfielddatetime__value__range=(before, after),
-                                                  )
-
-                    yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
-                                      interval.end.strftime("%d/%m/%Y"),
-                                     ),
-                           [y_value_func(sub_entities),
-                            build_url({'customfielddatetime__custom_field': cfield.id,
-                                       'customfielddatetime__value__range': [before.strftime("%Y-%m-%d"),
-                                                                             after.strftime("%Y-%m-%d"),
-                                                                            ],
-                                      }
-                                     )
-                           ]
-                          )
+                yield ('%s-%s' % (interval.begin.strftime("%d/%m/%Y"), #TODO: use format from settings ??
+                                  interval.end.strftime("%d/%m/%Y"),
+                                 ),
+                       [y_value_func(sub_entities),
+                        build_url({'customfielddatetime__custom_field': cfield.id,
+                                   'customfielddatetime__value__range': [before.strftime("%Y-%m-%d"),
+                                                                         after.strftime("%Y-%m-%d"),
+                                                                        ],
+                                  }
+                                 )
+                       ]
+                      )
 
 
 @HANDS_MAP(RGT_CUSTOM_FK)
-class RGHCustomFK(_RGHCustom):
+class RGHCustomFK(_RGHCustomField):
     verbose_name = _(u"By values (of custom choices)")
 
     def _fetch(self, entities, order):
-        cfield = self._cfield
+        entities_filter = entities.filter
+        y_value_func = self._y_calculator
+        build_url = self._listview_url_builder()
+        related_instances = list(CustomFieldEnumValue.objects.filter(custom_field=self._cfield))
 
-        if cfield:
-            entities_filter = entities.filter
-            y_value_func = self._y_calculator
-            build_url = self._listview_url_builder()
-            related_instances = list(CustomFieldEnumValue.objects.filter(custom_field=cfield))
+        if order == 'DESC':
+            related_instances.reverse()
 
-            if order == 'DESC':
-                related_instances.reverse()
+        for instance in related_instances:
+            kwargs = {'customfieldenum__value': instance.id}
 
-            for instance in related_instances:
-                kwargs = {'customfieldenum__value': instance.id}
-
-                yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
+            yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
 def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
