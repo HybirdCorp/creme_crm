@@ -192,3 +192,23 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertFormError(response, 'form', None,
                              [_(u"Some entities are not editable: %s") % uneditable]
                             )
+
+    def test_not_copiable_properties(self):
+        self.login()
+
+        create_ptype = CremePropertyType.create
+        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats', is_copiable=False)
+        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+
+        entity = CremeEntity.objects.create(user=self.user)
+
+        CremeProperty.objects.create(type=ptype01, creme_entity=entity)
+        CremeProperty.objects.create(type=ptype02, creme_entity=entity)
+
+        self.assertEqual(1, CremeProperty.objects.filter(type=ptype01).count())
+        self.assertEqual(1, CremeProperty.objects.filter(type=ptype02).count())
+
+        clone = entity.clone()
+
+        self.assertEqual(1, CremeProperty.objects.filter(type=ptype01).count())
+        self.assertEqual(2, CremeProperty.objects.filter(type=ptype02).count())

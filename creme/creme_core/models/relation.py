@@ -55,6 +55,7 @@ class RelationType(CremeModel):
 
     is_internal = BooleanField(default=False) # if True, the relations with this type can not be created/deleted directly by the users.
     is_custom   = BooleanField(default=False) # if True, the RelationType can ot be deleted (in creme_config).
+    is_copiable = BooleanField(default=True)  # if True, the relations with this type can be copied (ie when cloning or converting an entity)
 
     predicate      = CharField(_(u'Predicate'), max_length=100)
     symmetric_type = ForeignKey('self', blank=True, null=True)
@@ -91,7 +92,7 @@ class RelationType(CremeModel):
 
     @staticmethod
     @transaction.commit_manually
-    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False):
+    def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False, is_copiable=(True, True)):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
         @param object_desc See subject_desc
@@ -103,19 +104,26 @@ class RelationType(CremeModel):
         subject_desc += padding
         object_desc  += padding
 
+        if isinstance(is_copiable, bool):
+            is_copiable = (is_copiable, is_copiable)
+
         pk_subject   = subject_desc[0]
         pk_object    = object_desc[0]
         pred_subject = subject_desc[1]
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
-            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
+            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom,
+                                                                           is_internal=is_internal, is_copiable=is_copiable[0])
+            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom,
+                                                                           is_internal=is_internal, is_copiable=is_copiable[1])
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
-            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
+            sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom,
+                                             is_internal=is_internal, is_copiable=is_copiable[0])
+            obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom,
+                                             is_internal=is_internal, is_copiable=is_copiable[1])
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
