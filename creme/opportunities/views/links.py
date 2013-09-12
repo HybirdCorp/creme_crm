@@ -23,6 +23,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.models import Relation
 
 from creme.billing.models import Quote
@@ -33,10 +34,8 @@ from ..models import Opportunity
 
 @login_required
 @permission_required('opportunities')
+@POST_only
 def set_current_quote(request, opp_id, quote_id):
-    if request.method != 'POST':
-        raise Http404('This view accepts only POST method')
-
     #NB: we do not check if the relation to the current quote (if it exists) can be deleted (can_unlink_or_die())
     opp = get_object_or_404(Opportunity, pk=opp_id)
     user = request.user

@@ -28,6 +28,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils.queries import get_first_or_None
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
                                           edit_entity, view_entity, list_view)
 from creme.creme_core.utils import get_ct_or_404
@@ -109,10 +110,8 @@ _GEN_BEHAVIOURS = {
 
 @login_required
 @permission_required('opportunities')
+@POST_only
 def generate_new_doc(request, opp_id, ct_id):
-    if request.method != 'POST':
-        raise Http404('This view accepts only POST method')
-
     ct_doc = get_ct_or_404(ct_id)
     klass = ct_doc.model_class()
 

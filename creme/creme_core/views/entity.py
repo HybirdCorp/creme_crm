@@ -39,6 +39,7 @@ from ..forms import CremeEntityForm
 from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from ..views.generic import inner_popup, list_view_popup_from_widget
+from ..views.decorators import POST_only
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 
@@ -432,9 +433,8 @@ def trash(request):
     return render(request, 'creme_core/trash.html')
 
 @login_required
+@POST_only
 def empty_trash(request):
-    if request.method != 'POST':
-        raise Http404('Use POST method for this view')
 
     user = request.user
     errors = []
@@ -467,10 +467,8 @@ def empty_trash(request):
     return HttpResponse(message, mimetype='text/javascript', status=status)
 
 @login_required
+@POST_only
 def restore_entity(request, entity_id):
-    if request.method != 'POST':
-        raise Http404('Use POST method for this view')
-
     entity = get_object_or_404(CremeEntity.objects.filter(is_deleted=True), pk=entity_id) \
                                                   .get_real_entity()
 
@@ -564,10 +562,8 @@ def delete_entities(request):
 
 @login_required
 #TODO: @redirect_if_not_ajax
+@POST_only
 def delete_entity(request, entity_id):
-    if request.method != 'POST':
-        raise Http404('Use POST method for this view')
-
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     error = _delete_entity(request.user, entity)
 

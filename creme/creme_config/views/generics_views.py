@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required#, permission_required
 
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 
@@ -139,10 +140,8 @@ def edit_model(request, app_name, model_name, object_id):
                                 )
 
 @login_required
+@POST_only
 def swap_order(request, app_name, model_name, object_id, offset):
-    if request.method != 'POST':
-        raise Http404('This view use POST method')
-
     model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
     fields = model._meta.get_all_field_names()
 

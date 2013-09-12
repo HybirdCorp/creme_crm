@@ -27,6 +27,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
+from creme.creme_core.views.decorators import POST_only
 
 from creme.billing.models import Invoice, InvoiceStatus
 from creme.billing.views.workflow import _add_with_relations
@@ -79,10 +80,8 @@ def listview(request):
 
 @login_required
 @permission_required('billing')
+@POST_only
 def generate_number(request, invoice_id):
-    if request.method != 'POST':
-        raise Http404('This view uses POST method.')
-
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
     request.user.has_perm_to_change_or_die(invoice)
