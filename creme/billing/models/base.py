@@ -23,7 +23,7 @@ from decimal import Decimal
 from itertools import chain
 import logging
 
-from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
+from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT, Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -37,12 +37,12 @@ from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
                          REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
                          REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED)
 from ..utils import round_to_2
+
 from .line import Line
 from .product_line import ProductLine
 from .service_line import ServiceLine
 from .algo import ConfigBillingAlgo
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-
 
 logger = logging.getLogger(__name__)
 default_decimal = Decimal()
@@ -224,8 +224,20 @@ class Base(CremeEntity):
             self.number = None
 
     def _copy_relations(self, source):
+        from ..registry import relationtype_converter
         #not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
+        relation_create = Relation.objects.create
+        class_map = relationtype_converter.get_class_map(source, self)
         super(Base, self)._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
+
+        for relation in source.relations.filter(type__is_internal=False,
+                                                type__is_copiable=True,
+                                                type__in=class_map.keys()):
+            relation_create(user_id=relation.user_id,
+                            subject_entity=self,
+                            type=class_map[relation.type],
+                            object_entity_id=relation.object_entity_id,
+                           )
 
     def _post_clone(self, source):
         source.invalidate_cache()

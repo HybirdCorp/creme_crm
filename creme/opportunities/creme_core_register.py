@@ -18,16 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, import_form_registry
+from creme.creme_core.models import RelationType
+
+from creme.billing.registry import relationtype_converter
+from creme.billing.models import Quote, Invoice, SalesOrder
 
 from .models import Opportunity
 from .buttons import linked_opportunity_button
 from .blocks import blocks_list, OpportunityBlock
 from .forms.lv_import import get_csv_form_builder
+from .constants import REL_SUB_LINKED_SALESORDER, REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_QUOTE
 
+logger = logging.getLogger(__name__)
 
 creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
 creme_registry.register_entity_models(Opportunity)
@@ -45,3 +53,16 @@ block_registry.register(*blocks_list)
 icon_registry.register(Opportunity, 'images/opportunity_%(size)s.png')
 
 import_form_registry.register(Opportunity, get_csv_form_builder)
+
+try:
+    linked_salesorder = RelationType.objects.get(id=REL_SUB_LINKED_SALESORDER)
+    linked_invoice = RelationType.objects.get(id=REL_SUB_LINKED_INVOICE)
+    linked_quote = RelationType.objects.get(id=REL_SUB_LINKED_QUOTE)
+except RelationType.DoesNotExist as e:
+    logger.info("A problem occured: %s" % e)
+    logger.info("It can happen durring unitests. Otherwise, has the database correctly been populated?")
+else:
+    register_rtype = relationtype_converter.register
+    register_rtype(Quote, linked_quote, SalesOrder, linked_salesorder)
+    register_rtype(Quote, linked_quote, Invoice, linked_invoice)
+    register_rtype(SalesOrder, linked_salesorder, Invoice, linked_invoice)
