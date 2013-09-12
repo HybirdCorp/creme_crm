@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import date
 from decimal import Decimal
 from itertools import chain
 import logging
@@ -243,11 +244,12 @@ class Base(CremeEntity):
 
     def _build_object(self, template):
         logger.debug("=> Clone base object")
+        today                   = date.today()
         self.user               = template.user
         self.name               = template.name
         self.number             = template.number
-        self.issuing_date       = template.issuing_date
-        self.expiration_date    = template.expiration_date
+        self.issuing_date       = today
+        self.expiration_date    = today
         self.discount           = template.discount
         self.billing_address    = template.billing_address
         self.shipping_address   = template.shipping_address
