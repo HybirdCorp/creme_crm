@@ -264,8 +264,10 @@ creme.utils.handleSort = function(sort_field, sort_order, new_sort_field, input,
 
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
 
-creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
+creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
 //    console.log("creme.utils.showInnerPopup("+url+","+options+","+div_id+")");
+    
+    var reload_on_close = creme.object.isTrue(reload)
 
     var $div = $('#'+div_id);
     if($div.size() == 0) {
@@ -296,7 +298,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
                                                                  options.cancel($(this));
                                                              }
 
-                                                             creme.utils.closeDialog($(this), false);
+                                                             creme.utils.closeDialog($(this), reload_on_close);
                                                         }
 
             creme.utils.showDialog(data,
@@ -698,6 +700,29 @@ creme.utils.RGBtoHSB = function(rgb){
     else hsb.h = 0;
     hsb.h = Math.round(hsb.h);
     return hsb;
+};
+
+creme.utils.luminance = function (r, g, b) {
+    r = Math.pow (r / 255, 2.2);
+    g = Math.pow (g / 255, 2.2);
+    b = Math.pow (b / 255, 2.2);
+
+    return 0.212671*r + 0.715160*g + 0.072169*b;
+};
+
+creme.utils.contrast = function (r, g, b, r2, g2, b2) {
+    var luminance1 = creme.utils.luminance (r, g, b);
+    var luminance2 = creme.utils.luminance (r2, g2, b2);
+    return (Math.max(luminance1, luminance2) + 0.05) / (Math.min(luminance1, luminance2) + 0.05);
+};
+
+creme.utils.maxContrastingColor = function (r, g, b) {
+    var withWhite = creme.utils.contrast (r, g, b, 255, 255, 255);
+    var withBlack = creme.utils.contrast (r, g, b, 0, 0, 0);
+
+    if (withWhite > withBlack)
+        return 'white';
+    return 'black';
 };
 
 creme.utils.showErrorNReload = function() {

@@ -8,3 +8,105 @@
     width: 15%;
     white-space: nowrap;
 }
+
+.calendar {
+    width: auto;
+}
+
+.with_menu {
+    margin: 0 0 0 255px;
+}
+
+.menu_calendar {
+    position: absolute;
+    clear:both;
+    width:250px;
+    margin-top:20px;
+}
+
+.colored_square {
+    width:13px;
+    height:13px;
+    display:inline-block;
+}
+
+.menu_calendar h5 {
+    margin:5px 0px 0px 0px;
+}
+
+.menu_calendar h4 {
+    margin:0px;
+}
+
+.menu_sub_element_list {
+    overflow-y: auto;
+    max-height: 150px;
+    margin: 0 0 0 5px;
+    padding: 0;
+}
+
+.floating_event {
+    cursor: move;
+    cursor: grab;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+}
+
+.floating_event:hover {
+    background: #f0ecec;
+}
+
+.floating_event.ui-draggable-dragging {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+}
+
+.research {
+    margin-bottom: 5px;
+}
+
+.calendar_filter, .floating_event_filter {
+    margin: 0 5px 10px 0;    
+}
+
+.calendar_filter input, .floating_event_filter input {
+    width: 100%;
+    font-family: open-sans;
+    font-size: 10px;
+}
+
+.calendar .fc-event-time, .calendar .fc-event-type, .calendar .fc-event-title {
+    font-size: 13px;
+}
+
+.calendar .fc-event-time, .calendar .fc-event-type {
+    font-weight: 500;
+}
+
+.calendar .fc-event-title {
+    font-weight: 600;
+    display: block;
+}
+
+.calendar .fc-grid .fc-day-content {
+    padding: 2px 2px 15px 2px;
+}
+
+.calendar .fc-event, .calendar .fc-agenda .fc-event-time, .calendar .fc-event a {
+   border: none;
+   background: none;
+   text-shadow:none;
+   -webkit-transition: none;
+   -moz-transition: none;
+   transition: none;
+}
+
+.hidden {
+    display:none;
+}
+
+.menu_calendar span.toggle-icon {
+    width:22px;
+    display:inline-block;
+}

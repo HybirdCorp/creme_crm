@@ -138,7 +138,7 @@ def handle_AS_data(entity, name, value):
 
 
 def create_calendar_n_update_folder(folder, user):
-        cal = Calendar.objects.create(name=folder.display_name, user=user, is_custom=False)
+        cal = Calendar.objects.create(name=folder.display_name, user=user, is_custom=False, color=Calendar.new_color())
         folder.entity_id = cal.id
         folder.save()
         return cal

@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, Relation
-from creme.creme_core.gui.block import QuerysetBlock, list4url
+from creme.creme_core.gui.block import Block, QuerysetBlock, list4url
 
 from creme.persons.models import Contact, Organisation
 
@@ -171,18 +171,39 @@ class UserCalendars(QuerysetBlock):
     def detailview_display(self, context):
         #NB: credentials are OK : we retrieve only Calendars related of the user
         user = context['user']
+        #in case the user has just been created, creates his default calendar
+        Calendar.get_user_default_calendar(user)
         return self._render(self.get_block_template_context(context,
                                                             Calendar.objects.filter(user=user),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             has_app_perm=user.has_perm('activities'),
                                                            ))
 
+class RelatedCalendar(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('activities', 'related_calendar')
+    dependencies  = (Calendar, )
+    verbose_name  = u'On my calendars'
+    template_name = 'activities/templatetags/block_related_calendar.html'
+    order_by      = 'name'
+    target_ctypes = (Activity, )
 
-participants_block      = ParticipantsBlock()
-subjects_block          = SubjectsBlock()
-future_activities_block = FutureActivitiesBlock()
-past_activities_block   = PastActivitiesBlock()
-user_calendars_block    = UserCalendars()
+    def detailview_display(self, context):
+        user = context['user']
+        activity = context['object']
+        return self._render(self.get_block_template_context(context,
+                                                            activity.calendars.filter(user=user),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                                                            has_app_perm=user.has_perm('activities'),
+                                                           )
+                           )
+
+
+participants_block           = ParticipantsBlock()
+subjects_block               = SubjectsBlock()
+future_activities_block      = FutureActivitiesBlock()
+past_activities_block        = PastActivitiesBlock()
+user_calendars_block         = UserCalendars()
+related_calendar_block       = RelatedCalendar()
 
 block_list = (
         participants_block,
@@ -190,4 +211,5 @@ block_list = (
         future_activities_block,
         past_activities_block,
         user_calendars_block,
+        related_calendar_block,
     )

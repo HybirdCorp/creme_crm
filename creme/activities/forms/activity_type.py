@@ -22,7 +22,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import ColorField, DurationField, JSONField
+from creme.creme_core.forms.fields import DurationField, JSONField  #ColorField
 from creme.creme_core.forms.widgets import ChainedInput
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -30,7 +30,7 @@ from ..models import ActivityType, ActivitySubType
 
 
 class ActivityTypeForm(CremeModelForm):
-    color = ColorField(label=_(u'Color'))
+    # color = ColorField(label=_(u'Color'))
     default_hour_duration = DurationField(label=_(u'Duration'))
 
     class Meta:

@@ -18,22 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import copy
 from datetime import datetime, timedelta
 import logging
+from collections import defaultdict
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import Http404 #HttpResponse
+#from django.http import Http404 HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.utils.simplejson import JSONDecoder #JSONEncoder
+#from django.utils.simplejson import JSONDecoder JSONEncoder
+from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.utils.dates import make_aware_dt
@@ -42,39 +45,13 @@ from creme.persons.models import Contact
 
 from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
-from ..forms.calendar import CalendarForm
-from ..constants import FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO, REL_OBJ_PART_2_ACTIVITY
+from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
+from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
+                         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_RESEARCH)
 
 
 logger = logging.getLogger(__name__)
 
-
-def _get_users_calendar(request, usernames, calendars_ids): #TODO: used once ??
-    user = request.user
-    usernames = frozenset(usernames)
-
-    if user.username not in usernames:
-        calendars_ids = []
-
-    cal_ids = [str(id) for id in calendars_ids]
-    users = User.objects.order_by('username')
-
-    return render(request, 'activities/calendar.html',
-                  {'events_url':          '/activities/calendar/users_activities/%s/%s' % (
-                                                    ','.join(usernames),
-                                                    ','.join(cal_ids),
-                                                ),
-                   'users':               users,
-                   'current_users':       [u for u in users if u.username in usernames],
-                   'my_calendars' :       Calendar.objects.filter(user=user),
-                   'current_calendars':   cal_ids,
-                   'creation_perm':       user.has_perm('activities.add_activity'),
-                   'floating_activities': Activity.objects.filter(user=user,
-                                                                  floating_type=FLOATING,
-                                                                  is_deleted=False,
-                                                                 ), #TODO only floating activities assigned to logged user ??
-                  }
-                 )
 
 def _activity_2_dict(activity, user):
     "Return a 'jsonifiable' dictionary"
@@ -95,10 +72,45 @@ def _activity_2_dict(activity, user):
             'start':        start.isoformat(),
             'end':          end.isoformat(),
             'url':          "/activities/activity/%s/popup" % activity.pk,
-            'entity_color': "#%s" % (activity.type.color or 'C1D9EC'),
+            'calendar_color': "#%s" % (activity.calendar.get_color or DEFAULT_CALENDAR_COLOR),
             'allDay' :      is_all_day,
             'editable':     user.has_perm_to_change(activity),
+            'calendar':     activity.calendar.id,
+            'type':         activity.type.name,
            }
+
+def _get_datetime(data, key, default_func):
+    timestamp = data.get(key)
+    if timestamp is not None:
+        try:
+            return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
+        except Exception:
+            logger.exception('_get_datetime(key=%s)', key)
+
+    return default_func()
+
+def _get_one_activity_per_calendar(calendar_ids, activities):
+    act = []
+    for activity in activities:
+        for calendar in activity.calendars.filter(id__in=calendar_ids):
+            activity.calendar = calendar
+            act.append(copy.copy(activity))
+    return act
+
+def _js_timestamp_to_datetime(timestamp):
+    "@raise ValueError"
+    #return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
+    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000)) #Js gives us miliseconds
+
+def _filter_authorized_calendars(user, calendar_ids):
+    return list(Calendar.objects.filter((Q(is_public=True) |
+                                         Q(user=user)) &
+                                         Q(id__in=[cal_id
+                                                   for cal_id in calendar_ids
+                                                   if cal_id.isdigit()
+                                                  ]
+                                          )).values_list('id', flat=True))
+
 
 @login_required
 @permission_required('activities')
@@ -107,54 +119,61 @@ def user_calendar(request):
     getlist = request.POST.getlist #TODO: POST ??
     Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
 
-    return _get_users_calendar(request,
-                               getlist('user_selected') or [user.username],
-                               #getlist('calendar_selected') or Calendar.get_user_calendars(user)
-                                                                       #.values_list('id', flat=True),
-                               getlist('calendar_selected') or [c.id for c in Calendar.get_user_calendars(user)],
-                              )
+    selected_calendars = getlist('selected_calendars')
+    if selected_calendars:
+        selected_calendars = _filter_authorized_calendars(user, selected_calendars)
 
-#COMMENTED on march 2013
-#@login_required
-#@permission_required('activities')
-#def my_calendar(request):
-    #user = request.user
-    #return _get_users_calendar(request, user.username,
-                               #[Calendar.get_user_default_calendar(user).pk]
-                              #)
+    calendar_ids = selected_calendars or [c.id for c in Calendar.get_user_calendars(user)]
 
-def _get_datetime(data, key, default_func):
-    timestamp = data.get(key)
+    others_calendars = defaultdict(list)
+    creme_calendars_by_user = defaultdict(list)
 
-    if timestamp is not None:
-        try:
-            #return datetime.fromtimestamp(float(timestamp))
-            return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
-        except Exception:
-            logger.exception('_get_datetime(key=%s)', key)
+    calendars = Calendar.objects.exclude(user=user).filter(is_public=True)
 
-    return default_func()
+    for calendar in calendars:
+        cal_user = calendar.user
+        filter_key = "%s %s %s" % (cal_user.username,
+                                   cal_user.first_name,
+                                   cal_user.last_name)
+        cal_user.filter_key = filter_key
+        others_calendars[cal_user].append(calendar)
+        creme_calendars_by_user[filter_key].append({'name': calendar.name,
+                                                    'id': calendar.id})
+
+    floating_activities = Activity.objects.filter(floating_type=FLOATING,
+                                                  relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                                  relations__object_entity=Contact.objects.get(is_user=user).id,
+                                                  is_deleted=False,
+                                                  )
+
+    for activity in floating_activities:
+        activity.calendar = activity.calendars.get(user=user)
+
+    return render(request, 'activities/calendar.html',
+                  {'user_username':           user.username,
+                   'events_url':              '/activities/calendar/users_activities/',
+                   # 'users':                   User.objects.order_by('username'),
+                   'max_element_research':    MAX_ELEMENT_RESEARCH,
+                   'my_calendars':            Calendar.objects.filter(user=user),
+                   'others_calendars':        dict(others_calendars),
+                   'n_others_calendars':      len(calendars),
+                   'creme_calendars_by_user': jsondumps(creme_calendars_by_user),
+                   'current_calendars':       [str(id) for id in calendar_ids],
+                   'creation_perm':           user.has_perm('activities.add_activity'),
+                   'floating_activities':     floating_activities, #TODO only floating activities assigned to logged user ??
+                  }
+                 )
 
 @login_required
 @permission_required('activities')
 @jsonify
-def get_users_activities(request, usernames, calendars_ids):
+def get_users_activities(request, calendar_ids):
     user = request.user
+    calendar_ids = calendar_ids.split(',')
+    # users    = list(User.objects.filter(username__in=usernames.split(','))) #NB: list() to avoid inner query
+    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #idem
 
-    users    = list(User.objects.filter(username__in=usernames.split(','))) #NB: list() to avoid inner query
-    contacts = list(Contact.objects.filter(is_user__in=users).values_list('id', flat=True)) #idem
-
-    users_cal_ids = list(Calendar.objects
-                                 .filter(Q(is_public=True) |
-                                         Q(user=user,
-                                           id__in=[cal_id
-                                                       for cal_id in calendars_ids.split(',')
-                                                         if cal_id.isdigit()
-                                                  ]
-                                          )
-                                        )
-                                 .values_list('id', flat=True)
-                        )
+    users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 
     GET = request.GET
     start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
@@ -181,13 +200,7 @@ def get_users_activities(request, usernames, calendars_ids):
                                             #),
                         #mimetype='text/javascript'
                        #)
-    return [_activity_2_dict(activity, user) for activity in activities]
-
-
-def _js_timestamp_to_datetime(timestamp):
-    "@raise ValueError"
-    #return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
-    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000)) #Js gives us miliseconds
+    return [_activity_2_dict(activity, user) for activity in _get_one_activity_per_calendar(calendar_ids, activities)]
 
 @login_required
 @permission_required('activities')
@@ -199,19 +212,19 @@ def update_activity_date(request):
     act_id          = POST['id']
     start_timestamp = POST['start']
     end_timestamp   = POST['end']
-
-    #try:
-        #is_all_day = JSONDecoder().decode(POST.get('allDay', 'null'))
-    #except ValueError as e:
-        #logger.debug('update_activity_date(): %s', e)
-        #is_all_day = None
     is_all_day = POST.get('allDay')
 
     if is_all_day is not None:
-        is_all_day = bool(JSONDecoder().decode(is_all_day))
+        is_all_day = bool(jsonloads(is_all_day))
 
     activity = Activity.objects.get(pk=act_id)
     request.user.has_perm_to_change_or_die(activity)
+
+    #This view is used when drag and dropping event comming from calendar
+    #or external events (floating events).
+    #Dropping a floating event on the calendar fixes it.
+    if activity.floating_type == FLOATING:
+        activity.floating_type = NARROW
 
     #TODO: factorise (_time_from_JS() function ??)
     activity.start = _js_timestamp_to_datetime(start_timestamp)
@@ -236,7 +249,8 @@ def update_activity_date(request):
 @login_required
 @permission_required('activities')
 def add_user_calendar(request):
-    return add_model_with_popup(request, CalendarForm, title=_(u'Add a calendar'))
+    return add_model_with_popup(request, CalendarForm, title=_(u'Add a calendar'),
+                                initial={'color': Calendar.new_color()})
 
 @login_required
 @permission_required('activities')
@@ -258,4 +272,38 @@ def delete_user_calendar(request):
     if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
         raise PermissionDenied(_(u'You are not allowed to delete this calendar.'))
 
+    # Attach all existing activities to default calendar
+    default_calendar = Calendar.get_user_default_calendar(user)
+    for activity in calendar.activity_set.all():
+        activity.calendars.add(default_calendar)
+
     calendar.delete()
+
+@login_required
+@permission_required('activities')
+def link_user_calendar(request, activity_id):
+    #We cannot use the generic view add_to_entity because we need to reload after posting.
+    user = request.user
+    activity = get_object_or_404(Activity, pk=activity_id)
+
+    user.has_perm_to_link_or_die(activity)
+
+    if request.method == 'POST':
+        form = ActivityCalendarLinkerForm(activity,
+                                          user=user,
+                                          data=request.POST,
+                                          files=request.FILES or None)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = ActivityCalendarLinkerForm(activity, user=user)
+
+    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {'form':  form,
+                        'title': _(u"Add on a calendar"),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=True,
+                       delegate_reload=True,
+                      )

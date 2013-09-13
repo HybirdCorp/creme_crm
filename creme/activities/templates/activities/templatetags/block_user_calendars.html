@@ -27,7 +27,10 @@
             </tr>
             {% for calendar in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">{{calendar.name}}</td>
+                    <td class="{{row_color}}">
+                        <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+                        <span>{{calendar.name}}</span>
+                    </td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                     <td class="{{row_color}} action">
