@@ -3,306 +3,80 @@
 {% load creme_core_tags creme_widgets %}
 {% block page_title %} - {% trans "Calendars" %}{% endblock %}
 {% block extrahead %}
-<script type='text/javascript'>{% comment %}TODO: move to a JS file{% endcomment %}
-$(document).ready(function() {
-    function updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
-        $.ajax({
-                  type: "POST",
-                  url: "/activities/calendar/activity/update",
-                  data: {start: event.start.getTime(), end: event.end.getTime(), id: event.id, allDay: allDay},
-                  error : function(request, textStatus, errorThrown) {
-                      if(request.status == 403) {
-                        alert("{% trans "You do not have permission, the change will not be saved." %}");
-                        revertFunc();
-                      } else if(request.status == 409) {
-                        creme.utils.showDialog(unescape(request.responseText));
-                        revertFunc();
-                      } else if(request.status >= 300 || request.status == 0) {
-                          alert("{% trans "Error, please reload the page." %}");
-                          revertFunc();
-                      }
-                  },
-                  beforeSend: function(request) {
-                        //$('#add_operation').attr('disabled', 'disabled');
-                        creme.utils.loading('loading', false, {});
-                  },
-                  complete : function(request, txtStatus) {
-                    creme.utils.loading('loading', true, {});
-                  }
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            creme.activities.calendar.fullCalendar('{{events_url}}');
+            creme.activities.calendar.load_calendar_event_listeners('{{user_username}}', {{creme_calendars_by_user|safe}});
         });
-    }
-
-    $('#calendar').fullCalendar({
-            weekends: true,
-            header: {
-                left:   'title, prevYear, nextYear',
-                center: 'today, prev,next',
-                right:  'agendaDay, agendaWeek, month'
-            },
-            theme: false,
-            firstDay: 1,
-            weekMode: 'fixed',
-            aspectRatio: 2,
-            defaultView : 'month',//'agendaWeek',
-            allDaySlot: true,
-            allDayText: "{% trans "All day" %}",
-            axisFormat: "H'h'mm",
-            slotMinutes: 15,
-            defaultEventMinutes: 120,
-            firstHour : new Date().toString("HH"),
-            minTime: 0,
-            maxTime: 24,
-            timeFormat: "H'h'mm", //TODO: use l110n time format
-            columnFormat: {
-                "month":"dddd",
-                "agendaWeek":"dddd d MMMM",
-                "agendaDay":"dddd d MMMM"
-            },
-            titleFormat: {
-                month: 'MMMM yyyy',
-                week: "d[ yyyy]{ '&#8212;' d MMMM yyyy}",
-                day: 'dddd d MMMM yyyy'
-            },
-            buttonText: {
-                prev:     '&nbsp;&#9668;&nbsp;',  // left triangle
-                next:     '&nbsp;&#9658;&nbsp;',  // right triangle
-                prevYear: '&nbsp;&lt;&lt;&nbsp;', // <<
-                nextYear: '&nbsp;&gt;&gt;&nbsp;', // >>
-                today:    "{%trans "Today" %}",
-                month:    "{%trans "Month" %}",
-                week:     "{%trans "Week" %}",
-                day:      "{%trans "Day" %}"
-            },
-            monthNames: ["{%trans "January" %}", "{%trans "February" %}", "{%trans "March" %}",
-                         "{%trans "April" %}", "{%trans "May" %}", "{%trans "June" %}",
-                         "{%trans "July" %}", "{%trans "August" %}", "{%trans "September" %}",
-                         "{%trans "October" %}", "{%trans "November" %}", "{%trans "December" %}"],
-            dayNames: ["{%trans "Sunday" %}", "{%trans "Monday" %}", "{%trans "Tuesday" %}",
-                       "{%trans "Wesnesday" %}", "{%trans "Thursday" %}", "{%trans "Friday" %}",
-                       "{%trans "Saturday" %}"],
-            events: "{{events_url}}",
-            editable: true,
-            loading: function(bool, view) {
-                //console.log(arguments);
-                /*if (bool) $('#loading').show("slow");
-                else $('#loading').hide("slow");*/
-                if (bool) creme.utils.loading('loading', false, {});
-                else creme.utils.loading('loading', true, {});
-                //TODO creme.utils.loading('loading', !bool, {}); ???
-            },
-            dayClick : function(date, allDay, jsEvent, view) {
-                creme.utils.showInnerPopup('/activities/activity/add_popup',
-                                           {beforeClose: function(){location.reload();}},
-                                           null,
-                                           {data: {'year':   date.getFullYear(),
-                                                   'month':  date.getMonth()+1,
-                                                   'day':    date.getDate(),
-                                                   'hour':   date.getHours(),
-                                                   'minute': date.getMinutes()
-                                                  }
-                                           });
-            },
-            eventAfterRender : function(event, element, view) {
-                $(element).find('a').css('background-color', event.entity_color);
-                $(element).find('.fc-event-time').css('background-color', event.entity_color);
-                creme.activities.calendar.setReadableColor($(element).find('a'), event.entity_color);
-            },
-            eventDragStart : function(calEvent, domEvent, ui, view) {
-                /*ui.helper.attr('old_top', ui.helper.css('top'));
-                ui.helper.attr('old_left', ui.helper.css('left'));*/
-            },
-            eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-                updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
-            },
-            eventClick: function(event) {
-                //window.open(event.url, 'gcalevent', 'width=700,height=600,scrollbars=yes');
-                creme.utils.showInnerPopup(event.url);
-                return false;
-            },
-            eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
-                updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
-            }
-        });
-    });
-</script>
-<style type='text/css'>
-    #loading {
-            background : #142424 none repeat scroll 0 0;
-            opacity: 0.8;
-            filter: alpha(opacity=80);
-            color : #FFFFFF;
-            height:25px;
-            width:100px;
-        }
-    #calendar {
-        width: auto;
-        margin: 0 auto;
-        }
-</style>
-<script type="text/javascript">
-    $(document).ready(
-        function() {
-            $("#tbody-selectable-users, #tbody-selectable-calendars").selectable({
-                filter:'td',
-                stop: function(event, ui) {
-                    $("td.ui-selected", this).each(function() {
-                        $(this).find('input[type=checkbox]').toggleCheck();
-                        $(this).toggleClass('selected');
-                    });
-                }
-            });
-
-            $('#show-hide-users').toggle(
-                function(e) {
-                    $('#tbody-selectable-users').slideUp();
-                    $(this).text('{%trans "Show the users list" %}');
-                    $.cookie('creme-calendar-user-list-state', 'hide');
-                },
-                function(e) {
-                    $('#tbody-selectable-users').slideDown();
-                    $(this).text('{%trans "Hide the users list" %}');
-                    $.cookie('creme-calendar-user-list-state', 'show');
-                }
-            );
-
-            var userListState = $.cookie('creme-calendar-user-list-state');
-            if (userListState!=null && userListState == 'hide') {
-                    $('#show-hide-users').click();
-            }
-
-            $('#show-hide-mycalendars').toggle(
-                function(e) {
-                    $('#tbody-selectable-calendars').slideUp();
-                    $(this).text('{%trans "Show the list of my calendars" %}');
-                    $.cookie('creme-calendar-mycalendars-list-state', 'hide');
-                },
-                function(e) {
-                    $('#tbody-selectable-calendars').slideDown();
-                    $(this).text('{%trans "Hide the list of my calendars" %}');
-                    $.cookie('creme-calendar-mycalendars-list-state', 'show');
-                }
-            );
-
-            var calListState = $.cookie('creme-calendar-mycalendars-list-state');
-            if (calListState!=null && calListState == 'hide') {
-                    $('#show-hide-mycalendars').click();
-            }
-
-            $('#btn_select_all_users').click(function(e) {
-                var $tds = $('#tbody-selectable-users td.selectable');
-                $tds.addClass('selected');
-                $tds.find('input').check();
-            });
-
-            $('#btn_select_all_mycalendars').click(function(e) {
-                var $tds = $('#tbody-selectable-calendars td.selectable');
-                $tds.addClass('selected');
-                $tds.find('input').check();
-            });
-
-            $('#tbody-selectable-users [name=user_selected], #tbody-selectable-calendars [name=calendar_selected]').click(function(e) {
-                var $chk_box = $(this);
-                var $td = $chk_box.parents('td.selectable');
-                if($chk_box.is(':checked')) {
-                    $td.addClass('selected'); //TODO: toggleClass ??
-                } else {
-                    $td.removeClass('selected');
-                }
-            });
-
-        }
-    );
-</script>
+    </script>
 {% endblock %}
 
 {% block content %}
-<div class="full-calendar-header">
-    <div class="full-calendar-buttons">
-        <form action="" method="POST" name="user_choice">{% csrf_token %}
-            <table width="100%">
-                <tbody>
-                    <tr>
-                        <td width="50%">
-                            <table style="border:2px solid #D7E2E7;width:100%;">
-                                <thead>
-                                    <tr>
-                                        <td>{% trans "See calendars of :" %}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="16" align="center">
-                                            <button type="button" id="show-hide-users">{% trans "Hide the list of users" %}</button>
-                                            <button type="button" id="btn_select_all_users">{% trans "Select all users" %}</button>
-                                            {% trans "See public calendars of selected users" as submit_label %}<input type="submit" value="{{submit_label}}" title="{{submit_label}}"/>
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-selectable-users" style="overflow: scroll;">
-                                    {% for user in users %}
-                                        {% if forloop.counter0|mod:16 == 0 %}<tr>{% endif %}
-                                            <td class="selectable {% if user in current_users %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
-                                                <span>
-                                                    <input type="checkbox" value="{{user.username}}" id="id_{{user.username}}" name="user_selected" {% if user in current_users %} checked {% endif %} />
-                                                    <label for="id_{{user.username}}" >{{user}}</label>
-                                                </span>
-                                            </td>
-                                        {% if forloop.counter0|mod:16 == 15 %}</tr>{% endif %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </td>
-                        <td width="50%">
-                            <table style="border:2px solid #D7E2E7;width:100%;">
-                                <thead>
-                                    <tr>
-                                        <td>{% trans "My calendars :" %}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="16" align="center">
-                                            <button type="button" id="show-hide-mycalendars">{% trans "Hide the list of my calendars" %}</button>
-                                            <button type="button" id="btn_select_all_mycalendars">{% trans "Select all my calendars" %}</button></br>
-                                            {% trans "See my selected calendars" as submit_label %}<input type="submit" value="{{submit_label}}" title="{{submit_label}}" />
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody-selectable-calendars" style="overflow: scroll;">
-                                    {% for calendar in my_calendars %}
-                                        {% if forloop.counter0|mod:16 == 0 %}<tr>{% endif %}
-                                            <td class="selectable {% if calendar.pk|str in current_calendars %} selected {% endif %}" style="padding:3px;cursor: pointer;" >
-                                                <span>
-                                                    <input type="checkbox" value="{{calendar.pk}}" id="id_calendar_{{calendar.pk}}" name="calendar_selected" {% if calendar.pk|str in current_calendars %} checked {% endif %} />
-                                                    <label for="id_calendar_{{calendar.pk}}" >{{calendar}}</label>
-                                                </span>
-                                            </td>
-                                        {% if forloop.counter0|mod:16 == 15 %}</tr>{% endif %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <table style="border:2px solid #D7E2E7;width:100%;">
-                                <tr>
-                                    <tr>
-                                        <td>{% trans "Floating activities" %} :</td>
-                                    </tr>
-                                    <td style="background-color: #F7CBC6">
-                                        {% for floating_activity in floating_activities %}
-                                            {% widget_entity_hyperlink floating_activity user %}{% if not forloop.last %} - {% endif %}
-                                        {% empty %}
-                                            {% trans "None for the moment" %}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
+    <div class='menu_calendar toggle-target'>
+        {% if floating_activities %}
+            <div class="ui-creme-widget ui-creme-toggle widget-auto" widget="ui-creme-toggle">
+                <h4 class='toggle-trigger'>
+                    <span class="toggle-icon">&nbsp;</span>
+                    <span>&nbsp;&nbsp;{% trans "Floating activities" %}</span>
+                </h4>
+                {% if floating_activities|length >= max_element_research %}
+                    <div class='toggle-target floating_event_filter research'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                {% endif %}
+                <div class="toggle-target menu_sub_element_list">
+                    {% for floating_activity in floating_activities %}
+                        <div class='floating_event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-color="#{{floating_activity.calendar.color}}">
+                            <div class="colored_square" style="background-color:#{{floating_activity.calendar.color}};"></div>
+                            <span>{{floating_activity.title}}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr/>
+            </div>
+        {% endif %}
+        <div class="ui-creme-widget ui-creme-toggle widget-auto" widget="ui-creme-toggle">
+            <h4 class='toggle-trigger'>
+                <span class="toggle-icon">&nbsp;</span>
+                <span>&nbsp;&nbsp;{% trans "My calendars" %} </span>
+            </h4>
+            <div class="toggle-target my_calendars menu_sub_element_list">
+                {% for calendar in my_calendars %}
+                    <div class="calendar_item">
+                        <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+                        <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} />
+                        <label for="id_calendar_{{calendar.id}}" >{{calendar}}</label>
+                        </br>
+                    </div>
+                {% empty%}
+                    {% trans "No calendars" %}
+                {% endfor %}
+            </div>
+            <hr/>
+        </div>
+        <div class="ui-creme-widget toggle-collapsed ui-creme-toggle widget-auto" widget="ui-creme-toggle">
+            <h4 class='toggle-trigger'>
+                <span class="toggle-icon">&nbsp;</span>
+                <span>&nbsp;&nbsp;{% trans "Collaborators calendars" %}</span>
+            </h4>
+            {% if n_others_calendars >= max_element_research %}
+                <div class='toggle-target calendar_filter'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+            {% endif %}
+            <div class="toggle-target other_calendars menu_sub_element_list">
+                {% for user, calendars in others_calendars.items %}
+                    <h5 class="calendar_label_owner" data-user="{{user.filter_key}}">{{user.first_name}} {{user.last_name}}</h5>
+                    <div class="calendar_user_group" data-user="{{user.filter_key}}">
+                        {% for calendar in calendars %}
+                            <div class="calendar_item calendar_label_container" data-user="{{user.filter_key}}" data-calendar="{{calendar.id}}">
+                                <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+                                <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} />
+                                <label for="id_calendar_{{calendar.id}}" >{{calendar}}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% empty%}
+                    {% trans "No calendars" %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
-    <h2>{% trans "Calendar of :" %} {{current_users|join:", "}}</h2>
-</div>
-<div id='loading' style='display:none'>{% trans "Loading..." %}</div>
-<div id='calendar'></div>
+    <div class='calendar with_menu'></div>
 {% endblock %}

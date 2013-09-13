@@ -96,7 +96,7 @@ END:VEVENT
       }
 
     def get_title_for_calendar(self):
-        return u'%s - %s' % (self.title, self.user)
+        return self.title
 
     @classmethod
     def get_creation_title(cls, type_id):
@@ -269,4 +269,7 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
         return
 
     if contact.is_user:
-        activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
+        # Why only from default calendar?
+        # activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
+        for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True): 
+            activity.calendars.remove(calendar_id)

@@ -37,7 +37,8 @@ from creme.creme_config.models import SettingKey, SettingValue
 from creme.persons.models import Contact, Organisation
 
 from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
-from .blocks import participants_block, subjects_block, future_activities_block, past_activities_block
+from .blocks import (participants_block, subjects_block, future_activities_block,
+                     past_activities_block, related_calendar_block)
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import *
 
@@ -69,15 +70,15 @@ class Populator(BasePopulator):
         create_if_needed(Status, {'pk': STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'),     is_custom=False)
         create_if_needed(Status, {'pk': STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
 
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_TASK},      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_TASK},      name=_(u"Task"),            default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         meeting_type = \
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_MEETING},   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_MEETING},   name=_(u"Meeting"),         default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         phone_call_type = \
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_PHONECALL}, name=_(u"Phone call"),      color="A24BBB", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_GATHERING}, name=_(u"Gathering"),       color="F23C39", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_SHOW},      name=_(u"Show"),            color="8DE501", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_DEMO},      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
-        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_INDISPO},   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_PHONECALL}, name=_(u"Phone call"),      default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_GATHERING}, name=_(u"Gathering"),       default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_SHOW},      name=_(u"Show"),            default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_DEMO},      name=_(u"Demonstration"),   default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_INDISPO},   name=_(u"Indisponibility"), default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_MEETING_MEETING},       name=_('Meeting'),                            type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_MEETING_QUALIFICATION}, name=_('Qualification'),                      type=meeting_type, is_custom=False)
@@ -113,12 +114,13 @@ class Populator(BasePopulator):
                                   )
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=participants_block.id_, order=100, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=subjects_block.id_,     order=120, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Activity)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,           order=40,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=related_calendar_block.id_, order=90,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=participants_block.id_,           order=100, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=subjects_block.id_,               order=120, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,             order=450, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,              order=500, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+        BlockDetailviewLocation.create(block_id=history_block.id_,                order=20,  zone=BlockDetailviewLocation.RIGHT, model=Activity)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             logger.info('Assistants app is installed => we use the activities blocks on detail views')

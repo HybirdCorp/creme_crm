@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+
+{% if page.paginator.count %}
+    <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+        {% get_block_header colspan=3 %}
+            <th class="collapser label">
+                {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
+            </th>
+            <th class="actions">
+                <div class="buttons">
+                    {% get_line_linker at_url '/activities/calendar/link/{{object.id}}' with_label _("Change calendar") with_perms page.paginator.count %}
+                </div>
+            </th>
+        {% end_get_block_header %}
+        <tbody class="collapsable">
+            <tr class="header">
+                {% get_column_header _('Name') 'name' %}
+                {% get_column_header _('Is default?') 'is_default' %}
+                {% get_column_header _('Is public?') 'is_public' %}
+            </tr>
+            {% for calendar in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                <tr class="content">
+                    <td class="{{row_color}}">
+                        <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
+                        <span>{{calendar.name}}</span>
+                    </td>
+                    <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>
+                    <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% get_block_footer 3 %}
+    </table>
+{% endif %}

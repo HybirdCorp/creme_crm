@@ -54,3 +54,15 @@ FLOATING        = 3
 EFILTER_MEETINGS   = 'activities-meetings'
 EFILTER_PHONECALLS = 'activities-phonecalls'
 EFILTER_TASKS      = 'activities-tasks'
+
+DEFAULT_CALENDAR_COLOR = 'C1D9EC'
+COLOR_POOL = ('c1d9ec', '94c6db', #blue icecream
+              'f7cbc6', 'f7b5ad', #pink icecream
+              'b9fae5', '61ffcd', #turquoises
+              'fff4b8', 'ffe96e', #yellows
+              'd4ffb8', 'b4ff82', #greens
+              'f9b3ff', 'f36bff', #pink-mallow
+              'ffcea6', 'ffab66', #oranges
+             )
+
+MAX_ELEMENT_RESEARCH = 10

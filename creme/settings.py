@@ -369,7 +369,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/cookie.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.8.js',
-                    'activities/js/jquery/extensions/fullcalendar-1.4.5.js', #TODO: move with activities.js (beware it causes errors for now)
+                    'activities/js/jquery/extensions/fullcalendar-1.4.7.js', #TODO: move with activities.js (beware it causes errors for now)
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
                     'creme_core/js/jquery/extensions/highlight.js',

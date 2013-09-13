@@ -37,6 +37,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     ADD_POPUP_URL   = '/activities/activity/add_popup'
     ADD_INDISPO_URL = '/activities/activity/add_indispo'
     DEL_ACTTYPE_URL = '/creme_config/activities/activity_type/delete'
+    GET_TYPES    = '/activities/type/%s/json'
 
     def _buid_add_participants_url(self, activity):
         return '/activities/activity/%s/participant/add' % activity.id
@@ -259,7 +260,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(user)
         type_id = 'activities-activity_custom_1'
-        ActivityType.objects.create(pk=type_id, name='Karate session', color="FFFFFF",
+        ActivityType.objects.create(pk=type_id, name='Karate session',
                                     default_day_duration=1, default_hour_duration="00:15:00",
                                     is_custom=True,
                                    )
@@ -360,7 +361,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview09(self):
         "default_duration = 1.5 day + FLOATING_TIME"
         atype = ActivityType.objects.create(pk='activities-activity_custom_1',
-                                            name='Big Show', color='FFFFFF',
+                                            name='Big Show',
                                             default_day_duration=1,
                                             default_hour_duration='12:00:00',
                                             is_custom=True,
@@ -375,7 +376,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview10(self):
         "default_duration = 0 + FLOATING_TIME"
         atype = ActivityType.objects.create(pk='activities-activity_custom_1',
-                                            name='Big Show', color="FFFFFF",
+                                            name='Big Show',
                                             default_day_duration=0,
                                             default_hour_duration='00:00:00',
                                             is_custom=True,
@@ -861,12 +862,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         title = 'act01'
 
 #        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-#        act_type = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
+#        act_type = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session',
 #                                    default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
 #                                   )
 #
 #        ACTIVITYTYPE_ACTIVITY2 = 'activities-activity_custom_2'
-#        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY2, name='Karate session', color="FFFFFF",
+#        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY2, name='Karate session',
 #                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
 #                        )
 
@@ -1521,7 +1522,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-                                 name='Karate session', color="FFFFFF",
+                                 name='Karate session',
                                  default_day_duration=0, default_hour_duration="00:15:00",
                                  is_custom=True,
                                 )
@@ -1533,7 +1534,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-                                 name='Karate session', color="FFFFFF",
+                                 name='Karate session',
                                  default_day_duration=0, default_hour_duration="00:15:00",
                                  is_custom=True,
                                 )
@@ -1548,6 +1549,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup1(self):
         "With existing activity type and start date given"
         self.login()
+        user = self.user
+        my_calendar = Calendar.get_user_default_calendar(user)
 
         url = self.ADD_POPUP_URL
         #today = datetime.today().replace(second=0, microsecond=0)
@@ -1576,7 +1579,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         #self.assertEqual(initial_end - initial_start, timedelta(hours=1))
 
         title = "meeting activity popup 1"
-        response = self.client.post(url, data={'user':          self.user.pk,
+        response = self.client.post(url, data={'user':          user.pk,
                                                'title':         title,
                                                'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
                                                                                           ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -1585,6 +1588,40 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                'end':           '2010-1-10',
                                                'start_time':    '09:30:00',
                                                'end_time':      '15:00:00',
+                                              }
+                                   )
+        self.assertFormError(response, 'form', None,
+                             _(u'No participant')
+                            )
+
+        response = self.client.post(url, data={'user':          user.pk,
+                                               'title':         title,
+                                               'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                                          ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                                         ),
+                                               'my_participation': True,
+                                               'start':         '2010-1-10',
+                                               'end':           '2010-1-10',
+                                               'start_time':    '09:30:00',
+                                               'end_time':      '15:00:00',
+                                              }
+                                   )
+
+        self.assertFormError(response, 'form', 'my_calendar',
+                               _(u"If you participate, you have to choose one of your calendars.")
+                              )
+
+        response = self.client.post(url, data={'user':          user.pk,
+                                               'title':         title,
+                                               'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                                          ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                                         ),
+                                               'my_participation': True,
+                                               'my_calendar':      my_calendar.pk,
+                                               'start':            '2010-1-10',
+                                               'end':              '2010-1-10',
+                                               'start_time':       '09:30:00',
+                                               'end_time':         '15:00:00',
                                               }
                                    )
 
@@ -1601,7 +1638,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup2(self):
         "With existing activity type and start date given"
         self.login()
-
+        user = self.user
+        my_calendar = Calendar.get_user_default_calendar(user)
         title = "meeting activity popup 2"
         response = self.client.post(self.ADD_POPUP_URL,
                                     data={'user':           self.user.pk,
@@ -1609,6 +1647,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'type_selector':  self._acttype_field_value(ACTIVITYTYPE_PHONECALL, 
                                                                                       ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
                                                                                      ),
+                                          'my_participation': True,
+                                          'my_calendar': my_calendar.pk,
                                           'start':          '2010-3-15',
                                           'end':            '2010-3-15',
                                           'start_time':     '19:30:00',
@@ -1629,9 +1669,11 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_popup3(self):
         "With custom activity type and without start date given"
         self.login()
+        user = self.user
+        my_calendar = Calendar.get_user_default_calendar(user)
 
         ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
+        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session',
                          default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
                         )
 
@@ -1639,10 +1681,12 @@ class ActivityTestCase(_ActivitiesTestCase):
         today = now()
         title = "meeting activity popup 3"
         response = self.client.post(self.ADD_POPUP_URL,
-                                    data={'user':           self.user.pk,
+                                    data={'user':           user.pk,
                                           'title':          title,
                                           'type_selector':  self._acttype_field_value(ACTIVITYTYPE_ACTIVITY),
                                           'start':          date_format(today),
+                                          'my_participation': True,
+                                          'my_calendar': my_calendar.pk,
                                          }
                                    )
 

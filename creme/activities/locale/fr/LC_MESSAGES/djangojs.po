@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+# > django-admin.py makemessages -d djangojs -l fr
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-13 17:38+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: static/activities/js/activities.js:37
+msgid "Loading..."
+msgstr "Chargement..."
+
+#: static/activities/js/activities.js:191
+msgid "You do not have permission, the change will not be saved."
+msgstr "Vous n'avez pas la permission, les changements ne seront pas sauvés."
+
+#: static/activities/js/activities.js:195
+msgid "Error, please reload the page."
+msgstr "Erreur, veuillez recharger la page."
+
+#: static/activities/js/activities.js:222
+msgid "All day"
+msgstr "Jour Entier"
+
+#: static/activities/js/activities.js:245
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: static/activities/js/activities.js:246
+msgid "Month"
+msgstr "Mois"
+
+#: static/activities/js/activities.js:247
+msgid "Week"
+msgstr "Semaine"
+
+#: static/activities/js/activities.js:248
+msgid "Day"
+msgstr "Jour"
+
+#: static/activities/js/activities.js:251
+msgid "January"
+msgstr "Janvier"
+
+#: static/activities/js/activities.js:252
+msgid "February"
+msgstr "Février"
+
+#: static/activities/js/activities.js:253
+msgid "March"
+msgstr "Mars"
+
+#: static/activities/js/activities.js:254
+msgid "April"
+msgstr "Avril"
+
+#: static/activities/js/activities.js:255
+msgid "May"
+msgstr "Mai"
+
+#: static/activities/js/activities.js:256
+msgid "June"
+msgstr "Juin"
+
+#: static/activities/js/activities.js:257
+msgid "July"
+msgstr "Juillet"
+
+#: static/activities/js/activities.js:258
+msgid "August"
+msgstr "Aout"
+
+#: static/activities/js/activities.js:259
+msgid "September"
+msgstr "Septembre"
+
+#: static/activities/js/activities.js:260
+msgid "October"
+msgstr "Octobre"
+
+#: static/activities/js/activities.js:261
+msgid "November"
+msgstr "Novembre"
+
+#: static/activities/js/activities.js:262
+msgid "December"
+msgstr "Décembre"
+
+#: static/activities/js/activities.js:265
+msgid "Sunday"
+msgstr "Dimanche"
+
+#: static/activities/js/activities.js:266
+msgid "Monday"
+msgstr "Lundi"
+
+#: static/activities/js/activities.js:267
+msgid "Tuesday"
+msgstr "Mardi"
+
+#: static/activities/js/activities.js:268
+msgid "Wesnesday"
+msgstr "Mercredi"
+
+#: static/activities/js/activities.js:269
+msgid "Thursday"
+msgstr "Jeudi"
+
+#: static/activities/js/activities.js:270
+msgid "Friday"
+msgstr "Vendredi"
+
+#: static/activities/js/activities.js:271
+msgid "Saturday"
+msgstr "Samedi"

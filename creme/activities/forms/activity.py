@@ -333,9 +333,12 @@ class ActivityCreateForm(_ActivityCreateForm):
     def clean(self):
         if not self._errors:
             cdata = self.cleaned_data
-
-            if cdata['my_participation'] and not cdata.get('my_calendar'):
+            my_participation = cdata['my_participation']
+            if my_participation and not cdata.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([ugettext(u'If you participate, you have to choose one of your calendars.')])
+
+            if not my_participation and not cdata['participating_users']:
+                raise ValidationError(ugettext('No participant'))
 
             if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
                 raise ValidationError(ugettext('If you want this alert you must specify date and time')) #TODO: not global error

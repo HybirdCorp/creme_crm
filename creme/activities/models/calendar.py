@@ -24,6 +24,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey
 
+from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
+
 
 class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100, unique=True)
@@ -31,6 +33,7 @@ class Calendar(CremeModel):
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
+    color       = CharField(_(u'Color'), max_length=100, blank=True, null=True)
 
     _enable_default_checking = True
 
@@ -43,6 +46,11 @@ class Calendar(CremeModel):
     def __unicode__(self):
         return self.name
 
+    @property
+    def get_color(self):
+        "color can be null, so in this case a default color is used in templates"
+        return self.color if self.color else DEFAULT_CALENDAR_COLOR
+
     def delete(self):
         super(Calendar, self).delete()
 
@@ -53,11 +61,16 @@ class Calendar(CremeModel):
                 def_cal.save()
 
     @staticmethod
+    def new_color():
+        return COLOR_POOL[Calendar.objects.count() % len(COLOR_POOL)]
+
+    @staticmethod
     def _create_default_calendar(user):
         cal = Calendar(name=ugettext(u"Default %(user)s's calendar") % {
                                             'user': user
                                         },
                        user=user, is_default=True, is_custom=False,
+                       color=Calendar.new_color(),
                       )
         cal._enable_default_checking = False
         cal.save()
@@ -99,6 +112,9 @@ class Calendar(CremeModel):
         return cal
 
     def save(self, *args, **kwargs):
+        if not self.color:
+            self.color = self.new_color()
+
         check = self._enable_default_checking
 
         if check and not self.is_default and \
