@@ -212,8 +212,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual('/activities/calendar/users_activities/', event_url)
         self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertEqual(1, n_others_calendars)
-        self.assertEqual(jsondumps({other_user.username: [{'name': cal2.name,
-                                                           'id': cal2.id}]}), creme_calendars_by_user)
+        filter_key = "%s %s %s" % (other_user.username,
+                                   other_user.first_name,
+                                   other_user.last_name)
+        self.assertEqual(jsondumps({filter_key: [{'name': cal2.name,
+                                                  'id': cal2.id}]}), creme_calendars_by_user)
         self.assertEqual(True, creation_perm)
 
 
