@@ -179,18 +179,10 @@ def get_listview_columns_header(context):
 
 def _render_relations(entity, hfi, user):
     relations_list = ['<ul>']
-    #append = relations_list.append
 
-    #for e in entity.get_related_entities(hfi.relation_predicat_id, True):
-        #if e.can_view(user):
-            #append(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(unicode(e))))
-        #else:
-            #append(u'<li>%s</li>' % escape(e.allowed_unicode(user)))
     relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
                             for e in entity.get_related_entities(hfi.relation_predicat_id, True)
                          )
-
-    #append("</ul>")
     relations_list.append('</ul>')
 
     return u''.join(relations_list)
@@ -211,7 +203,8 @@ def get_listview_cell(hfi, entity, user):
         render_func = _RENDER_FUNCS.get(hfi.type)
         if render_func:
             return render_func(entity, hfi, user)
-    except AttributeError as e:
+    #except AttributeError as e:
+    except Exception as e:
         logger.debug('Templatetag "get_listview_cell": %s', e)
 
     return u""
