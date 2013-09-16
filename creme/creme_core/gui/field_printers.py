@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
 from itertools import chain
 
 from django.db import models
@@ -173,13 +174,12 @@ class _FieldPrintersRegistry(object):
     def get_html_field_value(self, obj, field_name, user):
         field_class, field_value = get_instance_field_info(obj, field_name)
 
-        if field_class is None:
-            fields_through = [f['field'].__class__ for f in get_model_field_info(obj.__class__, field_name)]
-
-            if models.ManyToManyField in fields_through: #TODO: use any() instead
+        if field_class is None: #None means error or a M2M without value TODO: improve this ??
+            if any(isinstance(f['field'], models.ManyToManyField) for f in get_model_field_info(obj.__class__, field_name)):
+                #can raise AttributeError TODO: change this behavior ??
                 return get_m2m_entities(obj, field_name, get_value=True,
-                                        get_value_func=(lambda values: ", ".join([val for val in values if val])),  #TODO: use (i)filter
-                                        user=user
+                                        get_value_func=(lambda values: u', '.join(filter(None, values))),
+                                        user=user,
                                        )
 
         print_func = self._printers.get(field_class)
