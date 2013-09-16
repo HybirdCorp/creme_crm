@@ -234,7 +234,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
     def _create_activity(self):
         atype = ActivityType.objects.create(
-                pk='polls-test-actype', name="Queen's blade", color="FFFFFF",
+                pk='polls-test-actype', name="Queen's blade",
                 default_day_duration=7, default_hour_duration="00:00:00",
                 is_custom=True,
             )
