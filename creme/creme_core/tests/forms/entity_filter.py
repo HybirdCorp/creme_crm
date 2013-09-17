@@ -129,7 +129,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-    def test_ok02(self): #ISEMPTY -> boolean
+    def test_ok02(self):
+        "ISEMPTY -> boolean"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
@@ -145,7 +146,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [False]}, condition.decoded_value)
 
-    def test_ok03(self): #FK field
+    def test_ok03(self):
+        "FK field"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISTARTSWITH
         name = 'civility__title'
@@ -163,7 +165,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-    def test_ok04(self): #multivalues
+    def test_ok04(self):
+        "Multi values"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IENDSWITH
         name = 'last_name'
@@ -181,7 +184,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                     condition.name)
         self.assertEqual({'operator': operator, 'values': values}, condition.decoded_value)
 
-    def test_ok05(self): #M2M field
+    def test_ok05(self):
+        "M2M field"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IEQUALS
         name = 'language__name'

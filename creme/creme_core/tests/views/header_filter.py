@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.serializers.json import simplejson
+    from json import loads as load_json
+
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
@@ -37,34 +38,19 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def _build_get4ctype_url(self, ctype):
         return '/creme_core/header_filter/get_for_ctype/%s' % ctype.id
 
-    def _find_field_index(self, formfield, name):
-        for i, (fname, fvname) in enumerate(formfield.choices):
-            if fname == name:
-                return i
-
-        self.fail('No "%s" field' % name)
-
     def test_create01(self):
         self.login()
 
         ct = ContentType.objects.get_for_model(CremeEntity)
-        self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
+        self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
-        uri = self._build_add_url(ct)
-        response = self.assertGET200(uri)
+        url = self._build_add_url(ct)
+        self.assertGET200(url)
 
-        with self.assertNoException():
-            form = response.context['form']
-            fields_field = form.fields['fields']
-
-        created_index = self._find_field_index(fields_field, 'created')
         name = 'DefaultHeaderFilter'
-        response = self.client.post(uri,
-                                    data={'name':                            name,
-                                          'fields_check_%s' % created_index: 'on',
-                                          'fields_value_%s' % created_index: 'created',
-                                          'fields_order_%s' % created_index: 1,
-                                         }
+        response = self.client.post(url, data={'name':  name,
+                                               'items': 'rfield-created',
+                                              }
                                    )
         self.assertNoFormError(response, status=302)
 
@@ -89,47 +75,29 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         ct = self.contact_ct
-        loves, loved = RelationType.create(('test-subject_love', u'Is loving'),
-                                           ('test-object_love',  u'Is loved by')
-                                          )
-        customfield = CustomField.objects.create(name=u'Size (cm)', field_type=CustomField.INT, content_type=ct)
-        prop_funcfield = Contact.function_fields.get('get_pretty_properties')
+        loves = RelationType.create(('test-subject_love', u'Is loving'),
+                                    ('test-object_love',  u'Is loved by')
+                                   )[0]
+        customfield = CustomField.objects.create(name=u'Size (cm)',
+                                                 field_type=CustomField.INT,
+                                                 content_type=ct,
+                                                )
+        funcfield = Contact.function_fields.get('get_pretty_properties')
 
-        uri = self._build_add_url(ct)
-        response = self.client.get(uri)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-            fields_field    = fields['fields']
-            cfields_field   = fields['custom_fields']
-            rtypes_field    = fields['relations']
-            funfields_field = fields['functions']
+        url = self._build_add_url(ct)
+        response = self.client.get(url)
 
         field_name = 'first_name'
-        firstname_index = self._find_field_index(fields_field, field_name)
-        cfield_index    = self._find_field_index(cfields_field, customfield.id)
-        loves_index     = self._find_field_index(rtypes_field, loves.id)
-        self._find_field_index(funfields_field, prop_funcfield.name)
         name = 'DefaultHeaderFilter'
-        response = self.client.post(uri, follow=True,
-                                    data={'name': name,
-                                          'user': self.user.id,
-
-                                          'fields_check_%s' % firstname_index: 'on',
-                                          'fields_value_%s' % firstname_index: field_name,
-                                          'fields_order_%s' % firstname_index: 1,
-
-                                          'custom_fields_check_%s' % cfield_index: 'on',
-                                          'custom_fields_value_%s' % cfield_index: customfield.id,
-                                          'custom_fields_order_%s' % cfield_index: 1,
-
-                                          'relations_check_%s' % loves_index: 'on',
-                                          'relations_value_%s' % loves_index: loves.id,
-                                          'relations_order_%s' % loves_index: 1,
-
-                                          'functions_check_%s' % loves_index: 'on',
-                                          'functions_value_%s' % loves_index: prop_funcfield.name,
-                                          'functions_order_%s' % loves_index: 1,
+        response = self.client.post(url, follow=True,
+                                    data={'name':   name,
+                                          'user':   self.user.id,
+                                          'items': 'rtype-%(rtype)s,rfield-%(rfield)s,ffield-%(ffield)s,cfield-%(cfield)s' % {
+                                                        'rfield': field_name,
+                                                        'cfield': customfield.id,
+                                                        'rtype':  loves.id,
+                                                        'ffield': funcfield.name,
+                                                    }
                                          }
                                    )
         self.assertNoFormError(response)
@@ -141,24 +109,24 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(4, len(hfitems))
 
         hfitem = hfitems[0]
-        self.assertEqual(field_name, hfitem.name)
-        self.assertEqual(1,          hfitem.order)
-        self.assertEqual(HFI_FIELD,  hfitem.type)
-
-        hfitem = hfitems[1]
-        self.assertEqual(str(customfield.id), hfitem.name)
-        self.assertEqual(2,                   hfitem.order)
-        self.assertEqual(HFI_CUSTOM,          hfitem.type)
-
-        hfitem = hfitems[2]
-        self.assertEqual(str(loves.id), hfitem.name)
-        self.assertEqual(3,             hfitem.order)
+        self.assertEqual(loves.id,      hfitem.name)
+        self.assertEqual(1,             hfitem.order)
         self.assertEqual(HFI_RELATION,  hfitem.type)
 
+        hfitem = hfitems[1]
+        self.assertEqual(field_name, hfitem.name)
+        self.assertEqual(2,          hfitem.order)
+        self.assertEqual(HFI_FIELD,  hfitem.type)
+
+        hfitem = hfitems[2]
+        self.assertEqual(funcfield.name, hfitem.name)
+        self.assertEqual(3,              hfitem.order)
+        self.assertEqual(HFI_FUNCTION,   hfitem.type)
+
         hfitem = hfitems[3]
-        self.assertEqual(prop_funcfield.name, hfitem.name)
+        self.assertEqual(str(customfield.id), hfitem.name)
         self.assertEqual(4,                   hfitem.order)
-        self.assertEqual(HFI_FUNCTION,        hfitem.type)
+        self.assertEqual(HFI_CUSTOM,          hfitem.type)
 
     def test_create03(self):
         "Check app credentials"
@@ -176,7 +144,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "Not editable"
         self.login()
 
-        hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view', model=CremeEntity, is_custom=False)
+        hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view',
+                                 model=CremeEntity, is_custom=False,
+                                )
         hf.set_items([HeaderFilterItem.build_4_field(model=CremeEntity, name='created')])
 
         self.assertGET404(self._build_edit_url(hf))
@@ -184,63 +154,57 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_edit02(self):
         self.login()
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
+        field1 = 'first_name'
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                )
+        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name=field1)])
 
-        uri = self._build_edit_url(hf)
-        response = self.assertGET200(uri)
-
-        with self.assertNoException():
-            fields_field = response.context['form'].fields['fields']
-
-        first_name_index  = None
-        last_name_index = None
-        for i, (fname, fvname) in enumerate(fields_field.choices):
-            if   fname == 'first_name': first_name_index = i
-            elif fname == 'last_name':  last_name_index  = i
-
-        self.assertIsNotNone(first_name_index, 'No "first_name" field')
-        self.assertIsNotNone(last_name_index,  'No "last_name" field')
+        url = self._build_edit_url(hf)
+        self.assertGET200(url)
 
         name = 'Entity view v2'
-        response = self.client.post(uri,
-                                    data={'name':                               name,
-                                          'fields_check_%s' % first_name_index: 'on',
-                                          'fields_value_%s' % first_name_index: 'first_name',
-                                          'fields_order_%s' % first_name_index: 1,
-                                          'fields_check_%s' % last_name_index:  'on',
-                                          'fields_value_%s' % last_name_index:  'last_name',
-                                          'fields_order_%s' % last_name_index:  2,
-                                         }
+        field2 = 'last_name'
+        response = self.client.post(url, data={'name':  name,
+                                               'items': 'rfield-%s,rfield-%s' % (
+                                                                field1, field2,
+                                                            ),
+                                              }
                                    )
         self.assertNoFormError(response, status=302)
 
-        hf = HeaderFilter.objects.get(pk=hf.id)
+        hf = self.refresh(hf)
         self.assertEqual(name, hf.name)
 
-        hfitems = hf.header_filter_items.order_by('order')
-        self.assertEqual(2,            len(hfitems))
-        self.assertEqual('first_name', hfitems[0].name)
-        self.assertEqual('last_name',  hfitems[1].name)
+        hfitems = hf.items
+        self.assertEqual(2,      len(hfitems))
+        self.assertEqual(field1, hfitems[0].name)
+        self.assertEqual(field2, hfitems[1].name)
 
     def test_edit03(self):
         "Can not edit HeaderFilter that belongs to another user"
         self.login(is_superuser=False)
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=self.other_user,
+                                )
         self.assertGET404(self._build_edit_url(hf))
 
     def test_edit04(self):
         "User do not have the app credentials"
         self.login(is_superuser=False)
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.user)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=self.user,
+                                )
         self.assertGET404(self._build_edit_url(hf))
 
     def test_delete01(self):
         self.login()
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                )
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
         self.assertPOST200(self.DELETE_URL, follow=True, data={'id': hf.id})
         self.assertFalse(HeaderFilter.objects.filter(pk=hf.id).exists())
@@ -250,7 +214,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "Not custom -> undeletable"
         self.login()
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=False)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=False,
+                                )
         self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.get_object_or_fail(HeaderFilter, pk=hf.id)
 
@@ -280,7 +246,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertFalse(HeaderFilter.objects.filter(pk=hf.id).exists())
 
-    def test_delete05(self): #belongs to a team (not mine) -> ko
+    def test_delete05(self):
+        "Belongs to a team (not mine) -> KO"
         self.login(is_superuser=False)
 
         self.role.allowed_apps = ['persons']
@@ -309,7 +276,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual([], simplejson.loads(response.content))
+        self.assertEqual([], load_json(response.content))
 
     def test_hfilters_for_ctype02(self):
         self.login()
@@ -322,7 +289,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         create_hf(pk='tests-hf_orga01',           name='Orga view', model=Organisation, is_custom=True)
 
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual([[hf01.id, name01], [hf02.id, name02]], simplejson.loads(response.content))
+        self.assertEqual([[hf01.id, name01], [hf02.id, name02]], load_json(response.content))
 
     def test_hfilters_for_ctype03(self):
         self.login(is_superuser=False)

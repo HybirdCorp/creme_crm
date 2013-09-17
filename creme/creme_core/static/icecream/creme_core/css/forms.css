@@ -112,3 +112,338 @@ form .table_detail_view .merge_entity2 {
 form .table_detail_view .merge_result {
     width: 99%;
 }
+
+/* HEADER FILTER */
+
+/* Apply a natural box layout model to all elements
+    TODO: does not work at wished when not global...
+.hfilter_widget * {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}*/
+
+.hfilter_widget .selectors {
+    clear: both;
+}
+
+/* Filters */
+.hfilter_widget .selector_filter {
+    float: right;
+    position: relative;
+    top: -20px;
+
+    font-size: 10px;
+}
+
+.hfilter_widget .field_selectors .selector {
+    margin-left: 10px;
+}
+
+.hfilter_widget .field_selector_filter {
+    font-size: 10px;
+    padding-right: 15px;
+    margin-left: 15px;
+
+    font-size: 10px;
+}
+/* Filters end */
+
+.hfilter_widget .selector_title {
+    margin-bottom: 5px;
+}
+
+.hfilter_widget .inline_selectors .selector_title {
+    display: inline-block;
+}
+
+.hfilter_widget .selector_list {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    clear: both;
+}
+
+.hfilter_widget .selector_list input[type=checkbox] {
+    margin-right: 4px;
+}
+
+.hfilter_widget .selector_list > .selector {
+    display: inline-block;
+    margin-right: 20px;
+
+    -webkit-transition: opacity 0.3s ease-in-out;
+        -moz-transition: opacity 0.3s ease-in-out;
+            -o-transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
+}
+
+.hfilter_widget .selector_list > .selector:last-child {
+    margin-right: 0px;
+}
+
+.hfilter_widget .inline_selectors .selector_list {
+    display: inline-block;
+    margin-left: 15px;
+}
+
+/*.hfilter_widget .basic_field_selectors > .selector_list {
+    width: 100%;
+}*/
+
+.hfilter_widget .basic_field_selectors > .selector_list > .selector {
+    margin-right: 0px;
+    width: 230px; /* to compute with the largest element of the list */
+}
+
+.hfilter_widget .relationship_selectors .selector_list {
+    display: inline-block;
+
+    margin-top: -15px;
+    margin-left: 10px;
+    width: 99%;
+}
+
+.hfilter_widget .relationship_selectors .selector {
+    width: 300px;
+}
+
+/* TODO: uncomment when secondary relationship are managed
+.hfilter_widget .relationship_selectors .secondary_relationship {
+    display: none;
+}*/
+
+.hfilter_widget .selector .selected_count {
+    opacity: 0.5;
+}
+
+/* Underlay */
+.hfilter_widget .underlay {
+    position: relative;
+    width: 100vw;
+
+    margin-top: 12px;
+    margin-bottom: 5px;
+
+    /* bg color of the underlay, needs to match the arrow bg color */
+    color: white;
+    font-weight: 500;
+
+    background: #414141;
+}
+
+.hfilter_widget .underlay_selector_list {
+    margin: 10px 0px 0px 0px;
+    padding: 0;
+
+    list-style: none;
+
+    -moz-column-width: 200px;
+    -moz-column-gap: 20px;
+    -webkit-column-width: 200px;
+    -webkit-column-gap: 20px;
+}
+
+.hfilter_widget .underlay_selector_list .selector {
+    -webkit-column-break-inside: avoid;
+        -moz-column-break-inside: avoid;
+        -ms-column-break-inside: avoid;
+            -o-column-break-inside: avoid;
+            column-break-inside: avoid;
+
+    -webkit-transition: opacity 0.3s ease-in-out;
+        -moz-transition: opacity 0.3s ease-in-out;
+            -o-transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
+}
+
+.hfilter_widget .underlay-container {
+    display: none;
+}
+
+.hfilter_widget .underlay .underlay-container {
+    display: block;
+}
+
+.hfilter_widget .underlay-content {
+    padding: 10px 20px 5px 50px;
+}
+
+.hfilter_widget .arrow {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    overflow: hidden;
+
+    border: 2px solid rgba(255,255,255,0.0);
+    border-bottom: 0;
+    border-right: 0;
+
+    -webkit-transform: rotateZ(45deg);
+        -moz-transform: rotateZ(45deg);
+        -ms-transform: rotateZ(45deg);
+            transform: rotateZ(45deg);
+
+    z-index: 1;
+}
+
+.hfilter_widget .inside-arrow {
+    position: relative;
+    top: -15px;
+    left: -15px;
+
+    width: 30px;
+    height: 30px;
+
+    -webkit-transform: rotateZ(-45deg);
+        -moz-transform: rotateZ(-45deg);
+        -ms-transform: rotateZ(-45deg);
+            transform: rotateZ(-45deg);
+
+    /* bg color of the arrow needs to match underlay color */
+    background: #414141;
+}
+
+.hfilter_widget .inside-arrow:before {
+    content: ' ';
+
+    display: block;
+    position: relative;
+    top: 17px;
+    left: 6px;
+
+    width: 17px;
+    height: 17px;
+
+    -webkit-transform: rotateZ(45deg);
+        -moz-transform: rotateZ(45deg);
+        -ms-transform: rotateZ(45deg);
+            transform: rotateZ(45deg);
+
+    background: none;
+    box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.81) inset;
+}
+
+.hfilter_widget .underlay_wrapper {
+    position: relative;
+    top: -9px;
+}
+
+.hfilter_widget .underlay_mask {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    pointer-events: none;
+
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+
+    box-shadow: inset 0px 0px 5px 2px rgba(0, 0, 0, 0.8);
+}
+/* Underlay end */
+
+.hfilter_widget .remove_all_columns {
+    text-transform: uppercase;
+}
+
+.hfilter_widget .help_instructions {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: #777;
+}
+
+.hfilter_widget .preview_table {
+    width: 100%;
+    min-height: 100px;
+
+    background: #eee;
+
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+}
+
+.hfilter_widget .preview_table .preview_row {
+    border: 1px solid #ccc;
+    vertical-align: top;
+}
+
+.hfilter_widget .preview_table .preview_row td:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+.hfilter_widget .preview_table .preview_row ul, .dragtable-drag-wrapper ul {
+    margin: 0;
+    padding-left: 25px;
+}
+
+.hfilter_widget .preview_table_header {
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+.hfilter_widget .preview_table_header th {
+    vertical-align: top;
+}
+
+.hfilter_widget .preview_table_header th:not(:last-child), .preview_table_header td:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+/* For sample fake filter (disabled in JS)
+.hfilter_widget .filterable_header .header_filter, .dragtable-drag-wrapper .header_filter {
+    min-width: 140px;
+}
+
+.hfilter_widget .filterable_header input.header_filter, .dragtable-drag-wrapper input.header_filter {
+    font-size: 9px;
+}
+
+.hfilter_widget .filterable_header {
+    font-size: 10px;
+}*/
+
+/* DRAGTABLE (HeaderFilter only at the moment) */
+.dragtable-drag-wrapper .dragtable-drag-col th {
+    text-align: left;
+}
+
+/* @Version 1.0.3
+* default css
+*/
+.dragtable-drag-handle {
+    cursor: move;
+}
+
+/* Gets wrapped around placeholder table */
+.dragtable-drag-wrapper {
+    position: absolute;
+    z-index: 1000;
+}
+
+/* This gets applied to the table copy of the col that we are dragging */
+.dragtable-drag-wrapper .dragtable-drag-col {
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    cursor: move;
+}
+
+/* Placeholder is just a name for the real table col */
+.dragtable-col-placeholder {
+    border-left: 1px dotted black;
+    border-right: 1px dotted black;
+    color: #efefef;
+    background: #efefef !important;
+    visibility: visible !important;
+}
+table .dragtable-col-placeholder:first {
+    border-top: 1px dotted black;
+}
+
+.dragtable-col-placeholder * {
+    opacity: 0.0;
+    visibility: hidden;
+}
+/* Dragtable end */
