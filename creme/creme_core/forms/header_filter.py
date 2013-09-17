@@ -18,72 +18,201 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from itertools import chain
 from collections import defaultdict
+from json import dumps as json_dump
 
-#from django.db import models
-from django.db.models.query_utils import Q
-from django.forms import MultipleChoiceField, ValidationError
+from django.db.transaction import commit_on_success
+from django.forms.fields import EMPTY_VALUES, Field, ValidationError
+from django.forms.util import flatatt
+from django.forms.widgets import Widget
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
-from ..models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from ..models import RelationType, CustomField
-#from ..gui.listview import get_field_name_from_pattern
-from ..utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
+from ..gui.field_printers import field_printers_registry
+from ..models.header_filter import (HeaderFilterItem, HeaderFilter,
+                            HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM)
+from ..models import RelationType, CustomField, EntityCredentials
 from ..utils.id_generator import generate_string_id_and_save
+from ..utils.meta import ModelFieldEnumerator
+from ..utils.unicode_collation import collator
 from .base import CremeModelForm
-from .widgets import OrderedMultipleChoiceWidget
 
 
-#TODO: create and edit form ????
+_RFIELD_PREFIX = 'rfield-'
+_CFIELD_PREFIX = 'cfield-'
+_FFIELD_PREFIX = 'ffield-'
+_RTYPE_PREFIX  = 'rtype-'
 
-class HeaderFilterForm(CremeModelForm):
-    fields        = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations     = MultipleChoiceField(label=_(u'Relationships'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions     = MultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+_PREFIXES_MAP = {
+    HFI_FIELD:    _RFIELD_PREFIX,
+    HFI_CUSTOM:   _CFIELD_PREFIX,
+    HFI_FUNCTION: _FFIELD_PREFIX,
+    HFI_RELATION: _RTYPE_PREFIX,
+}
 
-    class Meta:
-        model = HeaderFilter
-        exclude = ('id', 'is_custom') #TODO: use editable=False in model instead ???
 
-    def __init__(self, *args, **kwargs):
-        super(HeaderFilterForm, self).__init__(*args, **kwargs)
-        instance = self.instance
-        fields   = self.fields
+class HeaderFilterItemsWidget(Widget):
+    def __init__(self, user=None, model=None, model_fields=(), model_subfields=(), custom_fields=(),
+                 function_fields=(), relation_types=(), *args, **kwargs
+                ):
+        super(HeaderFilterItemsWidget, self).__init__(*args, **kwargs)
+        self.user = user
+        self.model = model
 
-        fields['user'].empty_label = ugettext(u'All users')
+        self.model_fields = model_fields
+        self.model_subfields = model_subfields
+        self.custom_fields = custom_fields
+        self.function_fields = function_fields
+        self.relation_types = relation_types
 
-        ct = ContentType.objects.get_for_id(instance.entity_type_id) if instance.id else \
-             self.initial.get('content_type')
-        self._entity_type = ct
-        model = ct.model_class()
+    def _build_samples(self):
+        user = self.user
+        model = self.model
+        samples = []
 
-        #caches
-        self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')
-        self._custom_fields  = CustomField.objects.filter(content_type=ct)
+        #TODO: factorise with HF/listview templatetags
+        print_field_value = field_printers_registry.get_html_field_value
+        LEN_RFIELD_PREFIX = len(_RFIELD_PREFIX)
 
-        #fields_choices = set(chain(get_flds_with_fk_flds_str(model, 1), get_flds_with_fk_flds_str(model, 0)))
-        #fields_choices = sorted(fields_choices, key=lambda k: ugettext(k[1]))
-        fields_choices = ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True).choices()
+        get_func_field = model.function_fields.get
+        LEN_FFIELD_PREFIX = len(_FFIELD_PREFIX)
 
-        fields['fields'].choices = fields_choices
-        fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
-        fields['relations'].choices = [(rtype.id, rtype.predicate) for rtype in self._relation_types]
-        fields['functions'].choices = [(f.name, f.verbose_name) for f in model.function_fields]
+        for entity in EntityCredentials.filter(user, self.model.objects.order_by('-modified'))[:2]:
+            dump = {}
 
-        if instance.id:
-            initial_data = defaultdict(list)
+            #TODO: genexpr ?
+            for field_id, field_vname in self.model_fields:
+                dump[field_id] = unicode(print_field_value(entity, field_id[LEN_RFIELD_PREFIX:], user))
 
-            for hfi in HeaderFilterItem.objects.filter(header_filter__id=instance.id).order_by('order'):
-                initial_data[hfi.type].append(hfi)
+            for choices in self.model_subfields.itervalues():
+                for field_id, field_vname in choices:
+                    try:
+                        value = unicode(print_field_value(entity, field_id[LEN_RFIELD_PREFIX:], user))
+                    except Exception: #print_field_value can raise AttributeError if M2M is empty...
+                        value = ''
 
-            #fields['fields'].initial = [get_field_name_from_pattern(hfi.filter_string) for hfi in initial_data[HFI_FIELD]]
-            fields['fields'].initial = [hfi.name for hfi in initial_data[HFI_FIELD]]
-            fields['custom_fields'].initial = [int(hfi.name) for hfi in initial_data[HFI_CUSTOM]]
-            fields['relations'].initial = [hfi.relation_predicat_id for hfi in initial_data[HFI_RELATION]]
-            fields['functions'].initial = [hfi.name for hfi in initial_data[HFI_FUNCTION]]
+                    dump[field_id] = value
+
+            #missing CustomFields and Relationships
+
+            for field_id, field_vname in self.function_fields:
+                dump[field_id] = get_func_field(field_id[LEN_FFIELD_PREFIX:])(entity).for_html()
+
+            samples.append(dump)
+
+        return samples
+
+    def render(self, name, value, attrs=None):
+        attrs_map = self.build_attrs(attrs, name=name)
+
+        if isinstance(value, list):
+            value = ','.join(_PREFIXES_MAP[item.type] + item.name for item in value)
+
+        return render_to_string('creme_core/header_filter_items_widget.html',
+                                {'attrs': mark_safe(flatatt(attrs)),
+                                 'id':    attrs_map['id'],
+                                 'name':  name,
+                                 'value': value or '',
+
+                                 'samples': mark_safe(json_dump(self._build_samples())),
+
+                                 'model_fields':    self.model_fields,
+                                 'model_subfields': self.model_subfields,
+                                 'custom_fields':   self.custom_fields,
+                                 'function_fields': self.function_fields,
+                                 'relation_types':  self.relation_types,
+                                }
+                               )
+
+
+class HeaderFilterItemsField(Field):
+    widget = HeaderFilterItemsWidget
+
+    def __init__(self, content_type=None, *args, **kwargs):
+        super(HeaderFilterItemsField, self).__init__(*args, **kwargs)
+        self.content_type = content_type
+        self.user = None
+
+    def _build_4_field(self, model, name):
+        return HeaderFilterItem.build_4_field(model=model, name=name[len(_RFIELD_PREFIX):])
+
+    def _build_4_customfield(self, model, name):
+        return HeaderFilterItem.build_4_customfield(self._get_cfield(int(name[len(_CFIELD_PREFIX):])))
+
+    def _build_4_functionfield(self, model, name):
+        return HeaderFilterItem.build_4_functionfield(model.function_fields.get(name[len(_FFIELD_PREFIX):]))
+
+    def _build_4_relation(self, model, name):
+        return HeaderFilterItem.build_4_relation(self._get_rtype(name[len(_RTYPE_PREFIX):]))
+
+    @property
+    def content_type(self):
+        return self._content_type
+
+    @content_type.setter
+    def content_type(self, ct):
+        self._content_type = ct
+
+        if ct is None:
+            self._model_fields = self._model_subfields = self._custom_fields \
+                               = self._function_fields = self._relation_types \
+                               = ()
+        else:
+            widget = self.widget
+            model = widget.model = ct.model_class()
+            self._builders = builders = {}
+
+            #caches
+            self._relation_types = RelationType.get_compatible_ones(ct).order_by('predicate') #TODO: unicode collation
+            self._custom_fields  = CustomField.objects.filter(content_type=ct)
+
+            #TODO: factorise ??
+
+            #Regular Fields --------------------------------------------------
+            #TODO: make the managing of subfields by the widget ??
+            #TODO: remove subfields with len() == 1 (done in template for now)
+            rfields_choices = []
+            subfields_choices = defaultdict(list) #TODO: sort too ??
+
+            for fields_info in ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True):
+                choices = rfields_choices if len(fields_info) == 1 else \
+                          subfields_choices[_RFIELD_PREFIX + fields_info[0].name] #FK, M2M
+
+                field_id = _RFIELD_PREFIX + '__'.join(field.name for field in fields_info)
+                choices.append((field_id, unicode(fields_info[-1].verbose_name)))
+                builders[field_id] = HeaderFilterItemsField._build_4_field
+
+            sort_key = collator.sort_key
+            rfields_choices.sort(key=lambda k: sort_key(k[1]))
+
+            widget.model_fields = rfields_choices
+            widget.model_subfields = subfields_choices
+
+            #Custom Fields ---------------------------------------------------
+            widget.custom_fields = cfields_choices = [] #TODO: sort ?
+
+            for cf in self._custom_fields:
+                field_id = _CFIELD_PREFIX + str(cf.id)
+                cfields_choices.append((field_id, cf.name))
+                builders[field_id] = HeaderFilterItemsField._build_4_customfield
+
+            #Function Fields -------------------------------------------------
+            widget.function_fields = ffields_choices = [] #TODO: sort ?
+
+            for f in model.function_fields:
+                field_id = _FFIELD_PREFIX + f.name
+                ffields_choices.append((field_id, f.verbose_name))
+                builders[field_id] = HeaderFilterItemsField._build_4_functionfield
+
+            #Relationships ---------------------------------------------------
+            #TODO: sort ? smart categories ('all', 'contacts') ?
+            widget.relation_types = rtypes_choices = []
+
+            for rtype in self._relation_types:
+                field_id = _RTYPE_PREFIX + rtype.id
+                rtypes_choices.append((field_id, rtype.predicate))
+                builders[field_id] = HeaderFilterItemsField._build_4_relation
 
     #NB: _get_cfield_name() & _get_rtype() : we do linear searches because
     #   there are very few searches => build a dict wouldn't be faster
@@ -97,53 +226,75 @@ class HeaderFilterForm(CremeModelForm):
             if rtype.id == rtype_id:
                 return rtype
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        fields    = cleaned_data['fields']
-        cfs       = cleaned_data['custom_fields']
-        relations = cleaned_data['relations']
-        functions = cleaned_data['functions']
+    @property
+    def user(self):
+        return self._user
 
-        if not (fields or cfs or relations or functions):
-            raise ValidationError(ugettext(u"You have to choose at least one element in available lists."))
+    @user.setter
+    def user(self, user):
+        self._user = self.widget.user = user
 
-        return cleaned_data
+    #TODO: to_python + validate ??
+    def clean(self, value):
+        assert self._content_type
+        hf_items = []
 
-    def save(self):
-        cleaned_data = self.cleaned_data
+        if value in EMPTY_VALUES:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+        else:
+            model = self._content_type.model_class()
+            get_builder = self._builders.get
+
+            for elt in value.split(','):
+                builder = get_builder(elt)
+
+                if not builder:
+                    raise ValidationError(self.error_messages['invalid'])
+
+                hf_items.append(builder(self, model, elt))
+
+        return hf_items
+
+
+#TODO: create and edit form ????
+class HeaderFilterForm(CremeModelForm):
+    items = HeaderFilterItemsField(label=_(u'Columns'))
+
+    blocks = CremeModelForm.blocks.new(('items', _('Columns'), ['items']))
+
+    class Meta:
+        model = HeaderFilter
+
+    def __init__(self, *args, **kwargs):
+        super(HeaderFilterForm, self).__init__(*args, **kwargs)
         instance = self.instance
-        ct = self._entity_type
-
-        instance.is_custom = True
-        instance.entity_type = ct
+        fields   = self.fields
+        fields['user'].empty_label = ugettext(u'All users')
+        items_f = fields['items']
 
         if instance.id:
-            for hfi in instance.header_filter_items.all():
-                hfi.delete()
+            items_f.content_type = instance.entity_type
+            items_f.initial = instance.items
+        else:
+            items_f.content_type = instance.entity_type = self.initial.get('content_type')
+            #TODO: popular fields prechecked ??
 
+    @commit_on_success
+    def save(self):
+        instance = self.instance
+        instance.is_custom = True
+
+        if instance.id:
             super(HeaderFilterForm, self).save()
         else:
+            ct = instance.entity_type
+
             super(HeaderFilterForm, self).save(commit=False)
-            generate_string_id_and_save(HeaderFilter, [instance], 'creme_core-userhf_%s-%s' % (ct.app_label, ct.model))
+            generate_string_id_and_save(HeaderFilter, [instance],
+                                        'creme_core-userhf_%s-%s' % (ct.app_label, ct.model)
+                                       )
 
-        model = instance.entity_type.model_class()
-        items = []
-
-        build = HeaderFilterItem.build_4_field
-        items.extend(build(model=model, name=name) for name in cleaned_data['fields'])
-
-        build = HeaderFilterItem.build_4_customfield
-        get_cf = self._get_cfield
-        items.extend(build(get_cf(int(cfield_id))) for cfield_id in cleaned_data['custom_fields'])
-
-        build = HeaderFilterItem.build_4_relation
-        get_rtype = self._get_rtype
-        items.extend(build(get_rtype(rtype_id)) for rtype_id in cleaned_data['relations'])
-
-        get_function_field = model.function_fields.get
-        build = HeaderFilterItem.build_4_functionfield
-        items.extend(build(get_function_field(name)) for name in cleaned_data['functions'])
-
-        instance.set_items(items)
+        instance.set_items(self.cleaned_data['items'])
 
         return instance

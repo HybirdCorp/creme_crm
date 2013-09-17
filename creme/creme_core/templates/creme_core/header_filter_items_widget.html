@@ -1,0 +1,174 @@
+{% load i18n %}
+{% load creme_core_tags %}
+<div class="hfilter_widget" {{attrs}}>
+    <input class="inner_value" type="hidden" name="{{name}}" value="{{value}}">
+    <div class="selectors">
+        <div class="field_selectors">
+            <h3 class="selector_title">{% trans 'Fields'%}</h3>
+
+            <div class="selector_filter">{% comment %}highlight : main fields | <a href="">popular</a> | <a href="">recent</a>{% endcomment %}
+                <input type="search" class="field_selector_filter" name="{{name}}_field_selector_filter" placeholder="{% trans 'SEARCH'%}" data-type="fields">
+            </div>
+
+            <div class="basic_field_selectors">
+                <h4 class="selector_title">{% trans 'Regular fields'%}</h4>
+                <ul class="selector_list">
+                    {% for field_name, field_vname in model_fields %}
+                        <li class="selector" data-column="{{field_name}}">
+                            {% with subfields=model_subfields|get_value:field_name %}
+                                {% if subfields and subfields|length > 1 %}
+                                    <input type="checkbox"><a href="" class="sub_selector_toggle">{{field_vname}}</a>
+                                    <div class="underlay-container">
+                                        <div class="underlay_wrapper">
+                                            <div class="arrow">
+                                                <div class="inside-arrow"></div>
+                                            </div>
+                                            <div class="underlay-content">
+                                                <span class="selector_title">
+                                                    {% blocktrans count subfields_count=subfields|length with field=field_vname %}{{field}}: {{subfields_count}} sub-field{% plural %}{{field}}: {{subfields_count}} sub-fields{% endblocktrans %}
+                                                </span>
+                                                <ul class="underlay_selector_list">
+                                                    {% for subfield_name, subfield_vname in subfields %}
+                                                        <li class="selector" data-column="{{subfield_name}}"><input type="checkbox">{{subfield_vname}}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="underlay_mask"></div>
+                                    </div>
+                                {% else %}
+                                    <input type="checkbox">{{field_vname}}
+                                {% endif %}
+                            {% endwith %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+{% comment %}
+<div class="creme_field_selectors inline_selectors">
+    <h4 class="selector_title">Champs Crème</h4>
+    <ul class="selector_list">
+        <li class="selector" data-column="created"><input type="checkbox">Date de création</li>
+        <li class="selector" data-column="modified"><input type="checkbox">Dernière modification</li>
+        <li class="selector" data-column="user"><input type="checkbox">Utilisateur</li>
+    </ul>
+</div>
+{% endcomment %}
+            <div class="custom_field_selectors inline_selectors">
+                <h4 class="selector_title">{% trans 'Custom fields'%}</h4>
+                {% if custom_fields %}
+                    <ul class="selector_list">
+                        {% for cfield_id, cfield_name in custom_fields %}
+                            <li class="selector" data-column="{{cfield_id}}"><input type="checkbox">{{cfield_name}}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    {% trans 'No custom field at the moment.' %}
+                {% endif %}
+            </div>
+
+            <div class="computed_field_selectors inline_selectors">
+                <h4 class="selector_title">{% trans 'Computed fields' %}</h4>
+                <ul class="selector_list">
+                    {% for ffield_name, ffield_vname in function_fields %}
+                        <li class="selector" data-column="{{ffield_name}}"><input type="checkbox">{{ffield_vname}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div> <!-- /.field_selectors -->
+
+        <div class="relationship_selectors">
+            <h3 class="selector_title">{% trans 'Relationships' %}</h3>
+
+            <div class="selector_filter">
+                <span class="filter_result"></span>
+{% comment %}filter : accounts & contacts | <a href="" class="relationship_filter_all">all relationship types</a>{% endcomment %}
+                <input type="search" class="field_selector_filter" name="{{name}}_relationships_selector_filter" placeholder="{% trans 'FILTER'%}" data-type="relationships">
+            </div>
+
+            <ul class="selector_list">
+                {% comment %}
+                <li class="selector" data-column="billing-subject_bill_received" data-selection="2">
+                    <input type="checkbox"><a href="" class="sub_selector_toggle">a été reçue par</a>
+                    <div class="underlay-container">
+                        <div class="underlay_wrapper">
+                            <div class="arrow"><div class="inside-arrow"></div></div>
+                            <div class="underlay-content">
+                                <span class="selector_title">
+                                    <span class="field_count">24</span> champs des
+                                    <select class="content_type_toggle">
+                                        <option value="contacts">contacts</option>
+                                        <option value="organisations" selected="">sociétés</option>
+                                    </select>
+                                    <em>qui ont reçu</em> la facture
+                                </span>
+                                <ul class="underlay_selector_list">
+                                    <li class="selector organisations" data-column="organisations__billing_address" style="display: block;"><input type="checkbox">Adresse de facturation</li>
+                                    <li class="selector organisations" data-column="organisations__shipping_address" style="display: block;"><input type="checkbox">Adresse de livraison</li>
+                                    <li class="selector organisations" data-column="organisations__email" style="display: block;"><input type="checkbox">Adresse électronique</li>
+                                    [...]
+
+                                    <li class="selector organisations" data-column="organisations__created" style="display: block;"><input type="checkbox">Date de création</li>
+                                    <li class="selector organisations" data-column="organisations__modified" style="display: block;"><input type="checkbox">Dernière modification</li>
+                                    <li class="selector organisations" data-column="organisations__user" style="display: block;"><input type="checkbox">Utilisateur</li>
+
+                                    <li class="selector contacts" data-column="contacts__billing_address" style="display: none;"><input type="checkbox">Adresse de facturation</li>
+                                    <li class="selector contacts" data-column="contacts__shipping_address" style="display: none;"><input type="checkbox">Adresse de livraison</li>
+                                    <li class="selector contacts" data-column="contacts__email" style="display: none;"><input type="checkbox">Adresse électronique</li>
+                                    [...]
+
+                                    <li class="selector contacts" data-column="contacts__created" style="display: none;"><input type="checkbox">Date de création</li>
+                                    <li class="selector contacts" data-column="contacts__modified" style="display: none;"><input type="checkbox">Dernière modification</li>
+                                    <li class="selector contacts" data-column="contacts__user" style="display: none;"><input type="checkbox">Utilisateur</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="underlay_mask"></div>
+                    </div>
+                </li>
+                {% endcomment %}
+
+                {% comment %}
+                <li class="selector" data-column="persons-object_inactive_customer"><input type="checkbox">a pour client inactif</li>
+                <li class="selector" data-column="persons-object_partner"><input type="checkbox">a pour partenaire</li>
+                [...]
+
+                <li class="selector secondary_relationship" data-column="events-subject_is_invited_to"><input type="checkbox">est invité à l'évènement</li>
+                <li class="selector secondary_relationship" data-column="events-subject_not_came_event"><input type="checkbox">n'est pas venu à l'évènement</li>
+                <li class="selector secondary_relationship" data-column="events-subject_came_event"><input type="checkbox">est venu à l'évènement</li>
+                [...]
+                {% endcomment %}
+                {% for rtype_id, rtype_name in relation_types %}
+                    <li class="selector" data-column="{{rtype_id}}"><input type="checkbox">{{rtype_name}}</li>
+                {% endfor %}
+            </ul>
+        </div> <!-- /.relationship_selectors -->
+    </div> <!-- /.selectors -->
+
+    <div class="preview">
+        <h3 class="preview_title"></h3>
+
+        <div class="selector_filter">
+            <a href="" class="remove_all_columns">{% trans 'Remove all columns'%}</a>
+        </div>
+
+        <div class="help_instructions"></div>
+
+        <table class="preview_table">
+            <thead class="preview_table_header">
+                <tr class="sortable_header"></tr>
+                {% comment %}<tr class="filterable_header"></tr>{% endcomment %}
+            </thead>
+            <tbody>
+                <tr class="preview_row"></tr>
+                <tr class="preview_row"></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            new creme.headerfilter.HeaderFilter('{{id}}', {{samples}});
+        });
+    </script>
+</div>

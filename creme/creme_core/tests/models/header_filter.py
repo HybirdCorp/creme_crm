@@ -265,6 +265,48 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual([1, 2],      [hfi.order for hfi in items])
         self.assertEqual(valid_items, hfilter.items)
 
+    def test_set_items03(self):
+        "Cache is updated ; PKs are recycled"
+        hfilter = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
+        self.assertEqual([], hfilter.items)
+
+        build_item = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hfi01 = build_item(name='first_name')
+        hfi02 = build_item(name='last_name')
+
+        hfilter.set_items([hfi01, hfi02])
+        self.assertEqual([hfi01.name, hfi02.name],
+                         [hfi.name for hfi in hfilter.items]
+                        )
+
+        pk1 = hfi01.pk
+        pk2 = hfi02.pk
+        self.assertTrue(pk1)
+
+        hfi03 = build_item(name='birthday')
+        hfilter.set_items([hfi01, hfi02, hfi03])
+        self.assertEqual([hfi01.name, hfi02.name, hfi03.name],
+                         [hfi.name for hfi in hfilter.items]
+                        )
+        self.assertEqual(pk1, hfilter.items[0].pk)
+        self.assertEqual(pk2, hfilter.items[1].pk)
+
+        self.assertEqual(3, len(self.refresh(hfilter).items))
+
+    def test_set_items04(self):
+        "Useless items are deleted."
+        hfilter = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
+        self.assertEqual([], hfilter.items)
+
+        build_item = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hfi01 = build_item(name='first_name')
+        hfi02 = build_item(name='last_name')
+        hfi03 = build_item(name='birthday')
+
+        hfilter.set_items([hfi01, hfi02, hfi03])
+        hfilter.set_items([hfi01, hfi02])
+        self.assertEqual(2, len(self.refresh(hfilter).items))
+
     def test_delete_relationtype01(self):
         self.login()
 
@@ -364,9 +406,9 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hfi1 = HeaderFilterItem.build_4_field(model=Contact, name='last_name')
         hfi2 = HeaderFilterItem(name='invalid', title='Invalid', type=HFI_FIELD,
-                                 has_a_filter=True, editable=True,
-                                 filter_string='__icontains',
-                                )
+                                has_a_filter=True, editable=True,
+                                filter_string='invalid__icontains',
+                               )
         hf.set_items([hfi1, hfi2])
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -374,6 +416,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
 
+        hf = self.refresh(hf)
         self.assertEqual([hfi1], hf.items)
         self.assertFalse(HeaderFilterItem.objects.filter(pk=hfi2.pk).exists())
 
@@ -399,6 +442,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         create_contact(first_name='Nagate',  last_name='Tanikaze')
         create_contact(first_name='Shizuka', last_name='Hoshijiro')
 
+        hf = self.refresh(hf)
         self.assertEqual([hfi1], hf.items)
         self.assertFalse(HeaderFilterItem.objects.filter(pk=hfi2.pk).exists())
 

@@ -786,28 +786,28 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
         for i, (opt_value, opt_label) in enumerate(chain(self.choices, choices)):
             order = value_dict.get(opt_value, '')
 
-            output.append(u"""
-                <tr name="oms_row_%(i)s">
-                    <td><input class="oms_check" type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
-                    <td class="oms_value">%(label)s<input type="hidden" name="%(name)s_value_%(i)s" value="%(value)s" /></td>
-                    <td><input class="oms_order" type="text" name="%(name)s_order_%(i)s" value="%(order)s"/></td>
-                </tr>""" % {'i':        i,
-                            'label':    escape(opt_label),
-                            'name':     name,
-                            'value':    opt_value,
-                            'checked':  'checked' if order else '',
-                            'order':    order,
-                           })
+            output.append(
+u"""<tr name="oms_row_%(i)s">
+    <td><input class="oms_check" type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
+    <td class="oms_value">%(label)s<input type="hidden" name="%(name)s_value_%(i)s" value="%(value)s" /></td>
+    <td><input class="oms_order" type="text" name="%(name)s_order_%(i)s" value="%(order)s"/></td>
+</tr>""" % {'i':        i,
+            'label':    escape(opt_label),
+            'name':     name,
+            'value':    opt_value,
+            'checked':  'checked' if order else '',
+            'order':    order,
+            })
 
-        output.append(u"""</tbody></table>
-                          <script type="text/javascript">
-                              $(document).ready(function() {
-                                  creme.forms.toOrderedMultiSelect('%(id)s', %(reduced)s);
-                              });
-                          </script>""" % {
-                              'id':      attrs['id'],
-                              'reduced': reduced,
-                          })
+        output.append(
+u"""</tbody></table>
+<script type="text/javascript">
+    $(document).ready(function() {
+        creme.forms.toOrderedMultiSelect('%(id)s', %(reduced)s);
+    });
+</script>""" % {'id':      attrs['id'],
+                'reduced': reduced,
+               })
 
         return mark_safe(u'\n'.join(output))
 

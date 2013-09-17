@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
+
 from collections import defaultdict
 import logging
 
@@ -79,12 +81,12 @@ class HeaderFilterList(list):
 
 
 class HeaderFilter(Model): #CremeModel ???
-    id          = CharField(primary_key=True, max_length=100)
+    id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
     #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False)
-    is_custom   = BooleanField(blank=False, default=True)
+    is_custom   = BooleanField(blank=False, default=True, editable=False)
 
     creation_label = _('Add a view')
     _items = None
@@ -190,15 +192,28 @@ class HeaderFilter(Model): #CremeModel ???
             func_field = self.entity_type.model_class().function_fields.get(hfi.name)
             func_field.populate_entities(entities)
 
-    def set_items(self, items): #TODO: reuse old items' pk ?? fill cache ?
+    def set_items(self, items):
         "@param items Sequence of HeaderFilterItems (or None, that are ignored)"
-        items = filter(None, items)
+        old_pks = [item.pk for item in reversed(self.items)] #we recycle the old PKs
+        items_without_pks = []
+        self._items = new_items = []
 
-        for i, hfi in enumerate(items, start=1):
+        for i, hfi in enumerate(filter(None, items), start=1):
             hfi.order = i
             hfi.header_filter = self
 
-        generate_string_id_and_save(HeaderFilterItem, items, self.id)
+            if old_pks:
+                hfi.pk = old_pks.pop()
+                hfi.save() #TODO: save if no change (wait for HeaderFilterItem simplification)
+            else:
+                items_without_pks.append(hfi)
+
+            new_items.append(hfi)
+
+        if old_pks: #delete unused items
+            self.header_filter_items.filter(pk__in=old_pks).delete()
+
+        generate_string_id_and_save(HeaderFilterItem, items_without_pks, self.id)
 
 
 class HeaderFilterItem(Model):  #CremeModel ???
