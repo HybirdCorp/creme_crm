@@ -42,7 +42,7 @@ INSTALL:
 You have to know how to install a Django application.
 
 Upgrade notice : if you already have a Creme installation, upgrade the version one by one
-(eg: do not try to upgrade from 1.1 to 1.3, ugrade to 1.2 and then 1.3).
+(eg: do not try to upgrade from 1.1 to 1.3, upgrade to 1.2 and then 1.3).
 
 See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
