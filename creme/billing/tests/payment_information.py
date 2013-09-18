@@ -87,17 +87,22 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertEqual(bic,     pi.bic)
 
     def test_editview02(self):
-        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga1 = create_orga(name='Nintendo')
+        orga2 = create_orga(name='Sega')
 
-        create_pi = partial(PaymentInformation.objects.create, organisation=organisation)
-        pi_1 = create_pi(name="RIB 1", is_default=True)
-        pi_2 = create_pi(name="RIB 2", is_default=False)
+        create_pi = PaymentInformation.objects.create
+        pi_21 = create_pi(organisation=orga2, name="RIB 1", is_default=True) #first if no filter by organisation
+        pi_11 = create_pi(organisation=orga1, name="RIB 1", is_default=True)
+        pi_12 = create_pi(organisation=orga1, name="RIB 2", is_default=False)
 
-        url = '/billing/payment_information/edit/%s' % pi_2.id
+        self.assertTrue(self.refresh(pi_11).is_default)
+
+        url = '/billing/payment_information/edit/%s' % pi_12.id
         self.assertGET200(url)
 
         rib_key = "00"
-        name    = "RIB of %s" % organisation
+        name    = "RIB of %s" % orga1
         bic     = "pen ?"
         self.assertNoFormError(self.client.post(url, data={'user':       self.user.pk,
                                                            'name':       name,
@@ -108,18 +113,18 @@ class PaymentInformationTestCase(_BillingTestCase):
                                                )
                               )
 
-        pi_1 = self.refresh(pi_1)
-        pi_2 = self.refresh(pi_2)
+        pi_11 = self.refresh(pi_11)
+        pi_12 = self.refresh(pi_12)
 
-        self.assertFalse(pi_1.is_default)
-        self.assertTrue(pi_2.is_default)
+        self.assertFalse(pi_11.is_default)
+        self.assertTrue(pi_12.is_default)
 
-        self.assertEqual(name,    pi_2.name)
-        self.assertEqual(rib_key, pi_2.rib_key)
-        self.assertEqual(bic,     pi_2.bic)
+        self.assertEqual(name,    pi_12.name)
+        self.assertEqual(rib_key, pi_12.rib_key)
+        self.assertEqual(bic,     pi_12.bic)
 
-        pi_2.delete()
-        self.assertIs(True, self.refresh(pi_1).is_default)
+        pi_12.delete()
+        self.assertIs(True, self.refresh(pi_11).is_default)
 
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
