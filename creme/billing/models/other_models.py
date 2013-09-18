@@ -135,23 +135,19 @@ class PaymentInformation(CremeModel):
         verbose_name        = pgettext_lazy('billing-singular', u'Payment information')
         verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
 
-    #TODO: see Vat.save()
-    #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too)
+    #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ???
     def save(self, *args, **kwargs):
-        #Don't factorise the count query!!
-
-        if self.is_default or PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).count() > 1:
-            PaymentInformation.objects.filter(organisation=self.organisation).update(is_default=False)
-            self.is_default = True
-
-        if not self.is_default and PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).exclude(pk=self.id).count() == 0:
+        if self.is_default:
+            PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).update(is_default=False)
+        elif not PaymentInformation.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
         super(PaymentInformation, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.is_default:
-            existing_pi = PaymentInformation.objects.filter(organisation=self.organisation).exclude(id=self.id)
+            existing_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
+                                                    .exclude(id=self.id)[:1]
 
             if existing_pi:
                 first_pi = existing_pi[0]
@@ -170,7 +166,7 @@ class Vat(CremeModel):
     is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
-        return str(self.value)
+        return unicode(self.value)
 
     class Meta:
         app_label = 'billing'
