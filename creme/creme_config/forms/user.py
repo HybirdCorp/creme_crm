@@ -185,7 +185,7 @@ class TeamCreateForm(CremeModelForm):
 class TeamEditForm(TeamCreateForm):
     def __init__(self, *args, **kwargs):
         super(TeamEditForm, self).__init__(*args, **kwargs)
-        self.fields['teammates'].initial = self.instance.teammates.iterkeys()
+        self.fields['teammates'].initial = self.instance.teammates
 
 
 class UserAssignationForm(CremeForm):
