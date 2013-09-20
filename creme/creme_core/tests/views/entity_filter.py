@@ -27,8 +27,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
     CFIELDS_CONDS_FMT      = '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]'
     DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
-    RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]'
-    RELSUBFILTER_CONDS_FMT = '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]'
+    RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": 0, "entity": null}]'
+    RELSUBFILTER_CONDS_FMT = '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]'
     PROP_CONDS_FMT         = '[{"has": %(has)s, "ptype": "%(ptype)s"}]'
 
     @classmethod
