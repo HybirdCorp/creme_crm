@@ -236,7 +236,10 @@ class ContentLine(VBase):
             else:
                 paramlist = self.params.setdefault(x[0].upper(), [])
                 paramlist.extend(x[1:])
-        map(updateTable, params)
+        #map(updateTable, params)
+        for param in params:
+            updateTable(param)
+
         qp = False
 
         if 'ENCODING' in self.params:

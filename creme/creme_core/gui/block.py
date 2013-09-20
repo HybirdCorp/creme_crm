@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
 from collections import defaultdict
 import logging
 
@@ -528,8 +529,8 @@ class _BlockRegistry(object):
         @param entity If given, the dependencies are better computed when the
                       blocks are displayed of the detailview of this entity.
         """
-        specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
-        instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
+        specific_ids = list(filter(SpecificRelationsBlock.id_is_specific, block_ids))
+        instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, block_ids))
         relation_blocks_items = dict((rbi.block_id, rbi)
                                         for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
                                     ) if specific_ids else {}

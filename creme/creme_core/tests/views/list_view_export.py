@@ -89,7 +89,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return lv_url
 
-    def test_export_error01(self):  # Assert doc_type in ('xls', 'csv')
+    def test_export_error01(self): # Assert doc_type in ('xls', 'csv')
         self.login()
         lv_url = self._set_listview_state()
 
@@ -102,10 +102,9 @@ class CSVExportViewsTestCase(ViewsTestCase):
         url = self._build_url(self.ct, method='download_header')
         response = self.assertGET200(url, data={'list_url': lv_url})
 
-        #TODO: sort the relations/properties by they verbose_name ??
-        result = map(force_unicode, response.content.splitlines())
-        self.assertEqual(1, len(result))
-        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
+        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items)],
+                         [force_unicode(line) for line in response.content.splitlines()]
+                        )
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
@@ -113,10 +112,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         hf_items = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'), data={'list_url': lv_url}, follow=True)
+        response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'),
+                                     data={'list_url': lv_url}, follow=True
+                                    )
 
         result = list(XlrdReader(None, file_contents=response.content))
-
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in hf_items])
 
@@ -129,7 +129,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
 
         #TODO: sort the relations/properties by they verbose_name ??
-        result = map(force_unicode, response.content.splitlines())
+        result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(6, len(result))
         self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
         self.assertEqual(result[1], u'"","Black","Jet","Bebop",""')

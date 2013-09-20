@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip
+from future_builtins import zip
 
 from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
@@ -118,7 +118,7 @@ class CustomFieldsEditForm(CremeModelForm):
         if cfield.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
             cleaned_data = self.cleaned_data
 
-            for cfev, new_value in izip(self._enum_values, cleaned_data['old_choices']):
+            for cfev, new_value in zip(self._enum_values, cleaned_data['old_choices']):
                 if new_value is None:
                     cfev.delete()
                 elif cfev.value != new_value:

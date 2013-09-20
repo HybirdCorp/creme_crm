@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
 from datetime import datetime # date
-from itertools import ifilter
+from itertools import izip_longest
 import logging
 
 from django.db.models import (Model, CharField, TextField, BooleanField,
@@ -130,7 +131,7 @@ class EntityFilter(Model): #CremeModel ???
 
     def check_cycle(self, conditions):
         #Ids of EntityFilters that are referenced by these conditions
-        ref_filter_ids = set(ifilter(None, (cond._get_subfilter_id() for cond in conditions)))
+        ref_filter_ids = set(filter(None, (cond._get_subfilter_id() for cond in conditions)))
 
         if self.id in ref_filter_ids:
             raise EntityFilter.CycleError(ugettext(u'A condition can not reference its own filter.'))
@@ -232,7 +233,7 @@ class EntityFilter(Model): #CremeModel ???
         old_conditions = EntityFilterCondition.objects.filter(filter=self).order_by('id')
         conds2del = []
 
-        for old_condition, condition in map(None, old_conditions, conditions):
+        for old_condition, condition in izip_longest(old_conditions, conditions):
             if not condition: #less new conditions that old conditions => delete conditions in excess
                 conds2del.append(old_condition.id)
             elif not old_condition:

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
+
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
                               BooleanField, DateField, EmailField, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext

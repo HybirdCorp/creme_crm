@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import map
 from collections import defaultdict
 from datetime import date
 
@@ -285,7 +286,8 @@ class RegularFieldsConditionsField(_ConditionsField):
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(value_dict, 'value', bool)]
         else:
-            values = filter(None, clean_value(value_dict, 'value', unicode).split(','))
+            #values = filter(None, clean_value(value_dict, 'value', unicode).split(','))
+            values = [v for v in clean_value(value_dict, 'value', unicode).split(',') if v]
 
         return operator, values
 
@@ -587,7 +589,7 @@ class RelationsConditionsField(_ConditionsField):
 
     #TODO: test with deleted entity ??
     def _value_to_jsonifiable(self, value):
-        return map(self._condition_to_dict, value)
+        return list(map(self._condition_to_dict, value))
 
     def _clean_ct(self, entry):
         ct_id = self.clean_value(entry, 'ctype', int)

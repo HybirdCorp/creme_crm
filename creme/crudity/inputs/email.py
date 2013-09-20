@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
 import logging
 import re
-from itertools import ifilter
 #from pyexpat import ExpatError
 from xml.etree import ElementTree as ET
 
@@ -190,13 +190,14 @@ class CreateInfopathInput(CreateEmailInput):
                 data[field_name] = decode_b64binary(field_value)#(filename, image_blob)
 
     def create(self, email):
-        MIME_TYPES = self.MIME_TYPES
-
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject)) or self.get_backend("*")
+
         if backend is None:
             return False
 
-        attachments = filter(lambda x: x[1].content_type in MIME_TYPES, email.attachments)
+        MIME_TYPES = self.MIME_TYPES
+        #attachments = filter(lambda x: x[1].content_type in MIME_TYPES, email.attachments)
+        attachments = [a for a in email.attachments if a[1].content_type in MIME_TYPES]
 
         if attachments and self.authorize_senders(backend, email.senders):
             body = (self.strip_html(email.body_html) or email.body).replace('\r', '')
@@ -204,9 +205,14 @@ class CreateInfopathInput(CreateEmailInput):
 
             if self.is_allowed_password(backend.password, split_body):
                 is_created = False
-                 #TODO: iterator not used very smartly (a useless list is created...)
-                for data in ifilter(lambda x: x is not None, [self.get_data_from_infopath_file(backend, attachment) for attachment_name, attachment in attachments]):
+                #for data in filter(lambda x: x is not None, [self.get_data_from_infopath_file(backend, attachment) for attachment_name, attachment in attachments]):
+                for data in filter(lambda x: x is not None,
+                                   (self.get_data_from_infopath_file(backend, attachment)
+                                        for name, attachment in attachments
+                                   )
+                                  ):
                     is_created |= self._create(backend, data, email.senders[0])
+
                 return is_created
 
     def get_data_from_infopath_file(self, backend, xml_file):
