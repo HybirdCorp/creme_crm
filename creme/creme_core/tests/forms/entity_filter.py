@@ -424,7 +424,7 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         clean = PropertiesConditionsField(model=Contact).clean
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"this is a string"')
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '{"foobar":{"ptype":"test-foobar","has":"true"}}')
+        self.assertFieldValidationError(PropertiesConditionsField, 'invalidtype', clean, '{"foobar":{"ptype": "test-foobar", "has": true}}')
 
 #    def test_clean_invalid_data(self):
 #        clean = PropertiesConditionsField(model=Contact).clean
@@ -434,13 +434,13 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_incomplete_data_required(self):
         clean = PropertiesConditionsField(model=Contact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"ptype":"%s"}]' % self.ptype01.id)
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"ptype": "%s"}]' % self.ptype01.id)
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"has": true}]')
 
     def test_unknown_ptype(self):
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidptype',
                                         PropertiesConditionsField(model=Contact).clean,
-                                        '[{"ptype":"%s","has":"true"}]' % self.ptype03.id
+                                        '[{"ptype": "%s", "has": true}]' % self.ptype03.id
                                        )
 
     def test_ok(self):
@@ -486,34 +486,35 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         clean = RelationsConditionsField(model=Contact).clean
         self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"this is a string"')
         self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '"{}"')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '{"foobar":{"rtype":"test-foobar","has":"true"}}')
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidtype', clean, '{"foobar": {"rtype": "test-foobar", "has": true}}')
 
     def test_clean_invalid_data(self):
         clean = RelationsConditionsField(model=Contact).clean
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "ctype":"not an int"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "ctype":%d, "entity":"not an int"}]' % (self.rtype01.id, ct.id))
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype": "%s", "has": true, "ctype": "not an int"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype": "%s", "has": true, "ctype": %d, "entity": "not an int"}]' % (self.rtype01.id, ct.id))
 
     def test_clean_incomplete_data_required(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"has":"true"}]')
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype":"%s","has":"not a boolean"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype": "%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"has": true}]')
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype": "%s", "has": "not a boolean"}]' % self.rtype01.id)
 
     def test_unknown_ct(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean, '[{"rtype":"%s","has":"true", "ctype":"2121545"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidct', clean, '[{"rtype": "%s", "has": true, "ctype": 2121545}]' % self.rtype01.id)
 
     def test_unknown_entity(self):
         clean = RelationsConditionsField(model=Contact).clean
         self.assertFieldValidationError(RelationsConditionsField, 'invalidentity', clean,
-                                        '[{"rtype":"%s","has":"true","ctype":"1","entity":"2121545"}]' % self.rtype01.id
+                                        '[{"rtype": "%s", "has": true, "ctype": 1, "entity": 2121545}]' % self.rtype01.id
                                        )
 
-    def test_ok01(self): #no ct, no object entity
+    def test_ok01(self):
+        "No ct, no object entity"
         field = RelationsConditionsField(model=Contact)
-        conditions = field.clean('[{"rtype":"%s", "has": true, "ctype": "0", "entity": null},'
-                                 ' {"rtype": "%s", "has": false, "ctype": "0", "entity": null}]' % (
+        conditions = field.clean('[{"rtype": "%s", "has": true,  "ctype": 0, "entity": null},'
+                                 ' {"rtype": "%s", "has": false, "ctype": 0, "entity": null}]' % (
                                     self.rtype01.id, self.rtype02.id)
                                 )
         self.assertEqual(2, len(conditions))
@@ -528,11 +529,12 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype02.id,                    condition.name)
         self.assertEqual({'has': False},                     condition.decoded_value)
 
-    def test_ok02(self): #wanted ct
+    def test_ok02(self):
+        "Wanted ct"
         field = RelationsConditionsField(model=Contact)
         ct = ContentType.objects.get_for_model(Contact)
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": "%(ct)s", "entity": null},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": "%(ct)s"}]' % {
+        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct)s, "entity": null},'
+                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct)s}]' % {
                                         'rtype01': self.rtype01.id,
                                         'rtype02': self.rtype02.id,
                                         'ct':      ct.id,
@@ -550,13 +552,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype02.id,                    condition.name)
         self.assertEqual({'has': False, 'ct_id': ct.id},     condition.decoded_value)
 
-    def test_ok03(self): #wanted entity
+    def test_ok03(self):
+        "Wanted entity"
         self.login()
 
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=Contact)
         ct = ContentType.objects.get_for_model(Contact)
-        conditions = field.clean('[{"rtype":"%(rtype)s", "has":"true", "ctype":"%(ct)s", "entity":"%(entity)s"}]' % {
+        conditions = field.clean('[{"rtype":"%(rtype)s", "has": true, "ctype": %(ct)s, "entity":"%(entity)s"}]' % {
                                         'rtype':  self.rtype01.id,
                                         'ct':     ct.id,
                                         'entity': naru.id,
@@ -569,14 +572,15 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype01.id,                     condition.name)
         self.assertEqual({'has': True, 'entity_id': naru.id}, condition.decoded_value)
 
-    def test_ok04(self): #wanted ct + wanted entity
+    def test_ok04(self):
+        "Wanted ct + wanted entity"
         self.login()
 
         ct = ContentType.objects.get_for_model(Contact)
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=Contact)
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": "%(ct)s", "entity": null},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": "%(ct)s", "entity":"%(entity)s"}]' % {
+        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct)s, "entity": null},'
+                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct)s, "entity": "%(entity)s"}]' % {
                                         'rtype01': self.rtype01.id,
                                         'rtype02': self.rtype02.id,
                                         'ct':      ct.id,
@@ -595,7 +599,8 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype02.id,                      condition.name)
         self.assertEqual({'has': False, 'entity_id': naru.id}, condition.decoded_value)
 
-    def test_ok05(self): #wanted entity is deleted
+    def test_ok05(self):
+        "Wanted entity is deleted"
         self.login()
 
         naru  = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
@@ -641,13 +646,13 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_incomplete_data_required(self):
         clean = RelationSubfiltersConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"rtype": "%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"has": true}]')
 
     def test_unknown_filter(self):
         clean = RelationSubfiltersConditionsField(model=Contact).clean
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidfilter', clean,
-                                        '[{"rtype": "%(rtype)s", "has": "false", "ctype": "%(ct)s", "filter":"%(filter)s"}]' % {
+                                        '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]' % {
                                                 'rtype':  self.rtype01.id,
                                                 'ct':     ContentType.objects.get_for_model(Contact).id,
                                                 'filter': 3213213543,
@@ -660,12 +665,12 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         ct_orga    = get_ct(Organisation)
 
         field = RelationSubfiltersConditionsField(model=Contact)
-        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": "%(ct_contact)s", "filter":"%(filter01)s"},'
-                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": "%(ct_orga)s",    "filter":"%(filter02)s"}]' % {
+        conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct_contact)s, "filter":"%(filter01)s"},'
+                                 ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct_orga)s,    "filter":"%(filter02)s"}]' % {
                                         'rtype01':    self.rtype01.id,
                                         'rtype02':    self.rtype02.id,
-                                        'ct_contact': ct_contact,
-                                        'ct_orga':    ct_orga,
+                                        'ct_contact': ct_contact.id,
+                                        'ct_orga':    ct_orga.id,
                                         'filter01':   self.sub_efilter01.id,
                                         'filter02':   self.sub_efilter02.id,
                                     }

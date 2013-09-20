@@ -131,7 +131,8 @@ class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularF
 class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        #datatype = json => boolean are retuned as json boolean, not strings
+        attrs = {'auto': False, 'datatype': 'json'} #TODO 'autocomplete': True
 
         rtype_name = 'rtype'
         ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
@@ -147,7 +148,7 @@ class RelationsConditionsWidget(SelectorList):
 class RelationSubfiltersConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
         ctype_name = 'ctype'
@@ -166,7 +167,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
 class PropertiesConditionsWidget(SelectorList):
     def __init__(self, ptypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'datatype': 'json'}
 
         add_dselect = chained_input.add_dselect #TODO: functools.partial
         add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(), attrs=attrs)
@@ -482,7 +483,9 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     def _set_initial_conditions(self, conditions):
         CUSTOMFIELD = EntityFilterCondition.EFC_CUSTOMFIELD
-        self.initial = [c for c in conditions if c.type == CUSTOMFIELD]
+        filtered_conds = [c for c in conditions if c.type == CUSTOMFIELD]
+        if filtered_conds:
+            self.initial = filtered_conds
 
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
@@ -539,7 +542,9 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 
     def _set_initial_conditions(self, conditions):
         DATECUSTOMFIELD = EntityFilterCondition.EFC_DATECUSTOMFIELD
-        self.initial = [c for c in conditions if c.type == DATECUSTOMFIELD]
+        filtered_conds = [c for c in conditions if c.type == DATECUSTOMFIELD]
+        if filtered_conds:
+            self.initial = filtered_conds
 
 
 class RelationsConditionsField(_ConditionsField):
