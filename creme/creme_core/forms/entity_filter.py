@@ -565,15 +565,23 @@ class RelationsConditionsField(_ConditionsField):
 
     def _condition_to_dict(self, condition):
         value = condition.decoded_value
+        ctype_id = 0
 
         #TODO: regroup queries....
         entity_id = value.get('entity_id')
-        if entity_id and not CremeEntity.objects.filter(pk=entity_id).exists():
-            entity_id = None
+        #if entity_id and not CremeEntity.objects.filter(pk=entity_id).exists():
+        if entity_id:
+            try:
+                entity = CremeEntity.objects.get(pk=entity_id)
+            except CremeEntity.DoesNotExist:
+                entity_id = None
+            else:
+                ctype_id = entity.entity_type_id
 
         return {'rtype':  condition.name,
                 'has':    boolean_str(value['has']),
-                'ctype':  value.get('ct_id', 0),
+                #'ctype':  value.get('ct_id', 0),
+                'ctype':  ctype_id,
                 'entity': entity_id,
                }
 

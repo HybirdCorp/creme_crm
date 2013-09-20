@@ -608,7 +608,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=self.rtype01, has=True, entity=naru)])
         field = RelationsConditionsField(model=Contact)
 
-        jsondict = {"entity": naru.id, "has": "true", "ctype": 0, "rtype": self.rtype01.id}
+        jsondict = {"entity": naru.id, "has": "true", "ctype": naru.entity_type_id, "rtype": self.rtype01.id}
         self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
 
         try:
@@ -617,6 +617,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             self.fail('Problem with entity deletion:' + str(e))
 
         jsondict["entity"] = None
+        jsondict["ctype"] = 0
         self.assertEqual([jsondict], jsonloads(field.from_python(list(efilter.conditions.all()))))
 
 
