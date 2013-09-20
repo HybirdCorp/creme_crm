@@ -362,9 +362,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         findall = XML(content).findall
 
         #fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys()) #TODO: use it ??
-        template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity",
-                                findall("%(xsl)stemplate" % d_ns)
-                               )
+        #template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity",
+                                #findall("%(xsl)stemplate" % d_ns)
+                               #)
+        template_nodes = [n for n in findall("%(xsl)stemplate" % d_ns)
+                            if n.get('match') == "my:CremeCRMCrudity"
+                         ]
         self.assertTrue(template_nodes)
 
         when_node = template_nodes[0].find("%(xsl)scopy/%(xsl)schoose/%(xsl)swhen" % d_ns)

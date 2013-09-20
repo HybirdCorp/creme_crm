@@ -112,7 +112,8 @@ class Command(BaseCommand):
                                                     .localize(datetime.now()) \
                                                     .strftime('%Y-%m-%d %H:%M%z')
 
-        terms = map(smart_unicode, args)
+        #terms = map(smart_unicode, args)
+        terms = [smart_unicode(arg) for arg in args]
         entry_count = 0
 
         for app_name in settings.INSTALLED_CREME_APPS:

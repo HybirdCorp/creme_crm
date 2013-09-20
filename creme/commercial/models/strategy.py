@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip as zip
+from future_builtins import zip
 
 from django.db.models import CharField, TextField, PositiveSmallIntegerField, ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy

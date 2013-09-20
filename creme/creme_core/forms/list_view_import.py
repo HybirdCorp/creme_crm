@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import filter
 import os
 from functools import partial
-from itertools import chain, ifilter, izip_longest
+from itertools import chain, izip_longest
 import logging
 
 from django.db.models import Q, ManyToManyField
@@ -879,7 +880,7 @@ class ImportForm(CremeModelForm):
         key_fields = frozenset(get_cleaned('key_fields'))
         i = 0
 
-        for i, line in enumerate(ifilter(None, lines), start=1):
+        for i, line in enumerate(filter(None, lines), start=1):
             try:
                 instance = model_class()
                 updated = False #'True' means: object has been updated, not created from scratch

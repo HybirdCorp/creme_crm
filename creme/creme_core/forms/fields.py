@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from future_builtins import map
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
@@ -300,7 +301,7 @@ class MultiGenericEntityField(GenericEntityField):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
 
     def _value_to_jsonifiable(self, value):
-        return map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value)
+        return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
         entities_pks = OrderedSet() #in order to keep the global order (left by defaultdict)
@@ -473,7 +474,7 @@ class MultiRelationEntityField(RelationEntityField):
                            )
 
     def _value_to_jsonifiable(self, value):
-        return map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value)
+        return list(map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value))
 
     def _build_rtype_cache(self, rtype_pk):
         try:
@@ -731,7 +732,7 @@ class MultiCreatorEntityField(CreatorEntityField):
 
             return value
 
-        return map(super(MultiCreatorEntityField, self)._value_to_jsonifiable, value)
+        return list(map(super(MultiCreatorEntityField, self)._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
         entities = []
@@ -836,7 +837,7 @@ class _EntityField(Field):
                 value = [value]
 
         try:
-            clean_ids = map(int, value)
+            clean_ids = [int(v) for v in value]
         except ValueError:
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
 
