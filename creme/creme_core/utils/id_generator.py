@@ -26,38 +26,43 @@ from django.db import transaction, IntegrityError
 logger = logging.getLogger(__name__)
 
 
-#We use transaction because the IntegrityError aborts the current transaction on PGSQL
-@transaction.commit_manually
 def generate_string_id_and_save(model, objects, prefix):
     if not objects:
         return
 
     id_list = model.objects.filter(id__startswith=prefix).values_list('id', flat=True)
-    prefix_len= len(prefix)
+    prefix_len = len(prefix)
     #TODO: do-able in SQL ????
     #TODO: would it be cool to fill the 'holes' in id ranges ???
     index = max(int(string[prefix_len:]) for string in id_list) if id_list else 0
     last_exception = None
 
-    for obj in objects:
-        for i in xrange(1000): #avoid infinite loop.....
-            sid = transaction.savepoint()
-            index += 1
-            obj.id = prefix + str(index)
+    #We use transaction because the IntegrityError aborts the current transaction on PGSQL
+    with transaction.commit_manually():
+        try:
+            for obj in objects:
+                for i in xrange(1000): #avoid infinite loop
+                    sid = transaction.savepoint()
+                    index += 1
+                    obj.id = prefix + str(index)
 
-            try:
-                obj.save(force_insert=True)
-            except IntegrityError as e:  #an object with this id already exists
-                #TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
-                logger.debug('gen_id_and_save(): id %s already exists ? (%s)', obj.id, e)
-                last_exception = e
-                obj.pk = None
+                    try:
+                        obj.save(force_insert=True)
+                    except IntegrityError as e: #an object with this id already exists
+                        #TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
+                        logger.debug('generate_string_id_and_save(): id "%s" already exists ? (%s)', obj.id, e)
+                        last_exception = e
+                        obj.pk = None
 
-                transaction.savepoint_rollback(sid)
-            else:
-                transaction.savepoint_commit(sid)
-                break
+                        transaction.savepoint_rollback(sid)
+                    else:
+                        transaction.savepoint_commit(sid)
+                        break
+                else:
+                    raise last_exception #use transaction to delete saved objects ????
+        except Exception:
+            transaction.rollback()
+            #logger.exception('generate_string_id_and_save') #we noticed that it breaks rollback feature...
+            raise
         else:
-            raise last_exception #use transaction to delete saved objects ????
-
-    transaction.commit()
+            transaction.commit()
