@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-13 17:38+0200\n"
+"POT-Creation-Date: 2013-09-24 17:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -526,23 +526,23 @@ msgstr "Activités flottantes"
 
 #: templates/activities/calendar.html:23
 msgid "FILTER FLOATING ACTIVITIES"
-msgstr ""
+msgstr "FILTRER LES ACTIVITES FLOTTANTES"
 
-#: templates/activities/calendar.html:39
+#: templates/activities/calendar.html:38
 msgid "My calendars"
 msgstr "Mes calendriers"
 
-#: templates/activities/calendar.html:50 templates/activities/calendar.html:76
+#: templates/activities/calendar.html:49 templates/activities/calendar.html:75
 msgid "No calendars"
 msgstr "Aucun calendrier"
 
-#: templates/activities/calendar.html:58
+#: templates/activities/calendar.html:57
 msgid "Collaborators calendars"
-msgstr ""
+msgstr "Calendriers des collaborateurs"
 
-#: templates/activities/calendar.html:61
+#: templates/activities/calendar.html:60
 msgid "FILTER CALENDARS OR COLLABORATORS"
-msgstr ""
+msgstr "FILTRER LES CALENDRIERS OU LES COLLABORATEURS"
 
 #: templates/activities/portal.html:7
 msgid "Activities portal"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-13 17:38+0200\n"
+"POT-Creation-Date: 2013-09-24 17:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,110 +20,110 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: static/activities/js/activities.js:37
-msgid "Loading..."
-msgstr "Chargement..."
-
-#: static/activities/js/activities.js:191
+#: static/activities/js/activities.js:200
 msgid "You do not have permission, the change will not be saved."
 msgstr "Vous n'avez pas la permission, les changements ne seront pas sauvés."
 
-#: static/activities/js/activities.js:195
+#: static/activities/js/activities.js:204
 msgid "Error, please reload the page."
 msgstr "Erreur, veuillez recharger la page."
 
-#: static/activities/js/activities.js:222
+#: static/activities/js/activities.js:248
 msgid "All day"
 msgstr "Jour Entier"
 
-#: static/activities/js/activities.js:245
+#: static/activities/js/activities.js:271
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: static/activities/js/activities.js:246
+#: static/activities/js/activities.js:272
 msgid "Month"
 msgstr "Mois"
 
-#: static/activities/js/activities.js:247
+#: static/activities/js/activities.js:273
 msgid "Week"
 msgstr "Semaine"
 
-#: static/activities/js/activities.js:248
+#: static/activities/js/activities.js:274
 msgid "Day"
 msgstr "Jour"
 
-#: static/activities/js/activities.js:251
+#: static/activities/js/activities.js:277
 msgid "January"
 msgstr "Janvier"
 
-#: static/activities/js/activities.js:252
+#: static/activities/js/activities.js:278
 msgid "February"
 msgstr "Février"
 
-#: static/activities/js/activities.js:253
+#: static/activities/js/activities.js:279
 msgid "March"
 msgstr "Mars"
 
-#: static/activities/js/activities.js:254
+#: static/activities/js/activities.js:280
 msgid "April"
 msgstr "Avril"
 
-#: static/activities/js/activities.js:255
+#: static/activities/js/activities.js:281
 msgid "May"
 msgstr "Mai"
 
-#: static/activities/js/activities.js:256
+#: static/activities/js/activities.js:282
 msgid "June"
 msgstr "Juin"
 
-#: static/activities/js/activities.js:257
+#: static/activities/js/activities.js:283
 msgid "July"
 msgstr "Juillet"
 
-#: static/activities/js/activities.js:258
+#: static/activities/js/activities.js:284
 msgid "August"
-msgstr "Aout"
+msgstr "Août"
 
-#: static/activities/js/activities.js:259
+#: static/activities/js/activities.js:285
 msgid "September"
 msgstr "Septembre"
 
-#: static/activities/js/activities.js:260
+#: static/activities/js/activities.js:286
 msgid "October"
 msgstr "Octobre"
 
-#: static/activities/js/activities.js:261
+#: static/activities/js/activities.js:287
 msgid "November"
 msgstr "Novembre"
 
-#: static/activities/js/activities.js:262
+#: static/activities/js/activities.js:288
 msgid "December"
 msgstr "Décembre"
 
-#: static/activities/js/activities.js:265
+#: static/activities/js/activities.js:291
 msgid "Sunday"
 msgstr "Dimanche"
 
-#: static/activities/js/activities.js:266
+#: static/activities/js/activities.js:292
 msgid "Monday"
 msgstr "Lundi"
 
-#: static/activities/js/activities.js:267
+#: static/activities/js/activities.js:293
 msgid "Tuesday"
 msgstr "Mardi"
 
-#: static/activities/js/activities.js:268
+#: static/activities/js/activities.js:294
 msgid "Wesnesday"
 msgstr "Mercredi"
 
-#: static/activities/js/activities.js:269
+#: static/activities/js/activities.js:295
 msgid "Thursday"
 msgstr "Jeudi"
 
-#: static/activities/js/activities.js:270
+#: static/activities/js/activities.js:296
 msgid "Friday"
 msgstr "Vendredi"
 
-#: static/activities/js/activities.js:271
+#: static/activities/js/activities.js:297
 msgid "Saturday"
 msgstr "Samedi"
+
+#: static/activities/js/activities.js:405
+msgid "Loading..."
+msgstr "Chargement..."

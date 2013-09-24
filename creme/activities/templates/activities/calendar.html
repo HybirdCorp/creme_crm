@@ -20,9 +20,9 @@
                     <span>&nbsp;&nbsp;{% trans "Floating activities" %}</span>
                 </h4>
                 {% if floating_activities|length >= max_element_research %}
-                    <div class='toggle-target floating_event_filter research'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
+                    <div class='floating_event_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER FLOATING ACTIVITIES' %}" /></div>
                 {% endif %}
-                <div class="toggle-target menu_sub_element_list">
+                <div class="floating_activities menu_sub_element_list toggle-target">
                     {% for floating_activity in floating_activities %}
                         <div class='floating_event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-color="#{{floating_activity.calendar.color}}">
                             <div class="colored_square" style="background-color:#{{floating_activity.calendar.color}};"></div>
@@ -30,7 +30,6 @@
                         </div>
                     {% endfor %}
                 </div>
-                <hr/>
             </div>
         {% endif %}
         <div class="ui-creme-widget ui-creme-toggle widget-auto" widget="ui-creme-toggle">
@@ -38,12 +37,12 @@
                 <span class="toggle-icon">&nbsp;</span>
                 <span>&nbsp;&nbsp;{% trans "My calendars" %} </span>
             </h4>
-            <div class="toggle-target my_calendars menu_sub_element_list">
+            <div class="my_calendars menu_sub_element_list toggle-target">
                 {% for calendar in my_calendars %}
                     <div class="calendar_item">
                         <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
                         <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} />
-                        <label for="id_calendar_{{calendar.id}}" >{{calendar}}</label>
+                        <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </br>
                     </div>
                 {% empty%}
@@ -58,9 +57,9 @@
                 <span>&nbsp;&nbsp;{% trans "Collaborators calendars" %}</span>
             </h4>
             {% if n_others_calendars >= max_element_research %}
-                <div class='toggle-target calendar_filter'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
+                <div class='calendar_filter toggle-target'><input type='search' placeholder="{% trans 'FILTER CALENDARS OR COLLABORATORS' %}" /></div>
             {% endif %}
-            <div class="toggle-target other_calendars menu_sub_element_list">
+            <div class="other_calendars menu_sub_element_list toggle-target">
                 {% for user, calendars in others_calendars.items %}
                     <h5 class="calendar_label_owner" data-user="{{user.filter_key}}">{{user.first_name}} {{user.last_name}}</h5>
                     <div class="calendar_user_group" data-user="{{user.filter_key}}">
@@ -68,7 +67,7 @@
                             <div class="calendar_item calendar_label_container" data-user="{{user.filter_key}}" data-calendar="{{calendar.id}}">
                                 <div class="colored_square" style="background-color:#{{calendar.get_color}};"></div>
                                 <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="selected_calendars" {% if calendar.id|str in current_calendars %} checked {% endif %} />
-                                <label for="id_calendar_{{calendar.id}}" >{{calendar}}</label>
+                                <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                             </div>
                         {% endfor %}
                     </div>
