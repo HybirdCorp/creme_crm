@@ -61,7 +61,7 @@
             {% endif %}
             <div class="other_calendars menu_sub_element_list toggle-target">
                 {% for user, calendars in others_calendars.items %}
-                    <h5 class="calendar_label_owner" data-user="{{user.filter_key}}">{{user.first_name}} {{user.last_name}}</h5>
+                    <h5 class="calendar_label_owner" data-user="{{user.filter_key}}">{{user}}</h5>
                     <div class="calendar_user_group" data-user="{{user.filter_key}}">
                         {% for calendar in calendars %}
                             <div class="calendar_item calendar_label_container" data-user="{{user.filter_key}}" data-calendar="{{calendar.id}}">
