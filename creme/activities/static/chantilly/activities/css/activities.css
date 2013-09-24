@@ -9,38 +9,51 @@
     white-space: nowrap;
 }
 
-.calendar {
-    width: auto;
-}
-
-.with_menu {
-    margin: 0 0 0 255px;
-}
+/* calendar sidebar */
 
 .menu_calendar {
     position: absolute;
-    clear:both;
-    width:250px;
-    margin-top:20px;
+    clear: both;
+
+    width: 320px;
+    overflow-y: auto;
+
+    margin-top: 50px;
+    padding: 5px 0 10px 0;
+
+    background: #eee;
 }
 
-.colored_square {
-    width:13px;
-    height:13px;
-    display:inline-block;
+/* apply a natural box layout model to all elements */
+.menu_calendar, .menu_calendar * { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+.menu_calendar hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin: 1em 0; padding: 0; }
+
+.menu_calendar h4 {
+    margin: 0;
 }
 
 .menu_calendar h5 {
-    margin:5px 0px 0px 0px;
+    margin: 5px 0 0 0;
 }
 
-.menu_calendar h4 {
-    margin:0px;
+.menu_calendar span.toggle-icon {
+    width: 22px;
+    display: inline-block;
 }
+
+.menu_calendar .floating_event {
+    margin-bottom: 3px;
+}
+
+.colored_square {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+}
+
 
 .menu_sub_element_list {
-    overflow-y: auto;
-    max-height: 150px;
     margin: 0 0 0 5px;
     padding: 0;
 }
@@ -53,7 +66,7 @@
 }
 
 .floating_event:hover {
-    background: #f0ecec;
+    background: #e9e2e2;
 }
 
 .floating_event.ui-draggable-dragging {
@@ -62,19 +75,49 @@
     cursor: -moz-grabbing;
 }
 
-.research {
-    margin-bottom: 5px;
-}
-
 .calendar_filter, .floating_event_filter {
-    margin: 0 5px 10px 0;    
+    margin: 5px 5px 8px 5px;
 }
 
 .calendar_filter input, .floating_event_filter input {
     width: 100%;
-    font-family: open-sans;
-    font-size: 10px;
+    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+    font-size: 9px;
 }
+
+.floating_activities .floating_event:first-child {
+    margin-top: 7px;
+}
+
+.my_calendars .calendar_item:first-child {
+    margin-top: 5px;
+}
+
+
+.other_calendars .calendar_label_owner {
+    margin-bottom: 3px;
+}
+
+.other_calendars .calendar_user_group {
+    margin-bottom: 10px;
+}
+
+/* calendar sidebar - end */
+
+/* calendar */
+
+.calendar_container {
+    margin: 20px 0 0 5px;
+}
+
+.calendar {
+    width: auto;
+}
+
+.with_menu {
+    margin: 0 0 0 325px;
+}
+
 
 .calendar .fc-event-time, .calendar .fc-event-type, .calendar .fc-event-title {
     font-size: 13px;
@@ -94,19 +137,49 @@
 }
 
 .calendar .fc-event, .calendar .fc-agenda .fc-event-time, .calendar .fc-event a {
-   border: none;
-   background: none;
-   text-shadow:none;
-   -webkit-transition: none;
-   -moz-transition: none;
-   transition: none;
+    border: none;
+    background: none;
+    text-shadow: none;
+
+    -webkit-transition: none;
+       -moz-transition: none;
+            transition: none;
+}
+
+.calendar .loading-indicator {
+    position: relative;
+    left: -325px;
+    top: -10px;
+
+    margin-bottom: -7px;
+}
+
+.calendar .loading-indicator .loading-label {
+    display: inline-block;
+    margin-left: 5px;
+
+    position: relative;
+    top: -3px;
 }
 
 .hidden {
-    display:none;
+    display: none;
 }
 
-.menu_calendar span.toggle-icon {
-    width:22px;
-    display:inline-block;
+/* calendar - end */
+
+/* calendar header widget repositioning */
+
+.calendar .fc-header-left table, .calendar .fc-header-center table {
+    position: relative;
 }
+
+.calendar .fc-header-left table {
+    left: -330px; /* the width of the sidebar with padding */
+}
+
+.calendar .fc-header-center table {
+    margin: 0; /* remove the centering */
+}
+
+/* calendar header widget repositioning - end */
