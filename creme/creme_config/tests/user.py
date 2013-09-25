@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.conf import settings
     from django.contrib.sessions.models import Session
     from django.contrib.auth.models import User
@@ -39,6 +41,12 @@ class UserTestCase(CremeTestCase):
 
     def _build_delete_url(self, user):
         return '/creme_config/user/delete/%s' % user.id
+
+    def _build_edit_url(self, user_id, password=None):
+        return '/creme_config/user/edit/%s%s' % ('password/' if password else '', user_id)
+
+    def _build_activation_url(self, user_id, activation):
+        return '/creme_config/user/%s/%s' % (activation, user_id)
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
@@ -308,7 +316,7 @@ class UserTestCase(CremeTestCase):
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
-        url = '/creme_config/user/edit/%s' % other_user.id
+        url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
 
         first_name = 'Deunan'
@@ -340,7 +348,7 @@ class UserTestCase(CremeTestCase):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team  = self._create_team('Teamee', [user])
 
-        url = '/creme_config/user/edit/%s' % team.id
+        url = self._build_edit_url(team.id)
         self.assertGET404(url)
         self.assertPOST404(url)
 
@@ -358,7 +366,7 @@ class UserTestCase(CremeTestCase):
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
-        url = '/creme_config/user/edit/%s' % other_user.id
+        url = self._build_edit_url(other_user.id)
         self.assertGETRedirectsToLogin(url)
 
         role2 = UserRole.objects.create(name='Slave')
@@ -375,7 +383,7 @@ class UserTestCase(CremeTestCase):
 
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
 
-        url = '/creme_config/user/edit/%s' % user.id
+        url = self._build_edit_url(user.id)
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
@@ -387,7 +395,7 @@ class UserTestCase(CremeTestCase):
         self.login()
 
         other_user = User.objects.create(username='deunan')
-        url = '/creme_config/user/edit/password/%s' % other_user.id
+        url = self._build_edit_url(other_user.id, password=True)
         self.assertGET200(url)
 
         password = 'password'
@@ -403,7 +411,7 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         other_user = User.objects.create(username='deunan')
-        url = '/creme_config/user/edit/password/%s' % other_user.id
+        url = self._build_edit_url(other_user.id, password=True)
         self.assertGETRedirectsToLogin(url)
 
         password = 'password'
@@ -416,7 +424,7 @@ class UserTestCase(CremeTestCase):
         self.login()
 
         other_user = User.objects.create(username='deunan')
-        url = '/creme_config/user/edit/password/%s' % other_user.id
+        url = self._build_edit_url(other_user.id, password=True)
         self.assertGET200(url)
 
         password = 'password'
@@ -426,6 +434,48 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
+
+    def test_user_activation01(self):
+        "Not superuser"
+        self.login_not_as_superuser()
+        other_user = User.objects.create(username='deunan')
+        url = partial(self._build_activation_url, other_user.id)
+        self.assertGETRedirectsToLogin(url('deactivate'))
+        self.assertGETRedirectsToLogin(url('activate'))
+
+    def test_user_activation02(self):
+        "Post only & Current user"
+        self.login()
+        url = self._build_activation_url(self.user.id, 'deactivate')
+        self.assertGET404(url)
+        self.assertPOST(409, url)
+
+    def test_user_activation03(self):
+        "user is staff"
+        self.login()
+        other_user = User.objects.create(username='deunan', is_staff=True)
+        url = partial(self._build_activation_url, other_user.id)
+        self.assertPOST(400, url('activate'))
+        self.assertPOST(400, url('deactivate'))
+
+    def test_user_activation04(self):
+        "user is staff"
+        self.login()
+        other_user = User.objects.create(username='deunan', is_staff=True)
+        url = partial(self._build_activation_url, other_user.id)
+        self.assertPOST(400, url('activate'))
+        self.assertPOST(400, url('deactivate'))
+
+    def test_user_activation05(self):
+        "user is staff"
+        self.login()
+        other_user = User.objects.create(username='deunan')
+        url = partial(self._build_activation_url, other_user.id)
+
+        self.assertPOST200(url('deactivate'))
+        self.assertFalse(self.refresh(other_user).is_active)
+        self.assertPOST200(url('activate'))
+        self.assertTrue(self.refresh(other_user).is_active)
 
     def test_team_create01(self):
         self.login()
