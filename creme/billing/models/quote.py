@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey, PROTECT
+from django.db.models import ForeignKey, DateField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from .base import Base
@@ -26,7 +26,8 @@ from .other_models import QuoteStatus
 
 
 class Quote(Base):
-    status = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
+    status           = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
+    acceptation_date = DateField(_(u"Acceptation date"), blank=True, null=True)
 
     #research_fields = Base.research_fields + ['status__name']
     #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']

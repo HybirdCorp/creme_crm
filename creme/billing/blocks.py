@@ -47,6 +47,7 @@ class BillingBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             is_invoice=isinstance(document, Invoice),
+                                                            is_quote=isinstance(document, Quote),
                                                            )
                            )
 

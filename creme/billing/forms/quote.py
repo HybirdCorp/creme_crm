@@ -18,13 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
+from creme.creme_core.forms import CremeDateField
+
 from creme.persons.workflow import transform_target_into_prospect
 
 from ..models import Quote
 from .base import BaseCreateForm, BaseEditForm
 
-
 class QuoteCreateForm(BaseCreateForm):
+    acceptation_date = CremeDateField(label=_(u"Acceptation date"), required=False)
+
     class Meta(BaseCreateForm.Meta):
         model = Quote
 
