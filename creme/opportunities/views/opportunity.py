@@ -129,7 +129,6 @@ def generate_new_doc(request, opp_id, ct_id):
 
     document = klass.objects.create(user=user, issuing_date=now(),
                                     status_id=1, currency=opp.currency,
-                                    comment=_(u"Generated from the opportunity «%s»") % opp
                                    )
 
     create_relation = partial(Relation.objects.create, subject_entity=document, user=user)
