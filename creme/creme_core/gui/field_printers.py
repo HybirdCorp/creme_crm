@@ -22,6 +22,7 @@ from future_builtins import filter
 from itertools import chain
 
 from django.db import models
+from django.conf import settings
 from django.template.defaultfilters import linebreaks
 from django.utils.html import escape
 from django.utils.formats import date_format
@@ -164,12 +165,49 @@ class _FieldPrintersRegistry(object):
             fields.CreationDateTimeField :     print_datetime,
         }
 
+        self.css_default_listview = css_default_listview = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
+        self.css_default_header_listview = css_default_header_listview = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
+
+        css_number_listview = getattr(settings, 'CSS_NUMBER_LISTVIEW', css_default_listview)
+        css_textarea_listview = getattr(settings, 'CSS_TEXTAREA_LISTVIEW', css_default_listview)
+        css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header_listview)
+
+        self._listview_css_printers = {
+            models.CommaSeparatedIntegerField: css_number_listview,
+            models.DecimalField:               css_number_listview,
+            models.FloatField:                 css_number_listview,
+            models.PositiveIntegerField:       css_number_listview,
+            models.PositiveSmallIntegerField:  css_number_listview,
+            models.TextField:                  css_textarea_listview,
+        }
+
+        self._header_listview_css_printers = {
+            models.DateField:                   css_date_header_listview,
+            fields.CreationDateTimeField:       css_date_header_listview,
+            fields.ModificationDateTimeField:   css_date_header_listview,
+            models.DateTimeField:               css_date_header_listview,
+        }
+
     def register(self, field, printer):
         """Register a field printer.
         @param field A class inheriting django.models.Field
         @param printer A callable with 2 parameter: 'obj' & 'fval'. See simple_print, print_urlfield etc...
         """
         self._printers[field] = printer
+
+    def register_listview_css_class(self, field, css_class, header_css_class):
+        """Register a listview css class for field .
+        @param field A class inheriting django.models.Field
+        @param css_class A string
+        """
+        self._listview_css_printers[field] = css_class
+        self._header_listview_css_printers[field] = header_css_class
+
+    def get_listview_css_class_for_field(self, field_class):
+        return self._listview_css_printers.get(field_class, self.css_default_listview)
+
+    def get_header_listview_css_class_for_field(self, field_class):
+        return self._header_listview_css_printers.get(field_class, self.css_default_header_listview)
 
     def get_html_field_value(self, obj, field_name, user):
         field_class, field_value = get_instance_field_info(obj, field_name)

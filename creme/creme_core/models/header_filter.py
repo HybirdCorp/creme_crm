@@ -25,7 +25,7 @@ from collections import defaultdict
 import logging
 
 from django.db.models import (Model, FieldDoesNotExist, CharField, BooleanField,
-                              PositiveIntegerField, PositiveSmallIntegerField,
+                              PositiveIntegerField, PositiveSmallIntegerField, DecimalField,
                               DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -38,7 +38,6 @@ from .entity import CremeEntity
 from .relation import RelationType
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
-
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +234,8 @@ class HeaderFilterItem(Model):  #CremeModel ???
     _customfield = None
     _functionfield = None
     _volatile_render = None
+    _listview_css_class = None
+    _header_listview_css_class = None
 
     def __unicode__(self):
         return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (
@@ -254,6 +255,12 @@ class HeaderFilterItem(Model):  #CremeModel ???
             CustomField.ENUM:       '%s__value__exact',
             CustomField.MULTI_ENUM: '%s__value__exact',
         }
+
+    _CF_CSS = {
+        CustomField.DATETIME:   DateTimeField,
+        CustomField.INT:        PositiveIntegerField,
+        CustomField.FLOAT:      DecimalField
+    }
 
     @classmethod
     def build_4_customfield(cls, customfield):
@@ -354,6 +361,31 @@ class HeaderFilterItem(Model):  #CremeModel ???
             logger.debug('HeaderFilterItem.get_functionfield(): cache HIT for id=%s', self.id)
 
         return self._functionfield
+
+    def _get_listview_css_class(self, listview_css_class_attribute):
+        listview_css_class = getattr(self, listview_css_class_attribute)
+        if listview_css_class is None:
+            from ..gui.field_printers import field_printers_registry
+            registry_getter = getattr(field_printers_registry, 'get%s_for_field' % listview_css_class_attribute)
+            if self.type == HFI_FIELD:
+                model = self.header_filter.entity_type.model_class()
+                field_class = get_model_field_info(model, self.name)[-1:][0]['field'].__class__
+            elif self.type == HFI_CUSTOM:
+                cf = self.get_customfield()
+                field_class = self._CF_CSS.get(cf.field_type, None)
+            else:
+                field_class = None
+            listview_css_class = registry_getter(field_class)
+            setattr(self, listview_css_class_attribute, listview_css_class)
+        return listview_css_class
+
+    @property
+    def listview_css_class(self):
+        return self._get_listview_css_class('_listview_css_class')
+
+    @property
+    def header_listview_css_class(self):
+        return self._get_listview_css_class('_header_listview_css_class')
 
     @property
     def error(self): #TODO: map of validators

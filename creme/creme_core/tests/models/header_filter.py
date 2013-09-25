@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-
+    from django.conf import settings
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -26,6 +26,11 @@ class HeaderFiltersTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(Contact)
         cls.orga_ct    = get_ct(Organisation)
+        hf   = HeaderFilter.create(pk='hftest_tests-hf_contact', name='Test Contact view', model=Contact, is_custom=True)
+        cls.hf_contact = hf
+
+        hf = HeaderFilter.create(pk='hftest_tests-hf_orga', name='Test Orga view', model=Organisation, is_custom=True)
+        cls.hf_orga = hf
 
     def test_create(self):
         self.login()
@@ -42,6 +47,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
         name += 'v2'
         hf = HeaderFilter.create(pk=pk, name=name, model=Organisation, is_custom=False, user=self.user)
+        self.hf_orga = hf
         self.assertEqual(name,         hf.name)
         self.assertEqual(self.user,    hf.user)
         self.assertEqual(self.orga_ct, hf.entity_type)
@@ -75,22 +81,31 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_build_4_field02(self):
         "Date field"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='birthday')
+        hfi.header_filter = self.hf_contact
         self.assertEqual('birthday__range', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_field03(self):
         "Boolean field"
         hfi = HeaderFilterItem.build_4_field(model=Organisation, name='subject_to_vat')
+        hfi.header_filter = self.hf_orga
         self.assertEqual('subject_to_vat__creme-boolean', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
 
     def test_build_4_field04(self):
         "ForeignKey"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position')
+        hfi.header_filter = self.hf_contact
         self.assertEqual('position', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
 
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='image')
+        hfi.header_filter = self.hf_contact
         self.assertEqual('image__header_filter_search_field__icontains',
                          hfi.filter_string
                         )
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
 
     def test_build_4_field05(self):
         "Basic ForeignKey subfield"
@@ -130,6 +145,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                                                 )
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
+        hfi.header_filter = self.hf_contact
         self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(str(customfield.id), hfi.name)
         self.assertEqual(name,                hfi.title)
@@ -138,6 +154,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hfi.editable,     False)
         self.assertIs(hfi.sortable,     False)
         self.assertEqual('customfieldinteger__value__icontains', hfi.filter_string)
+        self.assertEqual(settings.CSS_NUMBER_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_customfield02(self):
         "FLOAT CustomField"
@@ -146,7 +164,10 @@ class HeaderFiltersTestCase(CremeTestCase):
                                                 )
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
+        hfi.header_filter = self.hf_contact
         self.assertEqual('customfieldfloat__value__icontains', hfi.filter_string)
+        self.assertEqual(settings.CSS_NUMBER_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_customfield03(self):
         "DATE CustomField"
@@ -155,7 +176,11 @@ class HeaderFiltersTestCase(CremeTestCase):
                                                 )
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
+        hfi.header_filter = self.hf_contact
         self.assertEqual('customfielddatetime__value__range', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, hfi.header_listview_css_class)
+
 
     def test_build_4_customfield04(self):
         "BOOL CustomField"
@@ -164,7 +189,10 @@ class HeaderFiltersTestCase(CremeTestCase):
                                                 )
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
+        hfi.header_filter = self.hf_contact
         self.assertEqual('customfieldboolean__value__creme-boolean', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_customfield05(self):
         "ENUM CustomField"
@@ -178,6 +206,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldenum__value__exact', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_customfield06(self):
         "MULTI_ENUM CustomField"
@@ -191,6 +221,8 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldmultienum__value__exact', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_relation(self):
         loves, loved = RelationType.create(('test-subject_love', u'Is loving'),
@@ -206,6 +238,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hfi.sortable,     False)
         self.assertEqual('',    hfi.filter_string)
         self.assertEqual(loves, hfi.relation_predicat)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_build_4_functionfield(self):
         name = 'get_pretty_properties'
@@ -222,6 +256,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hfi.sortable,     False)
         self.assertIs(hfi.is_hidden,    False)
         self.assertEqual('', hfi.filter_string)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, hfi.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, hfi.header_listview_css_class)
 
     def test_set_items01(self):
         hfilter = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
