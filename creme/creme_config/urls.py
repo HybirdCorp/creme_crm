@@ -7,6 +7,8 @@ user_patterns = patterns('creme.creme_config.views.user',
     (r'^portal/$',                        'portal'),
     (r'^add/$',                           'add'),
     (r'^edit/(?P<user_id>\d+)$',          'edit'),
+    (r'^activate/(?P<user_id>\d+)$',      'activate'),
+    (r'^deactivate/(?P<user_id>\d+)$',    'deactivate'),
     (r'^delete/(?P<user_id>\d+)$',        'delete'),
     (r'^edit/password/(?P<user_id>\d+)$', 'change_password'),
 )

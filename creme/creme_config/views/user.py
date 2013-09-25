@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.auth.decorators import admin_required
 from creme.creme_core.core.exceptions import ConflictError
 
@@ -103,3 +104,42 @@ def delete(request, user_id):
                                    )
     except Exception:
         return HttpResponse(_(u"You can't delete this user."), status=400)
+
+@login_required
+@admin_required
+@POST_only
+def deactivate(request, user_id):
+    """Deactivate a user
+    """
+    user = request.user
+
+    if int(user_id) == user.id:
+        raise ConflictError(_(u"You can't deactivate the current user."))
+
+    user_to_deactivate = get_object_or_404(User, pk=user_id)
+
+    if user_to_deactivate.is_staff and not user.is_staff:
+        return HttpResponse(_(u"You can't deactivate a staff user."), status=400)
+
+    if user_to_deactivate.is_active:
+        user_to_deactivate.is_active = False
+        user_to_deactivate.save()
+
+    return HttpResponse()
+
+@login_required
+@admin_required
+@POST_only
+def activate(request, user_id):
+    """Deactivate a user
+    """
+    user_to_activate = get_object_or_404(User, pk=user_id)
+
+    if user_to_activate.is_staff and not request.user.is_staff:
+        return HttpResponse(_(u"You can't activate a staff user."), status=400)
+
+    if not user_to_activate.is_active:
+        user_to_activate.is_active = True
+        user_to_activate.save()
+
+    return HttpResponse()
