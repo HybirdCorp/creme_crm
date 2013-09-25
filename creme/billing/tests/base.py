@@ -219,6 +219,8 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                 'currency_colselect': 0,
                 'currency_defval':    def_currency.pk,
 
+                'acceptation_date_colselect':    0,
+
                 'comment_colselect':         0,
                 'additional_info_colselect': 0,
                 'payment_terms_colselect':   0,

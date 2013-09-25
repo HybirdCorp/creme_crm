@@ -41,7 +41,7 @@
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'issuing_date' for object %}</td>
         </tr>
         <tr>
-            <th class="{% cycle header_color %} th_info">{% trans "Date d'expiration" %}</th>
+            <th class="{% cycle header_color %} th_info">{% trans "Expiration Date" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='expiration_date' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'expiration_date' for object %}</td>
         </tr>
@@ -86,6 +86,12 @@
                 <th class="{% cycle header_color %} th_info">{% trans "Settlement terms" %}</th>
                 <td class="{% cycle row_color %} td_info">{% print_field object=object field='payment_type' %}</td>
                 <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'payment_type' for object %}</td>
+            </tr>
+        {% elif is_quote %}
+            <tr>
+                <th class="{% cycle header_color %} th_info">{% trans "Acceptation date" %}</th>
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='acceptation_date' %}</td>
+                <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'acceptation_date' for object %}</td>
             </tr>
         {% endif %}
     </tbody>
