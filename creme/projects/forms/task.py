@@ -95,7 +95,7 @@ class TaskCreateForm(_TaskForm):
     type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
     parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
     participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
-                                                   queryset=User.objects.all(),
+                                                   queryset=User.objects.filter(is_staff=False),
                                                    required=False,
                                                    widget=UnorderedMultipleChoiceWidget,
                                                   )

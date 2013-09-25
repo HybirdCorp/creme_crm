@@ -222,7 +222,7 @@ class ActivityEditForm(_ActivityForm):
 
 class _ActivityCreateForm(_ActivityForm):
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
-                                                   queryset=User.objects.all(),
+                                                   queryset=User.objects.filter(is_staff=False),
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
 
@@ -301,7 +301,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                       .get(pk=REL_SUB_ACTIVITY_SUBJECT)
                                                                       .subject_ctypes.all()
                                             ]
-        fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
+        fields['participating_users'].queryset = User.objects.filter(is_staff=False).exclude(pk=user.id)
         fields['other_participants'].qfilter_options({'is_user__isnull': True})
 
     def clean_my_participation(self):

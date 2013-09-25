@@ -48,7 +48,7 @@ class ParticipantCreateForm(CremeForm):
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, empty_label=None,
                                            label=_(u"On which of my calendar this activity will appear?"),
                                           )
-    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
+    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.filter(is_staff=False),
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
     participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
@@ -71,7 +71,7 @@ class ParticipantCreateForm(CremeForm):
                                                })
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
-        user_qs = User.objects.exclude(pk__in=existing_users).exclude(pk=user_pk)
+        user_qs = User.objects.filter(is_staff=False).exclude(pk__in=existing_users).exclude(pk=user_pk)
 
         fields['participating_users'].queryset = user_qs
         if not user_qs:

@@ -106,6 +106,14 @@ class Contact(CremeEntity):
         """url for list_view """
         return "/persons/contacts"
 
+    @staticmethod
+    def get_user_contact_or_mock(user):
+        try:
+            contact = Contact.objects.get(is_user=user)
+        except Contact.DoesNotExist:
+            contact = Contact()
+        return contact
+
     def delete(self):
         self._check_deletion() #should not be useful (trashing should be blocked too)
         super(Contact, self).delete()

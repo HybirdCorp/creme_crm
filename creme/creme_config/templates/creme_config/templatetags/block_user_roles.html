@@ -3,7 +3,7 @@
 {% comment %}{% if not request.is_ajax %}
     <div class="help_box">{% trans 'Remember that if you delete a role, all associated users will have the default credentials.' %}</div>
 {% endif %}{% endcomment %}
-{% with user.is_superuser as has_perm %}
+{% with has_perm=user.can_admin %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=7 %}
         <th class="collapser label">{% get_block_title _('%s Role') _('%s Roles') %}</th>

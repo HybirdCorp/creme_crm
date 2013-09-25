@@ -317,6 +317,11 @@ class UserProfile(Model):
 
     #TODO: full_clean() ?? (team + role= None etc...)
 
+    #TODO find where forms are imported, making that method called BEFORE User has been contributed
+    # @staticmethod
+    # def get_common_ones():
+    #     return User.objects.filter(is_staff=False)
+
     @property #NB notice that a cache is built
     def teams(self):
         assert not self.is_team
@@ -340,6 +345,10 @@ class UserProfile(Model):
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
 
         return teammates
+
+    @property
+    def can_admin(self):
+        return self.is_superuser or self.is_staff
 
     @teammates.setter
     def teammates(self, users):
