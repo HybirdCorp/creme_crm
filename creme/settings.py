@@ -307,6 +307,12 @@ GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 THEMES        = [('chantilly', _(u"Chantilly")), ('icecream', _(u"Ice cream")), ] #Available themes. A theme is represented by (theme_dir, theme verbose name),
 DEFAULT_THEME = 'chantilly'
 
+CSS_DEFAULT_LISTVIEW = 'left_align'
+CSS_NUMBER_LISTVIEW = 'right_align'
+CSS_TEXTAREA_LISTVIEW = 'text_area'
+CSS_DEFAULT_HEADER_LISTVIEW = 'hd_cl_lv'
+CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
+
 #TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = ('main.css',
                     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.8.15.custom.css',

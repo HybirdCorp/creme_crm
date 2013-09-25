@@ -3,7 +3,7 @@
 <tr id="list_thead_search" class="columns_bottom">
     {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for column in columns %}
-        <th {% if column.is_hidden %}style="display:none;"{% endif %} class="{% if column.type %}column{% else %}actions{% endif %}{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %}{% if column.has_a_filter %} {{ column.widget_ctx.type }}{% endif %}">
+        <th {% if column.is_hidden %}style="display:none;"{% endif %} class="{% if column.type %}column {{ column.header_listview_css_class }}{% else %}actions{% endif %}{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %}{% if column.has_a_filter %} {{ column.widget_ctx.type }}{% endif %}">
             {% if column.has_a_filter %}
                 {% with column.widget_ctx as widget_ctx %}
                     {% with widget_ctx.type as widget_type %}

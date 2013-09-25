@@ -97,7 +97,7 @@
                 {% if column.is_hidden %}
                     <th style="display:none;"></th>
                 {% elif column.type %}
-                    <th class="column{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %}">
+                    <th class="column{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %} cl_lv">
                         <button type="button" {% if column.sortable %}title="{% blocktrans with column.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{column.title}}
                         </button>
@@ -121,7 +121,7 @@
                         <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
                         {# <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td> #}
-                        <td class="column" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>
+                        <td class="column cl_lv {{  column.listview_css_class }}" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>
                             {% get_listview_cell column entity user %}
                             {% if not is_popup_view %}{% get_field_editor on header_filter_item column for entity %}{% endif %}
                         </td>

@@ -220,3 +220,36 @@
     -webkit-border-radius: 4px;
 }
 */
+
+.list_view .cl_lv {
+    word-wrap:break-word;
+    /*max-width: 120px;
+    white-space:normal;*/
+}
+
+.list_view .hd_cl_lv {
+    word-wrap:break-word;
+}
+
+.list_view .hd_date_cl_lv {
+    word-wrap:break-word;
+    max-width: 120px;
+}
+
+
+.list_view .left_align {
+    text-align: left;
+    padding-left : 5px;
+}
+
+.list_view .text_area {
+    text-align: left;
+    padding-left : 5px;
+    max-width: 120px;
+    white-space:normal;
+}
+
+.list_view .right_align {
+    text-align: right;
+    padding-right : 5px;
+}
