@@ -29,7 +29,7 @@ from ..models import UserMessage
 
 
 class UserMessageForm(CremeModelForm):
-    users = ModelMultipleChoiceField(queryset=User.objects.all(), label=_(u"Recipients"),
+    users = ModelMultipleChoiceField(queryset=User.objects.filter(is_staff=False), label=_(u"Recipients"),
                                      widget=UnorderedMultipleChoiceWidget,
                                      help_text=_(u'Each time a team is selected, a message is sent to each teammate (do not worry, there can not be any duplicate).')
                                     )

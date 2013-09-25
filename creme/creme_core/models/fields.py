@@ -55,6 +55,7 @@ class CremeUserForeignKey(ForeignKey):
     _TRANSFER_TO_USER = None
 
     def __init__(self, **kwargs):
+        kwargs['limit_choices_to'] = {'is_staff': False}
         kwargs['on_delete'] = SET(_transfer_assignation)#Overide on_delete, even if it was already defined in kwargs
         super(CremeUserForeignKey, self).__init__(User, **kwargs)
 

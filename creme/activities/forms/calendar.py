@@ -47,7 +47,7 @@ class CalendarConfigForm(CalendarForm):
         super(CalendarForm, self).__init__(*args, **kwargs)
         if not self.instance.pk:
             self.fields['user'] = ModelChoiceField(label=_('User'),
-                                                   queryset=User.objects.all(),
+                                                   queryset=User.objects.filter(is_staff=False),
                                                    empty_label=None,
                                                    initial=self.user.id,
                                                   )

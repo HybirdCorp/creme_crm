@@ -158,7 +158,7 @@ class UserChangePwForm(CremeForm):
 
 
 class TeamCreateForm(CremeModelForm):
-    teammates = ModelMultipleChoiceField(queryset=User.objects.filter(is_team=False),
+    teammates = ModelMultipleChoiceField(queryset=User.objects.filter(is_team=False, is_staff=False),
                                          widget=UnorderedMultipleChoiceWidget,
                                          label=_(u"Teammates"), required=False,
                                         )
@@ -197,7 +197,7 @@ class UserAssignationForm(CremeForm):
         super(UserAssignationForm, self).__init__(user, *args, **kwargs)
         self.user_to_delete = user_to_delete= self.initial['user_to_delete']
 
-        users = User.objects.exclude(pk=user_to_delete.pk)
+        users = User.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
         choices = defaultdict(list)
         for user in users:
             choices[user.is_team].append((user.id, unicode(user)))

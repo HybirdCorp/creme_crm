@@ -201,7 +201,10 @@ class UsersBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_users.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, User.objects.filter(is_team=False),
+        users = User.objects.filter(is_team=False)
+        if not context['user'].is_staff:
+            users = users.exclude(is_staff=True)
+        return self._render(self.get_block_template_context(context, users,
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             ))
 

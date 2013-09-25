@@ -38,7 +38,7 @@ from ..models import PollForm, PollReply, PollCampaign
 
 
 class PollRepliesCreateForm(CremeForm):
-    user     = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(), required=True)
+    user     = ModelChoiceField(label=_(u'User'), queryset=User.objects.filter(is_staff=False), required=True)
     name     = CharField(label=_(u'Name'), required=True)
     campaign = CremeEntityField(label=_(u'Related campaign'), model=PollCampaign, required=False)
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)

@@ -23,7 +23,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme.creme_core.auth.decorators import superuser_required
+from creme.creme_core.auth.decorators import admin_required
 from creme.creme_core.models import UserRole, SetCredentials
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.decorators import POST_only
@@ -33,17 +33,17 @@ from ..forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentia
 
 
 @login_required
-@superuser_required
+@admin_required
 def add(request):
     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'))
 
 @login_required
-@superuser_required
+@admin_required
 def edit(request, role_id):
     return edit_model_with_popup(request, {'pk': role_id}, UserRole, UserRoleEditForm)
 
 @login_required
-@superuser_required
+@admin_required
 def add_credentials(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
@@ -65,7 +65,7 @@ def add_credentials(request, role_id):
                       )
 
 @login_required
-@superuser_required
+@admin_required
 @POST_only
 def delete_credentials(request):
     get_object_or_404(SetCredentials, pk=get_from_POST_or_404(request.POST, 'id')).delete()
@@ -77,7 +77,7 @@ def portal(request):
     return render(request, 'creme_config/user_role_portal.html')
 
 @login_required
-@superuser_required
+@admin_required
 def delete(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 

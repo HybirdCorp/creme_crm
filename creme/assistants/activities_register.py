@@ -34,7 +34,7 @@ def add_users_field(form):
     if isinstance(form, CalendarActivityCreateForm):
         return
 
-    form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.all(),
+    form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.filter(is_staff=False),
                                                              widget=CheckboxSelectMultiple(),
                                                              required=False, label=_(u"Users"),
                                                             )

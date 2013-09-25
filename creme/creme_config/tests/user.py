@@ -229,6 +229,71 @@ class UserTestCase(CremeTestCase):
                                 first_name=username, last_name=username
                                )
 
+    def test_create06(self):
+        "wrong username"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        username = 'é^ǜù'
+        password = 'password'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'username':     username,
+                                          'password_1':   password,
+                                          'password_2':   password,
+                                          'is_superuser': True,
+                                          'organisation': orga.id,
+                                          'relation':     REL_SUB_MANAGES,
+                                         }
+                                   )
+
+        self.assertFormError(response, 'form', 'username', _(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
+                                            "hyphen and underscores are allowed (but not as first character)."
+                                           ))
+
+    def test_create07(self):
+        "wrong password"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        username = 'deunan'
+        password = 'password'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'username':     username,
+                                          'password_1':   password,
+                                          'password_2':   password + "5",
+                                          'is_superuser': True,
+                                          'organisation': orga.id,
+                                          'relation':     REL_SUB_MANAGES,
+                                         }
+                                   )
+
+        self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
+
+    def test_create08(self):
+        "common user without role"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        username = 'deunan'
+        password = 'password'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'username':     username,
+                                          'password_1':   password,
+                                          'password_2':   password + "5",
+                                          'is_superuser': False,
+                                          'organisation': orga.id,
+                                          'relation':     REL_SUB_MANAGES,
+                                         }
+                                   )
+
+        self.assertFormError(response, 'form', 'role', _(u"Choose a role or set superuser status to 'True'."))
+
     def test_edit01(self):
         self.login()
 
@@ -304,6 +369,20 @@ class UserTestCase(CremeTestCase):
                                                  }
                                        )
 
+    def test_edit04(self):
+        "Common user without role"
+        self.login()
+
+        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+
+        url = '/creme_config/user/edit/%s' % user.id
+        self.assertGET200(url)
+
+        response = self.client.post(url, follow=True,
+                                    data={'is_superuser': False}
+                                   )
+        self.assertFormError(response, 'form', 'role', _(u"Choose a role or set superuser status to 'True'."))
+
     def test_change_password01(self):
         self.login()
 
@@ -332,6 +411,21 @@ class UserTestCase(CremeTestCase):
                                                    'password_2': password,
                                                   }
                                        )
+
+    def test_change_password03(self):
+        self.login()
+
+        other_user = User.objects.create(username='deunan')
+        url = '/creme_config/user/edit/password/%s' % other_user.id
+        self.assertGET200(url)
+
+        password = 'password'
+        response = self.client.post(url, follow=True,
+                                    data={'password_1': password,
+                                          'password_2': password + '42',
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
 
     def test_team_create01(self):
         self.login()
@@ -545,11 +639,19 @@ class UserTestCase(CremeTestCase):
         user = self.get_object_or_fail(User, username='root', is_superuser=True)
 
         url = self._build_delete_url(user)
-        self.assertGET(400, url)
-        self.assertPOST(400, url, {'to_user': user.id})
+        self.assertGET(409, url)
+        self.assertPOST(409, url, {'to_user': user.id})
 
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+    def test_user_cannot_delete_staff_user(self):
+        "Delete view can not delete the staff user"
+        self.login()
+        hybird = User.objects.create(username='hybird', is_staff=True)
+        
+        url = self._build_delete_url(hybird)
+        self.assertGET(400, url)
+        self.assertPOST(400, url, {'to_user': hybird.id})
 
     def test_user_cannot_delete_during_transfert(self):
         "Delete view is protected by a lock"
@@ -567,7 +669,6 @@ class UserTestCase(CremeTestCase):
         self.assertPOST(400, url, {'to_user': user.id})
 
         self.assertEqual(2, User.objects.filter(is_superuser=True).count())
-        #self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
 
     #def test_user_delete_last_basic_user(self):
         #"Delete view can delete any normal user"
