@@ -55,6 +55,8 @@ class AbstractStatus(CremeModel):
 
 
 class InvoiceStatus(AbstractStatus):
+    pending_payement = BooleanField(_(u'Pending payement'), default=False)
+
     class Meta(AbstractStatus.Meta):
         abstract = False
         verbose_name        = _(u'Invoice status')
