@@ -16,7 +16,7 @@
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Expiration date" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
-                <th class="block_header_line_dark">{% trans "Total with VAT" %}</th>
+                <th class="block_header_line_dark">{% trans "Total without VAT" %}</th>
             </tr>
             {% for invoice in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
@@ -25,7 +25,7 @@
                     {% if invoice_view_perm %}
                         <td class="{{row_color}}">{{invoice.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{invoice.status}}</td>
-                        <td class="{{row_color}}">{{invoice.total_vat}}</td>
+                        <td class="{{row_color}}">{{invoice.total_no_vat}}</td>
                     {% else %}
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>

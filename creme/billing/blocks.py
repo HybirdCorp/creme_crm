@@ -175,7 +175,9 @@ class ReceivedInvoicesBlock(QuerysetBlock):
     def detailview_display(self, context):
         person = context['object']
         btc = self.get_block_template_context(context,
-                                              Invoice.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED),
+                                              Invoice.objects.filter(relations__object_entity=person.id,
+                                                                     relations__type=REL_SUB_BILL_RECEIVED)\
+                                                     .order_by('expiration_date'),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                              )
 
@@ -198,7 +200,8 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude T
         person = context['object']
         get_ct = ContentType.objects.get_for_model
         qs = Base.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED)\
-                         .exclude(entity_type__in=[get_ct(TemplateBase), get_ct(Invoice)])
+                         .exclude(entity_type__in=[get_ct(TemplateBase), get_ct(Invoice)])\
+                         .order_by('expiration_date')
 
         CremeEntity.populate_real_entities(qs)
 
