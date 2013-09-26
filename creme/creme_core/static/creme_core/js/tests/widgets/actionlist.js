@@ -236,13 +236,15 @@ test('creme.widgets.actionlist.reload', function() {
     equal(widget.val(), 1);
     deepEqual(widget.dependencies(), []);
 
-    element.creme().widget().reload('mock/options');
+    element.creme().widget().url('mock/options');
     assertDSelect(delegate, '15', [], 'mock/options', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['14', 't'], ['42', 'y']]);
 
     equal(widget.val(), 15);
     deepEqual(widget.dependencies(), []);
 
-    element.creme().widget().reload(['mock/rtype/${ctype}/options', {ctype: 5}]);
+    element.creme().widget().url('mock/rtype/${ctype}/options')
+    element.creme().widget().reload({ctype: 5});
+
     assertDSelect(delegate, 'rtype.7', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
 
     equal(widget.val(), 'rtype.7');

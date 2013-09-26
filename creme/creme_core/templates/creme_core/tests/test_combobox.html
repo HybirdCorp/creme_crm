@@ -1,0 +1,171 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+{% block test_title %}Dynamic Select Widget{% endblock %}
+{% block test_header %}
+    <style type="text/css">
+        select[autocomplete] {
+            width:20em;
+        }
+    </style>
+    <script type="text/javascript">
+        TEST_OPTIONS = [
+                           {value: "email",       label: "Adresse e-mail"},
+                           {value: "description", label: "Description"},
+                           {value: "fax",         label: "Fax"},
+                           {value: "mobile",      label: "Mobile"},
+                           {value: "last_name",   label: "Nom"},
+                           {value: "phone",       label: "Numéro de téléphone"},
+                           {value: "first_name",  label: "Prénom"},
+                           {value: "url_site",    label: "Site Web", disabled:true},
+                           {value: "skype",       label: "Skype"}
+                       ];
+
+        random_options = function(threshold)
+        {
+            var options = [];
+
+            TEST_OPTIONS.forEach(function(value) {
+                if (Math.random() > threshold) {options.push(value);}
+            });
+
+            return options;
+        }
+
+        $(document).ready(function() {
+            $('button.random-model').click(function() {
+                var options = random_options(Math.random());
+                $('select.ui-creme-dselect.random-model').each(function() {
+                    $(this).creme().widget().model().reset(options);
+                });
+            });
+        });
+    </script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h3>Static</h3>
+        <ul>
+            <li>
+                <h5>static (0 option)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" autocomplete>
+                </select>
+            </li>
+            <li>
+                <h5>static (1 option)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
+                     <option value="1">Prévue</option>
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" autocomplete>
+                     <option value="1">Prévue</option>
+                </select>
+            </li>
+            <li>
+                <h5>static (6 options)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3">Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" autocomplete>
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3">Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+            </li>
+            <li>
+                <h5>static (6 options, disabled)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" disabled>
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3">Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" autocomplete disabled>
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3">Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+            </li>
+            <li>
+                <h5>static (6 options, disabled option)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3" disabled>Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" autocomplete>
+                     <option value="" selected="selected">---------</option>
+                     <option value="1">Prévue</option>
+                     <option value="2">En cours</option>
+                     <option value="3" disabled>Finie</option>
+                     <option value="4">En retard</option>
+                     <option value="5">Annulée</option>
+                </select>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <h3>Dynamic</h3>
+        <ul>
+            <li>
+                <h5>ajax</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto"
+                        url="/creme_core/relation/type/commercial-object_sold_by/content_types/json">
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto"
+                        url="/creme_core/relation/type/commercial-object_sold_by/content_types/json"
+                        autocomplete>
+                </select>
+            </li>
+            <li>
+                <h5>ajax (disabled)</h5>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto" 
+                        url="/creme_core/relation/type/commercial-object_sold_by/content_types/json"
+                        disabled>
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto" 
+                        url="/creme_core/relation/type/commercial-object_sold_by/content_types/json"
+                        autocomplete disabled>
+                </select>
+            </li>
+            <li>
+                <h5>model</h5>
+                <button class="random-model">Randomize</button>
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto random-model">
+                </select>
+                &nbsp;-&nbsp;autocomplete:&nbsp;
+                <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto random-model"
+                        autocomplete>
+                </select>
+            </li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}

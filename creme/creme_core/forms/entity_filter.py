@@ -133,14 +133,15 @@ class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
         #datatype = json => boolean are retuned as json boolean, not strings
-        attrs = {'auto': False, 'datatype': 'json'} #TODO 'autocomplete': True
+        attrs = {'auto': False} #TODO 'autocomplete': True
+        attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
         ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
 
-        chained_input.add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs)
+        chained_input.add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         chained_input.add_dselect(rtype_name, options=rtypes, attrs=attrs)
-        chained_input.add_dselect("ctype", options=ctype_url, attrs=attrs)
+        chained_input.add_dselect("ctype", options=ctype_url, attrs=attrs_json)
         chained_input.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': True})
 
         super(RelationsConditionsWidget, self).__init__(chained_input)
@@ -149,7 +150,8 @@ class RelationsConditionsWidget(SelectorList):
 class RelationSubfiltersConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False, 'datatype': 'json'}
+        attrs = {'auto': False}
+        attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
         ctype_name = 'ctype'
@@ -157,9 +159,9 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         filter_url = '/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name
 
         add_dselect = chained_input.add_dselect #TODO: functools.partial
-        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs)
+        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs=attrs)
-        add_dselect(ctype_name, options=ctype_url, attrs=attrs)
+        add_dselect(ctype_name, options=ctype_url, attrs=attrs_json)
         add_dselect("filter", options=filter_url, attrs=attrs)
 
         super(RelationSubfiltersConditionsWidget, self).__init__(chained_input)

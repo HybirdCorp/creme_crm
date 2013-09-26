@@ -265,20 +265,16 @@ $.extend(creme.widget, {
            }
         };
 
-        $.each(delegate, function(key, value) {
-            if (typeof value !== 'function' || key.match('^_.*') !== null)
-                return;
+        (function(widget) {
+            $.each(widget.delegate, function(key, value) {
+                if (typeof value !== 'function' || key.match('^_.*') !== null)
+                    return;
 
-            widget[key] = function() {
-                var args = [element];
-
-                for(var i = 0; i < arguments.length; ++i) {
-                    args.push(arguments[i]);
-                }
-
-                return value.apply(delegate, args);
-            }
-        });
+                widget[key] = function() {
+                    return value.apply(widget.delegate, [widget.element].concat(Array.copy(arguments)));
+                };
+            });
+        })(widget);
 
         return widget;
     },
@@ -371,52 +367,39 @@ $.extend(creme.widget, {
             attributes[attr.name] = attr.value;
         }
 
-        if (excludes !== undefined)
+        var excludes = excludes || [];
+
+        if ($.isArray(excludes))
         {
-            if ($.isArray(excludes))
-            {
-                for(var index in excludes) {
-                    if (attributes[excludes[index]] !== undefined)
-                        delete attributes[excludes[index]];
-                }
-            } else {
-                for(var exclude in excludes) {
-                    if (attributes[exclude] !== undefined)
-                        delete attributes[exclude];
-                }
+            for(var index in excludes) {
+                if (attributes[excludes[index]] !== undefined)
+                    delete attributes[excludes[index]];
+            }
+        } else {
+            for(var exclude in excludes) {
+                if (attributes[exclude] !== undefined)
+                    delete attributes[exclude];
             }
         }
 
-        //console.log('> parseattr >', attributes, excludes, element);
+        //console.log('parseattr > attributes:', attributes, ', excludes:', $.isArray(excludes) ? excludes : Object.keys(excludes));
         return attributes;
     },
 
-    parseopt: function(element, defaults, options, attributes)
+    parseopt: function(element, defaults, options)
     {
         var opts = {};
 
-        if (attributes === undefined) {
-            attributes = [];
-        }
+        Object.keys(defaults || {}).forEach(function(name) {
+            var value = element.attr(name);
 
-        for(var optname in defaults) {
-            if (attributes[optname] === undefined)
-                attributes.push(optname);
-            else
-                attributes[optname] = defaults[optname]
-        }
-
-        for (var i = 0; i < attributes.length; ++i) {
-            var optname = attributes[i];
-            var opt = element.attr(optname);
-
-            if (opt !== undefined)
-                opts[optname] = opt;
-        }
+            if (value !== undefined)
+                opts[name] = element.attr(name);
+        });
 
         opts = $.extend({}, defaults, opts, options);
 
-        //console.log('parseopt >', opts, defaults, element);
+        //console.log('parseopt > options:', opts, ', defaults:', defaults, ', attributes:', attributes);
         return opts;
     },
 

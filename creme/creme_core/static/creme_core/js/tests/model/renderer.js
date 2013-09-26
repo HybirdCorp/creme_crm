@@ -186,6 +186,20 @@ test('creme.model.ChoiceRenderer (empty model, add)', function() {
                             {value:2, label:'b'}]);
 });
 
+test('creme.model.ChoiceRenderer (empty model, add object)', function() {
+    var model = new creme.model.Array();
+    var element = $('<select><options></options></select>');
+    var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
+
+    assertOptions(element, []);
+
+    model.append([{value:{id:1, name:'a'}, label:'a'},
+                  {value:{id:2, name:'b'}, label:'b'}]);
+
+    assertOptions(element, [{value:$.toJSON({id:1, name:'a'}), label:'a'},
+                            {value:$.toJSON({id:2, name:'b'}), label:'b'}]);
+});
+
 test('creme.model.ChoiceRenderer (filled, model, add)', function() {
     var model = new creme.model.Array([{value:1, label:'a'},
                                        {value:2, label:'b'}]);
@@ -202,6 +216,27 @@ test('creme.model.ChoiceRenderer (filled, model, add)', function() {
                             {value:2, label:'b'},
                             {value:3, label:'c'},
                             {value:4, label:'d'}]);
+});
+
+test('creme.model.ChoiceRenderer (filled, model, insert)', function() {
+    var model = new creme.model.Array([{value:1, label:'a'},
+                                       {value:2, label:'b'},
+                                       {value:3, label:'c'}]);
+    var element = $('<select><options></options></select>');
+    var renderer = new creme.model.ChoiceRenderer(element, model).redraw();
+
+    assertOptions(element, [{value:1, label:'a'},
+                            {value:2, label:'b'},
+                            {value:3, label:'c'}]);
+
+    model.insert([{value:8, label:'x'},
+                  {value:9, label:'y'}], 1);
+
+    assertOptions(element, [{value:1, label:'a'},
+                            {value:8, label:'x'},
+                            {value:9, label:'y'},
+                            {value:2, label:'b'},
+                            {value:3, label:'c'}]);
 });
 
 test('creme.model.ChoiceRenderer (remove)', function() {
@@ -309,4 +344,53 @@ test('creme.model.ChoiceRenderer (reset model)', function() {
                             {value:2, label:'y'},
                             {value:3, label:'z'},
                             {value:4, label:'a'}]);
+});
+
+test('creme.model.ChoiceRenderer.parse (no converter)', function() {
+    var element = $('<select><options>' +
+                        '<option value="[1, 2]">a</option>' +
+                        '<option value="[3, 4]">b</option>' +
+                        '<option value="[5, 6]">c</option>' +
+                    '</options></select>');
+    var options = new creme.model.ChoiceRenderer.parse(element);
+
+    deepEqual(options, [{value:'[1, 2]', label:'a', disabled:false, selected:true, tags:[]},
+                        {value:'[3, 4]', label:'b', disabled:false, selected:false, tags:[]},
+                        {value:'[5, 6]', label:'c', disabled:false, selected:false, tags:[]},]);
+
+    element = $('<select><options>' +
+                    '<option value="[1, 2]">a</option>' +
+                    '<option value="[3, 4]" selected>b</option>' +
+                    '<option value="[5, 6]" disabled>c</option>' +
+                '</options></select>');
+    options = new creme.model.ChoiceRenderer.parse(element);
+
+    deepEqual(options, [{value:'[1, 2]', label:'a', disabled:false, selected:false, tags:[]},
+                        {value:'[3, 4]', label:'b', disabled:false, selected:true, tags:[]},
+                        {value:'[5, 6]', label:'c', disabled:true, selected:false, tags:[]},]);
+
+});
+
+test('creme.model.ChoiceRenderer.parse (converter)', function() {
+    var element = $('<select><options>' +
+            '<option value="[1, 2]">a</option>' +
+            '<option value="[3, 4]">b</option>' +
+            '<option value="[5, 6]">c</option>' +
+        '</options></select>');
+    var options = new creme.model.ChoiceRenderer.parse(element, new creme.object.JSON().decode);
+
+    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:true, tags:[]},
+                        {value:[3, 4], label:'b', disabled:false, selected:false, tags:[]},
+                        {value:[5, 6], label:'c', disabled:false, selected:false, tags:[]},]);
+
+    element = $('<select><options>' +
+                    '<option value="[1, 2]">a</option>' +
+                    '<option value="[3, 4]" selected>b</option>' +
+                    '<option value="[5, 6]" disabled>c</option>' +
+                '</options></select>');
+    options = new creme.model.ChoiceRenderer.parse(element, new creme.object.JSON().decode);
+
+    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:false, tags:[]},
+                        {value:[3, 4], label:'b', disabled:false, selected:true, tags:[]},
+                        {value:[5, 6], label:'c', disabled:true, selected:false, tags:[]},]);
 });

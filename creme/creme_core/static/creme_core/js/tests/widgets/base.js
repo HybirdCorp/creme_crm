@@ -31,31 +31,6 @@ test('creme.widget.parseopt (default options)', function() {
     deepEqual(options, {attr1:'val1', attr2:'default2'});
 });
 
-test('creme.widget.parseopt (custom options)', function() {
-    var options = creme.widget.parseopt($('<div/>'), {}, {}, ['custom1', 'custom2']);
-    deepEqual(options, {});
-
-    options = creme.widget.parseopt($('<div attr1="val1" attr2="val2" custom1="val3"/>'), {}, {}, ['custom1', 'custom2']);
-    deepEqual(options, {custom1:'val3'});
-
-    options = creme.widget.parseopt($('<div attr1="val1" custom1="val3"/>'), {attr1:'default1', attr2:'default2', custom2:'default3'}, {}, ['custom1', 'custom2']);
-    deepEqual(options, {attr1:'val1', attr2:'default2', custom1:'val3', custom2:'default3'});
-});
-
-test('creme.widget.parseopt (custom values)', function() {
-    var options = creme.widget.parseopt($('<div/>'), {}, {attr1:'value1'}, ['custom1', 'custom2']);
-    deepEqual(options, {attr1:'value1'});
-
-    options = creme.widget.parseopt($('<div/>'), {}, {custom1:'value1', attr1:'value2'}, ['custom1', 'custom2']);
-    deepEqual(options, {custom1:'value1', attr1:'value2'});
-
-    options = creme.widget.parseopt($('<div attr1="val1" attr2="val2" custom1="val3"/>'), {}, {custom1:'value1'}, ['custom1', 'custom2']);
-    deepEqual(options, {custom1:'value1'});
-
-    options = creme.widget.parseopt($('<div attr1="val1" custom1="val3"/>'), {attr1:'default1', attr2:'default2', custom2:'default3'}, {attr1:'value1'}, ['custom1', 'custom2']);
-    deepEqual(options, {attr1:'value1', attr2:'default2', custom1:'val3', custom2:'default3'});
-});
-
 test('creme.widget.parseattr (no exclusion)', function() {
     var attrs = creme.widget.parseattr($('<div/>'))
     deepEqual(attrs, {});
