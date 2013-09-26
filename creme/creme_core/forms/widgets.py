@@ -173,9 +173,9 @@ class PolymorphicInput(TextInput):
             self.attrs = attrs
             self.widget = widget
 
-    def __init__(self, attrs=None, url='', *args):
+    def __init__(self, attrs=None, key='', *args):
         super(PolymorphicInput, self).__init__(attrs)
-        self.url = url
+        self.key = key
         self.inputs = []
         self.default_input = None
         self.set_inputs(*args)
@@ -187,14 +187,14 @@ class PolymorphicInput(TextInput):
 
         context = widget_render_context('ui-creme-polymorphicselect', attrs,
                                         style=attrs.pop('style', ''),
-                                        selects=self._render_inputs(attrs),
-                                        url=self.url,
+                                        selectors=self._render_inputs(attrs),
+                                        key=self.key,
                                        )
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
-        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s">
+        return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" key="%(key)s">
                                 %(input)s
-                                %(selects)s
+                                %(selectors)s
                             </span>""" % context)
 
     def set_inputs(self, *args):
@@ -214,16 +214,12 @@ class PolymorphicInput(TextInput):
         self.default_input = widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget
 
     def _render_inputs(self, attrs):
-        output = ['<ul style="display:none;" class="selector-model">']
-
-        output.extend('<li input-type="%s">%s</li>' % (name, input.render('', ''))
-                         for name, input in self.inputs
-                     )
+        output = ['<script selector-key="%s" type="text/template">%s</script>' % (name, input.render('', ''))
+                      for name, input in self.inputs
+                 ]
 
         if self.default_input:
-            output.append('<li class="default">%s</li>' % (self.default_input.render('', '')))
-
-        output.append('</ul>')
+            output.append('<script selector-key="*" type="text/template">%s</script>' % (self.default_input.render('', '')))
 
         return '\n'.join(output)
 

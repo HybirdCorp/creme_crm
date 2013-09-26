@@ -45,6 +45,7 @@ from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 from ..global_info import set_global_info
 
 from creme.persons.models.contact import Contact
+from django.contrib.contenttypes.models import ContentType
 
 
 logger = logging.getLogger(__name__)
@@ -147,6 +148,7 @@ def js_testview_context(request, viewname):
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,
         'TEST_SCREEN':     get('screen', ''),
+        'TEST_CONTENTTYPES': ContentType.objects.values_list('model', 'id')
     }
 
 @login_required

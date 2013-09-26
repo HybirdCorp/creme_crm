@@ -28,28 +28,41 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
             $(element).attr('disabled', '');
         }
 
+        this.reload(element, {}, cb, cb);
         element.addClass('widget-ready');
+    },
+
+    _updateDisabledState: function(element) {
+        element.toggleAttr('disabled', !this._enabled);
     },
 
     dependencies: function(element) {
         return [];
     },
 
-    reload: function(element, url, cb, error_cb, sync) {
-        if (cb != undefined) cb(element);
+    reload: function(element, data, cb, error_cb, sync) {
+        creme.object.invoke(cb, element);
     },
 
     reset: function(element) {
         this.val(element, null);
     },
 
-    val: function(element, value) {
-        //console.log(element, value, element.val());
+    val: function(element, value)
+    {
+        if (value === undefined) {
+            return element.val();
+        }
 
-        if (value !== undefined)
-            return element.val(value).change();
+        if (!Object.isNone(value) && typeof value !== 'string') {
+            value = $.toJSON(value);
+        }
 
-        return element.val();
+        element.val(value);
+        element.removeAttr('disabled');
+        element.change();
+
+        this._updateDisabledState(element);
     },
 
     cleanedval: function(element)

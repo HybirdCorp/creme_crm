@@ -15,7 +15,7 @@ __all__ = ('BatchActionsFieldTestCase',)
 
 
 class BatchActionsFieldTestCase(FieldTestCase):
-    format_str = '[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
+    format_str = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
 
     def test_clean_empty_required(self):
         clean = BatchActionsField(required=True).clean
@@ -34,17 +34,17 @@ class BatchActionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
         self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '1') #not iterable
 
-    def test_clean_invalid_data(self):
-        clean = BatchActionsField(model=Contact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean,
-                                        '[{"operator": "upper", "name": "first_name", "value": "Rei"}]'
-                                       ) #value is not a dict
+#     def test_clean_invalid_data(self):
+#         clean = BatchActionsField(model=Contact).clean
+#         self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean,
+#                                         '[{"operator": "upper", "name": "first_name", "value": "Rei"}]'
+#                                        ) #value is not an unicode
 
     def test_clean_incomplete_data_required(self):
         clean = BatchActionsField(model=Contact).clean
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper"}]') #no name
         self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"name": "first_name"}]') #no operator
-        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name", "value": {"foobar":"Rei"}}]') #value has no 'value' key
+        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]') #value has no 'value' key
 
     def test_clean_invalid_field(self):
         clean = BatchActionsField(model=Contact).clean
@@ -121,8 +121,8 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_ok02(self): #several actions
         actions = BatchActionsField(model=Contact).clean(
-                        '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": {"type": "%(operator01)s", "value": "%(value01)s"}},'
-                        ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": {"type": "%(operator02)s", "value": "%(value02)s"}}]' % {
+                        '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},'
+                        ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]' % {
                                 'name01':  'first_name', 'operator01': 'prefix', 'value01': 'My ',
                                 'name02':  'last_name',  'operator02': 'upper',  'value02': '',
                             }

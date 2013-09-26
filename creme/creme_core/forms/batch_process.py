@@ -50,7 +50,7 @@ class BatchActionsWidget(SelectorList):
                                   options='/creme_core/list_view/batch_process/%s/get_ops/${name}' % ContentType.objects.get_for_model(model).id
                                  )
 
-        pinput = PolymorphicInput(url='${operator}', attrs=attrs)
+        pinput = PolymorphicInput(key='${operator}', attrs=attrs)
         pinput.set_default_input(widget=DynamicInput, attrs=attrs) #TODO: count if the operators with need_arg=False are more ?
 
         for op_id, operator in batch_operator_manager.operators():
@@ -114,7 +114,7 @@ class BatchActionsField(JSONField):
     def _clean_operator_name_n_value(self, entry):
         clean_value =  self.clean_value
         operator_name = clean_value(entry, 'operator', str)
-        value = clean_value(clean_value(entry, 'value', dict), 'value', unicode)
+        value = clean_value(entry, 'value', unicode)
 
         return operator_name, value
 

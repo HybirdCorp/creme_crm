@@ -1,0 +1,144 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+{% block test_title %}Polymorphic Selector Widget{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h5>no key, default selector</h5>
+        <span class="ui-creme-widget ui-creme-polymorphicselect widget-auto" widget="ui-creme-polymorphicselect">
+            <script selector-key="*" type="text/template">
+                <input widget="ui-creme-dinput" type="text" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+            </script>
+        </span>
+    </li>
+    <li>
+        <h5>any key, default selector template</h5>
+        <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"></input>
+             <ul class="ui-layout hbox">
+                  <li chained-name="type" class="ui-creme-chainedselect-item">
+                       <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
+                            <option value="button">button</option>
+                            <option value="checkbox">checkbox</option>
+                            <option value="color">color</option>
+                            <option value="date">date</option>
+                            <option value="datetime">datetime</option>
+                            <option value="file">file</option>
+                            <option value="hidden">hidden</option>
+                            <option value="number">number</option>
+                            <option value="password">password</option>
+                            <option value="radio">radio</option>
+                            <option value="search">search</option>
+                            <option value="submit">submit</option>
+                            <option value="tel">tel</option>
+                            <option value="text" selected>text</option>
+                            <option value="time">time</option>
+                       </select>
+                  </li>
+                  <li chained-name="value" class="ui-creme-chainedselect-item">
+                       <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
+                            <script selector-key="*" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                            </script>
+                        </span>
+                  </li>
+             </ul>
+         </div>
+    </li>
+    <li>
+        <h5>any key, multiple selectors</h5>
+        <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect"></input>
+             <ul class="ui-layout hbox">
+                  <li chained-name="type" class="ui-creme-chainedselect-item">
+                       <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
+                            <option value="button">button</option>
+                            <option value="checkbox">checkbox</option>
+                            <option value="color">color</option>
+                            <option value="date">date</option>
+                            <option value="datetime">datetime</option>
+                            <option value="file">file</option>
+                            <option value="hidden">hidden</option>
+                            <option value="number">number</option>
+                            <option value="password">password</option>
+                            <option value="radio">radio</option>
+                            <option value="search">search</option>
+                            <option value="submit">submit</option>
+                            <option value="tel">tel</option>
+                            <option value="text" selected>text</option>
+                            <option value="time">time</option>
+                       </select>
+                  </li>
+                  <li chained-name="value" class="ui-creme-chainedselect-item">
+                       <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
+                            <script selector-key="button" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input>
+                            </script>
+                            <script selector-key="search|text|tel|password" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"></input>
+                            </script>
+                            <script selector-key="checkbox|radio" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input><span>${type}</span>
+                            </script>
+                            <script selector-key="hidden" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/><span>hidden...</span>
+                            </script>
+                            <script selector-key="*" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                            </script>
+                       </span>
+                  </li>
+             </ul>
+         </div>
+    </li>
+    <li>
+        <h5>any key, multiple selectors, value set</h5>
+        <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
+             <input type="hidden" class="ui-creme-input ui-creme-chainedselect" value="{&quot;type&quot;:&quot;number&quot;, &quot;value&quot;:&quot;12&quot;}"></input>
+             <ul class="ui-layout hbox">
+                  <li chained-name="type" class="ui-creme-chainedselect-item">
+                       <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-dselect ui-creme-widget">
+                            <option value="button">button</option>
+                            <option value="checkbox">checkbox</option>
+                            <option value="color">color</option>
+                            <option value="date">date</option>
+                            <option value="datetime">datetime</option>
+                            <option value="file">file</option>
+                            <option value="hidden">hidden</option>
+                            <option value="number">number</option>
+                            <option value="password">password</option>
+                            <option value="radio">radio</option>
+                            <option value="search">search</option>
+                            <option value="submit">submit</option>
+                            <option value="tel">tel</option>
+                            <option value="text" selected>text</option>
+                            <option value="time">time</option>
+                       </select>
+                  </li>
+                  <li chained-name="value" class="ui-creme-chainedselect-item">
+                       <span class="ui-creme-widget ui-creme-polymorphicselect" widget="ui-creme-polymorphicselect" key="${type}">
+                            <script selector-key="button" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input>
+                            </script>
+                            <script selector-key="search|text|tel|password" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" placeholder="enter ${type}"></input>
+                            </script>
+                            <script selector-key="checkbox|radio" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="${type}"></input><span>${type}</span>
+                            </script>
+                            <script selector-key="hidden" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"/><span>hidden...</span>
+                            </script>
+                            <script selector-key="*" type="text/template">
+                                 <input widget="ui-creme-dinput" type="${type}" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                            </script>
+                       </span>
+                  </li>
+             </ul>
+         </div>
+    </li>
+</ul>
+{% endblock %}

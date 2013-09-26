@@ -23,7 +23,7 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 class EntityFilterViewsTestCase(ViewsTestCase):
     FIELDS_CONDS_FMT       = '[{"operator": "%(operator)s", "name": "%(name)s",' \
-                             ' "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
+                             ' "value": "%(value)s"}]'
     DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
     CFIELDS_CONDS_FMT      = '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]'
     DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'

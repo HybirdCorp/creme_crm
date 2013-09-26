@@ -298,9 +298,7 @@ $.extend(creme.widget, {
         element.data('CremeWidget', proxy);
         element.addClass('widget-active');
 
-        delegate._create(element, delegate.options, function() {
-            creme.object.invoke(cb);
-        }, sync, delegate.arguments);
+        delegate._create(element, delegate.options, cb, sync, delegate.arguments);
 
         return proxy;
     },
