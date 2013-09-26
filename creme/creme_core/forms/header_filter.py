@@ -27,7 +27,7 @@ from django.forms.util import flatatt
 from django.forms.widgets import Widget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from ..gui.field_printers import field_printers_registry
 from ..models.header_filter import (HeaderFilterItem, HeaderFilter,
@@ -270,7 +270,11 @@ class HeaderFilterForm(CremeModelForm):
         super(HeaderFilterForm, self).__init__(*args, **kwargs)
         instance = self.instance
         fields   = self.fields
-        fields['user'].empty_label = ugettext(u'All users')
+
+        user_f = fields['user']
+        user_f.empty_label = _(u'All users')
+        user_f.help_text   = _(u'All users can see the view, but only the owner can edit or delete it')
+
         items_f = fields['items']
 
         if instance.id:

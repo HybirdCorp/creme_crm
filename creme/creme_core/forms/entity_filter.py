@@ -28,12 +28,13 @@ from django.db.models import (ForeignKey as ModelForeignKey,
                               IntegerField as ModelIntegerField,
                               BooleanField as ModelBooleanField)
 
-from django.forms import ModelMultipleChoiceField, DateField, ValidationError
+from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
-from ..models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType, CustomField
+from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
+                      RelationType, CremePropertyType, CustomField)
 from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import is_date_field
@@ -43,7 +44,8 @@ from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import Label
 from .widgets import (DynamicInput, SelectorList, ChainedInput, EntitySelector,
-                      UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput)
+                      UnorderedMultipleChoiceWidget, DateRangeSelect,
+                      DynamicSelect, PolymorphicInput, CremeRadioSelect)
 
 
 TRUE = 'true'
@@ -991,12 +993,21 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
 #Forms--------------------------------------------------------------------------
 
 class _EntityFilterForm(CremeModelForm):
+    # Notice that we do not use 0/1 because it is linked to a boolean field,
+    # so the value given to the widget for the selected choice is 'True' or 'False'...
+    use_or = ChoiceField(label=_(u'The entity is accepted if'),
+                         choices=(('False', _('all the conditions are met')),
+                                  ('True',  _('any condition is met')),
+                                 ),
+                         widget=CremeRadioSelect,
+                        )
+
     fields_conditions           = RegularFieldsConditionsField(label=_(u'On regular fields'), required=False,
                                                                help_text=_(u'You can write several values, separated by commas.')
                                                               )
     datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
     customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False,
-                                                              help_text=_(u'(Only integers, strings and decimals for now)')
+                                                              #help_text=_(u'(Only integers, strings and decimals for now)')
                                                              )
     datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
     relations_conditions        = RelationsConditionsField(label=_(u'On relationships'), required=False,
@@ -1019,9 +1030,9 @@ class _EntityFilterForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super(_EntityFilterForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-        fields['user'].empty_label = ugettext(u'All users')
-        fields['use_or'].help_text = ugettext(u'Use "OR" between the conditions (else "AND" is used).')
+        user_field = self.fields['user']
+        user_field.empty_label = _(u'All users')
+        user_field.help_text   = _(u'All users can see this filter, but only the owner can edit or delete it')
 
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data
@@ -1044,18 +1055,20 @@ class _EntityFilterForm(CremeModelForm):
 class EntityFilterCreateForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
         super(EntityFilterCreateForm, self).__init__(*args, **kwargs)
-        self._entity_type = ct = self.initial['content_type']
+        self._entity_type = self.instance.entity_type = ct = self.initial['content_type']
         fields = self.fields
 
         for field_name in self._CONDITIONS_FIELD_NAMES:
             fields[field_name].initialize(ct)
+
+        fields['use_or'].initial = 'False'
 
     def save(self, *args, **kwargs):
         instance = self.instance
         ct = self._entity_type
 
         instance.is_custom = True
-        instance.entity_type = ct
+        #instance.entity_type = ct
 
         super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
         generate_string_id_and_save(EntityFilter, [instance], 'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model))
