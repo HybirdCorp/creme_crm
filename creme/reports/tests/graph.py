@@ -1594,7 +1594,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          json_load(response.content)
                         )
 
-        cf_dt = create_cf(name='First payement', field_type=CustomField.DATETIME)
+        cf_dt = create_cf(name='First payment', field_type=CustomField.DATETIME)
         response = self.assertPOST200(url, data={'record_id': cf_dt.id})
         self.assertEqual({'result': [{'id': RGT_CUSTOM_DAY,   'text': _(u"By days")},
                                      {'id': RGT_CUSTOM_MONTH, 'text': _(u"By months")},

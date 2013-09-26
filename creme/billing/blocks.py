@@ -37,6 +37,7 @@ from creme.products.models import Product, Service
 from .models import *
 from .models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from .constants import *
+from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
 
 
 class BillingBlock(Block):
@@ -279,6 +280,22 @@ class BillingAddressBlock(AddressBlock):
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
 
+class PersonsStatisticsBlock(Block):
+    id_  = Block.generate_id('billing', 'persons__statistics')
+    template_name = 'billing/templatetags/block_persons_statistics.html'
+    target_ctypes = (Organisation, Contact)
+
+    def detailview_display(self, context):
+        person = context['object']
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                                            total_pending=get_total_pending(person),
+                                                            total_won_quote_last_year=get_total_won_quote_last_year(person),
+                                                            total_won_quote_this_year=get_total_won_quote_this_year(person),
+                                                           )
+                           )
+
+
 product_lines_block             = ProductLinesBlock()
 service_lines_block             = ServiceLinesBlock()
 credit_note_block               = CreditNoteBlock()
@@ -289,6 +306,7 @@ payment_information_block       = PaymentInformationBlock()
 billing_payment_block           = BillingPaymentInformationBlock()
 received_billing_document_block = ReceivedBillingDocumentBlock()
 billing_address_block           = BillingAddressBlock()
+persons_statistics_block        = PersonsStatisticsBlock()
 
 block_list = (
         product_lines_block,
@@ -301,4 +319,5 @@ block_list = (
         billing_payment_block,
         received_billing_document_block,
         billing_address_block,
+        persons_statistics_block,
     )

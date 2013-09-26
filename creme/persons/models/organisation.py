@@ -66,6 +66,10 @@ class Organisation(CremeEntity):
     creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True)
 
+    # Needed because we expand it's function fields in other apps (ie. billing)
+    #TODO: refactor
+    function_fields = CremeEntity.function_fields.new()
+
     #research_fields = CremeEntity.research_fields + ['name']
     #_clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['billing_address', 'shipping_address'])
     creation_label = _('Add an organisation')
