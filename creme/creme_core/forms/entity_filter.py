@@ -130,6 +130,9 @@ class FieldConditionWidget(ChainedInput):
 
         self.add_dselect('operator', options=self._build_operatorchoices(operators), attrs=operator_attrs)
 
+        self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
+
+    def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
         pinput.add_dselect('^enum.*',
                            '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
@@ -148,7 +151,7 @@ class FieldConditionWidget(ChainedInput):
 
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
-        self.add_input('value', pinput, attrs=attrs)
+        return pinput
 
     def _build_operatorchoices(self, operators):
         return [(json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}), op.name) for id, op in operators.iteritems()]
@@ -196,8 +199,9 @@ class FieldConditionWidget(ChainedInput):
     
         if isinstance(field, ModelBooleanField):
             return 'boolean'
-    
+
         return 'string'
+
 
 class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, date_fields_options, attrs=None, enabled=True):
@@ -210,17 +214,69 @@ class DateFieldsConditionsWidget(SelectorList):
         super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
 
-class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularFieldsConditionsWidget ???
-    def __init__(self, cfields, attrs=None, enabled=True):
-        chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+# class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularFieldsConditionsWidget ???
+#     def __init__(self, cfields, attrs=None, enabled=True):
+#         chained_input = ChainedInput(attrs)
+#         attrs = {'auto': False}
+# 
+#         chained_input.add_dselect('field',    options=cfields.iteritems(), attrs=attrs)
+#         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
+#         chained_input.add_input('value', DynamicInput, attrs=attrs)
+# 
+#         super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
-        chained_input.add_dselect('field',    options=cfields.iteritems(), attrs=attrs)
-        chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
-        chained_input.add_input('value', DynamicInput, attrs=attrs)
 
-        super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
+class CustomFieldConditionWidget(FieldConditionWidget):
+    def _build_fieldchoice(self, name, customfield):
+        choice_label = customfield.name
+        choice_value = {'id': customfield.id, 'type': CustomFieldConditionWidget.customfield_choicetype(customfield)}
 
+        return '', (json.dumps(choice_value), choice_label)
+
+    def _build_valueinput(self, field_attrs):
+        pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
+        pinput.add_dselect('^enum.*',
+                           '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs)
+
+        pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
+                         DateRangeSelect, attrs={'auto': False})
+
+        pinput.add_input('^boolean.*',
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
+
+        pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
+
+        pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
+
+        return pinput
+
+    @staticmethod
+    def customfield_choicetype(field):
+        type = field.field_type
+
+        if type in (CustomField.INT, CustomField.FLOAT):
+            return 'number'
+
+        if type == CustomField.BOOL:
+            return 'boolean'
+
+        if type == CustomField.DATETIME:
+            return 'date'
+
+        if type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+            return 'enum'
+
+        return 'string'
+
+    @staticmethod
+    def customfield_rname_choicetype(value):
+        type = value[len('customfield'):]
+
+        if type in ('integer', 'double', 'float'):
+            return 'number'
+
+        return type
 
 class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
@@ -524,10 +580,11 @@ class DateFieldsConditionsField(_ConditionsField):
 class CustomFieldsConditionsField(_ConditionsField):
     default_error_messages = {
         'invalidcustomfield': _(u"This custom field is invalid with this model."),
-        'invalidtype':        _(u"This operator is invalid."),
+        'invalidoperator': _(u"This operator is invalid."),
+        'invalidvalue': _(u"This value is invalid.")
     }
 
-    _ACCEPTED_TYPES = frozenset((CustomField.INT, CustomField.FLOAT, CustomField.STR)) #TODO: "!= DATE" instead
+    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,)) #TODO: "!= DATE" instead
 
     @_ConditionsField.model.setter
     def model(self, model):
@@ -535,9 +592,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         self._cfields = cfields = \
             dict((cf.id, cf)
                     for cf in CustomField.objects
-                                         .filter(content_type=ContentType.objects.get_for_model(model),
-                                                 field_type__in=self._ACCEPTED_TYPES,
-                                                )
+                                         .filter(content_type=ContentType.objects.get_for_model(model))
+                                         .exclude(field_type__in=self._NOT_ACCEPTED_TYPES)
                 )
 
         if not cfields:
@@ -553,42 +609,71 @@ class CustomFieldsConditionsField(_ConditionsField):
         if not self._cfields:
             return Label()
 
-        return CustomFieldsConditionsWidget(self._cfields)
+        return SelectorList(CustomFieldConditionWidget(self._cfields, EntityFilterCondition._OPERATOR_MAP, autocomplete=True))
 
     def _value_to_jsonifiable(self, value):
         dicts = []
 
+        customfield_rname_choicetype = CustomFieldConditionWidget.customfield_rname_choicetype
+
         for condition in value:
             search_info = condition.decoded_value
-            dicts.append({'field':    condition.name,
-                          'operator': search_info['operator'],
+            operator_id = search_info['operator']
+            operator = EntityFilterCondition._OPERATOR_MAP.get(operator_id)
+
+            field_entry = {'id': int(condition.name), 'type': customfield_rname_choicetype(search_info['rname'])}
+
+            dicts.append({'field':    field_entry,
+                          'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
                           'value':    search_info['value'],
                          })
 
         return dicts
 
     def _clean_custom_field(self, entry):
-        cfield_id = self.clean_value(entry, 'field', int)
-        cf = self._cfields.get(cfield_id)
+        clean_value =  self.clean_value
+        cfield_id = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidcustomfield'), 
+                                'id', int, required_error_key='invalidcustomfield')
+        cfield = self._cfields.get(cfield_id)
 
-        if not cf:
+        if not cfield:
             raise ValidationError(self.error_messages['invalidcustomfield'])
 
-        return cf
+        return cfield
+
+    def _clean_operator_n_values(self, entry):
+        clean_value =  self.clean_value
+        operator = clean_value(clean_value(entry, 'operator', dict, required_error_key='invalidoperator'), 
+                               'id', int, required_error_key='invalidoperator')
+
+        operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
+
+        if not operator_class:
+            raise ValidationError(self.error_messages['invalidoperator'])
+
+        if isinstance(operator_class, _ConditionBooleanOperator):
+            values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
+        else:
+            values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
+
+        return operator, values
 
     def _value_from_unjsonfied(self, data):
         build_condition = EntityFilterCondition.build_4_customfield
-        clean_value = self.clean_value
         clean_cfield = self._clean_custom_field
+        clean_operator_n_values = self._clean_operator_n_values
+        conditions = []
 
         try:
-            conditions = [build_condition(custom_field=clean_cfield(entry),
-                                          operator=clean_value(entry, 'operator', int), #TODO: 'invalidoperator'
-                                          value=clean_value(entry, 'value', unicode)
-                                         ) for entry in data
-                         ]
-        except EntityFilterCondition.ValueError:
-            raise ValidationError(self.error_messages['invalidtype'])
+            for entry in data:
+                operator, values = clean_operator_n_values(entry)
+                conditions.append(build_condition(custom_field=clean_cfield(entry),
+                                                  operator=operator,
+                                                  value=values[0]
+                                                 )
+                                 )
+        except EntityFilterCondition.ValueError as e:
+            raise ValidationError(str(e))
 
         return conditions
 
@@ -632,6 +717,15 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 
     def _value_to_jsonifiable(self, value):
         return DateFieldsConditionsField._value_to_jsonifiable(self, value)
+
+    def _clean_custom_field(self, entry):
+        cfield_id = self.clean_value(entry, 'field', int)
+        cfield = self._cfields.get(cfield_id)
+
+        if not cfield:
+            raise ValidationError(self.error_messages['invalidcustomfield'])
+
+        return cfield
 
     def _value_from_unjsonfied(self, data):
         build_condition = EntityFilterCondition.build_4_datecustomfield

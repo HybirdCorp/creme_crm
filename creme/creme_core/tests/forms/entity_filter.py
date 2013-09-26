@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
 try:
     from django.utils.simplejson import loads as jsonloads
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.forms.entity_filter import *
+    from creme.creme_core.models.custom_field import CustomFieldEnumValue
 
     from .base import FieldTestCase
 
@@ -392,42 +392,156 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
+    CONDITION_FIELD_JSON_FMT = '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.custom_field = CustomField.objects.create(name='Size', content_type=ct, field_type=CustomField.INT)
+        self.cfield_int = CustomField.objects.create(name='Size', content_type=ct, field_type=CustomField.INT)
+        self.cfield_bool = CustomField.objects.create(name='Valid', content_type=ct, field_type=CustomField.BOOL)
+        self.cfield_str = CustomField.objects.create(name='Name', content_type=ct, field_type=CustomField.STR)
 
-    def test_clean_invalid_data(self):
+        self.cfield_enum = CustomField.objects.create(name='Enum', content_type=ct, field_type=CustomField.ENUM)
+        create_evalue = CustomFieldEnumValue.objects.create
+        self.cfield_enum_A = create_evalue(custom_field=self.cfield_enum, value='A')
+        create_evalue(custom_field=self.cfield_enum, value='B')
+        create_evalue(custom_field=self.cfield_enum, value='C')
+
+    def test_frompython_custom_int(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_int, EntityFilterCondition.EQUALS, 150);
+        data = field._value_to_jsonifiable([condition])
+
+        self.assertEqual([{'field': {'id': self.cfield_int.id,
+                                      'type': 'number'},
+                            'operator': {'id': EntityFilterCondition.EQUALS,
+                                         'types': ' '.join(EntityFilterCondition._OPERATOR_MAP[EntityFilterCondition.EQUALS].allowed_fieldtypes)
+                                        },
+                            'value': 150
+                           }
+                         ], data)
+
+    def test_frompython_custom_string(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_str, EntityFilterCondition.EQUALS, 'abc');
+        data = field._value_to_jsonifiable([condition])
+
+        self.assertEqual([{'field': {'id': self.cfield_str.id,
+                                      'type': 'string'},
+                            'operator': {'id': EntityFilterCondition.EQUALS,
+                                         'types': ' '.join(EntityFilterCondition._OPERATOR_MAP[EntityFilterCondition.EQUALS].allowed_fieldtypes)
+                                        },
+                            'value': 'abc'
+                          }
+                         ], data)
+
+    def test_frompython_custom_bool(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_bool, EntityFilterCondition.EQUALS, False);
+        data = field._value_to_jsonifiable([condition])
+
+        self.assertEqual([{'field': {'id': self.cfield_bool.id,
+                                      'type': 'boolean'},
+                            'operator': {'id': EntityFilterCondition.EQUALS,
+                                         'types': ' '.join(EntityFilterCondition._OPERATOR_MAP[EntityFilterCondition.EQUALS].allowed_fieldtypes)
+                                        },
+                            'value': False
+                          }
+                         ], data)
+
+    def test_frompython_custom_enum(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        condition = EntityFilterCondition.build_4_customfield(self.cfield_enum, EntityFilterCondition.EQUALS, self.cfield_enum_A.id);
+        data = field._value_to_jsonifiable([condition])
+
+        self.assertEqual([{'field': {'id': self.cfield_enum.id,
+                                      'type': 'enum'},
+                            'operator': {'id': EntityFilterCondition.EQUALS,
+                                         'types': ' '.join(EntityFilterCondition._OPERATOR_MAP[EntityFilterCondition.EQUALS].allowed_fieldtypes)
+                                        },
+                            'value': self.cfield_enum_A.id
+                          }
+                         ], data)
+
+    def test_clean_invalid_data_format(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidformat', field.clean,
+                                        self.CONDITION_FIELD_JSON_FMT % {'field': "notanumber",
+                                                                         'operator': EntityFilterCondition.EQUALS,
+                                                                         'value': 170})
+
+    def test_clean_invalid_field(self):
         field = CustomFieldsConditionsField(model=Contact)
         self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-                                        '[{"field": "2054", "operator": "%(operator)s", "value":"170"}]' % {
-                                                'operator': EntityFilterCondition.EQUALS,
-                                            }
-                                       )
-        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidtype', field.clean,
-                                        '[{"field": "%(cfield)s", "operator": "121266", "value":"170"}]' % {
-                                                'cfield': self.custom_field.id,
-                                            }
+                                        self.CONDITION_FIELD_JSON_FMT % {'field': 2054,
+                                                                         'operator': EntityFilterCondition.EQUALS,
+                                                                         'value': 170})
+
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
+                                        '[{"operator": {"id": "%(operator)s"}, "value": %(value)s}]' % {
+                                            'operator': EntityFilterCondition.EQUALS,
+                                            'value': 170
+                                        }
                                        )
 
-    def test_ok(self):
+    def test_clean_invalid_operator(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidoperator', field.clean,
+                                        self.CONDITION_FIELD_JSON_FMT % {'field': self.cfield_int.id,
+                                                                         'operator': 121266,
+                                                                         'value': 170})
+
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidoperator', field.clean,
+                                        '[{"field": {"id": "%(field)s"}, "value": %(value)s}]' % {
+                                            'field': self.cfield_int.id,
+                                            'value': 170
+                                        }
+                                       )
+
+    def test_clean_missing_value(self):
+        field = CustomFieldsConditionsField(model=Contact)
+        self.assertFieldValidationError(CustomFieldsConditionsField, 'invalidvalue', field.clean,
+                                        '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}}]' % {
+                                             'field': self.cfield_int.id,
+                                             'operator': EntityFilterCondition.EQUALS,
+                                        }
+                                       )
+
+    def test_clean_integer(self):
         clean = CustomFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.EQUALS
         value = 180
-        conditions = clean('[{"field":"%(cfield)s", "operator": "%(operator)s", "value":"%(value)s"}]' % {
-                                'cfield':   self.custom_field.id,
-                                'operator': operator,
-                                'value':    value,
-                              }
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                                            'field':   self.cfield_int.id,
+                                                            'operator': operator,
+                                                            'value':    value,
+                                                           }
                           )
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
-        self.assertEqual(str(self.custom_field.id),             condition.name)
+        self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual({'operator': operator, 'rname': 'customfieldinteger', 'value': unicode(value)},
                          condition.decoded_value
                         )
 
+    def test_clean_empty_string(self):
+        clean = CustomFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                                            'field':   self.cfield_str.id,
+                                                            'operator': operator,
+                                                            'value':    '""',
+                                                           }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
+        self.assertEqual(str(self.cfield_str.id),               condition.name)
+        self.assertEqual({'operator': operator, 'rname': 'customfieldstring', 'value': u''},
+                         condition.decoded_value
+                        )
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):

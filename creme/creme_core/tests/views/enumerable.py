@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 try:
     import json
 
@@ -9,6 +8,7 @@ try:
     from .base import ViewsTestCase
 
     from creme.persons.models import Contact, Civility
+    from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -62,3 +62,27 @@ class EnumerableViewsTestCase(ViewsTestCase):
         url = self._build_enum_url(User)
         response = self.assertGET200(url)
         self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
+
+    def test_custom_enum_not_exists(self):
+        self.login()
+
+        url  = '/creme_core/enumerable/custom/%s/json' % 666
+        response = self.assertGET404(url)
+        print response.content
+        self.assertContains(response, 'No CustomField matches the given query', status_code=404)
+
+    def test_custom_enum(self):
+        self.login()
+
+        custom_field = CustomField.objects.create(name='Eva', content_type=ContentType.objects.get_for_model(Contact), field_type=CustomField.ENUM)
+        create_evalue = CustomFieldEnumValue.objects.create
+        eva00 = create_evalue(custom_field=custom_field, value='Eva-00')
+        eva01 = create_evalue(custom_field=custom_field, value='Eva-01')
+        eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
+
+        url  = '/creme_core/enumerable/custom/%s/json' % custom_field.id
+        response = self.assertGET200(url)
+        self.assertEquals([[eva00.id, eva00.value],
+                           [eva01.id, eva01.value],
+                           [eva02.id, eva02.value]
+                          ], json.loads(response.content))
