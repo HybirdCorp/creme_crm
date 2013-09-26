@@ -1,0 +1,227 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+{% block test_title %}Creme Model{% endblock %}
+{% block test_header %}
+    <style type="text/css">
+        select.static-updated {
+            min-width: 10em;
+        }
+
+        select.static-filtered {
+            min-width: 10em;
+        }
+    </style>
+
+    <script type="text/javascript">
+        
+    
+        creme.test = creme.test || {};
+
+        creme.test.CheckboxListRenderer = creme.model.ListRenderer.sub({
+            createItem: function(target, before, data, index)
+            {
+                var checkbox = $('<label>').append($('<input type="checkbox">').attr('value', data.value)
+                                                                               .toggleAttr('disabled', data.disabled)
+                                                                               .text(data.label))
+                                           .append($('<span>').html(data.label));
+
+                return $('<li>').addClass('check').append(checkbox);
+            },
+
+            updateItem: function(target, item, data, previous, index)
+            {
+                if (data == previous)
+                    return;
+
+                $('span', item).html(data.label);
+                $('input', item).attr('value', data.value)
+                                .toggleAttr('disabled', data.disabled);
+            },
+
+            items: function(target) {
+                return $('li.check', target);
+            }
+        });
+
+        creme.test.model = {
+            containsFilter: function(value) {
+                return function(item) {
+                    return item.label.toLowerCase().indexOf(value.toLowerCase()) != -1;
+                }
+            },
+
+            modelFromItems: function(selector)
+            {
+                var model = new creme.model.Array();
+
+                model.reset(selector.map(function() {
+                    return {value: $(this).attr('value'), label: $(this).html()};
+                }).get());
+
+                return model;
+            },
+
+            initSelect: function(selector, add, remove)
+            {
+                var self = this;
+                var model = this.modelFromItems($('option', selector));
+                var renderer = new creme.model.ChoiceRenderer(selector, model);
+
+                model.bind(['remove', 'clear', 'reset', 'add'], function() {
+                    selector.toggleAttr('disabled', this.length() <= 1);
+                });
+
+                add.click(function() {
+                    var value = model.length();
+                    model.prepend({
+                        value: value,
+                        label: '%03d'.format(value)
+                    });
+                });
+
+                remove.click(function() {
+                    model.pop();
+                });
+            },
+
+            initCheckboxList: function(list, add, remove)
+            {
+                var self = this;
+                var model = new creme.model.Array();
+                var renderer = new creme.test.CheckboxListRenderer(list, model);
+
+                add.click(function() {
+                    var value = model.length();
+                    model.append({
+                        value: value,
+                        label: '%03d'.format(value)
+                    });
+                });
+
+                remove.click(function() {
+                    model.pop();
+                });
+            },
+
+            initFilteredCheckboxList: function(list, input)
+            {
+                var self = this;
+                var model = this.modelFromItems($('option', list));
+                var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
+                var renderer = new creme.test.CheckboxListRenderer(list, filteredmodel);
+
+                filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
+                    selector.toggleAttr('disabled', this.length() <= 1);
+                });
+
+                input.bind('change keyup', function() {
+                    filteredmodel.filter(self.containsFilter($(this).val()));
+                });
+            },
+
+            initFilteredSelect: function(selector, input)
+            {
+                var self = this;
+                var model = this.modelFromItems($('option', selector));
+                var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
+                var renderer = new creme.model.ChoiceRenderer(selector, filteredmodel);
+
+                filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
+                    selector.toggleAttr('disabled', this.length() <= 1);
+                });
+
+                input.bind('change keyup', function() {
+                    filteredmodel.filter(self.containsFilter($(this).val()));
+                });
+            }
+        };
+
+        $(document).ready(function() {
+            creme.test.model.initSelect($('select.static-updated'), 
+                                        $('button.static-updated.add-option'),
+                                        $('button.static-updated.remove-option'));
+
+            creme.test.model.initFilteredSelect($('select.static-filtered'), $('input[type="text"].static-filtered.filter-option'));
+
+            creme.test.model.initCheckboxList($('ul.static-updated'), 
+                                              $('button.static-updated.add-checkbox'),
+                                              $('button.static-updated.remove-checkbox'));
+
+            creme.test.model.initFilteredCheckboxList($('ul.static-filtered'),
+                                                      $('input[type="text"].static-filtered.filter-checkbox'));
+        });
+    </script>
+{% endblock %}
+{% block test_content %}
+    <ul>
+        <li>
+            <h4>static select (add/remove)</h4>
+            <button type="button" class="static-updated add-option">Push</button>
+            <button type="button" class="static-updated remove-option">Pop</button>
+            <select class="static-updated">
+            </select>
+        </li>
+        <li>
+            <h4>static select (filter)</h4>
+            <input type="text" class="static-filtered filter-option" value=""></input>
+            <select class="static-filtered">
+                <options>
+                    <option value="email">Adresse e-mail</option>
+                    <option value="description">Description</option>
+                    <option value="fax">Fax</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="last_name">Nom</option>
+                    <option value="phone">Numéro de téléphone</option>
+                    <option value="first_name">Prénom</option>
+                    <option value="url_site">Site Web</option>
+                    <option value="skype">Skype</option>
+                    <option value="billing_address">Adresse de facturation</option>
+                    <option value="billing_address__address">Adresse de facturation - Adresse</option>
+                    <option value="billing_address__po_box">Adresse de facturation - Boite postale</option>
+                    <option value="billing_address__zipcode">Adresse de facturation - Code postal</option>
+                    <option value="billing_address__department">Adresse de facturation - Département</option>
+                    <option value="billing_address__name">Adresse de facturation - Nom</option>
+                    <option value="billing_address__country">Adresse de facturation - Pays</option>
+                    <option value="billing_address__city">Adresse de facturation - Ville</option>
+                    <option value="billing_address__state">Adresse de facturation - État</option>
+                    <option value="shipping_address">Adresse de livraison</option>
+                    <option value="shipping_address__address">Adresse de livraison - Adresse</option>
+                    <option value="shipping_address__po_box">Adresse de livraison - Boite postale</option>
+                    <option value="shipping_address__zipcode">Adresse de livraison - Code postal</option>
+                    <option value="shipping_address__department">Adresse de livraison - Département</option>
+                    <option value="shipping_address__name">Adresse de livraison - Nom</option>
+                    <option value="shipping_address__country">Adresse de livraison - Pays</option>
+                    <option value="shipping_address__city">Adresse de livraison - Ville</option>
+                    <option value="shipping_address__state">Adresse de livraison - État</option>
+                </options>
+            </select>
+        </li>
+        <li>
+            <h4>static checkbox list (add/remove)</h4>
+            <button type="button" class="static-updated add-checkbox">Push</button>
+            <button type="button" class="static-updated remove-checkbox">Pop</button>
+            <ul class="static-updated">
+            </ul>
+        </li>
+        <li>
+            <h4>static checkbox list (filter)</h4>
+            <input type="text" class="static-filtered filter-checkbox" value=""></input>
+            <ul class="static-filtered">
+                <options>
+                    <option value="email">Adresse e-mail</option>
+                    <option value="description">Description</option>
+                    <option value="fax">Fax</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="last_name">Nom</option>
+                    <option value="phone">Numéro de téléphone</option>
+                    <option value="first_name">Prénom</option>
+                    <option value="url_site">Site Web</option>
+                    <option value="skype">Skype</option>
+                </options>
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
