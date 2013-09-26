@@ -47,7 +47,7 @@ from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
-                         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_RESEARCH)
+                         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 
 
 logger = logging.getLogger(__name__)
@@ -153,7 +153,7 @@ def user_calendar(request):
                   {'user_username':           user.username,
                    'events_url':              '/activities/calendar/users_activities/',
                    # 'users':                   User.objects.order_by('username'),
-                   'max_element_research':    MAX_ELEMENT_RESEARCH,
+                   'max_element_search':      MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),
                    'n_others_calendars':      len(calendars),
