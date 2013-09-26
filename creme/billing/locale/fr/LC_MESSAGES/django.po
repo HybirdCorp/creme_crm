@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-26 14:34+0200\n"
+"POT-Creation-Date: 2013-09-26 15:23+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -67,6 +67,11 @@ msgstr "Informations de paiement"
 #: blocks.py:252
 msgid "Default payment information"
 msgstr "Information de paiement par défaut"
+
+#: blocks.py:285
+#: templates/billing/templatetags/block_persons_statistics.html:5
+msgid "Statistics"
+msgstr "Statistiques"
 
 #: buttons.py:30
 #: templates/billing/templatetags/button_generate_invoice_number.html:6
@@ -1018,10 +1023,6 @@ msgstr "Actions"
 #: templates/billing/templatetags/block_payment_information.html:41
 msgid "Rib key"
 msgstr "Clé RIB"
-
-#: templates/billing/templatetags/block_persons_statistics.html:5
-msgid "Statistics"
-msgstr "Statistiques"
 
 #: templates/billing/templatetags/block_product_line.html:10
 #, python-format
