@@ -38,6 +38,18 @@ $.fn.getValues = function(){
     return arrOfSelected;
 }
 
+$.fn.toggleAttr = function(name, enabled, value) {
+    var enabled = enabled !== undefined ? enabled : $(this).is('[' + name + ']');
+
+    if (enabled) {
+        $(this).attr(name, value || '');
+    } else {
+        $(this).removeAttr(name);
+    }
+
+    return $(this);
+}
+
 $.assertBrowserVersions = function(pattern) {
     return $.browser.version.match('^(' + pattern + ')$') !== null;
 }
