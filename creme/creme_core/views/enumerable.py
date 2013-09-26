@@ -23,15 +23,17 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from creme.creme_core.utils import get_ct_or_404, jsonify
 
 from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+from creme.creme_core.models.custom_field import CustomFieldEnumValue, CustomField
 
 
 @login_required
 @jsonify
-def json_list_all(request, ct_id):
+def json_list_enumerable(request, ct_id):
     ct = get_ct_or_404(ct_id)
     app_name = ct.app_label
 
@@ -47,3 +49,9 @@ def json_list_all(request, ct_id):
             raise Http404(_(u"Content type is not registered in config"))
 
     return [(e.id, unicode(e)) for e in model.objects.all()]
+
+@login_required
+@jsonify
+def json_list_enumerable_custom(request, cf_id):
+    cf = get_object_or_404(CustomField, pk=cf_id)
+    return list(CustomFieldEnumValue.objects.filter(custom_field=cf).values_list('id', 'value'))

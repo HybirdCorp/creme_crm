@@ -24,7 +24,7 @@ __all__ = ('EntityFilterViewsTestCase', )
 class EntityFilterViewsTestCase(ViewsTestCase):
     FIELDS_CONDS_FMT       = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
     DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
-    CFIELDS_CONDS_FMT      = '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]'
+    CFIELDS_CONDS_FMT      = '[{"field": {"id": "%(cfield)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
     DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
     RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": 0, "entity": null}]'
     RELSUBFILTER_CONDS_FMT = '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]'
@@ -342,7 +342,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'customfields_conditions':     self.CFIELDS_CONDS_FMT % {
                                                                                 'cfield':   custom_field.id,
                                                                                 'operator': cfield_operator,
-                                                                                'value':    cfield_value,
+                                                                                'value':    '"' + cfield_value + '"',
                                                                             },
                                           'datecustomfields_conditions': self.DATE_CFIELDS_CONDS_FMT % {
                                                                                 'cfield': datecfield.id,
