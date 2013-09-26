@@ -80,8 +80,18 @@ creme.component.Action = creme.component.Component.sub({
         return Object.property(this, '_action', action);
     },
 
-    bind: function(key, listener) {
-        this._events.bind(key, listener);
+    one: function(key, listener, decorator) {
+        this._events.one(key, listener, decorator);
+        return this;
+    },
+
+    bind: function(key, listener, decorator) {
+        this._events.bind(key, listener, decorator);
+        return this;
+    },
+
+    unbind: function(key, listener) {
+        this._events.unbind(key, listener);
         return this;
     },
 
