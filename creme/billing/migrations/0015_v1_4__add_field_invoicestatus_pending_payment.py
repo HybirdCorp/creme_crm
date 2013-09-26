@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'InvoiceStatus.pending_payement'
-        db.add_column('billing_invoicestatus', 'pending_payement',
+        # Adding field 'InvoiceStatus.pending_payment'
+        db.add_column('billing_invoicestatus', 'pending_payment',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'InvoiceStatus.pending_payement'
-        db.delete_column('billing_invoicestatus', 'pending_payement')
+        # Deleting field 'InvoiceStatus.pending_payment'
+        db.delete_column('billing_invoicestatus', 'pending_payment')
 
 
     models = {
@@ -107,7 +107,7 @@ class Migration(SchemaMigration):
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
-            'pending_payement': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+            'pending_payment': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         'billing.line': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Line', '_ormbases': ['creme_core.CremeEntity']},

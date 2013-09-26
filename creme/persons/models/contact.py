@@ -65,6 +65,9 @@ class Contact(CremeEntity):
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
     #objects = CremeEntityManager()
+    # Needed because we expand it's function fields in other apps (ie. billing)
+    #TODO: refactor
+    function_fields = CremeEntity.function_fields.new()
 
     #research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
     #_clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])

@@ -28,7 +28,7 @@ from .models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, 
 from .forms.lv_import import get_import_form_builder
 from .blocks import block_list, BillingBlock
 from .buttons import button_list
-
+from .function_fields import hook_organisation
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, Line, ServiceLine, ProductLine)
@@ -71,3 +71,5 @@ reg_import_form(SalesOrder, get_import_form_builder)
 bulk_update_registry.register(
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
 )
+
+hook_organisation()

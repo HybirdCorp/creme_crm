@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=3 %}
+        <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
+    {% end_get_block_header %}
+    <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Total Won Quote Last Year" %}</th>
+            <td class="{% cycle row_color %} td_info">{{total_won_quote_last_year}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Total Won Quote This Year" %}</th>
+            <td class="{% cycle row_color %} td_info">{{total_won_quote_this_year}}</td>
+        </tr>
+        <tr>
+            <th class="{% cycle header_color %} th_info">{% trans "Total Pending Payment" %}</th>
+            <td class="{% cycle row_color %} td_info">{{total_pending}}</td>
+        </tr>
+    </tbody>
+</table>
