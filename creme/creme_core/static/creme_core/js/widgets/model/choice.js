@@ -28,9 +28,15 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
 
     updateItem: function(target, item, data, previous, index)
     {
-        item.attr('value', data.value || '')
+        var value = Object.isNone(data.value) ? '' : data.value;
+
+        if (typeof data.value === 'object')
+            value = new creme.object.JSON().encode(data.value)
+
+        item.attr('value', value)
             .toggleAttr('disabled', data.disabled === true)
             .toggleAttr('selected', data.selected === true)
+            .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
     },
 
@@ -39,14 +45,17 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
     }
 });
 
-creme.model.ChoiceRenderer.parse = function(element) {
+creme.model.ChoiceRenderer.parse = function(element, converter) {
     return $('option', element).map(function() {
         var option = $(this);
+        var value = option.attr('value');
+
         return {
             label:    option.html(), 
-            value:    option.attr('value'), 
+            value:    Object.isFunc(converter) ? converter(value) : value,
             disabled: option.is('[disabled]'), 
-            selected: element.val() === option.attr('value')
+            selected: element.val() === option.attr('value'),
+            tags:     option.is('[tags]') ? option.attr('tags').split(' ') : []
         };
     }).get();
 }

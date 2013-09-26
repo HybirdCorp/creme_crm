@@ -59,16 +59,41 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return creme.object.delegate(this._selector, 'dependencies') || [];
     },
 
-    reload: function(element, data, cb, error_cb, sync) {
-        return creme.object.delegate(this._selector, 'reload', data, cb, error_cb, sync);
+    url: function(element, url)
+    {
+        if (url === undefined)
+            return creme.object.delegate(this._selector, 'url');
+
+        creme.object.delegate(this._selector, 'url', url);
+        return this;
     },
 
-    val: function(element, value) {
-        return creme.object.delegate(this._selector, 'val', value) || '';
+    filter: function(element, filter)
+    {
+        if (filter === undefined)
+            return creme.object.delegate(this._selector, 'filter');
+
+        creme.object.delegate(this._selector, 'filter', filter);
+        return this;
+    },
+
+    reload: function(element, data, cb, error_cb, sync) {
+        creme.object.delegate(this._selector, 'reload', data, cb, error_cb, sync);
+        return this;
+    },
+
+    val: function(element, value)
+    {
+        if (value === undefined)
+            return creme.object.delegate(this._selector, 'val') || '';
+
+        creme.object.delegate(this._selector, 'val', value);
+        return this;
     },
 
     reset: function(element, value) {
-        return creme.object.delegate(this._selector, 'reset');
+        creme.object.delegate(this._selector, 'reset');
+        return this;
     },
 
     cleanedval: function(element) {
@@ -76,7 +101,8 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
     },
 
     update: function(element, data) {
-        return creme.object.delegate(this._selector, 'update');
+        creme.object.delegate(this._selector, 'update');
+        return this;
     },
 
     _on_action_success: function(element, data, statusText, dataType)

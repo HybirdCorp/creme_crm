@@ -13,49 +13,7 @@
 {% endblock %}
 {% block test_content %}
 <ul>
-    <li>
-        <h3>Dynamic select</h3>
-        <ul>
-            <li>
-                <h5>static (1 option)</h5>
-                <select url="" widget="ui-creme-dselect" name="status" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
-                     <option value="1">Prévue</option>
-                </select>
-            </li>
-            <li>
-                <h5>static (6 options)</h5>
-                <select url="" widget="ui-creme-dselect" name="status" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready">
-                     <option value="" selected="selected">---------</option>
-                     <option value="1">Prévue</option>
-                     <option value="2">En cours</option>
-                     <option value="3">Finie</option>
-                     <option value="4">En retard</option>
-                     <option value="5">Annulée</option>
-                </select>
-            </li>
-            <li>
-                <h5>static (6 options, disabled)</h5>
-                <select url="" widget="ui-creme-dselect" name="status" class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect widget-active widget-ready" disabled>
-                     <option value="" selected="selected">---------</option>
-                     <option value="1">Prévue</option>
-                     <option value="2">En cours</option>
-                     <option value="3">Finie</option>
-                     <option value="4">En retard</option>
-                     <option value="5">Annulée</option>
-                </select>
-            </li>
-            <li>
-                <h5>dynamic</h5>
-                <select url="/creme_core/relation/predicate/commercial-object_sold_by/content_types/json" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto">
-                </select>
-            </li>
-            <li>
-                <h5>dynamic (disabled)</h5>
-                <select url="/creme_core/relation/predicate/commercial-object_sold_by/content_types/json" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto" disabled>
-                </select>
-            </li>
-        </ul>
-    </li>
+    
     <li>
         <h3>Entity selector</h3>
         <ul>

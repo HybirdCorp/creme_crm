@@ -37,7 +37,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
         this._dependency_change = function() {
             //console.log('chainedselect._dependency_change > element:' + $(this).parent().attr('chained-name') + ' has changed. val:' + $(this).val());
-            self._reloadDependencies(element, $(this).parent().attr('chained-name'), $(this).creme().widget().val());
+            self._reloadDependencies(element, $(this).parent().attr('chained-name'), $(this).creme().widget().cleanedval());
             self._update(element);
         };
 
@@ -74,7 +74,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             var value = selector.creme().widget().cleanedval();
             var name = selector.parent().attr('chained-name');
 
-            //console.log('chainedselect._update > value="' + name + '", type=' + value);
+            //console.log('chainedselect._update > name="' + name + '", value="' + value + '", type=' + (typeof value));
             data[name] = value;
         });
 

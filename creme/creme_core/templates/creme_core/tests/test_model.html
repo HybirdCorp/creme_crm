@@ -68,7 +68,7 @@
             {
                 var self = this;
                 var model = this.modelFromItems($('option', selector));
-                var renderer = new creme.model.ChoiceRenderer(selector, model);
+                var renderer = new creme.model.ChoiceRenderer(selector, model).redraw();
 
                 model.bind(['remove', 'clear', 'reset', 'add'], function() {
                     selector.toggleAttr('disabled', this.length() <= 1);
@@ -91,7 +91,7 @@
             {
                 var self = this;
                 var model = new creme.model.Array();
-                var renderer = new creme.test.CheckboxListRenderer(list, model);
+                var renderer = new creme.test.CheckboxListRenderer(list, model).redraw();
 
                 add.click(function() {
                     var value = model.length();
@@ -111,7 +111,7 @@
                 var self = this;
                 var model = this.modelFromItems($('option', list));
                 var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
-                var renderer = new creme.test.CheckboxListRenderer(list, filteredmodel);
+                var renderer = new creme.test.CheckboxListRenderer(list, filteredmodel).redraw();
 
                 filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
                     selector.toggleAttr('disabled', this.length() <= 1);
@@ -127,7 +127,7 @@
                 var self = this;
                 var model = this.modelFromItems($('option', selector));
                 var filteredmodel = new creme.model.Filter(model, self.containsFilter(''));
-                var renderer = new creme.model.ChoiceRenderer(selector, filteredmodel);
+                var renderer = new creme.model.ChoiceRenderer(selector, filteredmodel).redraw();
 
                 filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
                     selector.toggleAttr('disabled', this.length() <= 1);
@@ -168,35 +168,33 @@
             <h4>static select (filter)</h4>
             <input type="text" class="static-filtered filter-option" value=""></input>
             <select class="static-filtered">
-                <options>
-                    <option value="email">Adresse e-mail</option>
-                    <option value="description">Description</option>
-                    <option value="fax">Fax</option>
-                    <option value="mobile">Mobile</option>
-                    <option value="last_name">Nom</option>
-                    <option value="phone">Numéro de téléphone</option>
-                    <option value="first_name">Prénom</option>
-                    <option value="url_site">Site Web</option>
-                    <option value="skype">Skype</option>
-                    <option value="billing_address">Adresse de facturation</option>
-                    <option value="billing_address__address">Adresse de facturation - Adresse</option>
-                    <option value="billing_address__po_box">Adresse de facturation - Boite postale</option>
-                    <option value="billing_address__zipcode">Adresse de facturation - Code postal</option>
-                    <option value="billing_address__department">Adresse de facturation - Département</option>
-                    <option value="billing_address__name">Adresse de facturation - Nom</option>
-                    <option value="billing_address__country">Adresse de facturation - Pays</option>
-                    <option value="billing_address__city">Adresse de facturation - Ville</option>
-                    <option value="billing_address__state">Adresse de facturation - État</option>
-                    <option value="shipping_address">Adresse de livraison</option>
-                    <option value="shipping_address__address">Adresse de livraison - Adresse</option>
-                    <option value="shipping_address__po_box">Adresse de livraison - Boite postale</option>
-                    <option value="shipping_address__zipcode">Adresse de livraison - Code postal</option>
-                    <option value="shipping_address__department">Adresse de livraison - Département</option>
-                    <option value="shipping_address__name">Adresse de livraison - Nom</option>
-                    <option value="shipping_address__country">Adresse de livraison - Pays</option>
-                    <option value="shipping_address__city">Adresse de livraison - Ville</option>
-                    <option value="shipping_address__state">Adresse de livraison - État</option>
-                </options>
+                <option value="email">Adresse e-mail</option>
+                <option value="description">Description</option>
+                <option value="fax">Fax</option>
+                <option value="mobile">Mobile</option>
+                <option value="last_name">Nom</option>
+                <option value="phone">Numéro de téléphone</option>
+                <option value="first_name">Prénom</option>
+                <option value="url_site">Site Web</option>
+                <option value="skype">Skype</option>
+                <option value="billing_address">Adresse de facturation</option>
+                <option value="billing_address__address">Adresse de facturation - Adresse</option>
+                <option value="billing_address__po_box">Adresse de facturation - Boite postale</option>
+                <option value="billing_address__zipcode">Adresse de facturation - Code postal</option>
+                <option value="billing_address__department">Adresse de facturation - Département</option>
+                <option value="billing_address__name">Adresse de facturation - Nom</option>
+                <option value="billing_address__country">Adresse de facturation - Pays</option>
+                <option value="billing_address__city">Adresse de facturation - Ville</option>
+                <option value="billing_address__state">Adresse de facturation - État</option>
+                <option value="shipping_address">Adresse de livraison</option>
+                <option value="shipping_address__address">Adresse de livraison - Adresse</option>
+                <option value="shipping_address__po_box">Adresse de livraison - Boite postale</option>
+                <option value="shipping_address__zipcode">Adresse de livraison - Code postal</option>
+                <option value="shipping_address__department">Adresse de livraison - Département</option>
+                <option value="shipping_address__name">Adresse de livraison - Nom</option>
+                <option value="shipping_address__country">Adresse de livraison - Pays</option>
+                <option value="shipping_address__city">Adresse de livraison - Ville</option>
+                <option value="shipping_address__state">Adresse de livraison - État</option>
             </select>
         </li>
         <li>
