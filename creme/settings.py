@@ -416,18 +416,20 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/blocks.js',
 
                     'creme_core/js/widgets/base.js',
-                    'creme_core/js/widgets/ajax/backend.js',
-                    'creme_core/js/widgets/ajax/mockbackend.js',
-                    'creme_core/js/widgets/ajax/cachebackend.js',
-
-                    'creme_core/js/widgets/frame.js',
 
                     'creme_core/js/widgets/component/component.js',
                     'creme_core/js/widgets/component/events.js',
                     'creme_core/js/widgets/component/action.js',
+
+                    'creme_core/js/widgets/ajax/backend.js',
+                    'creme_core/js/widgets/ajax/mockbackend.js',
+                    'creme_core/js/widgets/ajax/cachebackend.js',
+                    'creme_core/js/widgets/ajax/query.js',
+
                     'creme_core/js/widgets/component/dialog.js',
                     'creme_core/js/widgets/component/chosen.js',
 
+                    'creme_core/js/widgets/frame.js',
                     'creme_core/js/widgets/toggle.js',
                     'creme_core/js/widgets/pluginlauncher.js',
                     'creme_core/js/widgets/dinput.js',
@@ -470,11 +472,12 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
 TEST_CREME_CORE_JS = (#js Unit test files
     'test_core.js',
     'creme_core/js/tests/qunit/qunit-1.6.0.js',
-    'creme_core/js/tests/ajax/mockajax.js',
-    'creme_core/js/tests/ajax/cacheajax.js',
     'creme_core/js/tests/component/component.js',
     'creme_core/js/tests/component/events.js',
     'creme_core/js/tests/component/action.js',
+    'creme_core/js/tests/ajax/mockajax.js',
+    'creme_core/js/tests/ajax/cacheajax.js',
+    'creme_core/js/tests/ajax/query.js',
     'creme_core/js/tests/utils.js',
     'creme_core/js/tests/fallbacks.js',
     'creme_core/js/tests/converters.js',

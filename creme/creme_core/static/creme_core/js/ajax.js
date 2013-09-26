@@ -199,45 +199,6 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
     return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
 };
 
-creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
-{
-    var form_action = form.attr('action');
-    var options = options || {};
-
-    form.attr('action', (options['action'] || form_action));
-
-    function parse_response_status(responseText) {
-        if (responseText === "") {
-            return 404;
-        } else if (/^HTTPError [0-9]+$/.test(responseText)) {
-            return parseInt(responseText.substr('HTTPError '.length));
-        } else {
-            return 200;
-        }
-    }
-
-    submit_options = {
-            iframe:true,
-            success:function(responseText, statusText, xhr, form) {
-                form.attr('action', form_action);
-                xhr.status = parse_response_status(responseText);
-
-                if (xhr.status === 200) {
-                    if (success_cb !== undefined)
-                        success_cb(responseText, statusText, xhr, form);
-
-                    return;
-                }
-
-                if (error_cb !== undefined)
-                    error_cb(responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
-            }
-    };
-
-    submit_options = $.extend({}, submit_options, options, true);
-    $(form).ajaxSubmit(submit_options);
-}
-
 creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
 	var delay = 100;
 	
