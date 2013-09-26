@@ -73,6 +73,10 @@ headerfilter_patterns = patterns('creme.creme_core.views.header_filter',
     (r'^get_for_ctype/(?P<ct_id>\d+)$',      'get_for_ctype'),
 )
 
+enumerable_patterns = patterns('creme.creme_core.views.enumerable',
+    (r'^(?P<ct_id>\d+)/json$',      'json_list_all'),
+)
+
 creme_core_patterns = patterns('creme.creme_core.views',
     (r'^entity/',        include(entity_patterns)),
     (r'^relation/',      include(relation_patterns)),
@@ -80,6 +84,7 @@ creme_core_patterns = patterns('creme.creme_core.views',
     (r'^blocks/reload/', include(blocks_patterns)),
     (r'^entity_filter/', include(entity_filter_patterns)),
     (r'^header_filter/', include(headerfilter_patterns)),
+    (r'^enumerable/',    include(enumerable_patterns)),
 
     (r'^clean/$', 'clean.clean'),
 

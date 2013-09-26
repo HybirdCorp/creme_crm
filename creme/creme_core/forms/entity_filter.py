@@ -21,6 +21,12 @@
 from future_builtins import map
 from collections import defaultdict
 from datetime import date
+import json
+
+from django.db.models import (ForeignKey as ModelForeignKey,
+                              DateField as ModelDateField,
+                              IntegerField as ModelIntegerField,
+                              BooleanField as ModelBooleanField)
 
 from django.forms import ModelMultipleChoiceField, DateField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -32,6 +38,7 @@ from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import is_date_field
 from ..utils.date_range import date_range_registry
+from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import Label
@@ -66,45 +73,131 @@ _CONDITION_INPUT_TYPE_MAP = {
 boolean_str = lambda val: TRUE if val else FALSE
 
 
-class RegularFieldsConditionsWidget(SelectorList):
-    def __init__(self, fields, attrs=None):
-        chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+# class RegularFieldsConditionsWidget(SelectorList):
+#     def __init__(self, fields, attrs=None):
+#         chained_input = ChainedInput(attrs)
+#         attrs = {'auto': False}
+# 
+#         chained_input.add_dselect('name',     options=self._build_fieldchoices(fields), attrs=attrs)
+#         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
+# 
+#         pinput = PolymorphicInput(key='${operator}', attrs=attrs)
+#         pinput.set_default_input(widget=DynamicInput, attrs=attrs)
+# 
+#         for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
+#             op_input = _CONDITION_INPUT_TYPE_MAP.get(type(operator))
+# 
+#             if op_input:
+#                 input_widget, input_attrs, input_kwargs = op_input
+#                 pinput.add_input(str(optype), widget=input_widget, attrs=input_attrs, **input_kwargs)
+# 
+#         chained_input.add_input('value', pinput, attrs=attrs)
+# 
+#         super(RegularFieldsConditionsWidget, self).__init__(chained_input)
+# 
+#     def _build_fieldchoices(self, fields):
+#         fields_by_cat = defaultdict(list) #fields grouped by category (a category by FK)
+# 
+#         for fname, fieldlist in fields.iteritems():
+#             if len(fieldlist) == 1:  #not a FK
+#                 cat = ''
+#                 vname = fieldlist[0].verbose_name
+#             else: #FK case
+#                 cat = unicode(fieldlist[0].verbose_name)
+#                 vname = u'[%s] - %s' % (cat, fieldlist[1].verbose_name)
+# 
+#             fields_by_cat[cat].append((fname, vname))
+# 
+#         return [(cat, sorted(fields_by_cat[cat], key=lambda item: item[1]))
+#                     for cat in sorted(fields_by_cat.keys())
+#                ]
 
-        chained_input.add_dselect('name',     options=self._build_fieldchoices(fields), attrs=attrs)
-        chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
 
-        pinput = PolymorphicInput(key='${operator}', attrs=attrs)
-        pinput.set_default_input(widget=DynamicInput, attrs=attrs)
+class FieldConditionWidget(ChainedInput):
+    def __init__(self, fields, operators, attrs=None, autocomplete=False):
+        super(FieldConditionWidget, self).__init__(attrs)
 
-        for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
-            op_input = _CONDITION_INPUT_TYPE_MAP.get(type(operator))
+        field_attrs = {'auto': False, 'datatype': 'json'}
 
-            if op_input:
-                input_widget, input_attrs, input_kwargs = op_input
-                pinput.add_input(str(optype), widget=input_widget, attrs=input_attrs, **input_kwargs)
+        if autocomplete:
+            field_attrs['autocomplete'] = True
 
-        chained_input.add_input('value', pinput, attrs=attrs)
+        self.add_dselect('field',    options=self._build_fieldchoices(fields), attrs=field_attrs)
 
-        super(RegularFieldsConditionsWidget, self).__init__(chained_input)
+        operator_attrs = dict(field_attrs,
+                              filter='context.field && item.value ? item.value.types.indexOf(context.field.type) !== -1 : true',
+                              dependencies='field')
+
+        self.add_dselect('operator', options=self._build_operatorchoices(operators), attrs=operator_attrs)
+
+        pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
+        pinput.add_dselect('^enum.*',
+                           '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
+
+        pinput.add_input('fk.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+                         EntitySelector, content_type='${field.ctype}', attrs={'auto': False});
+
+        pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
+                         DateRangeSelect, attrs={'auto': False})
+
+        pinput.add_input('^boolean.*',
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
+
+        pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
+
+        pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
+
+        self.add_input('value', pinput, attrs=attrs)
+
+    def _build_operatorchoices(self, operators):
+        return [(json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}), op.name) for id, op in operators.iteritems()]
+
+    def _build_fieldchoice(self, name, data):
+        field = data[0]
+        subfield = data[1] if len(data) > 1 else None
+        category = ''
+
+        if subfield is not None:
+            category = field.verbose_name 
+            choice_label = u'[%s] - %s' % (category, subfield.verbose_name)
+            choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(subfield)}
+        else:
+            choice_label = field.verbose_name
+            choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(field)}
+
+        if choice_value['type'] in ('enum', 'fk'):
+            choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+
+        return category, (json.dumps(choice_value), choice_label)
 
     def _build_fieldchoices(self, fields):
-        fields_by_cat = defaultdict(list) #fields grouped by category (a category by FK)
+        categories = defaultdict(list) #fields grouped by category (a category by FK)
 
-        for fname, fieldlist in fields.iteritems():
-            if len(fieldlist) == 1:  #not a FK
-                cat = ''
-                vname = fieldlist[0].verbose_name
-            else: #FK case
-                cat = unicode(fieldlist[0].verbose_name)
-                vname = u'[%s] - %s' % (cat, fieldlist[1].verbose_name)
+        for fieldname, fieldlist in fields.iteritems():
+            category, choice = self._build_fieldchoice(fieldname, fieldlist)
+            categories[category].append(choice)
 
-            fields_by_cat[cat].append((fname, vname))
-
-        return [(cat, sorted(fields_by_cat[cat], key=lambda item: item[1]))
-                    for cat in sorted(fields_by_cat.keys())
+        # use collation sort
+        return [(cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
+                    for cat in sorted(categories.keys(), key=collator.sort_key)
                ]
 
+    @staticmethod
+    def field_choicetype(field):
+        if isinstance(field, ModelForeignKey):
+            return 'enum' if not issubclass(field.rel.to, CremeEntity) else 'fk'
+    
+        if isinstance(field, ModelDateField):
+            return 'date'
+    
+        if isinstance(field, ModelIntegerField):
+            return 'number'
+    
+        if isinstance(field, ModelBooleanField):
+            return 'boolean'
+    
+        return 'string'
 
 class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, date_fields_options, attrs=None, enabled=True):
@@ -203,6 +296,7 @@ class RegularFieldsConditionsField(_ConditionsField):
     default_error_messages = {
         'invalidfield':    _(u"This field is invalid with this model."),
         'invalidoperator': _(u"This operator is invalid."),
+        'invalidvalue': _(u"This value is invalid.")
     }
 
     def _build_related_fields(self, field, fields):
@@ -211,6 +305,9 @@ class RegularFieldsConditionsField(_ConditionsField):
         #rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
                             #('id',)
                             #)
+
+        if field.get_tag('enumerable'): #and not issubclass(related_model, CremeEntity):
+            fields[field.name] = [field]
 
         for subfield in related_model._meta.fields:
             #sfname = subfield.name
@@ -245,30 +342,41 @@ class RegularFieldsConditionsField(_ConditionsField):
         self._build_widget()
 
     def _create_widget(self):
-        return RegularFieldsConditionsWidget(self._fields)
+        return SelectorList(FieldConditionWidget(self._fields, EntityFilterCondition._OPERATOR_MAP, autocomplete=True))
 
     def _value_to_jsonifiable(self, value):
         dicts = []
 
+        field_choicetype = FieldConditionWidget.field_choicetype
+
         for condition in value:
             search_info = condition.decoded_value
-            operator = search_info['operator']
+            operator_id = search_info['operator']
+            operator = EntityFilterCondition._OPERATOR_MAP.get(operator_id)
 
             #TODO: use polymorphism instead ??
-            if isinstance(EntityFilterCondition._OPERATOR_MAP.get(operator), _ConditionBooleanOperator):
+            if isinstance(operator, _ConditionBooleanOperator):
                 values = search_info['values'][0]
             else:
                 values = u','.join(search_info['values'])
 
-            dicts.append({'operator': operator,
-                          'name':     condition.name,
+            field = self._fields[condition.name][-1]
+            field_entry = {'name': condition.name, 'type': field_choicetype(field)}
+
+            if field_entry['type'] in ('enum', 'fk'):
+                field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
+
+            dicts.append({'field':    field_entry,
+                          'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
                           'value':    values,
                          })
 
         return dicts
 
     def _clean_fieldname(self, entry):
-        fname = self.clean_value(entry, 'name', str)
+        clean_value =  self.clean_value
+        fname = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidfield'),
+                            'name', str, required_error_key='invalidfield')
 
         if fname not in self._fields:
             raise ValidationError(self.error_messages['invalidfield'])
@@ -277,16 +385,18 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _clean_operator_n_values(self, entry):
         clean_value =  self.clean_value
-        operator = self.clean_value(entry, 'operator', int)
+        operator = clean_value(clean_value(entry, 'operator', dict, required_error_key='invalidoperator'),
+                               'id', int, required_error_key='invalidoperator')
 
         operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
+
         if not operator_class:
             raise ValidationError(self.error_messages['invalidoperator'])
 
         if isinstance(operator_class, _ConditionBooleanOperator):
-            values = [clean_value(entry, 'value', bool)]
+            values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         else:
-            values = [v for v in clean_value(entry, 'value', unicode).split(',') if v]
+            values = [v for v in clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',') if v]
 
         return operator, values
 

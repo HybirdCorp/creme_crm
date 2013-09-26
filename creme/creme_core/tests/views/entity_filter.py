@@ -22,8 +22,7 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
-    FIELDS_CONDS_FMT       = '[{"operator": "%(operator)s", "name": "%(name)s",' \
-                             ' "value": "%(value)s"}]'
+    FIELDS_CONDS_FMT       = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
     DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
     CFIELDS_CONDS_FMT      = '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]'
     DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
@@ -84,7 +83,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'fields_conditions': self.FIELDS_CONDS_FMT % {
                                                                       'operator': operator,
                                                                       'name':     field_name,
-                                                                      'value':    value,
+                                                                      'value':    '"' + value + '"',
                                                                   },
                                          }
                                    )
@@ -161,7 +160,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'fields_conditions':           self.FIELDS_CONDS_FMT % {
                                                                                 'operator': field_operator,
                                                                                 'name':     field_name,
-                                                                                'value':    field_value,
+                                                                                'value':    '"' + field_value + '"',
                                                                             },
                                           'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
                                                                                 'type': daterange_type,
@@ -332,7 +331,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'fields_conditions':           self.FIELDS_CONDS_FMT % {
                                                                                 'operator': field_operator,
                                                                                 'name':     field_name,
-                                                                                'value':    field_value,
+                                                                                'value':    '"' + field_value + '"',
                                                                             },
                                           'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
                                                                                 'type':  '',
