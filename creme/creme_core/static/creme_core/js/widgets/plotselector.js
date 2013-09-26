@@ -32,8 +32,8 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     {
         var self = this;
 
-        this._plot_data_url = new creme.string.Template(options['plot-data-url']);
-        this._plot_name = (options['plot-name']) ? new creme.string.Template(options['plot-name']) : undefined;
+        this._plot_data_url = new creme.utils.Template(options['plot-data-url']);
+        this._plot_name = (options['plot-name']) ? new creme.utils.Template(options['plot-name']) : undefined;
 
         options.initial = creme.widget.cleanval(options.initial, {});
 

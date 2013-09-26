@@ -61,7 +61,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
         var selection = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
 
-        this._popupURL = new creme.string.Template(options.popupURL, {
+        this._popupURL = new creme.utils.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
                                                        selection: selection
                                                    });
