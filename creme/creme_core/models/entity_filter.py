@@ -247,16 +247,23 @@ class EntityFilter(Model): #CremeModel ???
 
 
 class _ConditionOperator(object):
-    __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern')
+    __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
 
     #Fields for which the subpart of a valid value is not valid
     _NO_SUBPART_VALIDATION_FIELDS = set([models.EmailField, models.IPAddressField])
 
-    def __init__(self, name, key_pattern, exclude=False, accept_subpart=True):
-        self._key_pattern    = key_pattern
-        self._exclude        = exclude
-        self._accept_subpart = accept_subpart
-        self.name            = name
+    def __init__(self, name, key_pattern, exclude=False, accept_subpart=True, allowed_fieldtypes=None):
+        self._key_pattern        = key_pattern
+        self._exclude            = exclude
+        self._accept_subpart     = accept_subpart
+        self.name                = name
+
+        # needed by javascript widget to filter operators for each field type 
+        self._allowed_fieldtypes = allowed_fieldtypes or tuple()
+
+    @property
+    def allowed_fieldtypes(self):
+        return self._allowed_fieldtypes
 
     @property
     def exclude(self):
@@ -302,17 +309,21 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
-    def __init__(self, name):
-        super(_IsEmptyOperator, self).__init__(name, '', exclude=False, accept_subpart=False)
+    def __init__(self, name, exclude=False, **kwargs):
+        super(_IsEmptyOperator, self).__init__(name, '', exclude=exclude, accept_subpart=False, **kwargs)
 
     def get_q(self, efcondition, values):
         field_name = efcondition.name
+
+        # as default, set isnull operator (allways true, negate is done later)
         query = Q(**{'%s__isnull' % field_name: True})
 
+        # add filter for text fields, "isEmpty" should mean null or empty string 
         finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
         if isinstance(finfo[-1]['field'], (CharField, TextField)):
             query |= Q(**{field_name: ''})
 
+        # negate filter on false value
         if not values[0]:
             query.negate()
 
@@ -321,7 +332,7 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
 
 class _RangeOperator(_ConditionOperator):
     def __init__(self, name):
-        super(_RangeOperator, self).__init__(name, '%s__range')
+        super(_RangeOperator, self).__init__(name, '%s__range', allowed_fieldtypes=('number', 'date'))
 
     def validate_field_values(self, field, values):
         if len(values) != 2:
@@ -371,27 +382,31 @@ class EntityFilterCondition(Model):
     RANGE           = 22
 
     _OPERATOR_MAP = {
-            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact', accept_subpart=False),
-            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact', accept_subpart=False),
-            EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact', exclude=True, accept_subpart=False),
-            IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact', exclude=True, accept_subpart=False),
-            CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains'),
-            ICONTAINS:       _ConditionOperator(_(u"Contains (case insensitive)"),            '%s__icontains'),
-            CONTAINS_NOT:    _ConditionOperator(_(u"Does not contain"),                       '%s__contains', exclude=True),
-            ICONTAINS_NOT:   _ConditionOperator(_(u"Does not contain (case insensitive)"),    '%s__icontains', exclude=True),
-            GT:              _ConditionOperator(_(u">"),                                      '%s__gt'),
-            GTE:             _ConditionOperator(_(u">="),                                     '%s__gte'),
-            LT:              _ConditionOperator(_(u"<"),                                      '%s__lt'),
-            LTE:             _ConditionOperator(_(u"<="),                                     '%s__lte'),
-            STARTSWITH:      _ConditionOperator(_(u"Starts with"),                            '%s__startswith'),
-            ISTARTSWITH:     _ConditionOperator(_(u"Starts with (case insensitive)"),         '%s__istartswith'),
-            STARTSWITH_NOT:  _ConditionOperator(_(u"Does not start with"),                    '%s__startswith', exclude=True),
-            ISTARTSWITH_NOT: _ConditionOperator(_(u"Does not start with (case insensitive)"), '%s__istartswith', exclude=True),
-            ENDSWITH:        _ConditionOperator(_(u"Ends with"),                              '%s__endswith'),
-            IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith'),
-            ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True),
-            IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty")),
+            EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact',
+                                                accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'boolean', 'fk',)),
+            IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact',
+                                                accept_subpart=False, allowed_fieldtypes=('string',)),
+            EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact',
+                                                exclude=True, accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date',)),
+            IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact',
+                                                exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
+            CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains', allowed_fieldtypes=('string',)),
+            ICONTAINS:       _ConditionOperator(_(u"Contains (case insensitive)"),            '%s__icontains', allowed_fieldtypes=('string',)),
+            CONTAINS_NOT:    _ConditionOperator(_(u"Does not contain"),                       '%s__contains', exclude=True, allowed_fieldtypes=('string',)),
+            ICONTAINS_NOT:   _ConditionOperator(_(u"Does not contain (case insensitive)"),    '%s__icontains', exclude=True, allowed_fieldtypes=('string',)),
+            GT:              _ConditionOperator(_(u">"),                                      '%s__gt', allowed_fieldtypes=('number', 'date',)),
+            GTE:             _ConditionOperator(_(u">="),                                     '%s__gte', allowed_fieldtypes=('number', 'date',)),
+            LT:              _ConditionOperator(_(u"<"),                                      '%s__lt', allowed_fieldtypes=('number', 'date',)),
+            LTE:             _ConditionOperator(_(u"<="),                                     '%s__lte', allowed_fieldtypes=('number', 'date',)),
+            STARTSWITH:      _ConditionOperator(_(u"Starts with"),                            '%s__startswith', allowed_fieldtypes=('string',)),
+            ISTARTSWITH:     _ConditionOperator(_(u"Starts with (case insensitive)"),         '%s__istartswith', allowed_fieldtypes=('string',)),
+            STARTSWITH_NOT:  _ConditionOperator(_(u"Does not start with"),                    '%s__startswith', exclude=True, allowed_fieldtypes=('string',)),
+            ISTARTSWITH_NOT: _ConditionOperator(_(u"Does not start with (case insensitive)"), '%s__istartswith', exclude=True, allowed_fieldtypes=('string',)),
+            ENDSWITH:        _ConditionOperator(_(u"Ends with"),                              '%s__endswith', allowed_fieldtypes=('string',)),
+            IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
+            ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
+            IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk',)),
             RANGE:           _RangeOperator(_(u"Range")),
         }
 

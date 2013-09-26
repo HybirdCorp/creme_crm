@@ -2,11 +2,13 @@
 
 try:
     from django.utils.simplejson import loads as jsonloads
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.forms.entity_filter import *
+
     from .base import FieldTestCase
 
-    from creme.persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -17,8 +19,9 @@ __all__ = ('RegularFieldsConditionsFieldTestCase', 'DateFieldsConditionsFieldTes
            'RelationSubfiltersConditionsFieldTestCase',
           )
 
-
 class RegularFieldsConditionsFieldTestCase(FieldTestCase):
+    CONDITION_FIELD_JSON_FMT = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, None)
@@ -43,60 +46,60 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean,
-                                        '[{"operator": "notanumber", "name": "first_name", "value": "Rei"}]'
+                                        '[{"operator": {"id": "notanumber"}, "field": {"name":"first_name"}, "value": "Rei"}]'
                                        )
 
     def test_clean_incomplete_data_required(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
         EQUALS = EntityFilterCondition.EQUALS
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"operator": "%s", "name": "first_name"}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"operator": "%s", "value": {"type":"%s", "value":"Rei"}}]' % (EQUALS, EQUALS))
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"name": "first_name", "value": "Rei"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidvalue', clean, '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean, '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean, '[{"field": {"name": "first_name"}, "value": "Rei"}]')
 
     def test_clean_invalid_field(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
-        format_str = '[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
+        format_str = self.CONDITION_FIELD_JSON_FMT
 
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator':  EntityFilterCondition.EQUALS,
                                                       'name':  '   boobies_size', #<---
-                                                      'value':     '90',
+                                                      'value':     90,
                                                      }
                                         )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'is_deleted',
-                                                      'value':    'Faye',
+                                                      'value':    '"Faye"',
                                                      }
                                         )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'created',
-                                                      'value':    '2011-5-12',
+                                                      'value':    '"2011-5-12"',
                                                      }
                                         )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'civility__id',
-                                                      'value':    '5',
+                                                      'value':    5,
                                                      }
                                         )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'image__id',
-                                                      'value':    '5',
+                                                      'value':    5,
                                                      }
                                        )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'image__is_deleted',
-                                                      'value':    '5',
+                                                      'value':    5,
                                                      }
                                        )
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean,
                                         format_str % {'operator': EntityFilterCondition.IEQUALS,
                                                       'name':     'image__modified',
-                                                      'value':    '2011-5-12',
+                                                      'value':    '"2011-5-12"',
                                                      }
                                        )
         #TODO: M2M
@@ -104,22 +107,41 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_invalid_operator(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean,
-                                        '[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                        self.CONDITION_FIELD_JSON_FMT % {
                                                 'operator': EntityFilterCondition.EQUALS + 1000, # <--
                                                 'name':     'first_name',
-                                                'value':    'Nana',
-                                             }
+                                                'value':    '"Nana"',
+                                            }
                                        )
 
-    def test_ok01(self):
+    def test_clean_invalid_fk_id(self):
+        """FK field with invalid id"""
+        self.autodiscover()
+        self.populate('persons')
+
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'civility'
+        value = 'unknown'
+        err = self.assertFieldRaises(ValidationError, clean,
+                                     self.CONDITION_FIELD_JSON_FMT % {
+                                             'operator': operator,
+                                             'name':     name,
+                                             'value':    '"' + value + '"',
+                                         }
+                                     )[0]
+
+        self.assertEqual(err.messages[0], unicode([_(u'Select a valid choice. That choice is not one of the available choices.')]));
+
+    def test_iequals_condition(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    value,
+                                 'value':    '"' + value + '"',
                              }
                           )
         self.assertEqual(1, len(conditions))
@@ -129,14 +151,31 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
-    def test_ok02(self):
-        "ISEMPTY -> boolean"
+    def test_isempty_condition(self): #ISEMPTY -> boolean
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": false}]' % {
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
                                  'name':     name,
+                                 'value':    'true',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [True]}, condition.decoded_value)
+
+    def test_isnotempty_condition(self): #ISEMPTY -> boolean
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.ISEMPTY
+        name = 'description'
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    'false',
                              }
                           )
         self.assertEqual(1, len(conditions))
@@ -146,13 +185,35 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [False]}, condition.decoded_value)
 
-    def test_ok03(self):
-        "FK field"
+    def test_fk_subfield(self):
+        """FK subfield"""
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISTARTSWITH
         name = 'civility__title'
         value = 'Miss'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    '"' + value + '"',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_fk(self):
+        """FK field"""
+        self.autodiscover()
+        self.populate('persons')
+
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'civility'
+        value = Civility.objects.all()[0].pk
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,
@@ -163,18 +224,54 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(name,                                      condition.name)
-        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+        self.assertEqual({'operator': operator, 'values': [str(value)]}, condition.decoded_value)
 
-    def test_ok04(self):
+#     def test_ok02(self):
+#         "ISEMPTY -> boolean"
+#         clean = RegularFieldsConditionsField(model=Contact).clean
+#         operator = EntityFilterCondition.ISEMPTY
+#         name = 'description'
+#         conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": false}]' % {
+#                                  'operator': operator,
+#                                  'name':     name,
+#                              }
+#                           )
+#         self.assertEqual(1, len(conditions))
+# 
+#         condition = conditions[0]
+#         self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+#         self.assertEqual(name,                                      condition.name)
+#         self.assertEqual({'operator': operator, 'values': [False]}, condition.decoded_value)
+# 
+#     def test_ok03(self):
+#         "FK field"
+#         clean = RegularFieldsConditionsField(model=Contact).clean
+#         operator = EntityFilterCondition.ISTARTSWITH
+#         name = 'civility__title'
+#         value = 'Miss'
+#         conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+#                                  'operator': operator,
+#                                  'name':     name,
+#                                  'value':    value,
+#                              }
+#                           )
+#         self.assertEqual(1, len(conditions))
+# 
+#         condition = conditions[0]
+#         self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+#         self.assertEqual(name,                                      condition.name)
+#         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_iendswith_valuelist(self):
         "Multi values"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IENDSWITH
         name = 'last_name'
         values = ['nagi', 'sume']
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    ','.join(values) + ',',
+                                 'value':    '"' + ','.join(values) + ',' + '"',
                              }
                           )
         self.assertEqual(1, len(conditions))
@@ -184,16 +281,16 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                     condition.name)
         self.assertEqual({'operator': operator, 'values': values}, condition.decoded_value)
 
-    def test_ok05(self):
+    def test_many2many_subfield(self):
         "M2M field"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IEQUALS
         name = 'language__name'
         value = 'French'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
                                  'name':     name,
-                                 'value':    value,
+                                 'value':    '"' + value + '"',
                              }
                           )
         self.assertEqual(1, len(conditions))

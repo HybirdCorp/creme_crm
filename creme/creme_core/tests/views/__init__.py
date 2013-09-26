@@ -14,3 +14,4 @@ from .blocks import *
 from .batch_process import *
 from .merge import *
 from .quick_forms import *
+from .enumerable import *

@@ -20,6 +20,8 @@
 
 import logging
 import warnings
+import traceback
+import sys
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
@@ -301,3 +303,14 @@ def safe_unicode_error(err, encodings=None):
         #pass
 
     #return unicode(err.__class__.__name__)
+
+def log_traceback(logger, limit=10):
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+
+    for line in traceback.format_exception(exc_type, exc_value, exc_traceback, limit=limit):
+        for split_line in line.split('\n'):
+            logger.error(split_line)
+
+def print_traceback(limit=10):
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    traceback.print_exception(exc_type, exc_value, exc_traceback, limit=limit)
