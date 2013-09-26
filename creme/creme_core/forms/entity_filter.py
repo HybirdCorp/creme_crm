@@ -190,13 +190,13 @@ class FieldConditionWidget(ChainedInput):
     def field_choicetype(field):
         if isinstance(field, ModelForeignKey):
             return 'enum' if not issubclass(field.rel.to, CremeEntity) else 'fk'
-    
+
         if isinstance(field, ModelDateField):
             return 'date'
-    
+
         if isinstance(field, ModelIntegerField):
             return 'number'
-    
+
         if isinstance(field, ModelBooleanField):
             return 'boolean'
 
@@ -214,7 +214,7 @@ class DateFieldsConditionsWidget(SelectorList):
         super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
 
-# class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularFieldsConditionsWidget ???
+# class CustomFieldsConditionsWidget(SelectorList): #todo: factorise with RegularFieldsConditionsWidget ???
 #     def __init__(self, cfields, attrs=None, enabled=True):
 #         chained_input = ChainedInput(attrs)
 #         attrs = {'auto': False}
@@ -278,19 +278,20 @@ class CustomFieldConditionWidget(FieldConditionWidget):
 
         return type
 
+
 class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
         #datatype = json => boolean are retuned as json boolean, not strings
-        attrs = {'auto': False} #TODO 'autocomplete': True
         attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
         ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
 
-        chained_input.add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
-        chained_input.add_dselect(rtype_name, options=rtypes, attrs=attrs)
-        chained_input.add_dselect("ctype", options=ctype_url, attrs=attrs_json)
+        add_dselect = chained_input.add_dselect
+        add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
+        add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
+        add_dselect("ctype", options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
         chained_input.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': True})
 
         super(RelationsConditionsWidget, self).__init__(chained_input)
@@ -299,7 +300,7 @@ class RelationsConditionsWidget(SelectorList):
 class RelationSubfiltersConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'autocomplete': True}
         attrs_json = {'auto': False, 'datatype': 'json'}
 
         rtype_name = 'rtype'
@@ -307,10 +308,10 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         ctype_url  = '/creme_core/relation/type/${%s}/content_types/json' % rtype_name
         filter_url = '/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name
 
-        add_dselect = chained_input.add_dselect #TODO: functools.partial
+        add_dselect = chained_input.add_dselect
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs=attrs)
-        add_dselect(ctype_name, options=ctype_url, attrs=attrs_json)
+        add_dselect(ctype_name, options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
         add_dselect("filter", options=filter_url, attrs=attrs)
 
         super(RelationSubfiltersConditionsWidget, self).__init__(chained_input)
