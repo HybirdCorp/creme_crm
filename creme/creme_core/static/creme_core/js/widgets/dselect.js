@@ -34,7 +34,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         this._initial = element.html();
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
-        this._url = new creme.string.Template(options.url);
+        this._url = new creme.utils.Template(options.url);
 
         if (!this._enabled) {
             element.attr('disabled', '');
