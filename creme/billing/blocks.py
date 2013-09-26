@@ -282,6 +282,7 @@ class BillingAddressBlock(AddressBlock):
 
 class PersonsStatisticsBlock(Block):
     id_  = Block.generate_id('billing', 'persons__statistics')
+    verbose_name  = _(u"Statistics")
     template_name = 'billing/templatetags/block_persons_statistics.html'
     target_ctypes = (Organisation, Contact)
 
