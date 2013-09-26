@@ -23,7 +23,7 @@ from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
-                                  TextInput, Input, MultiWidget) #FileInput
+        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer) #FileInput
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape, escape
 from django.utils.translation import ugettext as _
@@ -987,3 +987,13 @@ class ChoiceOrCharWidget(MultiWidget):
     #def format_output(self, rendered_widgets):
         #return u'<div>%s</div>' % (u''.join(u'<div>%s</div>' % w for w in rendered_widgets))
 
+
+class CremeRadioFieldRenderer(RadioFieldRenderer):
+    def render(self):
+        return mark_safe(u'<ul class="radio_select">\n%s\n</ul>' %
+                            u'\n'.join(u'<li>%s</li>' % force_unicode(w) for w in self)
+                        )
+
+
+class CremeRadioSelect(RadioSelect):
+    renderer = CremeRadioFieldRenderer

@@ -38,7 +38,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         url = self._build_enum_url(Civility)
         response = self.assertGET404(url)
-        self.assertContains(response, 'You are not allowed to acceed to this app', status_code=404)
+        self.assertContains(response, "You are not allowed to acceed to the app 'persons'", status_code=404)
 
     def test_contenttype_not_exists(self):
         self.login()

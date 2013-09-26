@@ -26,6 +26,11 @@ textarea:disabled, textarea[readonly] {
     -webkit-border-radius: 4px;
 }
 
+ul.radio_select {
+    list-style-type: none;
+    padding: 0;
+}
+
 form .table_detail_view .td_info > input,
 form .table_detail_view .td_info > select,
 form .table_detail_view .td_info > textarea {
