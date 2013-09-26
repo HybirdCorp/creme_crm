@@ -18,171 +18,180 @@
 
 creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselect', {
     options: {
-        type: null
+        key: null,
+        dependencies: ''
     },
 
     _create: function(element, options, cb, sync)
     {
         var self = this;
 
-        this._selector_change = function() {
-            self._update(element);
+        this._context = {};
+        this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
+        this._selectorKey = new creme.utils.Template(options.key);
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+
+        this._selector_onchange_cb = function() {
+            element.change();
         };
 
-        var value = creme.widget.cleanval(this.val(element), {type: options.type, value: ''});
+        this._init_models(element);
 
-        this._selectorType = null;
-        this._updateSelector(element, value);
-        creme.object.invoke(cb, element);
-    },
-
-    _updateSelector: function(element, value)
-    {
-        var previous = creme.widget.cleanval(this.val(element), {type: this._selectorType, value: ''});
-        var next = creme.widget.cleanval(value, {type: this._selectorType, value: ''});
-
-        if (creme.object.isnone(next.type))
-            next.type = previous.type;
-
-        //console.log("_update_selector > value:", value, ", previous:", previous, ", val:", this.val(element), ", next:", next);
-
-        element.removeClass('widget-ready');
-        this._toggleSelector(element, next.type, next.value, {});
+        this.reload(element, {}, cb, cb);
         element.addClass('widget-ready');
-
-//        console.log("_update_selector > value  >", value, ' (type="' + (typeof value) + '")');
-//        console.log("                 > real   >", this.val(element));
-//        console.log("                 > widget >", this.selector(element).attr('input-type'));
     },
 
-    _update: function(element)
+    _init_models: function(element)
     {
-        var data = {type: this.selectorType(element),
-                    value: this.selectorValue(element)};
+        var models = this._models = [];
 
-//        console.log("_update > data:", data);
-        creme.widget.input(element).val($.toJSON(data));
+        $('> script[selector-key]', element).each(function() {
+            var pattern = new RegExp($(this).attr('selector-key').replace('.', '\.').replace('*', '.*'));
+            var content = new creme.utils.Template($(this).html());
+
+            //console.log('pattern:', pattern, 'content:', content);
+            models.push({pattern:pattern, content:content});
+        });
     },
 
-    _toggleSelector: function(element, type, value, options)
+    _updateSelector: function(element, selector, value, cb, sync)
     {
-         var current = this.selector(element).creme().widget();
+        var self = this;
 
-         // already active selector, set value and get out !
-         if (!creme.object.isnone(this._selectorType) && this._selectorType === type) {
-             current.val(value);
-             return;
-         }
+        if (Object.isNone(selector)) {
+            creme.object.invoke(cb, element);
+            return this;
+        }
 
-         var next = this._createSelector(element, type, options);
-
-         // not such valid selector of this type, set value and get out !
-         if (creme.object.isnone(next))
-         {
-             if (!creme.object.isempty(current)) {
-                 current.val(value);
-             } else {
-                 creme.widget.input(element).val($.toJSON({type: this._selectorType, value: value}));
-             }
-
-             return;
-         }
-
-         if (!creme.object.isempty(current))
-         {
-             current.element.unbind('change', this._widget_change);
-             current.element.remove();
-             current.destroy();
-         }
-
-         this._selectorType = type;
-
-         next.element.addClass("active-selector").css('display', 'inline')
-                                                 .attr('input-type', type);
-         next.element.bind('change', this._selector_change);
-         element.append(next.element);
-
-         // force value in new selector and get the result
-         next.val(value);
+        selector.val(value);
     },
 
-    _createSelector: function(element, type, options)
+    _removeSelector: function(element)
     {
-        var model = this.selectorModel(element, type);
+        if (this._selector !== undefined)
+        {
+            this._selector.element.unbind('change paste', this._selector_onchange_cb);
+            this._selector.element.remove();
+            this._selector.destroy();
+            this._selector = undefined;
+            this._selectorModel = undefined;
+        }
 
-        if (!creme.object.isempty(model))
-             return creme.widget.create(model.clone(), options, undefined, true);
+        if (this._target) {
+            this._target.remove();
+            this._target = undefined;
+        }
     },
 
-    selectorType: function(element) {
-        return this._selectorType;
+    _createSelector: function(element, model, value, cb, error_cb, sync)
+    {
+        var self = this;
+
+        this._target = $('<span>').addClass('delegate').html(model).appendTo(element);
+        var selector = $('> .delegate > .ui-creme-widget:first', element);
+
+        if (selector.length !== 1)
+            return;
+
+        creme.widget.create(selector, {}, function(delegate) {
+            creme.object.invoke(cb, element);
+            delegate.bind('change paste', self._selector_onchange_cb);
+            element.change();
+        }, sync);
+
+        this._selector = selector.creme().widget();
+        this._selectorModel = model;
+    },
+
+    toggleSelector: function(element, previous_key, cb, error_cb, sync)
+    {
+        var value = this.val(element);
+        var previous = this._selector;
+        var previous_model = this._selectorModel;
+
+        var key = this.selectorKey(element);
+        var model = this.selectorModel(element, key);
+
+        if (Object.isNone(model)) {
+            this._removeSelector(element);
+            return;
+        }
+
+//        console.log('key:', '"' + key + '"', 'value:', value, 'context:', this._selectorKey.parameters,
+//                    'deps:', this.dependencies(element),
+//                    'deps:', previous !== undefined ? previous.dependencies() : undefined,
+//                    'same:', previous_model !== undefined && previous_model === model);
+
+        // already active selector, set value and get out !
+        if (previous_model !== undefined && previous_model === model) {
+            return this._updateSelector(element, previous, value, cb, sync);
+        }
+
+        this._removeSelector(element);
+        this._createSelector(element, model, null, cb, error_cb, sync);
+    },
+
+    selectorKey: function(element) {
+        return (this._selectorKey && this._selectorKey.iscomplete()) ? this._selectorKey.render() : '';
     },
 
     selectorValue: function(element)
     {
-        var selector = this.selector(element).creme().widget();
-        var value = selector !== undefined ? selector.val() : null;
-        return creme.widget.cleanval(value, value);
+        var selector = this.selector(element);
+        return selector !== undefined ? selector.val() : null;
     },
 
     selector: function(element) {
-        return $('.ui-creme-widget.active-selector', element);
+        return this._selector;
     },
 
-    selectorModel: function(element, type)
+    selectorModel: function(element, key)
     {
-        if (creme.object.isnone(type))
-            return;
+        var models = this.selectorModels(element);
 
-        var model = $('.selector-model li[input-type="' + type + '"] > .ui-creme-widget', element);
+        for(var i in models)
+        {
+            var model = models[i];
 
-        if (creme.object.isempty(model))
-             model = this.defaultSelectorModel(element);
+            //console.log('model:', model.pattern, 'key:', key, 'match:', key.match(model.pattern), 'content:', model.content.pattern);
 
-        return model;
+            if (typeof key === 'string' && key.match(model.pattern) !== null) {
+                return model.content.render(this._context);
+            }
+        }
     },
 
-    defaultSelectorModel: function(element) {
-        return $('.selector-model li.default:first > .ui-creme-widget', element);
-    },
-
-    selectorModelList: function(element) {
-        return $('.selector-model li > .ui-creme-widget', element);
+    selectorModels: function(element) {
+        return this._models || [];
     },
 
     dependencies: function(element) {
-        return ['operator'];
+        return (this._selectorKey ? this._selectorKey.tags() : []).concat(this._dependencies);
     },
 
     reload: function(element, data, cb, error_cb, sync)
     {
-        if (creme.object.isempty(data))
-            return;
+        var previous_key = this.selectorKey(element);
 
-        var values = creme.widget.cleanval(this.val(element), {type: this._selectorType, value: null});
-
-        if (typeof data === 'string')
-            values.type = data;
-
-        if (typeof data === 'object')
-            values['type'] = data.operator;
-
-        this.val(element, values);
-        creme.object.invoke(cb, element);
-        //console.log("pselect.reload > value >", this.val(element));
+        this._context = $.extend({}, this._context || {}, data || {});
+        this._selectorKey.update(data);
+        this.toggleSelector(element, previous_key, cb, error_cb, sync);
     },
 
-    reset: function(element) {
-        this.val(element, {type: this.options.type, value: ''});
+    reset: function(element)
+    {
+        if (this._selector) {
+            this._selector.reset();
+        }
     },
 
     val: function(element, value)
     {
         if (value === undefined)
-            return creme.widget.input(element).val();
+            return this._selector ? this._selector.val() : null;
 
-        //console.log("pselect.val >", element, "new=" + $.toJSON(value), "old=" + creme.widget.input(element).val());
-        this._updateSelector(element, value);
-        element.trigger('change');
+        if (this._selector) {
+            this._selector.val(value);
+        }
     }
 });

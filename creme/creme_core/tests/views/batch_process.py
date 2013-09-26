@@ -21,9 +21,9 @@ __all__ = ('BatchProcessViewsTestCase', )
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
-    format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
-    format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": {"type": "%(operator01)s", "value": "%(value01)s"}},' \
-                  ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": {"type": "%(operator02)s", "value": "%(value02)s"}}]'
+    format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
+    format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": "%(value01)s"},' \
+                  ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": "%(value02)s"}]'
 
     @classmethod
     def setUpClass(cls):
@@ -34,7 +34,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.contact_ct_id = get_ct(Contact).id
 
     def build_url(self, model):
-         return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
+        return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
                         ContentType.objects.get_for_model(model).id,
                         model.get_lv_absolute_url(),
                      )

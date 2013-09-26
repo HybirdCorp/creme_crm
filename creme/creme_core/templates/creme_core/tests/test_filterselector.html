@@ -111,23 +111,19 @@
                                         <option value="19">Ne se termine pas par</option>
                                         <option value="20">Ne se termine pas par (Ne respecte pas la casse)</option>
                                         <option value="21">Est vide</option>
-                                        <option value="22">Intervalle</option>
+                                        <option value="22">N'est pas vide</option>
+                                        <option value="23">Intervalle</option>
                                     </select>
                                 </li>
                                 <li chained-name="value" class="ui-creme-chainedselect-item">
-                                    <span class="ui-creme-widget ui-creme-polymorphicselect" style="" widget="ui-creme-polymorphicselect" url="${operator}">
-                                        <input auto="False" type="hidden" name="" class="ui-creme-input ui-creme-polymorphicselect"></input>
-                                        <ul style="display:none;" class="selector-model">
-                                            <li input-type="21">
-                                                <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
-                                                    <option value="true">Vrai</option>
-                                                    <option value="false">Faux</option>
-                                                </select>
-                                            </li>
-                                            <li class="default">
-                                                <input auto="False" widget="ui-creme-dinput" type="text" name="" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
-                                            </li>
-                                        </ul>
+                                    <span class="ui-creme-widget ui-creme-polymorphicselect" style="" widget="ui-creme-polymorphicselect" key="${operator}">
+                                        <input type="hidden" class="ui-creme-input ui-creme-polymorphicselect"></input>
+                                        <script selector-key="21|22" type="text/template">
+                                            <input widget="ui-creme-dinput" type="hidden" class="ui-creme-input ui-creme-widget ui-creme-dinput" value="true"></input>
+                                        </script>
+                                        <script selector-key="*" type="text/template">
+                                            <input widget="ui-creme-dinput" type="text" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                                        </script>
                                    </span>
                                </li>
                            </ul>

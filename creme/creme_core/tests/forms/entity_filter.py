@@ -116,7 +116,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,
@@ -134,7 +134,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": false}}]' % {
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": false}]' % {
                                  'operator': operator,
                                  'name':     name,
                              }
@@ -152,7 +152,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.ISTARTSWITH
         name = 'civility__title'
         value = 'Miss'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,
@@ -171,7 +171,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IENDSWITH
         name = 'last_name'
         values = ['nagi', 'sume']
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
                                  'operator': operator,
                                  'name':     name,
                                  'value':    ','.join(values) + ',',
@@ -190,7 +190,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = EntityFilterCondition.IEQUALS
         name = 'language__name'
         value = 'French'
-        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+        conditions = clean('[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
                                  'operator': operator,
                                  'name':     name,
                                  'value':    value,

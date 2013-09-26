@@ -74,7 +74,7 @@ class RegularFieldsConditionsWidget(SelectorList):
         chained_input.add_dselect('name',     options=self._build_fieldchoices(fields), attrs=attrs)
         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
 
-        pinput = PolymorphicInput(url='${operator}', attrs=attrs)
+        pinput = PolymorphicInput(key='${operator}', attrs=attrs)
         pinput.set_default_input(widget=DynamicInput, attrs=attrs)
 
         for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
@@ -262,7 +262,7 @@ class RegularFieldsConditionsField(_ConditionsField):
 
             dicts.append({'operator': operator,
                           'name':     condition.name,
-                          'value':    {'type': operator, 'value': values},
+                          'value':    values,
                          })
 
         return dicts
@@ -283,13 +283,10 @@ class RegularFieldsConditionsField(_ConditionsField):
         if not operator_class:
             raise ValidationError(self.error_messages['invalidoperator'])
 
-        value_dict = clean_value(entry, 'value', dict)
-
         if isinstance(operator_class, _ConditionBooleanOperator):
-            values = [clean_value(value_dict, 'value', bool)]
+            values = [clean_value(entry, 'value', bool)]
         else:
-            #values = filter(None, clean_value(value_dict, 'value', unicode).split(','))
-            values = [v for v in clean_value(value_dict, 'value', unicode).split(',') if v]
+            values = [v for v in clean_value(entry, 'value', unicode).split(',') if v]
 
         return operator, values
 
