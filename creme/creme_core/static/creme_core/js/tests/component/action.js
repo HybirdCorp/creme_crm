@@ -215,13 +215,14 @@ test('creme.component.Action (fail)', function() {
 
 test('creme.component.Action (fail, run exception)', function() {
     var action = this.mockAction();
+    var error = new Error('fail test !');
 
     action.action(function() {
-                      throw new Error('fail test !');
+                      throw error;
                   })
           .start();
 
-    deepEqual([['fail_cb', action, 'fail', new Error('fail test !')]], this._eventListenerCalls);
+    deepEqual([['fail_cb', action, 'fail', error]], this._eventListenerCalls);
     equal('fail', action.status());
     equal(false, action.isRunning());
 });
