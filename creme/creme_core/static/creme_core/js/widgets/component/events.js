@@ -21,19 +21,74 @@ creme.component.EventHandler = creme.component.Component.sub({
         this._listeners = {};
     },
 
-    bind: function(key, listener)
+    on: function(key, listener, decorator) {
+        return this.bind(key, listener, decorator);
+    },
+
+    off: function(key, listener) {
+        return this.unbind(key, listener);
+    },
+
+    one: function(key, listener, decorator)
+    {
+        var self = this;
+
+        if (Object.isFunc(decorator)) {
+            return this.bind(key, listener, function(key, listener, args) {
+                self.unbind(key, listener);
+                return decorator.apply(this, [key, listener, args]);
+            });
+        }
+
+        return this.bind(key, listener, function(key, listener, args) {
+            self.unbind(key, listener);
+            return listener.apply(this, args);
+        });
+    },
+
+    bind: function(key, listener, decorator)
     {
         var self = this;
 
         if (Array.isArray(key)) {
-            key.forEach(function(key) {self.bind(key, listener);});
+            key.forEach(function(key) {self.bind(key, listener, decorator);});
             return this;
         }
 
+        if (typeof key === 'object')
+        {
+            for(var k in key) {this.bind(k, key[k], decorator);}
+            return this;
+        }
+
+        if (typeof key === 'string' && key.indexOf(' ') !== -1) {
+            return this.bind(key.split(' '), listener, decorator);
+        }
+
+        if (Array.isArray(listener))
+        {
+            listener.forEach(function(listener) {
+                self.bind(key, listener, decorator);
+            });
+            return this;
+        }
+
+        if (Object.isFunc(listener) === false)
+            throw new Error('unable to bind event ' + key + ', listener is not a function');
+
         var listeners = this.listeners(key);
 
-        if (Array.isArray(listener)) {
-            listener.forEach(function(listener) {listeners.push(listener)});
+        listener.__eventuuid__ = listener.__eventuuid__ || $.uidGen();
+
+        if (Object.isFunc(decorator)) {
+            var proxy = (function(key, listener, decorator) {
+                return function() {
+                    return decorator.apply(this, [key, listener, Array.copy(arguments)]);
+                };
+            })(key, listener, decorator);
+
+            proxy.__eventuuid__ = listener.__eventuuid__;
+            listeners.push(proxy);
         } else {
             listeners.push(listener);
         }
@@ -51,6 +106,16 @@ creme.component.EventHandler = creme.component.Component.sub({
             return this;
         }
 
+        if (typeof key === 'object')
+        {
+            for(var k in key) {this.unbind(k, key[k]);}
+            return this;
+        }
+
+        if (typeof key === 'string' && key.indexOf(' ') !== -1) {
+            return this.unbind(key.split(' '), listener, decorator);
+        }
+
         var listeners = this.listeners(key);
 
         if (listener === undefined) {
@@ -58,21 +123,29 @@ creme.component.EventHandler = creme.component.Component.sub({
             return this;
         }
 
-        var remove = function(listener) {
-            var index = 0;
-
-            while((index = listeners.indexOf(listener)) !== -1) {
-                listeners.splice(index, 1)
-            }
-        };
-
         if (Array.isArray(listener)) {
-            listener.forEach(remove);
+            listener.forEach(function(l) {self._remove(listeners, l)});
         } else {
-            remove(listener);
+            this._remove(listeners, listener);
         }
 
         return this;
+    },
+
+    _remove: function(listeners, listener)
+    {
+        var index = 0;
+
+        while(index < listeners.length)
+        {
+            var item = listeners[index];
+
+            if (item && item.__eventuuid__ !== undefined && (item.__eventuuid__ === listener.__eventuuid__)) {
+                listeners.splice(index, 1);
+            } else {
+                ++index; 
+            }
+        }
     },
 
     listeners: function(key) {
@@ -85,7 +158,7 @@ creme.component.EventHandler = creme.component.Component.sub({
         var data = Array.isArray(data) ? data : (data !== undefined ? [data] : []);
         var args = [key].concat(data);
 
-        this.listeners(key).forEach(function(listener) {
+        Array.copy(this.listeners(key)).forEach(function(listener) {
             try {
                 listener.apply(source, args);
             } catch(e) {
