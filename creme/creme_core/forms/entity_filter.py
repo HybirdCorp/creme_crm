@@ -281,6 +281,13 @@ class CustomFieldConditionWidget(FieldConditionWidget):
         return type
 
 
+class RelationTargetWidget(PolymorphicInput):
+    def __init__(self, key='', multiple=False, attrs=None, **kwargs):
+        super(RelationTargetWidget, self).__init__(key=key, attrs=attrs, **kwargs)
+        self.add_input('^0$', widget=DynamicInput, type='hidden', attrs={'auto': False, 'value':'[]'})
+        self.set_default_input(widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
+
+
 class RelationsConditionsWidget(SelectorList):
     def __init__(self, rtypes, attrs=None):
         chained_input = ChainedInput(attrs)
@@ -294,7 +301,8 @@ class RelationsConditionsWidget(SelectorList):
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect("ctype", options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
-        chained_input.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': True})
+
+        chained_input.add_input("entity", widget=RelationTargetWidget, attrs={'auto': False}, key='${ctype}', multiple=True)
 
         super(RelationsConditionsWidget, self).__init__(chained_input)
 
@@ -314,7 +322,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs=attrs)
         add_dselect(ctype_name, options=ctype_url, attrs=dict(attrs_json, autocomplete=True))
-        add_dselect("filter", options=filter_url, attrs=attrs)
+        add_dselect("filter", options=filter_url, attrs={'auto': False, 'autocomplete': True, 'data-placeholder': _('Select')})
 
         super(RelationSubfiltersConditionsWidget, self).__init__(chained_input)
 
@@ -322,10 +330,10 @@ class RelationSubfiltersConditionsWidget(SelectorList):
 class PropertiesConditionsWidget(SelectorList):
     def __init__(self, ptypes, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False, 'datatype': 'json'}
+        attrs = {'auto': False}
 
         add_dselect = chained_input.add_dselect #TODO: functools.partial
-        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(), attrs=attrs)
+        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(), attrs={'auto': False, 'datatype': 'json'})
         add_dselect('ptype', options=ptypes, attrs=attrs)
 
         super(PropertiesConditionsWidget, self).__init__(chained_input)
