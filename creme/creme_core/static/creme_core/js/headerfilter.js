@@ -196,9 +196,10 @@ creme.headerfilter.HeaderFilter.prototype = {
             underlay.__underlay_height = underlay.height();
         underlay.css('max-height', underlay.__underlay_height);
 
-        var position = underlay.position();
-        if (position.left != 0)
-            underlay.css ('left', -position.left + 'px');
+//        TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+//        var position = underlay.position();
+//        if (position.left != 0)
+//            underlay.css ('left', -position.left + 'px');
     },
 
 //     TODO: uncomment when secondary_relationships
@@ -397,7 +398,8 @@ creme.headerfilter.HeaderFilter.prototype = {
             if (!underlay) {
                 underlays[column] = underlay = $('<div>').attr('data-column', column)
                                                          .addClass('underlay')
-                                                         .css('width', $(window).width())
+// TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+//                                                       .css('width', $(window).width())
                                                          .data('underlay_selector', selector)
                                                          .append(selector.find('.underlay-container'));
             }
@@ -424,7 +426,8 @@ creme.headerfilter.HeaderFilter.prototype = {
                 underlay.find('.underlay-content').animate({opacity: 1}, 400);
                 underlay.children().delay (100).animate({opacity: 1}, 400);
                 underlay.animate({'max-height': targetHeight}, 300, function() {
-                    underlay.css('width', $(window).width());
+                    // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+                    // underlay.css('width', $(window).width());
                 });
             } else if (container.attr('data-column') == column) {
                 // underlay closing: sliding out animation
@@ -458,7 +461,16 @@ creme.headerfilter.HeaderFilter.prototype = {
                 });
             }
 
-            underlay.find('.arrow').css('left', 20 + target.position().left + 'px');
+            // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+            // underlay.find('.arrow').css('left', 20 + target.position().left + 'px');
+            
+            var arrow = underlay.find('.arrow');
+            // TODO: find a way to get the width from the arrow itself, right now, when it's showing, the width it returns is 0 instead of 17; possibly need to check with the latest jQuery
+            var arrowWidth = 17; // arrow width + its left and right borders -> arrow.outerWidth()
+            
+            var toggleOffset = target.offset().left - target.parents('.field_selectors').offset().left;
+            var arrowOffset = toggleOffset + (target.width() - arrowWidth) / 2;
+            arrow.css('left', arrowOffset + 'px');
         });
 
 //         TODO: uncomment when relationships objects sub-fields
