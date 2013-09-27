@@ -48,7 +48,8 @@ def get_listview_entity_filters(context):
 
     if efilter:
         efilter_id = efilter.id
-        permission = efilter.can_edit_or_delete(context['request'].user)[0] #TODO: context['user'] ??
+        #permission = efilter.can_edit_or_delete(context['request'].user)[0]
+        permission = efilter.can_edit_or_delete(context['user'])[0]
     else:
         efilter_id = 0
         permission = False
@@ -65,7 +66,8 @@ def get_listview_headerfilters(context):
     hfilter  = hfilters.selected
 
     context['hfilter'] = hfilter
-    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0] #TODO: context['user'] ??
+    #context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
+    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['user'])[0]
     context['select_values'] = [{'value': hf.id, 'text': hf.name} for hf in hfilters]
 
     return context
@@ -135,6 +137,9 @@ def get_listview_columns_header(context):
                 else:
                     if isinstance(field, EntityCTypeForeignKey):
                         choices = build_ct_choices(creme_entity_content_types())
+                    elif not field.get_tag('enumerable'):
+                        #TODO: generalise the system of 'header_filter_search_field' ??
+                        continue
                     else:
                         choices = ((o.id, o)
                                         for o in field.rel.to.objects.distinct()
