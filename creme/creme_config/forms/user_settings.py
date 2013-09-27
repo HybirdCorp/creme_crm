@@ -36,8 +36,8 @@ from ..utils import get_user_timezone_config
 
 class UserThemeForm(CremeForm):
     theme = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES,
-                        widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
-                        help_text=_(u"Think to reload the page once you changed the theme."),
+                        widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'}),
+                        #help_text=_(u"Think to reload the page once you changed the theme."),
                        )
 
     def __init__(self, *args, **kwargs):
@@ -61,7 +61,8 @@ class UserThemeForm(CremeForm):
 class UserTimeZoneForm(CremeForm):
     time_zone = ChoiceField(label=_(u'Choose your time zone'),
                             choices=[(tz, tz) for tz in pytz.common_timezones],
-                            widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                            #widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                            widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form), function() {creme.utils.reload(window);});'}),
                            )
 
     def __init__(self, *args, **kwargs):
