@@ -178,8 +178,8 @@ form .table_detail_view .merge_result {
     margin-right: 20px;
 
     -webkit-transition: opacity 0.3s ease-in-out;
-        -moz-transition: opacity 0.3s ease-in-out;
-            -o-transition: opacity 0.3s ease-in-out;
+       -moz-transition: opacity 0.3s ease-in-out;
+         -o-transition: opacity 0.3s ease-in-out;
             transition: opacity 0.3s ease-in-out;
 }
 
@@ -225,7 +225,7 @@ form .table_detail_view .merge_result {
 /* Underlay */
 .hfilter_widget .underlay {
     position: relative;
-    width: 100vw;
+    width: 100%;
 
     margin-top: 12px;
     margin-bottom: 5px;
@@ -251,14 +251,14 @@ form .table_detail_view .merge_result {
 
 .hfilter_widget .underlay_selector_list .selector {
     -webkit-column-break-inside: avoid;
-        -moz-column-break-inside: avoid;
+       -moz-column-break-inside: avoid;
         -ms-column-break-inside: avoid;
-            -o-column-break-inside: avoid;
+         -o-column-break-inside: avoid;
             column-break-inside: avoid;
 
     -webkit-transition: opacity 0.3s ease-in-out;
-        -moz-transition: opacity 0.3s ease-in-out;
-            -o-transition: opacity 0.3s ease-in-out;
+       -moz-transition: opacity 0.3s ease-in-out;
+         -o-transition: opacity 0.3s ease-in-out;
             transition: opacity 0.3s ease-in-out;
 }
 
@@ -271,7 +271,7 @@ form .table_detail_view .merge_result {
 }
 
 .hfilter_widget .underlay-content {
-    padding: 10px 20px 5px 50px;
+    padding: 10px 20px 5px 30px;
 }
 
 .hfilter_widget .arrow {
@@ -285,7 +285,7 @@ form .table_detail_view .merge_result {
     border-right: 0;
 
     -webkit-transform: rotateZ(45deg);
-        -moz-transform: rotateZ(45deg);
+       -moz-transform: rotateZ(45deg);
         -ms-transform: rotateZ(45deg);
             transform: rotateZ(45deg);
 
@@ -301,7 +301,7 @@ form .table_detail_view .merge_result {
     height: 30px;
 
     -webkit-transform: rotateZ(-45deg);
-        -moz-transform: rotateZ(-45deg);
+       -moz-transform: rotateZ(-45deg);
         -ms-transform: rotateZ(-45deg);
             transform: rotateZ(-45deg);
 
@@ -321,7 +321,7 @@ form .table_detail_view .merge_result {
     height: 17px;
 
     -webkit-transform: rotateZ(45deg);
-        -moz-transform: rotateZ(45deg);
+       -moz-transform: rotateZ(45deg);
         -ms-transform: rotateZ(45deg);
             transform: rotateZ(45deg);
 
