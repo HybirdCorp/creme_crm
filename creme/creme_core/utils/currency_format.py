@@ -7,27 +7,28 @@
 #    Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
 #    Python Software Foundation.  All rights reserved.
 #
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
 
 import os
 import locale
+import logging
 
 from django.conf import settings
 from django.utils import translation
 
-# Windows list locale code : http://msdn.microsoft.com/en-us/library/39cwe7zf%28vs.71%29.aspx
 from creme.creme_config.models import SettingKey, SettingValue
 
 from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
 from ..models import Currency
 
-
+logger = logging.getLogger(__name__)
 WINDOWS = 'nt'
 
 if os.name == WINDOWS:
+    # Windows list locale code : http://msdn.microsoft.com/en-us/library/39cwe7zf%28vs.71%29.aspx
     LOCALE_MAP = {
         'en': 'english',
         'fr': 'fra',
@@ -38,20 +39,28 @@ else:
     def standardized_locale_code(django_code):
         return translation.to_locale(django_code)
 
+#TODO: use an object Formatter in order to avoid multiple queries
+#TODO: take a Currency instance instead of an ID...
 def currency(val, currency_id):
-    # TODO there still are some windows encoding problems to fix. UTF-8 seems not working properly
+    LC_MONETARY = locale.LC_MONETARY
+    lang = standardized_locale_code(settings.LANGUAGE_CODE)
+
     try:
-        locale.setlocale(locale.LC_MONETARY, (standardized_locale_code(settings.LANGUAGE_CODE), settings.DEFAULT_ENCODING))
+        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING)) #with certainly fail on windows (because of utf-8)
     except:
-        locale.setlocale(locale.LC_MONETARY, '')
+        try:
+            locale.setlocale(LC_MONETARY, lang)
+        except:
+            logger.warn('currency(): fail when setting "%s"', lang)
+            locale.setlocale(LC_MONETARY, '')
 
     conv = locale.localeconv()
 
-    sk = SettingKey.objects.get(pk = DISPLAY_CURRENCY_LOCAL_SYMBOL)
-    is_local_symbol =  SettingValue.objects.get(key = sk).value
+    sk = SettingKey.objects.get(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
+    is_local_symbol = SettingValue.objects.get(key=sk).value
 
     if currency_id:
-        currency = Currency.objects.get(pk = currency_id)
+        currency = Currency.objects.get(pk=currency_id)
         smb = currency.local_symbol if is_local_symbol else currency.international_symbol
     else:
         smb = ''
@@ -60,6 +69,8 @@ def currency(val, currency_id):
     digits = conv[not is_local_symbol and 'int_frac_digits' or 'frac_digits']
 
     s = locale.format('%%.%if' % digits, abs(val), True, monetary=True)
+    s = s.decode(locale.getlocale(LC_MONETARY)[1])
+
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'
 
