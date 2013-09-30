@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_basic_block_header _("Image information") 'info_48.png' _('Information') %}</th>
         <th class="actions">
             <div class="buttons">
@@ -13,28 +13,33 @@
         {% cycle "block_header_line_light" "block_header_line_dark" as header_row silent %}
         {% cycle "block_line_light" "block_line_dark" as row_color silent %}
         <tr class="content">
-            <th class="{% cycle header_row %}">{% trans "Name" %}</th>
-            <td class="{% cycle row_color %}">{{object.name}}</td>
+            <th class="{% cycle header_row %} th_info">{% trans "Name" %}</th>
+            <td class="{% cycle row_color %} td_info">{{object.name}}</td>
+            <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'name' for object %}</td>
         </tr>
         <tr class="content">
-            <th class="{% cycle header_row %}">{% trans "Description" %}</th>
-            <td class="{% cycle row_color %}">{{object.description}}</td>
+            <th class="{% cycle header_row %} th_info">{% trans "Description" %}</th>
+            <td class="{% cycle row_color %} td_info">{{object.description}}</td>
+            <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'description' for object %}</td>
         </tr>
         <tr class="content">
-            <th class="{% cycle header_row %}">{% trans "Height" %}</th>
-            <td class="{% cycle row_color %}">{{object.height}}px</td>
+            <th class="{% cycle header_row %} th_info">{% trans "Height" %}</th>
+            <td class="{% cycle row_color %} td_info" colspan="2">{{object.height}}px</td>
+            {% comment %}<td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'height' for object %}</td>{% endcomment %}
         </tr>
         <tr class="content">
-            <th class="{% cycle header_row %}">{% trans "Width" %}</th>
-            <td class="{% cycle row_color %}">{{object.width}}px</td>
+            <th class="{% cycle header_row %} th_info">{% trans "Width" %}</th>
+            <td class="{% cycle row_color %} td_info" colspan="2">{{object.width}}px</td>
+            {% comment %}<td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'width' for object %}</td>{% endcomment %}
         </tr>
         <tr class="content">
-            <th class="{% cycle header_row %}">{% trans "Categories" %}</th>
-            <td class="{% cycle row_color %}">{% print_field object=object field='categories' %}</td>
+            <th class="{% cycle header_row %} th_info">{% trans "Categories" %}</th>
+            <td class="{% cycle row_color %} td_info" colspan="2">{% print_field object=object field='categories' %}</td>
+            {% comment %}<td class="{{row_color}} td_info edit_inner" colspan="2">{% get_field_editor on regular 'categories' for object %} TODO: make it work with M2M</td>{% endcomment %}
         </tr>
         <tr class="content">
-            <th class="{% cycle header_row %} action">&nbsp;</th>
-            <td class="{% cycle row_color %} action"><a href="/download_file/{{object.image}}" alt="{{object.image}}">{% trans "Download image" %}</a></td>
+            {% comment %}<th class="{% cycle header_row %} action">&nbsp;</th>{% endcomment %}
+            <td class="{% cycle row_color %} action" colspan="3"><a href="/download_file/{{object.image}}" alt="{{object.image}}">{% trans "Download image" %}</a></td>
         </tr>
     </tbody>
 </table>
