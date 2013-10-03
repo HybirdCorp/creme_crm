@@ -139,7 +139,8 @@ def get_fk_entity(entity, column_name, get_value=False, user=None):
         if isinstance(fk, CremeEntity) and user is not None and not user.has_perm_to_view(fk):
             return settings.HIDDEN_VALUE
 
-        return getattr(fk, '__'.join(rest))
+        #return getattr(fk, '__'.join(rest))
+        return getattr(fk, '__'.join(rest)) if fk else fk #TODO: split, join again == ugly
 
     return getattr(entity, fk_column)
 

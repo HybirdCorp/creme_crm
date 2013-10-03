@@ -25,7 +25,8 @@ from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeEntity, EntityCredentials
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.models.entity_filter import EntityFilterList
 from creme.creme_core.gui.listview import ListViewState

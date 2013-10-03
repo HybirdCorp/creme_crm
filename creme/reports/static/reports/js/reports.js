@@ -326,8 +326,7 @@ $.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data
         return isNaN(res) ? 0.0 : res;
     }
 
-    for(var index = 0; index < Math.min(ticks.length, values.length); ++index)
-    {
+    for(var index = 0; index < Math.min(ticks.length, values.length); ++index) {
         var tick = ticks[index];
         var value = values[index];
         var item;
