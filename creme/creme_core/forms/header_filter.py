@@ -184,7 +184,11 @@ class HeaderFilterItemsField(Field):
                 builders[field_id] = HeaderFilterItemsField._build_4_field
 
             sort_key = collator.sort_key
-            rfields_choices.sort(key=lambda k: sort_key(k[1]))
+            sort_choice = lambda k: sort_key(k[1]) #TODO: in utils ?
+            rfields_choices.sort(key=sort_choice)
+
+            for subfield_choices in subfields_choices.itervalues():
+                subfield_choices.sort(key=sort_choice)
 
             widget.model_fields = rfields_choices
             widget.model_subfields = subfields_choices
@@ -234,7 +238,7 @@ class HeaderFilterItemsField(Field):
     def user(self, user):
         self._user = self.widget.user = user
 
-    #TODO: to_python + validate ??
+    #TODO: to_python() + validate() instead ??
     def clean(self, value):
         assert self._content_type
         hf_items = []
