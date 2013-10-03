@@ -94,15 +94,17 @@ def unlink_report(request):
     return HttpResponse("", mimetype="text/javascript")
 
 def _link_report(request, report, field, ct):
-    request.user.has_perm_to_link_or_die(report)
+    user = request.user
+
+    user.has_perm_to_link_or_die(report)
 
     if request.method == 'POST':
-        link_form = LinkFieldToReportForm(report, field, ct, user=request.user, data=request.POST)
+        link_form = LinkFieldToReportForm(report, field, ct, user=user, data=request.POST)
 
         if link_form.is_valid():
             link_form.save()
     else:
-        link_form = LinkFieldToReportForm(report=report, field=field, ct=ct, user=request.user)
+        link_form = LinkFieldToReportForm(report=report, field=field, ct=ct, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':   link_form,
@@ -116,7 +118,7 @@ def _link_report(request, report, field, ct):
 @login_required
 @permission_required('reports')
 def link_report(request, report_id, field_id):
-    field  = get_object_or_404(Field,  pk=field_id)
+    field  = get_object_or_404(Field, pk=field_id)
 
     if field.type != HFI_FIELD:
         raise Http404('This does not represent a model field') #TODO: ConflictError
@@ -140,7 +142,7 @@ def link_report(request, report_id, field_id):
 @login_required
 @permission_required('reports')
 def link_relation_report(request, report_id, field_id, ct_id):
-    rfield  = get_object_or_404(Field, pk=field_id)
+    rfield = get_object_or_404(Field, pk=field_id)
 
     if rfield.type != HFI_RELATION:
         raise Http404('This does not represent a Relationship') #TODO: ConflictError
@@ -252,15 +254,17 @@ def preview(request, report_id):
                    },
                  )
 
+#TODO: jsonify ?
 @login_required
 @permission_required('reports')
 def set_selected(request):
     POST   = request.POST
-    rfield  = get_object_or_404(Field,  pk=get_from_POST_or_404(POST, 'field_id'))
+    rfield = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
 
     if not rfield.report_id:
         raise Http404('This Field has no Report, so can no be (un)selected') #TODO: ConflictError
 
+    #TODO: remove this sh*t when M2M is become a O2M
     report = get_object_or_404(Report, pk=get_from_POST_or_404(POST, 'report_id'))
 
     if report.id not in rfield.report_columns_set.values_list('pk', flat=True):
@@ -302,10 +306,10 @@ def export(request, report_id, doc_type):
     field_name = GET_get('field')
     if field_name is not None:
         dt_range_name = GET_get('range_name')  # Empty str should get CustomRange
-
         dt_range = date_range_registry.get_range(dt_range_name,
                                                  decode_datetime(GET_get('start')),
-                                                 decode_datetime(GET_get('end')))
+                                                 decode_datetime(GET_get('end')),
+                                                )
 
         if dt_range is not None:
             extra_q_filter = Q(**dt_range.get_q_dict(field_name, now()))

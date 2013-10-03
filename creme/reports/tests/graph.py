@@ -42,6 +42,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         cls.ct_orga    = get_ct(Organisation)
         cls.ct_invoice = get_ct(Invoice)
 
+    def setUp(self):
+        self.login()
+
     def assertURL(self, url, prefix, json_arg):
         self.assertTrue(url.startswith(prefix))
 
@@ -91,7 +94,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview01(self):
         "RGT_FK"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         cf = CustomField.objects.create(content_type=report.ct,
                                         name='Soldiers', field_type=CustomField.INT,
                                        )
@@ -179,7 +182,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview02(self):
         "Ordinate with aggregate + RGT_DAY"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -234,7 +237,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview03(self):
         "'aggregate_field' empty ==> 'is_count' mandatory"
-        report = self.create_simple_contacts_report()
+        report = self._create_simple_contacts_report()
 
         url = self._build_add_graph_url(report)
         response = self.assertGET200(url)
@@ -268,7 +271,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview04(self):
         "RGT_RELATION"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -301,7 +304,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(_('employs'), rgraph.hand.verbose_abscissa)
 
     def _aux_test_createview_with_date(self, gtype, gtype_vname):
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -345,7 +348,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_createview07(self):
         "RGT_RANGE"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -412,7 +415,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_enum(entity=kanu,    value=blue)
         create_enum(entity=sonsaku, value=red)
 
-        report = self.create_simple_contacts_report()
+        report = self._create_simple_contacts_report()
         url = self._build_add_graph_url(report)
 
         response = self.assertGET200(url)
@@ -465,7 +468,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         cf_dt  = create_cf(name='First victory', field_type=CustomField.DATETIME)
         cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -512,7 +515,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         cf_dt  = create_cf(name='First victory', field_type=CustomField.DATETIME)
         cf_int = create_cf(name='Gold',          field_type=CustomField.INT)
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -592,7 +595,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                                    )
                                ])
 
-        report = self.create_simple_contacts_report(efilter=efilter)
+        report = self._create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Contacts by position',
                                             abscissa='position', type=RGT_FK,
@@ -635,7 +638,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                                    )
                                ])
 
-        report = self.create_simple_organisations_report(efilter=efilter)
+        report = self._create_simple_organisations_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Capital max by sector',
                                             abscissa='sector', type=RGT_FK,
@@ -674,7 +677,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cfval(entity=starks,     value=400)
         create_cfval(entity=targaryens, value=200)
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Max soldiers by sector',
                                             abscissa='sector', type=RGT_FK,
@@ -697,7 +700,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def test_fetch_with_fk_04(self):
         "Aggregate ordinate with invalid field"
         rgraph = ReportGraph.objects.create(user=self.user,
-                                            report=self.create_simple_organisations_report(),
+                                            report=self._create_simple_organisations_report(),
                                             name='Max soldiers by sector',
                                             abscissa='sector', type=RGT_FK,
                                             ordinate='unknown__max', #<=====
@@ -718,7 +721,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def test_fetch_with_fk_05(self):
         "Aggregate ordinate with invalid custom field"
         rgraph = ReportGraph.objects.create(user=self.user,
-                                            report=self.create_simple_organisations_report(),
+                                            report=self._create_simple_organisations_report(),
                                             name='Max soldiers by sector',
                                             abscissa='sector', type=RGT_FK,
                                             ordinate='1000__max', #<=====
@@ -738,7 +741,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_date_range01(self):
         "Count"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
 
         def create_graph(days):
             return ReportGraph.objects.create(user=self.user, report=report,
@@ -791,7 +794,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_date_range02(self):
         "Aggregate"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
 
         days = 10
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
@@ -856,7 +859,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         days = 15
         rgraph = ReportGraph.objects.create(user=self.user,
-                                            report=self.create_simple_organisations_report(),
+                                            report=self._create_simple_organisations_report(),
                                             name='First victory / %s day(s)' % days,
                                             abscissa=cf.id,
                                             type=RGT_CUSTOM_RANGE, days=days,
@@ -899,7 +902,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_with_custom_date_range02(self):
         "Invalid CustomField"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name="Useless name",
                                             abscissa=1000, # <====
@@ -913,7 +916,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_day01(self):
         "Aggregate"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Average of capital by creation date (by day)",
                                             abscissa='creation_date',
@@ -968,7 +971,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(month=7, day=6))
         create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(month=7, day=5))
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Average of capital by 1rst victory (by day)",
                                             abscissa=cf.id, type=RGT_CUSTOM_DAY,
@@ -996,7 +999,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_customday02(self):
         "Invalid CustomField"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Minimum of capital by creation date (by day)",
                                             abscissa=1000, # <====
@@ -1017,7 +1020,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_month01(self):
         "Count"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Number of orgas by creation date (period of 1 month)",
                                             abscissa='creation_date',
@@ -1063,7 +1066,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cf_value(entity=baratheons, value=create_dt(month=6, day=25))
         create_cf_value(entity=targaryens, value=create_dt(month=8, day=5))
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Number of houses by 1rst victory (period of 1 month)",
                                             abscissa=cf.id, type=RGT_CUSTOM_MONTH,
@@ -1076,7 +1079,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_year01(self):
         "Count"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Number of orgas by creation date (period of 1 year)",
                                             abscissa='creation_date',
@@ -1123,7 +1126,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cfval(entity=baratheons, value='100.0')
         create_cfval(entity=tullies,    value='0.0')
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=user, report=report,
                                             name=u"Maximum of vine by creation date (period of 1 year)",
                                             abscissa='creation_date',
@@ -1143,7 +1146,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_year03(self):
         "Invalid field"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Number of orgas by creation date (period of 1 year)",
                                             abscissa='invalid', #<=====
@@ -1179,7 +1182,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cf_value(entity=baratheons, value=create_dt(year=2013, month=7, day=25))
         create_cf_value(entity=targaryens, value=create_dt(year=2014, month=8, day=5))
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Number of house by 1rst victory (period of 1 year)",
                                             abscissa=cf.id, type=RGT_CUSTOM_YEAR,
@@ -1216,7 +1219,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_rel(subject_entity=starks,     object_entity=aria)
         create_rel(subject_entity=starks,     object_entity=jon)
 
-        report = self.create_simple_contacts_report(efilter=efilter)
+        report = self._create_simple_contacts_report(efilter=efilter)
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name="Number of employees",
                                             abscissa=REL_SUB_EMPLOYED_BY,
@@ -1256,7 +1259,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_rel(subject_entity=starks,     object_entity=ned)
         create_rel(subject_entity=tullies,    object_entity=ned)
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name="Capital by lords",
                                             abscissa=rtype.id,
@@ -1321,7 +1324,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_cfval(entity=jaime,  value=400)
         create_cfval(entity=tyrion, value=200)
 
-        report = self.create_simple_contacts_report()
+        report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=user, report=report,
                                             name='Contacts HP by house',
                                             abscissa=rtype_id, type=RGT_RELATION,
@@ -1338,7 +1341,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_fetch_by_relation04(self):
         "Invalid RelationType"
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name=u"Minimum of capital by creation date (by day)",
                                             abscissa='invalidrtype', # <====
@@ -1358,7 +1361,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         )
 
     def test_fetch_with_customfk_01(self):
-        report = self.create_simple_contacts_report()
+        report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Contacts by title',
                                             abscissa=1000, #<========= 
@@ -1398,7 +1401,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_enum(entity=robb, value=lord)
         create_enum(entity=bran, value=lord)
 
-        report = self.create_simple_contacts_report()
+        report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Contacts by title',
                                             abscissa=cf.id, type=RGT_CUSTOM_FK,
@@ -1438,7 +1441,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_enum(entity=baratheons, value=fight)
         create_enum(entity=lannisters, value=smartness)
 
-        report = self.create_simple_organisations_report()
+        report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Capital by policy',
                                             abscissa=cf.id, type=RGT_CUSTOM_FK,

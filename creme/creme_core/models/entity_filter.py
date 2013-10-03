@@ -92,6 +92,7 @@ class EntityFilter(Model): #CremeModel ???
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
     creation_label = _('Add a filter')
+    _conditions_cache = None
     _connected_filter_cache = None
 
     class Meta:
@@ -210,11 +211,11 @@ class EntityFilter(Model): #CremeModel ???
 
         return query
 
-    def get_conditions(self):#TODO: cache ??
-        conditions = []
-        append = conditions.append
+    def _build_conditions_cache(self, conditions):
+        self._conditions_cache = checked_conds = []
+        append = checked_conds.append
 
-        for condition in self.conditions.all():
+        for condition in conditions:
             condition.filter = self
             error = condition.error
 
@@ -224,7 +225,11 @@ class EntityFilter(Model): #CremeModel ???
             else:
                 append(condition)
 
-        return conditions
+    def get_conditions(self):
+        if self._conditions_cache is None:
+            self._build_conditions_cache(self.conditions.all())
+
+        return self._conditions_cache
 
     def set_conditions(self, conditions, check_cycles=True):
         if check_cycles:
@@ -244,6 +249,8 @@ class EntityFilter(Model): #CremeModel ???
 
         if conds2del:
             EntityFilterCondition.objects.filter(pk__in=conds2del).delete()
+
+        self._build_conditions_cache(conditions)
 
 
 class _ConditionOperator(object):

@@ -108,6 +108,15 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), Contact, self._get_ikari_case_sensitive())
 
+        with self.assertNumQueries(0):
+            conds = efilter.get_conditions()
+
+        self.assertEqual(1, len(conds))
+
+        cond = conds[0]
+        self.assertIsInstance(cond, EntityFilterCondition)
+        self.assertEqual('last_name', cond.name)
+
     def test_filter_field_equals02(self):
         efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
@@ -480,13 +489,15 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_condition_update(self):
         build = EntityFilterCondition.build_4_field
-        cond1 = build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet'])
-        self.assertFalse(build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet']).update(cond1))
-        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='first_name', values=['Jet']).update(cond1))
-        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.EQUALS,  name='last_name',  values=['Jet']).update(cond1))
-        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Ed']).update(cond1))
-        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='last_name',  values=['Jet']).update(cond1))
-        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='last_name',  values=['Ed']).update(cond1))
+        EQUALS = EntityFilterCondition.EQUALS
+        IEQUALS = EntityFilterCondition.IEQUALS
+        cond1 = build(model=Contact, operator=EQUALS,  name='first_name', values=['Jet'])
+        self.assertFalse(build(model=Contact, operator=EQUALS,  name='first_name', values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=IEQUALS, name='first_name', values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EQUALS,  name='last_name',  values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EQUALS,  name='first_name', values=['Ed']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=IEQUALS, name='last_name',  values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=IEQUALS, name='last_name',  values=['Ed']).update(cond1))
 
     def test_set_conditions01(self):
         build = EntityFilterCondition.build_4_field
@@ -567,6 +578,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                      )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
+
+        self.assertEqual(2, len(efilter.get_conditions()))
 
     def test_multi_conditions_or01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, use_or=True)
@@ -1371,9 +1384,10 @@ class EntityFiltersTestCase(CremeTestCase):
         cond2.name = 'invalid'
 
         efilter.set_conditions([cond1, cond2])
+        self.assertEqual(1, len(efilter.get_conditions()))
 
         with self.assertNoException():
             filtered = list(efilter.filter(Contact.objects.all()))
 
-        self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
+        self.assertDoesNotExist(cond2)
         self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
