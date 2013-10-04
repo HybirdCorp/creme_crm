@@ -164,7 +164,8 @@ class HeaderFilterItemsField(Field):
             self._builders = builders = {}
 
             #caches
-            self._relation_types = RelationType.get_compatible_ones(ct).order_by('predicate') #TODO: unicode collation
+            self._relation_types = RelationType.get_compatible_ones(ct, include_internals=True) \
+                                               .order_by('predicate') #TODO: unicode collation
             self._custom_fields  = CustomField.objects.filter(content_type=ct)
 
             #TODO: factorise ??
