@@ -22,13 +22,16 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
-                    icon_registry, import_form_registry, bulk_update_registry)
+        icon_registry, import_form_registry, bulk_update_registry, smart_columns_registry)
 
-from .models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, ServiceLine, ProductLine #Base
-from .forms.lv_import import get_import_form_builder
+from .constants import REL_SUB_BILL_RECEIVED
 from .blocks import block_list, BillingBlock
 from .buttons import button_list
+from .forms.lv_import import get_import_form_builder
 from .function_fields import hook_organisation
+from .models import (Invoice, Quote, SalesOrder, CreditNote, TemplateBase,
+                     Line, ServiceLine, ProductLine) #Base
+
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
 creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, Line, ServiceLine, ProductLine)
@@ -71,5 +74,11 @@ reg_import_form(SalesOrder, get_import_form_builder)
 bulk_update_registry.register(
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
 )
+
+for model in (Invoice, Quote, SalesOrder, CreditNote):
+    smart_columns_registry.register_model(model) \
+                          .register_field('number') \
+                          .register_field('status') \
+                          .register_relationtype(REL_SUB_BILL_RECEIVED)
 
 hook_organisation()

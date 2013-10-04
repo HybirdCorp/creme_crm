@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
     from json import loads as load_json
 
     from django.contrib.auth.models import User
@@ -10,6 +11,7 @@ try:
     from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
     from .base import ViewsTestCase
 
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -23,7 +25,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config')
+        cls.populate('creme_config', 'persons')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
         HeaderFilterItem.objects.all().delete()
@@ -85,7 +87,19 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         funcfield = Contact.function_fields.get('get_pretty_properties')
 
         url = self._build_add_url(ct)
-        response = self.client.get(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            items_f = response.context['form'].fields['items']
+
+        build_4_field = partial(HeaderFilterItem.build_4_field, model=Contact)
+        self.assertEqual([build_4_field(name='first_name'),
+                          build_4_field(name='last_name'),
+                          build_4_field(name='email'),
+                          HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY))
+                         ],
+                         items_f.initial
+                        )
 
         field_name = 'first_name'
         name = 'DefaultHeaderFilter'
@@ -161,7 +175,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name=field1)])
 
         url = self._build_edit_url(hf)
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            items_f = response.context['form'].fields['items']
+
+        self.assertEqual(hf.items, items_f.initial)
 
         name = 'Entity view v2'
         field2 = 'last_name'

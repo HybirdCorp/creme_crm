@@ -27,8 +27,8 @@ from django.db.models import Q, FieldDoesNotExist, DateField, DateTimeField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
-from ..models import Relation, CustomField #CustomFieldEnumValue
-from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+from ..models import RelationType, Relation, CustomField #CustomFieldEnumValue
+from ..models.header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
 from ..utils.meta import get_model_field_info
@@ -345,3 +345,71 @@ class ListViewState(object):
     def sort_query(self, queryset):
         "Beware: you should have called set_sort() before"
         return queryset.order_by(''.join((self.sort_order, self.sort_field, self._extra_sort_field)))
+
+
+#-----------------------------------------------------------------------------
+
+class _ModelSmartColumnsRegistry(object):
+    __slots__ = ('_items',)
+
+    def __init__(self):
+        self._items = []
+
+    def _get_items(self, model):
+        items = []
+
+        for hf_type, data in self._items:
+            if hf_type == HFI_FIELD:
+                item = HeaderFilterItem.build_4_field(model=model, name=data)
+            elif hf_type == HFI_FUNCTION:
+                func_field = model.function_fields.get(data)
+
+                if func_field is None:
+                    logger.warn('SmartColumnsRegistry: function field "%s" does not exist', data)
+                else:
+                    item = HeaderFilterItem.build_4_functionfield(func_field)
+            else: #HFI_RELATION
+                item = HeaderFilterItem.build_4_relation(data)
+            # Has no sense here:
+            #  HFI_ACTIONS : not configurable in HeaderFilter form
+            #  HFI_CUSTOM : dynamically created by user
+            #TODO: other types
+
+            if item is not None:
+                items.append(item)
+
+        return items
+
+    def register_function_field(self, func_field_name):
+        self._items.append((HFI_FUNCTION, func_field_name))
+        return self
+
+    def register_field(self, field_name):
+        self._items.append((HFI_FIELD, field_name))
+        return self
+
+    def register_relationtype(self, rtype_id):
+        try:
+            rtype = RelationType.objects.get(pk=rtype_id)
+        except RelationType.DoesNotExist:
+            logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', rtype_id)
+        else:
+            assert rtype.is_custom is False
+            self._items.append((HFI_RELATION, rtype))
+
+        return self
+
+
+
+class SmartColumnsRegistry(object):
+    def __init__(self):
+        self._model_registries = defaultdict(_ModelSmartColumnsRegistry)
+
+    def get_items(self, model):
+        return self._model_registries[model]._get_items(model)
+
+    def register_model(self, model):
+        return self._model_registries[model]
+
+
+smart_columns_registry = SmartColumnsRegistry()
