@@ -21,11 +21,13 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry, bulk_update_registry
+from creme.creme_core.gui import (creme_menu, block_registry, button_registry,
+        icon_registry, bulk_update_registry, smart_columns_registry)
 
-from .models import Activity
+from .constants import REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT
 from .blocks import block_list
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
+from .models import Activity
 
 
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
@@ -53,3 +55,8 @@ bulk_update_registry.register(
     #(Activity,  ['type', 'start', 'end', 'busy', 'is_all_day', 'sub_type']),
     (Activity,  ['start', 'end', 'busy', 'is_all_day', 'sub_type']),
 )
+
+smart_columns_registry.register_model(Activity).register_field('title') \
+                                               .register_field('start') \
+                                               .register_relationtype(REL_OBJ_PART_2_ACTIVITY) \
+                                               .register_relationtype(REL_OBJ_ACTIVITY_SUBJECT)

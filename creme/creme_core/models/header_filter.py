@@ -238,7 +238,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
     _header_listview_css_class = None
 
     def __unicode__(self):
-        return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (
+        return u"<HeaderFilterItem: order: %s, name: %s, title: %s>" % (
                     self.order, self.name, self.title
                 )
 
@@ -336,7 +336,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
                                 has_a_filter=True,
                                 editable=False ,
                                 filter_string="",
-                                relation_predicat=rtype #TODO: rtype.id in 'name' attr...
+                                relation_predicat=rtype,
                                )
 
     def get_customfield(self):

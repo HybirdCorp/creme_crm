@@ -30,6 +30,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from ..gui.field_printers import field_printers_registry
+from ..gui.listview import smart_columns_registry
 from ..models.header_filter import (HeaderFilterItem, HeaderFilter,
                             HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM)
 from ..models import RelationType, CustomField, EntityCredentials
@@ -286,8 +287,8 @@ class HeaderFilterForm(CremeModelForm):
             items_f.content_type = instance.entity_type
             items_f.initial = instance.items
         else:
-            items_f.content_type = instance.entity_type = self.initial.get('content_type')
-            #TODO: popular fields prechecked ??
+            items_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
+            items_f.initial = smart_columns_registry.get_items(ct.model_class())
 
     @commit_on_success
     def save(self):

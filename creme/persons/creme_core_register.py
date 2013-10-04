@@ -21,16 +21,17 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import (creme_menu, button_registry, block_registry, icon_registry,
-                                  quickforms_registry, import_form_registry, bulk_update_registry,
-                                  merge_form_registry)
+from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
+        icon_registry, quickforms_registry, import_form_registry,
+        bulk_update_registry, merge_form_registry, smart_columns_registry)
 
-from .models import Contact, Organisation
-from .buttons import button_list
+from .constants import REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY
 from .blocks import block_list, ContactBlock, OrganisationBlock
+from .buttons import button_list
 from .forms.quick import ContactQuickForm, OrganisationQuickForm
 from .forms.lv_import import get_csv_form_builder
 from .forms.merge import get_merge_form_builder
+from .models import Contact, Organisation
 
 
 creme_registry.register_entity_models(Contact, Organisation)
@@ -73,3 +74,11 @@ bulk_update_registry.register(
 bulk_update_registry.register(
     (Contact, ['image']),
 )
+
+smart_columns_registry.register_model(Contact).register_field('first_name') \
+                                              .register_field('last_name') \
+                                              .register_field('email') \
+                                              .register_relationtype(REL_SUB_EMPLOYED_BY)
+smart_columns_registry.register_model(Organisation).register_field('name') \
+                                                   .register_field('billing_address__city') \
+                                                   .register_relationtype(REL_OBJ_EMPLOYED_BY)
