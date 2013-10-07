@@ -73,12 +73,12 @@ class _TaskForm(CremeEntityForm):
 class TaskEditForm(_TaskForm):
     sub_type = ModelChoiceField(label=_('Activity type'), queryset=ActivitySubType.objects.none(), required=False)
     #sub_type = CreatorModelChoiceField(label=_('Activity type'), required=False, 
-                                       #queryset=ActivitySubType.objects.none(),
-                                      #) TODO
+                                        #queryset=ActivitySubType.objects.none(),
+                                        #) TODO
 
     #blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'sub_type', 'start',
-                                                                       #'end', 'busy', 'tstatus', 'description', 'place']),
-                              #)
+                                                                        #'end', 'busy', 'tstatus', 'description', 'place']),
+                                #)
 
     #class Meta(_TaskForm.Meta):
         #exclude = _TaskForm.Meta.exclude + ('is_all_day', 'type', 'calendars', 'project', 'order', 'status', 'parent_tasks', 'floating_type')
@@ -101,14 +101,14 @@ class TaskCreateForm(_TaskForm):
                                                   )
 
     #blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'type_selector', 'start',
-                                                                       #'end', 'busy', 'tstatus', 'description', 'place',
-                                                                       #'parent_tasks', 'participating_users']),
-                              #)
+                                                                        #'end', 'busy', 'tstatus', 'description', 'place',
+                                                                        #'parent_tasks', 'participating_users']),
+                                #)
 
     class Meta(_TaskForm.Meta):
         #exclude = _TaskForm.Meta.exclude + ('project', 'order', 'type', 'calendars', 'is_all_day',
                                             #'parent_tasks', 'floating_type', 'minutes', 'status', 'sub_type',
-                                           #)
+                                            #)
         exclude = _TaskForm.Meta.exclude + ('sub_type',)
 
     def __init__(self, entity, *args, **kwargs):
@@ -118,7 +118,7 @@ class TaskCreateForm(_TaskForm):
 
         fields = self.fields
         fields['participating_users'].widget.attrs = {'reduced': 'true'}
-        fields['parent_tasks'].qfilter_options({'project': entity.id})
+        fields['parent_tasks'].q_filter = {'project': entity.id}
 
     def clean_participating_users(self):
         users = self.cleaned_data['participating_users']
@@ -160,11 +160,10 @@ class TaskAddParentForm(CremeForm):
     def __init__(self, instance, *args, **kwargs):
         super(TaskAddParentForm, self).__init__(*args, **kwargs)
         self.task = instance
-        self.fields['parents'].qfilter_options({
-                'project':       instance.project_id,
-                '~id__in':       [t.id for t in instance.get_subtasks()],
-                '~children_set': instance.pk,
-            })
+        self.fields['parents'].q_filter = {'project':       instance.project_id,
+                                           '~id__in':       [t.id for t in instance.get_subtasks()],
+                                           '~children_set': instance.pk,
+                                          }
 
     def save(self, *args, **kwargs):
         add_parent = self.task.parent_tasks.add

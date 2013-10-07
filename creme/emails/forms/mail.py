@@ -52,7 +52,6 @@ class EntityEmailForm(CremeEntityForm):
     """
     sender       = EmailField(label=_(u'Sender'))
 
-    #TODO: use the new GenericEntityField ?? When it manages q_filter
     c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
     o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 

@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
