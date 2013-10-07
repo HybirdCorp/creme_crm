@@ -19,8 +19,6 @@
 ################################################################################
 
 from future_builtins import filter
-
-from future_builtins import filter
 from collections import defaultdict
 import logging
 

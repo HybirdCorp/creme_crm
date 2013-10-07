@@ -350,15 +350,18 @@ class ListViewState(object):
 #-----------------------------------------------------------------------------
 
 class _ModelSmartColumnsRegistry(object):
-    __slots__ = ('_items',)
+    __slots__ = ('_items', '_relationtype')
 
     def __init__(self):
         self._items = []
+        self._relationtype = None #cache
 
     def _get_items(self, model):
         items = []
 
         for hf_type, data in self._items:
+            item = None
+
             if hf_type == HFI_FIELD:
                 item = HeaderFilterItem.build_4_field(model=model, name=data)
             elif hf_type == HFI_FUNCTION:
@@ -369,7 +372,12 @@ class _ModelSmartColumnsRegistry(object):
                 else:
                     item = HeaderFilterItem.build_4_functionfield(func_field)
             else: #HFI_RELATION
-                item = HeaderFilterItem.build_4_relation(data)
+                rtype = self._get_relationtype(data)
+
+                if rtype is False:
+                    logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', data)
+                else:
+                    item = HeaderFilterItem.build_4_relation(rtype)
             # Has no sense here:
             #  HFI_ACTIONS : not configurable in HeaderFilter form
             #  HFI_CUSTOM : dynamically created by user
@@ -380,6 +388,18 @@ class _ModelSmartColumnsRegistry(object):
 
         return items
 
+    def _get_relationtype(self, rtype_id):
+        rtype = self._relationtype
+
+        if rtype is None: #means: not retrieved yet
+            try:
+                rtype = RelationType.objects.get(pk=rtype_id)
+            except RelationType.DoesNotExist:
+                rtype = False #means: does not exist
+            self._relationtype = rtype
+
+        return rtype
+
     def register_function_field(self, func_field_name):
         self._items.append((HFI_FUNCTION, func_field_name))
         return self
@@ -389,16 +409,8 @@ class _ModelSmartColumnsRegistry(object):
         return self
 
     def register_relationtype(self, rtype_id):
-        try:
-            rtype = RelationType.objects.get(pk=rtype_id)
-        except RelationType.DoesNotExist:
-            logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', rtype_id)
-        else:
-            assert rtype.is_custom is False
-            self._items.append((HFI_RELATION, rtype))
-
+        self._items.append((HFI_RELATION, rtype_id))
         return self
-
 
 
 class SmartColumnsRegistry(object):
