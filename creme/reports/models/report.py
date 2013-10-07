@@ -61,10 +61,10 @@ class Field(CremeModel):
     def __unicode__(self):
         return self.title
 
-    def __repr__(self):
-        return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
-                    self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
-                )
+    #def __repr__(self):
+        #return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
+                    #self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
+                #)
 
     def __eq__(self, other):
         return (self.id == other.id and
@@ -135,8 +135,7 @@ class Field(CremeModel):
         report = self.report
 
         if report:
-            fields = report.columns.all() #TODO: columns cache
-            field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in fields]
+            field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in report.fields]
             field_dict['report'] = report
 
         return field_dict
@@ -195,7 +194,7 @@ class Field(CremeModel):
 
                         return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                                   get_instance_field_info(sub_entity, sub_column.name)[1] or empty_value #no_value
-                                                                 ) for sub_column in report.columns.all()
+                                                                 ) for sub_column in report.fields
                                                     ) for sub_entity in m2m_entities
                                          ) or empty_value
 
@@ -217,7 +216,7 @@ class Field(CremeModel):
 
                         return " - ".join(u"%s: %s" % (get_verbose_field_name(field_name=sub_column.name, model=report.ct.model_class(), separator="-"),
                                                        get_instance_field_info(fk_entity, sub_column.name)[1] or empty_value #no_value
-                                                      ) for sub_column in report.columns.all()
+                                                      ) for sub_column in report.fields
                                          )
 
                 return unicode(get_fk_entity(entity, column_name, user=user, get_value=True) or empty_value)
@@ -271,7 +270,7 @@ class Field(CremeModel):
                     #TODO: !!!WORK ONLY WITH HFI_FIELD columns !! (& maybe this work is already done by get_value())
                     return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                               get_instance_field_info(sub_entity, sub_column.name)[1] or empty_value #no_value
-                                                             ) for sub_column in report.columns.all()
+                                                             ) for sub_column in report.fields
                                                 ) for sub_entity in related_entities
                                      ) or empty_value
 
@@ -326,7 +325,7 @@ class Field(CremeModel):
 
                     return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                               get_instance_field_info(sub_entity, sub_column.name)[1] or empty_value
-                                                             ) for sub_column in report.columns.all()
+                                                             ) for sub_column in report.fields
                                                 ) for sub_entity in related_entities
                                      ) or empty_value
 
@@ -336,7 +335,7 @@ class Field(CremeModel):
 
     def _handle_report_values(self, entity, user, scope):
         "@param entity CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self.report.columns.all()]
+        return [rfield.get_value(entity, user, scope) for rfield in self.report.fields]
 
 
 class Report(CremeEntity):
@@ -349,6 +348,7 @@ class Report(CremeEntity):
     filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     creation_label = _('Add a report')
+    _report_fields_cache = None
 
     class Meta:
         app_label = 'reports'
@@ -369,8 +369,17 @@ class Report(CremeEntity):
     def get_lv_absolute_url():
         return "/reports/reports"
 
-    def get_ascendants_reports(self): #TODO: test (with 'fields' not empty)
-        fields = Field.objects.filter(report__id=self.id) #TODO: use related name ? columns cache
+    @property
+    def fields(self):
+        fields = self._report_fields_cache
+
+        if fields is None:
+            self._report_fields_cache = fields = self.columns.all()
+
+        return fields
+
+    def get_ascendants_reports(self):
+        fields = Field.objects.filter(report=self.id)
         asc_reports = []
 
         for field in fields:
@@ -447,10 +456,10 @@ class Report(CremeEntity):
         return lines
 
     def get_children_fields_with_hierarchy(self):
-        return [c.get_children_fields_with_hierarchy() for c in self.columns.all()] #TODO: cache for columns
+        return [f.get_children_fields_with_hierarchy() for f in self.fields]
 
     def get_children_fields_flat(self):
-        return chain.from_iterable(c.get_children_fields_flat() for c in self.columns.all()) #TODO: cache for columns
+        return chain.from_iterable(f.get_children_fields_flat() for f in self.fields)
 
     def _post_save_clone(self, source): #TODO: test
         for graph in source.reportgraph_set.all():

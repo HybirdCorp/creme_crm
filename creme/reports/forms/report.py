@@ -341,7 +341,7 @@ class AddFieldToReportForm(CremeForm):
         model = ct.model_class()
 
         fields = self.fields
-        self.rfields = rfields = list(entity.columns.all()) #pool of Fields
+        self.rfields = rfields = list(entity.fields) #pool of Fields
         initial_data = defaultdict(list)
 
         for rfield in rfields:

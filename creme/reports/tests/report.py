@@ -829,6 +829,7 @@ class ReportTestCase(BaseReportsTestCase):
         return orga_report
 
     def test_link_report01(self):
+        "HFI_FIELD (FK) field"
         self.login()
 
         contact_report = Report.objects.create(user=self.user, name="Report on contacts", 
@@ -871,6 +872,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(rfield.selected)
 
     def test_link_report02(self):
+        "HFI_RELATION field"
         self.login()
 
         get_ct = ContentType.objects.get_for_model
@@ -897,6 +899,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(orga_report, self.refresh(rfields[1]).report)
 
     def test_link_report03(self):
+        "HFI_RELATED field"
         self.login()
 
         self.assertEqual([('document', _(u'Document'))],
@@ -925,6 +928,33 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'report': doc_report.id}))
         self.assertEqual(doc_report, self.refresh(rfields[1]).report)
+
+    def test_link_report04(self):
+        "Cycle error"
+        self.login()
+
+        get_ct = ContentType.objects.get_for_model
+        contact_report = Report.objects.create(user=self.user, ct=get_ct(Contact),
+                                               name="Report on contacts",
+                                              )
+
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_RELATION)
+        contact_report.columns = rfields = [
+            create_field(name='last_name',         title="Last name",      order=1, type=HFI_FIELD),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=2),
+          ]
+
+        orga_ct = get_ct(Organisation)
+        orga_report = self._build_orga_report()
+        orga_report.columns.add(
+            create_field(name=REL_OBJ_EMPLOYED_BY, title="Employs", order=3, report=contact_report),
+        )
+
+        url = '/reports/report/%s/field/%s/link_relation_report/%s' % (contact_report.id, rfields[1].id, orga_ct.id)
+        self.assertGET200(url)
+
+        response = self.assertPOST200(url, data={'report': orga_report.id})
+        self.assertFormError(response, 'form', 'report', _(u"This entity doesn't exist."))
 
     def test_set_selected(self):
         self.login()
