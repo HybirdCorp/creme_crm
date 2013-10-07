@@ -20,7 +20,8 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from .line import Line, SERVICE_LINE_TYPE
+from ..constants import SERVICE_LINE_TYPE
+from .line import Line
 
 
 class ServiceLine(Line):

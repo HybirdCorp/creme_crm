@@ -8,7 +8,7 @@ from .invoice import Invoice
 from .credit_note import CreditNote
 from .other_models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus, SettlementTerms,
                            AdditionalInformation, PaymentTerms, PaymentInformation, Vat)
-from .line import Line, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from .line import Line
 from .product_line import ProductLine
 from .service_line import ServiceLine
 

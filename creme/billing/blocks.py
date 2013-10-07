@@ -35,7 +35,6 @@ from creme.persons.blocks import AddressBlock
 from creme.products.models import Product, Service
 
 from .models import *
-from .models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from .constants import *
 from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
 
