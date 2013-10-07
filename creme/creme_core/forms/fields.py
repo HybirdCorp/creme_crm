@@ -591,7 +591,8 @@ class CreatorEntityField(JSONField):
         super(CreatorEntityField, self).__init__(model, *args, **kwargs)
         self._model = model
         self._user = None
-        self.qfilter_options(q_filter, create_action_url)
+        self._create_action_url = create_action_url
+        self.q_filter = q_filter
 
     @property
     def model(self):
@@ -604,8 +605,24 @@ class CreatorEntityField(JSONField):
         self._update_actions()
 
     @property
-    def qfilter(self):
+    def q_filter(self):
         return self._q_filter
+
+    @q_filter.setter
+    def q_filter(self, q_filter):
+        self._q_filter = q_filter
+
+        if self.model is not None:
+            self._build_widget()
+            self._update_actions()
+
+    @property
+    def q_filter_query(self):
+        try:
+            q_filter = self._q_filter
+            return get_q_from_dict(q_filter) if q_filter is not None else None
+        except:
+            raise ValueError('Invalid qfilter %s' % q_filter)
 
     @property
     def create_action_url(self):
@@ -617,7 +634,9 @@ class CreatorEntityField(JSONField):
     @create_action_url.setter
     def create_action_url(self, url):
         self._create_action_url = url
-        self._update_actions()
+
+        if self.widget is not None:
+            self._update_actions()
 
     @property
     def user(self):
@@ -627,18 +646,6 @@ class CreatorEntityField(JSONField):
     def user(self, user):
         self._user = user
         self._update_actions()
-
-    def qfilter_options(self, q_filter, create_action_url=None):
-        try:
-            self._q_filter = get_q_from_dict(q_filter) if q_filter is not None else None
-            self._q_filter_data = q_filter
-            self._create_action_url = create_action_url
-        except Exception:
-            raise ValueError('Unable to set an invalid qfilter %s' % q_filter)
-
-        if self.model is not None:
-            self._build_widget()
-            self._update_actions()
 
     def _update_actions(self):
         user = self._user
@@ -676,20 +683,14 @@ class CreatorEntityField(JSONField):
     def _create_widget(self):
         return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
                                                         {'auto':    False,
-                                                         'qfilter': self._q_filter_data,
+                                                         'qfilter': self.q_filter,
                                                         },
                                                        )
                                )
-    
-    def _entity_query(self, model, qfilter):
-        qs = model.objects.filter(is_deleted=False)
-
-        if qfilter is not None:
-            qs = qs.filter(qfilter)
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, (int, long)):
-            if not self._entity_queryset(self.model, self.qfilter).filter(pk=value).exists():
+            if not self._entity_queryset(self.model, self.q_filter_query).filter(pk=value).exists():
                 raise ValueError('No such entity with id %d.' % value)
 
             return value
@@ -698,7 +699,7 @@ class CreatorEntityField(JSONField):
         return value.id
 
     def _value_from_unjsonfied(self, data):
-        return self._clean_entity_from_model(self.model, data, self.qfilter)
+        return self._clean_entity_from_model(self.model, data, self.q_filter_query)
 
     def get_ctype(self):
         model = self.model
@@ -711,7 +712,7 @@ class MultiCreatorEntityField(CreatorEntityField):
     def _create_widget(self):
         return SelectorList(EntitySelector(unicode(self.get_ctype().pk),
                                            {'auto':       False,
-                                            'qfilter':    self._q_filter_data,
+                                            'qfilter':    self.q_filter,
                                             'multiple':   True,
                                             'autoselect': True,
                                            },
@@ -727,7 +728,7 @@ class MultiCreatorEntityField(CreatorEntityField):
             return []
 
         if value and isinstance(value[0], (int, long)):
-            if self._entity_queryset(self.model, self.qfilter).filter(pk__in=value).count() < len(value):
+            if self._entity_queryset(self.model, self.q_filter_query).filter(pk__in=value).count() < len(value):
                 raise ValueError("One or more entities with ids [%s] doesn't exists." % ', '.join(str(v) for v in value))
 
             return value
@@ -741,7 +742,7 @@ class MultiCreatorEntityField(CreatorEntityField):
             if not isinstance(entry, int):
                 raise ValidationError(self.error_messages['invalidtype'])
 
-            entity = self._clean_entity_from_model(self.model, entry, self.qfilter)
+            entity = self._clean_entity_from_model(self.model, entry, self.q_filter_query)
 
             if entity is None:
                 raise ValidationError(self.error_messages['doesnotexist'])

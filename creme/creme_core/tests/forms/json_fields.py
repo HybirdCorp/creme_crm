@@ -1126,12 +1126,26 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
-        field.qfilter_options(qfilter, action_url)
-        self.assertIsNotNone(field.qfilter)
+        self.assertIsNone(field.q_filter)
+        self.assertIsNone(field.q_filter_query)
+        self.assertNotEqual(field.create_action_url, action_url)
+
+        # set qfilter
+        field.q_filter = qfilter
+        self.assertEqual(field.q_filter, qfilter)
+        self.assertIsNotNone(field.q_filter_query)
+        self.assertNotEqual(field.create_action_url, action_url)
+
+        # set creation url
+        field.create_action_url = action_url
+        self.assertEqual(field.q_filter, qfilter)
+        self.assertIsNotNone(field.q_filter_query)
         self.assertEqual(field.create_action_url, action_url)
 
+        # set both qfilter and creation url in constructor
         field = CreatorEntityField(Contact, q_filter=qfilter, create_action_url=action_url)
-        self.assertIsNotNone(field.qfilter)
+        self.assertEqual(field.q_filter, qfilter)
+        self.assertIsNotNone(field.q_filter_query)
         self.assertEqual(field.create_action_url, action_url)
 
     def test_format_object_with_qfilter(self):
@@ -1180,25 +1194,26 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
+        qfilter_errors = ("Invalid qfilter ['~pk', %d]" % contact.pk,
+                          "Invalid qfilter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
+                                                                                        # uses longs and alter json format result
+                         )
+
+        # set qfilter property
+        field.q_filter = ['~pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
-            field.qfilter_options(['~pk', contact.pk], action_url)
+            field.q_filter_query()
 
-        # do this hack for MySql database that uses longs and alter json format result
-        self.assertIn(str(error.exception),
-                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
-                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
-                      )
-                     )
+        self.assertIn(str(error.exception), qfilter_errors)
+
+        # set qfilter in constructor
+        field = CreatorEntityField(Contact, q_filter=['~pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
-            field = CreatorEntityField(Contact, q_filter=['~pk', contact.pk], create_action_url=action_url)
+            field.q_filter_query()
 
-        self.assertIn(str(error.exception),
-                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
-                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
-                      )
-                     )
+        self.assertIn(str(error.exception), qfilter_errors)
 
     def test_action_buttons_no_custom_quickform(self):
         self.autodiscover()
@@ -1218,7 +1233,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                           ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
                         )
 
-        field.qfilter_options({'~pk': contact.pk}, None)
+        field.q_filter = {'~pk': contact.pk}
 
         self.assertEqual(field.widget.actions,
                          [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
@@ -1352,14 +1367,13 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_filtered_entity(self):
         self.login()
         contact = self.create_contact()
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
-        field.qfilter_options({'~pk': contact.pk}, action_url)
+        field.q_filter = {'~pk': contact.pk}
 
         self.assertFieldValidationError(CreatorEntityField, 'doesnotexist', field.clean, str(contact.pk))
 
-        field.qfilter_options({'pk': contact.pk}, action_url)
+        field.q_filter = {'pk': contact.pk}
         self.assertEqual(contact, field.clean(str(contact.pk)))
 
 
@@ -1406,14 +1420,14 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
-        field.qfilter_options(qfilter, action_url)
-        self.assertIsNotNone(field.qfilter)
-        self.assertEqual(field.create_action_url, action_url)
+        self.assertIsNone(field.q_filter)
+
+        field.q_filter = qfilter
+        self.assertIsNotNone(field.q_filter)
 
         field = MultiCreatorEntityField(Contact, q_filter=qfilter, create_action_url=action_url)
-        self.assertIsNotNone(field.qfilter)
+        self.assertIsNotNone(field.q_filter)
         self.assertEqual(field.create_action_url, action_url)
-
 
     def test_format_object_with_qfilter(self):
         self.login()
@@ -1469,25 +1483,24 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
+        qfilter_errors = ("Invalid qfilter ['~pk', %d]" % contact.pk,
+                          "Invalid qfilter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
+                                                                                        # uses longs and alter json format result
+                         )
+
+        field.q_filter = ['~pk', contact.pk]
 
         with self.assertRaises(ValueError) as error:
-            field.qfilter_options(['~pk', contact.pk], action_url)
+            field.q_filter_query
 
-        # do this hack for MySql database that uses longs and alter json format result
-        self.assertIn(str(error.exception),
-                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
-                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
-                      )
-                     )
+        self.assertIn(str(error.exception), qfilter_errors)
+
+        field = MultiCreatorEntityField(Contact, q_filter=['~pk', contact.pk], create_action_url=action_url)
 
         with self.assertRaises(ValueError) as error:
-            field = MultiCreatorEntityField(Contact, q_filter=['~pk', contact.pk], create_action_url=action_url)
+            field.q_filter_query
 
-        self.assertIn(str(error.exception),
-                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
-                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
-                      )
-                     )
+        self.assertIn(str(error.exception), qfilter_errors)
 
     def test_create_action_url(self):
         self.login()
@@ -1560,14 +1573,13 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_filtered_entities(self):
         self.login()
         contact = self.create_contact()
-        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
-        field.qfilter_options({'~pk': contact.pk}, action_url)
+        field.q_filter = {'~pk': contact.pk}
 
         self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist', field.clean, '[%d]' % contact.pk)
 
-        field.qfilter_options({'pk': contact.pk}, action_url)
+        field.q_filter = {'pk': contact.pk}
         self.assertEqual([contact], field.clean('[%d]' % contact.pk))
 
 

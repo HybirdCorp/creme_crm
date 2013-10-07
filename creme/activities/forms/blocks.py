@@ -66,9 +66,9 @@ class ParticipantCreateForm(CremeForm):
         existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY,
                                           relations__object_entity=entity.id,
                                          )
-        fields['participants'].qfilter_options({'~pk__in': [c.id for c in existing],
-                                                'is_user__isnull': True,
-                                               })
+        fields['participants'].q_filter = {'~pk__in': [c.id for c in existing],
+                                           'is_user__isnull': True,
+                                          }
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
         user_qs = User.objects.filter(is_staff=False).exclude(pk__in=existing_users).exclude(pk=user_pk)

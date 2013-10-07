@@ -302,7 +302,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                       .subject_ctypes.all()
                                             ]
         fields['participating_users'].queryset = User.objects.filter(is_staff=False).exclude(pk=user.id)
-        fields['other_participants'].qfilter_options({'is_user__isnull': True})
+        fields['other_participants'].q_filter = {'is_user__isnull': True}
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)

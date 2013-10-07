@@ -66,7 +66,7 @@ class CreditNoteRelatedForm(CremeForm):
                     'relations__object_entity': entity.get_real_entity().get_target().id,
                    }
 
-        self.fields['credit_notes'].qfilter_options(q_filter)
+        self.fields['credit_notes'].q_filter = q_filter
 
     def clean_credit_notes(self):
         return validate_linkable_entities(self.cleaned_data['credit_notes'], self.user)
