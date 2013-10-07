@@ -39,3 +39,12 @@ DISCOUNT_UNIT = {PERCENT_PK: _(u"Percent"),
                  AMOUNT_PK:  _(u"Amount"),
                 }
 
+DEFAULT_QUANTITY = Decimal('1.00')
+
+PRODUCT_LINE_TYPE = 1
+SERVICE_LINE_TYPE = 2
+
+LINE_TYPES = {
+    PRODUCT_LINE_TYPE: _(u'Product'),
+    SERVICE_LINE_TYPE: _(u'Service'),
+}

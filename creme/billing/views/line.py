@@ -33,7 +33,8 @@ from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
 from creme.products.models import Product, Service
 
-from ..models import Line, ProductLine, ServiceLine, PRODUCT_LINE_TYPE
+from ..constants import PRODUCT_LINE_TYPE
+from ..models import Line, ProductLine, ServiceLine
 from ..forms.line import ProductLineMultipleAddForm, ServiceLineMultipleAddForm, LineEditForm, AddToCatalogForm
 
 

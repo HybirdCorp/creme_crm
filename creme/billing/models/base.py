@@ -34,8 +34,8 @@ from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.persons.models import Address
 
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-                         REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
-                         REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED)
+        REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
+        REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
 from ..utils import round_to_2
 
 from .line import Line
@@ -44,8 +44,8 @@ from .service_line import ServiceLine
 from .algo import ConfigBillingAlgo
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 
+
 logger = logging.getLogger(__name__)
-default_decimal = Decimal()
 
 
 class Base(CremeEntity):
@@ -53,7 +53,7 @@ class Base(CremeEntity):
     number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
-    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
+    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True).set_tags(enumerable=False)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True).set_tags(enumerable=False)
     currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
@@ -206,16 +206,16 @@ class Base(CremeEntity):
         total = self.get_service_lines_total_price_exclusive_of_tax() \
                 + self.get_product_lines_total_price_exclusive_of_tax() \
                 - total_credits
-        #return default_decimal if total < default_decimal else total
-        return max(default_decimal, total)
+        #return DEFAULT_DECIMAL if total < DEFAULT_DECIMAL else total
+        return max(DEFAULT_DECIMAL, total)
 
     def _get_total_with_tax(self):
         total_credits = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
         total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
                          + self.get_product_lines_total_price_inclusive_of_tax() \
                          - total_credits
-        #return default_decimal if total_with_tax < default_decimal else total_with_tax
-        return max(default_decimal, total_with_tax)
+        #return DEFAULT_DECIMAL if total_with_tax < DEFAULT_DECIMAL else total_with_tax
+        return max(DEFAULT_DECIMAL, total_with_tax)
 
     def _pre_save_clone(self, source):
         if self.generate_number_in_create:

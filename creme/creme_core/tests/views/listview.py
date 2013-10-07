@@ -16,8 +16,8 @@ try:
 
     from creme.persons.models import Organisation, Contact, Civility
 
+    from creme.billing.constants import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
     from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
-    from creme.billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 
     from creme.emails.models import EmailCampaign
 except Exception as e:

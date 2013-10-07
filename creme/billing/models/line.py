@@ -33,23 +33,14 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.core.function_field import FunctionField
 
-from ..constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK, DISCOUNT_UNIT
+from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
+        DISCOUNT_UNIT, LINE_TYPES, DEFAULT_DECIMAL, DEFAULT_QUANTITY)
 from ..utils import round_to_2
 from .other_models import Vat
 
 
 logger = logging.getLogger(__name__)
 
-default_decimal = Decimal()
-default_quantity = Decimal('1.00')
-
-PRODUCT_LINE_TYPE = 1
-SERVICE_LINE_TYPE = 2
-
-LINE_TYPES = {
-    PRODUCT_LINE_TYPE: _(u"Product"),
-    SERVICE_LINE_TYPE: _(u"Service"),
-}
 
 class _LineTypeField(FunctionField):
     name         = "get_verbose_type"
@@ -68,10 +59,10 @@ class _LineTypeField(FunctionField):
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=True, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
-    quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=default_quantity)
-    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
+    quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=DEFAULT_QUANTITY)
+    unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
-    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
+    discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False

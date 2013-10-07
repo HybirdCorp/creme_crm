@@ -31,20 +31,22 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.products.models import Product, Service
 from creme.products.forms.fields import CategoryField
 
-from ..models import ProductLine, ServiceLine, Line, Vat, PRODUCT_LINE_TYPE
-from ..models.line import default_quantity
-from ..constants import REL_SUB_LINE_RELATED_ITEM
-
-
-default_decimal = Decimal()
+from ..constants import REL_SUB_LINE_RELATED_ITEM, PRODUCT_LINE_TYPE, DEFAULT_DECIMAL, DEFAULT_QUANTITY
+from ..models import ProductLine, ServiceLine, Line, Vat
 
 
 class _LineMultipleAddForm(CremeForm):
-    quantity       = DecimalField(label=_(u"Quantity"), min_value=default_decimal, initial=default_quantity, decimal_places=2, required=True)
-    discount_value = DecimalField(label=_(u"Discount"), min_value=default_decimal, max_value=Decimal('100'),
-                                  initial=default_decimal, decimal_places=2, required=True,
-                                  help_text=ugettext(u'Percentage applied on the unit price'))
-    vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), initial=Vat.get_default_vat(), required=True)
+    quantity       = DecimalField(label=_(u"Quantity"), min_value=DEFAULT_DECIMAL,
+                                  initial=DEFAULT_QUANTITY, decimal_places=2,
+                                 )
+    discount_value = DecimalField(label=_(u"Discount"),
+                                  min_value=DEFAULT_DECIMAL, max_value=Decimal('100'),
+                                  initial=DEFAULT_DECIMAL, decimal_places=2,
+                                  help_text=_(u'Percentage applied on the unit price'),
+                                 )
+    vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
+                                      initial=Vat.get_default_vat(),
+                                     )
 
     def _get_line_class(self):
         raise NotImplementedError
@@ -57,7 +59,7 @@ class _LineMultipleAddForm(CremeForm):
         return validate_linkable_entities(self.cleaned_data['items'], self.user)
 
     def save(self):
-        cleaned_data        = self.cleaned_data
+        cleaned_data = self.cleaned_data
 
         for item in cleaned_data['items']:
             self._get_line_class().objects.create(related_item=item,
