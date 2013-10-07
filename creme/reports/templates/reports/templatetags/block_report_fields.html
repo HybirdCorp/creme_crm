@@ -107,7 +107,8 @@
                                                 <img class="forbidden" src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                             {% endif %}
                                         {% endif %}<br/>
-                                        {% if column.order != object.columns.count %}{% trans "Column down" as down_label %}
+                                        {% comment %}{% if column.order != object.columns.count %}{% trans "Column down" as down_label %}{% endcomment %}
+                                        {% if column.order != columns|length %}{% trans "Column down" as down_label %}
                                             {% if has_perm %}
                                                 <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
                                                     <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
