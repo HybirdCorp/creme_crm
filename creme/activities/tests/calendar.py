@@ -5,9 +5,11 @@ try:
     from functools import partial
 
     from django.utils.encoding import force_unicode
+    from django.utils.html import escape
+    from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
-    from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
+
     from creme.creme_core.models import Relation
 
     #from creme.persons.models import Contact
@@ -374,7 +376,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         activity_url = act.get_absolute_url()
         response = self.assertGET200(activity_url)
-        self.assertContains(response, default_calendar.name)
+        self.assertContains(response, escape(default_calendar.name))
 
         url = self.build_link_url(act.id)
         self.assertGET200(url)
@@ -460,7 +462,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                           # 'entity_color':   '#987654',
                           'editable':       True,
                           'title':          'Act#1',
-                          'type':           u'T\xe2che',
+                          #'type':           u'T\xe2che',
+                          'type':           _(u'Task'),
                          },
                          data[0]
                         )
@@ -477,7 +480,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           # 'entity_color': '#456FFF',
                           'editable':       True,
                           'title':         'Act#3',
-                          'type':          'Rendez-vous',
+                          'type':          _('Meeting'),
                          },
                          data[1]
                         )
@@ -494,7 +497,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                           # 'entity_color':   '#456FFF',
                           'editable':       True,
                           'title':          'Act#0',
-                          'type':           u'T\xe2che',
+                          'type':           _(u'Task'),
                          },
                          data[2]
                         )
