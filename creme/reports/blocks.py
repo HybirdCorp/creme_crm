@@ -42,7 +42,7 @@ class ReportFieldsBlock(Block):
                                                             #columns=report.columns.all(),
                                                             columns=report.fields,
                                                             #expand=any(field.report_id for field in report.columns.all()),
-                                                            expand=any(field.report_id for field in report.fields),
+                                                            expand=any(field.sub_report_id for field in report.fields),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION,
                                                             HFI_RELATED=HFI_RELATED,

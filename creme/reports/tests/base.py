@@ -120,35 +120,35 @@ class BaseReportsTestCase(CremeTestCase):
 
     def _create_reports(self):
         get_ct = ContentType.objects.get_for_model
-        create_field = Field.objects.create
+        create_field = partial(Field.objects.create, sub_report=None, selected=False, type=HFI_FIELD)
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         report_opp = self.report_opp = create_report(name="Report on opportunities", ct=get_ct(Opportunity))
         report_opp.columns = [
-            create_field(name='name',      title="Name",      selected=False, report=None, type=HFI_FIELD, order=1),
-            create_field(name='reference', title="Reference", selected=False, report=None, type=HFI_FIELD, order=2),
+            create_field(name='name',      title="Name",      order=1),
+            create_field(name='reference', title="Reference", order=2),
           ]
 
         report_invoice = self.report_invoice = create_report(name="Report on invoices", ct=get_ct(Invoice))
         report_invoice.columns = [
-            create_field(name='name',           title="Name",                         selected=False, report=None, type=HFI_FIELD,      order=1),
-            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", selected=False, report=None, type=HFI_CALCULATED, order=2),
+            create_field(name='name',           title="Name",                                              order=1),
+            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", type=HFI_CALCULATED, order=2),
           ]
 
         report_orga = self.report_orga = create_report(name="Organisations report", ct=get_ct(Organisation))
         report_orga.columns = [
-            create_field(name='name',                    title="Name",                          selected=False, report=None,           type=HFI_FIELD,      order=1),
-            create_field(name=REL_OBJ_BILL_ISSUED,       title="has issued",                    selected=True,  report=report_invoice, type=HFI_RELATION,   order=2),
-            create_field(name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of",              selected=False, report=None,           type=HFI_RELATION,   order=3),
-            create_field(name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity", selected=False, report=report_opp,     type=HFI_RELATION,   order=4),
-            create_field(name='capital__min',            title="Minimum - Capital",             selected=False, report=None,           type=HFI_CALCULATED, order=5),
+            create_field(name='name',                    title="Name",                                                                                         order=1),
+            create_field(name=REL_OBJ_BILL_ISSUED,       title="has issued",                    selected=True, sub_report=report_invoice, type=HFI_RELATION,   order=2),
+            create_field(name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of",                                                        type=HFI_RELATION,   order=3),
+            create_field(name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity",                sub_report=report_opp,     type=HFI_RELATION,   order=4),
+            create_field(name='capital__min',            title="Minimum - Capital",                                                       type=HFI_CALCULATED, order=5),
           ]
 
         report_contact = self.report_contact = create_report(name="Report on contacts", ct=get_ct(Contact))
         report_contact.columns = [
-            create_field(name='last_name',         title="Last name",      selected=False, report=None,        type=HFI_FIELD,    order=1),
-            create_field(name='first_name',        title="First name",     selected=False, report=None,        type=HFI_FIELD,    order=2),
-            create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by", selected=True,  report=report_orga, type=HFI_RELATION, order=3),
+            create_field(name='last_name',         title="Last name",                                                                order=1),
+            create_field(name='first_name',        title="First name",                                                               order=2),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by", selected=True, sub_report=report_orga, type=HFI_RELATION, order=3),
           ]
 
     def _create_invoice(self, source, target, name="", total_vat=Decimal("0")):
