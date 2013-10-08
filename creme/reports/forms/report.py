@@ -309,7 +309,7 @@ class EditForm(CremeEntityForm):
 class LinkFieldToReportForm(CremeForm):
     report = CreatorEntityField(label=_(u"Sub-report linked to the column"), model=Report)
 
-    def __init__(self, report, field, ct, *args, **kwargs):
+    def __init__(self, report, field, ct, *args, **kwargs): #TODO: remove report arg when O2M
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         self.rfield = field
         self.fields['report'].q_filter = {
@@ -319,7 +319,7 @@ class LinkFieldToReportForm(CremeForm):
 
     def save(self):
         rfield = self.rfield
-        rfield.report = self.cleaned_data['report']
+        rfield.sub_report = self.cleaned_data['report']
         rfield.save()
 
 

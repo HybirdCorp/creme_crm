@@ -45,12 +45,12 @@ logger = logging.getLogger(__name__)
 
 
 class Field(CremeModel):
-    name     = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
-    title    = CharField(max_length=100).set_tags(viewable=False)
-    order    = PositiveIntegerField().set_tags(viewable=False)
-    type     = PositiveSmallIntegerField().set_tags(viewable=False) #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
-    selected = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
-    report   = ForeignKey("Report", blank=True, null=True).set_tags(viewable=False) #Sub report
+    name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
+    title      = CharField(max_length=100).set_tags(viewable=False)
+    order      = PositiveIntegerField().set_tags(viewable=False)
+    type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
+    selected   = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
+    sub_report = ForeignKey("Report", blank=True, null=True).set_tags(viewable=False) #Sub report
 
     class Meta:
         app_label = 'reports'
@@ -73,7 +73,7 @@ class Field(CremeModel):
                 self.order == other.order and
                 self.type == other.type and
                 self.selected == other.selected and
-                self.report_id == other.report_id)
+                self.sub_report_id == other.sub_report_id)
 
     #@staticmethod
     #def get_instance_from_hf_item(hf_item):
@@ -132,7 +132,7 @@ class Field(CremeModel):
              'report': <Report: self.report>}
         """
         field_dict = {'field': self, 'children': [], 'report': None} #TODO: true class instead ??
-        report = self.report
+        report = self.sub_report
 
         if report:
             field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in report.fields]
@@ -167,7 +167,7 @@ class Field(CremeModel):
         """
         column_type = self.type
         column_name = self.name
-        report = self.report
+        report = self.sub_report
         selected = selected or self.selected
         empty_value = u""
 
@@ -335,7 +335,7 @@ class Field(CremeModel):
 
     def _handle_report_values(self, entity, user, scope):
         "@param entity CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self.report.fields]
+        return [rfield.get_value(entity, user, scope) for rfield in self.sub_report.fields]
 
 
 class Report(CremeEntity):
@@ -379,7 +379,7 @@ class Report(CremeEntity):
         return fields
 
     def get_ascendants_reports(self):
-        fields = Field.objects.filter(report=self.id)
+        fields = Field.objects.filter(sub_report=self.id)
         asc_reports = []
 
         for field in fields:

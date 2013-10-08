@@ -82,12 +82,12 @@ def unlink_report(request):
         has_perm_or_die = request.user.has_perm_to_unlink_or_die
         has_perm_or_die(current_report)
 
-        if field.report is None:
+        if field.sub_report is None:
             raise Http404('This field has no sub-report') #TODO: ConflictError
 
-        has_perm_or_die(field.report)
+        has_perm_or_die(field.sub_report)
 
-        field.report   = None
+        field.sub_report = None
         field.selected = False
         field.save()
 
@@ -118,7 +118,7 @@ def _link_report(request, report, field, ct):
 @login_required
 @permission_required('reports')
 def link_report(request, report_id, field_id):
-    field  = get_object_or_404(Field, pk=field_id)
+    field = get_object_or_404(Field, pk=field_id)
 
     if field.type != HFI_FIELD:
         raise Http404('This does not represent a model field') #TODO: ConflictError
@@ -261,7 +261,7 @@ def set_selected(request):
     POST   = request.POST
     rfield = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
 
-    if not rfield.report_id:
+    if not rfield.sub_report_id:
         raise Http404('This Field has no Report, so can no be (un)selected') #TODO: ConflictError
 
     #TODO: remove this sh*t when M2M is become a O2M
