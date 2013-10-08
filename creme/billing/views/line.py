@@ -18,17 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from decimal import Decimal
-
 from django.forms.models import modelformset_factory
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse #Http404
 from django.shortcuts import get_object_or_404
 from django.utils.simplejson import loads as jsonloads
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import jsonify, get_ct_or_404
+from creme.creme_core.utils import get_ct_or_404 #jsonify
 from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
 from creme.products.models import Product, Service

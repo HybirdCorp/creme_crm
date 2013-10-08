@@ -4,7 +4,7 @@ try:
     from datetime import date # datetime
     from decimal import Decimal
     from functools import partial
-    from tempfile import NamedTemporaryFile
+    #from tempfile import NamedTemporaryFile
 
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
@@ -18,7 +18,7 @@ try:
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
 
-    from creme.media_managers.models.image import Image
+    #from creme.media_managers.models.image import Image
 
     from creme.persons.models import Contact, Organisation, Position, Sector, Address
 except Exception as e:

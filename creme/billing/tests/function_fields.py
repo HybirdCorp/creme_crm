@@ -5,7 +5,7 @@ try:
     import datetime
 
     from creme.creme_core.models import CremeProperty
-    from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult
+    from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons.models import Organisation, Contact

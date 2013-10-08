@@ -19,11 +19,10 @@
 ################################################################################
 
 from datetime import date
-from decimal import Decimal
 from itertools import chain
 import logging
 
-from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT, Q
+from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _

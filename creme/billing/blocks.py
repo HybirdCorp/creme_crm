@@ -23,7 +23,7 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock
+from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
 from creme.creme_core.models import CremeEntity, Relation
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 

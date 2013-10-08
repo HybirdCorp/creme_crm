@@ -23,7 +23,7 @@ import logging
 from re import compile as compile_re
 
 #from django import template
-from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode, Token
+from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode # Token
 from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe

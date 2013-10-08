@@ -31,8 +31,8 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.products.models import Product, Service
 from creme.products.forms.fields import CategoryField
 
-from ..constants import REL_SUB_LINE_RELATED_ITEM, PRODUCT_LINE_TYPE, DEFAULT_DECIMAL, DEFAULT_QUANTITY
-from ..models import ProductLine, ServiceLine, Line, Vat
+from ..constants import REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY
+from ..models import ProductLine, ServiceLine, Vat #Line
 
 
 class _LineMultipleAddForm(CremeForm):

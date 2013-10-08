@@ -508,8 +508,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         create_contact = partial(Contact.objects.get_or_create, user=user,
                                  last_name=last_name,
                                 )
-        lei = create_contact(first_name='Lei')
-        rey = create_contact(first_name='Rey')
+        create_contact(first_name='Lei')
+        create_contact(first_name='Rey')
 
         count = Contact.objects.count()
 

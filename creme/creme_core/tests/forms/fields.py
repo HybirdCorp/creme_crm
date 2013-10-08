@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
-
     from django.core.exceptions import ValidationError
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now

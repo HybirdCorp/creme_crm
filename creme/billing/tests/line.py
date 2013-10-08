@@ -13,7 +13,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.products.models import Product, Service, Category, SubCategory
+    from creme.products.models import Product, Service # Category, SubCategory
 
     from ..models import *
     from ..constants import *

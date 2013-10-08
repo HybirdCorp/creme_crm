@@ -22,7 +22,7 @@ import logging
 from collections import defaultdict
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, FieldDoesNotExist, ForeignKey, ProtectedError
+from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 #from django.core import serializers
