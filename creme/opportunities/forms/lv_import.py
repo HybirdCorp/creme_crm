@@ -208,7 +208,7 @@ def get_csv_form_builder(header_dict, choices):
 
             target, err_msg = cdata['target'].extract_value(line, self.user)
             instance.target = target
-            self.append_error(line, err_msg, instance)
+            self.append_error(line, err_msg, instance) #error is really appenede if 'err_msg' is not empty
 
 
     return OpportunityCSVImportForm

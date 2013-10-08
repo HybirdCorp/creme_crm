@@ -74,7 +74,7 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
 
     def _post_instance_creation(self, instance, line):
         super(_PersonCSVImportForm, self)._post_instance_creation(instance, line)
-        data    = self.cleaned_data
+        data = self.cleaned_data
         save_address    = self._save_address
         change4billing  = save_address('billing_address',  _BILL_PREFIX, instance, data, line)
         change4shipping = save_address('shipping_address', _SHIP_PREFIX, instance, data, line)

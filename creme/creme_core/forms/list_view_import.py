@@ -869,7 +869,7 @@ class ImportForm(CremeModelForm):
         backend = import_backend_registry.get_backend(file_extension)
         if backend is None:
             verbose_error = "Error reading document, unsupported file type: %s." % file_extension
-            append_error(iledata.name, verbose_error)
+            append_error(filedata.name, verbose_error)
             filedata.close()
             return
 
@@ -1026,7 +1026,7 @@ class ImportForm4CremeEntity(ImportForm):
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
-                errors.append(LVImportError(line, err_msg, instance))
+                self.append_error(line, err_msg, instance)
             else:
                 create_relation(type=rtype, object_entity=entity)
 
