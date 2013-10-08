@@ -23,7 +23,6 @@ import logging
 import warnings
 
 #from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import ForeignKey, Q
 from django.utils.html import escape
 from django.utils.safestring import mark_safe

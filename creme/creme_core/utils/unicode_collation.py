@@ -76,7 +76,7 @@ class _Collator:
             from os.path import dirname, join
             filename = join(dirname(__file__), 'allkeys.txt')
 
-        weights = {} #cache of (int, int, int, int) elements
+        #weights = {} #cache of (int, int, int, int) elements
         match = compile_re(r'^(?P<charList>[0-9A-F]{4,6}(?:[\s]+[0-9A-F]{4,6})*)[\s]*;[\s]*'
                             '(?P<collElement>(?:[\s]*\[(?:[\*|\.][0-9A-F]{4,6}){3,4}\])+)[\s]*'
                             '(?:#.*$|$)'

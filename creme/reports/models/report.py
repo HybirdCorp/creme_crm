@@ -30,8 +30,7 @@ from django.db.models import (CharField, PositiveIntegerField,
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremeModel, CremeEntity, RelationType, EntityFilter
-from creme.creme_core.models.custom_field import CustomField, _TABLES
+from creme.creme_core.models import CremeModel, CremeEntity, RelationType, EntityFilter, CustomField
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
         get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name) #filter_entities_on_ct #TODO: unused in creme

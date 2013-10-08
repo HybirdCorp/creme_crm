@@ -1202,7 +1202,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         self.folder_report = create_report(name="Folders report", ct=get_ct(Folder), filter=efilter)
-        self.folder_report.columns = rfields = [
+        self.folder_report.columns = [
             create_field(name='title',       title='Title',       order=1),
             create_field(name='description', title='Description', order=2),
           ]

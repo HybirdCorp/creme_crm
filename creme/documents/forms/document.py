@@ -20,7 +20,7 @@
 
 import logging
 
-from django.forms import CharField
+#from django.forms import CharField
 
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm

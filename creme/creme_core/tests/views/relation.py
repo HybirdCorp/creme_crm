@@ -1111,18 +1111,17 @@ class RelationViewsTestCase(ViewsTestCase):
         entity1 = create_entity(user=self.user)
         entity2 = create_entity(user=self.user)
 
-        relation1 = Relation.objects.create(user=self.user, type=rtype1,
-                                            subject_entity=entity1,
-                                            object_entity=entity2,
-                                           )
+        Relation.objects.create(user=self.user, type=rtype1,
+                                subject_entity=entity1, object_entity=entity2,
+                               )
         self.assert_relation_count(((rtype1, 1), (rtype2, 1)))
-        relation2 = Relation.objects.create(user=self.user, type=rtype3,
-                                            subject_entity=entity1,
-                                            object_entity=entity2,
-                                           )
-        self.assert_relation_count(((rtype3, 1), (rtype4, 1)))
-        entity1.clone()
 
+        Relation.objects.create(user=self.user, type=rtype3,
+                                subject_entity=entity1, object_entity=entity2,
+                               )
+        self.assert_relation_count(((rtype3, 1), (rtype4, 1)))
+
+        entity1.clone()
         self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
 
     def test_not_copiable_relations02(self):

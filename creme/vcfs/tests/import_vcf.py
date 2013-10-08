@@ -349,8 +349,8 @@ END:VCARD""" % {'first_name': first_name,
                }
         response = self._post_step0(content)
 
-        with self.assertNoException():
-            fields = response.context['form'].fields
+        #with self.assertNoException():
+            #fields = response.context['form'].fields
 
         vobj = read_vcf(content)
 

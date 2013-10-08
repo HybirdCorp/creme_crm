@@ -42,7 +42,6 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
         exclude = ('image',)
 
     def _save_address(self, attr_name, prefix, person, data, line):
-        import_errors = self.import_errors
         address_dict = {}
         save = False
 

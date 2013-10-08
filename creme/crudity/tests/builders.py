@@ -3,7 +3,6 @@
 try:
     from itertools import chain
     import re
-    from os.path import exists as path_exists, join as path_join
     from xml.etree.ElementTree import XML, tostring # Element
 
     from django.contrib.auth.models import User

@@ -208,7 +208,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(1, CremeProperty.objects.filter(type=ptype01).count())
         self.assertEqual(1, CremeProperty.objects.filter(type=ptype02).count())
 
-        clone = entity.clone()
+        entity.clone()
 
         self.assertEqual(1, CremeProperty.objects.filter(type=ptype01).count())
         self.assertEqual(2, CremeProperty.objects.filter(type=ptype02).count())
