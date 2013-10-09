@@ -26,7 +26,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.models import Relation, CremeEntity, Vat
 from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
@@ -37,7 +37,7 @@ from creme.persons.workflow import transform_target_into_customer, transform_tar
 
 from creme.products.models import Product
 
-from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine, Vat
+from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from creme.opportunities.models import Opportunity, SalesPhase

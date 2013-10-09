@@ -30,13 +30,12 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity, Relation, Vat
 from creme.creme_core.core.function_field import FunctionField
 
 from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
         DISCOUNT_UNIT, LINE_TYPES, DEFAULT_DECIMAL, DEFAULT_QUANTITY)
 from ..utils import round_to_2
-from .other_models import Vat
 
 
 logger = logging.getLogger(__name__)

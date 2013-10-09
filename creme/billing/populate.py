@@ -19,9 +19,9 @@
 ################################################################################
 
 #from datetime import date
-from decimal import Decimal
 import logging
 
+from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
@@ -74,15 +74,6 @@ class Populator(BasePopulator):
                             is_internal=True
                            )
 
-
-        existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
-        if not existing_vats:
-            values = set(Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '21.20'])
-            values.add(DEFAULT_VAT)
-
-            create_vat = Vat.objects.create
-            for value in values:
-                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
         create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2) #default status

@@ -11,7 +11,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
+    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency, Vat #CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
     from creme.persons.models import Organisation, Address

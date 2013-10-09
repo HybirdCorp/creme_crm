@@ -23,7 +23,7 @@ from decimal import Decimal
 from django.forms import ModelChoiceField, DecimalField, ValidationError, TextInput, Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, Vat
 from creme.creme_core.forms import CremeForm, FieldBlockManager, CremeModelWithUserForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
@@ -32,7 +32,7 @@ from creme.products.models import Product, Service
 from creme.products.forms.fields import CategoryField
 
 from ..constants import REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY
-from ..models import ProductLine, ServiceLine, Vat #Line
+from ..models import ProductLine, ServiceLine #Line
 
 
 class _LineMultipleAddForm(CremeForm):

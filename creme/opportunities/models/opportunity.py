@@ -31,7 +31,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency
+from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import FunctionField
 
@@ -42,7 +42,7 @@ from creme.persons.workflow import transform_target_into_prospect
 
 from creme.products.models import Product, Service
 
-from creme.billing.models import Invoice, SalesOrder, Quote, Vat
+from creme.billing.models import Invoice, SalesOrder, Quote
 
 from ..constants import *
 

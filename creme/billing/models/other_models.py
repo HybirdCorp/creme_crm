@@ -18,14 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField, TextField, DecimalField, PositiveIntegerField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
 from creme.persons.models import Organisation
-
-from ..constants import DEFAULT_VAT
 
 
 class SettlementTerms(CremeModel):
@@ -161,39 +159,3 @@ class PaymentInformation(CremeModel):
     def get_related_entity(self):
         return self.organisation
 
-
-class Vat(CremeModel):
-    value       = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
-    is_default  = BooleanField(_(u'Is default?'), default=False)
-    is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-
-    def __unicode__(self):
-        return unicode(self.value)
-
-    class Meta:
-        app_label = 'billing'
-        verbose_name = _(u'VAT')
-        verbose_name_plural = _(u'VAT')
-
-    def save(self, *args, **kwargs):
-        if self.is_default:
-            Vat.objects.update(is_default=False)
-        elif not Vat.objects.filter(is_default=True).exclude(pk=self.id).exists():
-            self.is_default = True
-
-        super(Vat, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        if self.is_default:
-            existing_vat = Vat.objects.exclude(id=self.id)[:1]
-
-            if existing_vat:
-                first_vat = existing_vat[0]
-                first_vat.is_default = True
-                first_vat.save()
-
-        super(Vat, self).delete(*args, **kwargs)
-
-    @staticmethod
-    def get_default_vat():
-        return Vat.objects.filter(is_default=True)[0]

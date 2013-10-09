@@ -9,7 +9,7 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import CremePropertyType, CremeProperty, Relation, RelationType
+    from creme.creme_core.models import CremePropertyType, CremeProperty, Relation, RelationType, Vat
     from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
             HFI_FIELD, HFI_RELATION, HFI_CALCULATED)
     from creme.creme_core.constants import REL_SUB_HAS
@@ -20,7 +20,7 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.billing.models import Invoice, InvoiceStatus, ProductLine, Vat
+    from creme.billing.models import Invoice, InvoiceStatus, ProductLine
     from creme.billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from creme.opportunities.models import Opportunity, SalesPhase

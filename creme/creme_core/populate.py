@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from decimal import Decimal
 import logging
 
 from django.utils.translation import ugettext as _
@@ -97,3 +98,13 @@ class Populator(BasePopulator):
 
         if not ButtonMenuItem.objects.filter(content_type=None).exists():
             ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
+
+
+        existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
+        if not existing_vats:
+            values = set(Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '21.20'])
+            values.add(DEFAULT_VAT)
+
+            create_vat = Vat.objects.create
+            for value in values:
+                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
