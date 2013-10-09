@@ -26,7 +26,7 @@ try:
 
     from creme.products.models import Product, Service
 
-    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus #Vat
+    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
     from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from .models import Opportunity, SalesPhase, Origin

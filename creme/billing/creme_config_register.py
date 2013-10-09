@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
-                     PaymentTerms, AdditionalInformation, Vat, SettlementTerms)
+                     PaymentTerms, AdditionalInformation, SettlementTerms)
 
 
 to_register = ((InvoiceStatus,         'invoice_status'),
@@ -10,6 +10,5 @@ to_register = ((InvoiceStatus,         'invoice_status'),
                (SalesOrderStatus,      'sales_order_status'),
                (AdditionalInformation, 'additional_information'),
                (PaymentTerms,          'payment_terms'),
-               (Vat,                   'vat_value'),
                (SettlementTerms,       'invoice_payment_type'),
               )

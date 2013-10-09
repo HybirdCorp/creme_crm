@@ -14,6 +14,7 @@ from .lock import Mutex
 
 from .i18n import Language
 from .currency import Currency
+from .vat import Vat
 
 from .block import *
 from .prefered_menu import PreferedMenuItem

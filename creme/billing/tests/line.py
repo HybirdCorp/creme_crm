@@ -9,7 +9,7 @@ try:
     from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.models import Relation, SetCredentials, Vat
 
     from creme.persons.models import Contact, Organisation
 
@@ -567,7 +567,7 @@ class LineTestCase(_BillingTestCase):
         self.login()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        self.assertPOST200('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
+        self.assertPOST200('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
         self.assertFalse(Vat.objects.filter(pk=vat.pk).exists())
 
     def test_delete_vat02(self):
@@ -579,7 +579,7 @@ class LineTestCase(_BillingTestCase):
                                           on_the_fly_item='Flyyyyy', vat_value=vat,
                                          )
 
-        self.assertPOST404('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
+        self.assertPOST404('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
         self.assertTrue(Vat.objects.filter(pk=vat.pk).exists())
 
         self.get_object_or_fail(Invoice, pk=invoice.pk)

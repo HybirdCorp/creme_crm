@@ -1,4 +1,4 @@
-from .base import AppTestCase, VatTestCase
+from .base import AppTestCase
 from .invoice import *
 from .quote import *
 from .credit_note import *

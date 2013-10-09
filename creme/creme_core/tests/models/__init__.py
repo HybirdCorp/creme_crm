@@ -10,3 +10,4 @@ from .history import *
 from .lock import *
 from .button_menu import *
 from .search import *
+from .vat import *

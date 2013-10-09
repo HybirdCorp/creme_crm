@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from decimal import Decimal
+
+from django.conf import settings
+
+
+DEFAULT_VAT = Decimal(getattr(settings, "DEFAULT_VAT", "19.6"))
+
 PROP_IS_MANAGED_BY_CREME = 'creme_core-is_managed_by_creme'
 
 REL_SUB_HAS = 'creme_core-subject_has'

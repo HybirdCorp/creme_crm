@@ -2,14 +2,14 @@
 
 from decimal import Decimal, ROUND_UP # ROUND_DOWN, ROUND_HALF_EVEN
 
-from django.conf import settings
+#from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
 DEFAULT_DECIMAL = Decimal()
-DEFAULT_VAT = Decimal(getattr(settings, "DEFAULT_VAT", "19.6"))
+
 ROUND_POLICY = ROUND_UP
-CURRENCY = "Euro"
+CURRENCY = "Euro" #TODO: in settings.py ??
 
 REL_SUB_BILL_ISSUED = 'billing-subject_bill_issued'
 REL_OBJ_BILL_ISSUED = 'billing-object_bill_issued'
