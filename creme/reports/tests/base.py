@@ -5,6 +5,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -20,11 +21,13 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.billing.models import Invoice, InvoiceStatus, ProductLine
-    from creme.billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    if 'creme.billing' in settings.INSTALLED_APPS:
+        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
+        from creme.billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-    from creme.opportunities.models import Opportunity, SalesPhase
-    from creme.opportunities.constants import REL_SUB_EMIT_ORGA
+    if 'creme.opportunities' in settings.INSTALLED_APPS:
+        from creme.opportunities.models import Opportunity, SalesPhase
+        from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
     from ..models import Field, Report
 except Exception as e:
@@ -37,9 +40,18 @@ class BaseReportsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'reports',
-                     'persons', 'opportunities', 'billing',
-                    )
+        #cls.populate('creme_core', 'creme_config', 'reports',
+                     #'persons', 'opportunities', 'billing',
+                    #)
+        apps = ['creme_core', 'creme_config', 'reports', 'persons']
+
+        if 'creme.billing' in settings.INSTALLED_APPS:
+            apps.append('billing')
+
+        if 'creme.opportunities' in settings.INSTALLED_APPS:
+            apps.append('opportunities')
+        
+        cls.populate(*apps)
 
         Folder.objects.all().delete()
 

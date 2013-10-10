@@ -19,6 +19,7 @@ try:
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
         EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
         CremePropertyType, CremeProperty, HeaderFilterItem, HeaderFilter)
+    from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.documents.models import Folder, Document
 
@@ -27,8 +28,9 @@ try:
     from creme.persons.models import Contact, Organisation, LegalForm
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.billing.constants import REL_OBJ_BILL_ISSUED
-    from creme.billing.models import Invoice
+    if 'creme.billing' in settings.INSTALLED_APPS:
+        from creme.billing.constants import REL_OBJ_BILL_ISSUED
+        from creme.billing.models import Invoice
 
     #from creme.opportunities.models import Opportunity
     from creme.opportunities.constants import REL_SUB_EMIT_ORGA
@@ -423,6 +425,7 @@ class ReportTestCase(BaseReportsTestCase):
                          callback_url
                         )
 
+    @skipIfNotInstalled('creme.billing')
     def test_report_csv01(self):
         "Empty report"
         self.login()
@@ -1126,6 +1129,8 @@ class ReportTestCase(BaseReportsTestCase):
         lines[0][1] = settings.HIDDEN_VALUE #lannisters_img not visible
         self.assertEqual(lines, fetch_all_lines(user=self.user))
 
+    @skipIfNotInstalled('creme.billing')
+    @skipIfNotInstalled('creme.opportunities')
     def test_fetch_complex(self): #TODO: move
         self.login()
 
@@ -1823,6 +1828,7 @@ class ReportTestCase(BaseReportsTestCase):
                          self.report_orga.fetch_all_lines()
                         )
 
+    @skipIfNotInstalled('creme.billing')
     def test_fetch_calculated_03(self):
         "Aggregate in sub-lines (expanded sub-report)"
         self.login()

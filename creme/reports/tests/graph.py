@@ -5,6 +5,7 @@ try:
     from functools import partial
     from json import loads as json_load
 
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -15,12 +16,14 @@ try:
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
     from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
     from creme.creme_core.utils.meta import get_verbose_field_name
+    from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.persons.models import Organisation, Contact, Position, Sector
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
-    from creme.billing.models import Invoice
-    from creme.billing.constants import REL_SUB_BILL_RECEIVED
+    if 'creme.billing' in settings.INSTALLED_APPS:
+        from creme.billing.models import Invoice
+        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase
     from ..models import Field, Report, ReportGraph
@@ -40,7 +43,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)
         cls.ct_orga    = get_ct(Organisation)
-        cls.ct_invoice = get_ct(Invoice)
+
+        if 'creme.billing' in settings.INSTALLED_APPS:
+            cls.ct_invoice = get_ct(Invoice)
 
     def setUp(self):
         self.login()
@@ -550,6 +555,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
+    @skipIfNotInstalled('creme.billing')
     def test_editview(self):
         rgraph = self._create_report_n_graph()
         url = '/reports/graph/edit/%s'  % rgraph.id
@@ -1464,6 +1470,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(list(reversed(x_asc)), x_desc)
         self.assertEqual(list(reversed(y_asc)), y_desc)
 
+    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
         rgraph = self._create_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
@@ -1536,6 +1543,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR'))
 
+    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block02(self):
         "Volatile relation"
         rgraph = self._create_report_n_graph()
@@ -1559,6 +1567,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     #def test_add_graph_instance_block03(self): #TODO: volatile field
 
+    @skipIfNotInstalled('creme.billing')
     def test_get_available_report_graph_types(self):
         ct = self.ct_invoice
         url = '/reports/graph/get_available_types/%s' % ct.id
