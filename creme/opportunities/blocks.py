@@ -18,18 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation #CremeEntity
-from creme.creme_core.gui.block import QuerysetBlock, SimpleBlock
+from creme.creme_core.models import Relation
+from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock
 
 from creme.persons.models import Contact, Organisation
 
 from creme.products.models import Product, Service
 
-from creme.billing.models import Quote, Invoice, SalesOrder
-from creme.billing.blocks import TotalBlock, TargetBlock
+#from creme.billing.blocks import TotalBlock, TargetBlock
 
 from .constants import *
 from .models import Opportunity
@@ -58,16 +58,15 @@ class _LinkedStuffBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        btc = self.get_block_template_context(context,
-                                              self._get_queryset(entity),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                              predicate_id=self.relation_type_deps[0],
-                                              ct=self._ct,
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context,
+                                self._get_queryset(entity),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                predicate_id=self.relation_type_deps[0],
+                                ct=self._ct,
+                               )
+                           )
 
 
 class LinkedContactsBlock(_LinkedStuffBlock):
@@ -118,45 +117,6 @@ class ResponsiblesBlock(_LinkedStuffBlock):
         return entity.get_responsibles().select_related('civility')
 
 
-class QuotesBlock(_LinkedStuffBlock):
-    id_                 = QuerysetBlock.generate_id('opportunities', 'quotes')
-    dependencies  = (Relation, Quote)
-    relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
-    verbose_name        = _(u"Quotes linked to the opportunity")
-    template_name       = 'opportunities/templatetags/block_quotes.html'
-
-    _ct = _get_ct(Quote)
-
-    def _get_queryset(self, entity):
-        return entity.get_quotes()
-
-
-class SalesOrdersBlock(_LinkedStuffBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
-    dependencies  = (Relation, SalesOrder)
-    relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
-    verbose_name  = _(u"Salesorders linked to the opportunity")
-    template_name = 'opportunities/templatetags/block_sales_orders.html'
-
-    _ct = _get_ct(SalesOrder)
-
-    def _get_queryset(self, entity):
-        return entity.get_salesorder()
-
-
-class InvoicesBlock(_LinkedStuffBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
-    dependencies  = (Relation, Invoice)
-    relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
-    verbose_name  = _(u"Invoices linked to the opportunity")
-    template_name = 'opportunities/templatetags/block_invoices.html'
-
-    _ct = _get_ct(Invoice)
-
-    def _get_queryset(self, entity):
-        return entity.get_invoices()
-
-
 class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     dependencies  = (Relation, Opportunity)
@@ -174,16 +134,20 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
                                          )
 
 
-class OppTotalBlock(TotalBlock):
-    id_                 = TotalBlock.generate_id('opportunities', 'total')
+class OppTotalBlock(SimpleBlock):
+    id_                 = SimpleBlock.generate_id('opportunities', 'total')
     dependencies        = (Opportunity, Relation)
     relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
+    verbose_name        = _(u'Total')
     template_name       = 'opportunities/templatetags/block_total.html'
     target_ctypes       = (Opportunity,)
 
 
-class OppTargetBlock(TargetBlock):
-    id_           = TargetBlock.generate_id('opportunities', 'target')
+class OppTargetBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('opportunities', 'target')
+    dependencies  = (Opportunity, Organisation)
+    verbose_name  = _(u'Target organisation')
+    template_name = 'opportunities/templatetags/block_target.html'
     target_ctypes = (Opportunity,)
 
 
@@ -191,9 +155,6 @@ linked_contacts_block = LinkedContactsBlock()
 linked_products_block = LinkedProductsBlock()
 linked_services_block = LinkedServicesBlock()
 responsibles_block    = ResponsiblesBlock()
-quotes_block          = QuotesBlock()
-salesorders_block     = SalesOrdersBlock()
-invoices_block        = InvoicesBlock()
 total_block           = OppTotalBlock()
 target_block          = OppTargetBlock()
 targetting_opps_block = TargettingOpportunitiesBlock()
@@ -203,10 +164,76 @@ blocks_list = (
     linked_products_block,
     linked_services_block,
     responsibles_block,
-    quotes_block,
-    salesorders_block,
-    invoices_block,
     total_block,
     target_block,
     targetting_opps_block,
 )
+
+
+if 'creme.billing' in settings.INSTALLED_APPS:
+    from creme.billing.models import Quote, Invoice, SalesOrder
+
+
+    class QuotesBlock(_LinkedStuffBlock):
+        id_                = QuerysetBlock.generate_id('opportunities', 'quotes')
+        dependencies       = (Relation, Quote)
+        relation_type_deps = (REL_OBJ_LINKED_QUOTE,)
+        verbose_name       = _(u"Quotes linked to the opportunity")
+        template_name      = 'opportunities/templatetags/block_quotes.html'
+
+        _ct = _get_ct(Quote)
+
+        def _get_queryset(self, entity):
+            #return entity.get_quotes()
+            #TODO: test
+            #TODO: filter deleted ?? what about current quote behaviour ??
+            return Quote.objects.filter(relations__object_entity=entity.id,
+                                        relations__type=REL_SUB_LINKED_QUOTE,
+                                       )
+
+
+    class SalesOrdersBlock(_LinkedStuffBlock):
+        id_                = QuerysetBlock.generate_id('opportunities', 'sales_orders')
+        dependencies       = (Relation, SalesOrder)
+        relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
+        verbose_name       = _(u"Salesorders linked to the opportunity")
+        template_name      = 'opportunities/templatetags/block_sales_orders.html'
+
+        _ct = _get_ct(SalesOrder)
+
+        def _get_queryset(self, entity):
+            #return entity.get_salesorder()
+            #TODO: test
+            return SalesOrder.objects.filter(is_deleted=False,
+                                             relations__object_entity=entity.id,
+                                             relations__type=REL_SUB_LINKED_SALESORDER,
+                                            )
+
+
+    class InvoicesBlock(_LinkedStuffBlock):
+        id_                = QuerysetBlock.generate_id('opportunities', 'invoices')
+        dependencies       = (Relation, Invoice)
+        relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
+        verbose_name       = _(u"Invoices linked to the opportunity")
+        template_name      = 'opportunities/templatetags/block_invoices.html'
+
+        _ct = _get_ct(Invoice)
+
+        def _get_queryset(self, entity):
+            #return entity.get_invoices()
+            #TODO: test
+            return Invoice.objects.filter(is_deleted=False,
+                                          relations__object_entity=entity.id,
+                                          relations__type=REL_SUB_LINKED_INVOICE,
+                                         )
+
+
+    quotes_block      = QuotesBlock()
+    salesorders_block = SalesOrdersBlock()
+    invoices_block    = InvoicesBlock()
+
+    blocks_list += (
+        quotes_block,
+        salesorders_block,
+        invoices_block,
+    )

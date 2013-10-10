@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
+from django.utils.unittest.case import skipIf
 
 from ..models import UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -20,6 +21,12 @@ from ..registry import creme_registry
 from .. import autodiscover
 
 from creme.media_managers.models import Image
+
+
+def skipIfNotInstalled(app_name):
+    return skipIf(app_name not in settings.INSTALLED_APPS,
+                  "Skip this test which is related to the uninstalled app '%s'" % app_name
+                 )
 
 
 class _AssertNoExceptionContext(object):

@@ -5,10 +5,11 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.utils.translation import ugettext as _
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
                                       CremeProperty, SetCredentials, Currency)
@@ -26,8 +27,13 @@ try:
 
     from creme.products.models import Product, Service
 
-    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
-    from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    if 'creme.billing' in settings.INSTALLED_APPS:
+        from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
+        from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+
+        skip_billing = False
+    else:
+        skip_billing = True
 
     from .models import Opportunity, SalesPhase, Origin
     from .constants import *
@@ -42,7 +48,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('opportunities', 'documents', 'commercial')
+        cls.populate('opportunities', 'documents') #'commercial'
 
         cls.lvimport_data = {'step':     1,
                              #'document': doc.id,
@@ -127,23 +133,24 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertNotIn(REL_SUB_LINKED_CONTACT, relation_types)
         self.get_relationtype_or_fail(REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
 
-        self.assertIn(REL_OBJ_LINKED_SALESORDER, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_SALESORDER, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
+        if not skip_billing:
+            self.assertIn(REL_OBJ_LINKED_SALESORDER, relation_types)
+            self.assertNotIn(REL_SUB_LINKED_SALESORDER, relation_types)
+            self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
 
-        self.assertIn(REL_OBJ_LINKED_INVOICE, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_INVOICE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
+            self.assertIn(REL_OBJ_LINKED_INVOICE, relation_types)
+            self.assertNotIn(REL_SUB_LINKED_INVOICE, relation_types)
+            self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
 
-        self.assertIn(REL_OBJ_LINKED_QUOTE, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_QUOTE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+            self.assertIn(REL_OBJ_LINKED_QUOTE, relation_types)
+            self.assertNotIn(REL_SUB_LINKED_QUOTE, relation_types)
+            self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+
+            self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
         self.assertIn(REL_OBJ_RESPONSIBLE, relation_types)
         self.assertNotIn(REL_SUB_RESPONSIBLE, relation_types)
         self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
-
-        self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
@@ -237,6 +244,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             prop_target = opportunity.target
         self.assertEqual(target, prop_target)
 
+    @skipIfNotInstalled('creme.billing')
     def test_createview03(self):
         "Only contact & orga models are allowed as target"
         self.login()
@@ -598,12 +606,15 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, target, REL_OBJ_TARGETS, opportunity)
         self.assertRelationCount(1, target, REL_OBJ_TARGETS, cloned) #<== internal
 
-    def _build_gendoc_url(self, opportunity, model=Quote):
+    #def _build_gendoc_url(self, opportunity, model=Quote):
+    def _build_gendoc_url(self, opportunity, model=None):
+        model = model or Quote
         return '/opportunities/opportunity/generate_new_doc/%s/%s' % (
                         opportunity.id,
                         ContentType.objects.get_for_model(model).id,
                     )
 
+    @skipIfNotInstalled('creme.billing')
     def test_generate_new_doc01(self):
         self.login()
 
@@ -629,6 +640,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
+    @skipIfNotInstalled('creme.billing')
     def test_generate_new_doc02(self):
         self.login()
 
@@ -655,6 +667,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
+    @skipIfNotInstalled('creme.billing')
     def test_generate_new_doc03(self):
         self.login()
 
@@ -679,6 +692,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, emitter)
 
+    @skipIfNotInstalled('creme.billing')
     def test_generate_new_doc_error01(self):
         "Invalid target type"
         self.login()
@@ -689,6 +703,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertPOST404(self._build_gendoc_url(opportunity, Contact))
         self.assertEqual(contact_count, Contact.objects.count()) #no Contact created
 
+    @skipIfNotInstalled('creme.billing')
     def test_generate_new_doc_error02(self):
         "Credentials problems"
         self.login(is_superuser=False, allowed_apps=['billing', 'opportunities'],
@@ -722,6 +737,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                     opportunity.id, quote.id, action
                 )
 
+    @skipIfNotInstalled('creme.billing')
     def test_current_quote_1(self):
         self.login()
 
@@ -758,6 +774,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         sv.value = use_current_quote
         sv.save()
 
+    @skipIfNotInstalled('creme.billing')
     def test_current_quote_2(self):
         "Refresh the estimated_sales when we change which quote is the current"
         self.login()
@@ -800,6 +817,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat + quote2.total_no_vat) # 800
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat) # 300
 
+    @skipIfNotInstalled('creme.billing')
     def test_current_quote_3(self):
         self.login()
 
@@ -822,6 +840,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(opportunity.estimated_sales, opportunity.get_total()) # 69
         self.assertEqual(opportunity.estimated_sales, estimated_sales) # 69
 
+    @skipIfNotInstalled('creme.billing')
     def test_current_quote_4(self):
         self.login()
         self._set_quote_config(True)
@@ -839,6 +858,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(300, self.refresh(quote).total_no_vat)
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
+    @skipIfNotInstalled('creme.billing')
     def test_current_quote_5(self):
         self.login()
         self._set_quote_config(True)

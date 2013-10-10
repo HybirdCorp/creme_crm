@@ -22,27 +22,24 @@ import logging
 from functools import partial
 import warnings
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
                               DateField, PROTECT, SET_NULL, Sum, BooleanField)
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import FunctionField
-
-from creme.creme_config.models import SettingValue
 
 from creme.persons.models import Contact, Organisation
 from creme.persons.workflow import transform_target_into_prospect
 
 from creme.products.models import Product, Service
 
-from creme.billing.models import Invoice, SalesOrder, Quote
+#from creme.billing.models import Invoice, SalesOrder, Quote
 
 from ..constants import *
 
@@ -56,10 +53,9 @@ class _TurnoverField(FunctionField):
 
 
 class SalesPhase(CremeModel):
-    name        = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    #description = TextField(_(u"Description"))
-    order       = PositiveIntegerField(_(u"Order"), default=1, editable=False)
-    won         = BooleanField(_(u'Won'), default=False)
+    name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
+    order = PositiveIntegerField(_(u"Order"), default=1, editable=False)
+    won   = BooleanField(_(u'Won'), default=False)
 
     def __unicode__(self):
         return self.name
@@ -153,16 +149,15 @@ class Opportunity(CremeEntity):
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
-    #TODO: move in utils.py ??
-    @staticmethod
-    def use_current_quote():
-        try:
-            use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
-        except SettingValue.DoesNotExist:
-            logger.debug("Populate opportunities is not loaded")
-            use_current_quote = False
+    #@staticmethod
+    #def use_current_quote():
+        #try:
+            #use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+        #except SettingValue.DoesNotExist:
+            #logger.debug("Populate opportunities is not loaded")
+            #use_current_quote = False
 
-        return use_current_quote
+        #return use_current_quote
 
     def get_total(self):
         if self.made_sales:
@@ -219,34 +214,34 @@ class Opportunity(CremeEntity):
                                       relations__type=REL_SUB_RESPONSIBLE,
                                      )
 
-    #TODO: test
-    def get_quotes(self):
-        #TODO: filter deleted ?? what about current quote behaviour ??
-        return Quote.objects.filter(relations__object_entity=self.id,
-                                    relations__type=REL_SUB_LINKED_QUOTE,
-                                   )
+    ##todo: test
+    #def get_quotes(self):
+        ##todo: filter deleted ?? what about current quote behaviour ??
+        #return Quote.objects.filter(relations__object_entity=self.id,
+                                    #relations__type=REL_SUB_LINKED_QUOTE,
+                                   #)
 
-    def get_current_quote_ids(self):
-        ct        = ContentType.objects.get_for_model(Quote)
-        return Relation.objects.filter(object_entity=self.id,
-                                       type=REL_SUB_CURRENT_DOC,
-                                       subject_entity__entity_type=ct,
-                                      ) \
-                               .values_list('subject_entity_id', flat=True)
+    #def get_current_quote_ids(self):
+        #ct        = ContentType.objects.get_for_model(Quote)
+        #return Relation.objects.filter(object_entity=self.id,
+                                       #type=REL_SUB_CURRENT_DOC,
+                                       #subject_entity__entity_type=ct,
+                                      #) \
+                               #.values_list('subject_entity_id', flat=True)
 
-    #TODO: test
-    def get_salesorder(self):
-        return SalesOrder.objects.filter(is_deleted=False,
-                                         relations__object_entity=self.id,
-                                         relations__type=REL_SUB_LINKED_SALESORDER,
-                                        )
+    ##todo: test
+    #def get_salesorder(self):
+        #return SalesOrder.objects.filter(is_deleted=False,
+                                         #relations__object_entity=self.id,
+                                         #relations__type=REL_SUB_LINKED_SALESORDER,
+                                        #)
 
-    #TODO: test
-    def get_invoices(self):
-        return Invoice.objects.filter(is_deleted=False,
-                                      relations__object_entity=self.id,
-                                      relations__type=REL_SUB_LINKED_INVOICE,
-                                     )
+    ##todo: test
+    #def get_invoices(self):
+        #return Invoice.objects.filter(is_deleted=False,
+                                      #relations__object_entity=self.id,
+                                      #relations__type=REL_SUB_LINKED_INVOICE,
+                                     #)
 
     @property
     def emitter(self):
@@ -279,12 +274,12 @@ class Opportunity(CremeEntity):
         else:
             self._opp_target = organisation
 
-    def update_sales(self):
-        quotes = Quote.objects.filter(id__in=self.get_current_quote_ids,
-                                      total_no_vat__isnull=False)
-        self.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        self.made_sales = quotes.filter(status__won=True).aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        self.save()
+    #def update_sales(self):
+        #quotes = Quote.objects.filter(id__in=self.get_current_quote_ids,
+                                      #total_no_vat__isnull=False)
+        #self.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        #self.made_sales = quotes.filter(status__won=True).aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        #self.save()
 
     @commit_on_success
     def save(self, *args, **kwargs):
@@ -311,21 +306,60 @@ class Opportunity(CremeEntity):
                 transform_target_into_prospect(self.emitter, target, self.user)
 
 
-# Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
-# If one day it does we will only have to add senders to the signal
-@receiver(post_save, sender=Quote)
-def _handle_current_quote_change(sender, instance, **kwargs):
-    if Opportunity.use_current_quote():
-        relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
+if 'creme.billing' in settings.INSTALLED_APPS:
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models.signals import post_save, post_delete
+    from django.dispatch import receiver
 
-        if relations:
-            for r in relations:
-                r.object_entity.get_real_entity().update_sales()
+    from creme.creme_config.models import SettingValue
 
-@receiver(post_delete, sender=Relation)
-@receiver(post_save, sender=Relation)
-def _handle_current_quote_set(sender, instance, **kwargs):
-    if instance.type_id == REL_SUB_CURRENT_DOC:
-        doc = instance.subject_entity.get_real_entity()
-        if isinstance(doc, Quote) and Opportunity.use_current_quote():
-            instance.object_entity.get_real_entity().update_sales()
+    from creme.billing.models import Quote
+
+
+    def _get_current_quote_ids(self):
+        ct = ContentType.objects.get_for_model(Quote)
+        return Relation.objects.filter(object_entity=self.id,
+                                       type=REL_SUB_CURRENT_DOC,
+                                       subject_entity__entity_type=ct,
+                                      ) \
+                               .values_list('subject_entity_id', flat=True)
+
+    Opportunity.get_current_quote_ids = _get_current_quote_ids
+
+    def update_sales(opp):
+        quotes = Quote.objects.filter(id__in=opp.get_current_quote_ids(),
+                                      total_no_vat__isnull=False,
+                                     )
+        opp.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        opp.made_sales      = quotes.filter(status__won=True) \
+                                    .aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
+        opp.save()
+
+    def use_current_quote():
+        try:
+            use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+        except SettingValue.DoesNotExist:
+            logger.critical("Populate for opportunities has not been run !")
+            use_current_quote = False
+
+        return use_current_quote
+
+    # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
+    # If one day it does we will only have to add senders to the signal
+    @receiver(post_save, sender=Quote)
+    def _handle_current_quote_change(sender, instance, **kwargs):
+        if use_current_quote():
+            relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
+
+            if relations: #TODO: useless
+                for r in relations:
+                    update_sales(r.object_entity.get_real_entity())
+
+    @receiver(post_delete, sender=Relation)
+    @receiver(post_save, sender=Relation)
+    def _handle_current_quote_set(sender, instance, **kwargs):
+        if instance.type_id == REL_SUB_CURRENT_DOC:
+            doc = instance.subject_entity.get_real_entity()
+
+            if isinstance(doc, Quote) and use_current_quote():
+                update_sales(instance.object_entity.get_real_entity())
