@@ -188,7 +188,7 @@ INSTALLED_CREME_APPS = (
     'creme.products',
     'creme.recurrents',
     'creme.billing',       #need 'products'
-    'creme.opportunities', #need 'billing'
+    'creme.opportunities', #need 'products'
     'creme.commercial',    #need 'opportunities'
     'creme.events',
     'creme.crudity',
@@ -199,7 +199,7 @@ INSTALLED_CREME_APPS = (
     #creme.'cti',
     'creme.activesync',
     'creme.vcfs',
-    #'creme.polls',
+    #'creme.polls',  #need 'commercial'
 )
 
 

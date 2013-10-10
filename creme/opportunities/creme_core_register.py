@@ -20,6 +20,7 @@
 
 import logging
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
@@ -27,13 +28,9 @@ from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
         icon_registry, import_form_registry, smart_columns_registry)
 from creme.creme_core.models import RelationType
 
-from creme.billing.registry import relationtype_converter
-from creme.billing.models import Quote, Invoice, SalesOrder
-
 from .blocks import blocks_list, OpportunityBlock
 from .buttons import linked_opportunity_button
-from .constants import (REL_SUB_TARGETS, REL_SUB_LINKED_SALESORDER,
-                        REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_QUOTE)
+from .constants import REL_SUB_TARGETS
 from .forms.lv_import import get_csv_form_builder
 from .models import Opportunity
 
@@ -61,15 +58,27 @@ smart_columns_registry.register_model(Opportunity).register_field('name') \
                                                   .register_field('sales_phase') \
                                                   .register_relationtype(REL_SUB_TARGETS)
 
-try:
-    linked_salesorder = RelationType.objects.get(id=REL_SUB_LINKED_SALESORDER)
-    linked_invoice = RelationType.objects.get(id=REL_SUB_LINKED_INVOICE)
-    linked_quote = RelationType.objects.get(id=REL_SUB_LINKED_QUOTE)
-except RelationType.DoesNotExist as e:
-    logger.info("A problem occured: %s" % e)
-    logger.info("It can happen durring unitests. Otherwise, has the database correctly been populated?")
-else:
-    register_rtype = relationtype_converter.register
-    register_rtype(Quote, linked_quote, SalesOrder, linked_salesorder)
-    register_rtype(Quote, linked_quote, Invoice, linked_invoice)
-    register_rtype(SalesOrder, linked_salesorder, Invoice, linked_invoice)
+
+if 'creme.billing' in settings.INSTALLED_APPS:
+    from .constants import REL_SUB_LINKED_SALESORDER, REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_QUOTE
+
+    from creme.billing.registry import relationtype_converter
+    from creme.billing.models import Quote, Invoice, SalesOrder
+
+    get_rtype = RelationType.objects.get
+
+    try:
+        linked_salesorder = get_rtype(id=REL_SUB_LINKED_SALESORDER)
+        linked_invoice    = get_rtype(id=REL_SUB_LINKED_INVOICE)
+        linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
+    except RelationType.DoesNotExist as e:
+        logger.info("A problem occured: %s\n"
+                    "It can happen during unitests. Otherwise, has the database correctly been populated?", e
+                   )
+    else:
+        register_rtype = relationtype_converter.register
+        register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
+        register_rtype(Quote,      linked_quote,      Invoice,    linked_invoice)
+        register_rtype(SalesOrder, linked_salesorder, Invoice,    linked_invoice)
+
+    del get_rtype
