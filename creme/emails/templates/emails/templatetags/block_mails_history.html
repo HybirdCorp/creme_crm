@@ -38,7 +38,8 @@
                         {% if mail.status != sent_status %}
                             <a class="button_link" onclick="
                                 {% if mail.status in sync_statuses %}
-                                    creme.utils.simpleConfirm(function(){creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %})}, '{% trans "This mail was synchronized. Are you sure you want to send it ?" %}');
+                                    {% trans "This mail was synchronized. Are you sure you want to send it ?" as confirm_msg %}
+                                    creme.utils.simpleConfirm(function(){creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});}, '{{confirm_msg|escapejs}}');
                                 {% else %}
                                     creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});
                                 {% endif %}
