@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -45,8 +45,7 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
     });
 };
 
-creme.menu.NavIt = function(trigger_selector, options)
-{
+creme.menu.NavIt = function(trigger_selector, options) {
     $(trigger_selector).NavIt(options || {});
 
     $(trigger_selector).find('a').click(function(e) {
@@ -57,26 +56,27 @@ creme.menu.NavIt = function(trigger_selector, options)
         var list_view = $a.hasClass('lv_reload');
 
         var opts = {
-            type: (post)?"POST":"GET"
+            type: (post)? "POST": "GET"
         }
 
-        if(ajax && list_view) {
+        if (ajax && list_view) {
             opts = $.extend(opts, {
-                success : function(data, status, req) {
+                success: function(data, status, req) {
                     //creme.utils.showDialog(gettext("Operation done"));
                     $a.parents('form').list_view('reload');
                 },
-                error : function(req, status, error){
-                    if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog(gettext("Error"));
-                    } else {
-                        creme.utils.showDialog(req.responseText);
-                    }
+                error: function(req, status, error) { //TODO: factorise
+//                     if(!req.responseText || req.responseText == "") {
+//                         creme.utils.showDialog(gettext("Error"));
+//                     } else {
+//                         creme.utils.showDialog(req.responseText);
+//                     }
+                    creme.utils.showDialog(req.responseText || gettext("Error"));
                 }
             });
         }
 
-        if(confirm) {
+        if (confirm) {
             creme.utils.confirmBeforeGo($a.attr('href'), ajax, opts);
         } else {
             creme.utils.go_to($a.attr('href'));

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,7 @@
 creme.utils = {};
 
 creme.utils.openWindow = function (url, name, params) {
-    if(!params || params == '' || typeof(params) == "undefined")
-        params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
-    window[name] = window.open(url,name,params);
+    window[name] = window.open(url, name, params || 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600');
 }
 
 creme.utils.reload = function (w) {
@@ -29,13 +27,13 @@ creme.utils.reload = function (w) {
 }
 
 creme.utils.loading = function(div_id, is_loaded, params) {
-    var $div = $('#'+div_id);
+    var $div = $('#' + div_id);
     if (is_loaded) {
         $div.dialog('destroy');
         $div.remove();//Clean
     } else {
         if ($div.size() == 0) {
-            $div = $('<div id="'+div_id+'" class="ui-widget-overlay" style="display:none;"></div>');
+            $div = $('<div id="' + div_id + '" class="ui-widget-overlay" style="display:none;"></div>');
             $(document.body).append($div);
         }
         $div.dialog(jQuery.extend({
@@ -55,24 +53,21 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 creme.utils.showDialog = function(text, options, div_id) {
     var $div = $('#' + div_id);
 
-    if($div.size() == 0) {
+    if ($div.size() == 0) {
         var d = new Date();
         div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
         $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
     $div.html(text);
-    //$div.append($('<input type="hidden"/>').attr('id','dialog_id').val(div_id));
-
-    var buttons = {};
-    buttons[gettext("Ok")] = function() {
-            $(this).dialog("close");
-            /*$(this).dialog("destroy");
-            $(this).remove();*/
-        }
 
     $div.dialog(jQuery.extend({
-        buttons: buttons,
+        buttons: [{text: gettext("Ok"),
+                   click: function() {
+                            $(this).dialog("close");
+                   }
+                 }
+        ],
         closeOnEscape: false,
         /*hide: 'slide',
         show: 'slide',*/
@@ -156,69 +151,88 @@ creme.utils.bindTableToggle = function($self) {
 
 creme.utils.bindShowHideTbody = function() {
 //    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
-    $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindTableToggle($(this));});
+    $('.table_detail_view').find('.collapser').each(function() {
+        creme.utils.bindTableToggle($(this));
+    });
 }
 
 creme.utils.simpleConfirm = function(cb, msg) {
-    var buttons = {};
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Ok")] = function() {
-        if(typeof(cb) != "undefined" && $.isFunction(cb)) {
-            cb();
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
-    }
+    var buttons = [{
+                        text: gettext("Ok"),
+                        click: function() {
+                            cb();
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   },
+                   {
+                        text: gettext("Cancel"),
+                        click: function() { //TODO: factorise
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   }
+    ];
+
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
 
-creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename ? factorise (see ajaxDelete()) ??
-    var buttons = {};
-
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Ok")] = function() {
-            if(typeof(ajax)!="undefined" && ajax==true) {
-                //$.get(href);
-                var defOpts = jQuery.extend({
-                    url : url,
-                    data : {},
-                    success : function(data, status, req) {
-                        //creme.utils.showDialog(gettext("Operation done"));
-                        creme.utils.reload(window); //TODO: reload listview content instead (so rename the function)
-                    },
-                    error : function(req, status, error) { //TODO factorise
-                        if(!req.responseText || req.responseText == "") {
-                            creme.utils.showDialog(gettext("Error"));
-                        } else {
-                            creme.utils.showDialog(req.responseText);
+creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
+    var buttons = [{
+                        text: gettext("Ok"),
+                        click: function() {
+                            if (ajax) {
+                                $.ajax(jQuery.extend({
+                                            url: url,
+                                            data: {},
+                                            success: function(data, status, req) {
+                                                creme.utils.reload(window); //TODO: reload listview content instead (so rename the function)
+                                            },
+                                            error: function(req, status, error) {
+                                                creme.utils.showDialog(req.responseText || gettext("Error"));
+                                            },
+                                            complete: function(request, textStatus) {},
+                                            sync: false,
+                                            //method: "GET",
+                                            parameters : undefined
+                                        }, ajax_options)
+                                );
+                                $(this).dialog("destroy");
+                                $(this).remove();
+                            } else {
+                                window.location.href = url;
+                            }
                         }
-                    },
-                    complete : function(request, textStatus) {},
-                    sync : false,
-                    //method: "GET",
-                    parameters : undefined
-                }, ajax_options);
+                   },
+                   {
+                        text: gettext("Cancel"),
+                        click: function() { //TODO: factorise
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   }
+    ];
 
-                $.ajax(defOpts);
-                $(this).dialog("destroy");
-                $(this).remove();
-            } else {
-                window.location.href = url;
-            }
-        }
-    //creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
 creme.utils.confirmSubmit = function(atag) {
-    var buttons = {};
-
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Ok")] = function() {
-                    $('form', $(atag)).submit();
-                    $(this).dialog("destroy");
-                    $(this).remove();
-                }
+    var buttons = [{
+                        text: gettext("Ok"),
+                        click: function() {
+                            $('form', $(atag)).submit();
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   },
+                   {
+                        text: gettext("Cancel"),
+                        click: function() { //TODO: factorise
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   }
+    ];
 
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
@@ -259,128 +273,114 @@ creme.utils.handleSort = function(sort_field, sort_order, new_sort_field, input,
         $sort_order.val("");
     }
     $sort_field.val(new_sort_field);
-    if(typeof(callback) == "function") callback(input);
+//     if(typeof(callback) == "function") callback(input);
+    if ($.isFunction(callback))
+        callback(input);
 }
 
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
 
 creme.utils.showInnerPopup = function(url, options, div_id, ajax_options, reload) {
-//    console.log("creme.utils.showInnerPopup("+url+","+options+","+div_id+")");
-    
-    var reload_on_close = creme.object.isTrue(reload)
+    var reload_on_close = creme.object.isTrue(reload);
 
-    var $div = $('#'+div_id);
-    if($div.size() == 0) {
+    var $div = $('#' + div_id);
+    if ($div.size() == 0) {
         var d = new Date();
         div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
-        $div = $('<div id="'+div_id+'"  style="display:none;"></div>');
+        $div = $('<div id="' + div_id + '"  style="display:none;"></div>');
         $(document.body).append($div);
     }
-    url += (url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
+    url += (url.indexOf('?') != -1) ? '&whoami=' + div_id: '?whoami=' + div_id; //TODO: use jquery method that builds URLs ?
     $.ajax(jQuery.extend({
         url: url,
         type: "GET",
         success: function(data) {
-            //var data = $(data).remove('meta,title,html');
-            /*$(document.body).append($('<div id="temp"></div>').append(data))
-            var $temp = $('#temp');
-            $temp.remove('meta,title,html');
-            data = $temp.html();
-            $temp.empty().remove();*/
             creme.utils.stackedPopups.push('#' + div_id);
-
-//            console.log("On stacke : #"+div_id);
-//            console.log("Etat de creme.utils.stackedPopups : ["+creme.utils.stackedPopups+"]");
-
-            var close_button = {};
-            close_button[gettext("Close")] = function() { //$(this).dialog('close');
-                                                             if (options !== undefined && Object.isFunc(options.cancel)) {
+            creme.utils.showDialog(data,
+                                   jQuery.extend({
+                                       buttons: [{text: gettext("Cancel"),
+                                                  click: function() { //$(this).dialog('close');
+                                                             if (options !== undefined && $.isFunction(options.cancel)) {
                                                                  options.cancel($(this));
                                                              }
 
                                                              creme.utils.closeDialog($(this), reload_on_close);
                                                         }
-
-            creme.utils.showDialog(data,
-                                   jQuery.extend({
-                                       buttons: close_button,
+                                                 }
+                                                ],
                                        close: function(event, ui) {
-                                           // COMNENTED on 7 march 2012 (seems usless, already called by jquery close handler)
-                                           //if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose)) {
-                                           //   options.beforeClose(event, ui, $(this));
-                                           //}
                                            creme.utils.closeDialog($(this), false);
                                        },
                                        open: function(event, ui) {
                                             var $me = $(event.target);
                                             var $form = $('[name=inner_body]', $me).find('form');
 
-                                            if($form.size() > 0 && (typeof(options)=="undefined"||typeof(options['send_button'])=="undefined"||options['send_button']==true)) {
+                                            if (options === undefined) //TODO: move this code in the start of the function ?
+                                                options = {};
+
+                                            var send_button = options['send_button']; //function or boolean (if defined)
+
+                                            if ($form.size() || send_button) {
+                                                var submit_handler;
+
+                                                if ($.isFunction(send_button))
+                                                    submit_handler = function() {send_button($me);};
+                                                else
+                                                    submit_handler = function() {creme.utils.handleDialogSubmit($me);};
+
+                                                //$form.live('submit', function() {creme.utils.handleDialogSubmit($me);});
+
                                                 var buttons = $me.dialog('option', 'buttons');
-                                                buttons[gettext("Send")] = function() {creme.utils.handleDialogSubmit($me);}
-                                                $form.live('submit',function() {creme.utils.handleDialogSubmit($me);});
-                                                $me.dialog('option', 'buttons', buttons);
-                                            }
-//                                            else if($form.size() > 0 && typeof(options)!="undefined" & typeof(options['send_button'])=="function"){
-                                            else if(typeof(options)!="undefined" && typeof(options['send_button']) == "function") {
-                                                var buttons = $me.dialog('option', 'buttons');
-                                                buttons[options['send_button_label'] || gettext("Send")] = function(){options['send_button']($me);}
+                                                //TODO: use the OS order for 'Cancel'/'OK' buttons
+                                                buttons.unshift({text: options['send_button_label'] || gettext("Save"),
+                                                                 click: submit_handler
+                                                                }
+                                                               );
                                                 $me.dialog('option', 'buttons', buttons);
                                             }
                                        }
                                        //closeOnEscape: true
-                                       //help_text : "Touche Echap pour fermer."
+                                       //help_text : "Tape Escape to close."
                                    },options), div_id
            );
         },
-        error : function(req, status, error){
-            if(!req.responseText || req.responseText == "") {
-                creme.utils.showDialog(gettext("Error during loading the page."));
-            } else {
-                creme.utils.showDialog(req.responseText);
-            }
+        error: function(req, status, error) {
+//             if (!req.responseText || req.responseText == "") {
+//                 creme.utils.showDialog(gettext("Error during loading the page."));
+//             } else {
+//                 creme.utils.showDialog(req.responseText);
+//             }
+            creme.utils.showDialog(req.responseText || gettext("Error during loading the page."));
         }
     }, ajax_options));
+
     return div_id;
 }
 
 creme.utils.handleDialogSubmit = function(dialog) {
     var div_id = dialog.attr('id');
     var $form = $('[name=inner_body]', dialog).find('form');
-
-    var post_url = $('[name=inner_header_from_url]',dialog).val();
-
-    /* Commented 05 august 2011
-    //TODO: use jquery.serialise
-    var post_data = {}
-    $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function() {
-       var $node = $(this);
-       var $node_value = $node.val();
-       if($node.is(':select') && $node.is('[multiple=true]') && $node_value == null) return;
-       if(!$node.is(':checkbox') && !$node.is(':radio')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
-       if($node.is(':checked') && $node.is(':radio')) post_data[$node.attr('name')] = (!$node_value || $node_value==null)? "" : $node_value;
-       if($node.is(':checked') && !$node.is(':radio')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
-    });
-    post_data['whoami'] = div_id;
-    */
+    var post_url = $('[name=inner_header_from_url]', dialog).val();
 
     var data = $form.serialize();
-    if(data.length > 0) data += "&";
-    data += "whoami="+div_id;
+    if (data.length > 0) data += "&";
+    data += "whoami=" + div_id;
 
     $.ajax({
           type: $form.attr('method'),
           url: post_url,
 //          data : post_data,
-          data : data,
-          beforeSend : function(request) {
+          data: data,
+          beforeSend: function(request) {
               creme.utils.loading('loading', false, {});
           },
           success: function(data, status) {
-              data += '<input type="hidden" name="whoami" value="'+div_id+'"/>'
-              $('[name=inner_body]','#'+div_id).html(data);
+              data += '<input type="hidden" name="whoami" value="' + div_id + '"/>'
+              $('[name=inner_body]', '#' + div_id).html(data);
+
               var $error_list = $('.errorlist:first', '.non_field_errors');
-              if($error_list.size() > 0){
+
+              if ($error_list.size() > 0){
                 var err_pos = $error_list.position();
                 scrollTo(err_pos.left, err_pos.top);
               }
@@ -393,13 +393,14 @@ creme.utils.handleDialogSubmit = function(dialog) {
               creme.utils.loading('loading', true, {});
           }
     });
+
     return false;
 }
 
 creme.utils.iframeInnerPopup = function(url) {
     creme.utils.showInnerPopup(url,
                                {
-                                   'send_button': function($dialog) {
+                                   send_button: function($dialog) {
                                         creme.ajax.jqueryFormSubmit(
                                             $('[name=inner_body]', $dialog).find('form'),
                                             function(data) {
@@ -411,7 +412,7 @@ creme.utils.iframeInnerPopup = function(url) {
                                                 body.append(data);
                                                 body.append($('<input type="hidden" name="whoami">').val(div_id));
 
-                                                if(data.attr('closing') !== undefined) {
+                                                if (data.attr('closing') !== undefined) {
                                                     creme.utils.closeDialog($dialog, true);
                                                 }
                                             },
@@ -419,37 +420,31 @@ creme.utils.iframeInnerPopup = function(url) {
                                                 creme.utils.closeDialog($dialog, true);
                                                 creme.utils.showErrorNReload();
                                             },
-                                            {'action': $('[name=inner_header_from_url]',$dialog).val()}
+                                            {action: $('[name=inner_header_from_url]', $dialog).val()}
                                         );
                                     }
                                 });
 }
 
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
-//    console.log("creme.utils.closeDialog("+dial+");");
-//    console.log($(dial));
-//    console.log("creme.utils.closeDialog=>creme.utils.stackedPopups : "+creme.utils.stackedPopups);
-
     $(dial).dialog("destroy");
     $(dial).remove();
     creme.utils.stackedPopups.pop();//Remove dial from opened dialog array
-//    console.log("creme.utils.stackedPopups post pop:"+creme.utils.stackedPopups);
-    if(beforeReloadCb != undefined && $.isFunction(beforeReloadCb)) {
+
+//     if (beforeReloadCb != undefined && $.isFunction(beforeReloadCb)) {
+    if ($.isFunction(beforeReloadCb))
         beforeReloadCb();
-    }
+
     // add by Jonathan 20/05/2010 in order to have a different callback url for inner popup if needs
-    if(callback_url != undefined) {
-        document.location = callback_url
-    } else {
-        if(reload) creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);//Get the dial's parent dialog or window
+    if (callback_url != undefined) {
+        document.location = callback_url;
+    } else if(reload) {
+        creme.utils.reloadDialog(creme.utils.stackedPopups[creme.utils.stackedPopups.length-1] || window);//Get the dial's parent dialog or window
     }
-//    console.log("Etat de la stack apres le reload:"+creme.utils.stackedPopups);
 }
 
 creme.utils.reloadDialog = function(dial) {
-//    console.log("creme.utils.reloadDialog("+dial+")");
-    //if(dial==window) return;//reload(window);
-    if(dial == window) {
+    if (dial == window) {
         creme.utils.reload(window);
         return;
     }
@@ -457,128 +452,119 @@ creme.utils.reloadDialog = function(dial) {
     var reload_url = $(dial).find('[name=inner_header_from_url]').val();
     var div_id     = $(dial).find('[name=whoami]').val();
 
-    reload_url += (reload_url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
+    reload_url += (reload_url.indexOf('?') != -1) ? '&whoami=' + div_id:
+                                                    '?whoami=' + div_id;
 
-//    console.log("reload_url:"+reload_url);
-//    console.log("div_id:"+div_id);
-
-    $.get(
-        reload_url,
-        function(data){
-            /*$(document.body).append($('<div id="temp"></div>').append(data));
-            var $temp = $('#temp');
-            $temp.remove('meta,title,html');
-            data = $temp.html();
-            $temp.empty().remove();*/
-            $(dial).html(data);
-        }
-    );
+    $.get(reload_url, function(data) { $(dial).html(data); });
 }
 
 creme.utils.sleep = function(fn, time) {
-    var time = time || 3000;
-    setTimeout(fn, time);
+    setTimeout(fn, time || 3000);
 }
 
 creme.utils.appendInUrl = function(url, strToAppend) {
     var index_get = url.indexOf('?');
     var get = "", anchor = "";
 
-    if(index_get > -1) {
+    if (index_get > -1) {
         get = url.substring(index_get, url.length);
         url = url.substring(0, index_get);
     }
     var index_anchor = url.indexOf('#');
-    if(index_anchor > -1) {
+    if (index_anchor > -1) {
         anchor = url.substring(index_anchor, url.length);
         url = url.substring(0, index_anchor);
     }
 
-    if(strToAppend.indexOf('?') > -1) {
-        url += strToAppend+get.replace('?','&');
-    } else if(strToAppend.indexOf('&') > -1) {
+    if (strToAppend.indexOf('?') > -1) {
+        url += strToAppend+get.replace('?', '&');
+    } else if (strToAppend.indexOf('&') > -1) {
         url += get + strToAppend;
     } else url += strToAppend + get;
 
-    return url+anchor;
+    return url + anchor;
 }
 
 creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
-    var buttons = {};
+    //TODO: order of the OS for the buttons
+    var buttons = [{
+                        text: gettext("Ok"), //TODO: improve message ('Delete', 'Unlink'...)
+                        click: function() {
+                            var options = jQuery.extend({
+                                url: url,
+                                data: _data,
+                                beforeSend: function(req) {
+                                    creme.utils.loading('loading', false);
+                                },
+                                error: function(req, status, error) {
+//                                     if(!req.responseText || req.responseText == "") {
+//                                         creme.utils.showDialog(gettext("Error"));
+//                                     } else {
+//                                         creme.utils.showDialog(req.responseText);
+//                                     }
+                                    creme.utils.showDialog(req.responseText || gettext("Error"));
+                                },
+                                complete: function(request, textStatus) {
+                                    creme.utils.loading('loading', true);
+                                },
+                                sync: false,
+                                type: "POST"
+                            }, ajax_params);
 
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Ok")] = function() {
-            var defOpts = jQuery.extend({
-                url: url,
-                data: _data,
-                beforeSend : function(req) {
-                    creme.utils.loading('loading', false);
-                },
-//                 success: function(data, status, req) {
-//                     creme.utils.showDialog(gettext("Suppression done"));
-//                 },
-                error: function(req, status, error) {
-                    if(!req.responseText || req.responseText == "") {
-                        creme.utils.showDialog(gettext("Error"));
-                    } else {
-                        creme.utils.showDialog(req.responseText);
-                    }
-                },
-                complete: function(request, textStatus) {
-                    creme.utils.loading('loading', true);
-                },
-                sync: false,
-                type: "POST"
-            }, ajax_params);
-
-            $.ajax(defOpts);
-            //creme.ajax.json.send(url, defOpts.data, defOpts.success_cb, defOpts.error_cb, defOpts.sync,defOpts.method,defOpts.parameters);
-            $(this).dialog("destroy");
-            $(this).remove();
-        }
+                            $.ajax(options);
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   },
+                   {
+                        text: gettext("Cancel"),
+                        click: function() {
+                            $(this).dialog("destroy");
+                            $(this).remove();
+                        }
+                   }
+        ];
 
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
 
 //TODO: move to a block.py (and postNReload() etc...)???
 creme.utils.innerPopupNReload = function(url, reload_url) {
-    creme.utils.showInnerPopup(url,
-                              {
-                                  beforeClose: function(event, ui, dial) {
-                                                    creme.utils.loadBlock(reload_url);
-                                                }
-                              });
+    creme.utils.showInnerPopup(url, {
+        beforeClose: function(event, ui, dial) {
+            creme.utils.loadBlock(reload_url);
+        }
+    });
 }
 
 creme.utils.postNReload = function(url, reload_url) {
     creme.ajax.post({
-                'url': url,
-                'success': function(data, status) {
-                      creme.utils.loadBlock(reload_url);
-                    }
-            });
+        url: url,
+        success: function(data, status) {
+            creme.utils.loadBlock(reload_url);
+        }
+    });
 }
 
 creme.utils.submitNReload = function(form, reload_url, options) {
     var defaults = {
-        'success': function(data, status) {
+        success: function(data, status) {
           creme.utils.loadBlock(reload_url);
         }
     }
-    options = $.extend(defaults, options);
-    creme.ajax.submit(form, true, options);
+    creme.ajax.submit(form, true, $.extend(defaults, options));
 }
 
 creme.utils.handleResearch = function(target_node_id, from) {
     var research =  $('[name=research]', from).val();
-    var _data = {'ct_id':    $('[name=ct_id]', from).val(),
-                 'research': research
-                };
 
     $.ajax({
         url: '/creme_core/search',
         type: 'POST',
-        data: _data,
+        data: {
+                ct_id:    $('[name=ct_id]', from).val(),
+                research: research
+        },
         dataType: 'html',
         success: function(data, status, req) {
             $('#' + target_node_id).html(data);
@@ -613,7 +599,7 @@ creme.utils.handleQuickForms = function(url, $scope_from, targets) {
 }
 
 creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
-    if($(lv_selector).list_view('countEntities') == 0) {
+    if ($(lv_selector).list_view('countEntities') == 0) {
         creme.utils.showDialog(gettext("Please select at least one entity."));
         return;
     }
@@ -621,19 +607,19 @@ creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {
     $(lv_selector).list_view('option', 'entity_separator', ',');
 
     var ajax_opts = {
-        complete : function(request, textStatus) {
-                            $(lv_selector).list_view('reload');
-                            creme.utils.loading('loading', true);
-                    }
+        complete: function(request, textStatus) {
+                        $(lv_selector).list_view('reload');
+                        creme.utils.loading('loading', true);
+                  }
     };
     //TODO: gettext("Are you sure ?") useless ??
-    creme.utils.ajaxDelete(delete_url, {'ids' : $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, gettext("Are you sure ?"));
+    creme.utils.ajaxDelete(delete_url, {ids: $(lv_selector).list_view('getSelectedEntities')}, ajax_opts, gettext("Are you sure ?"));
 }
 
 creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_selector) {
     var $select_all = $(select_all_selector);
 
-    if(!$(from).is(':checked')) {
+    if (!$(from).is(':checked')) {
         $select_all.uncheck();
         return;
     }
@@ -643,7 +629,7 @@ creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_s
         all_checked = all_checked & $(this).is(':checked');
     });
 
-    if(all_checked) {
+    if (all_checked) {
         $select_all.check();
     } else {
         $select_all.uncheck();
@@ -651,7 +637,7 @@ creme.utils.autoCheckallState = function(from, select_all_selector, checkboxes_s
 };
 
 creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
-    if($(select_all).is(':checked')) {
+    if ($(select_all).is(':checked')) {
         $(checkboxes_selector).check();
     } else {
         $(checkboxes_selector).uncheck();
@@ -660,8 +646,10 @@ creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
 
 //TODO: rename (goTo ??)
 creme.utils.go_to = function(url, ajax, ajax_options) {
-    if(typeof(ajax) != "undefined" && ajax) {
-        if(typeof(ajax_options) != "undefined" && ajax_options) {
+//     if(typeof(ajax) != "undefined" && ajax) {
+    if (ajax) { // TODO: seems unused
+//         if(typeof(ajax_options) != "undefined" && ajax_options) {
+        if (ajax_options) {
             $(ajax_options.target).load(url, ajax_options.data, ajax_options.complete);
         } else {
             $("#sub_content").load(url, {}, null);
@@ -673,19 +661,19 @@ creme.utils.go_to = function(url, ajax, ajax_options) {
 
 creme.utils.range = function(start, end) {
     var tab = [];
-    for(var i=start||0; i < end; i++) {
+    for (var i=start||0; i < end; i++) {
         tab.push(i);
     }
 
     return tab;
 };
 
-creme.utils.HEXtoRGB = function(hex){//Extracted from gccolor-1.0.3 plugin
+creme.utils.HEXtoRGB = function(hex) {//Extracted from gccolor-1.0.3 plugin
     var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);
     return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
 };
 
-creme.utils.RGBtoHSB = function(rgb){
+creme.utils.RGBtoHSB = function(rgb) {
     var hsb = {};
     hsb.b = Math.max(Math.max(rgb.r, rgb.g), rgb.b);
     hsb.s = (hsb.b <= 0) ? 0 : Math.round(100 * (hsb.b - Math.min(Math.min(rgb.r, rgb.g), rgb.b)) / hsb.b);
@@ -702,7 +690,7 @@ creme.utils.RGBtoHSB = function(rgb){
     return hsb;
 };
 
-creme.utils.luminance = function (r, g, b) {
+creme.utils.luminance = function(r, g, b) {
     r = Math.pow (r / 255, 2.2);
     g = Math.pow (g / 255, 2.2);
     b = Math.pow (b / 255, 2.2);
@@ -710,19 +698,19 @@ creme.utils.luminance = function (r, g, b) {
     return 0.212671*r + 0.715160*g + 0.072169*b;
 };
 
-creme.utils.contrast = function (r, g, b, r2, g2, b2) {
-    var luminance1 = creme.utils.luminance (r, g, b);
-    var luminance2 = creme.utils.luminance (r2, g2, b2);
+creme.utils.contrast = function(r, g, b, r2, g2, b2) {
+    var luminance1 = creme.utils.luminance(r, g, b);
+    var luminance2 = creme.utils.luminance(r2, g2, b2);
     return (Math.max(luminance1, luminance2) + 0.05) / (Math.min(luminance1, luminance2) + 0.05);
 };
 
-creme.utils.maxContrastingColor = function (r, g, b) {
-    var withWhite = creme.utils.contrast (r, g, b, 255, 255, 255);
-    var withBlack = creme.utils.contrast (r, g, b, 0, 0, 0);
+creme.utils.maxContrastingColor = function(r, g, b) {
+    var withWhite = creme.utils.contrast(r, g, b, 255, 255, 255);
+    var withBlack = creme.utils.contrast(r, g, b, 0, 0, 0);
 
     if (withWhite > withBlack)
         return 'white';
-    return 'black';
+    return 'black'; //TODO: ? 'white': 'black';
 };
 
 creme.utils.showErrorNReload = function() {
@@ -734,7 +722,8 @@ creme.utils.showErrorNReload = function() {
 
 creme.utils.scrollTo = function($elements) {
     var $element = $elements.first();
-    if($element.size() == 1) {
+
+    if ($element.size() == 1) {
         var elementPos = $element.position();
         scrollTo(elementPos.left, elementPos.top);
     }

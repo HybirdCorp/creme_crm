@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-    {% with logo='images/edit_64.png' %}
+    {% with logo='images/edit_64.png' submit_label=submit_label|default:_('Save the modifications') %}
         {% if not title %}
             {% trans 'Edit «%s»' as fmt %}
             {% include "creme_core/generics/blockform/base.html" with title=object|format:fmt %}

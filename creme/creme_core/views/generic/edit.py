@@ -33,16 +33,25 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
     user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
-        form = edit_form(user=user, data=request.POST, files=request.FILES or None, instance=entity)
+        POST = request.POST
+        form = edit_form(user=user, data=POST, files=request.FILES or None, instance=entity)
 
         if form.is_valid():
             form.save()
 
             return redirect(entity)
-    else:
-        form = edit_form(user=user, instance=entity)
 
-    return render(request, template, {'form': form, 'object': entity})
+        cancel_url = POST.get('cancel_url')
+    else: #GET
+        form = edit_form(user=user, instance=entity)
+        cancel_url = request.META.get('HTTP_REFERER')
+
+    return render(request, template,
+                  {'form': form,
+                   'object': entity,
+                   'submit_label': _('Save the modifications'),
+                   'cancel_url': cancel_url,
+                  })
 
 def edit_related_to_entity(request, pk, model, form_class, title_format):
     """Edit a model related to a CremeEntity.

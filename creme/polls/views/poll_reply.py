@@ -24,7 +24,7 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.html import escape
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -65,6 +65,7 @@ def add(request):
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form':  reply_form,
                    'title': PollReply.creation_label,
+                   'submit_label': _('Save the replies'),
                   }
                  )
 
@@ -79,7 +80,7 @@ def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
     user.has_perm_to_link_or_die(pform)
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                _(u'New replies for <%s>') % pform,
+                                ugettext(u'New replies for <%s>') % pform,
                                 initial={'pform': pform},
                                )
 
@@ -94,7 +95,7 @@ def add_from_campaign(request, campaign_id): #TODO: factorise ?
     user.has_perm_to_link_or_die(campaign)
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                _(u'New replies for <%s>') % campaign,
+                                ugettext(u'New replies for <%s>') % campaign,
                                 initial={'campaign': campaign},
                                )
 
@@ -114,7 +115,7 @@ def add_from_person(request, person_id):
         raise Http404('You can only create from Contacts & Organisations')
 
     return add_model_with_popup(request, PollRepliesCreateForm,
-                                _(u'New replies for <%s>') % person,
+                                ugettext(u'New replies for <%s>') % person,
                                 initial={'persons': [person]},
                                )
 
@@ -140,13 +141,13 @@ def listview(request):
 @permission_required('persons')
 def link_to_person(request, person_id):
     return add_to_entity(request, person_id, PersonAddRepliesForm,
-                         _('Existing replies for <%s>'), link_perm=True,
+                         ugettext('Existing replies for <%s>'), link_perm=True,
                         )
 
 #TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
-        answer = _('N/A')
+        answer = ugettext('N/A')
     elif isinstance(line.poll_line_type, MultiEnumPollLineType): #TODO: isinstance(answer, list) ??
         answer = u", ".join(escape(choice) for choice in line.answer)
     else:
@@ -156,11 +157,11 @@ def _format_previous_answered_question(preply_id, line, style):
     return mark_safe(u'<b>%(title)s</b><br>'
                       '%(label)s : %(number)s %(question)s<br>'
                       '%(answer_str)s : %(answer)s <a class="add" href="/polls/poll_reply/%(mreply_id)s/line/%(line_id)s/edit_wizard"><img src="%(img_src)s" alt="Edit" title="Edit"></a>'
-                        % {'title':         _(u"Reminder of the previous answered question :"),
-                           'label':         _('Question'),
+                        % {'title':         ugettext(u"Reminder of the previous answered question :"),
+                           'label':         ugettext('Question'),
                            'number':        '%s -' % number if number != 'None' else '',
                            'question':      escape(line.question),
-                           'answer_str':    _('Answer'),
+                           'answer_str':    ugettext('Answer'),
                            'answer':        answer,
                            'mreply_id':     preply_id,
                            'line_id':       line.id,
@@ -221,7 +222,7 @@ def edit_line_wizard(request, preply_id, line_id):
         form = PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title' :       _(u'Answers of the form : %s') % preply,
+                  {'title' :       ugettext(u'Answers of the form : %s') % preply,
                    'form':         form,
                    'help_message': previous_answer,
                   }
@@ -236,7 +237,7 @@ def fill(request, preply_id):
     user.has_perm_to_change_or_die(preply)
 
     if preply.is_complete:
-        raise Http404(_(u'All questions have been answered.'))
+        raise Http404(ugettext(u'All questions have been answered.'))
 
     tree = ReplySectionTree(preply)
     line_node = tree.next_question_to_answer
@@ -273,7 +274,7 @@ def fill(request, preply_id):
         form = PollReplyFillForm(line_node=line_node, user=user)
 
     return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        _(u'Answers of the form : %s') % preply,
+                  {'title':        ugettext(u'Answers of the form : %s') % preply,
                    'form':         form,
                    'help_message': previous_answer,
                   }
@@ -344,7 +345,7 @@ def edit_line(request, preply_id, line_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
-                        'title': _(u'Answer edition'),
+                        'title': ugettext(u'Answer edition'),
                         #TODO: help_text (cleared answers + conditions etc...) ??
                        },
                        is_valid=edit_form.is_valid(),

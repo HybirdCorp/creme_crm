@@ -34,7 +34,9 @@ from ..forms.folder import FolderForm
 @permission_required('documents')
 @permission_required('documents.add_folder')
 def add(request):
-    return add_entity(request, FolderForm)
+    return add_entity(request, FolderForm,
+                      extra_template_dict={'submit_label': _('Save the folder')},
+                     )
 
 @login_required
 @permission_required('documents')

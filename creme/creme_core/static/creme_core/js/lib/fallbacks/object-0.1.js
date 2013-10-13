@@ -54,7 +54,7 @@
     appendStatic('values', function(obj, all) {
         values = [];
 
-        for(key in obj) {
+        for (key in obj) {
             if (all || obj.hasOwnProperty(key)) {
                 values.push(obj[key]);
             }
@@ -86,7 +86,7 @@
         if (typeof obj === 'number')
             return false;
 
-        for(var name in obj) {
+        for (var name in obj) {
             return false;
         }
 

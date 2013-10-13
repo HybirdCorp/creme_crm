@@ -61,6 +61,7 @@ def _add_activity(request, form_class,
                   {'form':             form,
                    'title':            Activity.get_creation_title(type_id),
                    'content_template': content_template,
+                   'submit_label':     _('Save the activity'),
                   }
                  )
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-12 11:12+0200\n"
+"POT-Creation-Date: 2013-10-13 18:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,15 +20,15 @@ msgstr ""
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: blocks.py:55
+#: blocks.py:56
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: blocks.py:75 models/graph.py:51
+#: blocks.py:76 models/graph.py:51
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: creme_core_register.py:30 models/report.py:397
+#: creme_core_register.py:30 models/report.py:355
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
@@ -159,7 +159,6 @@ msgid "Fields"
 msgstr "Champs"
 
 #: forms/graph.py:97
-#, fuzzy
 msgid "Relationships"
 msgstr "Relations"
 
@@ -169,11 +168,11 @@ msgstr "Champs personnalisés"
 
 #: forms/graph.py:137
 msgid "No field is usable for aggregation"
-msgstr ""
+msgstr "Aucun n'est utilisable pour un aggrégat"
 
 #: forms/graph.py:143
 msgid "You must make a count because no field is usable for aggregation"
-msgstr ""
+msgstr "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour un aggrégat"
 
 #: forms/graph.py:265 forms/graph.py:272
 msgid "You have to specify a day range if you use 'by X days'"
@@ -182,7 +181,7 @@ msgstr ""
 
 #: forms/graph.py:278
 msgid "This field is required if you choose a field to aggregate."
-msgstr ""
+msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
 
 #: forms/graph.py:280
 msgid ""
@@ -200,7 +199,7 @@ msgstr "Vue existante"
 msgid "The columns of the report will be copied from the list view."
 msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
 
-#: forms/report.py:156 models/report.py:390
+#: forms/report.py:156 models/report.py:347
 msgid "Filter"
 msgstr "Filtre"
 
@@ -250,7 +249,6 @@ msgid "Date filter"
 msgstr "Filtre temporel"
 
 #: forms/report.py:511
-#, fuzzy
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -298,39 +296,39 @@ msgstr "Graphiques de rapport"
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
 
-#: models/report.py:67
+#: models/report.py:47
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:76
+#: models/report.py:56
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:77
+#: models/report.py:57
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: models/report.py:292
-msgid "N/A"
-msgstr "NC"
+#: models/report.py:289
+msgid "Problem with function field"
+msgstr "Problème avec le champ fonction"
 
-#: models/report.py:384
+#: models/report.py:341
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:386
+#: models/report.py:343
 msgid "Entity type"
 msgstr "Type de fiche"
 
-#: models/report.py:387
+#: models/report.py:344
 msgid "Displayed columns"
 msgstr "Colonnes affichées"
 
-#: models/report.py:392
+#: models/report.py:349
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
-#: models/report.py:396 templates/reports/preview_report.html:10
+#: models/report.py:354 templates/reports/preview_report.html:10
 msgid "Report"
 msgstr "Rapport"
 
@@ -457,41 +455,41 @@ msgstr "Action(s)"
 msgid "Expand ?"
 msgstr "Développer ?"
 
-#: templates/reports/templatetags/block_report_fields.html:49
+#: templates/reports/templatetags/block_report_fields.html:50
 msgid "Columns of"
 msgstr "Colonnes de"
 
-#: templates/reports/templatetags/block_report_fields.html:51
+#: templates/reports/templatetags/block_report_fields.html:52
 msgid "Value"
 msgstr "Valeur"
 
-#: templates/reports/templatetags/block_report_fields.html:64
-#: templates/reports/templatetags/block_report_fields.html:66
-#: templates/reports/templatetags/block_report_fields.html:78
-#: templates/reports/templatetags/block_report_fields.html:80
-#: templates/reports/templatetags/block_report_fields.html:90
-#: templates/reports/templatetags/block_report_fields.html:92
+#: templates/reports/templatetags/block_report_fields.html:65
+#: templates/reports/templatetags/block_report_fields.html:67
+#: templates/reports/templatetags/block_report_fields.html:79
+#: templates/reports/templatetags/block_report_fields.html:81
+#: templates/reports/templatetags/block_report_fields.html:91
+#: templates/reports/templatetags/block_report_fields.html:93
 msgid "Unlink the report"
 msgstr "Délier le rapport"
 
-#: templates/reports/templatetags/block_report_fields.html:70
-#: templates/reports/templatetags/block_report_fields.html:72
-#: templates/reports/templatetags/block_report_fields.html:83
-#: templates/reports/templatetags/block_report_fields.html:85
-#: templates/reports/templatetags/block_report_fields.html:95
-#: templates/reports/templatetags/block_report_fields.html:97
+#: templates/reports/templatetags/block_report_fields.html:71
+#: templates/reports/templatetags/block_report_fields.html:73
+#: templates/reports/templatetags/block_report_fields.html:84
+#: templates/reports/templatetags/block_report_fields.html:86
+#: templates/reports/templatetags/block_report_fields.html:96
+#: templates/reports/templatetags/block_report_fields.html:98
 msgid "Link a report"
 msgstr "Lier un rapport"
 
-#: templates/reports/templatetags/block_report_fields.html:102
+#: templates/reports/templatetags/block_report_fields.html:103
 msgid "Column up"
 msgstr "Monter la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:111
+#: templates/reports/templatetags/block_report_fields.html:114
 msgid "Column down"
 msgstr "Descendre la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:136
+#: templates/reports/templatetags/block_report_fields.html:140
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
@@ -653,20 +651,27 @@ msgstr "Choisir un champ d'abscisse"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:109
+#: views/report.py:52
+msgid "Save the report"
+msgstr "Enregistrer le rapport"
+
+#: views/report.py:112
 #, python-format
 msgid "Link of the column <%s>"
 msgstr "Liaison de la colonne <%s>"
 
-#: views/report.py:184
+#: views/report.py:187
 #, python-format
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
 
-#: views/report.py:371
+#: views/report.py:376
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"
+
+#~ msgid "N/A"
+#~ msgstr "NC"
 
 #~ msgid "Select from a existing view : "
 #~ msgstr "Sélectionnez à partir d'une vue de liste existante : "

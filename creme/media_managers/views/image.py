@@ -18,14 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
-from django.template import RequestContext, Template
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.template import RequestContext, Template
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, list_view_popup_from_widget
+from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
+        view_entity, list_view_popup_from_widget)
 from creme.creme_core.utils import jsonify
 
 from ..models import Image
@@ -48,7 +50,10 @@ def add(request):
 
     return_path = '/media_managers/image/%s%%s?from_id=%s' % (popup, req_get('from_id', ''))
 
-    return add_entity(request, ImageCreateForm, return_path, **kwargs)
+    return add_entity(request, ImageCreateForm, return_path,
+                      extra_template_dict={'submit_label': _('Save the image')},
+                      **kwargs
+                     )
 
 @login_required
 @permission_required('media_managers')

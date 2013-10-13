@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic import view_entity, add_entity, edit_entity, list_view
 
@@ -30,7 +31,9 @@ from ..forms.campaign import PollCampaignForm
 @permission_required('polls')
 @permission_required('polls.add_pollcampaign')
 def add(request):
-    return add_entity(request, PollCampaignForm)
+    return add_entity(request, PollCampaignForm,
+                      extra_template_dict={'submit_label': _('Save the campaign of polls')},
+                     )
 
 @login_required
 @permission_required('polls')

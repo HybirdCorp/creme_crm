@@ -55,58 +55,8 @@ creme.ajax.submit = function(form, data, options) {//Tip: If data === true => da
 
         var defaults = {
             method : $form.attr('method'),
-            action : ($form.attr('action')=="") ? window.location.href : $form.attr('action'),
+            action : ($form.attr('action') == "") ? window.location.href : $form.attr('action'),
             async  : true,
-            cache  : true,
-            beforeSend : null,
-            success : null,
-            beforeError : null,
-            beforeComplete : null,
-            error : function(){
-                creme.utils.showErrorNReload();
-            },
-            afterError : null,
-            complete : null
-        };
-
-        var opts = $.extend(defaults, options);
-        if(data === true){
-            data = $form.serialize();
-        }
-
-        $.ajax({
-              url: opts.action,
-              type: opts.method,
-              data : data,
-              async : opts.async,
-
-              beforeSend : function(request){
-                  creme.utils.loading('loading', false, {});
-                  if(opts.beforeSend) opts.beforeSend(request);
-              },
-              success: function(returnedData, status) {
-                if(opts.success) opts.success(returnedData, status);
-              },
-              error: function(request, status, error) {
-                  if(opts.beforeError) opts.beforeError(request, status, error);
-                  if(opts.error) opts.error(request, status, error);
-                  if(opts.afterError) opts.afterError(request, status, error);
-              },
-              complete:function (request, status) {
-                  if(opts.beforeComplete) opts.beforeComplete(request, status);
-                  creme.utils.loading('loading', true, {});
-                  if(opts.complete) opts.complete(request, status);
-              }
-        });
-};
-
-creme.ajax.ajax = function(options) {
-        options = $.extend({
-            type   : "GET",
-            url : "",
-            async  : true,
-            data   : {},
-            dataType : "html",
             cache  : true,
             beforeSend : null,
             success : null,
@@ -117,31 +67,79 @@ creme.ajax.ajax = function(options) {
             },
             afterError : null,
             complete : null
+        };
+
+        var opts = $.extend(defaults, options);
+        if (data === true) {
+            data = $form.serialize();
+        }
+
+        $.ajax({
+              url: opts.action,
+              type: opts.method,
+              data: data,
+              async: opts.async,
+              beforeSend : function(request){
+                  creme.utils.loading('loading', false, {});
+                  if(opts.beforeSend) opts.beforeSend(request);
+              },
+              success: function(returnedData, status) {
+                if (opts.success) opts.success(returnedData, status);
+              },
+              error: function(request, status, error) {
+                  if (opts.beforeError) opts.beforeError(request, status, error);
+                  if (opts.error) opts.error(request, status, error);
+                  if (opts.afterError) opts.afterError(request, status, error);
+              },
+              complete: function(request, status) {
+                  if (opts.beforeComplete) opts.beforeComplete(request, status);
+                  creme.utils.loading('loading', true, {});
+                  if (opts.complete) opts.complete(request, status);
+              }
+        });
+};
+
+creme.ajax.ajax = function(options) {
+        options = $.extend({
+            type: "GET",
+            url: "",
+            async: true,
+            data: {},
+            dataType: "html",
+            cache: true,
+            beforeSend: null,
+            success: null,
+            beforeError: null,
+            beforeComplete : null,
+            error: function() {
+                creme.utils.showErrorNReload();
+            },
+            afterError: null,
+            complete: null
         }, options);
 
         $.ajax({
               url: options.url,
               type: options.type,
-              data : options.data,
-              async : options.async,
+              data: options.data,
+              async: options.async,
               dataType: options.dataType,
-
-              beforeSend : function(request){
+              beforeSend: function(request) {
                   creme.utils.loading('loading', false, {});
-                  if(options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
+                  if (options.beforeSend && $.isFunction(options.beforeSend)) options.beforeSend(request);
               },
               success: function(returnedData, status) {
-                if(options.success && $.isFunction(options.success)) options.success(returnedData, status);
+                if (options.success && $.isFunction(options.success)) options.success(returnedData, status);
               },
               error: function(request, status, error) {
-                  if(options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
-                  if(options.error && $.isFunction(options.error)) options.error(request, status, error);
-                  if(options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
+                  if (options.beforeError && $.isFunction(options.beforeError)) options.beforeError(request, status, error);
+                  if (options.error && $.isFunction(options.error)) options.error(request, status, error);
+                  if (options.afterError && $.isFunction(options.afterError)) options.afterError(request, status, error);
               },
               complete: function (request, status) {
-                  if(options.beforeComplete) options.beforeComplete(request, status);
+                  if (options.beforeComplete) options.beforeComplete(request, status);
                   creme.utils.loading('loading', true, {});
-                  if(options.complete) options.complete(request, status);
+                  if (options.complete) options.complete(request, status);
               }
         });
 };
@@ -200,57 +198,56 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
 };
 
 creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
-	var delay = 100;
-	
-	// build iframe with unique id
-	var id = new Date().getTime();
-	var iframe = $('<iframe src="javascript:false;" style="display:none;"><html><head></head><body></body></html></iframe>');
-	iframe.attr('id', id).attr('name', id).appendTo($('body'));
+    var delay = 100;
+    
+    // build iframe with unique id
+    var id = new Date().getTime();
+    var iframe = $('<iframe src="javascript:false;" style="display:none;"><html><head></head><body></body></html></iframe>');
+    iframe.attr('id', id).attr('name', id).appendTo($('body'));
 
-	// specific iframe for IE
-	if ($.browser.msie) {
-		iframe.attr('src', "javascript:'<html></html>';").attr('target', '_blank');
-	}
-	
-	// add custom action if needed
-	var form_action = form.attr('action');
-	form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
-	
-	// iframe response callback
-	var iframe_success_cb = function(event) {
-		if ($.browser.msie) {
-			success_cb(iframe.contents().find('body').clone(true).html(), event);
-		} else {
-			success_cb(iframe.contents().find('body').html(), event);
-		}
+    // specific iframe for IE
+    if ($.browser.msie) {
+        iframe.attr('src', "javascript:'<html></html>';").attr('target', '_blank');
+    }
 
-		form.attr('action', form_action);
-		iframe.remove();
-	};
-	
-	// iframe error callback
-	var iframe_error_cb = function(event) {
-		iframe.unbind('error', iframe_error_cb);
-				
-		error_cb(event);
-		form.attr('action', form_action);
-		iframe.remove();
-	};
+    // add custom action if needed
+    var form_action = form.attr('action');
+    form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
 
-	window.setTimeout(function() {
-		
-		iframe.bind('load', iframe_success_cb);
-		iframe.bind('error', iframe_success_cb);
-		
-		var submit = creme.ajax.iframeRedirect(iframe, form);
-		submit.trigger('click');
-		
-	}, delay);
+    // iframe response callback
+    var iframe_success_cb = function(event) {
+        if ($.browser.msie) {
+            success_cb(iframe.contents().find('body').clone(true).html(), event);
+        } else {
+            success_cb(iframe.contents().find('body').html(), event);
+        }
+
+        form.attr('action', form_action);
+        iframe.remove();
+    };
+
+    // iframe error callback
+    var iframe_error_cb = function(event) {
+        iframe.unbind('error', iframe_error_cb);
+
+        error_cb(event);
+        form.attr('action', form_action);
+        iframe.remove();
+    };
+
+    window.setTimeout(function() {
+        iframe.bind('load', iframe_success_cb);
+        iframe.bind('error', iframe_success_cb);
+
+        var submit = creme.ajax.iframeRedirect(iframe, form);
+        submit.trigger('click');
+
+    }, delay);
 };
 
 creme.ajax.iframeRedirect = function(iframe, form) {
-	var iform = form.attr('target', iframe.attr('name'));
-	return $('<input type="submit" name="submit" value="1" id="submit" style="display:none"/>').appendTo(iform);
+    var iform = form.attr('target', iframe.attr('name'));
+    return $('<input type="submit" name="submit" value="1" id="submit" style="display:none"/>').appendTo(iform);
 };
 
 
@@ -258,10 +255,10 @@ creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
     switch(textStatus) {
         case "parsererror":
-            return {type:"request", status:req.status, message:"JSON parse error", request:req}
+            return {type: "request", status: req.status, message: "JSON parse error", request: req}
             break;
         default:
-            return {type:"request", status:req.status, message:"" + req.status + " " + req.statusText, request:req}
+            return {type: "request", status: req.status, message: "" + req.status + " " + req.statusText, request: req}
     }
 };
 
@@ -277,10 +274,10 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
                 success_cb(data, textStatus);
             }
         },
-        error : function(req, textStatus, errorThrown) {
-               if (error_cb !== undefined) {
-                   error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
-               }
+        error: function(req, textStatus, errorThrown) {
+            if (error_cb !== undefined) {
+                error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
+            }
         }
     };
 
@@ -308,7 +305,7 @@ creme.ajax.json.isvalid = function(data) {
 
 // Code copied from JQuery 1.4.*
 creme.ajax.json.parse = function(data) {
-    if ( typeof data !== "string" || !data ) {
+    if (typeof data !== "string" || !data) {
         return null;
     }
 
@@ -317,14 +314,14 @@ creme.ajax.json.parse = function(data) {
 
     // Make sure the incoming data is actual JSON
     // Logic borrowed from http://json.org/json2.js
-    if ( /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+    if (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
         .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
-        .replace(/(?:^|:|,)(?:\s*\[)+/g, "")) ) {
+        .replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
 
         try {
             // Try to use the native JSON parser first
             return window.JSON && window.JSON.parse ?
-                window.JSON.parse( data ) :
+                window.JSON.parse(data) :
                 (new Function("return " + data))();
         } catch(err) {
             //console.log("Invalid JSON: " + data);
@@ -338,5 +335,9 @@ creme.ajax.json.parse = function(data) {
 };
 
 creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, parameters) {
-    creme.ajax.json.post($form.attr('action'), $form.serialize(), success_cb||function(data){$form.html(data.form);}, error_cb, sync, parameters)
+    creme.ajax.json.post($form.attr('action'),
+                         $form.serialize(),
+                         success_cb || function(data) {$form.html(data.form);},
+                         error_cb, sync, parameters
+    );
 }

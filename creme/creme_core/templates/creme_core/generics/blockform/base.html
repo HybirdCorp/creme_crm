@@ -26,6 +26,7 @@
         </script>
     {% endif %}
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+        {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}
             {% if hidden.errors %}
                 <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
@@ -36,8 +37,8 @@
         <div style="display: none; visibility: hidden;">
             {% for persist_key, persist_values in persisted.items %}
                 {% for persist_value in persist_values %}
-                    <input type="hidden" name="{{ persist_key }}" value="{{persist_value}}"/>
-                    <input type="hidden" name="persist" value="{{ persist_key }}"/>
+                    <input type="hidden" name="{{persist_key}}" value="{{persist_value}}"/>
+                    <input type="hidden" name="persist" value="{{persist_key}}"/>
                 {% endfor %}
             {% endfor %}
         </div>
@@ -65,7 +66,10 @@
         {% block submit_buttons %}
             {% if not hide_submit %}
                 <div class="spacer"></div>
-                <input type="submit" value="{% trans "Submit"%}" />
+                <div class="submit_buttons">
+                    <input type="submit" value="{{submit_label|default:_("Save")}}" />
+                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
+                </div>
             {% endif %}
         {% endblock %}
     </form>

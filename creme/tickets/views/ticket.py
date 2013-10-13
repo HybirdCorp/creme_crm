@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme.creme_core.utils.queries import get_first_or_None
@@ -35,7 +35,8 @@ def add(request):
     return add_entity(request, TicketCreateForm,
                       extra_initial={'priority':  get_first_or_None(Priority),
                                      'criticity': get_first_or_None(Criticity),
-                                    }
+                                    },
+                      extra_template_dict={'submit_label': _('Save the ticket')},
                      )
 
 @login_required

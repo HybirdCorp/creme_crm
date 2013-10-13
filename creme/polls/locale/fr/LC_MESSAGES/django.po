@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Polls 1.3\n"
+"Project-Id-Version: Creme Polls 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-02 17:53+0200\n"
+"POT-Creation-Date: 2013-10-13 18:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -326,7 +326,7 @@ msgstr "Réponses"
 #: forms/poll_reply.py:164 models/poll_form.py:177 models/poll_form.py:181
 #: models/poll_reply.py:101
 #: templates/polls/templatetags/block_pollform_lines.html:7
-#: views/poll_reply.py:160
+#: views/poll_reply.py:161
 msgid "Question"
 msgstr "Question"
 
@@ -438,7 +438,7 @@ msgstr "Réponse à un formulaire"
 msgid "Applicable"
 msgstr "Applicable"
 
-#: models/poll_reply.py:102 models/poll_reply.py:135 views/poll_reply.py:163
+#: models/poll_reply.py:102 models/poll_reply.py:135 views/poll_reply.py:164
 msgid "Answer"
 msgstr "Réponse"
 
@@ -561,7 +561,7 @@ msgid "Can't clean"
 msgstr "Nettoyage interdit"
 
 #: templates/polls/templatetags/block_pollreply_lines.html:55
-#: views/poll_reply.py:149
+#: views/poll_reply.py:150
 msgid "N/A"
 msgstr "Sans objet"
 
@@ -597,65 +597,76 @@ msgstr "La réponse à la question n°%(number)s contient «%(answer)s»."
 msgid "The answer to the question #%(number)s is «%(answer)s»."
 msgstr "La réponse à la question n°%(number)s est «%(answer)s»."
 
-#: templatetags/polls_tags.py:76
-msgid "No available answer"
-msgstr "Pas de réponse disponible"
+#: views/campaign.py:34
+msgid "Save the campaign of polls"
+msgstr "Enregistrer la campagne"
 
-#: views/poll_form.py:65 views/poll_form.py:136
+#: views/poll_form.py:44
+msgid "Save the form of poll"
+msgstr "Enregistrer le formulaire"
+
+#: views/poll_form.py:67 views/poll_form.py:138
 #, python-format
 msgid "New question for <%s>"
 msgstr "Nouvelle question pour <%s>"
 
-#: views/poll_form.py:71
+#: views/poll_form.py:73
 #, python-format
 msgid "Question for <%s>"
 msgstr "Question pour <%s>"
 
-#: views/poll_form.py:104
+#: views/poll_form.py:106
 #, python-format
 msgid "Condition for <%s>"
 msgstr "Condition pour <%s>"
 
-#: views/poll_form.py:111 views/poll_form.py:126
+#: views/poll_form.py:113 views/poll_form.py:128
 #, python-format
 msgid "New section for <%s>"
 msgstr "Nouvelle section pour <%s>"
 
-#: views/poll_form.py:117
+#: views/poll_form.py:119
 #, python-format
 msgid "Section for <%s>"
 msgstr "Section pour <%s>"
 
-#: views/poll_reply.py:82 views/poll_reply.py:97 views/poll_reply.py:117
+#: views/poll_reply.py:68
+msgid "Save the replies"
+msgstr "Enregistrer les réponses"
+
+#: views/poll_reply.py:83 views/poll_reply.py:98 views/poll_reply.py:118
 #, python-format
 msgid "New replies for <%s>"
 msgstr "Nouvelles réponses pour <%s>"
 
-#: views/poll_reply.py:143
+#: views/poll_reply.py:144
 #, python-format
 msgid "Existing replies for <%s>"
 msgstr "Réponses existantes pour <%s>"
 
-#: views/poll_reply.py:159
+#: views/poll_reply.py:160
 msgid "Reminder of the previous answered question :"
 msgstr "Rappel de la Question/Réponse précédente :"
 
-#: views/poll_reply.py:224 views/poll_reply.py:276
+#: views/poll_reply.py:225 views/poll_reply.py:277
 #, python-format
 msgid "Answers of the form : %s"
 msgstr "Réponses à un formulaire : %s"
 
-#: views/poll_reply.py:239
+#: views/poll_reply.py:240
 msgid "All questions have been answered."
 msgstr "Les questions ont déjà toute une réponse."
 
-#: views/poll_reply.py:347
+#: views/poll_reply.py:348
 msgid "Answer edition"
 msgstr "Modification de réponse"
 
 #: views/portal.py:31
 msgid "Number of forms"
 msgstr "Nombre de formulaires"
+
+#~ msgid "No available answer"
+#~ msgstr "Pas de réponse disponible"
 
 #~ msgid "Linked persons"
 #~ msgstr "Personne liée"

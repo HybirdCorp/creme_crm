@@ -1,3 +1,11 @@
+div.submit_buttons {
+    text-align: center;
+}
+
+div.submit_buttons a {
+    padding-left: 20px;
+}
+
 input[type="text"], input[type="password"] {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;

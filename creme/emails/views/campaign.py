@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
@@ -34,7 +34,9 @@ from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddML
 @permission_required('emails')
 @permission_required('emails.add_emailcampaign')
 def add(request):
-    return add_entity(request, CampaignCreateForm)
+    return add_entity(request, CampaignCreateForm,
+                      extra_template_dict={'submit_label': _('Save the emailing campaign')},
+                     )
 
 @login_required
 @permission_required('emails')
@@ -55,7 +57,9 @@ def listview(request):
 @permission_required('emails')
 def add_ml(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddMLForm,
-                         _('New mailing lists for <%s>'), entity_class=EmailCampaign)
+                         ugettext('New mailing lists for <%s>'),
+                         entity_class=EmailCampaign,
+                        )
 
 @login_required
 @permission_required('emails')

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.shortcuts import get_object_or_404
-#from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import RelationType
@@ -33,7 +33,9 @@ from ..forms.contact import RelatedContactForm, ContactForm
 @permission_required('persons')
 @permission_required('persons.add_contact')
 def add(request):
-    return add_entity(request, ContactForm, template="persons/add_contact_form.html")
+    return add_entity(request, ContactForm, template='persons/add_contact_form.html',
+                      extra_template_dict={'submit_label': _('Save the contact')},
+                     )
 
 @login_required
 @permission_required('persons')

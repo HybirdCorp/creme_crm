@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 1.3\n"
+"Project-Id-Version: Creme Graphs 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 14:20+0200\n"
+"POT-Creation-Date: 2013-10-13 18:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -154,11 +154,15 @@ msgstr "Pas de type de relation"
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-#: views/graph.py:51
+#: views/graph.py:39
+msgid "Save the graph"
+msgstr "Enregistrer le graphe"
+
+#: views/graph.py:54
 msgid "This graph is too big!"
 msgstr "Ce graphe est trop gros !"
 
-#: views/graph.py:72
+#: views/graph.py:76
 #, python-format
 msgid "Add relation types to <%s>"
 msgstr "Ajouter des types de relation à <%s>"

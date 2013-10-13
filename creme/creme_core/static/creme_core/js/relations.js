@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,42 +20,42 @@
  * Requires : creme, jQuery
  */
 
-if(!creme.relations) creme.relations = {}
+if (!creme.relations) creme.relations = {}
 
 //TODO: is 'url' arg useful ?? (it is always '/creme_core/relation/objects2link/rtype/...')
 creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subject_id, block_reload_url) {
     var options = {
-                'send_button': function(dialog){
+                send_button: function(dialog) {
                         var lv = $('form', $(dialog));
-                        if(lv.size() > 0) {
+                        if (lv.size() > 0) {
                             //TODO: factorise 'lv.list_view("countEntities")' ??
                             var ids = lv.list_view("getSelectedEntitiesAsArray");
-                            if(ids.length == 0 || lv.list_view("countEntities") == 0) {
+                            if (ids.length == 0 || lv.list_view("countEntities") == 0) {
                                 creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
                                 return;
                             }
 
-                            if(lv.list_view('option','o2m') && lv.list_view("countEntities") > 1) {
+                            if (lv.list_view('option', 'o2m') && lv.list_view("countEntities") > 1) {
                                 creme.utils.showDialog(gettext("Please select only one entity."), {'title': gettext("Error")});
                                 return;
                             }
 
                             var buttons = {};
                             buttons[gettext("Ok")] = function() {
-                                    if(typeof(block_reload_url) != "undefined") {
-                                        $(this).dialog("destroy");
-                                        $(this).remove();
-                                        creme.utils.loadBlock(block_reload_url);
-                                    } else {
-                                        creme.utils.reload(window);
-                                    }
+                                if (block_reload_url) {
+                                    $(this).dialog("destroy");
+                                    $(this).remove();
+                                    creme.utils.loadBlock(block_reload_url);
+                                } else {
+                                    creme.utils.reload(window);
                                 }
+                            }
                             var infoBoxOptions = {buttons: buttons};
                             creme.ajax.json.post('/creme_core/relation/add_from_predicate/save',
                                                  {
-                                                    'entities'    : ids,
-                                                    'subject_id'  : subject_id,
-                                                    'predicate_id': predicate_id
+                                                    entities: ids,
+                                                    subject_id: subject_id,
+                                                    predicate_id: predicate_id
                                                  },
                                                  function(data) {
                                                     creme.utils.showDialog(data, jQuery.extend({'title': gettext("Information")}, infoBoxOptions));
@@ -65,12 +65,12 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                                                  }
                                                  ,
                                                  true,
-                                                 {dataType:"text"}
+                                                 {dataType: "text"}
                             );
                         }
-                        creme.utils.closeDialog(dialog,false);
+                        creme.utils.closeDialog(dialog, false);
                   },
-                  'send_button_label': gettext("Validate the selection")
+                  send_button_label: gettext("Validate the selection")
                 }
     creme.utils.showInnerPopup(url, options);
 }
@@ -90,8 +90,8 @@ creme.relations.addFromListView = function(lv_selector, url, ids) {
                           {
                               //type: "POST",
                               data: {
-                                  'ids': $(lv_selector).list_view('getSelectedEntitiesAsArray'),
-                                  'persist': 'ids'
+                                  ids: $(lv_selector).list_view('getSelectedEntitiesAsArray'),
+                                  persist: 'ids'
                               }
                           });
     }

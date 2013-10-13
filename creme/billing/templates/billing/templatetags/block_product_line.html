@@ -7,7 +7,7 @@
         <tr>
             <td valign="middle"><img src="{% creme_media_url 'images/product_22.png' %}" alt="{% trans "Product" %}" title="{% trans "Product" %}"/></td>
             <td>
-                {% blocktrans count item_count=item_count %} {{item_count}} Product {% plural %} {{item_count}} Products {% endblocktrans %}
+                {% blocktrans count item_count=item_count %}{{item_count}} Product{% plural %}{{item_count}} Products{% endblocktrans %}
             </td>
         </tr>
     </table>

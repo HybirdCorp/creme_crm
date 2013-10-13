@@ -59,7 +59,8 @@ def add(request, ct_id):
     return add_entity(request, EntityFilterCreateForm, callback_url,
                       template='creme_core/entity_filters.html',
                       extra_initial={'content_type': ct},
-                      function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance)
+                      function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
+                      extra_template_dict={'submit_label': _('Save the filter')},
                      )
 
 @login_required
@@ -72,16 +73,25 @@ def edit(request, efilter_id):
         raise Http404(msg)#TODO:Permission denied instead ?
 
     if request.method == 'POST':
-        efilter_form = EntityFilterEditForm(user=user, data=request.POST, instance=efilter)
+        POST = request.POST
+        efilter_form = EntityFilterEditForm(user=user, data=POST, instance=efilter)
 
         if efilter_form.is_valid():
             efilter_form.save()
 
             return HttpResponseRedirect(efilter.entity_type.model_class().get_lv_absolute_url())
+
+        cancel_url = POST.get('cancel_url')
     else:
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
+        cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/entity_filters.html', {'form': efilter_form})
+    return render(request, 'creme_core/entity_filters.html', #TODO: rename the template
+                  {'form': efilter_form,
+                   'cancel_url': cancel_url,
+                   'submit_label': _('Save the modified filter'),
+                  }
+                 )
 
 @login_required
 def delete(request):

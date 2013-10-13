@@ -18,6 +18,7 @@
 
 <div id="editforms">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+        {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
 
         <table class="table_detail_view ui-corner-all">
@@ -58,7 +59,10 @@
         {% endif %}
         {% block submit_buttons %}
             {% if not hide_submit %}
-                <input type="submit" value="{% trans "Submit"%}" />
+                <div class="submit_buttons">
+                    <input type="submit" value="{{submit_label|default:_("Save")}}" />
+                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
+                </div>
             {% endif %}
         {% endblock %}
     </form>

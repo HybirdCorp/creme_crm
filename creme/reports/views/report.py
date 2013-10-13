@@ -49,9 +49,10 @@ from ..utils import decode_datetime
 @permission_required('reports.add_report')
 def add(request):
     return add_entity(request, CreateForm, template="reports/add_report.html", #TODO: improve widgets & drop this template
-                      #extra_template_dict={'help_messages': [],
+                      extra_template_dict={'submit_label': _('Save the report'),
+                                           #'help_messages': [],
                                            #'ct_posted':     request.POST.get('ct'),
-                                          #}
+                                          }
                      )
 
 @login_required
