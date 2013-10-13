@@ -42,7 +42,10 @@ from ..constants import *
 @permission_required('events')
 @permission_required('events.add_event')
 def add(request):
-    return add_entity(request, EventForm, extra_initial={'type':  get_first_or_None(EventType)})
+    return add_entity(request, EventForm,
+                      extra_initial={'type':  get_first_or_None(EventType)},
+                      extra_template_dict={'submit_label': _('Save the event')},
+                     )
 
 @login_required
 @permission_required('events')

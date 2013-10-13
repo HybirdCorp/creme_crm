@@ -21,7 +21,7 @@
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views import generic
@@ -40,7 +40,9 @@ from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_mat
 @permission_required('commercial')
 @permission_required('commercial.add_strategy')
 def add(request):
-    return generic.add_entity(request, forms.StrategyForm)
+    return generic.add_entity(request, forms.StrategyForm,
+                              extra_template_dict={'submit_label': _('Save the strategy')},
+                             )
 
 @login_required
 @permission_required('commercial')
@@ -63,7 +65,7 @@ def listview(request):
 @permission_required('commercial')
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-                                 _(u"New market segment for <%s>"),
+                                 ugettext(u"New market segment for <%s>"),
                                  entity_class=Strategy
                                 )
 
@@ -71,7 +73,7 @@ def add_segment(request, strategy_id):
 @permission_required('commercial')
 def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-                                 _(u"New market segment for <%s>"),
+                                 ugettext(u"New market segment for <%s>"),
                                  entity_class=Strategy
                                 )
 
@@ -79,7 +81,7 @@ def link_segment(request, strategy_id):
 @permission_required('commercial')
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-                                 _(u"New commercial asset for <%s>"),
+                                 ugettext(u"New commercial asset for <%s>"),
                                  entity_class=Strategy
                                 )
 
@@ -87,7 +89,7 @@ def add_asset(request, strategy_id):
 @permission_required('commercial')
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-                                 _(u"New segment charm for <%s>"),
+                                 ugettext(u"New segment charm for <%s>"),
                                  entity_class=Strategy
                                 )
 
@@ -95,7 +97,7 @@ def add_charm(request, strategy_id):
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 _(u"New organisation for <%s>"),
+                                 ugettext(u"New organisation for <%s>"),
                                  entity_class=Strategy
                                 )
 
@@ -103,21 +105,21 @@ def add_evalorga(request, strategy_id):
 @permission_required('commercial')
 def edit_segment(request, strategy_id, seginfo_id):
     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-                                          forms.SegmentEditForm, _(u"Segment for <%s>")
+                                          forms.SegmentEditForm, ugettext(u"Segment for <%s>")
                                          )
 
 @login_required
 @permission_required('commercial')
 def edit_asset(request, asset_id):
     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-                                          forms.AssetForm, _(u"Asset for <%s>")
+                                          forms.AssetForm, ugettext(u"Asset for <%s>")
                                          )
 
 @login_required
 @permission_required('commercial')
 def edit_charm(request, charm_id):
     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-                                          forms.CharmForm, _(u"Charm for <%s>")
+                                          forms.CharmForm, ugettext(u"Charm for <%s>")
                                          )
 
 @login_required
@@ -129,7 +131,7 @@ def delete_evalorga(request, strategy_id):
     orga_id = get_from_POST_or_404(request.POST, 'id', int)
     strategy.evaluated_orgas.remove(orga_id)
     CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
-    MarketSegmentCharmScore.objects.filter(charm__strategy=strategy,   organisation=orga_id).delete()
+    MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
@@ -152,7 +154,7 @@ def _orga_view(request, strategy_id, orga_id, template):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-        raise Http404(_(u'This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %(strategy)s') % {
+        raise Http404(ugettext(u'This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %(strategy)s') % {
                             'orga': orga, 'strategy': strategy}
                      )
 

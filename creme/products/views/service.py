@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
@@ -30,7 +31,9 @@ from ..forms.service import ServiceForm
 @permission_required('products')
 @permission_required('products.add_service')
 def add(request):
-    return add_entity(request, ServiceForm)
+    return add_entity(request, ServiceForm,
+                      extra_template_dict={'submit_label': _('Save the service')},
+                     )
 
 @login_required
 @permission_required('products')

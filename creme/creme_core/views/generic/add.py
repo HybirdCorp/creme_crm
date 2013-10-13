@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
@@ -34,7 +34,8 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     @param function_post_save: allow processing on the just saved entity. Its signature: function_post_save(request, entity)
     """
     if request.method == 'POST':
-        entity_form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=extra_initial)
+        POST = request.POST
+        entity_form = form_class(user=request.user, data=POST, files=request.FILES or None, initial=extra_initial)
 
         if entity_form.is_valid():
             entity_form.save()
@@ -48,11 +49,16 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
                 url_redirect = url_redirect % entity_form.instance.id
 
             return HttpResponseRedirect(url_redirect)
+
+        cancel_url = POST.get('cancel_url')
     else: #GET
         entity_form = form_class(user=request.user, initial=extra_initial)
+        cancel_url = request.META.get('HTTP_REFERER')
 
     template_dict = {'form':  entity_form,
                      'title': form_class._meta.model.creation_label,
+                     'submit_label': _('Save the entity'),
+                     'cancel_url': cancel_url,
                     }
 
     if extra_template_dict:
@@ -112,7 +118,7 @@ def add_model_with_popup(request, form_class, title=None, initial=None,
 
     return inner_popup(request, template,
                        {'form':   form,
-                        'title':  title or _(u'New'),
+                        'title':  title or ugettext(u'New'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,

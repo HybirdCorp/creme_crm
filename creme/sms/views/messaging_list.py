@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
@@ -34,7 +34,9 @@ from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContac
 @permission_required('sms')
 @permission_required('sms.add_messaginglist')
 def add(request):
-    return add_entity(request, MessagingListForm)
+    return add_entity(request, MessagingListForm,
+                      extra_template_dict={'submit_label': _('Save the messaging list')},
+                     )
 
 @login_required
 @permission_required('sms')
@@ -55,13 +57,17 @@ def listview(request):
 @permission_required('sms')
 def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
-                         _('New contacts for <%s>'), entity_class=MessagingList)
+                         ugettext('New contacts for <%s>'),
+                         entity_class=MessagingList,
+                        )
 
 @login_required
 @permission_required('sms')
 def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
-                         _('New contacts for <%s>'), entity_class=MessagingList)
+                         ugettext('New contacts for <%s>'),
+                         entity_class=MessagingList,
+                        )
 
 @login_required
 @permission_required('sms')

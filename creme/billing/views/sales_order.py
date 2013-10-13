@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
@@ -32,14 +32,16 @@ from creme.billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEdit
 @permission_required('billing')
 @permission_required('billing.add_salesorder')
 def add(request):
-    return add_entity(request, SalesOrderCreateForm, extra_initial={'status': 1})
+    return add_entity(request, SalesOrderCreateForm, extra_initial={'status': 1},
+                      extra_template_dict={'submit_label': _('Save the sales order')},
+                     )
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_salesorder')
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm,
-                               _(u"Add a sales order for <%s>"), status_id=1,
+                               ugettext(u"Add a sales order for <%s>"), status_id=1,
                               )
 
 @login_required

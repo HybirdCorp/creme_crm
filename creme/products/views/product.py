@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme.creme_core.utils import jsonify
@@ -32,7 +33,9 @@ from ..forms.product import ProductForm
 @permission_required('products')
 @permission_required('products.add_product')
 def add(request):
-    return add_entity(request, ProductForm)
+    return add_entity(request, ProductForm,
+                      extra_template_dict={'submit_label': _('Save the product')},
+                     )
 
 @login_required
 @permission_required('products')

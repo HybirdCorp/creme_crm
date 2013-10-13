@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
@@ -34,7 +34,9 @@ from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 @permission_required('emails')
 @permission_required('emails.add_emailtemplate')
 def add(request):
-    return add_entity(request, EmailTemplateForm)
+    return add_entity(request, EmailTemplateForm,
+                      extra_template_dict={'submit_label': _('Save the template')},
+                     )
 
 @login_required
 @permission_required('emails')
@@ -55,7 +57,9 @@ def listview(request):
 @permission_required('emails')
 def add_attachment(request, template_id):
     return add_to_entity(request, template_id, EmailTemplateAddAttachment,
-                         _('New attachments for <%s>'), entity_class=EmailTemplate)
+                         ugettext('New attachments for <%s>'),
+                         entity_class=EmailTemplate,
+                        )
 
 @login_required
 @permission_required('emails')

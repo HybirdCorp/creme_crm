@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
@@ -35,7 +36,8 @@ from ..forms.project import ProjectCreateForm, ProjectEditForm
 @permission_required('projects.add_project')
 def add(request):
     return add_entity(request, ProjectCreateForm,
-                      extra_initial={'status':  get_first_or_None(ProjectStatus)}
+                      extra_initial={'status':  get_first_or_None(ProjectStatus)},
+                      extra_template_dict={'submit_label': _('Save the project')},
                      )
 
 @login_required

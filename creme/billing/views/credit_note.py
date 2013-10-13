@@ -34,7 +34,9 @@ from creme.billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
 @permission_required('billing')
 @permission_required('billing.add_creditnote')
 def add(request):
-    return add_entity(request, CreditNoteCreateForm, extra_initial={'status': 1})
+    return add_entity(request, CreditNoteCreateForm, extra_initial={'status': 1},
+                      extra_template_dict={'submit_label': _('Save the credit note')},
+                     )
 
 @login_required
 @permission_required('billing')

@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views import generic
@@ -39,14 +39,17 @@ def add(request):
     return generic.add_entity(request, forms.ActForm,
                               extra_initial={'act_type': get_first_or_None(ActType),
                                              'segment':  get_first_or_None(MarketSegment),
-                                            }
+                                            },
+                              extra_template_dict={'submit_label': _('Save the commercial action')},
                              )
 
 @login_required
 @permission_required('commercial')
 @permission_required('commercial.add_actobjectivepattern')
 def add_objective_pattern(request):
-    return generic.add_entity(request, forms.ObjectivePatternForm)
+    return generic.add_entity(request, forms.ObjectivePatternForm,
+                              extra_template_dict={'submit_label': _('Save the objective pattern')},
+                             )
 
 @login_required
 @permission_required('commercial')
@@ -86,7 +89,7 @@ def listview_objective_pattern(request):
 @permission_required('commercial')
 def _add_objective(request, act_id, form_class):
     return generic.add_to_entity(request, act_id, form_class,
-                                 _(u'New objective for <%s>'), entity_class=Act
+                                 ugettext(u'New objective for <%s>'), entity_class=Act
                                 )
 
 def add_objective(request, act_id):
@@ -99,7 +102,7 @@ def add_objectives_from_pattern(request, act_id):
 @permission_required('commercial')
 def add_pattern_component(request, objpattern_id):
     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-                                 _(u'New objective for <%s>'), entity_class=ActObjectivePattern
+                                 ugettext(u'New objective for <%s>'), entity_class=ActObjectivePattern
                                 )
 
 @login_required
@@ -130,20 +133,20 @@ def _add_subpattern_component(request, component_id, form_class, title):
 def add_child_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternChildComponentForm,
-                                     _('New child objective for <%s>')
+                                     ugettext('New child objective for <%s>')
                                     )
 
 def add_parent_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternParentComponentForm,
-                                     _('New parent objective for <%s>')
+                                     ugettext('New parent objective for <%s>')
                                     )
 
 @login_required
 @permission_required('commercial')
 def edit_objective(request, objective_id):
     return generic.edit_related_to_entity(request, objective_id, ActObjective, forms.ObjectiveForm,
-                                          _(u'Objective for <%s>')
+                                          ugettext(u'Objective for <%s>')
                                          )
 
 @login_required

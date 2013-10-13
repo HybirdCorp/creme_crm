@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
@@ -32,14 +32,16 @@ from creme.billing.forms.quote import QuoteCreateForm, QuoteEditForm
 @permission_required('billing')
 @permission_required('billing.add_quote')
 def add(request):
-    return add_entity(request, QuoteCreateForm, extra_initial={'status': 1})
+    return add_entity(request, QuoteCreateForm, extra_initial={'status': 1},
+                      extra_template_dict={'submit_label': _('Save the quote')},
+                     )
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_quote')
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
-                               _(u"Add a quote for <%s>"), status_id=1
+                               ugettext(u"Add a quote for <%s>"), status_id=1,
                               )
 
 @login_required

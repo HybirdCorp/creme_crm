@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2012  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,21 +23,22 @@
 creme.merge = {};
 creme.merge.selectOtherEntityNRedirect = function(model_id) {
     creme.utils.showInnerPopup('/creme_core/entity/merge/select_other/' + model_id,
-                               {'send_button': function(dialog) {
-                                                    var lv = $('form', $(dialog));
-                                                    if (lv.size() > 0) {
-                                                        var ids = lv.list_view("getSelectedEntitiesAsArray");
+                               {
+                                   send_button: function(dialog) {
+                                        var lv = $('form', $(dialog));
+                                        if (lv.size() > 0) {
+                                            var ids = lv.list_view("getSelectedEntitiesAsArray");
 
-                                                        //TODO: move in list_view ??
-                                                        if (ids.length != 1) {
-                                                            creme.utils.showDialog(gettext("Please select only one entity."), {'title': gettext("Error")});
-                                                            return;
-                                                        }
+                                            //TODO: move in list_view ??
+                                            if (ids.length != 1) {
+                                                creme.utils.showDialog(gettext("Please select only one entity."), {'title': gettext("Error")});
+                                                return;
+                                            }
 
-                                                        window.location.href = '/creme_core/entity/merge/' + model_id + ',' + ids[0];
-                                                    }
-                                               },
-                                'send_button_label': gettext("Validate the selection")
+                                            window.location.href = '/creme_core/entity/merge/' + model_id + ',' + ids[0];
+                                        }
+                                    },
+                                    send_button_label: gettext("Validate the selection")
                                }
                               );
 }

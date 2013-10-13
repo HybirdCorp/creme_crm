@@ -17,6 +17,7 @@
 
 <div id="editforms">
     <form method="POST" action="" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
+        {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         <table style="width: 100%;" border="0" cellpadding="0" cellspacing="4">
             <tbody>
                 {{formset.management_form}}
@@ -58,7 +59,10 @@
 
         {% block submit_buttons %}
             {% if not hide_submit %}
-                <input type="submit" value="{% trans "Submit"%}" />
+                <div class="submit_buttons">
+                    <input type="submit" value="{{submit_label|default:_("Save")}}" />
+                    {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
+                </div>
             {% endif %}
         {% endblock %}
     </form>

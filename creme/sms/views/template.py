@@ -30,7 +30,9 @@ from ..forms.template import TemplateCreateForm, TemplateEditForm
 @permission_required('sms')
 @permission_required('sms.add_messagetemplate')
 def add(request):
-    return add_entity(request, TemplateCreateForm)
+    return add_entity(request, TemplateCreateForm
+                      #extra_template_dict={'submit_label': _('Save the message template')}, TODO
+                     )
 
 @login_required
 @permission_required('sms')

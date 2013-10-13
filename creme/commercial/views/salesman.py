@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, list_view
@@ -34,7 +34,9 @@ from ..constants import PROP_IS_A_SALESMAN
 @permission_required('persons')
 @permission_required('persons.add_contact')
 def add(request):
-    return add_entity(request, SalesManCreateForm, template='persons/add_contact_form.html')
+    return add_entity(request, SalesManCreateForm, template='persons/add_contact_form.html',
+                      extra_template_dict={'submit_label': _('Save the salesman')},
+                     )
 
 #TODO: factorise with generic list_view ??
 #      problem: list_view can accept to filter on a property (register a filtered view in the menu etc...)
@@ -42,8 +44,8 @@ def add(request):
 @permission_required('persons')
 def listview(request):
     return list_view(request, Contact,
-                     extra_dict={
-                                    'list_title': _(u'List of salesmen'),
-                                    'add_url':    '/commercial/salesman/add',
-                                 },
-                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN))
+                     extra_dict={'list_title': ugettext(u'List of salesmen'),
+                                 'add_url':    '/commercial/salesman/add',
+                                },
+                     extra_q=Q(properties__type=PROP_IS_A_SALESMAN),
+                    )

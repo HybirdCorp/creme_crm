@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
@@ -33,7 +33,9 @@ from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddLi
 @permission_required('sms')
 @permission_required('sms.add_smscampaign')
 def add(request):
-    return add_entity(request, CampaignCreateForm)
+    return add_entity(request, CampaignCreateForm,
+                      extra_template_dict={'submit_label': _('Save the SMS campaign')},
+                     )
 
 @login_required
 @permission_required('sms')
@@ -67,7 +69,9 @@ def listview(request):
 @permission_required('sms')
 def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
-                         _(u'New messaging lists for <%s>'), entity_class=SMSCampaign)
+                         ugettext(u'New messaging lists for <%s>'),
+                         entity_class=SMSCampaign,
+                        )
 
 @login_required
 @permission_required('sms')

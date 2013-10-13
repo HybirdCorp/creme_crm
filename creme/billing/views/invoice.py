@@ -23,7 +23,7 @@ from datetime import date
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
@@ -39,7 +39,10 @@ from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOIC
 @permission_required('billing')
 @permission_required('billing.add_invoice')
 def add(request):
-    return add_entity(request, InvoiceCreateForm, extra_initial={'status': DEFAULT_DRAFT_INVOICE_STATUS})
+    return add_entity(request, InvoiceCreateForm,
+                      extra_initial={'status': DEFAULT_DRAFT_INVOICE_STATUS},
+                      extra_template_dict={'submit_label': _('Save the invoice')},
+                     )
 
 @login_required
 @permission_required('billing')
@@ -49,8 +52,10 @@ def add_from_detailview(request, entity_id):
     request.user.has_perm_to_change_or_die(entity)
 
     return add_model_with_popup(request, InvoiceCreateForm,
-                                title=_(u"Add an invoice for <%s>") % entity,
-                                initial={'target': entity, 'status': DEFAULT_DRAFT_INVOICE_STATUS}
+                                title=ugettext(u"Add an invoice for <%s>") % entity,
+                                initial={'target': entity,
+                                         'status': DEFAULT_DRAFT_INVOICE_STATUS,
+                                        },
                                )
 
 @login_required
@@ -58,7 +63,8 @@ def add_from_detailview(request, entity_id):
 @permission_required('billing.add_invoice')
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, InvoiceCreateForm,
-                               _(u"Add an invoice for <%s>"), status_id=DEFAULT_DRAFT_INVOICE_STATUS,
+                               ugettext(u"Add an invoice for <%s>"),
+                               status_id=DEFAULT_DRAFT_INVOICE_STATUS,
                               )
 
 @login_required

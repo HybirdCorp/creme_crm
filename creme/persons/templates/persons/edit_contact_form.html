@@ -1,8 +1,10 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load creme_core_tags %}
 
 {% block page_title %} - {% blocktrans %}Modify {{object}}{% endblocktrans  %}{% endblock %}
 
 {% block content %}
-    {% include "persons/frags/contact_form_content.html" with logo='images/edit_64.png' title=_('Edit') %}
+    {% trans 'Edit «%s»' as fmt %}
+    {% include "persons/frags/contact_form_content.html" with logo='images/edit_64.png' title=object|format:fmt %}
 {% endblock %}

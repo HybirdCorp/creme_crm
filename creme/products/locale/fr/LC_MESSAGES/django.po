@@ -1,13 +1,15 @@
 # FR LOCALISATION OF 'PRODUCTS' APP
-# Copyright (C) 2012 Hybird
+# Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -l fr -e html
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 1.2\n"
+"Project-Id-Version: Creme Products 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:06+0200\n"
+"POT-Creation-Date: 2013-10-13 18:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,181 +28,178 @@ msgstr "Portail des produits et services"
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:35
-msgid "Add a product"
-msgstr "Ajouter un produit"
-
 #: creme_core_register.py:36
 msgid "All services"
 msgstr "Lister les services"
 
-#: creme_core_register.py:37
-msgid "Add a service"
-msgstr "Ajouter un service"
-
-#: populate.py:34
+#: populate.py:33
 msgid "Product view"
 msgstr "Vue de Produit"
 
-#: populate.py:41
+#: populate.py:40
 msgid "Service view"
 msgstr "Vue de Service"
 
-#: populate.py:48
+#: populate.py:51
 msgid "Jewelry"
 msgstr "Bijoux"
 
-#: populate.py:49
+#: populate.py:52
 msgid "Ring"
 msgstr "Bague"
 
-#: populate.py:50
+#: populate.py:53
 msgid "Bracelet"
 msgstr "Bracelet"
 
-#: populate.py:51
+#: populate.py:54
 msgid "Necklace"
 msgstr "Collier"
 
-#: populate.py:52
+#: populate.py:55
 msgid "Earrings"
 msgstr "Boucles d'oreille"
 
-#: populate.py:54
+#: populate.py:57
 msgid "Mobile"
 msgstr "Mobile"
 
-#: populate.py:55
+#: populate.py:58
 msgid "Iphone"
 msgstr "Iphone"
 
-#: populate.py:56
+#: populate.py:59
 msgid "Blackberry"
 msgstr "Blackberry"
 
-#: populate.py:57
+#: populate.py:60
 msgid "Samsung"
 msgstr "Samsung"
 
-#: populate.py:58
+#: populate.py:61
 msgid "Android"
 msgstr "Android"
 
-#: populate.py:60
+#: populate.py:63
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:61
+#: populate.py:64
 msgid "Laptops"
 msgstr "Portables"
 
-#: populate.py:62
+#: populate.py:65
 msgid "Desktops"
 msgstr "Bureau"
 
-#: populate.py:63
+#: populate.py:66
 msgid "Tablet"
 msgstr "Tablette"
 
-#: populate.py:64
+#: populate.py:67
 msgid "Notebook"
 msgstr "Netbook"
 
-#: populate.py:66
+#: populate.py:69
 msgid "Travels"
 msgstr "Voyages"
 
-#: populate.py:67
+#: populate.py:70
 msgid "Fly"
 msgstr "Vol"
 
-#: populate.py:68
+#: populate.py:71
 msgid "Hotel"
 msgstr "Hôtel"
 
-#: populate.py:69
+#: populate.py:72
 msgid "Week-end"
 msgstr "Week-end"
 
-#: populate.py:70
+#: populate.py:73
 msgid "Rent"
 msgstr "Location"
 
-#: populate.py:72
+#: populate.py:75
 msgid "Vehicle"
 msgstr "Véhicule"
 
-#: populate.py:73
+#: populate.py:76
 msgid "Car"
 msgstr "Voiture"
 
-#: populate.py:74
+#: populate.py:77
 msgid "Moto"
 msgstr "Moto"
 
-#: populate.py:75
+#: populate.py:78
 msgid "Boat"
 msgstr "Bateau"
 
-#: populate.py:76
+#: populate.py:79
 msgid "Plane"
 msgstr "Avion"
 
-#: populate.py:78
+#: populate.py:81
 msgid "Games & Toys"
 msgstr "Jeux & jouets"
 
-#: populate.py:79
+#: populate.py:82
 msgid "Boys"
 msgstr "Garçons"
 
-#: populate.py:80
+#: populate.py:83
 msgid "Girls"
 msgstr "Filles"
 
-#: populate.py:81
+#: populate.py:84
 msgid "Teens"
 msgstr "Adolescents"
 
-#: populate.py:82 populate.py:88
+#: populate.py:85 populate.py:91
 msgid "Baybies"
 msgstr "Bébés"
 
-#: populate.py:84
+#: populate.py:87
 msgid "Clothes"
 msgstr "Vêtements"
 
-#: populate.py:85
+#: populate.py:88
 msgid "Men"
 msgstr "Hommes"
 
-#: populate.py:86
+#: populate.py:89
 msgid "Women"
 msgstr "Femmes"
 
-#: populate.py:87
+#: populate.py:90
 msgid "Kids"
 msgstr "Enfants"
 
-#: forms/product.py:45
-msgid "This category doesn't exist."
-msgstr "Cette catégorie n'existe pas."
+#: forms/fields.py:37 models/other_models.py:39 models/product.py:44
+#: models/service.py:38
+msgid "Category"
+msgstr "Catégorie"
 
-#: forms/product.py:46
-msgid "This category cause constraint error."
-msgstr "Cette catégorie à causé une erreur de contrainte."
-
-#: forms/product.py:47
-msgid "This sub-category cause constraint error."
-msgstr "Cette sous-catégorie à causé une erreur de contrainte."
-
-#: forms/product.py:123 forms/service.py:33 models/other_models.py:53
-#: models/product.py:44 models/service.py:38
+#: forms/fields.py:39 forms/product.py:34 forms/service.py:34
+#: models/other_models.py:53 models/product.py:45 models/service.py:39
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/product.py:125 forms/service.py:35 models/product.py:45
-#: models/service.py:44
+#: forms/fields.py:45
+msgid "This category doesn't exist."
+msgstr "Cette catégorie n'existe pas."
+
+#: forms/fields.py:46
+msgid "This category cause constraint error."
+msgstr "Cette catégorie à causé une erreur de contrainte."
+
+#: forms/fields.py:47
+msgid "This sub-category cause constraint error."
+msgstr "Cette sous-catégorie à causé une erreur de contrainte."
+
+#: forms/product.py:35 forms/service.py:35 models/product.py:46
+#: models/service.py:45
 msgid "Images"
 msgstr "Images"
 
@@ -209,13 +208,9 @@ msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
 #: models/other_models.py:29 models/other_models.py:45 models/product.py:37
-#: models/service.py:35
+#: models/service.py:36
 msgid "Description"
 msgstr "Description"
-
-#: models/other_models.py:39 models/product.py:43 models/service.py:37
-msgid "Category"
-msgstr "Catégorie"
 
 #: models/other_models.py:40
 msgid "Categories"
@@ -233,7 +228,7 @@ msgstr "Catégorie parente"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
-#: models/product.py:35 models/service.py:34
+#: models/product.py:35 models/service.py:35
 msgid "Name"
 msgstr "Nom"
 
@@ -241,51 +236,59 @@ msgstr "Nom"
 msgid "Code"
 msgstr "Code"
 
-#: models/product.py:38 models/service.py:41
-msgid "Quantity/Unit"
-msgstr "Conditionnement"
-
-#: models/product.py:39 models/service.py:42
+#: models/product.py:38 models/service.py:43
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
-#: models/product.py:40
-msgid "Weight"
-msgstr "Poids"
-
-#: models/product.py:41
-msgid "Quantity/Stock"
-msgstr "Quantité/Stock"
-
-#: models/product.py:42 models/service.py:43
-msgid "Web Site"
-msgstr "Site Web"
-
-#: models/product.py:74
-msgid "Product"
-msgstr "Produit"
-
-#: models/product.py:75
-msgid "Products"
-msgstr "Produits"
-
-#: models/service.py:36
-msgid "Reference"
-msgstr "Référence"
-
-#: models/service.py:39
-msgid "Countable"
-msgstr "Dénombrable"
-
-#: models/service.py:40
+#: models/product.py:39 models/service.py:41
 msgid "Unit"
 msgstr "Unité"
 
-#: models/service.py:63
+#: models/product.py:40 models/service.py:42
+msgid "Quantity/Unit"
+msgstr "Conditionnement"
+
+#: models/product.py:41
+msgid "Weight"
+msgstr "Poids"
+
+#: models/product.py:42
+msgid "Quantity/Stock"
+msgstr "Quantité/Stock"
+
+#: models/product.py:43 models/service.py:44
+msgid "Web Site"
+msgstr "Site Web"
+
+#: models/product.py:49
+msgid "Add a product"
+msgstr "Ajouter un produit"
+
+#: models/product.py:76
+msgid "Product"
+msgstr "Produit"
+
+#: models/product.py:77
+msgid "Products"
+msgstr "Produits"
+
+#: models/service.py:37
+msgid "Reference"
+msgstr "Référence"
+
+#: models/service.py:40
+msgid "Countable"
+msgstr "Dénombrable"
+
+#: models/service.py:48
+msgid "Add a service"
+msgstr "Ajouter un service"
+
+#: models/service.py:65
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:64
+#: models/service.py:66
 msgid "Services"
 msgstr "Services"
 
@@ -297,13 +300,21 @@ msgstr "Portail Produits & Services"
 msgid "List of products"
 msgstr "Liste des produits"
 
-#: views/portal.py:35
+#: views/portal.py:34
 msgid "Number of products"
 msgstr "Nombre de produit(s)"
 
-#: views/portal.py:36
+#: views/portal.py:35
 msgid "Number of services"
 msgstr "Nombre de service(s)"
+
+#: views/product.py:37
+msgid "Save the product"
+msgstr "Enregistrer le produit"
+
+#: views/service.py:35
+msgid "Save the service"
+msgstr "Enregistrer le service"
 
 #~ msgid "Portal"
 #~ msgstr "Portail"
@@ -380,9 +391,6 @@ msgstr "Nombre de service(s)"
 #~ msgid "Description of 'category 2'"
 #~ msgstr "Description de 'catégorie 2'"
 
-#~ msgid "Category of product"
-#~ msgstr "Catégorie de produit"
-
 #~ msgid "Categories of product"
 #~ msgstr "Catégories de produit"
 
@@ -391,9 +399,6 @@ msgstr "Nombre de service(s)"
 
 #~ msgid "Sub-categories of product"
 #~ msgstr "Sous-catégories de produit"
-
-#~ msgid "Category of service"
-#~ msgstr "Catégorie de service"
 
 #~ msgid "Categories of service"
 #~ msgstr "Catégories de service"

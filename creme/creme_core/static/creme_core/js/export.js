@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,9 @@
  * Requires : jQuery lib, creme declaration
  */
 
-creme._export = {};
+creme._export = {}; //TODO: rename 'export'
 
-//TODO: mobe to billing ??
-
+//TODO: move to billing ??
 creme._export.select_one = function(evt, a) {
     evt.preventDefault();
 
@@ -64,16 +63,16 @@ creme._export.selectBackend = function(evt, data, a) {
         window.location.href = new_href;
     }
 
-    if(!data.length) {
+    if (!data.length) {
         var $select = creme.forms.Select.fill($('<select/>'), [['', 'No backend found']], '');
         var okAction = function() {me.destroyOkDialog($(this))}
     } else {
         var $select = creme.forms.Select.fill($('<select/>'), data, data[0][0]);
         var okAction = function() {me.okDialogHandler($(this))}
     }
-        
+
     var buttons = {};
-    buttons[gettext("Ok")] = okAction
+    buttons[gettext("Ok")] = okAction;
 
     creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
 }

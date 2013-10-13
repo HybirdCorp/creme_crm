@@ -21,7 +21,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_entity, add_to_entity, view_entity, edit_entity, list_view
@@ -35,7 +35,9 @@ from ..forms.graph import GraphForm, AddRelationTypesForm
 @permission_required('graphs')
 @permission_required('graphs.add_graph')
 def add(request):
-    return add_entity(request, GraphForm)
+    return add_entity(request, GraphForm,
+                      extra_template_dict={'submit_label': _('Save the graph')},
+                     )
 
 @login_required
 @permission_required('graphs')
@@ -48,7 +50,9 @@ def dl_png(request, graph_id):
     try:
         return graph.generate_png(user)
     except Graph.GraphException:
-        return render(request, 'graphs/graph_error.html', {'error_message': _(u"This graph is too big!")})
+        return render(request, 'graphs/graph_error.html',
+                      {'error_message': ugettext(u"This graph is too big!")},
+                     )
 
 @login_required
 @permission_required('graphs')
@@ -69,7 +73,8 @@ def listview(request):
 @permission_required('graphs')
 def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
-                         _(u'Add relation types to <%s>'), entity_class=Graph)
+                         ugettext(u'Add relation types to <%s>'), entity_class=Graph,
+                        )
 
 @login_required
 @permission_required('graphs')

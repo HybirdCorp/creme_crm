@@ -48,7 +48,7 @@ creme.blocks.reload = function(url) {
         success:    function(data) {
                         for (var i = 0; i < data.length; ++i) {
                             var block_data    = data[i];                  // tuple: (block_name, block_html)
-                            var block           = $('#' + block_data[0])
+                            var block         = $('#' + block_data[0])
                             var block_content = $(block_data[1]);         // 'compile' to DOM
 
                             creme.blocks.fill(block, block_content);
@@ -80,7 +80,7 @@ creme.blocks.saveState = function(block) {
     var deferred = $.Deferred();
 
     $.when(deferred.promise()).then(function(status) {
-    	block.removeData('block-deferred-save');
+        block.removeData('block-deferred-save');
         creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block[0].id + '/',
                              state, null, null, true);
     }, null, null);
@@ -93,37 +93,37 @@ creme.blocks.saveState = function(block) {
 };
 
 creme.blocks.initEmptyFields = function(block) {
-	$('tbody > tr.content').not(':has(> td:not(.edit_inner):not(:empty))', block).addClass('collapsable-field');
+    $('tbody > tr.content').not(':has(> td:not(.edit_inner):not(:empty))', block).addClass('collapsable-field');
     creme.blocks.updateFieldsColors(block);
     creme.blocks.updateToggleButton(block);
 };
 
 creme.blocks.updateFieldsColors = function(block) {
-	var line_collapsed = block.hasClass(this.hide_fields_class);
+    var line_collapsed = block.hasClass(this.hide_fields_class);
 
-	if (!line_collapsed) {
-    	$('tbody > tr.content:even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
-    	$('tbody > tr.content:odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
+    if (!line_collapsed) {
+        $('tbody > tr.content:even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
+        $('tbody > tr.content:odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
 
-    	$('tbody > tr.content:even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
-    	$('tbody > tr.content:odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
+        $('tbody > tr.content:even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
+        $('tbody > tr.content:odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
     } else {
-    	$('tbody > tr.content:not(.collapsable-field):even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
-    	$('tbody > tr.content:not(.collapsable-field):odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
+        $('tbody > tr.content:not(.collapsable-field):even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
+        $('tbody > tr.content:not(.collapsable-field):odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
 
-    	$('tbody > tr.content:not(.collapsable-field):even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
-    	$('tbody > tr.content:not(.collapsable-field):odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
+        $('tbody > tr.content:not(.collapsable-field):even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
+        $('tbody > tr.content:not(.collapsable-field):odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
     }
 }
 
 creme.blocks.updateToggleButton = function(block, collapsed) {
-	var button = $('table.block_header th.actions a.view_more, table.block_header th.actions a.view_less', block);
-	var collapsed = block.hasClass(this.hide_fields_class);
-	var button_title = collapsed ? gettext('Show empty fields') : gettext('Hide empty fields');
+    var button = $('table.block_header th.actions a.view_more, table.block_header th.actions a.view_less', block);
+    var collapsed = block.hasClass(this.hide_fields_class);
+    var button_title = collapsed ? gettext('Show empty fields') : gettext('Hide empty fields');
 
-	button.toggleClass('view_less', !collapsed).toggleClass('view_more', collapsed);
-	button.attr('title', button_title)
-	   	  .attr('alt', button_title);
+    button.toggleClass('view_less', !collapsed).toggleClass('view_more', collapsed);
+    button.attr('title', button_title)
+          .attr('alt', button_title);
 }
 
 creme.blocks.toggleEmptyFields = function(button) {
@@ -142,9 +142,8 @@ creme.blocks.toggleEmptyFields = function(button) {
     $block.trigger('creme-blocks-field-display-changed', {action : previous_state ? 'show' : 'hide'});
 };
 
-creme.blocks.initialize = function(block)
-{
-	block.bind('creme-table-collapse', function(e, params) {
+creme.blocks.initialize = function(block) {
+    block.bind('creme-table-collapse', function(e, params) {
         creme.blocks.saveState($(this));
     });
 
@@ -160,7 +159,7 @@ creme.blocks.bindEvents = function(block) {
     var __registeredBlocks = this.__registeredBlocks;
 
     for (var i in __registeredBlocks) {
-    	creme.blocks.initialize(__registeredBlocks[i]);
+        creme.blocks.initialize(__registeredBlocks[i]);
     }
 };
 

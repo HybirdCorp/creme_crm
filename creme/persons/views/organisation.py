@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -34,7 +34,9 @@ from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPP
 @permission_required('persons')
 @permission_required('persons.add_organisation')
 def add(request):
-    return add_entity(request, OrganisationForm, template="persons/add_organisation_form.html")
+    return add_entity(request, OrganisationForm, template='persons/add_organisation_form.html',
+                      extra_template_dict={'submit_label': _('Save the organisation')},
+                     )
 
 @login_required
 @permission_required('persons')
@@ -61,7 +63,7 @@ def listview(request):
 def list_my_leads_my_customers(request):
     #use a constant for 'persons-hf_leadcustomer' ??
     return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
-                     extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
+                     extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
                      extra_q=Q(relations__type__in=[REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT],
                                relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
                               )

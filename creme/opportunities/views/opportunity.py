@@ -36,7 +36,8 @@ from ..models import Opportunity, SalesPhase
 @permission_required('opportunities.add_opportunity')
 def add(request):
     return add_entity(request, OpportunityCreateForm,
-                      extra_initial={'sales_phase': get_first_or_None(SalesPhase)}
+                      extra_initial={'sales_phase': get_first_or_None(SalesPhase)},
+                      extra_template_dict={'submit_label': _('Save the opportunity')},
                      )
 
 @login_required
@@ -62,7 +63,9 @@ def add_to(request, ce_id, inner_popup=False):
                                         initial=initial,
                                        )
     else:
-        response = add_entity(request, OpportunityCreateForm, extra_initial=initial)
+        response = add_entity(request, OpportunityCreateForm, extra_initial=initial,
+                              extra_template_dict={'submit_label': _('Save the opportunity')},
+                             )
 
     return response
 

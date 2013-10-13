@@ -20,7 +20,7 @@
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, add_model_with_popup
@@ -35,7 +35,8 @@ from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, Docu
 @permission_required('documents.add_document')
 def add(request):
     return add_entity(request, DocumentCreateForm,
-                      extra_initial={'folder': get_first_or_None(Folder)}
+                      extra_initial={'folder': get_first_or_None(Folder)},
+                      extra_template_dict={'submit_label': _('Save the document')},
                      )
 
 @login_required
@@ -50,8 +51,8 @@ def add_related(request, entity_id):
     user.has_perm_to_link_or_die(Document, owner=None)
 
     return add_model_with_popup(request, RelatedDocumentCreateForm,
-                                _(u'New document for <%s>') % entity,
-                                initial={'entity': entity}
+                                ugettext(u'New document for <%s>') % entity,
+                                initial={'entity': entity},
                                )
 
 @login_required

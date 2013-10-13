@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,28 +25,32 @@ creme.emails = {};
 creme.emails.mass_action = function(url, selector, block_url, complete_cb, values_post_process_cb) {
     var values = $(selector).getValues();
 
-    if(values_post_process_cb && $.isFunction(values_post_process_cb)){
+//     if(values_post_process_cb && $.isFunction(values_post_process_cb)){
+    if ($.isFunction(values_post_process_cb)) {
         values = values_post_process_cb(values);
     }
 
-    if(values.length == 0){
+    if (values.length == 0) {
         creme.utils.showDialog(gettext("Nothing is selected."));
         return;
     }
     creme.utils.ajaxDelete(url,
-                           {'ids': values},
+                           {ids: values},
                            {
-                               success : function(data, status, req){
+                                success: function(data, status, req) {
                                     creme.utils.showDialog(gettext("Process done"));
                                 },
-                               complete:function(req, st){
-                                   if(block_url && typeof(block_url) != "undefined") {
+                                complete: function(req, st) {
+//                                    if(block_url && typeof(block_url) != "undefined") {
+                                    if (block_url) {
                                         creme.utils.loadBlock(block_url);
-                                   }
-                                   if(st!='error') {
-                                       if(complete_cb && $.isFunction(complete_cb)) {
+                                    }
+
+                                    if (st != 'error') {
+//                                        if (complete_cb && $.isFunction(complete_cb)) {
+                                        if ($.isFunction(complete_cb)) {
                                            complete_cb();
-                                       }
+                                        }
 
                                    }
                                    creme.utils.loading('loading', true);
@@ -54,22 +58,22 @@ creme.emails.mass_action = function(url, selector, block_url, complete_cb, value
                            });
 };
 
-creme.emails.mass_relation = function(url, selector, block_url) {
+creme.emails.mass_relation = function(url, selector, block_url) { //TODO: rename
     var values = $(selector).getValues();
-    if(values.length == 0) {
+    if (values.length == 0) {
         creme.utils.showDialog(gettext("Please select at least one entity."));
         return false;
     }
 
-    url = creme.utils.appendInUrl(url, '?persist=ids&ids='+values.join('ids='));
+    url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
 
     creme.utils.innerPopupNReload(url, block_url);
 };
 
 creme.reload_synchronisation = function($target, target_url) {
     creme.ajax.get({
-        url : target_url,
-        success : function(data){
+        url: target_url,
+        success: function(data) {
             $target.empty().html(data);
         }
     });
@@ -77,17 +81,19 @@ creme.reload_synchronisation = function($target, target_url) {
 
 creme.emails.resend = function(url, ids, block_url, complete_cb) {
     creme.ajax.post({
-            'url': url,
-            'data': {'ids': ids},
-            success : function(data, status, req) {
+            url: url,
+            data: {'ids': ids},
+            success: function(data, status, req) {
                     creme.utils.showDialog(gettext("Process done"));
-                },
+            },
             complete: function(req, st) {
-                if(st!='error') {
-                    if(block_url && typeof(block_url) != "undefined") {
+                if (st != 'error') {
+//                     if (block_url && typeof(block_url) != "undefined") {
+                    if (block_url) {
                         creme.utils.loadBlock(block_url);
                     }
-                    if(complete_cb && $.isFunction(complete_cb)) {
+//                     if (complete_cb && $.isFunction(complete_cb)) {
+                    if ($.isFunction(complete_cb)) {
                         complete_cb();
                     }
                 }
