@@ -91,33 +91,33 @@ creme.utils.showDialog = function(text, options, div_id) {
     }*/
 }
 
-creme.utils.build_q_filter_url = function(q_filter) {//TODO: Still used?
-    var url_str = '';
+// creme.utils.build_q_filter_url = function(q_filter) {
+//     var url_str = '';
+// 
+//     if (q_filter && typeof(q_filter['name']) != "undefined") {
+//         var name = q_filter['name'];
+//         var items = q_filter['items'];
+//         //for(var iq in items)
+//         for (var i = 0; i < items.length; i++) {
+//             var q = items[i];
+//             //if(typeof(q['negated'])=="undefined" || q['negated'] != "~" || q['negated'] != "") {q['negated'] = '';q.negated = '';}
+//             if(typeof(q['is_or'])=="undefined" || q['is_or']!=0 || q['is_or']!=1){q['is_or'] = 0;q.is_or = 0;}
+//             //url_str+='&'+name+'='+(typeof(q.negated)!="undefined")?q.negated:''+q.pattern+':'+q.value+','+(typeof(q.is_or)!="undefined")?q.is_or:0;
+//             //url_str+='&'+name+'='+q.negated+q.pattern+':'+q.value+','+q.is_or;
+//             url_str += '&' + name + '=' + q.pattern + ':' + q.value + ',' + q.is_or;
+//         }
+//         url_str += '&q_name=' + name;
+//     }
+//     return url_str;
+// }
 
-    if (q_filter && typeof(q_filter['name']) != "undefined") {
-        var name = q_filter['name'];
-        var items = q_filter['items'];
-        //for(var iq in items)
-        for (var i = 0; i < items.length; i++) {
-            var q = items[i];
-            //if(typeof(q['negated'])=="undefined" || q['negated'] != "~" || q['negated'] != "") {q['negated'] = '';q.negated = '';}
-            if(typeof(q['is_or'])=="undefined" || q['is_or']!=0 || q['is_or']!=1){q['is_or'] = 0;q.is_or = 0;}
-            //url_str+='&'+name+'='+(typeof(q.negated)!="undefined")?q.negated:''+q.pattern+':'+q.value+','+(typeof(q.is_or)!="undefined")?q.is_or:0;
-            //url_str+='&'+name+'='+q.negated+q.pattern+':'+q.value+','+q.is_or;
-            url_str += '&' + name + '=' + q.pattern + ':' + q.value + ',' + q.is_or;
-        }
-        url_str += '&q_name=' + name;
-    }
-    return url_str;
-}
+// creme.utils.build_q_value = function(field, value, is_or, is_negated) {//TODO: Still used?
+//     return ((is_negated)?'~':'') + field + ':' + value + ',' + Number(is_or);
+// }
 
-creme.utils.build_q_value = function(field, value, is_or, is_negated) {//TODO: Still used?
-    return ((is_negated)?'~':'') + field + ':' + value + ',' + Number(is_or);
-}
-
-creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {//TODO: Still used?
-    return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
-}
+// creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {
+//     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
+// }
 
 creme.utils.tableExpandState = function($self, state, trigger) {
     var $table = $self.parents('table[id!=]');
@@ -237,15 +237,14 @@ creme.utils.confirmSubmit = function(atag) {
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
-//TODO: Is this still used ? (10/08/11)
-creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
-    var $from_node = $('#'+from_id);
-
-    $(arrayNodesIds).each(function() {
-            callback($from_node, this);
-        }
-    );
-}
+// creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
+//     var $from_node = $('#'+from_id);
+// 
+//     $(arrayNodesIds).each(function() {
+//             callback($from_node, this);
+//         }
+//     );
+// }
 
 //TODO: move to assistants.js ??
 creme.utils.validateEntity = function(form, checkbox_id, reload_url) {
@@ -659,7 +658,7 @@ creme.utils.go_to = function(url, ajax, ajax_options) {
     }
 }
 
-creme.utils.range = function(start, end) {
+creme.utils.range = function(start, end) { //TODO: useful ?? (only by creme.graphael)
     var tab = [];
     for (var i=start||0; i < end; i++) {
         tab.push(i);
@@ -673,22 +672,23 @@ creme.utils.HEXtoRGB = function(hex) {//Extracted from gccolor-1.0.3 plugin
     return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
 };
 
-creme.utils.RGBtoHSB = function(rgb) {
-    var hsb = {};
-    hsb.b = Math.max(Math.max(rgb.r, rgb.g), rgb.b);
-    hsb.s = (hsb.b <= 0) ? 0 : Math.round(100 * (hsb.b - Math.min(Math.min(rgb.r, rgb.g), rgb.b)) / hsb.b);
-    hsb.b = Math.round((hsb.b / 255) * 100);
-    if((rgb.r == rgb.g) && (rgb.g == rgb.b)) hsb.h = 0;
-    else if(rgb.r >= rgb.g && rgb.g >= rgb.b) hsb.h = 60 * (rgb.g - rgb.b) / (rgb.r - rgb.b);
-    else if(rgb.g >= rgb.r && rgb.r >= rgb.b) hsb.h = 60  + 60 * (rgb.g - rgb.r) / (rgb.g - rgb.b);
-    else if(rgb.g >= rgb.b && rgb.b >= rgb.r) hsb.h = 120 + 60 * (rgb.b - rgb.r) / (rgb.g - rgb.r);
-    else if(rgb.b >= rgb.g && rgb.g >= rgb.r) hsb.h = 180 + 60 * (rgb.b - rgb.g) / (rgb.b - rgb.r);
-    else if(rgb.b >= rgb.r && rgb.r >= rgb.g) hsb.h = 240 + 60 * (rgb.r - rgb.g) / (rgb.b - rgb.g);
-    else if(rgb.r >= rgb.b && rgb.b >= rgb.g) hsb.h = 300 + 60 * (rgb.r - rgb.b) / (rgb.r - rgb.g);
-    else hsb.h = 0;
-    hsb.h = Math.round(hsb.h);
-    return hsb;
-};
+// XXX: commented the 13th october 2013
+// creme.utils.RGBtoHSB = function(rgb) {
+//     var hsb = {};
+//     hsb.b = Math.max(Math.max(rgb.r, rgb.g), rgb.b);
+//     hsb.s = (hsb.b <= 0) ? 0 : Math.round(100 * (hsb.b - Math.min(Math.min(rgb.r, rgb.g), rgb.b)) / hsb.b);
+//     hsb.b = Math.round((hsb.b / 255) * 100);
+//     if((rgb.r == rgb.g) && (rgb.g == rgb.b)) hsb.h = 0;
+//     else if(rgb.r >= rgb.g && rgb.g >= rgb.b) hsb.h = 60 * (rgb.g - rgb.b) / (rgb.r - rgb.b);
+//     else if(rgb.g >= rgb.r && rgb.r >= rgb.b) hsb.h = 60  + 60 * (rgb.g - rgb.r) / (rgb.g - rgb.b);
+//     else if(rgb.g >= rgb.b && rgb.b >= rgb.r) hsb.h = 120 + 60 * (rgb.b - rgb.r) / (rgb.g - rgb.r);
+//     else if(rgb.b >= rgb.g && rgb.g >= rgb.r) hsb.h = 180 + 60 * (rgb.b - rgb.g) / (rgb.b - rgb.r);
+//     else if(rgb.b >= rgb.r && rgb.r >= rgb.g) hsb.h = 240 + 60 * (rgb.r - rgb.g) / (rgb.b - rgb.g);
+//     else if(rgb.r >= rgb.b && rgb.b >= rgb.g) hsb.h = 300 + 60 * (rgb.r - rgb.b) / (rgb.r - rgb.g);
+//     else hsb.h = 0;
+//     hsb.h = Math.round(hsb.h);
+//     return hsb;
+// };
 
 creme.utils.luminance = function(r, g, b) {
     r = Math.pow (r / 255, 2.2);
