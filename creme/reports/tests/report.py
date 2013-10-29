@@ -19,6 +19,8 @@ try:
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
         EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
         CremePropertyType, CremeProperty, HeaderFilterItem, HeaderFilter)
+    from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_CUSTOM,
+            HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.documents.models import Folder, Document
@@ -38,8 +40,6 @@ try:
     from creme.emails.models import EmailCampaign, MailingList
 
     from ..models import Field, Report
-    from ..models.report import (HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION,
-                                 HFI_CALCULATED, HFI_RELATED)
     from .base import BaseReportsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)

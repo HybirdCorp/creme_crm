@@ -33,7 +33,7 @@ from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
-from ..core.graph import HANDS_MAP
+from ..core.graph import RGRAPH_HANDS_MAP
 from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 from ..models.graph import ReportGraph
@@ -191,11 +191,11 @@ class ReportGraphForm(CremeEntityForm):
         except Exception as e:
             raise ValidationError('Invalid value: %s  [%s]', str_val, e)
 
-        hand = HANDS_MAP.get(graph_type)
+        hand = RGRAPH_HANDS_MAP.get(graph_type)
 
         if hand is None:
             raise ValidationError('Invalid value: %s  not in %s', graph_type,
-                                  [h.hand_id for h in HANDS_MAP]
+                                  [h.hand_id for h in RGRAPH_HANDS_MAP]
                                  )
 
         self.verbose_graph_type = hand.verbose_name

@@ -80,12 +80,12 @@ class ReportGraph(CremeEntity):
 
     @property
     def hand(self):
-        from ..core.graph import HANDS_MAP #lazy loading
+        from ..core.graph import RGRAPH_HANDS_MAP #lazy loading
 
         hand = self._hand
 
         if hand is None:
-            self._hand = hand = HANDS_MAP[self.type](self)
+            self._hand = hand = RGRAPH_HANDS_MAP[self.type](self)
 
         return hand
 
