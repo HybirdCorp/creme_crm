@@ -201,6 +201,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None,
 
     return m2m_instances
 
+#TODO: useless ???
 def filter_entities_on_ct(entities, ct):
     ct_model_class = ct.model_class()
     return [entity for entity in entities if isinstance(entity, ct_model_class)]

@@ -70,7 +70,7 @@ class ReportGraphHandRegistry(object):
         return self._hands.get(i)
 
 
-HANDS_MAP = ReportGraphHandRegistry()
+RGRAPH_HANDS_MAP = ReportGraphHandRegistry()
 
 
 class ReportGraphYCalculator(object):
@@ -238,7 +238,7 @@ class _RGHRegularField(ReportGraphHand):
         return field.verbose_name if field else '??'
 
 
-@HANDS_MAP(RGT_DAY)
+@RGRAPH_HANDS_MAP(RGT_DAY)
 class RGHDay(_RGHRegularField):
     verbose_name = _(u"By days")
 
@@ -257,7 +257,7 @@ class RGHDay(_RGHRegularField):
                                      )
 
 
-@HANDS_MAP(RGT_MONTH)
+@RGRAPH_HANDS_MAP(RGT_MONTH)
 class RGHMonth(_RGHRegularField):
     verbose_name = _(u"By months")
 
@@ -274,7 +274,7 @@ class RGHMonth(_RGHRegularField):
                                      )
 
 
-@HANDS_MAP(RGT_YEAR)
+@RGRAPH_HANDS_MAP(RGT_YEAR)
 class RGHYear(_RGHRegularField):
     verbose_name =_(u"By years")
 
@@ -314,7 +314,7 @@ class DateInterval(object):
                 max_date = end - timedelta(days=1)
 
 
-@HANDS_MAP(RGT_RANGE)
+@RGRAPH_HANDS_MAP(RGT_RANGE)
 class RGHRange(_RGHRegularField):
     verbose_name = _(u"By X days")
 
@@ -350,7 +350,7 @@ class RGHRange(_RGHRegularField):
                       )
 
 
-@HANDS_MAP(RGT_FK)
+@RGRAPH_HANDS_MAP(RGT_FK)
 class RGHForeignKey(_RGHRegularField):
     verbose_name = _(u"By values")
 
@@ -369,7 +369,7 @@ class RGHForeignKey(_RGHRegularField):
             yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
-@HANDS_MAP(RGT_RELATION)
+@RGRAPH_HANDS_MAP(RGT_RELATION)
 class RGHRelation(ReportGraphHand):
     verbose_name = _(u"By values (of related entities)")
 
@@ -443,7 +443,7 @@ class _RGHCustomField(ReportGraphHand):
         return cfield.name if cfield else '??'
 
 
-@HANDS_MAP(RGT_CUSTOM_DAY)
+@RGRAPH_HANDS_MAP(RGT_CUSTOM_DAY)
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _(u"By days")
 
@@ -457,7 +457,7 @@ class RGHCustomDay(_RGHCustomField):
                                             )
 
 
-@HANDS_MAP(RGT_CUSTOM_MONTH)
+@RGRAPH_HANDS_MAP(RGT_CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _(u"By months")
 
@@ -470,7 +470,7 @@ class RGHCustomMonth(_RGHCustomField):
                                             )
 
 
-@HANDS_MAP(RGT_CUSTOM_YEAR)
+@RGRAPH_HANDS_MAP(RGT_CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _(u"By years")
 
@@ -481,7 +481,7 @@ class RGHCustomYear(_RGHCustomField):
                                             )
 
 
-@HANDS_MAP(RGT_CUSTOM_RANGE)
+@RGRAPH_HANDS_MAP(RGT_CUSTOM_RANGE)
 class RGHCustomRange(_RGHCustomField):
     verbose_name = _(u"By X days")
 
@@ -520,7 +520,7 @@ class RGHCustomRange(_RGHCustomField):
                       )
 
 
-@HANDS_MAP(RGT_CUSTOM_FK)
+@RGRAPH_HANDS_MAP(RGT_CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _(u"By values (of custom choices)")
 

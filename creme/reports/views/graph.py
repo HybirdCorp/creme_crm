@@ -33,7 +33,7 @@ from creme.creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 from ..constants import *
 from ..models import ReportGraph
 from ..forms.graph import ReportGraphForm
-from ..core.graph import HANDS_MAP, fetch_graph_from_instance_block
+from ..core.graph import RGRAPH_HANDS_MAP, fetch_graph_from_instance_block
 
 
 logger = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ def get_available_report_graph_types(request, ct_id):
         result = [{'id': '', 'text': ugettext(u'Choose an abscissa field')}] #TODO: is the translation useful ??
     else:
         result = [{'id':   type_id,
-                   'text': unicode(HANDS_MAP[type_id].verbose_name),
+                   'text': unicode(RGRAPH_HANDS_MAP[type_id].verbose_name),
                   } for type_id in gtypes
                  ]
 

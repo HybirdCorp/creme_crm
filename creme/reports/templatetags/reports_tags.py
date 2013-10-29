@@ -20,15 +20,14 @@
 
 from django.template import Library
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.utils.translation import ugettext_lazy as _ #, ugettext
+#from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.utils.meta import get_model_field_info # get_verbose_field_name
 #from creme.creme_core.models import CustomField, RelationType
-from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
-                                                   HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
+#from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
+                                                   #HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
-#from ..constants import DATETIME_FILTER_FORMAT
 #from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
                             #RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 #from ..report_aggregation_registry import field_aggregation_registry
@@ -36,15 +35,16 @@ from creme.creme_core.registry import creme_registry
 
 register = Library()
 
-HFI_TYPE_VERBOSE = {
-    HFI_FIELD      : _(u"Regular field"),
-    HFI_RELATION   : _(u"Relation"),
-    HFI_FUNCTION   : _(u"Function"),
-    HFI_CUSTOM     : _(u"Custom field"),
-    HFI_CALCULATED : _(u"Calculated value"),
-    HFI_RELATED    : _(u"Related field"),
-}
+#HFI_TYPE_VERBOSE = {
+    #HFI_FIELD      : _(u"Regular field"),
+    #HFI_RELATION   : _(u"Relation"),
+    #HFI_FUNCTION   : _(u"Function"),
+    #HFI_CUSTOM     : _(u"Custom field"),
+    #HFI_CALCULATED : _(u"Calculated value"),
+    #HFI_RELATED    : _(u"Related field"),
+#}
 
+#TODO: replace by a method in ReportHand
 @register.filter(name="is_field_is_linkable")
 def is_linkable(field, ct):
     field_infos = get_model_field_info(ct.model_class(), field.name)
@@ -59,27 +59,9 @@ def is_linkable(field, ct):
 
     return False
 
-@register.filter(name="get_verbose_type")
-def get_verbose_type(type_id):
-    return HFI_TYPE_VERBOSE.get(type_id)
-
-#TODO: remove template too
-#@register.inclusion_tag('reports/templatetags/column_header.html')
-#def get_column_header(column):
-#    return {'data' : column.get_children_fields_with_hierarchy()}
-
-#TODO: remove template too
-#@register.inclusion_tag('reports/frags/html_column_value.html')
-#def get_html_column_value(column, line, index, add_index=0):
-    #return {'line' : line, 'column': column, 'index': index+add_index}
-
-##Here because of try except, but when this will be fixed in reports, remove try except and move to creme_core_tags
-#@register.filter(name="get_value_at")
-#def get_value_at(iterable, index):
-    #try:
-        #return iterable[index]
-    #except IndexError:
-        #return u''
+#@register.filter(name="get_verbose_type")
+#def get_verbose_type(type_id):
+    #return HFI_TYPE_VERBOSE.get(type_id)
 
 @register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
 def report_barchart_json(context, rgraph):
@@ -111,10 +93,6 @@ def report_tubechart_json(context, rgraph, legend_rows=1):
 #@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
 #def get_report_chart_selectors(context):
     #return context
-
-#@register.filter
-#def to_filter_format(date):
-    #return date.strftime(DATETIME_FILTER_FORMAT)
 
 #@register.filter(name="verbose_abscissa")
 #def get_verbose_abscissa(report_graph, graph_abscissa):

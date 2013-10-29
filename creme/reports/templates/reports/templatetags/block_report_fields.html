@@ -52,7 +52,8 @@
                             {% trans "Value" %}
                         {% endif %}
                         </td>
-                        <td class="{{row_color}}">{{column.type|get_verbose_type}}</td>
+                        {% comment %}<td class="{{row_color}}">{{column.type|get_verbose_type}}</td>{% endcomment %}
+                        <td class="{{row_color}}">{{column.hand.verbose_name}}</td>
                         <td class="{{row_color}} action">
                             <table style="width: 100%;">
                                 <tbody>

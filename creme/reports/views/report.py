@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, RelationType
+from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED #TODO: true report constant...
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                             list_view, inner_popup, add_to_entity)
@@ -37,7 +38,6 @@ from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 #jsonify
 from creme.creme_core.registry import export_backend_registry
 
 from ..models import Report, Field
-from ..models.report import HFI_FIELD, HFI_RELATION, HFI_RELATED #TODO: true report constant...
 from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm,
                             AddFieldToReportForm, DateReportFilterForm) #get_aggregate_custom_fields
 #from ..report_aggregation_registry import field_aggregation_registry
