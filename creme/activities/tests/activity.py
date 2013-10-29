@@ -1677,28 +1677,31 @@ class ActivityTestCase(_ActivitiesTestCase):
                          default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
                         )
 
-        #today = datetime.today()
-        today = now()
-        title = "meeting activity popup 3"
-        response = self.client.post(self.ADD_POPUP_URL,
-                                    data={'user':           user.pk,
-                                          'title':          title,
-                                          'type_selector':  self._acttype_field_value(ACTIVITYTYPE_ACTIVITY),
-                                          'start':          date_format(today),
-                                          'my_participation': True,
-                                          'my_calendar': my_calendar.pk,
-                                         }
-                                   )
+        create_dt = self.create_datetime
 
-        self.assertNoFormError(response)
-        self.assertEqual(1, Activity.objects.count())
+        def post(title, today):
+            response = self.client.post(self.ADD_POPUP_URL,
+                                        data={'user':             user.pk,
+                                              'title':            title,
+                                              'type_selector':    self._acttype_field_value(ACTIVITYTYPE_ACTIVITY),
+                                              'start':            date_format(today),
+                                              'my_participation': True,
+                                              'my_calendar':      my_calendar.pk,
+                                             }
+                                    )
 
-        activity = self.get_object_or_fail(Activity, title=title)
-        create_dt = partial(self.create_datetime, year=today.year, month=today.month, day=today.day)
-        self.assertEqual(create_dt(hour=0,  minute=0,  second=0), activity.start)
-        self.assertEqual(create_dt(hour=23, minute=59, second=0), activity.end)
-        self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
-        self.assertIsNone(activity.sub_type)
+            self.assertNoFormError(response)
+
+            activity = self.get_object_or_fail(Activity, title=title)
+            self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
+            self.assertIsNone(activity.sub_type)
+
+            create_today_dt = partial(create_dt, year=today.year, month=today.month, day=today.day)
+            self.assertEqual(create_today_dt(hour=0,  minute=0,  second=0), activity.start)
+            self.assertEqual(create_today_dt(hour=23, minute=59, second=0), activity.end)
+
+        post("meeting activity popup 3a", create_dt(year=2013, month=10, day=28, hour=11)) #No DST change for Europe/Paris
+        post("meeting activity popup 3b", create_dt(year=2013, month=10, day=27, hour=11)) #Timezone DST change for Europe/Paris
 
     def test_createview_popup4(self):
         "Beware when it's 23 o clock (bugfix)"

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 from datetime import datetime, time, timedelta
+from functools import partial
 import logging
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
@@ -149,8 +149,8 @@ class _ActivityForm(CremeEntityForm):
                 end = start + tdelta
 
         if is_all_day or floating_type == FLOATING_TIME:
-            start = start.replace(hour=0, minute=0)
-            end   = end.replace(hour=23, minute=59)
+            start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
+            end   = make_aware_dt(datetime.combine(end, time(hour=23, minute=59)))
 
         if start > end:
             raise ValidationError(ugettext(u'End time is before start time'))
