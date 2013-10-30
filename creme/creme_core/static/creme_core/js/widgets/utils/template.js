@@ -161,5 +161,21 @@ creme.utils.Template = creme.component.Component.sub({
         } else if (typeof data === 'string') {
             this.pattern = data;
         }
+
+        return this;
     }
 });
+
+creme.utils.templatize = function(value, context) {
+    if (Object.isEmpty(value))
+        return new creme.utils.Template();
+
+    if (Object.isType(value, 'string'))
+        value = creme.utils.Template(value);
+
+    if (Object.isType(value, 'object') && Object.isFunc(value.is) && value.is(creme.utils.Template)) {
+        return value.update(context || {});
+    }
+
+    return new creme.utils.Template();
+}
