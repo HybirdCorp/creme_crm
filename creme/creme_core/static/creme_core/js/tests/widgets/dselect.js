@@ -280,6 +280,11 @@ test('creme.widget.DynamicSelect.url (url, unknown url)', function() {
 
     creme.widget.create(element);
     equal(element.creme().widget().url(), "mock/options");
+    equal(3, $('option', element).length);
+    equal(element.is(':disabled'), false);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('15', $('option:nth(1)', element).attr('value'));
+    equal('12.5', $('option:nth(2)', element).attr('value'));
 
     var response = [];
     element.creme().widget().model().one({
@@ -634,6 +639,49 @@ test('creme.widget.DynamicSelect.filter (template)', function() {
     deepEqual(['max'], widget.dependencies());
 
     equal(5, $('option', element).length);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('5', $('option:nth(1)', element).attr('value'));
+    equal('3', $('option:nth(2)', element).attr('value'));
+    equal('7', $('option:nth(3)', element).attr('value'));
+    equal('4', $('option:nth(4)', element).attr('value'));
+
+    widget.reload({max: 4});
+
+    equal(2, $('option', element).length);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('3', $('option:nth(1)', element).attr('value'));
+
+    widget.reload({max: 6});
+
+    equal(4, $('option', element).length);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('5', $('option:nth(1)', element).attr('value'));
+    equal('3', $('option:nth(2)', element).attr('value'));
+    equal('4', $('option:nth(3)', element).attr('value'));
+});
+
+test('creme.widget.DynamicSelect.filter (context)', function() {
+    var element = mock_dselect_create();
+    mock_dselect_add_choice(element, 'a', 1);
+    mock_dselect_add_choice(element, 'b', 5);
+    mock_dselect_add_choice(element, 'c', 3);
+    mock_dselect_add_choice(element, 'd', 7);
+    mock_dselect_add_choice(element, 'e', 4);
+
+    var widget = creme.widget.create(element, {dependencies:['max']});
+    deepEqual(['max'], widget.dependencies());
+    
+    equal(5, $('option', element).length);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('5', $('option:nth(1)', element).attr('value'));
+    equal('3', $('option:nth(2)', element).attr('value'));
+    equal('7', $('option:nth(3)', element).attr('value'));
+    equal('4', $('option:nth(4)', element).attr('value'));
+
+    widget.filter('item.value < (context.max ? context.max : 10000)');
+    deepEqual(['max'], widget.dependencies());
+
+    equal(5, $('option', element).length, '');
     equal('1', $('option:nth(0)', element).attr('value'));
     equal('5', $('option:nth(1)', element).attr('value'));
     equal('3', $('option:nth(2)', element).attr('value'));

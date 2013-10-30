@@ -67,7 +67,7 @@ test('creme.model.Array.get', function() {
 });
 
 test('creme.model.Array.first/last', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     equal('x', model.first());
     equal('z', model.last());
 
@@ -81,7 +81,7 @@ test('creme.model.Array.first/last', function() {
 });
 
 test('creme.model.Array.clear (empty)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     deepEqual([], this.mockListenerCalls('removed'));
 
     model.clear();
@@ -90,7 +90,7 @@ test('creme.model.Array.clear (empty)', function() {
 });
 
 test('creme.model.Array.clear', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('remove', this.mockListener('removed'));
 
     deepEqual(['a', 'b', 'c'], model.all());
@@ -104,7 +104,7 @@ test('creme.model.Array.clear', function() {
 });
 
 test('creme.model.Array.insert (empty)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -117,7 +117,7 @@ test('creme.model.Array.insert (empty)', function() {
 });
 
 test('creme.model.Array.insert (empty, array)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -130,7 +130,7 @@ test('creme.model.Array.insert (empty, array)', function() {
 });
 
 test('creme.model.Array.insert (front)', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -143,7 +143,7 @@ test('creme.model.Array.insert (front)', function() {
 });
 
 test('creme.model.Array.insert (front, array)', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -156,7 +156,7 @@ test('creme.model.Array.insert (front, array)', function() {
 });
 
 test('creme.model.Array.insert (back)', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -169,7 +169,7 @@ test('creme.model.Array.insert (back)', function() {
 });
 
 test('creme.model.Array.insert (back, array)', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -182,7 +182,7 @@ test('creme.model.Array.insert (back, array)', function() {
 });
 
 test('creme.model.Array.insert', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -196,7 +196,7 @@ test('creme.model.Array.insert', function() {
 });
 
 test('creme.model.Array.insert (array)', function() {
-    model = new creme.model.Array(['a', 'b', 'c']);
+    var model = new creme.model.Array(['a', 'b', 'c']);
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -210,7 +210,7 @@ test('creme.model.Array.insert (array)', function() {
 });
 
 test('creme.model.Array.insert (out of bound)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -221,7 +221,7 @@ test('creme.model.Array.insert (out of bound)', function() {
 });
 
 test('creme.model.Array.append', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -236,7 +236,7 @@ test('creme.model.Array.append', function() {
 });
 
 test('creme.model.Array.prepend', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('add', this.mockListener('added'));
     deepEqual([], this.mockListenerCalls('added'));
 
@@ -306,7 +306,7 @@ test('creme.model.Array.indexOf (comparator)', function() {
 });
 
 test('creme.model.Array.pop (empty)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -317,7 +317,7 @@ test('creme.model.Array.pop (empty)', function() {
 });
 
 test('creme.model.Array.pop', function() {
-    model = new creme.model.Array(['a', 'b']);
+    var model = new creme.model.Array(['a', 'b']);
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -332,7 +332,7 @@ test('creme.model.Array.pop', function() {
 });
 
 test('creme.model.Array.remove', function() {
-    model = new creme.model.Array(['a', 'b']);
+    var model = new creme.model.Array(['a', 'b']);
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -351,7 +351,7 @@ test('creme.model.Array.remove', function() {
 });
 
 test('creme.model.Array.remove (array)', function() {
-    model = new creme.model.Array(['a', 'b', 'c', 'd']);
+    var model = new creme.model.Array(['a', 'b', 'c', 'd']);
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -369,7 +369,7 @@ test('creme.model.Array.remove (array)', function() {
 });
 
 test('creme.model.Array.removeAt', function() {
-    model = new creme.model.Array(['a', 'b', 'c', 'd']);
+    var model = new creme.model.Array(['a', 'b', 'c', 'd']);
     model.bind('remove', this.mockListener('removed'));
     deepEqual([], this.mockListenerCalls('removed'));
 
@@ -391,7 +391,7 @@ test('creme.model.Array.removeAt', function() {
 });
 
 test('creme.model.Array.reset (empty)', function() {
-    model = new creme.model.Array();
+    var model = new creme.model.Array();
     model.bind('remove', this.mockListener('removed'));
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
@@ -413,7 +413,7 @@ test('creme.model.Array.reset (empty)', function() {
 });
 
 test('creme.model.Array.reset (clear)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
@@ -429,7 +429,7 @@ test('creme.model.Array.reset (clear)', function() {
 });
 
 test('creme.model.Array.reset (update)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
@@ -445,7 +445,7 @@ test('creme.model.Array.reset (update)', function() {
 });
 
 test('creme.model.Array.reset (add)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
@@ -499,7 +499,7 @@ test('creme.model.Array.reset (add)', function() {
 });
 
 test('creme.model.Array.reset (remove)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('remove', this.mockListener('removed'));
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
@@ -535,7 +535,7 @@ test('creme.model.Array.reset (remove)', function() {
 });
 
 test('creme.model.Array.set (update)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
+    var model = new creme.model.Array(['x', 'y', 'z']);
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
 
@@ -548,8 +548,71 @@ test('creme.model.Array.set (update)', function() {
     deepEqual([], this.mockListenerCalls('added'));
 });
 
+
+test('creme.model.Array.patch (array)', function() {
+    var model = new creme.model.Array();
+    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
+
+    deepEqual([], this.mockListenerCalls('model'));
+    deepEqual([], model.all());
+
+    model.patch(['a', 'b', 'c']);
+
+    deepEqual(['a', 'b', 'c'], model.all());
+    deepEqual([['add', ['a', 'b', 'c'], 0, 2, 'reset'], ['reset']], this.mockListenerCalls('model'));
+
+    this.resetMockCalls();
+    model.patch(['x', 'y', 'z', 'w']);
+
+    deepEqual(['x', 'y', 'z', 'w'], model.all());
+    deepEqual([['update', ['x', 'y', 'z'], 0, 2, ['a', 'b', 'c'], 'reset'],
+               ['add', ['w'], 3, 3, 'reset'],
+               ['reset']], this.mockListenerCalls('model'));
+});
+
+test('creme.model.Array.patch (diff, add)', function() {
+    var model = new creme.model.AjaxArray(this.backend);
+    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
+
+    deepEqual([], this.mockListenerCalls('model'));
+    deepEqual([], model.all());
+
+    model.patch({add:['x', 'y']});
+
+    deepEqual(['x', 'y'], model.all());
+    deepEqual([['add', ['x', 'y'], 0, 1, 'insert']], this.mockListenerCalls('model'));
+});
+
+test('creme.model.Array.patch (diff, remove)', function() {
+    var model = new creme.model.Array(['a', 'b', 'c']);
+    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
+
+    deepEqual([], this.mockListenerCalls('model'));
+    deepEqual(['a', 'b', 'c'], model.all());
+
+    model.patch({remove:['b', 'c']});
+
+    deepEqual(['a'], model.all());
+    deepEqual([['remove', ['b'], 1, 1, 'remove'],
+               ['remove', ['c'], 1, 1, 'remove']], this.mockListenerCalls('model'));
+});
+
+test('creme.model.Array.patch (diff, update)', function() {
+    var model = new creme.model.Array(['a', 'b', 'c']);
+    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
+
+    deepEqual([], this.mockListenerCalls('model'));
+    deepEqual(['a', 'b', 'c'], model.all());
+
+    model.patch({update:[['y', 0], ['k', 2]]});
+
+    deepEqual(['y', 'b', 'k'], model.all());
+    deepEqual([['update', ['y'], 0, 0, ['a'], 'set'],
+               ['update', ['k'], 2, 2, ['c'], 'set']], this.mockListenerCalls('model'));
+});
+
 test('creme.model.Array.reverse', function() {
-    model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
+    var model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
     model.bind('reverse', this.mockListener('reversed'));
@@ -565,7 +628,7 @@ test('creme.model.Array.reverse', function() {
 });
 
 test('creme.model.Array.sort', function() {
-    model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
+    var model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
     model.bind('sort', this.mockListener('sorted'));
@@ -594,7 +657,7 @@ test('creme.model.Array.sort (comparator)', function() {
     var desc = function(a, b) {return b - a;};
     var asc = function(a, b) {return a - b;};
 
-    model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
+    var model = new creme.model.Array([1, 4, 5, 3, 7, 0]);
     model.bind('add', this.mockListener('added'));
     model.bind('update', this.mockListener('updated'));
     model.bind('sort', this.mockListener('sorted'));
@@ -644,7 +707,7 @@ test('creme.model.Array.sort (comparator)', function() {
 });
 
 test('creme.model.Delegate.constructor (empty)', function() {
-    delegate = new creme.model.Delegate();
+    var delegate = new creme.model.Delegate();
 
     equal(undefined, delegate.delegate());
     equal(0, delegate.length());
@@ -652,8 +715,8 @@ test('creme.model.Delegate.constructor (empty)', function() {
 });
 
 test('creme.model.Delegate.constructor (model)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
-    delegate = new creme.model.Delegate(model);
+    var model = new creme.model.Array(['x', 'y', 'z']);
+    var delegate = new creme.model.Delegate(model);
 
     equal(model, delegate.delegate());
     equal(3, delegate.length());
@@ -661,8 +724,8 @@ test('creme.model.Delegate.constructor (model)', function() {
 });
 
 test('creme.model.Delegate (update)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
-    delegate = new creme.model.Delegate(model);
+    var model = new creme.model.Array(['x', 'y', 'z']);
+    var delegate = new creme.model.Delegate(model);
     delegate.bind('remove', this.mockListener('removed'));
     delegate.bind('add', this.mockListener('added'));
     delegate.bind('update', this.mockListener('updated'));
@@ -683,8 +746,8 @@ test('creme.model.Delegate (update)', function() {
 });
 
 test('creme.model.Delegate (add)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
-    delegate = new creme.model.Delegate(model);
+    var model = new creme.model.Array(['x', 'y', 'z']);
+    var delegate = new creme.model.Delegate(model);
     delegate.bind('remove', this.mockListener('removed'));
     delegate.bind('add', this.mockListener('added'));
     delegate.bind('update', this.mockListener('updated'));
@@ -704,8 +767,8 @@ test('creme.model.Delegate (add)', function() {
 });
 
 test('creme.model.Delegate (remove)', function() {
-    model = new creme.model.Array(['x', 'y', 'z']);
-    delegate = new creme.model.Delegate(model);
+    var model = new creme.model.Array(['x', 'y', 'z']);
+    var delegate = new creme.model.Delegate(model);
     delegate.bind('remove', this.mockListener('removed'));
     delegate.bind('add', this.mockListener('added'));
     delegate.bind('update', this.mockListener('updated'));
@@ -735,8 +798,8 @@ test('creme.model.Delegate (remove)', function() {
 });
 
 test('creme.model.Filter (update)', function() {
-    model = new creme.model.Array([1, 2, 3, 4, 5]);
-    pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var model = new creme.model.Array([1, 2, 3, 4, 5]);
+    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -777,8 +840,8 @@ test('creme.model.Filter (update)', function() {
 });
 
 test('creme.model.Filter (add)', function() {
-    model = new creme.model.Array([1, 2, 3, 4, 5]);
-    pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var model = new creme.model.Array([1, 2, 3, 4, 5]);
+    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -801,8 +864,8 @@ test('creme.model.Filter (add)', function() {
 });
 
 test('creme.model.Filter (remove)', function() {
-    model = new creme.model.Array([1, 2, 3, 4, 5]);
-    pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
+    var model = new creme.model.Array([1, 2, 3, 4, 5]);
+    var pairs = new creme.model.Filter(model, function(item) {return (item % 2) === 0;});
     pairs.bind('remove', this.mockListener('removed'));
     pairs.bind('add', this.mockListener('added'));
     pairs.bind('update', this.mockListener('updated'));
@@ -838,8 +901,8 @@ test('creme.model.Filter (remove)', function() {
 });
 
 test('creme.model.Filter (no filter)', function() {
-    model = new creme.model.Array([1, 2, 3, 4, 5]);
-    nofilter = new creme.model.Filter(model, null);
+    var model = new creme.model.Array([1, 2, 3, 4, 5]);
+    var nofilter = new creme.model.Filter(model, null);
     nofilter.bind('remove', this.mockListener('removed'));
     nofilter.bind('add', this.mockListener('added'));
     nofilter.bind('update', this.mockListener('updated'));
@@ -866,4 +929,45 @@ test('creme.model.Filter (no filter)', function() {
 
     deepEqual([1, 2, 4, 5, 16, 18], model.all());
     deepEqual([1, 2, 4, 5, 16, 18], nofilter.all());
+});
+
+test('creme.model.Filter (lambda filter)', function() {
+    var model = new creme.model.Array([1, 2, 3, 4, 5]);
+    var lambda = new creme.utils.Lambda('(item % (this.divide || 1) === 0)', 'item');
+    var filter = new creme.model.Filter(model, lambda);
+    filter.bind('remove', this.mockListener('removed'));
+    filter.bind('add', this.mockListener('added'));
+    filter.bind('update', this.mockListener('updated'));
+
+    deepEqual([1, 2, 3, 4, 5], model.all());
+    deepEqual([1, 2, 3, 4, 5], filter.all());
+
+    model.removeAt(2);
+
+    deepEqual([1, 2, 4, 5], model.all());
+    deepEqual([1, 2, 4, 5], filter.all());
+
+    model.append([16, 18]);
+
+    deepEqual([1, 2, 4, 5, 16, 18], model.all());
+    deepEqual([1, 2, 4, 5, 16, 18], filter.all());
+
+    filter.filter(lambda.bind({divide: 2}));
+    equal(false, lambda.invoke(1));
+    equal(true, lambda.invoke(2));
+
+    deepEqual([1, 2, 4, 5, 16, 18], model.all());
+    deepEqual([2, 4, 16, 18], filter.all(), 'filtered (%2)');
+
+    filter.filter(lambda.bind({divide: 3}));
+    equal(false, lambda.invoke(1));
+    equal(false, lambda.invoke(2));
+    equal(true, lambda.invoke(3));
+
+    deepEqual([1, 2, 4, 5, 16, 18], model.all());
+    deepEqual([18], filter.all(), 'filtered (%3)');
+
+    filter.filter(lambda.bind({divide: 4}));
+    deepEqual([1, 2, 4, 5, 16, 18], model.all());
+    deepEqual([4, 16], filter.all(), 'filtered (%4)');
 });

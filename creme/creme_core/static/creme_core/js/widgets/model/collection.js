@@ -87,244 +87,6 @@ creme.model.Collection = creme.component.Component.sub({
 });
 
 
-creme.model.Array = creme.model.Collection.sub({
-    _init_: function(data, comparator)
-    {
-        this._super_(creme.model.Collection, '_init_');
-        this._data = !Object.isEmpty(data) ? (Array.isArray(data) ? data : [data]) : [];
-        this.comparator(comparator);
-    },
-
-    length: function() {
-        return this._data.length;
-    },
-
-    get: function(index) {
-        return this._data[index];
-    },
-
-    set: function(data, index)
-    {
-        if (index < 0 || index > this._data.length) {
-            throw new Error('index out of bound');
-        }
-
-        var previous = this._data[index];
-
-        this._data[index] = data;
-        this._fireUpdate([data], index, index, [previous], 'set');
-        return this;
-    },
-
-    reset: function(data)
-    {
-        var previous = this._data;
-        var previous_length = previous ? previous.length : 0;
-
-        this._data = !Object.isEmpty(data) ? (Array.isArray(data) ? data : [data]) : [];
-
-        var next_length = this._data.length;
-
-        if (previous_length > 0)
-        {
-            if (next_length > 0)
-            {
-                var update_start = 0;
-                var update_end = Math.max(0, Math.min(previous.length - 1, this._data.length - 1));
-
-                this._fireUpdate(this._data.slice(update_start, update_end + 1),
-                                 update_start, update_end, 
-                                 previous.slice(update_start, update_end + 1),
-                                 'reset');
-            }
-
-            if (previous_length > next_length)
-            {
-                var remove_start = next_length;
-                var remove_end = previous_length - 1;
-
-                this._fireRemove(previous.slice(remove_start, remove_end + 1), remove_start, remove_end, 'reset');
-            }
-        }
-
-        if (next_length > 0 && next_length > previous_length)
-        {
-            var add_start = previous_length;
-            var add_end = next_length - 1;
-
-            this._fireAdd(this._data.slice(add_start, add_end + 1), add_start, add_end, 'reset');
-        }
-
-        this._events.trigger('reset', [], this);
-        return this;
-    },
-
-    insert: function(data, index)
-    {
-        var self = this;
-        var data = Array.isArray(data) ? data : [data];
-        var index = index || 0;
-
-        var start = index;
-        var end = start + (data.length - 1);
-
-        if (data.length === 0)
-            return this;
-
-        if (index < 0 || index > this._data.length) {
-            throw new Error('index out of bound');
-        }
-
-        if (index === this._data.length) {
-            this._data = this._data.concat(data);
-        } else if (index === 0) {
-            this._data = data.concat(this._data);
-        } else {
-            this._data = this._data.slice(0, index).concat(data, this._data.slice(index));
-        }
-
-        this._fireAdd(data, start, end, 'insert');
-        return this;
-    },
-
-    append: function(data) {
-        return this.insert(data, this._data.length);
-    },
-
-    prepend: function(data) {
-        return this.insert(data);
-    },
-
-    pop: function()
-    {
-        if (this._data.length === 0)
-            return;
-
-        var index = this._data.length - 1;
-        var item = this._data.pop();
-
-        this._fireRemove([item], index, index, 'remove');
-        return item;
-    },
-
-    removeAt: function(index)
-    {
-        if (index < 0 || index > this._data.length) {
-            throw new Error('index out of bound');
-        }
-
-        var item = this._data.splice(index, 1);
-        this._fireRemove(item, index, index, 'remove');
-        return item[0];
-    },
-
-    remove: function(value)
-    {
-        var self = this;
-        var value = Array.isArray(value) ? value : [value];
-        var data = this._data;
-        var removed = [];
-        var index = -1;
-
-        value.forEach(function(item) {
-            var index = self.indexOf(item);
-
-            if (index != -1) {
-                removed.push(self.removeAt(index));
-            }
-        });
-
-        return removed;
-    },
-
-    indexOf: function(value)
-    {
-        var comparator = this._comparator;
-        var data = this._data;
-
-        if (Object.isFunc(comparator) === false)
-            return data.indexOf(value);
-
-        for(var index = 0; index < data.length; ++index)
-        {
-            if (comparator(data[index], value) === 0)
-                return index;
-        }
-
-        return -1;
-    },
-
-    clear: function()
-    {
-        var data = this._data;
-        this._data = [];
-        this._fireRemove(data, 0, data.length - 1, 'clear');
-
-        return data;
-    },
-
-    first: function() {
-        return this._data ? this._data[0] : undefined;
-    },
-
-    last: function() {
-        return this._data ? this._data[this._data.length - 1] : undefined;
-    },
-
-    each: function(cb)
-    {
-        this._data.forEach(cb);
-        return this;
-    },
-
-    map: function(cb) {
-        return this._data.map(cb);
-    },
-
-    where: function(cb) {
-        return this._data.filter(cb);
-    },
-
-    slice: function(start, end) {
-        return this._data.slice(start, end)
-    },
-
-    all: function() {
-        return this._data;
-    },
-
-    comparator: function(comparator) {
-        return Object.property(this, '_comparator', comparator);
-    },
-
-    sort: function(comparator)
-    {
-        var data = this._data;
-        var previous = Array.copy(data);
-        var comparator = comparator || this._comparator;
-
-        data.sort(comparator);
-
-        this._fireUpdate(data, 0, data.length - 1, previous, 'sort');
-        this._events.trigger('sort', [], this);
-
-        return this;
-    },
-
-    reverse: function()
-    {
-        var data = this._data;
-        var previous = Array.copy(data);
-
-        data.reverse();
-
-        this._fireUpdate(data, 0, data.length - 1, previous, 'reverse');
-        this._events.trigger('reverse', [], this);
-
-        return this;
-    }
-});
-
 creme.model.Delegate = creme.model.Collection.sub({
     _init_: function(delegate, listeners)
     {
@@ -383,7 +145,7 @@ creme.model.Filter = creme.model.Delegate.sub({
            reset: $.proxy(this._onReset, this)
         };
 
-        this._filter = Object.isFunc(filter) ? filter : null;
+        this._setFilter(filter);
         this._super_(creme.model.Delegate, '_init_', delegate, listeners);
     },
 
@@ -393,12 +155,33 @@ creme.model.Filter = creme.model.Delegate.sub({
 
     fetch: function()
     {
-        var data = [];
-
-        if (this._delegate)
-            data = Object.isFunc(this._filter) ? this._delegate.where(this._filter) : this._delegate.all();
-
+        var data = this._filterData();
         this._super_(creme.model.Array, 'reset', data);
+        return this;
+    },
+
+    _filterData: function()
+    {
+        var delegate = this._delegate;
+        var filter = this._filter;
+
+        if (!delegate)
+            return [];
+
+        return Object.isFunc(filter) ? delegate.where(filter) : delegate.all().slice(); 
+    },
+
+    _setFilter: function(filter)
+    {
+        if (Object.isNone(filter)) {
+            this._filter = null
+        } else if (Object.isFunc(filter)) {
+            this._filter = filter;
+        } else if (Object.isFunc(filter.callable)) {
+            this._filter = filter.callable();
+        } else if (Object.isType(filter, 'string')) {
+            this._filter = creme.utils.lambda(filter, 'item', null);
+        }
     },
 
     filter: function(filter)
@@ -406,8 +189,10 @@ creme.model.Filter = creme.model.Delegate.sub({
         if (filter === undefined)
             return this._filter;
 
-        this._filter = Object.isFunc(filter) ? filter : null;
+        this._setFilter(filter);
         this.fetch();
+
+        return this;
     },
 
     delegate: function(delegate)

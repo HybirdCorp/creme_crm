@@ -104,68 +104,6 @@ test('creme.model.AjaxArray.url (function)', function() {
     deepEqual(['a', 'b', 'c'], model.all());
 });
 
-test('creme.model.AjaxArray._update (array)', function() {
-    var model = new creme.model.AjaxArray(this.backend);
-    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
-
-    deepEqual([], this.mockListenerCalls('model'));
-    deepEqual([], model.all());
-
-    model._update(['a', 'b', 'c']);
-
-    deepEqual(['a', 'b', 'c'], model.all());
-    deepEqual([['add', ['a', 'b', 'c'], 0, 2, 'reset'], ['reset']], this.mockListenerCalls('model'));
-
-    this.resetMockCalls();
-    model._update(['x', 'y', 'z', 'w']);
-
-    deepEqual(['x', 'y', 'z', 'w'], model.all());
-    deepEqual([['update', ['x', 'y', 'z'], 0, 2, ['a', 'b', 'c'], 'reset'],
-               ['add', ['w'], 3, 3, 'reset'],
-               ['reset']], this.mockListenerCalls('model'));
-});
-
-test('creme.model.AjaxArray._update (diff, add)', function() {
-    var model = new creme.model.AjaxArray(this.backend);
-    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
-
-    deepEqual([], this.mockListenerCalls('model'));
-    deepEqual([], model.all());
-
-    model._update({add:['x', 'y']});
-
-    deepEqual(['x', 'y'], model.all());
-    deepEqual([['add', ['x', 'y'], 0, 1, 'insert']], this.mockListenerCalls('model'));
-});
-
-test('creme.model.AjaxArray._update (diff, remove)', function() {
-    var model = new creme.model.AjaxArray(this.backend, ['a', 'b', 'c']);
-    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
-
-    deepEqual([], this.mockListenerCalls('model'));
-    deepEqual(['a', 'b', 'c'], model.all());
-
-    model._update({remove:['b', 'c']});
-
-    deepEqual(['a'], model.all());
-    deepEqual([['remove', ['b'], 1, 1, 'remove'],
-               ['remove', ['c'], 1, 1, 'remove']], this.mockListenerCalls('model'));
-});
-
-test('creme.model.AjaxArray._update (diff, update)', function() {
-    var model = new creme.model.AjaxArray(this.backend, ['a', 'b', 'c']);
-    model.bind(['add', 'remove', 'update', 'reset'], this.mockListener('model'));
-
-    deepEqual([], this.mockListenerCalls('model'));
-    deepEqual(['a', 'b', 'c'], model.all());
-
-    model._update({update:[['y', 0], ['k', 2]]});
-
-    deepEqual(['y', 'b', 'k'], model.all());
-    deepEqual([['update', ['y'], 0, 0, ['a'], 'set'],
-               ['update', ['k'], 2, 2, ['c'], 'set']], this.mockListenerCalls('model'));
-});
-
 test('creme.model.AjaxArray.fetch (array)', function() {
     var model = new creme.model.AjaxArray(this.backend);
     model.bind('fetch-error', this.mockListener('fetch-error'));
