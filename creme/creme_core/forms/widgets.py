@@ -117,6 +117,73 @@ class DynamicSelect(Select):
         return mark_safe(u"""<span class="ui-creme-dselectlabel">%s</span>%s""" % (self.label, output))
 
 
+class CheckListSelect(SelectMultiple):
+    def __init__(self, attrs=None, choices=(), columntype='', filtertype=None):
+        super(CheckListSelect, self).__init__(attrs, choices)
+        self.columntype = columntype
+        self.filtertype = filtertype
+
+#     @property
+#     def choices(self):
+#         return list(self._options()) if callable(self._options) else self._options
+# 
+#     @choices.setter
+#     def choices(self, choices):
+#         if not choices:
+#             self._options = ()
+#         elif callable(choices):
+#             self._options = choices
+#         else:
+#             self._options = list(choices)
+
+    def render(self, name, value, attrs=None):
+        attrs = self.build_attrs(attrs, name=name)
+        filtertype = self.filtertype or self._choicefilter_defaulttype()
+        input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'});
+
+        context = widget_render_context('ui-creme-checklistselect', attrs,
+                                        body=self._render_body(attrs, filtertype),
+                                        header=self._render_header(attrs, filtertype),
+                                        counter=self._render_counter(attrs, filtertype),
+                                        input=input)
+
+        return mark_safe(u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
+                                %(input)s
+                                %(counter)s
+                                %(header)s
+                                %(body)s
+                            </div>""" % context)
+
+    def _choicefilter_defaulttype(self):
+        count = len(self.choices)
+
+        if count < 10:
+            return None
+
+        if 10 < count < 30:
+            return 'search'
+
+        return 'filter'
+
+    def _render_counter(self, attrs, filtertype):
+        return '<span class="checklist-counter"></span>' if filtertype == "filter" else ''
+
+    def _render_header(self, attrs, filtertype):
+        filter = '<input type="%s" class="checklist-filter" placeholder="%s">' % (filtertype, filtertype) if filtertype else ''
+
+        checkall = attrs.get('checkall', True)
+        checkall = """<a type="button" class="checklist-check-all">%s</a> | 
+                      <a type="button" class="checklist-check-none">%s</a>""" % (_(u'Check all'), _(u'Check none')) if checkall else ''
+
+        return """<div class="checklist-header">
+                       %(checkall)s
+                       %(filter)s
+                  </div>""" % {'filter': filter, 'checkall': checkall}
+
+    def _render_body(self, attrs, filtertype):
+        return """<ul class="checklist-content %s %s"></ul>""" % (filtertype or '', self.columntype)
+
+
 class ActionButtonList(Widget):
     def __init__(self, delegate, attrs=None, actions=None):
         super(ActionButtonList, self).__init__(attrs)
