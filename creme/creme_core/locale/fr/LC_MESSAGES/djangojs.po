@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 18:46+0200\n"
+"POT-Creation-Date: 2013-10-14 17:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -37,7 +37,7 @@ msgstr "Fichier Pdf (PDF)"
 #: static/creme_core/js/export.js:45 static/creme_core/js/export.js.c:75
 #: static/creme_core/js/relations.js:44 static/creme_core/js/utils.js:65
 #: static/creme_core/js/utils.js.c:161 static/creme_core/js/utils.js:182
-#: static/creme_core/js/utils.js.c:221 static/creme_core/js/utils.js:491
+#: static/creme_core/js/utils.js.c:221 static/creme_core/js/utils.js:490
 msgid "Ok"
 msgstr "Ok"
 
@@ -121,7 +121,7 @@ msgstr "%s résultat(s) sur %s"
 
 #: static/creme_core/js/list_view.core.js:163
 #: static/creme_core/js/lv_widget.js:50 static/creme_core/js/relations.js:34
-#: static/creme_core/js/utils.js:603
+#: static/creme_core/js/utils.js:602
 #: static/creme_core/js/widgets/entityselector.js:159
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins un enregistrement."
@@ -130,7 +130,7 @@ msgstr "Veuillez sélectionner au moins un enregistrement."
 #: static/creme_core/js/menu.js:74 static/creme_core/js/merge.js:34
 #: static/creme_core/js/relations.js:34 static/creme_core/js/relations.js:39
 #: static/creme_core/js/relations.js:64 static/creme_core/js/utils.js:192
-#: static/creme_core/js/utils.js.c:255 static/creme_core/js/utils.js:505
+#: static/creme_core/js/utils.js.c:254 static/creme_core/js/utils.js:504
 #: static/creme_core/js/utils.js.c:718
 #: static/creme_core/js/widgets/entityselector.js:159
 msgid "Error"
@@ -162,30 +162,30 @@ msgid "Loading..."
 msgstr "Chargement..."
 
 #: static/creme_core/js/utils.js:169 static/creme_core/js/utils.js.c:208
-#: static/creme_core/js/utils.js:229 static/creme_core/js/utils.js.c:301
-#: static/creme_core/js/utils.js:520
+#: static/creme_core/js/utils.js:229 static/creme_core/js/utils.js.c:300
+#: static/creme_core/js/utils.js:519
 msgid "Cancel"
 msgstr "Annuler"
 
 #: static/creme_core/js/utils.js:177 static/creme_core/js/utils.js.c:216
-#: static/creme_core/js/utils.js:237 static/creme_core/js/utils.js.c:528
-#: static/creme_core/js/utils.js:616
+#: static/creme_core/js/utils.js:237 static/creme_core/js/utils.js.c:527
+#: static/creme_core/js/utils.js:615
 msgid "Are you sure ?"
 msgstr "Êtes-vous sûr ?"
 
-#: static/creme_core/js/utils.js:254
+#: static/creme_core/js/utils.js:253
 msgid "Check the box if you consider as treated"
 msgstr "Merci de cocher si vous considérez comme traité"
 
-#: static/creme_core/js/utils.js:335
+#: static/creme_core/js/utils.js:334
 msgid "Save"
 msgstr "Enregistrer"
 
-#: static/creme_core/js/utils.js:353
+#: static/creme_core/js/utils.js:352
 msgid "Error during loading the page."
 msgstr "Le chargement de la page a échoué"
 
-#: static/creme_core/js/utils.js:585
+#: static/creme_core/js/utils.js:584
 msgid "Search results..."
 msgstr "Résultats de recherche..."
 
@@ -196,6 +196,13 @@ msgstr "Erreur !"
 #: static/creme_core/js/utils.js:717
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
+
+#: static/creme_core/js/widgets/checklistselect.js:65
+#, c-format
+msgid "%d result of %d"
+msgid_plural "%d results of %d"
+msgstr[0] "%d résultat sur %d"
+msgstr[1] "%d résultats sur %d"
 
 #: static/creme_core/js/widgets/datetime.js:28
 msgid "Today"

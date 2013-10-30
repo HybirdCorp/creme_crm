@@ -1,0 +1,265 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+{% block test_title %}Multiselect Checkbox List{% endblock %}
+{% block test_header %}
+    <style type="text/css">
+    </style>
+
+    <script type="text/javascript">
+    </script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h3>No group</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>activité reliée à</option>
+                    <option value='activities-object_participates_to_activity'>a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>remplie grace à</option>
+                    <option value='commercial-object_sold_by'>vendu par</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <ul class="checklist-content"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>No group - wide</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <ul class="checklist-content wide"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>No group - filter</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+                <optgroup label="E-Mails">
+                    <option value='email-object_mail_received'>a reçu l'e-mail</option>
+                    <option value='email-object_mail_sended'>a envoyé l'e-mail</option>
+                    <option value='email-object_related_to'>relatif à l'e-mail</option>
+                    <option value='email-subject_mail_received'>(e-mail) a été reçu par</option>
+                    <option value='email-subject_mail_sended'>(e-mail) a été envoyé</option>
+                    <option value='email-subject_related_to'>(e-mail) relatif à</option>
+                </optgroup>
+                <optgroup label="Factures">
+                    <option value='billing-object_bill_issued'>a émis</option>
+                    <option value='billing-object_bill_received'>a reçu</option>
+                    <option value='billing-object_credit_note_applied'>consomme l'avoir</option>
+                    <option value='billing-object_had_line'>est la ligne de</option>
+                    <option value='billing-object_line_related_item'>est le produit/service associé</option>
+                    <option value='billing-subject_bill_issued'>a été émis(e) par</option>
+                    <option value='billing-subject_bill_received'>a été reçu(e) par</option>
+                    <option value='billing-subject_credit_note_applied'>est consommé dans le document comptable</option>
+                    <option value='billing-subject_had_line'>a la ligne</option>
+                    <option value='billing-subject_line_related_item'>a comme service/produit associé</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <input type="filter" class="checklist-filter" placeholder="filter">
+            </div>
+            <ul class="checklist-content filter wide"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>No group - search</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+                <optgroup label="E-Mails">
+                    <option value='email-object_mail_received'>a reçu l'e-mail</option>
+                    <option value='email-object_mail_sended'>a envoyé l'e-mail</option>
+                    <option value='email-object_related_to'>relatif à l'e-mail</option>
+                    <option value='email-subject_mail_received'>(e-mail) a été reçu par</option>
+                    <option value='email-subject_mail_sended'>(e-mail) a été envoyé</option>
+                    <option value='email-subject_related_to'>(e-mail) relatif à</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <input type="filter" class="checklist-filter" placeholder="search">
+            </div>
+            <ul class="checklist-content search wide"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>Groups</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <ul class="checklist-content filter wide"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>Groups - filtered</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+                <optgroup label="E-Mails">
+                    <option value='email-object_mail_received'>a reçu l'e-mail</option>
+                    <option value='email-object_mail_sended'>a envoyé l'e-mail</option>
+                    <option value='email-object_related_to'>relatif à l'e-mail</option>
+                    <option value='email-subject_mail_received'>(e-mail) a été reçu par</option>
+                    <option value='email-subject_mail_sended'>(e-mail) a été envoyé</option>
+                    <option value='email-subject_related_to'>(e-mail) relatif à</option>
+                </optgroup>
+                <optgroup label="Factures">
+                    <option value='billing-object_bill_issued'>a émis</option>
+                    <option value='billing-object_bill_received'>a reçu</option>
+                    <option value='billing-object_credit_note_applied'>consomme l'avoir</option>
+                    <option value='billing-object_had_line'>est la ligne de</option>
+                    <option value='billing-object_line_related_item'>est le produit/service associé</option>
+                    <option value='billing-subject_bill_issued'>a été émis(e) par</option>
+                    <option value='billing-subject_bill_received'>a été reçu(e) par</option>
+                    <option value='billing-subject_credit_note_applied'>est consommé dans le document comptable</option>
+                    <option value='billing-subject_had_line'>a la ligne</option>
+                    <option value='billing-subject_line_related_item'>a comme service/produit associé</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <input type="filter" class="checklist-filter" placeholder="filter">
+            </div>
+            <ul class="checklist-content filter wide"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>Groups - search</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
+            <select class="ui-creme-input">
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>(activité) relié à</option>
+                    <option value='activities-object_participates_to_activity'>(activité) a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de l'activité</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à l'activité</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>est remplie grace à</option>
+                    <option value='commercial-object_sold_by'>a été vendu par</option>
+                    <option value='commercial-subject_complete_goal'>remplit un but de l'action commerciale</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+                <optgroup label="E-Mails">
+                    <option value='email-object_mail_received'>a reçu l'e-mail</option>
+                    <option value='email-object_mail_sended'>a envoyé l'e-mail</option>
+                    <option value='email-object_related_to'>relatif à l'e-mail</option>
+                    <option value='email-subject_mail_received'>(e-mail) a été reçu par</option>
+                    <option value='email-subject_mail_sended'>(e-mail) a été envoyé</option>
+                    <option value='email-subject_related_to'>(e-mail) relatif à</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
+                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <input type="filter" class="checklist-filter" placeholder="search">
+            </div>
+            <ul class="checklist-content search wide"></ul>
+        </div>
+    </li>
+</ul>
+{% endblock %}

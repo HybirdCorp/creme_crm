@@ -286,3 +286,169 @@ span.ui-creme-datepicker-trigger {
     background-image: url("icecream/images/edit_16.png");
     display:block;
 }
+
+/*---------------------------------*/
+.checklist-header {
+    float: right;
+    color: #777;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-right: 5px;
+}
+
+.checklist-header a {
+    color: #777;
+    background-color: none;
+    vertical-align: middle;
+
+    -webkit-transition: none;
+       -moz-transition: none;
+         -o-transition: none;
+        -ms-transition: none;
+            transition: none;
+}
+
+.checklist-header .checklist-filter {
+    margin-left: 8px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+
+    font-size: 10px;
+    vertical-align: middle;
+}
+
+.checklist-counter {
+    float: left;
+    color: #777;
+    margin-left: 5px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+.checklist-counter:not(.filtered) {
+    display: none;
+}
+
+.checklist-content .checkbox-field {
+    margin-right: 20px;
+
+    padding-top:2px;
+    padding-bottom:2px;
+
+    -webkit-column-break-inside: avoid;
+       -moz-column-break-inside: avoid;
+        -ms-column-break-inside: avoid;
+         -o-column-break-inside: avoid;
+            column-break-inside: avoid;
+
+    -webkit-transition: opacity 0.2s ease-in-out;
+       -moz-transition: opacity 0.2s ease-in-out;
+         -o-transition: opacity 0.2s ease-in-out;
+            transition: opacity 0.2s ease-in-out;
+}
+
+.checklist-content.filtered.filter .checkbox-field:not(.hilighted) {
+    display: none;
+}
+
+.checklist-content.filtered.search .checkbox-field:not(.hilighted) {
+    opacity: 0.4;
+}
+
+.checklist-content.filtered.search .checkbox-field.hilighted {
+    /*display: none;*/
+}
+
+.checklist-content {
+    clear: both;
+    list-style: none;
+
+    padding: 0 0 5px 0;
+    margin: 0;
+
+    -webkit-column-width: 200px;
+       -moz-column-width: 200px;
+        -ms-column-width: 200px;
+            column-width: 200px;
+}
+
+.checklist-content.wide {
+    -webkit-column-width: 370px;
+       -moz-column-width: 370px;
+        -ms-column-width: 370px;
+            column-width: 370px;
+}
+
+.checklist-content .checkbox-field input[type=checkbox] {
+    margin-left: 4px;
+    margin-bottom: 0px;
+    margin-top: 2px;
+    vertical-align: top;
+}
+
+.checklist-content .checkbox-label {
+    margin-right: 4px;
+    max-width: 180px;
+    display: inline-block;
+}
+
+.checklist-content.wide .checkbox-label {
+    max-width: 370px;
+}
+
+.checkbox-field.disabled .checkbox-label {
+    opacity: 0.5;
+}
+
+.checklist-content {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.ui-creme-checklistselect select.ui-creme-input {
+    display: none;
+}
+
+.checklist-content .checkbox-group {
+    list-style: none;
+    padding: 0 0 0 0;
+    margin: 0;
+}
+
+.checklist-content .checkbox-group-header {
+    -webkit-column-break-inside: avoid;
+       -moz-column-break-inside: avoid;
+        -ms-column-break-inside: avoid;
+         -o-column-break-inside: avoid;
+            column-break-inside: avoid;
+
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    margin-bottom: 2px;
+
+    background: #d9d9d9;
+}
+
+
+.checklist-content.ie-layout-fallback .checkbox-field, .checklist-content.ie-layout-fallback .checkbox-group-header {
+    display: inline-block;
+    width: 180px;
+    max-width: 180px;
+}
+
+.checklist-content.ie-layout-fallback.wide .checkbox-field, .checklist-content.ie-layout-fallback.wide .checkbox-group-header {
+    width: 360px;
+    max-width: 360px;
+}
+
+.checklist-content.ie-checkbox-fallback .checkbox-field input[type=checkbox] {
+    margin-top: 0px;
+    vertical-align: middle;
+}
