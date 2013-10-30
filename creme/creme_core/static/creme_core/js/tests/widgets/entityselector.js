@@ -170,19 +170,19 @@ test('creme.widget.EntitySelector.multiple', function() {
     var element = mock_entityselector_create();
     creme.widget.create(element);
 
-    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().delegate._popupURL.parameters.selection);
+    equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), false);
 
     element.creme().widget().multiple(true);
 
-    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters.selection);
+    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), true);
 
     var element = mock_entityselector_create({popupSelection: creme.widget.EntitySelectorMode.MULTIPLE});
     creme.widget.create(element);
 
     equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().options().popupSelection);
-    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters.selection);
+    equal(creme.widget.EntitySelectorMode.MULTIPLE, element.creme().widget().delegate._popupURL.parameters().selection);
     equal(element.creme().widget().isMultiple(), true);
 });
 

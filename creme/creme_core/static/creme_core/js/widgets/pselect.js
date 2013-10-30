@@ -28,7 +28,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
 
         this._context = {};
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
-        this._selectorKey = new creme.utils.Template(options.key);
+        this._selectorKey = creme.utils.templatize(options.key, function(key) {return self._context[key];});
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
 
         this._selector_onchange_cb = function() {
@@ -132,7 +132,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     },
 
     selectorKey: function(element) {
-        return (this._selectorKey && this._selectorKey.iscomplete()) ? this._selectorKey.render() : '';
+        return (this._selectorKey && this._selectorKey.iscomplete()) ? this._selectorKey.render() || '' : '';
     },
 
     selectorValue: function(element)
@@ -174,7 +174,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         var previous_key = this.selectorKey(element);
 
         this._context = $.extend({}, this._context || {}, data || {});
-        this._selectorKey.update(data);
+        this._selectorKey.parameters(this._context);
         this.toggleSelector(element, previous_key, cb, error_cb, sync);
     },
 
