@@ -161,3 +161,11 @@ creme.utils.JSON.prototype = {
         }
     }
 }
+
+creme.utils.JSON.decoder = function(defaults) {
+    return function(data) {creme.utils.JSON.prototype.decode(data, defaults);};
+}
+
+creme.utils.JSON.clean = function(data, defaults) {
+    return Object.isType(data, 'string') ? creme.utils.JSON.prototype.decode(data, defaults) : data;
+}

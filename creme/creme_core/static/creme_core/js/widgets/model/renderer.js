@@ -78,10 +78,12 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
 
     insertItem: function(target, before, data, index)
     {
+        var item = this.createItem(target, before, data, index)
+        
         if (before && before.length) {
-            before.before(this.createItem(target, before, data, index));
+            before.before(item);
         } else {
-            target.append(this.createItem(target, before, data, index));
+            target.append(item);
         }
     },
 
