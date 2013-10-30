@@ -56,7 +56,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
                 return;
             }
 
-            this._plot_name.update(data)
+            this._plot_name.update(data);
 
             var plot_name = this._plot_name.render();
             var plot_options = this.plotOption(element, plot_name);

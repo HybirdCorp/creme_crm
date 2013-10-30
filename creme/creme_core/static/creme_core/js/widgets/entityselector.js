@@ -198,7 +198,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     isMultiple: function(element) {
-        return this._popupURL.parameters.selection === creme.widget.EntitySelectorMode.MULTIPLE;
+        return this._popupURL.parameters().selection === creme.widget.EntitySelectorMode.MULTIPLE;
     },
 
     multiple: function(element, value) {
@@ -215,7 +215,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     popupURL: function(element) {
-        return this._popupURL.render();
+        return this._popupURL.render() || '';
     },
 
     reset: function(element) {

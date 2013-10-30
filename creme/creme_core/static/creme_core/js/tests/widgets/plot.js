@@ -141,8 +141,8 @@ function assertNotReady(element) {
 
 function assertNoPlot(context, element, error)
 {
-    equal(element.creme().widget().plot(), undefined);
-    equal($('.jqplot-target', element).length, 0);
+    equal(element.creme().widget().plot(), undefined, 'plot element');
+    equal($('.jqplot-target', element).length, 0, 'jqplot-target count');
 
     equal(context.plotSuccess, null, 'no success');
 
@@ -155,8 +155,8 @@ function assertNoPlot(context, element, error)
 
 function assertPlot(context, element)
 {
-    equal(typeof element.creme().widget().plot(), 'object');
-    equal($('.jqplot-target', element).length, 1);
+    equal(typeof element.creme().widget().plot(), 'object', 'plot element');
+    equal($('.jqplot-target', element).length, 1, 'jqplot-target count');
 
     deepEqual(context.plotSuccess, element.creme().widget().plot(), 'success');
     equal(context.plotError, null, 'no error');
