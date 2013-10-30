@@ -28,7 +28,7 @@
             return data;
         }
 
-        $.converters.register("horizontalBargraphData", "jqplotData", function(data) {
+        creme.utils.converters.register("horizontalBargraphData", "jqplotData", function(data) {
             var reference = data[0];
             var real = data[1];
             var h_reference = []

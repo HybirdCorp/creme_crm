@@ -8,7 +8,7 @@ module("creme.widget.plot.js", {
         this.resetMockEvents();
         this.resetMockPlots();
 
-        $.converters.register('mockPlotData', 'jqplotData', function(data) {
+        creme.utils.converters.register('mockPlotData', 'jqplotData', function(data) {
             var result = [];
 
             for(var s_index = 0; s_index < data.length; ++s_index)
@@ -35,7 +35,7 @@ module("creme.widget.plot.js", {
             return result;
         });
 
-        $.converters.register('jqplotData', 'mockRendererData', function(data) {
+        creme.utils.converters.register('jqplotData', 'mockRendererData', function(data) {
             var result = [];
 
             for(var s_index = 0; s_index < data.length; ++s_index)
@@ -63,8 +63,8 @@ module("creme.widget.plot.js", {
 
     teardown: function() {
         this.cleanupMockPlots();
-        $.converters.unregister('mockPlotData', 'jqplotData');
-        $.converters.unregister('jqplotData', 'mockRendererData');
+        creme.utils.converters.unregister('mockPlotData', 'jqplotData');
+        creme.utils.converters.unregister('jqplotData', 'mockRendererData');
     },
 
     resetMockPlots: function()

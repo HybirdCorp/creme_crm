@@ -316,7 +316,7 @@ creme.reports.toggleDisableOthers = function(me, others) {
     });
 };
 
-$.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
+creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
     var ticks = data['x'] || [];
     var values = data['y'] || [];
     var jqplotData = []
