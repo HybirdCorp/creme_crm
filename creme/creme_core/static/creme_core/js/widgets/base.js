@@ -136,66 +136,6 @@ creme.object = {
     }
 }
 
-creme.object.JSON = function() {}
-
-creme.object.JSON.prototype = {
-    encode: function(data)
-    {
-        if (typeof jQuery.toJSON !== 'function') {
-            throw 'not implemented !';
-        }
-
-        return jQuery.toJSON(data);
-    },
-
-    isJSON: function(data)
-    {
-        // Make sure the incoming data is actual JSON
-        // Logic borrowed from http://json.org/json2.js
-        return typeof data === 'string' && 
-               (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-                                         .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
-                                         .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
-    },
-
-    decode: function(data, defaults)
-    {
-        if (defaults !== undefined) {
-            try {
-                this.decode(data);
-            } catch(e) {
-                return defaults;
-            }
-        }
-
-        if ( typeof data !== "string" || !data) {
-            throw 'Invalid data type or empty string';
-        }
-
-        // Make sure leading/trailing whitespace is removed (IE can't handle it)
-        data = jQuery.trim(data);
-
-        try {
-            if (window.JSON && window.JSON.parse)
-                return window.JSON.parse(data);
-        } catch(err) {
-            throw 'JSON parse error: ' + err;
-        }
-
-        var isvalid = this.isJSON(data);
-
-        if (!isvalid)
-            throw 'JSON parse error (fallback)';
-
-        try {
-            // Try to use the native JSON parser first
-            return (new Function("return " + data))();
-        } catch(err) {
-            throw 'JSON parse error (fallback): ' + err;
-        }
-    }
-};
-
 creme.widget = {};
 
 creme.widget.Widget = function() {

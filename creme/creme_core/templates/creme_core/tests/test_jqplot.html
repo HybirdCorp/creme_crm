@@ -37,7 +37,7 @@
             widget.redraw();
         };
 
-        $.converters.register('jqplotData', 'percentData', function(series) {
+        creme.utils.converters.register('jqplotData', 'percentData', function(series) {
             var result = [];
 
             for(var s_index = 0; s_index < series.length; ++s_index)

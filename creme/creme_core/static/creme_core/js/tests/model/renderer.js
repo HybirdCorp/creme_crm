@@ -798,7 +798,7 @@ test('creme.model.ChoiceRenderer.parse (converter)', function() {
             '<option value="[3, 4]">b</option>' +
             '<option value="[5, 6]">c</option>' +
         '</options></select>');
-    var options = new creme.model.ChoiceRenderer.parse(element, new creme.object.JSON().decode);
+    var options = new creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
 
     deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:true, tags:[]},
                         {value:[3, 4], label:'b', disabled:false, selected:false, tags:[]},
@@ -809,7 +809,7 @@ test('creme.model.ChoiceRenderer.parse (converter)', function() {
                     '<option value="[3, 4]" selected>b</option>' +
                     '<option value="[5, 6]" disabled>c</option>' +
                 '</options></select>');
-    options = new creme.model.ChoiceRenderer.parse(element, new creme.object.JSON().decode);
+    options = new creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
 
     deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:false, tags:[]},
                         {value:[3, 4], label:'b', disabled:false, selected:true, tags:[]},

@@ -97,6 +97,11 @@
         return (typeof obj === type);
     });
 
+    appendStatic('assertIsTypeOf', function(obj, type) {
+        if (typeof obj !== type)
+            throw '"' + obj + '" is not a ' + type;
+    });
+
     appendStatic('isFunc', function(obj) {
         return (typeof obj === 'function');
     });

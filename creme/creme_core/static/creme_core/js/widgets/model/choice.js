@@ -31,7 +31,7 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
         var value = Object.isNone(data.value) ? '' : data.value;
 
         if (typeof data.value === 'object')
-            value = new creme.object.JSON().encode(data.value)
+            value = new creme.utils.JSON().encode(data.value)
 
         item.attr('value', value)
             .toggleAttr('disabled', data.disabled === true)
@@ -137,7 +137,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
         var value = Object.isNone(data.value) ? '' : data.value;
 
         if (typeof data.value === 'object')
-            value = new creme.object.JSON().encode(data.value)
+            value = new creme.utils.JSON().encode(data.value)
 
         item.attr('value', value)
             .toggleAttr('disabled', data.disabled === true)
