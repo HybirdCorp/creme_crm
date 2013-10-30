@@ -165,15 +165,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         }
 
         this._previousFilter = filter;
-        var filter_cb = function() {return true;};
 
-        try {
-            filter_cb = filter ? creme.object.build_callback(filter, ['item', 'context']) : filter_cb;
-        } catch(e) {
-            //throw new Error('unable to eval filter "%s" (%s)'.format(filter, e))
-        }
+        var lambda = creme.utils.lambda(filter, 'item, context', null);
+        this._filtered.filter(lambda !== null ? function(item) {return lambda(item, self._context);} : null);
 
-        this._filtered.filter(function(item) {return filter_cb.apply(this, [item, self._context]);});
         this.val(element, selected);
         return;
     },
@@ -223,10 +218,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         var data = creme.widget.cleanval(data, {});
 
-        this._model._update({
-                             add:    this._modelConverter(data.added),
-                             remove: this._modelConverter(data.removed)
-                            });
+        this._model.patch({
+                            add:    this._modelConverter(data.added),
+                            remove: this._modelConverter(data.removed)
+                          });
 
         this.val(element, data.value);
         return this;

@@ -36,7 +36,7 @@ creme.model.AjaxArray = creme.model.Array.sub({
     _onQueryDone: function(event, data, textStatus)
     {
         this._events.trigger('fetch-done', [data], this);
-        this._update(data);
+        this.patch(data);
     },
 
     _onQueryCancel: function() {
@@ -46,28 +46,7 @@ creme.model.AjaxArray = creme.model.Array.sub({
     _onQueryError: function(event, data, error)
     {
         this._events.trigger('fetch-error', [data, error], this);
-        this._update(this.initial());
-    },
-
-    _update: function(data)
-    {
-        if (Array.isArray(data))
-            return this.reset(data);
-
-        var self = this;
-        var data = data || {};
-        var added = data.add || [];
-        var removed = data.remove || [];
-        var updated = data.update || [];
-
-        this.append(added);
-        this.remove(removed);
-
-        updated.forEach(function(item, index) {
-            self.set(item[0], item[1]);
-        });
-
-        return this;
+        this.patch(this.initial());
     },
 
     initial: function(initial)
