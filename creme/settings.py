@@ -386,6 +386,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jquery.dragtable.js',
                     'creme_core/js/jquery/extensions/jquery.form.js',
                     'creme_core/js/jquery/extensions/jquery.tinymce.js',
+                    'creme_core/js/jquery/extensions/jquery.debounce.js',
                     'creme_core/js/jquery/extensions/chosen.jquery.js',
 
                     'creme_core/js/lib/fallbacks/object-0.1.js',
@@ -429,6 +430,10 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/ajax/cachebackend.js',
                     'creme_core/js/widgets/ajax/query.js',
 
+                    'creme_core/js/widgets/layout/layout.js',
+                    'creme_core/js/widgets/layout/sortlayout.js',
+                    'creme_core/js/widgets/layout/columnlayout.js',
+
                     'creme_core/js/widgets/model/collection.js',
                     'creme_core/js/widgets/model/array.js',
                     'creme_core/js/widgets/model/renderer.js',
@@ -456,6 +461,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/plot.js',
                     'creme_core/js/widgets/plotselector.js',
                     'creme_core/js/widgets/scrollactivator.js',
+                    'creme_core/js/widgets/container.js',
 
                     'creme_core/js/relations.js',
                     'creme_core/js/list_view.core.js',
@@ -508,6 +514,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/widgets/selectorlist.js',
     'creme_core/js/tests/widgets/actionlist.js',
     'creme_core/js/tests/widgets/plotselector.js',
+    'creme_core/js/tests/widgets/container.js',
 )
 
 ROOT_MEDIA_FILTERS = {

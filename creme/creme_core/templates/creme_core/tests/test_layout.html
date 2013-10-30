@@ -1,0 +1,255 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+{% block test_title %}Layout component{% endblock %}
+{% block test_header %}
+    <style type="text/css">
+        * {
+            -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+        }
+
+        .ui-layout.resizable {
+            background: #ffffff;
+            min-width: 200;
+            min-height: 100;
+            width: 100%;
+            height: 100;
+        }
+
+        ul[layout] {
+            width: 20em;
+            background: white;
+        }
+
+        ul[layout] > li.added {
+            cursor: pointer;
+            background: #ccffcc;
+        }
+        
+        ul[column] > ul.ui-layout.column {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        ul[ui-layout-columns] > li {
+            display: inline-block;
+        }
+        
+        ul[ui-layout-columns="1"] > li {width:100%}
+        ul[ui-layout-columns="2"] > li {width:50%}
+        ul[ui-layout-columns="3"] > li {width:33%}
+        ul[ui-layout-columns="4"] > li {width:25%}
+        ul[ui-layout-columns="5"] > li {width:20%}
+        ul[ui-layout-columns="6"] > li {width:16%}
+        ul[ui-layout-columns="7"] > li {width:14%}
+        ul[ui-layout-columns="8"] > li {width:12%}
+        ul[ui-layout-columns="9"] > li {width:11%}
+        ul[ui-layout-columns="10"] > li {width:10%}
+    </style>
+    <script type="text/javascript">
+        function initResizeSensor(content)
+        {
+            var element = $('.ui-layout.resizable', content);
+            var sensor = new creme.layout.LayoutResizeSensor();
+
+            element.bind('resize', function(e) {
+                $('p', element).text('resized(width: %d, height:%d)'.format(e.width, e.height));
+            });
+
+            sensor.bind(element);
+
+            $('button[name="resize"]', content).click(function(e) {
+                element.css('width', Math.ceil(200 + Math.random() * 200))
+                       .css('height', Math.ceil(100 + Math.random() * 100));
+            });
+
+            $('button[name="bind"]', content).click(function(e) {
+                sensor.bind(element);
+            });
+
+            $('button[name="unbind"]', content).click(function(e) {
+                sensor.unbind();
+            });
+        }
+    
+        function initSortedLayout(content)
+        {
+            var list = $('ul[layout]', content);
+            var layout = new creme.layout.SortLayout().comparator(function(a, b) {
+                                                                      return $(a).attr('name').localeCompare($(b).attr('name'));
+                                                                  });
+
+            $('> li.added', list).live('click', function() {
+                $(this).remove();
+            });
+
+            layout.bind(list).layout();
+
+            $('button[name="add"]', content).click(function(e) {
+                var value = '%03d'.format(Math.ceil(Math.random() * 100));
+                var item = $('<li/>').attr('name', value).addClass('added').html(value);
+                list.append(item);
+                return false;
+            });
+
+            $('button[name="reverse"]', content).click(function(e) {
+                layout.reverse(!layout.reverse()).layout();
+            });
+        }
+
+        function initColumnLayout(content)
+        {
+            var list = $('ul[layout]', content);
+            var layout = new creme.layout.ColumnSortLayout({columns: 4}).comparator(function(a, b) {
+                                                                                       return $(a).attr('name').localeCompare($(b).attr('name'));
+                                                                                    });
+
+            $('> li.added', list).live('click', function() {
+                $(this).remove();
+            });
+
+            layout.bind(list).layout();
+
+            $('button[name="add"]', content).click(function(e) {
+                var value = '%03d'.format(Math.ceil(Math.random() * 100));
+                var item = $('<li/>').attr('name', value).addClass('added').html(value);
+                list.append(item);
+                return false;
+            });
+
+            $('select[name="columns"]', content).change(function(e) {
+                layout.columns(parseInt($(this).val())).layout();
+            });
+            
+            $('select[name="column-size"]', content).change(function(e) {
+                var size = parseInt($(this).val());
+                layout.columns(function() {
+                    //console.log(Math.floor(this.container().width() / size));
+                    return Math.floor(this.container().width() / size);
+                }).layout();
+            });
+        }
+    
+        $(document).ready(function() {
+            initSortedLayout($('#sorted'));
+            initColumnLayout($('#column'));
+            initResizeSensor($('#resize'));
+
+            $('.ui-resizable').resizable();
+       });
+    </script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li id="resize">
+        <h4>Resize detection</h4>
+        <div class="ui-layout resizable"><p></p></div>
+        <div><button name="resize">Resize</button><button name="bind">Bind</button><button name="unbind">Unbind</button></div>
+    </li>
+    <li id="sorted">
+        <h4>Sorted list</h4>
+        <ul layout="sorted">
+            <li name="012">012</li>
+            <li name="044">044</li>
+            <li name="087">087</li>
+            <li name="045">045</li>
+            <li name="045">045</li>
+            <li name="085">085</li>
+            <li name="075">075</li>
+        </ul>
+        <div><button name="add">Add</button><button name="reverse">Reverse</button></div>
+    </li>
+    <li id="column">
+        <h4>Column list</h4>
+        <ul layout="column">
+            <li name="A">A</li>
+            <li name="B">B</li>
+            <li name="C">C</li>
+            <li name="D">D</li>
+            <li name="E">E</li>
+            <li name="F">F</li>
+            <li name="G">G</li>
+        </ul>
+        <div>
+            <button name="add">Add</button>
+            <select name="columns">
+                <options>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4" selected>4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </options>
+            </select>
+            <select name="column-size">
+                <options>
+                    <option value="20">20px</option>
+                    <option value="50">50px</option>
+                    <option value="100">100px</option>
+                    <option value="200">200px</option>
+                </options>
+            </select>
+        </div>
+    </li>
+    <li>
+        <h4>Container (layout="column", column-count=3)</h4>
+        <ul class="ui-creme-widget ui-creme-container widget-auto" widget="ui-creme-container" layout="column" column-count="3">
+            <li name="A">A</li>
+            <li name="B">B</li>
+            <li name="C">C</li>
+            <li name="D">D</li>
+            <li name="E">E</li>
+            <li name="F">F</li>
+            <li name="G">G</li>
+        </ul>
+    </li>
+    <li>
+        <h4>Container (layout="column", column-size=100px, resizable)</h4>
+        <div class="ui-resizable" style="width:300px;height:100px;">
+            <ul class="ui-creme-widget ui-creme-container widget-auto" widget="ui-creme-container" layout="column" column-size="100px" style="width:100%;height:100%;" sort-by="name" resizable>
+                <li name="A">A</li>
+                <li name="B">B</li>
+                <li name="C">C</li>
+                <li name="D">D</li>
+                <li name="E">E</li>
+                <li name="F">F</li>
+                <li name="G">G</li>
+            </ul>
+        </div>
+    </li>
+    <li>
+        <h4>Nested containers (2 columns => sort "name", sort "name" reversed)</h4>
+        <ul class="ui-creme-widget ui-creme-container widget-auto" widget="ui-creme-container" layout="column" column-count="2">
+            <li>
+                <ul class="ui-creme-widget ui-creme-container widget-auto" widget="ui-creme-container" layout="sort" sort-by="name">
+                    <li name="B">B</li>
+                    <li name="D">D</li>
+                    <li name="A">A</li>
+                    <li name="E">E</li>
+                    <li name="G">G</li>
+                    <li name="F">F</li>
+                    <li name="C">C</li>
+                </ul>
+             </li>
+             <li>
+                <ul class="ui-creme-widget ui-creme-container widget-auto" widget="ui-creme-container" layout="sort" sort-by="name" sort-reverse>
+                    <li name="B">B</li>
+                    <li name="D">D</li>
+                    <li name="A">A</li>
+                    <li name="E">E</li>
+                    <li name="G">G</li>
+                    <li name="F">F</li>
+                    <li name="C">C</li>
+                </ul>
+             </li>
+         </ul>
+    </li>
+</ul>
+{% endblock %}

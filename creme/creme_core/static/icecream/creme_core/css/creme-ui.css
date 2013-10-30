@@ -34,6 +34,16 @@ ul.ui-layout.hbox li input { margin: 0px 2px; }
 
 ul.ui-layout.vbox li { position:relative; display:block; }
 
+.ui-layout.resize-sensor, .ui-layout.resize-sensor > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
 /*----------------------------------*/
 .ui-creme-selectorlist > div.add {
     background-repeat: no-repeat;
