@@ -1333,7 +1333,7 @@ class CTypeChoiceField(Field):
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):
-    widget = UnorderedMultipleChoiceWidget
+    widget = UnorderedMultipleChoiceWidget(columntype='wide')
 
     def to_python(self, value):
         ctypes = []

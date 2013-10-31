@@ -785,7 +785,7 @@ class ImportForm(CremeModelForm):
     has_header = BooleanField(widget=HiddenInput, required=False)
     key_fields = MultipleChoiceField(label=_(u'Key fields'), required=False,
                                      choices=(),
-                                     widget=UnorderedMultipleChoiceWidget,
+                                     widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                      help_text=_('Select at least one field if you want to use the "update" mode. '
                                                  'If an entity already exists with the same field values, it will be simply updated'
                                                  '(ie: a new entity will not be created).\n'
