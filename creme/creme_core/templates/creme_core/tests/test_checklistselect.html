@@ -6,17 +6,30 @@
 {% block test_title %}Multiselect Checkbox List{% endblock %}
 {% block test_header %}
     <style type="text/css">
+        h3 .selection-count {
+            font-size:12px;
+            font-weight: normal;
+            float: right;
+            margin-right:2em;
+        }
     </style>
 
     <script type="text/javascript">
+        $(document).ready(function() {
+            $('.ui-creme-checklistselect').change(function() {
+                var selected = $(this).creme().widget().val();
+                selected = Object.isNone(selected) ? [] : (Array.isArray(selected) ? selected : [selected]);
+                $('.selection-count', $(this).parent()).html(selected.length ? '%d items selected'.format(selected.length) : '');
+            });
+        });
     </script>
 {% endblock %}
 {% block test_content %}
 <ul>
     <li>
-        <h3>No group</h3>
+        <h3>No group<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>activité reliée à</option>
@@ -33,16 +46,68 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <ul class="checklist-content"></ul>
         </div>
     </li>
     <li>
-        <h3>No group - wide</h3>
+        <h3>No group - disabled<span class="selection-count"></span></h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" disabled>
+            <select class="ui-creme-input" multiple>
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>activité reliée à</option>
+                    <option value='activities-object_participates_to_activity'>a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity'>participe à</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>remplie grace à</option>
+                    <option value='commercial-object_sold_by'>vendu par</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <ul class="checklist-content"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>No group - disabled options<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
+                <optgroup label="Activités">
+                    <option value='activities-object_activity_subject'>a pour sujet</option>
+                    <option value='activities-object_linked_2_activity'>activité reliée à</option>
+                    <option value='activities-object_participates_to_activity' disabled>a comme participant</option>
+                    <option value='activities-subject_activity_subject'>est sujet de</option>
+                    <option value='activities-subject_linked_2_activity'>relié à l'activité</option>
+                    <option value='activities-subject_participates_to_activity' disabled>participe à</option>
+                </optgroup>
+                <optgroup label="Commercial">
+                    <option value='commercial-object_complete_goal'>remplie grace à</option>
+                    <option value='commercial-object_sold_by'>vendu par</option>
+                    <option value='commercial-subject_sold_by'>a vendu</option>
+                </optgroup>
+            </select>
+            <span class="checklist-counter"></span>
+            <div class="checklist-header">
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
+            </div>
+            <ul class="checklist-content"></ul>
+        </div>
+    </li>
+    <li>
+        <h3>No group - wide<span class="selection-count"></span></h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -60,16 +125,16 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <ul class="checklist-content wide"></ul>
         </div>
     </li>
     <li>
-        <h3>No group - filter</h3>
+        <h3>No group - filter<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -107,17 +172,17 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="filter" class="checklist-filter" placeholder="filter">
             </div>
             <ul class="checklist-content filter wide"></ul>
         </div>
     </li>
     <li>
-        <h3>No group - search</h3>
+        <h3>No group - search<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -143,17 +208,17 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="filter" class="checklist-filter" placeholder="search">
             </div>
             <ul class="checklist-content search wide"></ul>
         </div>
     </li>
     <li>
-        <h3>Groups</h3>
+        <h3>Groups<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -171,16 +236,16 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
             </div>
             <ul class="checklist-content filter wide"></ul>
         </div>
     </li>
     <li>
-        <h3>Groups - filtered</h3>
+        <h3>Groups - filtered<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -218,17 +283,17 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="filter" class="checklist-filter" placeholder="filter">
             </div>
             <ul class="checklist-content filter wide"></ul>
         </div>
     </li>
     <li>
-        <h3>Groups - search</h3>
+        <h3>Groups - search<span class="selection-count"></span></h3>
         <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect" grouped>
-            <select class="ui-creme-input">
+            <select class="ui-creme-input" multiple>
                 <optgroup label="Activités">
                     <option value='activities-object_activity_subject'>(activité) a pour sujet</option>
                     <option value='activities-object_linked_2_activity'>(activité) relié à</option>
@@ -254,8 +319,8 @@
             </select>
             <span class="checklist-counter"></span>
             <div class="checklist-header">
-                <a type="button" class="checklist-check-all">Tout sélectionner</a> | 
-                <a type="button" class="checklist-check-none">Tout déselectionner</a>
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
                 <input type="filter" class="checklist-filter" placeholder="search">
             </div>
             <ul class="checklist-content search wide"></ul>

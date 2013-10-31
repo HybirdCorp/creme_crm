@@ -176,10 +176,15 @@ creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
 creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
     _init_: function(options)
     {
-        var options = $.extend({itemtag: 'li'}, options || {});
+        var options = $.extend({itemtag: 'li', disabled: false}, options || {});
 
         this._super_(creme.model.ListRenderer, '_init_');
         this._itemtag = options.itemtag;
+        this._disabled = options.disabled;
+    },
+
+    disabled: function(disabled) {
+        return Object.property(this, '_disabled', disabled);
     },
 
     createItem: function(target, before, data, index)
@@ -197,18 +202,20 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         if (typeof data.value === 'object')
             value = new creme.utils.JSON().encode(data.value)
 
-        checkbox.toggleAttr('disabled', data.disabled)
+        var disabled = data.disabled || this._disabled;
+
+        checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
                 .data('checklist-item', {data: data, index:index})
 
         checkbox.get()[0].checked = data.selected;
 
-        $('.checkbox-label', item).toggleAttr('disabled', data.disabled)
+        $('.checkbox-label', item).toggleAttr('disabled', disabled)
                                   .html(data.label);
 
         item.toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .toggleClass('hidden', !data.visible)
-            .toggleClass('disabled', data.disabled);
+            .toggleClass('disabled', disabled);
     },
 
     items: function(target) {

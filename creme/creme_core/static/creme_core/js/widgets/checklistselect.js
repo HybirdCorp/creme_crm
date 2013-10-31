@@ -28,18 +28,28 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     {
         var self = this;
 
-        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
         this._grouped = creme.object.isTrue(options.grouped) || element.is('[grouped]');
         this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
 
+        this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
+
         this._initializeController(element, options);
 
-        $('.checklist-check-all', element).click(function() {self.selectAll(element);});
-        $('.checklist-check-none', element).click(function() {self.unselectAll(element);});
-        $('.checklist-filter', element).bind('propertychange keyup input paste', function() {self._updateViewFilter(element, $(this).val().toLowerCase());});
+        $('.checklist-check-all:not([disabled])', element).click(function() {
+            if (!this._disabled) self.selectAll(element);
+        });
 
-        $('.checkbox-field input[type="checkbox"]', element).live('click', function() {
-            self._delegate(element).val(self.selected(element));
+        $('.checklist-check-none:not([disabled])', element).click(function() {
+            if (!this._disabled) self.unselectAll(element);
+        });
+
+        $('.checklist-filter', element).bind('propertychange keyup input paste', function() {
+            self._updateViewFilter(element, $(this).val().toLowerCase());
+        });
+
+        $('.checkbox-field input[type="checkbox"]', element).bind('click change', function() {
+            $(this).data('checklist-item').data.selected = $(this).get()[0].checked;
+            self._updateDelegate(element);
         });
 
         element.addClass('widget-ready');
@@ -65,6 +75,27 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
                .html(ngettext('%d result of %d', '%d results of %d', hilighted_count).format(hilighted_count, items.length));
     },
 
+    _updateViewSelection: function(element)
+    {
+        var selections = this.val(element) || [];
+        var controller = this._controller;
+
+        controller.model().each(function(item, index) {
+            var next = selections.indexOf(item.value) !== -1;
+
+            if (item.selected !== next) {
+                item.selected = next;
+                controller.model().set(item, index)
+            }
+        });
+    },
+
+    _updateDelegate: function(element)
+    {
+        this._delegate(element).val(this.selected(element));
+        element.change();
+    },
+
     _delegate: function(element) {
         return $('select.ui-creme-input', element);
     },
@@ -72,30 +103,31 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     _initializeController: function(element, options)
     {
         var self = this;
-        var disabled = !this._enabled;
+        var disabled = this.disabled(element);
         var input = this._delegate(element);
-        var content = this.content(element);
+        var content = this.content(element).addClass('ie-checkbox-fallback');
 
         var renderer = this._grouped ? new creme.model.CheckGroupListRenderer() : new creme.model.CheckListRenderer();
         var controller = this._controller = new creme.model.CollectionController(this._backend);
 
         var choices = this._grouped ? creme.model.ChoiceGroupRenderer.parse(input) : creme.model.ChoiceRenderer.parse(input);
 
-        renderer.converter(this._converter);
+        renderer.converter(this._converter)
+                .disabled(disabled);
 
         controller.renderer(renderer)
                   .target(content)
                   .model(new creme.model.Array(choices))
                   .redraw();
 
-        content.addClass('ie-checkbox-fallback')
+        input.bind('change', function() {self._updateViewSelection(element);});
 
         if ($.browser.msie && !this._grouped)
         {
             var layout = new creme.layout.ColumnSortLayout();
             var column_width = content.get()[0].currentStyle['column-width'] || '200px';
 
-            content.addClass('ie-layout-fallback')
+            content.addClass('ie-layout-fallback');
 
             layout.comparator(function(a, b) {
                                   return $('.checkbox-label', a).html().localeCompare($('.checkbox-label', b).html());
@@ -107,6 +139,24 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         }
 
         //this._layout.columns(3).resizable(true).bind(content).layout();
+    },
+
+    disabled: function(element, disabled)
+    {
+        if (disabled === undefined)
+            return this._disabled;
+
+        element.toggleAttr('disabled', disabled);
+        this._disabled = disabled;
+
+        $('.checklist-check-all, .checklist-check-none, .checklist-filter', element).toggleAttr('disabled', disabled);
+
+        if (this._controller) {
+            this._controller.renderer().disabled(disabled);
+            this._controller.redraw();
+        }
+
+        return this;
     },
 
     content: function(element)
@@ -140,17 +190,16 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         var previous = this.val(element);
         var selections = Object.isType(value, 'string') ? new creme.utils.JSON().decode(value, []) : value;
-        var value = value.map(function(item) {return $.toJSON(item);});
+        var value = value.map(function(item) {return typeof item !== 'string' ? $.toJSON(item) : item;});
 
         if (previous === value)
             return this;
 
-        if (input)
-        {
-            input.val(value);
-            element.change();
+        if (input) {
+            input.val(value).change();
         }
 
+        element.change();
         return this;
     },
 
@@ -166,28 +215,34 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     selected: function(element) {
-        return $('.checklist-content input[type="checkbox"]:checked', element).map(function() {
+        return $('.checkbox-field input[type="checkbox"]:checked', element).map(function() {
             return $(this).val();
         }).get();
     },
 
     selectAll: function(element)
     {
-        $('.checklist-content input[type="checkbox"]', element).each(function() {
+        $('.checkbox-field input[type="checkbox"]:not([disabled])', element).each(function() {
             $(this).get()[0].checked = true;
         });
 
-        this._delegate(element).val(this.selected(element));
+        this._controller.model().where(function(item) {return !item.disabled})
+                                .forEach(function(item) {item.selected = true;});
+
+        this._updateDelegate(element);
         return this;
     },
 
     unselectAll: function(element)
     {
-        $('.checklist-content input[type="checkbox"]', element).each(function() {
+        $('.checkbox-field input[type="checkbox"]', element).each(function() {
             $(this).get()[0].checked = false;
         });
 
-        this._delegate(element).val(this.selected(element));
+        this._controller.model().where(function(item) {return !item.disabled})
+                                .forEach(function(item) {item.selected = false;});
+
+        this._updateDelegate(element);
         return this;
     }
 });

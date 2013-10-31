@@ -300,12 +300,19 @@ span.ui-creme-datepicker-trigger {
     color: #777;
     background-color: none;
     vertical-align: middle;
+    text-shadow: none;
 
     -webkit-transition: none;
        -moz-transition: none;
          -o-transition: none;
         -ms-transition: none;
             transition: none;
+}
+
+.checklist-header a[disabled] {
+    opacity: 0.5;
+    text-decoration: none;
+    cursor: default;
 }
 
 .checklist-header .checklist-filter {

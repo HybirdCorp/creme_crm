@@ -514,6 +514,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/widgets/pselect.js',
     'creme_core/js/tests/widgets/entityselector.js',
     'creme_core/js/tests/widgets/chainedselect.js',
+    'creme_core/js/tests/widgets/checklistselect.js',
     'creme_core/js/tests/widgets/selectorlist.js',
     'creme_core/js/tests/widgets/actionlist.js',
     'creme_core/js/tests/widgets/plotselector.js',
