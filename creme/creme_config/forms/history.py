@@ -33,7 +33,7 @@ class HistoryConfigForm(CremeForm):
     relation_types = ModelMultipleChoiceField(label=_(u'Relation types'),
                                               queryset=RelationType.objects.all(),
                                               help_text=_HELP_TEXT,
-                                              widget=UnorderedMultipleChoiceWidget,
+                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                              )
 
     def __init__(self, *args, **kwargs):

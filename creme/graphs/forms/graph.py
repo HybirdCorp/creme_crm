@@ -37,7 +37,7 @@ class GraphForm(CremeEntityForm):
 class AddRelationTypesForm(CremeForm):
     relation_types = ModelMultipleChoiceField(label=_('Types of the peripheral relations'),
                                               queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget)
+                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
 
     def __init__(self, entity, *args, **kwargs):
         super(AddRelationTypesForm, self).__init__(*args, **kwargs)

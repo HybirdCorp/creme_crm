@@ -33,7 +33,7 @@ class AddRootNodesForm(CremeForm):
     entities       = MultiGenericEntityField(label=_(u'Root entities'))
     relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
                                               queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget)
+                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
 
     def __init__(self, entity, *args, **kwargs):
         super(AddRootNodesForm, self).__init__(*args, **kwargs)
@@ -56,7 +56,7 @@ class AddRootNodesForm(CremeForm):
 class EditRootNodeForm(CremeModelForm):
     relation_types = ModelMultipleChoiceField(label=_('Related types of relations'),
                                               queryset=RelationType.objects.all(),
-                                              widget=UnorderedMultipleChoiceWidget)
+                                              widget=UnorderedMultipleChoiceWidget(columntype='wide'))
 
     class Meta:
         model = RootNode

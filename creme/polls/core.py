@@ -336,7 +336,7 @@ class MultiEnumPollLineType(EnumPollLineType):
 
     def _formfield(self, initial):
         return MultipleChoiceField(choices=self._args['choices'], initial=initial,
-                                   widget=UnorderedMultipleChoiceWidget
+                                   widget=UnorderedMultipleChoiceWidget(columntype='wide')
                                   )
 
     def is_condition_met(self, raw_answer, raw_cond_answer):
