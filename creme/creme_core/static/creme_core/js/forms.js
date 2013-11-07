@@ -430,6 +430,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     	toggleRow();
 }
 
+/*
 creme.forms.toUnorderedMultiSelect = function(select_id, reduced) {
     function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
         $select.find('option').each(function(i) {
@@ -466,6 +467,7 @@ creme.forms.toUnorderedMultiSelect = function(select_id, reduced) {
 
     creme.forms._toDualColumnMultiSelect(select_id, false, buildColumns, refreshSelect, reduced);
 }
+*/
 
 creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     function buildColumns($table, addAvailableLi, addChosenLi) {
