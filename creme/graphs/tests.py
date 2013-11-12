@@ -5,7 +5,7 @@ try:
 
     from django.utils.unittest.case import skipIf
 
-    from creme.creme_core.models import RelationType
+    from creme.creme_core.models import RelationType, Relation
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation
@@ -129,7 +129,36 @@ class GraphsTestCase(CremeTestCase):
     def test_download01(self):
         self.login()
 
-        graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        user = self.user
+        contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        orga = Organisation.objects.create(user=user, name='NERV')
+
+        rtype = RelationType.create(('test-subject_hate', u'déteste'), # test an encoding error, pygraphviz supports unicode...
+                                    ('test-object_hate',  u'est détesté par')
+                                   )[0]
+        Relation.objects.create(user=user,
+                                subject_entity=contact,
+                                type=rtype,
+                                object_entity=orga
+                               )
+
+        graph = Graph.objects.create(user=user, name='Graph01')
+        url = '/graphs/graph/%s/roots/add' % graph.id
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'entities': '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (
+                                                                contact.entity_type_id, contact.pk,
+                                                                orga.entity_type_id,    orga.pk
+                                                            ),
+                                               'relation_types': [rtype.pk],
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        url = '/graphs/graph/%s/relation_types/add' % graph.id
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype.pk]}))
+
         self.assertGET200('/graphs/graph/%s/png' % graph.id, follow=True)
 
         #TODO: improve
