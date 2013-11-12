@@ -95,7 +95,7 @@ class Graph(CremeEntity):
             #if not subject.can_view(user):
                 #continue
 
-            str_subject = unicode(subject).encode('utf-8')
+            str_subject = unicode(subject)
             relations   = subject.relations.filter(type__in=root.relation_types.all())\
                                            .select_related('object_entity', 'type')
 
@@ -108,7 +108,7 @@ class Graph(CremeEntity):
                     continue
 
                 uni_object = unicode(object_)
-                str_object = uni_object.encode('utf-8')
+                str_object = uni_object
 
                 orbital_node = orbital_nodes.get(object_.id)
                 if not orbital_node:
@@ -116,7 +116,7 @@ class Graph(CremeEntity):
                     orbital_nodes[object_.id] = str_object
 
                 add_edge(str_subject, str_object,
-                         label=unicode(relation.type.predicate).encode('utf-8')) # beware: not unicode for label (pygraphviz use label as dict key)
+                         label=unicode(relation.type.predicate))
                 #add_edge('b', 'd', color='#FF0000', fontcolor='#00FF00', label='foobar', style='dashed')
 
         orbital_rtypes = self.orbital_relation_types.all()
@@ -128,7 +128,7 @@ class Graph(CremeEntity):
                                                     object_entity__in=orbital_ids,
                                                     type__in=orbital_rtypes).select_related('type'):
                 add_edge(orbital_nodes[relation.subject_entity_id], orbital_nodes[relation.object_entity_id],
-                         label=unicode(relation.type.predicate).encode('utf-8'),
+                         label=unicode(relation.type.predicate),
                          style='dashed')
 
         #print graph.string()
