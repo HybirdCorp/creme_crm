@@ -48,7 +48,7 @@ _PORTAL_BLOCKS        = 'portal_blocks'
 def _arg_in_quotes_or_die(arg, tag_name):
     first_char = arg[0]
     if not (first_char == arg[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+        raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
 #-------------------------------------------------------------------------------
 _COLSPAN_ARG = 'colspan='
@@ -167,17 +167,17 @@ def _do_line_creator(parser, token, template_path):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _LINE_CREATOR_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     url, label_str, perm_str = match.groups()
 
     first_char = url[0]
     if not (first_char == url[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
+        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
 
     compile_filter = parser.compile_filter
 
@@ -225,11 +225,11 @@ def do_line_relator(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _LINE_RELATOR_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     subject_str, type_id_str, ctype_id_str, label_str, perm_str, is_multiple = match.groups()
     compile_filter = parser.compile_filter
@@ -275,18 +275,18 @@ def _do_line_suppr(parser, token, template_path):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _LINE_SUPPR_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     suppr_url, post_args, perm_str = match.groups()
 
     for group in (suppr_url, post_args):
         first_char = group[0]
         if not (first_char == group[-1] and first_char in ('"', "'")):
-            raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+            raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
     return LineSuppressorNode(url=suppr_url[1:-1], post_args=post_args[1:-1],
                               perm_var=TemplateLiteral(parser.compile_filter(perm_str), perm_str),
@@ -317,7 +317,7 @@ def do_line_unlinker(parser, token):
     """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
-#TAG : "get_field_editor"------------------------------------------------------------
+#TAG : "get_field_editor"-----------------------------------------------------
 _FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
 
 @register.tag(name="get_field_editor")
@@ -326,18 +326,18 @@ def do_get_field_editor(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _FIELD_EDITOR_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     field_type_str, field_str, object_str = match.groups()
 
     field_editor_node = _FIELD_EDITOR_NODES.get(field_type_str)
 
     if not field_editor_node:
-        raise TemplateSyntaxError, "%r invalid field category tag: %r" % (tag_name, field_type_str)
+        raise TemplateSyntaxError("%r invalid field category tag: %r" % (tag_name, field_type_str))
 
     return field_editor_node(TemplateLiteral(parser.compile_filter(field_str), field_str),
                              TemplateLiteral(parser.compile_filter(object_str), object_str))
@@ -348,8 +348,8 @@ class RegularFieldEditorNode(TemplateNode):
         self.field_var      = field_var
         self.object_var     = object_var
 
-    def _update_context(self, context, field, object):
-        model = object.__class__
+    def _update_context(self, context, field, instance):
+        model = instance.__class__
         field_eval = model._meta.get_field(field) if isinstance(field, basestring) else field
         field_name = field_eval.name
 
@@ -357,21 +357,21 @@ class RegularFieldEditorNode(TemplateNode):
         context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
 
     def render(self, context):
-        object = self.object_var.eval(context)
+        instance = self.object_var.eval(context)
         field  = self.field_var.eval(context)
 
-        owner = object.get_related_entity() if hasattr(object, 'get_related_entity') else object
+        owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
 
-        context['object']    = object
-        context['ct_id']     = ContentType.objects.get_for_model(object).pk
+        context['object']    = instance
+        context['ct_id']     = ContentType.objects.get_for_model(instance).pk
         context['edit_perm'] = context['user'].has_perm_to_change(owner)
 
-        self._update_context(context, field, object)
+        self._update_context(context, field, instance)
 
         return self.template.render(context)
 
 class CustomFieldEditorNode(RegularFieldEditorNode):
-    def _update_context(self, context, field, object):
+    def _update_context(self, context, field, instance):
         context['field']     = field.id
         context['updatable'] = True
 
@@ -380,10 +380,10 @@ class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
         super(HeaderFilterColumnEditorNode, self).__init__(field_var, object_var)
         self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
 
-    def _update_context(self, context, column, object):
+    def _update_context(self, context, column, instance):
         context['is_header_filter_item_valid'] = True
         if column.type == HFI_FIELD:
-            model = object.entity_type.model_class()
+            model = instance.entity_type.model_class()
             field_name = column.name.partition('__')[0]
             context['field'] = field_name
             context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
@@ -407,17 +407,17 @@ def do_line_editor(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _LINE_EDITOR_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     edit_url, perm_str = match.groups()
 
     first_char = edit_url[0]
     if not (first_char == edit_url[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "%r tag's url argument should be in quotes" % tag_name
+        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
 
     return LineEditorNode(edit_url[1:-1], TemplateLiteral(parser.compile_filter(perm_str), perm_str))
 
@@ -442,11 +442,11 @@ def do_line_lister(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _LISTVIEW_BUTTON_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     ctype_id_str, label_str, q_filter_str = match.groups()
     compile_filter = parser.compile_filter
@@ -489,21 +489,21 @@ def do_block_importer(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _BLOCK_IMPORTER_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     groups = match.groups()
 
     if len(groups) != 3:
-        raise TemplateSyntaxError, "%r tag's takes 3 arguments" % tag_name
+        raise TemplateSyntaxError("%r tag's takes 3 arguments" % tag_name)
 
     for group in groups:
         first_char = group[0]
         if not (first_char == group[-1] and first_char in ('"', "'")):
-            raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+            raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
     app_name, block_name, alias = groups
 
@@ -524,12 +524,12 @@ class BlockImporterNode(TemplateNode):
 def _parse_block_alias(tag_name, block_alias):
     first_char = block_alias[0]
     if not (first_char == block_alias[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
+        raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
     block_alias = block_alias[1:-1]
 
     if any(not char.isalnum() and char not in ('-', '_') for char in block_alias):
-        raise TemplateSyntaxError, "%r tag's argument should be be composed with chars in {[A-Za-z][0-9]-_}" % tag_name
+        raise TemplateSyntaxError("%r tag's argument should be be composed with chars in {[A-Za-z][0-9]-_}" % tag_name)
 
     return block_alias
 
@@ -542,7 +542,7 @@ def do_block_detailviewer(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, block_alias = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires one argument" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires one argument" % token.contents.split()[0])
 
     return BlockDetailViewerNode(_parse_block_alias(tag_name, block_alias))
 
@@ -566,10 +566,10 @@ def do_object_block_importer(parser, token):
     tag_name = split[0]
 
     if len(split) != 3:
-        raise TemplateSyntaxError, "%r tag requires 2 arguments" % tag_name
+        raise TemplateSyntaxError("%r tag requires 2 arguments" % tag_name)
 
     if split[1] != 'as':
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     alias = split[2]
     _arg_in_quotes_or_die(alias, tag_name)
@@ -638,11 +638,11 @@ def do_detailview_blocks_displayer(parser, token):
     tag_name = split[0]
 
     if len(split) != 2:
-        raise TemplateSyntaxError, "%r tag requires 1 arguments" % tag_name
+        raise TemplateSyntaxError("%r tag requires 1 arguments" % tag_name)
 
     group_name = _ZONES_MAP.get(split[1])
     if not group_name:
-        raise TemplateSyntaxError, "%r argument must be in: %s" % (tag_name, '/'.join(_ZONES_MAP.iterkeys()))
+        raise TemplateSyntaxError("%r argument must be in: %s" % (tag_name, '/'.join(_ZONES_MAP.iterkeys())))
 
     return DetailviewBlocksDisplayerNode(group_name)
 
@@ -678,7 +678,7 @@ def do_block_portalviewer(parser, token):
         # Splitting by None == splitting by spaces.
         tag_name, block_alias, ct_ids_varname = token.contents.split(None)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires two arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires two arguments" % token.contents.split()[0])
 
     return BlockPortalViewerNode(_parse_block_alias(tag_name, block_alias), ct_ids_varname)
 
@@ -698,10 +698,10 @@ def _parse_one_var_tag(token): #TODO: move in creme_core.utils
         # Splitting by None == splitting by spaces.
         tag_name, var_name = token.contents.split(None, 1)
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires one argument" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires one argument" % token.contents.split()[0])
 
     if any(not char.isalnum() and char not in ('-', '_') for char in var_name):
-        raise TemplateSyntaxError, "%r tag's argument should be composed with chars in {[A-Za-z][0-9]-_}" % tag_name
+        raise TemplateSyntaxError("%r tag's argument should be composed with chars in {[A-Za-z][0-9]-_}" % tag_name)
 
     return var_name
 
@@ -712,7 +712,7 @@ def do_portal_blocks_importer(parser, token):
     split = token.contents.split()
 
     if len(split) != 2:
-        raise TemplateSyntaxError, "%r tag requires 1 arguments" % split[0]
+        raise TemplateSyntaxError("%r tag requires 1 arguments" % split[0])
 
     appname_str = split[1]
 
@@ -841,11 +841,11 @@ def do_blocks_importer(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _BLOCKS_IMPORTER_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     blocks_str, alias =  match.groups()
 
@@ -874,11 +874,11 @@ def do_blocks_displayer(parser, token):
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
 
     match = _BLOCKS_DISPLAYER_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     alias =  match.groups()[0]
 
