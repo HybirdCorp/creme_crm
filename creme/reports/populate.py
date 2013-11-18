@@ -23,7 +23,8 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
@@ -38,10 +39,11 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        hf = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Report, name='name'),
-                      HeaderFilterItem.build_4_field(model=Report, name='ct'),
-                     ])
+        HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'ct'}),
+                                       ],
+                           )
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Report)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Report)

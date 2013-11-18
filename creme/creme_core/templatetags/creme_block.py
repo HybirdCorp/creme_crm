@@ -28,8 +28,8 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.utils.translation import ungettext #ugettext
 
+from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-from ..models.header_filter import HFI_FIELD, HFI_CUSTOM
 from ..gui.block import Block, block_registry, BlocksManager
 from ..gui.bulk_update import bulk_update_registry
 
@@ -380,15 +380,16 @@ class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
         super(HeaderFilterColumnEditorNode, self).__init__(field_var, object_var)
         self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
 
-    def _update_context(self, context, column, instance):
+    def _update_context(self, context, cell, instance):
         context['is_header_filter_item_valid'] = True
-        if column.type == HFI_FIELD:
+
+        if isinstance(cell, EntityCellRegularField):
             model = instance.entity_type.model_class()
-            field_name = column.name.partition('__')[0]
+            field_name = cell.value.partition('__')[0]
             context['field'] = field_name
             context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
-        elif column.type == HFI_CUSTOM:
-            context['field'] = column.name
+        elif isinstance(cell, EntityCellCustomField):
+            context['field'] = cell.value
             context['updatable'] = True
         else:
             context['is_header_filter_item_valid'] = False

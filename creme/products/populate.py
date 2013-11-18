@@ -20,7 +20,8 @@
 
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import SearchConfigItem, HeaderFilter
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import Product, Service, Category, SubCategory
@@ -30,19 +31,22 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        hf = HeaderFilter.create(pk='products-hf_product', name=_(u'Product view'), model=Product)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Product, name='images__name'),
-                      HeaderFilterItem.build_4_field(model=Product, name='name'),
-                      HeaderFilterItem.build_4_field(model=Product, name='code'),
-                      HeaderFilterItem.build_4_field(model=Product, name='user__username'),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='products-hf_product', name=_(u'Product view'), model=Product,
+                  cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
+                              (EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'code'}),
+                              (EntityCellRegularField, {'name': 'user__username'}),
+                             ],
+                 )
 
-        hf = HeaderFilter.create(pk='products-hf_service', name=_(u'Service view'), model=Service)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Service, name='images__name'),
-                      HeaderFilterItem.build_4_field(model=Service, name='name'),
-                      HeaderFilterItem.build_4_field(model=Service, name='reference'),
-                      HeaderFilterItem.build_4_field(model=Service, name='user__username'),
-                     ])
+        create_hf(pk='products-hf_service', name=_(u'Service view'), model=Service,
+                  cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
+                              (EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'reference'}),
+                              (EntityCellRegularField, {'name': 'user__username'}),
+                             ],
+                 )
 
         if not Category.objects.exists():
             create_cat = Category.objects.create

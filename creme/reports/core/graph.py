@@ -26,7 +26,7 @@ from django.db.models import Min, Max, FieldDoesNotExist, Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, CustomField, CustomFieldEnumValue
-from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
+#from creme.creme_core.models.header_filter import RFT_RELATION, RFT_FIELD
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
@@ -555,7 +555,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
     x = []
     y = []
 
-    if hfi_type == HFI_FIELD: #TODO: unit test
+    if hfi_type == RFT_FIELD: #TODO: unit test
         try:
             field = graph.report.ct.model_class()._meta.get_field(volatile_column)
         except FieldDoesNotExist:
@@ -565,7 +565,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
                 x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}), #TODO: str() ??
                                    order=order
                                   )
-    elif hfi_type == HFI_RELATION: #TODO: unit test
+    elif hfi_type == RFT_RELATION: #TODO: unit test
         try:
             rtype = RelationType.objects.get(pk=volatile_column)
         except RelationType.DoesNotExist:

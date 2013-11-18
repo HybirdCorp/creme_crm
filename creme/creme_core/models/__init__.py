@@ -7,7 +7,7 @@ from .relation import RelationType, Relation, SemiFixedRelationType
 from .creme_property import CremePropertyType, CremeProperty
 from .custom_field import *
 
-from .header_filter import HeaderFilter, HeaderFilterItem
+from .header_filter import HeaderFilter
 from .entity_filter import EntityFilter, EntityFilterCondition
 
 from .lock import Mutex

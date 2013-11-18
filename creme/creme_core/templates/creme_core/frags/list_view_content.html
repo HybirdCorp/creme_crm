@@ -1,16 +1,16 @@
 {% load i18n %}
 {% load creme_core_tags creme_widgets creme_listview creme_block %}
 
-{% with header_filters.selected.items as columns %}
+{% with header_filters.selected.cells as cells %}
 
 {% if o2m %}
-    {% templatize "{{columns|length}}" as colspan %}
+    {% templatize "{{cells|length}}" as colspan %}
 {% else %}
-    {% templatize "{{columns|length|add:1}}" as colspan %}
+    {% templatize "{{cells|length|add:1}}" as colspan %}
 {% endif %}
 {% if show_actions %}
 <script type="text/javascript">
-    $(document).ready(function (){
+    $(document).ready(function() {
         $('.default-action').hover(
                 function(){ $(this).addClass('ui-state-hover'); },
                 function(){ $(this).removeClass('ui-state-hover'); }
@@ -93,17 +93,17 @@
         </tr>
         <tr class="columns_top">
             {% if not o2m %}<th class="choices">&nbsp;</th>{% endif %}
-            {% for column in columns %}
-                {% if column.is_hidden %}
+            {% for cell in cells %}
+                {% if cell.is_hidden %}
                     <th style="display:none;"></th>
-                {% elif column.type %}
-                    <th class="column{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %} cl_lv">
-                        <button type="button" {% if column.sortable %}title="{% blocktrans with column.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
-                            {{column.title}}
+                {% elif cell.type_id == 'actions' %}
+                    <th class="actions"></th>
+                {% else %}
+                    <th class="column{% if cell.value in current_research_fields %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
+                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{cell.value}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
+                            {{cell.title}}
                         </button>
                     </th>
-                {% else %}
-                    <th class="actions"></th>
                 {% endif %}
             {% endfor %}
         </tr>
@@ -116,14 +116,13 @@
                 <td style="display:none;">
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />
                 </td>
-                {% for column in columns %}
-                    {% if not column.type and show_actions %}
+                {% for cell in cells %}
+                    {% if cell.type_id == 'actions' and show_actions %}
                         <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
-                        {# <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td> #}
-                        <td class="column cl_lv {{  column.listview_css_class }}" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>
-                            {% get_listview_cell column entity user %}
-                            {% if not is_popup_view %}{% get_field_editor on header_filter_item column for entity %}{% endif %}
+                        <td class="column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.value}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                            {% get_listview_cell cell entity user %}
+                            {% if not is_popup_view %}{% get_field_editor on header_filter_item cell for entity %}{% endif %}
                         </td>
                     {% endif %}
                 {% endfor %}

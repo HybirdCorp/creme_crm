@@ -25,18 +25,16 @@ from django.http import Http404
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 
-from creme.creme_core.models import EntityFilter, EntityCredentials
-from creme.creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme.creme_core.models import EntityFilter, EntityCredentials, HeaderFilter
 from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.utils import get_ct_or_404
-from creme.creme_core.utils.meta import get_instance_field_info
 from creme.creme_core.utils.chunktools import iter_as_slices
 from creme.creme_core.registry import export_backend_registry
 
 
 logger = logging.getLogger(__name__)
 
-
+#TODO: stream response ??
 @login_required
 def dl_listview(request, ct_id, doc_type, header_only=False):
     ct    = get_ct_or_404(ct_id)
@@ -54,24 +52,15 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
     #TODO: factorise (with list_view()) ?? in a ListViewState's method ???
     hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
-    columns = hf.items
+    cells = hf.cells
 
     writer = backend()
     writerow = writer.writerow
-    writerow([smart_str(column.title) for column in columns])  # doesn't accept generator expression... ;(
+    writerow([smart_str(cell.title) for cell in cells])  # doesn't accept generator expression... ;(
 
     if not header_only:
-        current_lvs.handle_research(request, columns)
-
-        #sort_order = current_lvs.sort_order or ''
-        #sort_field = current_lvs.sort_field
-
-        #if not sort_field:
-            #try:  # TODO: 'if model._meta.ordering' instead ????
-                #sort_field = model._meta.ordering[0]
-            #except IndexError:
-                #sort_field = 'id'
-        current_lvs.set_sort(model, columns, current_lvs.sort_field, current_lvs.sort_order)
+        current_lvs.handle_research(request, cells)
+        current_lvs.set_sort(model, cells, current_lvs.sort_field, current_lvs.sort_order)
 
         entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None)) \
                                 .distinct()
@@ -84,9 +73,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
         if current_lvs.extra_q:
             entities = entities.filter(current_lvs.extra_q)
 
-        entities = entities.filter(current_lvs.get_q_with_research(model, columns))
+        entities = entities.filter(current_lvs.get_q_with_research(model, cells))
         entities = EntityCredentials.filter(request.user, entities)
-        #entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field))  # distinct ???
         entities = current_lvs.sort_query(entities)
 
         for entities_slice in iter_as_slices(entities, 256):
@@ -95,21 +83,10 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
             for entity in entities_slice:
                 line = []
 
-                for column in columns:
-                    #move to a HeaderFilterItem method ?????? (problen with relation --> several objects returned)
+                for cell in cells:
                     try:
-                        type_ = column.type
-
-                        if type_ == HFI_FIELD:
-                            res = get_instance_field_info(entity, column.name)[1]
-                        elif type_ == HFI_FUNCTION:
-                            res = column.get_functionfield()(entity).for_csv()
-                        elif type_ == HFI_RELATION:
-                            res = u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True))
-                        else:
-                            assert type_ == HFI_CUSTOM
-                            res = entity.get_custom_value(column.get_customfield())
-                    except Exception, e:
+                        res = cell.render_csv(entity, user)
+                    except Exception as e:
                         logger.debug('Exception in CSV export: %s', e)
                         res = ''
 
@@ -120,7 +97,6 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
     writer.save(ct.model)
 
     return writer.response
-
 
 @login_required
 def dl_listview_header(request, ct_id, doc_type):

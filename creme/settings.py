@@ -190,7 +190,7 @@ INSTALLED_CREME_APPS = (
     'creme.billing',       #need 'products'
     'creme.opportunities', #need 'products'
     'creme.commercial',    #need 'opportunities'
-    'creme.events',
+    'creme.events',        #need 'opportunities'
     'creme.crudity',
     'creme.emails', #need 'crudity'
     #creme.'sms', #Work In Progress

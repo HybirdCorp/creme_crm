@@ -18,35 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
 from collections import defaultdict
+from json import loads as jsonloads, dumps as jsondumps
 import logging
 
-from django.db.models import (Model, FieldDoesNotExist, CharField, BooleanField,
-                              PositiveIntegerField, PositiveSmallIntegerField, DecimalField,
-                              DateField, DateTimeField, ForeignKey, ManyToManyField)
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
+from django.db.models import Model, CharField, TextField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from ..utils.meta import get_model_field_info
-from ..utils.id_generator import generate_string_id_and_save
 from .entity import CremeEntity
-from .relation import RelationType
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
-logger = logging.getLogger(__name__)
 
-HFI_ACTIONS    = 0
-HFI_FIELD      = 1
-HFI_RELATION   = 2
-HFI_FUNCTION   = 3
-HFI_CUSTOM     = 4
-HFI_CALCULATED = 5 #TODO: Used only in reports for the moment, integrate into HF?
-HFI_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see HeaderFilterItem.volatile_render
-HFI_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
+logger = logging.getLogger(__name__)
 
 
 class HeaderFilterList(list):
@@ -63,7 +48,7 @@ class HeaderFilterList(list):
 
     def select_by_id(self, *ids):
         """Try several HeaderFilter ids"""
-        #linear search but with few items after all....
+        #linear search but with few items after all...
         for hf_id in ids:
             for hf in self:
                 if hf.id == hf_id:
@@ -79,42 +64,32 @@ class HeaderFilterList(list):
 
 
 class HeaderFilter(Model): #CremeModel ???
+    """View of list : sets of columns (see EntityCell) stored for a specific
+    ContentType of CremeEntity.
+    """
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
-    #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False)
-    is_custom   = BooleanField(blank=False, default=True, editable=False)
+    is_custom   = BooleanField(blank=False, default=True, editable=False) #'False' means: cannot be edited/deleted (to be sure that a ContentTypehas always at leats one existing HeaderFilter)
+    json_cells  = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
 
     creation_label = _('Add a view')
-    _items = None
+    _cells = None
 
     class Meta:
         app_label = 'creme_core'
 
+    def __init__(self, *args, **kwargs):
+        super(HeaderFilter, self).__init__(*args, **kwargs)
+        #TODO: a true CellsField ??
+        if self.json_cells is None:
+            self.cells = []
+
     def __unicode__(self):
         return u'<HeaderFilter: name="%s">' % self.name
 
-    def build_items(self, show_actions=False):
-        items = []
-        append = items.append
-
-        if show_actions:
-            append(_hfi_action)
-
-        for item in self.header_filter_items.all():
-            item.header_filter = self
-            error = item.error
-
-            if error:
-                logger.warn('%s => HeaderFilterItem instance removed', error)
-                item.delete()
-            else:
-                append(item)
-
-        self._items = items
-
-    #TODO: factorise with Filter.can_edit_or_delete ???
+    #TODO: factorise with EntityFilter.can_edit_or_delete ???
     def can_edit_or_delete(self, user):
         if not self.is_custom:
             return (False, ugettext(u"This view can't be edited/deleted"))
@@ -137,289 +112,76 @@ class HeaderFilter(Model): #CremeModel ???
         return (False, ugettext(u"You are not allowed to edit/delete this view"))
 
     @staticmethod
-    def create(pk, name, model, is_custom=False, user=None):
+    def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
-        It clean old HeaderFilterItems.
+        It clean old EntityCells.
+        @param cells_desc List of objects where each one can other:
+            - an instance of EntityCell (one of its child class of course).
+            - a tuple (class, args)
+              where 'class' is child class of EntityCell, & 'args' is a dict
+              containing parameters for the build() method of the previous class.
         """
-        from creme.creme_core.utils import create_or_update
-        hf = create_or_update(HeaderFilter, pk=pk,
-                              name=name, is_custom=is_custom, user=user,
-                              entity_type=ContentType.objects.get_for_model(model)
-                             )
-        HeaderFilterItem.objects.filter(header_filter=pk).delete()
-        return hf
+        from ..core.entity_cell import EntityCell
+        from ..utils import create_or_update
+
+        cells = []
+
+        for cell_desc in cells_desc:
+            if cell_desc is None:
+                continue
+
+            if isinstance(cell_desc, EntityCell):
+                cells.append(cell_desc)
+            else:
+                cell = cell_desc[0].build(model=model, **cell_desc[1])
+
+                if cell is not None:
+                    cells.append(cell)
+
+        return create_or_update(HeaderFilter, pk=pk,
+                                name=name, is_custom=is_custom, user=user,
+                                entity_type=ContentType.objects.get_for_model(model),
+                                cells=cells,
+                               )
+
+    def _dump_cells(self, cells):
+        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
 
     @property
-    def items(self):
-        if self._items is None:
-            self.build_items()
-        return self._items
+    def cells(self):
+        cells = self._cells
 
+        if cells is None:
+            from ..core.entity_cell import CELLS_MAP
+
+            cells, errors = CELLS_MAP.build_cells_from_dicts(model=self.entity_type.model_class(),
+                                                             dicts=jsonloads(self.json_cells),
+                                                            )
+
+            if errors:
+                logger.warn('HeaderFilter (id="%s") is saved with valid cells.', self.id)
+                self._dump_cells(cells)
+                self.save()
+
+            self._cells = cells
+
+        return cells
+
+    @cells.setter
+    def cells(self, cells):
+        self._cells = cells = [cell for cell in cells if cell]
+        self._dump_cells(cells)
+
+    #TODO: dispatch this job in Cells classes
     def populate_entities(self, entities, user):
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
         @param entities QuerySet on CremeEntity (or subclass).
         """
-        hfi_groups = defaultdict(list)
+        cell_groups = defaultdict(list)
 
-        for hfi in self.items:
-            hfi_groups[hfi.type].append(hfi)
+        for cell in self.cells:
+            cell_groups[cell.__class__].append(cell)
 
-        #group = hfi_groups[HFI_ACTIONS]
-        #if group:
-            #CremeEntity.populate_credentials(entities, user)
-
-        group = hfi_groups[HFI_FIELD]
-        if group:
-            CremeEntity.populate_fk_fields(entities, [hfi.name.partition('__')[0] for hfi in group])
-
-        group = hfi_groups[HFI_RELATION]
-        if group:
-            CremeEntity.populate_relations(entities, [hfi.relation_predicat_id for hfi in group], user)
-
-        group = hfi_groups[HFI_CUSTOM]
-        if group:
-            cfields = CustomField.objects.in_bulk([int(hfi.name) for hfi in group])
-
-            for hfi in group:
-                hfi._customfield = cfields[int(hfi.name)]
-
-            CremeEntity.populate_custom_values(entities, cfields.values()) #NB: not itervalues() (iterated several times)
-
-        for hfi in hfi_groups[HFI_FUNCTION]:
-            func_field = self.entity_type.model_class().function_fields.get(hfi.name)
-            func_field.populate_entities(entities)
-
-    def set_items(self, items):
-        "@param items Sequence of HeaderFilterItems (or None, that are ignored)"
-        old_pks = [item.pk for item in reversed(self.items)] #we recycle the old PKs
-        items_without_pks = []
-        self._items = new_items = []
-
-        for i, hfi in enumerate(filter(None, items), start=1):
-            hfi.order = i
-            hfi.header_filter = self
-
-            if old_pks:
-                hfi.pk = old_pks.pop()
-                hfi.save() #TODO: save if no change (wait for HeaderFilterItem simplification)
-            else:
-                items_without_pks.append(hfi)
-
-            new_items.append(hfi)
-
-        if old_pks: #delete unused items
-            self.header_filter_items.filter(pk__in=old_pks).delete()
-
-        generate_string_id_and_save(HeaderFilterItem, items_without_pks, self.id)
-
-
-class HeaderFilterItem(Model):  #CremeModel ???
-    id                    = CharField(primary_key=True, max_length=100)
-    order                 = PositiveIntegerField()
-    name                  = CharField(max_length=100)
-    title                 = CharField(max_length=100)
-    type                  = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}
-    header_filter         = ForeignKey(HeaderFilter, related_name='header_filter_items')
-    has_a_filter          = BooleanField(blank=True, default=False)  #TODO: useful ?? retrievable with type ??
-    editable              = BooleanField(blank=True, default=True)   #TODO: idem
-    sortable              = BooleanField(blank=True, default=False)  #TODO: idem
-    is_hidden             = BooleanField(blank=True, default=False)  #TODO: [idem]
-    filter_string         = CharField(max_length=100, blank=True, null=True) #TODO: idem (see ListViewState too)
-    relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #TODO: rename to 'relation_type' ???  use 'name' to store pk instead ????
-    relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ?? (no relation inheritage)
-
-    _customfield = None
-    _functionfield = None
-    _volatile_render = None
-    _listview_css_class = None
-    _header_listview_css_class = None
-
-    def __unicode__(self):
-        return u"<HeaderFilterItem: order: %s, name: %s, title: %s>" % (
-                    self.order, self.name, self.title
-                )
-
-    class Meta:
-        app_label = 'creme_core'
-        ordering = ('order',)
-
-    #class ValueError(Exception):
-        #pass
-
-    _CF_PATTERNS = {
-            CustomField.BOOL:       '%s__value__creme-boolean',
-            CustomField.DATETIME:   '%s__value__range', #TODO: quick search overload this, to use gte/lte when it is needed
-            CustomField.ENUM:       '%s__value__exact',
-            CustomField.MULTI_ENUM: '%s__value__exact',
-        }
-
-    _CF_CSS = {
-        CustomField.DATETIME:   DateTimeField,
-        CustomField.INT:        PositiveIntegerField,
-        CustomField.FLOAT:      DecimalField
-    }
-
-    @classmethod
-    def build_4_customfield(cls, customfield):
-        pattern = cls._CF_PATTERNS.get(customfield.field_type, '%s__value__icontains')
-
-        return HeaderFilterItem(name=unicode(customfield.id),
-                                title=customfield.name,
-                                type=HFI_CUSTOM,
-                                has_a_filter=True,
-                                editable=False, #TODO: make it editable
-                                sortable=False, #TODO: make it sortable
-                                filter_string=pattern % customfield.get_value_class().get_related_name(),
-                               )
-
-    @staticmethod
-    def build_4_field(model, name):
-        try:
-            field_info = get_model_field_info(model, name, silent=False)
-        except FieldDoesNotExist as e:
-            logger.warn('HeaderFilterItem.build_4_field(): "%s"', e)
-            return None
-
-        field = field_info[0]['field']
-        has_a_filter = True
-        sortable = True
-        pattern = "%s__icontains"
-
-        if isinstance(field, ForeignKey):
-            if len(field_info) == 1:
-                pattern = "%s"
-
-                if issubclass(field.rel.to, CremeEntity):
-                    pattern = '%s__header_filter_search_field__icontains'
-            else:
-                field = field_info[1]['field'] #The sub-field is considered as the main field
-
-        if isinstance(field, (DateField, DateTimeField)):
-            pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
-        elif isinstance(field, BooleanField):
-            pattern = "%s__creme-boolean"
-        #elif isinstance(field, ManyToManyField) and len(field_info) > 1:
-        elif isinstance(field, ManyToManyField):
-            #pattern = "%s__in"
-            has_a_filter = False #TODO: manage like ForeignKey...
-            sortable = False
-
-        return HeaderFilterItem(name=name,
-                                title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
-                                type=HFI_FIELD,
-                                has_a_filter=has_a_filter,
-                                editable=True,
-                                #sortable=True,
-                                sortable=sortable,
-                                filter_string=pattern % name if has_a_filter else '',
-                               )
-
-    @staticmethod
-    def build_4_functionfield(func_field):
-        return HeaderFilterItem(name=func_field.name,
-                                title=unicode(func_field.verbose_name),
-                                type=HFI_FUNCTION,
-                                has_a_filter=func_field.has_filter,
-                                is_hidden=func_field.is_hidden,
-                                editable=False,
-                                filter_string='',
-                               )
-
-    @staticmethod
-    def build_4_relation(rtype):
-        return HeaderFilterItem(name=unicode(rtype.id),
-                                title=rtype.predicate,
-                                type=HFI_RELATION,
-                                has_a_filter=True,
-                                editable=False ,
-                                filter_string="",
-                                relation_predicat=rtype,
-                               )
-
-    def get_customfield(self):
-        assert self.type == HFI_CUSTOM
-
-        if self._customfield is None:
-            logger.debug('HeaderFilterItem.get_customfield(): cache MISS for id=%s', self.id)
-            self._customfield = CustomField.objects.get(pk=self.name)
-        else:
-            logger.debug('HeaderFilterItem.get_customfield(): cache HIT for id=%s', self.id)
-
-        return self._customfield
-
-    def get_functionfield(self):
-        assert self.type == HFI_FUNCTION
-
-        if self._functionfield is None:
-            logger.debug('HeaderFilterItem.get_functionfield(): cache MISS for id=%s', self.id)
-            #TODO what if function_field is None ?
-            self._functionfield = self.header_filter.entity_type.model_class().function_fields.get(self.name)
-        else:
-            logger.debug('HeaderFilterItem.get_functionfield(): cache HIT for id=%s', self.id)
-
-        return self._functionfield
-
-    def _get_listview_css_class(self, listview_css_class_attribute):
-        listview_css_class = getattr(self, listview_css_class_attribute)
-        if listview_css_class is None:
-            from ..gui.field_printers import field_printers_registry
-            registry_getter = getattr(field_printers_registry, 'get%s_for_field' % listview_css_class_attribute)
-            if self.type == HFI_FIELD:
-                model = self.header_filter.entity_type.model_class()
-                field_class = get_model_field_info(model, self.name)[-1:][0]['field'].__class__
-            elif self.type == HFI_CUSTOM:
-                cf = self.get_customfield()
-                field_class = self._CF_CSS.get(cf.field_type, None)
-            else:
-                field_class = None
-            listview_css_class = registry_getter(field_class)
-            setattr(self, listview_css_class_attribute, listview_css_class)
-        return listview_css_class
-
-    @property
-    def listview_css_class(self):
-        return self._get_listview_css_class('_listview_css_class')
-
-    @property
-    def header_listview_css_class(self):
-        return self._get_listview_css_class('_header_listview_css_class')
-
-    @property
-    def error(self): #TODO: map of validators
-        if self.type == HFI_FIELD:
-            model = self.header_filter.entity_type.model_class()
-
-            try:
-                get_model_field_info(model, self.name, silent=False)
-            except FieldDoesNotExist as e:
-                return unicode(e)
-
-    @property
-    def volatile_render(self):
-        assert self.type == HFI_VOLATILE
-        assert self._volatile_render is not None
-        return self._volatile_render
-
-    @volatile_render.setter
-    def volatile_render(self, volatile_render):
-        """@param volatile_render A 'function' that takes one parameter:
-                                  the entity display on the current list line.
-        The instance type must be 'HFI_VOLATILE'.
-        """
-        assert self.type == HFI_VOLATILE
-        self._volatile_render = volatile_render
-
-
-_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'),
-                               type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False,
-                              )
-
-@receiver(pre_delete, sender=RelationType)
-def _delete_relationtype_hfi(sender, instance, **kwargs):
-    #NB: None: because with symmetric relation_type FK is cleaned
-    HeaderFilterItem.objects.filter(type=HFI_RELATION, relation_predicat=None).delete()
-
-@receiver(pre_delete, sender=CustomField)
-def _delete_customfield_hfi(sender, instance, **kwargs):
-    HeaderFilterItem.objects.filter(type=HFI_CUSTOM, name=instance.id).delete()
+        for cell_cls, cell_group in cell_groups.iteritems():
+            cell_cls.populate_entities(cell_group, entities, user)

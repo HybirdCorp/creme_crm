@@ -38,7 +38,7 @@ class Field(CremeModel):
     name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
     title      = CharField(max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
-    type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
+    type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> see RFT_* in constants #Add in choices ?
     selected   = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
     sub_report = ForeignKey("Report", blank=True, null=True).set_tags(viewable=False) #Sub report
 
@@ -66,16 +66,6 @@ class Field(CremeModel):
                 self.type == other.type and
                 self.selected == other.selected and
                 self.sub_report_id == other.sub_report_id)
-
-    #@staticmethod
-    #def get_instance_from_hf_item(hf_item):
-        #"""
-            #@returns : A Field instance built from an HeaderFilterItem instance
-        #"""
-        #if hf_item.type == HFI_RELATION:
-            #return Field(name=hf_item.relation_predicat_id, title=hf_item.title, order=hf_item.order, type=hf_item.type)
-        #else:
-            #return Field(name=hf_item.name, title=hf_item.title, order=hf_item.order, type=hf_item.type)
 
     @property
     def hand(self):
@@ -201,7 +191,7 @@ class Report(CremeEntity):
             new_graph.report = self
             new_graph.save()
 
-    #TODO: add a similar HeaderFilterItem type in creme_core (& so move this code in core)
+    #TODO: add a similar EntityCell type in creme_core (& so move this code in core)
     @staticmethod
     def get_related_fields_choices(model):
         allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead

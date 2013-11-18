@@ -24,7 +24,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilter
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -55,16 +56,17 @@ class Populator(BasePopulator):
         else:
             logger.info("A Folder with title 'Creme' already exists => no re-creation")
 
-        hf = HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Document, name='title'),
-                      HeaderFilterItem.build_4_field(model=Document, name='folder__title'),
-                     ])
-
-        hf = HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Folder, name='title'),
-                      HeaderFilterItem.build_4_field(model=Folder, name='description'),
-                      HeaderFilterItem.build_4_field(model=Folder, name='category__name'),
-                     ])
+        HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document,
+                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                                        (EntityCellRegularField, {'name': 'folder__title'}),
+                                       ]
+                                )
+        HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder,
+                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                                        (EntityCellRegularField, {'name': 'description'}),
+                                        (EntityCellRegularField, {'name': 'category__name'}),
+                                       ]
+                           )
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Folder)
         BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)

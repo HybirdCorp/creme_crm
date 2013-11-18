@@ -14,7 +14,6 @@ try:
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
             EntityFilter, EntityFilterCondition,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
-    from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
     from creme.creme_core.utils.meta import get_verbose_field_name
     from creme.creme_core.tests.base import skipIfNotInstalled
 
@@ -81,10 +80,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = Field.objects.create
-        report.columns = [create_field(name='name',         title=get_verbose_field_name(Invoice, 'name'),         order=1, type=HFI_FIELD),
-                          create_field(name=self.rtype.id,  title=unicode(self.rtype),                             order=2, type=HFI_RELATION),
-                          create_field(name='total_no_vat', title=get_verbose_field_name(Invoice, 'total_no_vat'), order=3, type=HFI_FIELD),
-                          create_field(name='issuing_date', title=get_verbose_field_name(Invoice, 'issuing_date'), order=4, type=HFI_FIELD),
+        report.columns = [create_field(name='name',         title=get_verbose_field_name(Invoice, 'name'),         order=1, type=RFT_FIELD),
+                          create_field(name=self.rtype.id,  title=unicode(self.rtype),                             order=2, type=RFT_RELATION),
+                          create_field(name='total_no_vat', title=get_verbose_field_name(Invoice, 'total_no_vat'), order=3, type=RFT_FIELD),
+                          create_field(name='issuing_date', title=get_verbose_field_name(Invoice, 'issuing_date'), order=4, type=RFT_FIELD),
                          ]
 
         #TODO: we need a helper ReportGraph.create() ??
@@ -1550,7 +1549,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         rtype_id = self.rtype.id
         response = self.client.post(self._build_add_block_url(rgraph),
                                     data={'graph':           rgraph.name,
-                                          'volatile_column': '%s|%s' % (rtype_id, HFI_RELATION),
+                                          'volatile_column': '%s|%s' % (rtype_id, RFT_RELATION),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1559,11 +1558,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, HFI_RELATION),
+        self.assertEqual(u'instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
                          item.block_id
                         )
         self.assertEqual(u'%s - %s' % (rgraph.name, self.rtype), item.verbose)
-        self.assertEqual('%s|%s' % (rtype_id, HFI_RELATION), item.data)
+        self.assertEqual('%s|%s' % (rtype_id, RFT_RELATION), item.data)
 
     #def test_add_graph_instance_block03(self): #TODO: volatile field
 

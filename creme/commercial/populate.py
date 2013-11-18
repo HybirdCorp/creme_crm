@@ -23,8 +23,9 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation,
-                               SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import (RelationType, CremePropertyType,
+    BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -97,19 +98,22 @@ class Populator(BasePopulator):
                 BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
 
-        hf = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Act, name='name'),
-                      HeaderFilterItem.build_4_field(model=Act, name='expected_sales'),
-                      HeaderFilterItem.build_4_field(model=Act, name='due_date'),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'expected_sales'}),
+                              (EntityCellRegularField, {'name': 'due_date'}),
+                             ],
+                 )
+        create_hf(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+                 )
+        create_hf(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'segment'}),
+                             ]
+                 )
 
-        hf = HeaderFilter.create(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Strategy, name='name')])
-
-        hf = HeaderFilter.create(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern)
-        hf.set_items([HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='name'),
-                      HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='segment'),
-                     ])
 
         ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
 

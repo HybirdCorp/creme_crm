@@ -23,9 +23,9 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import (RelationType, SearchConfigItem,
-                               BlockDetailviewLocation, BlockPortalLocation,
-                               ButtonMenuItem, HeaderFilterItem, HeaderFilter)
+        BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
@@ -52,22 +52,24 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
                             (REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
 
-        hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
-        hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name')])
-
-        hf = HeaderFilter.create(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign)
-        hf.set_items([HeaderFilterItem.build_4_field(model=EmailCampaign, name='name')])
-
-        hf   = HeaderFilter.create(pk='emails-hf_template', name=_(u"Email template view"), model=EmailTemplate)
-        hf.set_items([HeaderFilterItem.build_4_field(model=EmailTemplate, name='name'),
-                      HeaderFilterItem.build_4_field(model=EmailTemplate, name='subject'),
-                     ])
-
-        hf   = HeaderFilter.create(pk='emails-hf_email', name=_(u"Email view"), model=EntityEmail)
-        hf.set_items([HeaderFilterItem.build_4_field(model=EntityEmail, name='sender'),
-                      HeaderFilterItem.build_4_field(model=EntityEmail, name='recipient'),
-                      HeaderFilterItem.build_4_field(model=EntityEmail, name='subject'),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+                 )
+        create_hf(pk='emails-hf_campaign', name=_(u"Campaign view"), model=EmailCampaign,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+                 )
+        create_hf(pk='emails-hf_template', name=_(u"Email template view"), model=EmailTemplate,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'subject'}),
+                             ],
+                 )
+        create_hf(pk='emails-hf_email', name=_(u"Email view"), model=EntityEmail,
+                  cells_desc=[(EntityCellRegularField, {'name': 'sender'}),
+                              (EntityCellRegularField, {'name': 'recipient'}),
+                              (EntityCellRegularField, {'name': 'subject'}),
+                             ],
+                 )
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=MailingList)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,     order=40,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)

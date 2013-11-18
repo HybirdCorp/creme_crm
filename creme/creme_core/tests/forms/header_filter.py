@@ -4,9 +4,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import FieldTestCase
-    from creme.creme_core.forms.header_filter import HeaderFilterItemsField
-    from creme.creme_core.models.header_filter import (HeaderFilterItem,
-            HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION)
+    from creme.creme_core.forms.header_filter import EntityCellsField
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField
 
     from creme.persons.models import Contact
@@ -14,21 +14,21 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-__all__ = ('HeaderFilterItemsFieldTestCase',)
+__all__ = ('EntityCellsFieldTestCase',)
 
 
-class HeaderFilterItemsFieldTestCase(FieldTestCase):
+class EntityCellsFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
         cls.ct_contact = ContentType.objects.get_for_model(Contact)
 
     def test_clean_empty_required(self):
-        clean = HeaderFilterItemsField(required=True, content_type=self.ct_contact).clean
-        self.assertFieldValidationError(HeaderFilterItemsField, 'required', clean, None)
-        self.assertFieldValidationError(HeaderFilterItemsField, 'required', clean, '')
+        clean = EntityCellsField(required=True, content_type=self.ct_contact).clean
+        self.assertFieldValidationError(EntityCellsField, 'required', clean, None)
+        self.assertFieldValidationError(EntityCellsField, 'required', clean, '')
 
     def test_clean_empty_not_required(self):
-        field = HeaderFilterItemsField(required=False, content_type=self.ct_contact)
+        field = EntityCellsField(required=False, content_type=self.ct_contact)
 
         with self.assertNoException():
             value = field.clean(None)
@@ -36,24 +36,26 @@ class HeaderFilterItemsFieldTestCase(FieldTestCase):
         self.assertEqual([], value)
 
     def test_clean_invalid_choice(self):
-        field = HeaderFilterItemsField(content_type=self.ct_contact)
-        self.assertFieldValidationError(HeaderFilterItemsField, 'invalid', field.clean,
+        field = EntityCellsField(content_type=self.ct_contact)
+        self.assertFieldValidationError(EntityCellsField, 'invalid', field.clean,
                                         'rfield-first_name,rfield-unknown'
                                        )
 
     def test_ok01(self):
         "One regular field"
-        field = HeaderFilterItemsField(content_type=self.ct_contact)
-        items = field.clean('rfield-first_name')
-        self.assertEqual(1, len(items))
+        field = EntityCellsField(content_type=self.ct_contact)
+        cells = field.clean('rfield-first_name')
+        self.assertEqual(1, len(cells))
 
-        hfitem = items[0]
-        self.assertIsInstance(hfitem, HeaderFilterItem)
-        self.assertEqual('first_name',            hfitem.name)
-        self.assertEqual(HFI_FIELD,               hfitem.type)
-        self.assertEqual('first_name__icontains', hfitem.filter_string)
-        self.assertIsNone(hfitem.order)
-        self.assertIs(hfitem.is_hidden, False)
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellRegularField)
+        self.assertEqual('first_name',            cell.value)
+        self.assertEqual('first_name__icontains', cell.filter_string)
+        self.assertIs(cell.is_hidden, False)
+
+    def assertCellOK(self, cell, expected_cls, expected_value):
+        self.assertIsInstance(cell, expected_cls)
+        self.assertEqual(expected_value, cell.value)
 
     def test_ok02(self):
         "All types of columns"
@@ -66,16 +68,15 @@ class HeaderFilterItemsFieldTestCase(FieldTestCase):
                                                 )
         funcfield = Contact.function_fields.get('get_pretty_properties')
 
-        field = HeaderFilterItemsField(content_type=self.ct_contact)
-        items = field.clean('rtype-%s,rfield-last_name,ffield-%s,cfield-%s,rfield-first_name' % (
+        field = EntityCellsField(content_type=self.ct_contact)
+        cells = field.clean('rtype-%s,rfield-last_name,ffield-%s,cfield-%s,rfield-first_name' % (
                                     loves.id, funcfield.name, customfield.id,
                                 )
                            )
-        self.assertEqual([(loves.id,            HFI_RELATION),
-                          ('last_name',         HFI_FIELD),
-                          (funcfield.name,      HFI_FUNCTION),
-                          (str(customfield.id), HFI_CUSTOM),
-                          ('first_name',        HFI_FIELD),
-                        ],
-                        [(item.name, item.type) for item in items]
-                       )
+
+        self.assertEqual(5, len(cells))
+        self.assertCellOK(cells[0], EntityCellRelation,     loves.id)
+        self.assertCellOK(cells[1], EntityCellRegularField, 'last_name')
+        self.assertCellOK(cells[2], EntityCellFunctionField, funcfield.name)
+        self.assertCellOK(cells[3], EntityCellCustomField,   str(customfield.id))
+        self.assertCellOK(cells[4], EntityCellRegularField, 'first_name')

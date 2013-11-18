@@ -24,9 +24,9 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
-from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
 from creme.creme_core.utils.meta import get_verbose_field_name
 
+from ..constants import RFT_RELATION, RFT_FIELD
 from .report import Report
 
 
@@ -98,10 +98,10 @@ class ReportGraph(CremeEntity):
         if volatile_field: #TODO: unit test
             assert volatile_rtype is None
             verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
-            key = u"%s|%s" % (volatile_field, HFI_FIELD)
+            key = u"%s|%s" % (volatile_field, RFT_FIELD)
         elif volatile_rtype:
             verbose = unicode(volatile_rtype)
-            key = u"%s|%s" % (volatile_rtype.id, HFI_RELATION)
+            key = u"%s|%s" % (volatile_rtype.id, RFT_RELATION)
         else:
             verbose = ugettext(u'None')
             key = ''

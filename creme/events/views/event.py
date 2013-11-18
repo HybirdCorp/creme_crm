@@ -24,9 +24,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
-#from creme.creme_core.models import CremeEntity
+from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVolatile
+from creme.creme_core.models import RelationType
 from creme.creme_core.models.entity import EntityAction
-from creme.creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.queries import get_first_or_None
@@ -95,12 +95,18 @@ def build_get_actions(event, entity):
     return _get_actions
 
 class ListViewPostProcessor(object):
-    _HIDDEN_HFI_DESC = (('relations_invited',  u'Invited',  REL_SUB_IS_INVITED_TO),
-                        ('relations_accepted', u'Accepted', REL_SUB_ACCEPTED_INVITATION),
-                        ('relations_refused',  u'Refused',  REL_SUB_REFUSED_INVITATION),
-                        ('relations_came',     u'Came',     REL_SUB_CAME_EVENT),
-                        ('relations_notcame',  u'Not come', REL_SUB_NOT_CAME_EVENT),
-                       )
+    #_HIDDEN_CELL_DESC = (('relations_invited',  u'Invited',  REL_SUB_IS_INVITED_TO),
+                         #('relations_accepted', u'Accepted', REL_SUB_ACCEPTED_INVITATION),
+                         #('relations_refused',  u'Refused',  REL_SUB_REFUSED_INVITATION),
+                         #('relations_came',     u'Came',     REL_SUB_CAME_EVENT),
+                         #('relations_notcame',  u'Not come', REL_SUB_NOT_CAME_EVENT),
+                        #)
+    _RTYPE_IDS = (REL_SUB_IS_INVITED_TO,
+                  REL_SUB_ACCEPTED_INVITATION,
+                  REL_SUB_REFUSED_INVITATION,
+                  REL_SUB_CAME_EVENT,
+                  REL_SUB_NOT_CAME_EVENT,
+                 )
 
     def __init__(self, event):
         self.event = event
@@ -108,22 +114,14 @@ class ListViewPostProcessor(object):
 
     def __call__(self, context, request):
         self.user = request.user
-        hfitems = context['header_filters'].selected.items
+        cells = context['header_filters'].selected.cells
+        rtypes = RelationType.objects.filter(pk__in=self._RTYPE_IDS)
 
         #NB: add relations items to use the pre-cache system of HeaderFilter (TO: problem: retrieve other related events too)
-        hfitems.extend(HeaderFilterItem(name=name, title=title, is_hidden=True,
-                                        type=HFI_RELATION, relation_predicat_id=type_id,
-                                       )
-                            for name, title, type_id in self._HIDDEN_HFI_DESC
-                      )
+        cells.extend(EntityCellRelation(rtype=rtype, is_hidden=True) for rtype in rtypes)
 
-        hfi = HeaderFilterItem(name='invitation_management', title=_(u'Invitation'), type=HFI_VOLATILE)
-        hfi.volatile_render = self.invitation_render
-        hfitems.append(hfi)
-
-        hfi = HeaderFilterItem(name='presence_management', title=_(u'Presence'), type=HFI_VOLATILE)
-        hfi.volatile_render = self.presence_render
-        hfitems.append(hfi)
+        cells.append(EntityCellVolatile(value='invitation_management', title=_(u'Invitation'), render_func=self.invitation_render))
+        cells.append(EntityCellVolatile(value='presence_management',   title=_(u'Presence'),   render_func=self.presence_render))
 
         for entity in context['entities'].object_list:
             entity.get_actions = build_get_actions(self.event, entity)
@@ -187,7 +185,7 @@ class ListViewPostProcessor(object):
                             'selected' if status == current_status else '',
                             status_name
                         ) for status, status_name in PRES_STATUS_MAP.iteritems()
-                    )
+                     )
         select.append('</select>')
 
         return u''.join(select)

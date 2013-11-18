@@ -23,17 +23,16 @@ from functools import partial
 import logging
 
 from django.db.models import Q, FieldDoesNotExist, DateField, DateTimeField
-#from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
-from ..models import RelationType, Relation, CustomField #CustomFieldEnumValue
-from ..models.header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
+        EntityCellFunctionField, EntityCellRelation)
+from ..models import RelationType, Relation, CustomField
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
 from ..utils.meta import get_model_field_info
 
-#TODO: rename to listview_state.py
 
 logger = logging.getLogger(__name__)
 
@@ -43,67 +42,6 @@ def simple_value(value):
             return value[0]
         return value
     return '' #TODO : Verify same semantic than "null" sql
-
-#def int_value(value):
-    #try:
-        #return int(value)
-    #except ValueError:
-        #return 0
-
-#def string_value(value): #todo: rename to regex_value ???
-    #if value and isinstance(value, basestring):
-        #return value
-    #return '.*'
-
-#def bool_value(value):
-    #return bool(int_value(value))
-
-#NB: This gather all django/creme query terms for filtering.
-#    We set simple_value function to stay compatible with the API
-#QUERY_TERMS_FUNC = {
-    ##'exact':            lambda x: x,
-    ##'iexact':           simple_value,
-    ##'contains':         simple_value,
-    ##'icontains':        simple_value,
-    ##'gt':               simple_value,
-    ##'gte':              simple_value,
-    ##'lt':               simple_value,
-    ##'lte':              simple_value,
-    #'in':               lambda x: x if hasattr(x, '__iter__') else [],
-    ##'startswith':       simple_value,
-    ##'istartswith':      simple_value,
-    ##'endswith':         simple_value,
-    ##'iendswith':        simple_value,
-    ##'range':            simple_value,
-    #'year':             int_value,
-    #'month':            int_value,
-    #'day':              int_value,
-    #'week_day':         int_value,
-    #'isnull':           bool,
-    ##'search':           simple_value,
-    #'regex':            string_value,
-    #'iregex':           string_value,
-    #'creme-boolean':    bool_value,
-#}
-
-#COMMENTED on 4 april 2013
-#def get_field_name_from_pattern(pattern):
-    #"""
-        #Gives field__sub_field for field__sub_field__pattern
-        #where pattern is in QUERY_TERMS_FUNC keys
-        #>>> get_field_name_from_pattern('foo__bar__icontains')
-        #'foo__bar'
-        #>>> get_field_name_from_pattern('foo__bar')
-        #'foo__bar'
-    #"""
-    #patterns = pattern.split('__')
-    #keys = QUERY_TERMS_FUNC.keys()
-    #for p in patterns:
-        #if p in keys:
-            #patterns.remove(p)
-            #break#Logically we should have only one query pattern
-
-    #return "__".join(patterns)
 
 
 class ListViewState(object):
@@ -149,7 +87,7 @@ class ListViewState(object):
         kwargs['url'] = request.path
         return ListViewState(**kwargs)
 
-    def handle_research(self, request, header_filter_items):
+    def handle_research(self, request, cells):
         "Handle strings to use in order to filter (strings are in the request)."
         if self._search:
             if not request.POST and self.research:
@@ -158,40 +96,26 @@ class ListViewState(object):
             REQUEST = request.REQUEST
             list_session = []
 
-            for hfi in header_filter_items:
-                if not hfi.has_a_filter:
+            for cell in cells:
+                if not cell.has_a_filter:
                     continue
 
-                name = hfi.name
+                cell_value = cell.value
 
-                if not REQUEST.has_key(name):
+                if not REQUEST.has_key(cell_value): #TODO: key with type + value
                     continue
 
-                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(name)]
+                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(cell_value)]
 
                 if filtered_attr and any(filtered_attr):
-                    list_session.append((name, hfi.pk, hfi.type, hfi.filter_string, filtered_attr))
+                    #list_session.append((cell.type, cell_value, filtered_attr))
+                    list_session.append((cell.type_id, cell_value, filtered_attr))
 
             self.research = list_session
         else:
             self.research = ()
 
     def _build_condition(self, pattern, value):
-        #words = pattern.split('__')
-        #get = QUERY_TERMS.get
-        #qterm = None
-
-        ##NB: reversed because in general the pattern is at the end
-        #for word in reversed(words):
-            #qterm = get(word)
-
-            #if qterm is not None:
-                #break
-
-        #return {'__'.join('exact' if word == 'creme-boolean' else word
-                            #for word in words
-                         #): QUERY_TERMS_FUNC.get(qterm, simple_value)(value)
-               #}
         return {pattern.replace('creme-boolean', 'exact'): simple_value(value)}
 
     def _date_or_None(self, value, index):
@@ -214,52 +138,53 @@ class ListViewState(object):
         don = partial(self._datetime_or_None, value=value)
         return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
-    def _get_item_by_pk(self, hf_items, pk):
+    def _get_cell(self, cells, cell_type_id, cell_value): #TODO: move in EntityCellsList ??
         try:
-            return next(hfi for hfi in hf_items if hfi.pk == pk)
+            return next(cell for cell in cells
+                            if cell.value == cell_value and
+                               cell.type_id == cell_type_id
+                       )
         except StopIteration:
-            logger.warn('No HeaderFilterItem with pk=%s', pk)
+            logger.warn('No EntityCell with type=%s name=%s', cell_type, cell_value)
 
-    #TODO: move some parts of code to HeaderFilterItem (more object code) ?
+    #TODO: move some parts of code to EntityCell (more object code) ?
     #TODO: stop using 'filter_string' (and update pickled tuple)
-    def get_q_with_research(self, model, hf_items):
+    def get_q_with_research(self, model, cells):
         query = Q()
         cf_searches = defaultdict(list)
 
         for item in self.research:
-            name, hfi_pk, hfi_type, pattern, value = item #TODO: only hfi_pk & value are really useful
-            hf_item = self._get_item_by_pk(hf_items, hfi_pk)
+            cell_type_id, cell_value, value = item
+            cell = self._get_cell(cells, cell_type_id, cell_value)
 
-            if hf_item is None:
+            if cell is None:
                 continue
 
-            if hfi_type == HFI_FIELD:
+            if isinstance(cell, EntityCellRegularField):
                 try:
-                    field = get_model_field_info(model, name, silent=False)[-1]['field']
+                    field = get_model_field_info(model, cell_value, silent=False)[-1]['field']
                 except FieldDoesNotExist:
-                    logger.warn('Field does not exist: %s', name)
+                    logger.warn('Field does not exist: %s', cell_value)
                     continue
                 else:
                     #TODO: Hacks for dates => refactor
                     if isinstance(field, DateTimeField):
-                        condition = self._build_datetime_range_dict(name, value)
+                        condition = self._build_datetime_range_dict(cell_value, value)
                     elif isinstance(field, DateField):
-                        condition = self._build_date_range_dict(name, value)
+                        condition = self._build_date_range_dict(cell_value, value)
                     else:
-                        condition = self._build_condition(pattern, value)
+                        #condition = self._build_condition(pattern, value)
+                        condition = self._build_condition(cell.filter_string, value)
 
                     query &= Q(**condition)
-            elif hfi_type == HFI_RELATION:
-                rct = hf_item.relation_content_type
-                model_class = rct.model_class() if rct is not None else Relation
-
-                query &= model_class.filter_in(model, hf_item.relation_predicat, value[0])
-            elif hfi_type == HFI_FUNCTION:
-                if hf_item.has_a_filter:
-                    query &= model.function_fields.get(name).filter_in_result(value[0])
-            elif hfi_type == HFI_CUSTOM:
-                cf = CustomField.objects.get(pk=name)
-                cf_searches[cf.field_type].append((cf, pattern, value))
+            elif isinstance(cell, EntityCellRelation):
+                query &= Relation.filter_in(model, cell.relation_type, value[0])
+            elif isinstance(cell, EntityCellFunctionField):
+                if cell.has_a_filter:
+                    query &= cell.function_field.filter_in_result(value[0])
+            elif isinstance(cell, EntityCellCustomField):
+                cf = cell.custom_field
+                cf_searches[cf.field_type].append((cf, cell.filter_string, value))
 
         for field_type, searches in cf_searches.iteritems():
             if len(searches) == 1:
@@ -299,33 +224,26 @@ class ListViewState(object):
 
     #TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
-    #       - HeaderFilterItem builders
+    #       - EntityCell builders
     #TODO: beware, sorting by FK simply sort by id (Civility etc...) => can we improve that ??
-    #def set_sort(self, model, field_name, order):
-    def set_sort(self, model, header_filter_items, field_name, order):
+    def set_sort(self, model, cells, field_name, order):
         "@param order string '' or '-'(reverse order)."
         sort_field = 'id'
         # extra field that is used to internally create the final query the
         # sort order is toggled by comparing sorting field and column name
         # (if it's the same '' <-> '-'), so we can not merge this extra field
         # in sort_field, or the toggling we never happen
-        # (hfi.name == sort_field # ==> hfi.name != sort_field +'XXX')
+        # (cell.name == sort_field # ==> cell.name != sort_field +'XXX')
         extra_sort_field = ''
 
         if field_name:
-            #try:
-                #field = model._meta.get_field(field_name)
-            #except FieldDoesNotExist as e:
-                #logger.warn('ListViewState.set_sort(): %s', e)
-            #else:
-                #sort_field = field_name
             if field_name != 'id': #avoids annoying log ('id' can not be related to a column)
-                for hfi in header_filter_items:
-                    if hfi.name == field_name:
-                        if hfi.sortable:
+                for cell in cells:
+                    if cell.value == field_name: #TODO: use type/value as id instead
+                        if cell.sortable:
                             sort_field = field_name
 
-                            if hfi.filter_string.endswith('__header_filter_search_field__icontains'):
+                            if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                                 extra_sort_field = '__header_filter_search_field'
 
                         break
@@ -350,43 +268,40 @@ class ListViewState(object):
 #-----------------------------------------------------------------------------
 
 class _ModelSmartColumnsRegistry(object):
-    __slots__ = ('_items', '_relationtype')
+    __slots__ = ('_cells', '_relationtype')
 
     def __init__(self):
-        self._items = []
+        self._cells = []
         self._relationtype = None #cache
 
-    def _get_items(self, model):
-        items = []
+    #TODO: factorise with json deserialisation of EntityCells
+    def _get_cells(self, model):
+        cells = []
 
-        for hf_type, data in self._items:
-            item = None
+        for cell_cls, data in self._cells:
+            cell = None
 
-            if hf_type == HFI_FIELD:
-                item = HeaderFilterItem.build_4_field(model=model, name=data)
-            elif hf_type == HFI_FUNCTION:
-                func_field = model.function_fields.get(data)
-
-                if func_field is None:
-                    logger.warn('SmartColumnsRegistry: function field "%s" does not exist', data)
-                else:
-                    item = HeaderFilterItem.build_4_functionfield(func_field)
-            else: #HFI_RELATION
+            if cell_cls is EntityCellRegularField:
+                cell = EntityCellRegularField.build(model=model, name=data)
+            elif cell_cls is EntityCellFunctionField:
+                cell = EntityCellFunctionField.build(model, func_field_name=data)
+            else: #EntityCellRelation
                 rtype = self._get_relationtype(data)
 
                 if rtype is False:
                     logger.warn('SmartColumnsRegistry: relation type "%s" does not exist', data)
                 else:
-                    item = HeaderFilterItem.build_4_relation(rtype)
+                    cell = EntityCellRelation(rtype)
+
             # Has no sense here:
-            #  HFI_ACTIONS : not configurable in HeaderFilter form
-            #  HFI_CUSTOM : dynamically created by user
+            #  EntityCellActions : not configurable in HeaderFilter form
+            #  EntityCellCustomField : dynamically created by user
             #TODO: other types
 
-            if item is not None:
-                items.append(item)
+            if cell is not None:
+                cells.append(cell)
 
-        return items
+        return cells
 
     def _get_relationtype(self, rtype_id):
         rtype = self._relationtype
@@ -401,15 +316,15 @@ class _ModelSmartColumnsRegistry(object):
         return rtype
 
     def register_function_field(self, func_field_name):
-        self._items.append((HFI_FUNCTION, func_field_name))
+        self._cells.append((EntityCellFunctionField, func_field_name))
         return self
 
     def register_field(self, field_name):
-        self._items.append((HFI_FIELD, field_name))
+        self._cells.append((EntityCellRegularField, field_name))
         return self
 
     def register_relationtype(self, rtype_id):
-        self._items.append((HFI_RELATION, rtype_id))
+        self._cells.append((EntityCellRelation, rtype_id))
         return self
 
 
@@ -417,8 +332,8 @@ class SmartColumnsRegistry(object):
     def __init__(self):
         self._model_registries = defaultdict(_ModelSmartColumnsRegistry)
 
-    def get_items(self, model):
-        return self._model_registries[model]._get_items(model)
+    def get_cells(self, model):
+        return self._model_registries[model]._get_cells(model)
 
     def register_model(self, model):
         return self._model_registries[model]

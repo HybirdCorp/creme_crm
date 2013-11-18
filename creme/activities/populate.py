@@ -24,10 +24,10 @@ from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 from django.contrib.auth.models import User
 
+from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
-                                     BlockDetailviewLocation, BlockPortalLocation,
-                                     HeaderFilterItem, HeaderFilter,
-                                     EntityFilter, EntityFilterCondition)
+        BlockDetailviewLocation, BlockPortalLocation,
+        HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -90,15 +90,16 @@ class Populator(BasePopulator):
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),   type=phone_call_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'), type=phone_call_type, is_custom=False)
 
-        hf = HeaderFilter.create(pk='activities-hf_activity', name=_(u'Activity view'), model=Activity)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Activity, name='start'),
-                      HeaderFilterItem.build_4_field(model=Activity, name='title'),
-                      HeaderFilterItem.build_4_field(model=Activity, name='type'),
-                      HeaderFilterItem.build_4_relation(rtype=rt_obj_part_2_activity),
-                      HeaderFilterItem.build_4_relation(rtype=rt_obj_activity_subject),
-                      HeaderFilterItem.build_4_field(model=Activity, name='user'),
-                      HeaderFilterItem.build_4_field(model=Activity, name='end'),
-                     ])
+        HeaderFilter.create(pk='activities-hf_activity', name=_(u'Activity view'), model=Activity,
+                            cells_desc=[(EntityCellRegularField, {'name': 'start'}),
+                                        (EntityCellRegularField, {'name': 'title'}),
+                                        (EntityCellRegularField, {'name': 'type'}),
+                                        EntityCellRelation(rtype=rt_obj_part_2_activity),
+                                        EntityCellRelation(rtype=rt_obj_activity_subject),
+                                        (EntityCellRegularField, {'name': 'user'}),
+                                        (EntityCellRegularField, {'name': 'end'}),
+                                       ]
+                           )
 
         for pk, name, atype_id in ((EFILTER_MEETINGS,   _(u"Meetings"),    ACTIVITYTYPE_MEETING),
                                    (EFILTER_PHONECALLS, _(u"Phone calls"), ACTIVITYTYPE_PHONECALL),

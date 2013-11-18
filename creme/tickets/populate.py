@@ -23,9 +23,9 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import (RelationType, SearchConfigItem,
-                HeaderFilterItem, HeaderFilter,
-                BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import (RelationType, HeaderFilter,
+        SearchConfigItem, BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import (properties_block, relations_block,
                                      customfields_block, history_block)
@@ -55,20 +55,22 @@ class Populator(BasePopulator):
         for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
             create_if_needed(Criticity, {'pk': i}, name=name)
 
-        hf = HeaderFilter.create(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Ticket, name='title'),
-                      HeaderFilterItem.build_4_field(model=Ticket, name='status__name'),
-                      HeaderFilterItem.build_4_field(model=Ticket, name='priority__name'),
-                      HeaderFilterItem.build_4_field(model=Ticket, name='criticity__name'),
-                      HeaderFilterItem.build_4_field(model=Ticket, name='closing_date'),
-                     ])
-
-        hf = HeaderFilter.create(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate)
-        hf.set_items([HeaderFilterItem.build_4_field(model=TicketTemplate, name='title'),
-                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='status__name'),
-                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='priority__name'),
-                      HeaderFilterItem.build_4_field(model=TicketTemplate, name='criticity__name'),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
+                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                              (EntityCellRegularField, {'name': 'status__name'}),
+                              (EntityCellRegularField, {'name': 'priority__name'}),
+                              (EntityCellRegularField, {'name': 'criticity__name'}),
+                              (EntityCellRegularField, {'name': 'closing_date'}),
+                             ],
+                 )
+        create_hf(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate,
+                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                              (EntityCellRegularField, {'name': 'status__name'}),
+                              (EntityCellRegularField, {'name': 'priority__name'}),
+                              (EntityCellRegularField, {'name': 'criticity__name'}),
+                             ],
+                 )
 
         SearchConfigItem.create_if_needed(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 

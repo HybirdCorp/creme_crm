@@ -18,18 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.http import Http404
 from django.shortcuts import render
 from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import EntityCellActions
+from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.models.entity_filter import EntityFilterList
-from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 from .popup import inner_popup
@@ -58,7 +59,7 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
 
     list_view_state.extra_q = extra_q
     #TODO: method in ListViewState that returns the improved queryset
-    queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.items))
+    queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
 
     #return EntityCredentials.filter(request.user, queryset) \
                             #.distinct() \
@@ -140,9 +141,13 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     current_lvs.header_filter_id = hf.id
 
-    hf.build_items(show_actions)
-    current_lvs.handle_research(request, hf.items)
-    current_lvs.set_sort(model, hf.items,
+    cells = hf.cells
+
+    if show_actions:
+        cells.insert(0, EntityCellActions())
+
+    current_lvs.handle_research(request, cells)
+    current_lvs.set_sort(model, cells,
                          POST_get('sort_field', current_lvs.sort_field),
                          POST_get('sort_order', current_lvs.sort_order),
                         )
@@ -175,7 +180,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'extra_bt_templates': None, # () instead ???,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
-        'current_research_fields': [str(name_attribut) for (name_attribut, pk, type, pattern, value) in current_lvs.research],
+        #'current_research_fields': [str(name_attribut) for (name_attribut, pk, type, pattern, value) in current_lvs.research],
+        'current_research_fields': [cell_name for (cell_type, cell_name, value) in current_lvs.research], #TODO: use (type, name) as id
     }
 
     if extra_dict:
