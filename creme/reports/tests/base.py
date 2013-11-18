@@ -10,9 +10,10 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import CremePropertyType, CremeProperty, Relation, RelationType, Vat
-    from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
-            HFI_FIELD, HFI_RELATION, HFI_CALCULATED)
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.models import (CremePropertyType, CremeProperty,
+            HeaderFilter, Relation, RelationType, Vat)
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -29,6 +30,7 @@ try:
         from creme.opportunities.models import Opportunity, SalesPhase
         from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
+    from ..constants import RFT_FIELD, RFT_RELATION, RFT_CALCULATED
     from ..models import Field, Report
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -65,15 +67,14 @@ class BaseReportsTestCase(CremeTestCase):
         #self.tyrion = create_contact(first_name='Tyrion', last_name='Lannister')
 
     def _create_report(self, name='Report #1', efilter=None, extra_hfitems=()):
-        hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
+        cells = [EntityCellRegularField.build(model=Contact, name='last_name'),
+                 EntityCellRegularField.build(model=Contact, name='user'),
+                 EntityCellRelation(RelationType.objects.get(pk=REL_SUB_HAS)),
+                 EntityCellFunctionField(Contact.function_fields.get('get_pretty_properties')),
+                ]
+        cells.extend(extra_hfitems)
 
-        hf_items = [HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
-                    HeaderFilterItem.build_4_field(model=Contact, name='user'),
-                    HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_HAS)),
-                    HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
-                   ]
-        hf_items.extend(extra_hfitems)
-        hf.set_items(hf_items)
+        hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact, cells_desc=cells)
 
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':   self.user.pk,
@@ -92,7 +93,7 @@ class BaseReportsTestCase(CremeTestCase):
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         report.columns.add(Field.objects.create(name='last_name',
                                                 title=_(u'Last name'),
-                                                order=1, type=HFI_FIELD,
+                                                order=1, type=RFT_FIELD,
                                                )
                           )
 
@@ -103,7 +104,7 @@ class BaseReportsTestCase(CremeTestCase):
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         report.columns.add(Field.objects.create(name=u'name',
                                                 title=u'Name',
-                                                order=1, type=HFI_FIELD,
+                                                order=1, type=RFT_FIELD,
                                                )
                           )
 
@@ -132,7 +133,7 @@ class BaseReportsTestCase(CremeTestCase):
 
     def _create_reports(self):
         get_ct = ContentType.objects.get_for_model
-        create_field = partial(Field.objects.create, sub_report=None, selected=False, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, sub_report=None, selected=False, type=RFT_FIELD)
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         report_opp = self.report_opp = create_report(name="Report on opportunities", ct=get_ct(Opportunity))
@@ -144,23 +145,23 @@ class BaseReportsTestCase(CremeTestCase):
         report_invoice = self.report_invoice = create_report(name="Report on invoices", ct=get_ct(Invoice))
         report_invoice.columns = [
             create_field(name='name',           title="Name",                                              order=1),
-            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", type=HFI_CALCULATED, order=2),
+            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", type=RFT_CALCULATED, order=2),
           ]
 
         report_orga = self.report_orga = create_report(name="Organisations report", ct=get_ct(Organisation))
         report_orga.columns = [
             create_field(name='name',                    title="Name",                                                                                         order=1),
-            create_field(name=REL_OBJ_BILL_ISSUED,       title="has issued",                    selected=True, sub_report=report_invoice, type=HFI_RELATION,   order=2),
-            create_field(name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of",                                                        type=HFI_RELATION,   order=3),
-            create_field(name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity",                sub_report=report_opp,     type=HFI_RELATION,   order=4),
-            create_field(name='capital__min',            title="Minimum - Capital",                                                       type=HFI_CALCULATED, order=5),
+            create_field(name=REL_OBJ_BILL_ISSUED,       title="has issued",                    selected=True, sub_report=report_invoice, type=RFT_RELATION,   order=2),
+            create_field(name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of",                                                        type=RFT_RELATION,   order=3),
+            create_field(name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity",                sub_report=report_opp,     type=RFT_RELATION,   order=4),
+            create_field(name='capital__min',            title="Minimum - Capital",                                                       type=RFT_CALCULATED, order=5),
           ]
 
         report_contact = self.report_contact = create_report(name="Report on contacts", ct=get_ct(Contact))
         report_contact.columns = [
             create_field(name='last_name',         title="Last name",                                                                order=1),
             create_field(name='first_name',        title="First name",                                                               order=2),
-            create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by", selected=True, sub_report=report_orga, type=HFI_RELATION, order=3),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by", selected=True, sub_report=report_orga, type=RFT_RELATION, order=3),
           ]
 
     def _create_invoice(self, source, target, name="", total_vat=Decimal("0")):

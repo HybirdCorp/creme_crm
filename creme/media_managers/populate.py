@@ -23,8 +23,11 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation, BlockPortalLocation
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import (SearchConfigItem, HeaderFilter,
+        BlockDetailviewLocation, BlockPortalLocation)
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
@@ -44,13 +47,14 @@ class Populator(BasePopulator):
         create_if_needed(MediaCategory, {'pk': 2}, name=_(u"Organisation logo"),  is_custom=False)
         create_if_needed(MediaCategory, {'pk': 3}, name=_(u"Contact photograph"), is_custom=False)
 
-        hf = HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Image, name='name'),
-                      HeaderFilterItem.build_4_field(model=Image, name='image'),
-                      HeaderFilterItem.build_4_field(model=Image, name='description'),
-                      HeaderFilterItem.build_4_field(model=Image, name='user__username'),
-                      HeaderFilterItem.build_4_field(model=Image, name='categories'),
-                     ])
+        HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'image'}),
+                                        (EntityCellRegularField, {'name': 'description'}),
+                                        (EntityCellRegularField, {'name': 'user__username'}),
+                                        (EntityCellRegularField, {'name': 'categories'}),
+                                       ],
+                           )
 
         BlockDetailviewLocation.create(block_id=image_view_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,   model=Image)
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Image)

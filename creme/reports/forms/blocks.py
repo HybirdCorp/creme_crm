@@ -26,11 +26,11 @@ from django.forms import ChoiceField, CharField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType
-from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
 from creme.creme_core.forms.base import CremeForm
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.utils import creme_entity_content_types
 
+from ..constants import RFT_FIELD, RFT_RELATION
 from ..models import  ReportGraph
 
 
@@ -54,13 +54,13 @@ class GraphInstanceBlockForm(CremeForm):
         results = []
         targets = defaultdict(list)
 
-        for column in report.columns.filter(type__in=[HFI_FIELD, HFI_RELATION]):
+        for column in report.columns.filter(type__in=[RFT_FIELD, RFT_RELATION]):
             targets[column.type].append(column)
 
         cts = list(creme_entity_cts) #TODO: frozenset ??
         ct_get = ContentType.objects.get_for_model
 
-        for column in targets[HFI_FIELD]:
+        for column in targets[RFT_FIELD]:
             field_name = column.name.split('__', 1)[0]
 
             try:
@@ -69,15 +69,15 @@ class GraphInstanceBlockForm(CremeForm):
                 continue
 
             if field.get_internal_type() == 'ForeignKey' and ct_get(field.rel.to) in cts:
-                results.append((u"%s|%s" % (field_name, HFI_FIELD), column.title))
+                results.append((u"%s|%s" % (field_name, RFT_FIELD), column.title))
 
-        self.rtypes = rtypes = RelationType.objects.in_bulk([c.name for c in targets[HFI_RELATION]])
+        self.rtypes = rtypes = RelationType.objects.in_bulk([c.name for c in targets[RFT_RELATION]])
 
-        for column in targets[HFI_RELATION]:
+        for column in targets[RFT_RELATION]:
             name = column.name
 
             if rtypes.get(name):
-                results.append((u"%s|%s" % (name, HFI_RELATION), column.title))
+                results.append((u"%s|%s" % (name, RFT_RELATION), column.title))
 
         if not results:
             results = [("", ugettext(u"No available choice"))]
@@ -95,10 +95,10 @@ class GraphInstanceBlockForm(CremeForm):
             col_value, col_type = volatile_column.split('|')
             col_type = int(col_type)
 
-            if col_type == HFI_FIELD:
+            if col_type == RFT_FIELD:
                 kwargs['volatile_field'] = col_value
             else:
-                assert col_type == HFI_RELATION
+                assert col_type == RFT_RELATION
                 kwargs['volatile_rtype'] = self.rtypes[col_value]
 
         try:

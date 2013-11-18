@@ -23,8 +23,8 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import (HeaderFilterItem, HeaderFilter,
-                                     BlockDetailviewLocation, SearchConfigItem)
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import HeaderFilter, BlockDetailviewLocation, SearchConfigItem
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -47,22 +47,23 @@ class Populator(BasePopulator):
         create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
 
 
-        hf = HeaderFilter.create(pk='polls-hf_pollform', name=_(u'Form view'), model=PollForm)
-        hf.set_items([HeaderFilterItem.build_4_field(model=PollForm, name='name'),
-                     ])
-
-        hf = HeaderFilter.create(pk='polls-hf_pollreply', name=_(u'Reply view'), model=PollReply)
-        hf.set_items([HeaderFilterItem.build_4_field(model=PollReply, name='name'),
-                      HeaderFilterItem.build_4_field(model=PollReply, name='pform'),
-                      HeaderFilterItem.build_4_field(model=PollReply, name='person'),
-                     ])
-
-        hf = HeaderFilter.create(pk='polls-hf_pollcampaign', name=_(u'Campaign view'), model=PollCampaign)
-        hf.set_items([HeaderFilterItem.build_4_field(model=PollCampaign, name='name'),
-                      HeaderFilterItem.build_4_field(model=PollCampaign, name='due_date'),
-                      HeaderFilterItem.build_4_field(model=PollCampaign, name='segment'),
-                     ])
-
+        create_hf = HeaderFilter.create
+        create_hf(pk='polls-hf_pollform', name=_(u'Form view'), model=PollForm,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                             ],
+                 )
+        create_hf(pk='polls-hf_pollreply', name=_(u'Reply view'), model=PollReply,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'pform'}),
+                              (EntityCellRegularField, {'name': 'person'}),
+                             ],
+                 )
+        create_hf(pk='polls-hf_pollcampaign', name=_(u'Campaign view'), model=PollCampaign,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'due_date'}),
+                              (EntityCellRegularField, {'name': 'segment'}),
+                             ],
+                 )
 
         SearchConfigItem.create_if_needed(PollForm,  ['name'])
         SearchConfigItem.create_if_needed(PollReply, ['name'])

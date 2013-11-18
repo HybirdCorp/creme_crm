@@ -6,11 +6,11 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import (HeaderFilter, HeaderFilterItem,
-                                         EntityFilter, EntityFilterCondition,
-                                         RelationType, Relation,
-                                         CremePropertyType, CremeProperty,
-                                         CustomField, CustomFieldEnumValue)
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
+            HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
+            CustomField, CustomFieldEnumValue)
     from creme.creme_core.utils import safe_unicode
     from .base import ViewsTestCase
 
@@ -57,10 +57,11 @@ class ListViewTestCase(ViewsTestCase):
         return set(entities_page.object_list)
 
     def _build_hf(self, *args):
-        hf = HeaderFilter.create(pk='test-hf_orga', name='Orga view', model=Organisation)
-        items = [HeaderFilterItem.build_4_field(model=Organisation, name='name')]
-        items.extend(args)
-        hf.set_items(items)
+        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+        cells.extend(args)
+        return HeaderFilter.create(pk='test-hf_orga', name='Orga view',
+                                   model=Organisation, cells_desc=cells,
+                                  )
 
     def test_content01(self):
         self.login()
@@ -96,9 +97,10 @@ class ListViewTestCase(ViewsTestCase):
         cfield_value = 42
         cfield.get_value_class()(custom_field=cfield, entity=bebop).set_value_n_save(cfield_value)
 
-        self._build_hf(HeaderFilterItem.build_4_relation(rtype=rtype),
-                       HeaderFilterItem.build_4_functionfield(func_field=Organisation.function_fields.get('get_pretty_properties')),
-                       HeaderFilterItem.build_4_customfield(cfield),
+        self._build_hf(EntityCellRelation(rtype=rtype),
+                       #EntityCellFunctionField(func_field=Organisation.function_fields.get('get_pretty_properties')),
+                       EntityCellFunctionField.build(Organisation, 'get_pretty_properties'),
+                       EntityCellCustomField(cfield),
                       )
 
         response = self.assertGET200(self.url)
@@ -175,22 +177,22 @@ class ListViewTestCase(ViewsTestCase):
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
 
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=Contact)
-        hfi_image    = build_hfi(name='image')
-        hfi_img_name = build_hfi(name='image__name')
-        hfi_civ      = build_hfi(name='civility')
-        hfi_civ_name = build_hfi(name='civility__title')
+        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        cell_image    = build_cell(name='image')
+        cell_img_name = build_cell(name='image__name')
+        cell_civ      = build_cell(name='civility')
+        cell_civ_name = build_cell(name='civility__title')
 
-        self.assertTrue(hfi_civ.sortable)
-        #self.assertFalse(hfi_image.sortable)
-        self.assertTrue(hfi_image.sortable)
-        self.assertTrue(hfi_img_name.sortable)
-        self.assertTrue(hfi_civ_name.sortable)
+        self.assertTrue(cell_civ.sortable)
+        #self.assertFalse(cell_image.sortable)
+        self.assertTrue(cell_image.sortable)
+        self.assertTrue(cell_img_name.sortable)
+        self.assertTrue(cell_civ_name.sortable)
 
-        hf.set_items([build_hfi(name='last_name'),
-                      hfi_image, hfi_img_name,
-                      hfi_civ, hfi_civ_name,
-                     ])
+        hf.cells = [build_cell(name='last_name'),
+                    cell_image, cell_img_name, cell_civ, cell_civ_name,
+                   ]
+        hf.save()
 
         url = Contact.get_lv_absolute_url()
 
@@ -233,22 +235,18 @@ class ListViewTestCase(ViewsTestCase):
         EmailCampaign.objects.create(user=self.user, name='Camp01')
 
         fname = 'mailing_lists'
-        func_field = EmailCampaign.function_fields.get('get_pretty_properties')
-
-        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
-                                 model=EmailCampaign,
+        func_field_name = 'get_pretty_properties'
+        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=EmailCampaign,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                             (EntityCellRegularField, {'name': fname}),
+                                             (EntityCellFunctionField, {'func_field_name': func_field_name}),
+                                            ]
                                 )
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
-
-        hf.set_items([build_hfi(name='name'),
-                      build_hfi(name=fname),
-                      HeaderFilterItem.build_4_functionfield(func_field),
-                     ])
 
         url = EmailCampaign.get_lv_absolute_url()
         #we just check that it does not crash
         self.assertPOST200(url, data={'sort_field': fname})
-        self.assertPOST200(url, data={'sort_field': func_field.name})
+        self.assertPOST200(url, data={'sort_field': func_field_name})
 
     def test_efilter01(self):
         self.login()
@@ -288,7 +286,7 @@ class ListViewTestCase(ViewsTestCase):
         redtail   = create_orga(name='Redtail',     phone='889977')
         dragons   = create_orga(name='Red Dragons', phone='123')
 
-        self._build_hf(HeaderFilterItem.build_4_field(model=Organisation, name='phone'))
+        self._build_hf(EntityCellRegularField.build(model=Organisation, name='phone'))
 
         url = self.url
         data = {'_search': 1}
@@ -328,7 +326,7 @@ class ListViewTestCase(ViewsTestCase):
         nerv  = create_orga(name='NERV',      subject_to_vat=True)
         seele = create_orga(name='Seele',     subject_to_vat=True)
 
-        self._build_hf(HeaderFilterItem.build_4_field(model=Organisation, name='subject_to_vat'))
+        self._build_hf(EntityCellRegularField.build(model=Organisation, name='subject_to_vat'))
 
         url = self.url
         data = {'_search': 1}
@@ -353,7 +351,7 @@ class ListViewTestCase(ViewsTestCase):
         redtail   = create_orga(name='Redtail',   creation_date=date(year=2076, month=7, day=25))
         dragons   = create_orga(name='Red Dragons')
 
-        self._build_hf(HeaderFilterItem.build_4_field(model=Organisation, name='creation_date'))
+        self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
 
         url = self.url
         data = {'_search': 1}
@@ -394,7 +392,7 @@ class ListViewTestCase(ViewsTestCase):
         set_created(swordfish, create_dt(year=2074, month=6, day=5))
         set_created(redtail,   create_dt(year=2076, month=7, day=25))
 
-        self._build_hf(HeaderFilterItem.build_4_field(model=Organisation, name='created'))
+        self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
 
         url = self.url
         data = {'_search': 1}
@@ -434,25 +432,25 @@ class ListViewTestCase(ViewsTestCase):
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
 
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=Contact)
-        hfi_image    = build_hfi(name='image')
-        hfi_img_name = build_hfi(name='image__name')
-        hfi_civ      = build_hfi(name='civility')
-        hfi_civ_name = build_hfi(name='civility__title')
+        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        cell_image    = build_cell(name='image')
+        cell_img_name = build_cell(name='image__name')
+        cell_civ      = build_cell(name='civility')
+        cell_civ_name = build_cell(name='civility__title')
 
-        self.assertTrue(hfi_civ.has_a_filter)
-        self.assertTrue(hfi_civ_name.has_a_filter)
-        self.assertTrue(hfi_img_name.has_a_filter)
-        self.assertTrue(hfi_image.has_a_filter)
-        self.assertEqual('image__name__icontains', hfi_img_name.filter_string)
+        self.assertTrue(cell_civ.has_a_filter)
+        self.assertTrue(cell_civ_name.has_a_filter)
+        self.assertTrue(cell_img_name.has_a_filter)
+        self.assertTrue(cell_image.has_a_filter)
+        self.assertEqual('image__name__icontains', cell_img_name.filter_string)
         self.assertEqual('image__header_filter_search_field__icontains',
-                         hfi_image.filter_string
+                         cell_image.filter_string
                         )
 
-        hf.set_items([build_hfi(name='last_name'),
-                      hfi_image, hfi_img_name,
-                      hfi_civ, hfi_civ_name,
-                     ])
+        hf.cells = [build_cell(name='last_name'),
+                    cell_image, cell_img_name, cell_civ, cell_civ_name,
+                   ]
+        hf.save()
 
         url = Contact.get_lv_absolute_url()
 
@@ -498,13 +496,14 @@ class ListViewTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
                                  model=EmailCampaign,
                                 )
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
+        build_cell = partial(EntityCellRegularField.build, model=EmailCampaign)
 
-        hfi_m2m = build_hfi(name='mailing_lists')
-        self.assertFalse(hfi_m2m.has_a_filter)
-        self.assertEqual('', hfi_m2m.filter_string)
+        cell_m2m = build_cell(name='mailing_lists')
+        self.assertFalse(cell_m2m.has_a_filter)
+        self.assertEqual('', cell_m2m.filter_string)
 
-        hf.set_items([build_hfi(name='name'), hfi_m2m])
+        hf.cells = [build_cell(name='name'), cell_m2m]
+        hf.save()
 
         #we just check that it does not crash
         self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
@@ -536,7 +535,7 @@ class ListViewTestCase(ViewsTestCase):
         create_rel(subject_entity=redtail,   object_entity=faye)
         create_rel(subject_entity=bebop,     object_entity=jet)
 
-        self._build_hf(HeaderFilterItem.build_4_relation(rtype=rtype))
+        self._build_hf(EntityCellRelation(rtype=rtype))
 
         url = self.url
         data = {'_search': 1, 'name': '', rtype.pk: 'Spiege'}
@@ -577,7 +576,7 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(swordfish, 12)
         set_cfvalue(redtail,   4)
 
-        self._build_hf(HeaderFilterItem.build_4_customfield(cfield))
+        self._build_hf(EntityCellCustomField(cfield))
 
         response = self.assertPOST200(self.url, data={'_search': 1, 'name': '', cfield.pk: '4'})
         content = self._get_lv_content(response)
@@ -610,8 +609,7 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield2, swordfish, '#ff0000')
         set_cfvalue(cfield2, redtail,   '#050508')
 
-        build_item = HeaderFilterItem.build_4_customfield
-        self._build_hf(build_item(cfield1), build_item(cfield2))
+        self._build_hf(EntityCellCustomField(cfield1), EntityCellCustomField(cfield2))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
                                                       'name': '',
@@ -651,8 +649,9 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield2, swordfish, 1000)
         set_cfvalue(cfield2, redtail,   2000)
 
-        build_item = HeaderFilterItem.build_4_customfield
-        self._build_hf(build_item(cfield1), build_item(cfield2))
+        self._build_hf(EntityCellCustomField(cfield1),
+                       EntityCellCustomField(cfield2),
+                      )
 
         response = self.assertPOST200(self.url, data={'_search': 1,
                                                       'name': '',
@@ -693,7 +692,7 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(swordfish, type1.id)
         set_cfvalue(redtail,   type1.id)
 
-        self._build_hf(HeaderFilterItem.build_4_customfield(cfield))
+        self._build_hf(EntityCellCustomField(cfield))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
                                                       'name': '',
@@ -734,7 +733,7 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(eva01,     [can_walk.id])
         set_cfvalue(valkyrie,  [can_fly.id, can_walk.id])
 
-        self._build_hf(HeaderFilterItem.build_4_customfield(cfield))
+        self._build_hf(EntityCellCustomField(cfield))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
                                                       'name':    '',
@@ -782,8 +781,9 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield_type,  redtail,   type1.id)
         set_cfvalue(cfield_color, redtail,   color2.id)
 
-        build_item = HeaderFilterItem.build_4_customfield
-        self._build_hf(build_item(cfield_type), build_item(cfield_color))
+        self._build_hf(EntityCellCustomField(cfield_type),
+                       EntityCellCustomField(cfield_color),
+                      )
 
         response = self.assertPOST200(self.url, data={'_search':       1,
                                                       'name':          '',
@@ -835,8 +835,9 @@ class ListViewTestCase(ViewsTestCase):
 
         set_cfvalue(cfield_cap,   valkyrie,  [can_fly.id, can_walk.id])
 
-        build_item = HeaderFilterItem.build_4_customfield
-        self._build_hf(build_item(cfield_cap), build_item(cfield_color))
+        self._build_hf(EntityCellCustomField(cfield_cap),
+                       EntityCellCustomField(cfield_color),
+                      )
 
         response = self.assertPOST200(self.url, data={'_search':       1,
                                                       'name':          '',
@@ -870,7 +871,7 @@ class ListViewTestCase(ViewsTestCase):
         create_cf_value(entity=swordfish, value=create_dt(year=2074, month=6, day=5))
         create_cf_value(entity=redtail,   value=create_dt(year=2076, month=7, day=25))
 
-        self._build_hf(HeaderFilterItem.build_4_customfield(cfield))
+        self._build_hf(EntityCellCustomField(cfield))
 
         def post(dates):
             response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
@@ -921,8 +922,9 @@ class ListViewTestCase(ViewsTestCase):
         create_cf_value(entity=swordfish,  custom_field=cfield_blood, value=create_dt(year=2074, month=6, day=8))
         create_cf_value(entity=hammerhead, custom_field=cfield_blood, value=create_dt(year=2075, month=7, day=6))
 
-        build_hfi = HeaderFilterItem.build_4_customfield
-        self._build_hf(build_hfi(cfield_flight), build_hfi(cfield_blood))
+        self._build_hf(EntityCellCustomField(cfield_flight),
+                       EntityCellCustomField(cfield_blood),
+                      )
 
         response = self.assertPOST200(self.url, data={'_search': 1,
                                                       cfield_flight.pk: ['1-1-2074', '31-12-2074'],
@@ -947,7 +949,7 @@ class ListViewTestCase(ViewsTestCase):
         CremeProperty.objects.create(type=ptype, creme_entity=swordfish)
 
         func_field = Organisation.function_fields.get('get_pretty_properties')
-        self._build_hf(HeaderFilterItem.build_4_functionfield(func_field))
+        self._build_hf(EntityCellFunctionField(func_field))
 
         response = self.assertPOST200(self.url, data={'_search':       1,
                                                       'name':          '',
@@ -977,7 +979,7 @@ class ListViewTestCase(ViewsTestCase):
         sline2 = create_sline(on_the_fly_item='Fly4')
 
         func_field = Line.function_fields.get('get_verbose_type')
-        self._build_hf(HeaderFilterItem.build_4_functionfield(func_field))
+        self._build_hf(EntityCellFunctionField(func_field))
 
         url = Line.get_lv_absolute_url()
         response = self.assertGET200(url)

@@ -29,9 +29,9 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import RelationType, CustomField
 from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
         get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
-from creme.creme_core.models.header_filter import (HFI_FUNCTION, HFI_RELATION,
-        HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 
+from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
+        RFT_CALCULATED, RFT_RELATED)
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -110,7 +110,7 @@ class ReportHand(object):
 
 
 #TODO: split for M2M etc... (__new__ ??)
-@REPORT_HANDS_MAP(HFI_FIELD)
+@REPORT_HANDS_MAP(RFT_FIELD)
 class RHRegularField(ReportHand):
     verbose_name = _(u'Regular field')
 
@@ -173,7 +173,7 @@ class RHRegularField(ReportHand):
         return value
 
 
-@REPORT_HANDS_MAP(HFI_CUSTOM)
+@REPORT_HANDS_MAP(RFT_CUSTOM)
 class RHCustomField(ReportHand):
     verbose_name = _(u'Custom field')
 
@@ -184,7 +184,7 @@ class RHCustomField(ReportHand):
             return entity.get_custom_value(cf) if user.has_perm_to_view(entity) else settings.HIDDEN_VALUE
 
 
-@REPORT_HANDS_MAP(HFI_RELATION)
+@REPORT_HANDS_MAP(RFT_RELATION)
 class RHRelation(ReportHand):
     verbose_name = _(u'Relationship')
 
@@ -222,7 +222,7 @@ class RHRelation(ReportHand):
             else:
                 get_verbose_name = partial(get_verbose_field_name, model=sub_model, separator="-")
 
-                #TODO: !!!WORK ONLY WITH HFI_FIELD columns !! (& maybe this work is already done by get_value())
+                #TODO: !!!WORK ONLY WITH RFT_FIELD columns !! (& maybe this work is already done by get_value())
                 return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                           get_instance_field_info(sub_entity, sub_column.name)[1] or u''
                                                          ) for sub_column in report.fields
@@ -236,7 +236,7 @@ class RHRelation(ReportHand):
             return u', '.join(unicode(e) for e in entity.get_related_entities(column_name, True) if has_perm(e)) #or empty_value
 
 
-@REPORT_HANDS_MAP(HFI_FUNCTION)
+@REPORT_HANDS_MAP(RFT_FUNCTION)
 class RHFunctionField(ReportHand):
     verbose_name = _(u'Function field') #TODO: homogenous with HeaderFilter ??
 
@@ -250,7 +250,7 @@ class RHFunctionField(ReportHand):
         return funfield(entity).for_csv() if funfield else ugettext("Problem with function field")
 
 
-@REPORT_HANDS_MAP(HFI_CALCULATED)
+@REPORT_HANDS_MAP(RFT_CALCULATED)
 class RHCalculated(ReportHand):
     verbose_name = _(u'Calculated value')
 
@@ -274,7 +274,7 @@ class RHCalculated(ReportHand):
                 return scope.aggregate(aggregation.func(field_name)).get(column_name) or 0
 
 
-@REPORT_HANDS_MAP(HFI_RELATED)
+@REPORT_HANDS_MAP(RFT_RELATED)
 class RHRelated(ReportHand):
     verbose_name = _(u'Related field')
 

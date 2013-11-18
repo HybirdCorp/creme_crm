@@ -23,7 +23,8 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import SearchConfigItem, RelationType, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -73,12 +74,13 @@ class Populator(BasePopulator):
         for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
             create_if_needed(EventType, {'pk': i}, name=name)
 
-        hf = HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Event, name='name'),
-                      HeaderFilterItem.build_4_field(model=Event, name='type__name'),
-                      HeaderFilterItem.build_4_field(model=Event, name='start_date'),
-                      HeaderFilterItem.build_4_field(model=Event, name='end_date'),
-                     ])
+        HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'type__name'}),
+                                        (EntityCellRegularField, {'name': 'start_date'}),
+                                        (EntityCellRegularField, {'name': 'end_date'}),
+                                       ],
+                           )
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Event)
         BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)

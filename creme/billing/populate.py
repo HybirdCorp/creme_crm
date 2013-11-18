@@ -24,9 +24,11 @@ import logging
 from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 
-from creme.creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
-                               ButtonMenuItem, HeaderFilterItem, HeaderFilter,
-                               BlockPortalLocation, EntityFilterCondition, EntityFilter)
+from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+        EntityCellFunctionField, EntityCellRelation)
+from creme.creme_core.models import (RelationType, SearchConfigItem,
+        ButtonMenuItem, HeaderFilter, EntityFilter,
+        BlockDetailviewLocation, BlockPortalLocation, EntityFilterCondition)
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -124,15 +126,16 @@ class Populator(BasePopulator):
         ButtonMenuItem.create_if_needed(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
         def create_hf(hf_pk, name, model):
-            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
-            hf.set_items([HeaderFilterItem.build_4_field(model=model, name='name'),
-                          HeaderFilterItem.build_4_relation(rtype=rt_sub_bill_received),
-                          HeaderFilterItem.build_4_field(model=model, name='number'),
-                          HeaderFilterItem.build_4_field(model=model, name='status'), #status__name
-                          HeaderFilterItem.build_4_field(model=model, name='total_no_vat'),
-                          HeaderFilterItem.build_4_field(model=model, name='issuing_date'),
-                          HeaderFilterItem.build_4_field(model=model, name='expiration_date'),
-                         ])
+            HeaderFilter.create(pk=hf_pk, name=name, model=model,
+                                cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                            EntityCellRelation(rtype=rt_sub_bill_received),
+                                            (EntityCellRegularField, {'name': 'number'}),
+                                            (EntityCellRegularField, {'name': 'status'}), #status__name
+                                            (EntityCellRegularField, {'name': 'total_no_vat'}),
+                                            (EntityCellRegularField, {'name': 'issuing_date'}),
+                                            (EntityCellRegularField, {'name': 'expiration_date'}),
+                                           ],
+                               )
 
         create_hf('billing-hf_invoice',    _(u'Invoice view'),     Invoice)
         create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
@@ -141,17 +144,16 @@ class Populator(BasePopulator):
 
 
         def create_hf_lines(hf_pk, name, model, include_type=True):
-            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
-            items = [HeaderFilterItem.build_4_field(model=model, name='on_the_fly_item'),
-                     HeaderFilterItem.build_4_field(model=model, name='quantity'),
-                     HeaderFilterItem.build_4_field(model=model, name='unit_price'),
-#                     HeaderFilterItem.build_4_field(model=model, name='is_paid'),
-                    ]
+            cells_desc = [EntityCellRegularField.build(model=model, name='on_the_fly_item'),
+                          EntityCellRegularField.build(model=model, name='quantity'),
+                          EntityCellRegularField.build(model=model, name='unit_price'),
+                          #EntityCellRegularField.build(model=model, name='is_paid'),
+                         ]
 
             if include_type:
-                items.append(HeaderFilterItem.build_4_functionfield(model.function_fields.get('get_verbose_type')))
+                cells_desc.append(EntityCellFunctionField.build(model, 'get_verbose_type'))
 
-            hf.set_items(items)
+            HeaderFilter.create(pk=hf_pk, name=name, model=model, cells_desc=cells_desc)
 
         create_hf_lines('billing-hg_lines',         _(u"Lines view"),         Line)
         create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine, include_type=False)
@@ -232,11 +234,10 @@ class Populator(BasePopulator):
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
 
-        from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
         from creme.creme_core.utils.meta import get_verbose_field_name
 
         from creme.reports.models import Report, Field, ReportGraph
-        from creme.reports.constants import RGT_FK, RGT_MONTH
+        from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
 
         if not (resulted and resulted_collection):
             logger.info("Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'")
@@ -255,13 +256,13 @@ class Populator(BasePopulator):
 
         def create_report_columns():
             create_field = Field.objects.create
-            return [create_field(name='name',                  title=get_verbose_field_name(Invoice, 'name'),            order=1, type=HFI_FIELD),
-                    create_field(name=rt_sub_bill_received.id, title=unicode(rt_sub_bill_received),                      order=2, type=HFI_RELATION),
-                    create_field(name='number',                title=get_verbose_field_name(Invoice, 'number'),          order=3, type=HFI_FIELD),
-                    create_field(name='status',                title=get_verbose_field_name(Invoice, 'status'),          order=4, type=HFI_FIELD),
-                    create_field(name='total_no_vat',          title=get_verbose_field_name(Invoice, 'total_no_vat'),    order=5, type=HFI_FIELD),
-                    create_field(name='issuing_date',          title=get_verbose_field_name(Invoice, 'issuing_date'),    order=6, type=HFI_FIELD),
-                    create_field(name='expiration_date',       title=get_verbose_field_name(Invoice, 'expiration_date'), order=7, type=HFI_FIELD),
+            return [create_field(name='name',                  title=get_verbose_field_name(Invoice, 'name'),            order=1, type=RFT_FIELD),
+                    create_field(name=rt_sub_bill_received.id, title=unicode(rt_sub_bill_received),                      order=2, type=RFT_RELATION),
+                    create_field(name='number',                title=get_verbose_field_name(Invoice, 'number'),          order=3, type=RFT_FIELD),
+                    create_field(name='status',                title=get_verbose_field_name(Invoice, 'status'),          order=4, type=RFT_FIELD),
+                    create_field(name='total_no_vat',          title=get_verbose_field_name(Invoice, 'total_no_vat'),    order=5, type=RFT_FIELD),
+                    create_field(name='issuing_date',          title=get_verbose_field_name(Invoice, 'issuing_date'),    order=6, type=RFT_FIELD),
+                    create_field(name='expiration_date',       title=get_verbose_field_name(Invoice, 'expiration_date'), order=7, type=RFT_FIELD),
                    ]
 
         create_graph = ReportGraph.objects.create

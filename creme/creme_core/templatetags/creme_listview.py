@@ -22,13 +22,12 @@ import logging
 
 from django.db import models
 from django.template import Library
-from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
+from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
+        EntityCellFunctionField, EntityCellRelation)
 from ..models import CustomField
-from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from ..models.fields import EntityCTypeForeignKey
-from ..gui.field_printers import field_printers_registry
 from ..gui.list_view_import import import_form_registry
 from ..utils import creme_entity_content_types, build_ct_choices
 from ..utils.meta import get_model_field_info
@@ -103,23 +102,25 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
                             } for id_, val in choices
                            ]
 
+#TODO: add methods to EntityCells ?
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
     model           = context['model']
-    header_searches = dict((attr_name, value) for (attr_name, pk, type, pattern, value) in context['list_view_state'].research)
+    header_searches = dict((cell_value, value)
+                                for (cell_type, cell_value, value) in context['list_view_state'].research
+                          ) #TODO: (type, name as key)
     get_model_field = model._meta.get_field
 
-    for item in context['columns']:
-        if not item.has_a_filter:
+    for cell in context['cells']:
+        if not cell.has_a_filter:
             continue
 
-        item_value = header_searches.get(item.name, '')
-        widget_ctx = {'value': item_value, 'type': 'text'}
-        item_type = item.type
+        search_value = header_searches.get(cell.value, '')
+        widget_ctx = {'value': search_value, 'type': 'text'}
 
-        if item_type == HFI_FIELD:
+        if isinstance(cell, EntityCellRegularField):
             try:
-                field_name = item.name
+                field_name = cell.value
                 if field_name.find('__') > -1:
                     field = None
                     sub_field_obj = get_model_field_info(model, field_name)[1]['field']
@@ -131,9 +132,9 @@ def get_listview_columns_header(context):
                 continue
 
             if isinstance(field, models.ForeignKey):
-                if item.filter_string.endswith('__header_filter_search_field__icontains'):
-                    if item_value:
-                        widget_ctx['value'] = item_value[0]
+                if cell.filter_string.endswith('__header_filter_search_field__icontains'):
+                    if search_value:
+                        widget_ctx['value'] = search_value[0]
                 else:
                     if isinstance(field, EntityCTypeForeignKey):
                         choices = build_ct_choices(creme_entity_content_types())
@@ -145,70 +146,47 @@ def get_listview_columns_header(context):
                                         for o in field.rel.to.objects.distinct()
                                             if unicode(o) != ""
                                   )
-                    _build_select_search_widget(widget_ctx, item_value, choices)
+                    _build_select_search_widget(widget_ctx, search_value, choices)
             elif isinstance(field, models.BooleanField):
-                _build_bool_search_widget(widget_ctx, item_value)
+                _build_bool_search_widget(widget_ctx, search_value)
             elif isinstance(field, (models.DateField, models.DateTimeField)): #TODO: DateTimeField useful ??
-                _build_date_search_widget(widget_ctx, item_value)
-            elif item_value:
-                widget_ctx['value'] = item_value[0]
-        elif item_type == HFI_FUNCTION:
-            choices = item.get_functionfield().choices
+                _build_date_search_widget(widget_ctx, search_value)
+            elif search_value:
+                widget_ctx['value'] = search_value[0]
+        elif isinstance(cell, EntityCellFunctionField):
+            choices = cell.function_field.choices
             if choices is not None:
-                _build_select_search_widget(widget_ctx, item_value, choices)
-            elif item_value:
-                widget_ctx['value'] = item_value[0]
-        elif item_type == HFI_RELATION:
-            if item_value:
-                widget_ctx['value'] = item_value[0]
-        elif item_type == HFI_CUSTOM:
-            cf = item.get_customfield()
+                _build_select_search_widget(widget_ctx, search_value, choices)
+            elif search_value:
+                widget_ctx['value'] = search_value[0]
+        elif isinstance(cell, EntityCellRelation):
+            if search_value:
+                widget_ctx['value'] = search_value[0]
+        elif isinstance(cell, EntityCellCustomField):
+            cf = cell.custom_field
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                _build_select_search_widget(widget_ctx, item_value,
+                _build_select_search_widget(widget_ctx, search_value,
                                             cf.customfieldenumvalue_set.values_list('id', 'value')
                                            )
             elif field_type == CustomField.DATETIME:
-                _build_date_search_widget(widget_ctx, item_value)
+                _build_date_search_widget(widget_ctx, search_value)
             elif field_type == CustomField.BOOL:
-                _build_bool_search_widget(widget_ctx, item_value)
-            elif item_value:
-                widget_ctx['value'] = item_value[0]
+                _build_bool_search_widget(widget_ctx, search_value)
+            elif search_value:
+                widget_ctx['value'] = search_value[0]
 
-        item.widget_ctx = widget_ctx
+        cell.widget_ctx = widget_ctx
 
     return context
 
-#get_listview_cell##############################################################
-
-def _render_relations(entity, hfi, user):
-    relations_list = ['<ul>']
-
-    relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
-                            for e in entity.get_related_entities(hfi.relation_predicat_id, True)
-                         )
-    relations_list.append('</ul>')
-
-    return u''.join(relations_list)
-
-_GET_HTML_FIELD_VALUE = field_printers_registry.get_html_field_value
-
-_RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
-    HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name, user),
-    HFI_FUNCTION: lambda entity, hfi, user: hfi.get_functionfield()(entity).for_html(),
-    HFI_RELATION: _render_relations,
-    HFI_CUSTOM:   lambda entity, hfi, user: escape(entity.get_custom_value(hfi.get_customfield())),
-    HFI_VOLATILE: lambda entity, hfi, user: hfi.volatile_render(entity),
-}
+#-----------------------------------------------------------------------------
 
 @register.simple_tag
-def get_listview_cell(hfi, entity, user):
+def get_listview_cell(cell, entity, user):
     try:
-        render_func = _RENDER_FUNCS.get(hfi.type)
-        if render_func:
-            return render_func(entity, hfi, user)
-    #except AttributeError as e:
+        return cell.render_html(entity, user)
     except Exception as e:
         logger.debug('Templatetag "get_listview_cell": %s', e)
 

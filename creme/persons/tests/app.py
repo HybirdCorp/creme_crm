@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.creme_core.models import EntityFilter, EntityFilterCondition
+    from django.contrib.contenttypes.models import ContentType
+
+    from creme.creme_core.models import HeaderFilter, EntityFilter, EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
 
     from ..models import Contact, Organisation
@@ -29,6 +31,11 @@ class PersonsAppTestCase(CremeTestCase):
         self.get_relationtype_or_fail(REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
         self.get_relationtype_or_fail(REL_SUB_COMPETITOR,        [Contact, Organisation], [Contact, Organisation])
 
+        get_ct = ContentType.objects.get_for_model
+        hf_filter = HeaderFilter.objects.filter
+        self.assertTrue(hf_filter(entity_type=get_ct(Contact)).exists())
+        self.assertTrue(hf_filter(entity_type=get_ct(Organisation)).exists())
+        
         efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())

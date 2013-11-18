@@ -8,7 +8,10 @@ try:
     from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
 
-    from creme.creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.models import (RelationType, Relation,
+            CremePropertyType, CremeProperty, HeaderFilter)
 
     from creme.creme_core.tests.views.base import ViewsTestCase
 
@@ -68,17 +71,18 @@ class CSVExportViewsTestCase(ViewsTestCase):
         create_prop(type=ptype_girl,      creme_entity=contacts['Edward'])
         create_prop(type=ptype_beautiful, creme_entity=contacts['Faye'])
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view', model=Contact)
-        hf_items =[HeaderFilterItem.build_4_field(model=Contact, name='civility'),
-                   HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
-                   HeaderFilterItem.build_4_field(model=Contact, name='first_name'),
-                   HeaderFilterItem.build_4_relation(rtype=rtype_pilots),
-                   #TODO: build_4_customfield
-                   HeaderFilterItem.build_4_functionfield(func_field=Contact.function_fields.get('get_pretty_properties')),
-                  ]
-        hf.set_items(hf_items)
+        cells = [EntityCellRegularField.build(model=Contact, name='civility'),
+                 EntityCellRegularField.build(model=Contact, name='last_name'),
+                 EntityCellRegularField.build(model=Contact, name='first_name'),
+                 EntityCellRelation(rtype=rtype_pilots),
+                 #TODO: EntityCellCustomField
+                 EntityCellFunctionField(func_field=Contact.function_fields.get('get_pretty_properties')),
+               ]
+        HeaderFilter.create(pk='test-hf_contact', name='Contact view',
+                            model=Contact, cells_desc=cells,
+                           )
 
-        return hf_items
+        return cells
 
     def _build_url(self, ct, method='download', doc_type='csv'):
         return '/creme_core/list_view/%s/%s/%s' % (method, ct.id, doc_type)
@@ -97,19 +101,19 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export_header(self):
         self.login()
-        hf_items = self._build_hf_n_contacts()
+        cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
         url = self._build_url(self.ct, method='download_header')
         response = self.assertGET200(url, data={'list_url': lv_url})
 
-        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items)],
+        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in cells)],
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
         self.login()
-        hf_items = self._build_hf_n_contacts()
+        cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
         response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'),
@@ -118,12 +122,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         result = list(XlrdReader(None, file_contents=response.content))
         self.assertEqual(1, len(result))
-        self.assertEqual(result[0], [hfi.title for hfi in hf_items])
+        self.assertEqual(result[0], [hfi.title for hfi in cells])
 
     def test_list_view_export01(self):
         "csv"
         self.login()
-        hf_items = self._build_hf_n_contacts()
+        cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
@@ -131,7 +135,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         #TODO: sort the relations/properties by they verbose_name ??
         result = [force_unicode(line) for line in response.content.splitlines()]
         self.assertEqual(6, len(result))
-        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
+        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in cells))
         self.assertEqual(result[1], u'"","Black","Jet","Bebop",""')
         self.assertEqual(result[2], u'"%s","Creme","Fulbert","",""' % _(u'Mister'))
         self.assertIn(result[3], (u'"","Spiegel","Spike","Bebop/Swordfish",""',
@@ -145,7 +149,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def test_list_view_export02(self):
         "scsv"
         self.login()
-        hf_items = self._build_hf_n_contacts()
+        cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
         response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
@@ -153,7 +157,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         #TODO: sort the relations/properties by they verbose_name ??
         result = map(force_unicode, response.content.splitlines())
         self.assertEqual(6, len(result))
-        self.assertEqual(result[0], u';'.join(u'"%s"' % hfi.title for hfi in hf_items))
+        self.assertEqual(result[0], u';'.join(u'"%s"' % hfi.title for hfi in cells))
         self.assertEqual(result[1], u'"";"Black";"Jet";"Bebop";""')
         self.assertEqual(result[2], u'"%s";"Creme";"Fulbert";"";""' % _('Mister'))
         self.assertIn(result[3], (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
@@ -178,14 +182,14 @@ class CSVExportViewsTestCase(ViewsTestCase):
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
         self.login()
-        hf_items = self._build_hf_n_contacts()
+        cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
         response = self.assertGET200(self._build_url(self.ct, doc_type='xls'), data={'list_url': lv_url}, follow=True)
 
         result = list(XlrdReader(None, file_contents=response.content))
         self.assertEqual(6, len(result))
-        self.assertEqual(result[0], [hfi.title for hfi in hf_items])
+        self.assertEqual(result[0], [hfi.title for hfi in cells])
         self.assertEqual(result[1], ["", "Black", "Jet", "Bebop", ""])
         self.assertEqual(result[2], [_('Mister'), "Creme", "Fulbert", "", ""])
         self.assertIn(result[3], (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],

@@ -21,11 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import InstanceBlockConfigItem
-from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from .models import Report, Field, ReportGraph
+from .constants import RFT_FIELD, RFT_RELATION, RFT_RELATED
 from .core.graph import fetch_graph_from_instance_block
+from .models import Report, Field, ReportGraph
 
 
 class ReportFieldsBlock(Block):
@@ -43,9 +43,9 @@ class ReportFieldsBlock(Block):
                                                             columns=report.fields,
                                                             #expand=any(field.report_id for field in report.columns.all()),
                                                             expand=any(field.sub_report_id for field in report.fields),
-                                                            HFI_FIELD=HFI_FIELD,
-                                                            HFI_RELATION=HFI_RELATION,
-                                                            HFI_RELATED=HFI_RELATED,
+                                                            RFT_FIELD=RFT_FIELD,
+                                                            RFT_RELATION=RFT_RELATION,
+                                                            RFT_RELATED=RFT_RELATED,
                                                            )
                             )
 

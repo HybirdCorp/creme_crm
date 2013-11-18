@@ -24,25 +24,16 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 
 from creme.creme_core.utils.meta import get_model_field_info # get_verbose_field_name
 #from creme.creme_core.models import CustomField, RelationType
-#from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
-                                                   #HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
+#from ..constants import (RFT_FIELD, RFT_RELATION, RFT_FUNCTION,
+        #RFT_CUSTOM, RFT_CALCULATED, RFT_RELATED)
 #from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
                             #RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 #from ..report_aggregation_registry import field_aggregation_registry
 
 
 register = Library()
-
-#HFI_TYPE_VERBOSE = {
-    #HFI_FIELD      : _(u"Regular field"),
-    #HFI_RELATION   : _(u"Relation"),
-    #HFI_FUNCTION   : _(u"Function"),
-    #HFI_CUSTOM     : _(u"Custom field"),
-    #HFI_CALCULATED : _(u"Calculated value"),
-    #HFI_RELATED    : _(u"Related field"),
-#}
 
 #TODO: replace by a method in ReportHand
 @register.filter(name="is_field_is_linkable")
@@ -58,10 +49,6 @@ def is_linkable(field, ct):
             return True
 
     return False
-
-#@register.filter(name="get_verbose_type")
-#def get_verbose_type(type_id):
-    #return HFI_TYPE_VERBOSE.get(type_id)
 
 @register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
 def report_barchart_json(context, rgraph):

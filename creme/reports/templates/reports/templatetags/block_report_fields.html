@@ -59,7 +59,7 @@
                                 <tbody>
                                     <tr>
                                         <td style="width: 66%;">
-                                            {% if HFI_FIELD == column.type %}
+                                            {% if RFT_FIELD == column.type %}
                                                 {% if sub_report %}{% comment %}TODO: factorise unlink{% endcomment %}{% has_perm_to unlink sub_report as unlink_sub_report_perm %}
                                                     {% if unlink_perm and unlink_sub_report_perm %}
                                                         <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
@@ -73,7 +73,7 @@
                                                         <span class="forbidden">{% trans 'Link a report' %}</span>
                                                     {% endif %}
                                                 {% endif %}
-                                            {% elif HFI_RELATED == column.type %}
+                                            {% elif RFT_RELATED == column.type %}
                                                 {% if sub_report %}{% has_perm_to unlink sub_report as unlink_sub_report_perm %}
                                                     {% if unlink_perm and unlink_sub_report_perm %}
                                                         <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
@@ -85,7 +85,7 @@
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Link a report' %}</span>
                                                 {% endif %}
-                                            {% elif HFI_RELATION == column.type %}
+                                            {% elif RFT_RELATION == column.type %}
                                                 {% if sub_report %}{% has_perm_to unlink sub_report as unlink_sub_report_perm %}
                                                     {% if unlink_perm and unlink_sub_report_perm %}
                                                         <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Unlink the report' %}</a>

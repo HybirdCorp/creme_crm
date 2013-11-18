@@ -14,13 +14,13 @@ try:
     from django.utils.unittest.case import skipIf
     #from django.core.serializers.json import simplejson
 
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
         EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
-        CremePropertyType, CremeProperty, HeaderFilterItem, HeaderFilter)
-    from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_CUSTOM,
-            HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
+        CremePropertyType, CremeProperty, HeaderFilter)
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.documents.models import Folder, Document
@@ -39,6 +39,8 @@ try:
 
     from creme.emails.models import EmailCampaign, MailingList
 
+    from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
+            RFT_CALCULATED, RFT_RELATED)
     from ..models import Field, Report
     from .base import BaseReportsTestCase
 except Exception as e:
@@ -153,14 +155,14 @@ class ReportTestCase(BaseReportsTestCase):
         #field = columns[0]
         #self.assertEqual('last_name',     field.name)
         #self.assertEqual(_(u'Last name'), field.title)
-        #self.assertEqual(HFI_FIELD,       field.type)
+        #self.assertEqual(RFT_FIELD,       field.type)
         #self.assertFalse(field.selected)
         #self.assertFalse(field.report)
 
         #field = columns[1]
         #self.assertEqual(str(cf.id), field.name)
         #self.assertEqual(cf.name,    field.title)
-        #self.assertEqual(HFI_CUSTOM, field.type)
+        #self.assertEqual(RFT_CUSTOM, field.type)
 
     #def test_report_createview02(self):
     def test_report_createview01(self):
@@ -170,7 +172,7 @@ class ReportTestCase(BaseReportsTestCase):
         name  = 'trinita'
         self.assertFalse(Report.objects.filter(name=name).exists())
 
-        report = self._create_report(name, extra_hfitems=[HeaderFilterItem.build_4_customfield(cf)])
+        report = self._create_report(name, extra_hfitems=[EntityCellCustomField(cf)])
         self.assertEqual(self.user, report.user)
         self.assertEqual(Contact,   report.ct.model_class())
         self.assertIsNone(report.filter)
@@ -181,7 +183,7 @@ class ReportTestCase(BaseReportsTestCase):
         field = columns[0]
         self.assertEqual('last_name',     field.name)
         self.assertEqual(_(u'Last name'), field.title)
-        self.assertEqual(HFI_FIELD,       field.type)
+        self.assertEqual(RFT_FIELD,       field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
 
@@ -190,19 +192,19 @@ class ReportTestCase(BaseReportsTestCase):
         field = columns[2]
         self.assertEqual(REL_SUB_HAS,  field.name)
         self.assertEqual(_(u'owns'),   field.title)
-        self.assertEqual(HFI_RELATION, field.type)
+        self.assertEqual(RFT_RELATION, field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
 
         field = columns[3]
         self.assertEqual('get_pretty_properties', field.name)
         self.assertEqual(_(u'Properties'),        field.title)
-        self.assertEqual(HFI_FUNCTION,            field.type)
+        self.assertEqual(RFT_FUNCTION,            field.type)
 
         field = columns[4]
         self.assertEqual(str(cf.id), field.name)
         self.assertEqual(cf.name,    field.title)
-        self.assertEqual(HFI_CUSTOM, field.type)
+        self.assertEqual(RFT_CUSTOM, field.type)
 
     #def test_report_createview03(self):
     def test_report_createview02(self):
@@ -433,12 +435,13 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(Invoice.objects.all())
 
         rt = RelationType.objects.get(pk=REL_SUB_HAS)
-        hf = HeaderFilter.create(pk='test_hf', name='Invoice view', model=Invoice)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Invoice, name='name'),
-                      HeaderFilterItem.build_4_field(model=Invoice, name='user'),
-                      HeaderFilterItem.build_4_relation(rt),
-                      HeaderFilterItem.build_4_functionfield(Invoice.function_fields.get('get_pretty_properties')),
-                     ])
+        hf = HeaderFilter.create(pk='test_hf', name='Invoice view', model=Invoice,
+                                 cells_desc=[EntityCellRegularField.build(model=Invoice, name='name'),
+                                             EntityCellRegularField.build(model=Invoice, name='user'),
+                                             EntityCellRelation(rt),
+                                             EntityCellFunctionField(Invoice.function_fields.get('get_pretty_properties')),
+                                            ],
+                                )
 
         report = self.create_from_view('Report on invoices', Invoice, hf)
 
@@ -565,7 +568,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(f_name,          column.name)
         self.assertEqual(_(u'Last name'), column.title)
         self.assertEqual(1,               column.order)
-        self.assertEqual(HFI_FIELD,       column.type)
+        self.assertEqual(RFT_FIELD,       column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
         self.assertEqual(rfield.id, column.id)
@@ -634,7 +637,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(cf_id,      column.name)
         self.assertEqual(cf.name,    column.title)
         self.assertEqual(2,          column.order)
-        self.assertEqual(HFI_CUSTOM, column.type)
+        self.assertEqual(RFT_CUSTOM, column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
         self.assertEqual(old_rfields[1].id, column.id)
@@ -643,7 +646,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(aggr_id,                             column.name)
         self.assertEqual('%s - %s' % (_('Maximum'), cf.name), column.title)
         self.assertEqual(3,                                   column.order)
-        self.assertEqual(HFI_CALCULATED,                      column.type)
+        self.assertEqual(RFT_CALCULATED,                      column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
         self.assertEqual(old_rfields[2].id, column.id)
@@ -701,7 +704,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(rtype_id,        column.name)
         self.assertEqual(rtype.predicate, column.title)
         self.assertEqual(2,               column.order)
-        self.assertEqual(HFI_RELATION,    column.type)
+        self.assertEqual(RFT_RELATION,    column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
@@ -709,7 +712,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(funfield.name,         column.name)
         self.assertEqual(funfield.verbose_name, column.title)
         self.assertEqual(3,                     column.order)
-        self.assertEqual(HFI_FUNCTION,          column.type)
+        self.assertEqual(RFT_FUNCTION,          column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
@@ -758,7 +761,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(aggr_id,                           column.name)
         self.assertEqual('%s - %s' % (_('Minimum'), vname), column.title)
         self.assertEqual(2,                                 column.order)
-        self.assertEqual(HFI_CALCULATED,                    column.type)
+        self.assertEqual(RFT_CALCULATED,                    column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
@@ -804,7 +807,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(rel_name,      column.name)
         self.assertEqual(_('Document'), column.title)
         self.assertEqual(2,             column.order)
-        self.assertEqual(HFI_RELATED,   column.type)
+        self.assertEqual(RFT_RELATED,   column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
@@ -812,7 +815,7 @@ class ReportTestCase(BaseReportsTestCase):
         img_report = Report.objects.create(user=self.user, name="Report on images",
                                            ct=ContentType.objects.get_for_model(Image),
                                           )
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         img_report.columns = [
             create_field(name="name",        title="Name",        order=1),
             create_field(name="description", title="Description", order=2),
@@ -824,7 +827,7 @@ class ReportTestCase(BaseReportsTestCase):
         orga_report = Report.objects.create(user=self.user, name="Report on organisations",
                                             ct=ContentType.objects.get_for_model(Organisation),
                                            )
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         orga_report.columns = [
             create_field(name="name",              title="Name",               order=1),
             create_field(name="legal_form__title", title="Legal form - title", order=2),
@@ -833,25 +836,25 @@ class ReportTestCase(BaseReportsTestCase):
         return orga_report
 
     def test_link_report01(self):
-        "HFI_FIELD (FK) field"
+        "RFT_FIELD (FK) field"
         self.login()
 
         contact_report = Report.objects.create(user=self.user, name="Report on contacts", 
                                                ct=ContentType.objects.get_for_model(Contact),
                                               )
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         contact_report.columns = rfields = [
             create_field(name="last_name",             title="Last name",      order=1),
             create_field(name="sector__title",         title="Sector - Title", order=2),
             create_field(name="image__name",           title="Image - Name",   order=3),
-            create_field(name="get_pretty_properties", title="Properties",     order=4, type=HFI_FUNCTION),
+            create_field(name="get_pretty_properties", title="Properties",     order=4, type=RFT_FUNCTION),
           ]
 
         img_report = self._build_image_report()
 
         url_fmt = '/reports/report/%s/field/%s/link_report'
-        self.assertGET404(url_fmt % (contact_report.id, rfields[3].id)) #not a HFI_FIELD Field
+        self.assertGET404(url_fmt % (contact_report.id, rfields[3].id)) #not a RFT_FIELD Field
         self.assertGET404(url_fmt % (contact_report.id, rfields[0].id)) #not a FK field
         self.assertGET404(url_fmt % (contact_report.id, rfields[1].id)) #not a FK to a CremeEntity
 
@@ -876,7 +879,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(rfield.selected)
 
     def test_link_report02(self):
-        "HFI_RELATION field"
+        "RFT_RELATION field"
         self.login()
 
         get_ct = ContentType.objects.get_for_model
@@ -884,17 +887,17 @@ class ReportTestCase(BaseReportsTestCase):
                                                name="Report on contacts",
                                               )
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         contact_report.columns = rfields = [
             create_field(name='last_name',         title="Last name",      order=1),
-            create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=2, type=HFI_RELATION),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=2, type=RFT_RELATION),
           ]
 
         orga_ct = get_ct(Organisation)
         orga_report = self._build_orga_report()
 
         url_fmt = '/reports/report/%s/field/%s/link_relation_report/%s'
-        self.assertGET404(url_fmt % (contact_report.id, rfields[0].id, orga_ct.id)) #not a HFI_RELATION Field
+        self.assertGET404(url_fmt % (contact_report.id, rfields[0].id, orga_ct.id)) #not a RFT_RELATION Field
         self.assertGET404(url_fmt % (contact_report.id, rfields[1].id, get_ct(Image).id)) #ct not compatible
 
         url = url_fmt % (contact_report.id, rfields[1].id, orga_ct.id)
@@ -903,20 +906,20 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(orga_report, self.refresh(rfields[1]).sub_report)
 
     def test_link_report03(self):
-        "HFI_RELATED field"
+        "RFT_RELATED field"
         self.login()
 
         self.assertEqual([('document', _(u'Document'))],
                          Report.get_related_fields_choices(Folder)
                         )
         get_ct = ContentType.objects.get_for_model
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
         folder_report.columns = rfields = [
             create_field(name='title',    title='Title',    order=1),
-            create_field(name='document', title='Document', order=2, type=HFI_RELATED),
+            create_field(name='document', title='Document', order=2, type=RFT_RELATED),
           ]
 
         doc_report = create_report(name="Documents report", ct=get_ct(Document))
@@ -926,7 +929,7 @@ class ReportTestCase(BaseReportsTestCase):
           ]
 
         url_fmt = '/reports/report/%s/field/%s/link_related_report'
-        self.assertGET404(url_fmt % (folder_report.id, rfields[0].id)) #not a HFI_RELATION Field
+        self.assertGET404(url_fmt % (folder_report.id, rfields[0].id)) #not a RFT_RELATION Field
 
         url = url_fmt % (folder_report.id, rfields[1].id)
         self.assertGET200(url)
@@ -942,9 +945,9 @@ class ReportTestCase(BaseReportsTestCase):
                                                name="Report on contacts",
                                               )
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_RELATION)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_RELATION)
         contact_report.columns = rfields = [
-            create_field(name='last_name',         title="Last name",      order=1, type=HFI_FIELD),
+            create_field(name='last_name',         title="Last name",      order=1, type=RFT_FIELD),
             create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=2),
           ]
 
@@ -969,12 +972,12 @@ class ReportTestCase(BaseReportsTestCase):
         contact_report = Report.objects.create(user=self.user, name="Report on contacts",
                                                ct=ContentType.objects.get_for_model(Contact),
                                               )
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         contact_report.columns = rfields = [
             create_field(name="last_name",         title="Last name",      order=1),
             create_field(name="image__name",       title="Image - Name",   order=2, sub_report=img_report),
             create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=3, 
-                         sub_report=orga_report, type=HFI_RELATION, selected=True,
+                         sub_report=orga_report, type=RFT_RELATION, selected=True,
                         ),
           ]
 
@@ -1035,7 +1038,7 @@ class ReportTestCase(BaseReportsTestCase):
         if report_4_contact:
             self.report_contact = create_report(name="Report on Contacts", ct=get_ct(Contact))
 
-            create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+            create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
             self.report_contact.columns = [
                 create_field(name='last_name',  title="Last name",  order=1),
                 create_field(name='first_name', title="First name", order=2),
@@ -1043,7 +1046,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.report_orga = create_report(name="Report on Organisations", ct=get_ct(Organisation), filter=efilter)
         self.report_orga.columns = [
-                Field.objects.create(name='name', title="Name", order=1, type=HFI_FIELD, selected=False, sub_report=None), #TODO: use create_field
+                Field.objects.create(name='name', title="Name", order=1, type=RFT_FIELD, selected=False, sub_report=None), #TODO: use create_field
             ]
 
     def test_fetch_field_01(self):
@@ -1073,7 +1076,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         self.report_orga.columns.add(
             create_field(name='user__username',    title="User - username",    order=2),
             create_field(name='legal_form__title', title="Legal form - title", order=3),
@@ -1099,7 +1102,7 @@ class ReportTestCase(BaseReportsTestCase):
         self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
 
         self.report_orga.columns.add(Field.objects.create(name='image__name', title="Image - Name",
-                                                          order=2, selected=False, sub_report=None, type=HFI_FIELD,
+                                                          order=2, selected=False, sub_report=None, type=RFT_FIELD,
                                                          ),
                                     )
         baratheons = Organisation.objects.create(user=self.other_user, name='House Baratheon')
@@ -1203,7 +1206,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def _aux_test_fetch_documents(self, efilter=None, selected=True):
         get_ct = ContentType.objects.get_for_model
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         self.folder_report = create_report(name="Folders report", ct=get_ct(Folder), filter=efilter)
@@ -1301,9 +1304,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
         report.columns = [ #TODO: create Field builder like HFI...
-            create_field(name='first_name', title='First Name', type=HFI_FIELD,  order=1),
-            create_field(name=cf.id,        title=cf.name,      type=HFI_CUSTOM, order=2),
-            create_field(name=1024,         title='Invalid',    type=HFI_CUSTOM, order=3), #simulates deleted CustomField
+            create_field(name='first_name', title='First Name', type=RFT_FIELD,  order=1),
+            create_field(name=cf.id,        title=cf.name,      type=RFT_CUSTOM, order=2),
+            create_field(name=1024,         title='Invalid',    type=RFT_CUSTOM, order=3), #simulates deleted CustomField
           ]
 
         self.assertEqual([[aria.first_name, '150', ''],
@@ -1333,9 +1336,9 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         report_img = create_report(name="Report on Images", ct=get_ct(Image))
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         report_img.columns = [create_field(name='name', title="Name",  order=1),
-                              create_field(name=cf.id,  title=cf.name, order=2, type=HFI_CUSTOM),
+                              create_field(name=cf.id,  title=cf.name, order=2, type=RFT_CUSTOM),
                              ]
 
         report_contact = create_report(name="Report on Contacts", ct=get_ct(Contact), filter=self.efilter)
@@ -1360,10 +1363,11 @@ class ReportTestCase(BaseReportsTestCase):
         "No sub report"
         self.login()
 
-        hf = HeaderFilter.create(pk='test_hf', name='Campaign view', model=EmailCampaign)
-
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
-        hf.set_items([build_hfi(name='name'), build_hfi(name='mailing_lists__name')])
+        hf = HeaderFilter.create(pk='test_hf', name='Campaign view', model=EmailCampaign,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                             (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+                                            ],
+                                )
 
         report = self.create_from_view('Campaign Report', EmailCampaign, hf)
 
@@ -1390,17 +1394,17 @@ class ReportTestCase(BaseReportsTestCase):
         self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
         self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
 
-        hf_camp = HeaderFilter.create(pk='test_hf_camp', name='Campaign view', model=EmailCampaign)
-        hf_ml   = HeaderFilter.create(pk='test_hf_ml',   name='MList view',    model=MailingList)
-
-        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
-        hf_camp.set_items([build_hfi(name='name'), build_hfi(name='mailing_lists__name')])
-        hf_ml.set_items([build_hfi(name='name', model=MailingList),
-                         HeaderFilterItem.build_4_functionfield(
-                                MailingList.function_fields.get('get_pretty_properties')
-                            ),
-                        ]
-                       )
+        create_hf = HeaderFilter.create
+        hf_camp = create_hf(pk='test_hf_camp', name='Campaign view', model=EmailCampaign,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+                                       ]
+                           )
+        hf_ml   = create_hf(pk='test_hf_ml', name='MList view', model=MailingList,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellFunctionField, {'func_field_name': 'get_pretty_properties'}),
+                                       ]
+                            )
 
         create_report = self.create_from_view
         self.report_camp = create_report('Campaign Report', EmailCampaign, hf_camp)
@@ -1490,7 +1494,7 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._build_image_report()
         report.columns.add(
             Field.objects.create(name='categories__name', title="Categories", order=3,
-                                 type=HFI_FIELD, selected=False, sub_report=None,
+                                 type=RFT_FIELD, selected=False, sub_report=None,
                                 ),
            )
 
@@ -1514,7 +1518,7 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.user
         get_ct = ContentType.objects.get_for_model
         create_report = partial(Report.objects.create, user=user, filter=None)
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
 
         if select_doc_report is not None:
             self.doc_report = create_report(name="Documents report", ct=get_ct(Document))
@@ -1528,7 +1532,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
         self.folder_report.columns = [
             create_field(name='title',    title='Title',    order=1),
-            create_field(name='document', title='Document', order=2, type=HFI_RELATED,
+            create_field(name='document', title='Document', order=2, type=RFT_RELATED,
                          sub_report=self.doc_report, selected=select_doc_report or False,
                         ),
           ]
@@ -1604,7 +1608,7 @@ class ReportTestCase(BaseReportsTestCase):
         ptype = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
         CremeProperty.objects.create(type=ptype, creme_entity=self.starks)
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FUNCTION)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FUNCTION)
         self.report_orga.columns.add(
             create_field(name='get_pretty_properties', title="Properties", order=2),
             create_field(name='invalid_funfield',      title="??",         order=3),
@@ -1631,9 +1635,9 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         report_img = create_report(name="Report on Images", ct=get_ct(Image))
 
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_FIELD)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
         report_img.columns = [create_field(name='name', title="Name",  order=1),
-                              create_field(name='get_pretty_properties', title="Properties", order=2, type=HFI_FUNCTION),
+                              create_field(name='get_pretty_properties', title="Properties", order=2, type=RFT_FUNCTION),
                              ]
 
         report_contact = create_report(name="Report on Contacts", ct=get_ct(Contact), filter=self.efilter)
@@ -1670,7 +1674,7 @@ class ReportTestCase(BaseReportsTestCase):
         ned.user = self.other_user
         ned.save()
 
-        create_field = partial(Field.objects.create, type=HFI_RELATION, selected=False, sub_report=None)
+        create_field = partial(Field.objects.create, type=RFT_RELATION, selected=False, sub_report=None)
         self.report_orga.columns.add(
             create_field(name=REL_OBJ_EMPLOYED_BY, title="employs", order=2),
             create_field(name='invalid',           title="??",      order=3),
@@ -1692,7 +1696,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.report_orga
         report.columns.add(Field.objects.create(name=REL_OBJ_EMPLOYED_BY, title="employs", order=2,
-                                                type=HFI_RELATION, selected=True,
+                                                type=RFT_RELATION, selected=True,
                                                 sub_report=self.report_contact,
                                                ),
                           )
@@ -1719,7 +1723,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.report_orga
         report.columns.add(Field.objects.create(name=REL_OBJ_EMPLOYED_BY, title="employs", order=2,
-                                                type=HFI_RELATION, selected=False,
+                                                type=RFT_RELATION, selected=False,
                                                 sub_report=self.report_contact,
                                                ),
                           )
@@ -1764,13 +1768,13 @@ class ReportTestCase(BaseReportsTestCase):
 
         report_contact.columns.add(
             Field.objects.create(name='image__name', title="Name", order=3,
-                                 type=HFI_FIELD, selected=True, sub_report=img_report,
+                                 type=RFT_FIELD, selected=True, sub_report=img_report,
                                 ),
            )
 
         report = self.report_orga
         report.columns.add(Field.objects.create(name=REL_OBJ_EMPLOYED_BY, title="employs", order=2,
-                                                type=HFI_RELATION, selected=True,
+                                                type=RFT_RELATION, selected=True,
                                                 sub_report=self.report_contact,
                                                ),
                           )
@@ -1794,7 +1798,7 @@ class ReportTestCase(BaseReportsTestCase):
                                                  )
 
         fmt = ('cf__%s' % cf.field_type) + '__%s__max'
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=HFI_CALCULATED)
+        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_CALCULATED)
         self.report_orga.columns.add(
             create_field(name='capital__sum', title="Sum - Capital", order=2),
             create_field(name=fmt % cf.id,    title="Sum - Gold",    order=3),
@@ -1840,14 +1844,14 @@ class ReportTestCase(BaseReportsTestCase):
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
         report_invoice.columns = [
-            create_field(name='name',           title="Name",                         type=HFI_FIELD,      order=1),
-            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", type=HFI_CALCULATED, order=2),
+            create_field(name='name',           title="Name",                         type=RFT_FIELD,      order=1),
+            create_field(name='total_vat__sum', title="Sum - Total inclusive of tax", type=RFT_CALCULATED, order=2),
           ]
 
         report = self.report_orga
         report.columns.add(
             create_field(name=REL_OBJ_BILL_ISSUED, title="has issued", order=2,
-                         selected=True, sub_report=report_invoice, type=HFI_RELATION,
+                         selected=True, sub_report=report_invoice, type=RFT_RELATION,
                         ),
         )
 

@@ -23,7 +23,8 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
@@ -56,22 +57,26 @@ class Populator(BasePopulator):
         for pk, statusdesc in TASK_STATUS.iteritems():
             create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name), is_custom=False)
 
-        hf = HeaderFilter.create(pk='projects-hf_project', name=_(u'Project view'), model=Project)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Project, name='name'),
-                      HeaderFilterItem.build_4_field(model=Project, name='description'),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='projects-hf_project', name=_(u'Project view'), model=Project,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'description'}),
+                             ],
+                 )
 
         #used in form
-        hf = HeaderFilter.create(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask)
-        hf.set_items([HeaderFilterItem.build_4_field(model=ProjectTask, name='title'),
-                      HeaderFilterItem.build_4_field(model=ProjectTask, name='description'),
-                     ])
+        create_hf(pk='projects-hf_task', name=_(u'Task view'), model=ProjectTask,
+                  cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                              (EntityCellRegularField, {'name': 'description'}),
+                             ],
+                 )
 
         #used in form
-        hf = HeaderFilter.create(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Resource, name='linked_contact'),
-                      HeaderFilterItem.build_4_field(model=Resource, name='hourly_cost'),
-                     ])
+        create_hf(pk='projects-hf_resource', name=_(u'Resource view'), model=Resource,
+                  cells_desc=[(EntityCellRegularField, {'name': 'linked_contact'}),
+                              (EntityCellRegularField, {'name': 'hourly_cost'}),
+                             ],
+                 )
 
         BlockDetailviewLocation.create(block_id=project_tasks_block.id_, order=2,   zone=BlockDetailviewLocation.TOP,   model=Project)
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Project)

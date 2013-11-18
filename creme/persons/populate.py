@@ -24,11 +24,11 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth.models import User
 
+from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.models import (RelationType, CremeProperty, CremePropertyType,
-                               HeaderFilter, HeaderFilterItem,
-                               EntityFilter, EntityFilterCondition,
-                               ButtonMenuItem, SearchConfigItem, RelationBlockItem,
-                               BlockDetailviewLocation, BlockPortalLocation)
+        HeaderFilter, EntityFilter, EntityFilterCondition,
+        ButtonMenuItem, SearchConfigItem,
+        RelationBlockItem, BlockDetailviewLocation, BlockPortalLocation)
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
@@ -109,32 +109,34 @@ class Populator(BasePopulator):
         create_if_needed(StaffSize, {'pk': 5}, size="100 - 500")
         create_if_needed(StaffSize, {'pk': 6}, size="> 500")
 
-        hf = HeaderFilter.create(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
-                      HeaderFilterItem.build_4_field(model=Contact, name='first_name'),
-                      HeaderFilterItem.build_4_field(model=Contact, name='phone'),
-                      HeaderFilterItem.build_4_field(model=Contact, name='email'),
-                      HeaderFilterItem.build_4_field(model=Contact, name='user__username'),
-                      HeaderFilterItem.build_4_relation(rt_map[REL_SUB_EMPLOYED_BY]),
-                     ])
-
-        hf = HeaderFilter.create(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Organisation, name='name'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='sector__title'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='phone'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='email'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='user__username'),
-                      HeaderFilterItem.build_4_relation(rt_map[REL_SUB_CUSTOMER_SUPPLIER]),
-                      HeaderFilterItem.build_4_relation(rt_map[REL_SUB_PROSPECT]),
-                      HeaderFilterItem.build_4_relation(rt_map[REL_SUB_SUSPECT]),
-                     ])
-
-        hf = HeaderFilter.create(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation)
-        hf.set_items([HeaderFilterItem.build_4_field(model=Organisation, name='name'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='phone'),
-                      HeaderFilterItem.build_4_field(model=Organisation, name='user__username'),
-                      HeaderFilterItem.build_4_relation(rt_map[REL_OBJ_MANAGES]),
-                     ])
+        create_hf = HeaderFilter.create
+        create_hf(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact,
+                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                              (EntityCellRegularField, {'name': 'first_name'}),
+                              (EntityCellRegularField, {'name': 'phone'}),
+                              (EntityCellRegularField, {'name': 'email'}),
+                              (EntityCellRegularField, {'name': 'user__username'}),
+                              EntityCellRelation(rt_map[REL_SUB_EMPLOYED_BY]),
+                             ],
+                 )
+        create_hf(pk='persons-hf_leadcustomer', name=_(u'Prospect/Suspect view'), model=Organisation,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'sector__title'}),
+                              (EntityCellRegularField, {'name': 'phone'}),
+                              (EntityCellRegularField, {'name': 'email'}),
+                              (EntityCellRegularField, {'name': 'user__username'}),
+                              EntityCellRelation(rt_map[REL_SUB_CUSTOMER_SUPPLIER]),
+                              EntityCellRelation(rt_map[REL_SUB_PROSPECT]),
+                              EntityCellRelation(rt_map[REL_SUB_SUSPECT]),
+                             ]
+                 )
+        create_hf(pk='persons-hf_organisation', name=_(u'Organisation view'), model=Organisation,
+                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                              (EntityCellRegularField, {'name': 'phone'}),
+                              (EntityCellRegularField, {'name': 'user__username'}),
+                              EntityCellRelation(rt_map[REL_OBJ_MANAGES]),
+                             ],
+                 )
 
         create_bmi = ButtonMenuItem.create_if_needed
         create_bmi(pk='persons-customer_contact_button', model=Contact, button=become_customer_button, order=20)

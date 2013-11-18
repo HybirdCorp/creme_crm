@@ -29,10 +29,11 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from ..core.entity_cell import (EntityCell, EntityCellRegularField,
+        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 from ..gui.field_printers import field_printers_registry
 from ..gui.listview import smart_columns_registry
-from ..models.header_filter import (HeaderFilterItem, HeaderFilter,
-                            HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM)
+from ..models.header_filter import HeaderFilter
 from ..models import RelationType, CustomField, EntityCredentials
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
@@ -40,24 +41,25 @@ from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 
 
+#TODO: use type_id as prefix 
 _RFIELD_PREFIX = 'rfield-'
 _CFIELD_PREFIX = 'cfield-'
 _FFIELD_PREFIX = 'ffield-'
 _RTYPE_PREFIX  = 'rtype-'
 
 _PREFIXES_MAP = {
-    HFI_FIELD:    _RFIELD_PREFIX,
-    HFI_CUSTOM:   _CFIELD_PREFIX,
-    HFI_FUNCTION: _FFIELD_PREFIX,
-    HFI_RELATION: _RTYPE_PREFIX,
+    EntityCellRegularField:     _RFIELD_PREFIX,
+    EntityCellCustomField:      _CFIELD_PREFIX,
+    EntityCellFunctionField:    _FFIELD_PREFIX,
+    EntityCellRelation:         _RTYPE_PREFIX,
 }
 
-
-class HeaderFilterItemsWidget(Widget):
+#TODO: move to a separated file ??
+class EntityCellsWidget(Widget):
     def __init__(self, user=None, model=None, model_fields=(), model_subfields=(), custom_fields=(),
                  function_fields=(), relation_types=(), *args, **kwargs
                 ):
-        super(HeaderFilterItemsWidget, self).__init__(*args, **kwargs)
+        super(EntityCellsWidget, self).__init__(*args, **kwargs)
         self.user = user
         self.model = model
 
@@ -108,7 +110,8 @@ class HeaderFilterItemsWidget(Widget):
         attrs_map = self.build_attrs(attrs, name=name)
 
         if isinstance(value, list):
-            value = ','.join(_PREFIXES_MAP[item.type] + item.name for item in value)
+            #value = ','.join(_PREFIXES_MAP[cell.type] + cell.value for cell in value)
+            value = ','.join(_PREFIXES_MAP[cell.__class__] + cell.value for cell in value)
 
         return render_to_string('creme_core/header_filter_items_widget.html',
                                 {'attrs': mark_safe(flatatt(attrs)),
@@ -127,25 +130,26 @@ class HeaderFilterItemsWidget(Widget):
                                )
 
 
-class HeaderFilterItemsField(Field):
-    widget = HeaderFilterItemsWidget
+class EntityCellsField(Field):
+    widget = EntityCellsWidget
 
     def __init__(self, content_type=None, *args, **kwargs):
-        super(HeaderFilterItemsField, self).__init__(*args, **kwargs)
+        super(EntityCellsField, self).__init__(*args, **kwargs)
         self.content_type = content_type
         self.user = None
 
     def _build_4_field(self, model, name):
-        return HeaderFilterItem.build_4_field(model=model, name=name[len(_RFIELD_PREFIX):])
+        return EntityCellRegularField.build(model=model, name=name[len(_RFIELD_PREFIX):])
 
     def _build_4_customfield(self, model, name):
-        return HeaderFilterItem.build_4_customfield(self._get_cfield(int(name[len(_CFIELD_PREFIX):])))
+        return EntityCellCustomField(self._get_cfield(int(name[len(_CFIELD_PREFIX):])))
 
     def _build_4_functionfield(self, model, name):
-        return HeaderFilterItem.build_4_functionfield(model.function_fields.get(name[len(_FFIELD_PREFIX):]))
+        #return EntityCellFunctionField(model.function_fields.get(name[len(_FFIELD_PREFIX):]))
+        return EntityCellFunctionField.build(model, name[len(_FFIELD_PREFIX):])
 
     def _build_4_relation(self, model, name):
-        return HeaderFilterItem.build_4_relation(self._get_rtype(name[len(_RTYPE_PREFIX):]))
+        return EntityCellRelation(self._get_rtype(name[len(_RTYPE_PREFIX):]))
 
     @property
     def content_type(self):
@@ -183,7 +187,7 @@ class HeaderFilterItemsField(Field):
 
                 field_id = _RFIELD_PREFIX + '__'.join(field.name for field in fields_info)
                 choices.append((field_id, unicode(fields_info[-1].verbose_name)))
-                builders[field_id] = HeaderFilterItemsField._build_4_field
+                builders[field_id] = EntityCellsField._build_4_field
 
             sort_key = collator.sort_key
             sort_choice = lambda k: sort_key(k[1]) #TODO: in utils ?
@@ -201,7 +205,7 @@ class HeaderFilterItemsField(Field):
             for cf in self._custom_fields:
                 field_id = _CFIELD_PREFIX + str(cf.id)
                 cfields_choices.append((field_id, cf.name))
-                builders[field_id] = HeaderFilterItemsField._build_4_customfield
+                builders[field_id] = EntityCellsField._build_4_customfield
 
             #Function Fields -------------------------------------------------
             widget.function_fields = ffields_choices = [] #TODO: sort ?
@@ -209,7 +213,7 @@ class HeaderFilterItemsField(Field):
             for f in model.function_fields:
                 field_id = _FFIELD_PREFIX + f.name
                 ffields_choices.append((field_id, f.verbose_name))
-                builders[field_id] = HeaderFilterItemsField._build_4_functionfield
+                builders[field_id] = EntityCellsField._build_4_functionfield
 
             #Relationships ---------------------------------------------------
             #TODO: sort ? smart categories ('all', 'contacts') ?
@@ -218,7 +222,7 @@ class HeaderFilterItemsField(Field):
             for rtype in self._relation_types:
                 field_id = _RTYPE_PREFIX + rtype.id
                 rtypes_choices.append((field_id, rtype.predicate))
-                builders[field_id] = HeaderFilterItemsField._build_4_relation
+                builders[field_id] = EntityCellsField._build_4_relation
 
     #NB: _get_cfield_name() & _get_rtype() : we do linear searches because
     #   there are very few searches => build a dict wouldn't be faster
@@ -243,7 +247,7 @@ class HeaderFilterItemsField(Field):
     #TODO: to_python() + validate() instead ??
     def clean(self, value):
         assert self._content_type
-        hf_items = []
+        cells = []
 
         if value in EMPTY_VALUES:
             if self.required:
@@ -258,16 +262,16 @@ class HeaderFilterItemsField(Field):
                 if not builder:
                     raise ValidationError(self.error_messages['invalid'])
 
-                hf_items.append(builder(self, model, elt))
+                cells.append(builder(self, model, elt))
 
-        return hf_items
+        return cells
 
 
 #TODO: create and edit form ????
 class HeaderFilterForm(CremeModelForm):
-    items = HeaderFilterItemsField(label=_(u'Columns'))
+    cells = EntityCellsField(label=_(u'Columns'))
 
-    blocks = CremeModelForm.blocks.new(('items', _('Columns'), ['items']))
+    blocks = CremeModelForm.blocks.new(('cells', _('Columns'), ['cells']))
 
     class Meta:
         model = HeaderFilter
@@ -281,19 +285,20 @@ class HeaderFilterForm(CremeModelForm):
         user_f.empty_label = _(u'All users')
         user_f.help_text   = _(u'All users can see the view, but only the owner can edit or delete it')
 
-        items_f = fields['items']
+        cells_f = fields['cells']
 
         if instance.id:
-            items_f.content_type = instance.entity_type
-            items_f.initial = instance.items
+            cells_f.content_type = instance.entity_type
+            cells_f.initial = instance.cells
         else:
-            items_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
-            items_f.initial = smart_columns_registry.get_items(ct.model_class())
+            cells_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
+            cells_f.initial = smart_columns_registry.get_cells(ct.model_class())
 
     @commit_on_success
     def save(self):
         instance = self.instance
         instance.is_custom = True
+        instance.cells = self.cleaned_data['cells']
 
         if instance.id:
             super(HeaderFilterForm, self).save()
@@ -304,7 +309,5 @@ class HeaderFilterForm(CremeModelForm):
             generate_string_id_and_save(HeaderFilter, [instance],
                                         'creme_core-userhf_%s-%s' % (ct.app_label, ct.model)
                                        )
-
-        instance.set_items(self.cleaned_data['items'])
 
         return instance

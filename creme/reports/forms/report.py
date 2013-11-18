@@ -31,16 +31,17 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.registry import export_backend_registry #creme_registry
+from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField #AjaxMultipleChoiceField
-from creme.creme_core.models import EntityFilter, RelationType, CustomField
-from creme.creme_core.models.header_filter import (HeaderFilter, HFI_FIELD, HFI_RELATION,
-                                                   HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
+from creme.creme_core.models import HeaderFilter, EntityFilter, RelationType, CustomField
+from creme.creme_core.registry import export_backend_registry #creme_registry
 from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name,
         get_date_fields, get_related_field_verbose_name, ModelFieldEnumerator)
 
+from ..constants import RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION, RFT_CALCULATED, RFT_RELATED
 from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
@@ -53,13 +54,13 @@ from ..report_aggregation_registry import field_aggregation_registry
     #return Field.objects.create(name=name, title=title, order=order, type=type)
 
 #def save_hfi_field(model, column, order):
-    #return _save_field(column, get_verbose_field_name(model, column), order, HFI_FIELD)
+    #return _save_field(column, get_verbose_field_name(model, column), order, RFT_FIELD)
 
 #def save_hfi_related_field(model, related_field_name, order):
-    #return _save_field(related_field_name, get_related_field_verbose_name(model, related_field_name), order, HFI_RELATED)
+    #return _save_field(related_field_name, get_related_field_verbose_name(model, related_field_name), order, RFT_RELATED)
 
 #def save_hfi_cf(custom_field, order):
-    #return _save_field(custom_field.id, custom_field.name, order, HFI_CUSTOM)
+    #return _save_field(custom_field.id, custom_field.name, order, RFT_CUSTOM)
 
 #def save_hfi_relation(relation, order):
     #try:
@@ -67,13 +68,13 @@ from ..report_aggregation_registry import field_aggregation_registry
     #except RelationType.DoesNotExist:
         #predicate_verbose = relation
 
-    #return _save_field(relation, predicate_verbose, order, HFI_RELATION)
+    #return _save_field(relation, predicate_verbose, order, RFT_RELATION)
 
 #def save_hfi_function(model, function_name, order):
-    #return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, HFI_FUNCTION)
+    #return _save_field(function_name, get_function_field_verbose_name(model, function_name), order, RFT_FUNCTION)
 
 #def save_hfi_calculated(calculated, title, order):
-    #return _save_field(calculated, title, order, HFI_CALCULATED)
+    #return _save_field(calculated, title, order, RFT_CALCULATED)
 
 #def _get_field(columns_get, column, type, order):
     #f = columns_get(name=column, type=type)
@@ -83,35 +84,35 @@ from ..report_aggregation_registry import field_aggregation_registry
 
 #def get_hfi_field_or_save(columns_get, model, column, order):
     #try:
-        #f = _get_field(columns_get, column, HFI_FIELD, order)
+        #f = _get_field(columns_get, column, RFT_FIELD, order)
     #except Field.DoesNotExist:
         #f = save_hfi_field(model, column, order)
     #return f
 
 #def get_hfi_related_field_or_save(columns_get, model, column, order):
     #try:
-        #f = _get_field(columns_get, column, HFI_RELATED, order)
+        #f = _get_field(columns_get, column, RFT_RELATED, order)
     #except Field.DoesNotExist:
         #f = save_hfi_related_field(model, column, order)
     #return f
 
 #def get_hfi_cf_or_save(columns_get, custom_field, order):
     #try:
-        #f = _get_field(columns_get, custom_field.id, HFI_CUSTOM, order)
+        #f = _get_field(columns_get, custom_field.id, RFT_CUSTOM, order)
     #except Field.DoesNotExist:
         #f = save_hfi_cf(custom_field, order)
     #return f
 
 #def get_hfi_relation_or_save(columns_get, relation, order):
     #try:
-        #f = _get_field(columns_get, relation, HFI_RELATION, order)
+        #f = _get_field(columns_get, relation, RFT_RELATION, order)
     #except Field.DoesNotExist:
         #f = save_hfi_relation(relation, order)
     #return f
 
 #def get_hfi_function_or_save(columns_get, model, function, order):
     #try:
-        #f = _get_field(columns_get, function, HFI_FUNCTION, order)
+        #f = _get_field(columns_get, function, RFT_FUNCTION, order)
     #except Field.DoesNotExist:
         #f = save_hfi_function(model, function, order)
     #return f
@@ -132,7 +133,7 @@ from ..report_aggregation_registry import field_aggregation_registry
 
 #def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
     #try:
-        #f = _get_field(columns_get, calculated_column, HFI_CALCULATED, order)
+        #f = _get_field(columns_get, calculated_column, RFT_CALCULATED, order)
     #except Field.DoesNotExist:
         #title = _get_hfi_calculated_title(aggregate, calculated_column, model)
         #f = save_hfi_calculated(calculated_column, title, order)
@@ -278,18 +279,25 @@ class CreateForm(CremeEntityForm):
 
         #return report
 
-    def _build_field_from_hf_item(self, hf_item):
-        hf_type = hf_item.type
-        name = hf_item.relation_predicat_id if hf_type == HFI_RELATION else hf_item.name
+    _TYPE_TRANSLATION_MAP = {
+            EntityCellRegularField.type_id:     RFT_FIELD,
+            EntityCellCustomField.type_id:      RFT_CUSTOM,
+            EntityCellFunctionField.type_id:    RFT_FUNCTION,
+            EntityCellRelation.type_id:         RFT_RELATION,
+        }
 
-        return Field.objects.create(name=name, title=hf_item.title, order=hf_item.order, type=hf_type)
+    def _build_field_from_cell(self, cell, order):
+        #TODO: check in clean() that id is OK
+        return Field.objects.create(name=cell.value, title=cell.title, order=order,
+                                    type=self._TYPE_TRANSLATION_MAP[cell.type_id],
+                                   )
 
     @commit_on_success
     def save(self, *args, **kwargs):
         report = super(CreateForm, self).save(*args, **kwargs)
 
-        build_field = self._build_field_from_hf_item
-        report.columns = [build_field(hf_item) for hf_item in self.cleaned_data['hf'].items]
+        build_field = self._build_field_from_cell
+        report.columns = [build_field(cell, i) for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1)]
 
         return report
 
@@ -351,16 +359,16 @@ class AddFieldToReportForm(CremeForm):
         regular_fields_f.choices = ModelFieldEnumerator(model, deep=1) \
                                         .filter(viewable=True) \
                                         .choices()
-        regular_fields_f.initial = initial_data[HFI_FIELD]
+        regular_fields_f.initial = initial_data[RFT_FIELD]
 
         related_fields_f = fields['related_fields']
         related_fields_f.choices = Report.get_related_fields_choices(model)
-        related_fields_f.initial = initial_data[HFI_RELATED]
+        related_fields_f.initial = initial_data[RFT_RELATED]
 
         custom_fields_f = fields['custom_fields']
         self.custom_fields = cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ct)) #TODO: remove when title is now more store in Field
         custom_fields_f.choices = [(str(cf.id), cf.name) for cf in cfields.itervalues()]
-        custom_fields_f.initial = initial_data[HFI_CUSTOM]
+        custom_fields_f.initial = initial_data[RFT_CUSTOM]
 
         relations_f = fields['relations']
         self.rtypes = rtypes = OrderedDict(RelationType.get_compatible_ones(ct)
@@ -368,13 +376,13 @@ class AddFieldToReportForm(CremeForm):
                                                        .values_list('id', 'predicate')
                                           )
         relations_f.choices = rtypes.items()
-        relations_f.initial = initial_data[HFI_RELATION]
+        relations_f.initial = initial_data[RFT_RELATION]
 
         function_fields_f = fields['functions']
         function_fields_f.choices = [(f.name, f.verbose_name) for f in model.function_fields] #TODO: unicode collation ??
-        function_fields_f.initial = initial_data[HFI_FUNCTION]
+        function_fields_f.initial = initial_data[RFT_FUNCTION]
 
-        self._set_aggregate_fields(model, initial_data=initial_data[HFI_CALCULATED])
+        self._set_aggregate_fields(model, initial_data=initial_data[RFT_CALCULATED])
 
     def _get_calculated_title(self, aggregation, aggregate_id, model):
         field_name, sep, aggregate_name = aggregate_id.rpartition('__')
@@ -425,30 +433,30 @@ class AddFieldToReportForm(CremeForm):
             new_rfields.append(rfield)
 
         for field_name in get_data('regular_fields'):
-            add_rfield(name=field_name, ftype=HFI_FIELD,
+            add_rfield(name=field_name, ftype=RFT_FIELD,
                        title=get_verbose_field_name(model, field_name),
                       )
 
         for related_field_name in get_data('related_fields'):
-            add_rfield(name=related_field_name, ftype=HFI_RELATED,
+            add_rfield(name=related_field_name, ftype=RFT_RELATED,
                        title=get_related_field_verbose_name(model, related_field_name)
                       )
 
         for cf_id in get_data('custom_fields'):
             cfield = self.custom_fields[int(cf_id)]
-            add_rfield(name=cfield.id, title=cfield.name, ftype=HFI_CUSTOM)
+            add_rfield(name=cfield.id, title=cfield.name, ftype=RFT_CUSTOM)
 
         for rtype_id in get_data('relations'):
-            add_rfield(name=rtype_id, title=self.rtypes[rtype_id], ftype=HFI_RELATION)
+            add_rfield(name=rtype_id, title=self.rtypes[rtype_id], ftype=RFT_RELATION)
 
         for funfield_name in get_data('functions'):
-            add_rfield(name=funfield_name, ftype=HFI_FUNCTION,
+            add_rfield(name=funfield_name, ftype=RFT_FUNCTION,
                        title=get_function_field_verbose_name(model, funfield_name)
                       )
 
         for aggregation in field_aggregation_registry.itervalues():
             for aggregate_id in get_data(aggregation.name):
-                add_rfield(name=aggregate_id, ftype=HFI_CALCULATED,
+                add_rfield(name=aggregate_id, ftype=RFT_CALCULATED,
                            title=self._get_calculated_title(aggregation, aggregate_id, model)
                           )
 

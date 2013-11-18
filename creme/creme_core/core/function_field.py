@@ -29,8 +29,8 @@ class FunctionField(object):
     """
     name         = "" #name of the attr if the related model class
     verbose_name = "" #verbose name (used by HeaderFilter)
-    has_filter   = False #see HeaderFilterItem.has_a_filter
-    is_hidden    = False #see HeaderFilterItem.is_hidden
+    has_filter   = False #see EntityCell.has_a_filter
+    is_hidden    = False #see EntityCell.is_hidden
     choices      = None #Choices for list_view filtering. Has to be like django choices (e.g: [(1, 'First choice', ...), ] )
 
     @classmethod
