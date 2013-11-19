@@ -29,7 +29,14 @@ class Migration(DataMigration):
             hf.json_cells = jsondumps(cells)
             hf.save()
 
+        orm['contenttypes.ContentType'].objects.filter(app_label='creme_core', model='headerfilteritem').delete()
+
     def backwards(self, orm):
+        orm['contenttypes.ContentType'].objects.create(app_label='creme_core',
+                                                       model='headerfilteritem',
+                                                       name="List view column",
+                                                      )
+
         # The migration is not perfect (the user should edit himself):
         #   - 'title' not user friendly
         #   - 'relation_predicat' not set
