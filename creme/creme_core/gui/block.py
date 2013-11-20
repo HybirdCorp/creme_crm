@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
+from future_builtins import filter, map
 from collections import defaultdict
 import logging
 
@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from ..models import (Relation, RelationType, RelationBlockItem,
-                      InstanceBlockConfigItem, BlockState) #CremeEntity
+        InstanceBlockConfigItem, CustomBlockConfigItem, BlockState) #CremeEntity
 
 
 logger = logging.getLogger(__name__)
@@ -304,10 +304,15 @@ class SpecificRelationsBlock(QuerysetBlock):
     verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_specific_relations.html'
 
-    def __init__(self, id_, relation_type_id):
+    def __init__(self, relationblock_item):
+        "@param relationblock_item Instance of RelationBlockItem"
         super(SpecificRelationsBlock, self).__init__()
-        self.id_ = id_
-        self.relation_type_deps = (relation_type_id,)
+        self.id_ = relationblock_item.block_id
+        self.config_item = relationblock_item
+
+        rtype = relationblock_item.relation_type
+        self.relation_type_deps = (rtype.id,)
+        self.verbose_name = ugettext(u'Relationship block: %s') % rtype.predicate
 
     @staticmethod
     def generate_id(app_name, name):
@@ -319,20 +324,69 @@ class SpecificRelationsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        relation_type = RelationType.objects.get(pk=self.relation_type_deps[0])
-
-        btc = self.get_block_template_context(context,
-                                              entity.relations.filter(type=relation_type).select_related('type', 'object_entity'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                              relation_type=relation_type,
-                                             )
-
-        #NB: DB optimisation
+        config_item = self.config_item
+        relation_type = config_item.relation_type
+        btc = self.get_block_template_context(
+                    context,
+                    entity.relations.filter(type=relation_type).select_related('type', 'object_entity'),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                    relation_type=relation_type,
+                   )
         relations = btc['page'].object_list
-        Relation.populate_real_object_entities(relations)
-        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
+        entities_by_ct = defaultdict(list)
+
+        Relation.populate_real_object_entities(relations) #DB optimisation
+
+        for relation in relations:
+            entity = relation.object_entity.get_real_entity()
+            entity.srb_relation_cache = relation
+            entities_by_ct[entity.entity_type_id].append(entity)
+
+        groups = [] #list of tuples (entities_with_same_ct, headerfilter_items)
+        unconfigured_group = [] #entities that do not have a customised columns setting
+        colspan = 1 #unconfigured_group has one column
+        get_ct = ContentType.objects.get_for_id
+
+        for ct_id, entities in entities_by_ct.iteritems():
+            cells = config_item.get_cells(get_ct(ct_id))
+
+            if cells:
+                groups.append((entities, cells))
+                colspan = max(colspan, len(cells))
+            else:
+                unconfigured_group.append((entities, None))
+
+        groups.extend(unconfigured_group) #unconfigured_group must be at the end
+
+        btc['groups'] = groups
+        btc['colspan'] = colspan + 1 # add one because of 'Unlink' column
 
         return self._render(btc)
+
+
+class CustomBlock(Block):
+    """Block that can be customised by the user to display informations of an entity.
+    It can display regular, custom & function fields, relationships... (see HeaderFilterItem)
+    """
+    template_name = 'creme_core/templatetags/block_custom.html'
+
+    def __init__(self, id_, customblock_conf_item):
+        "@param customblock_conf_item Instance of CustomBlockConfigItem"
+        super(CustomBlock, self).__init__()
+        self.id_ = id_
+        self.dependencies = (customblock_conf_item.content_type.model_class(),) #TODO: other model (FK, M2M, Relation)
+        #self.relation_type_deps = () #TODO: if cell is EntityCellRelation
+        self.verbose_name = customblock_conf_item.name
+        self.config_item = customblock_conf_item
+
+    def detailview_display(self, context):
+        entity = context['object']
+
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                            config_item=self.config_item,
+                                                           )
+                           )
 
 
 class BlocksManager(object):
@@ -531,22 +585,31 @@ class _BlockRegistry(object):
         """
         specific_ids = list(filter(SpecificRelationsBlock.id_is_specific, block_ids))
         instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, block_ids))
+        custom_ids   = list(filter(None, map(CustomBlockConfigItem.id_from_block_id, block_ids)))
+
         relation_blocks_items = dict((rbi.block_id, rbi)
                                         for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
                                     ) if specific_ids else {}
         instance_blocks_items = dict((ibi.block_id, ibi)
                                         for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
                                     ) if instance_ids else {}
+        custom_blocks_items = dict((cbci.generate_id(), cbci)
+                                        for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
+                                  ) if custom_ids else {}
+
         blocks = []
 
         for id_ in block_ids:
             rbi = relation_blocks_items.get(id_)
             ibi = instance_blocks_items.get(id_) #TODO: do only if needed....
+            cbci = custom_blocks_items.get(id_) #TODO: idem
 
             if rbi:
-                block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id)
+                block = SpecificRelationsBlock(rbi)
             elif ibi:
                 block = self._get_block_4_instance(ibi, entity) or Block()
+            elif cbci:
+                block = CustomBlock(id_, cbci)
             elif id_.startswith('modelblock_'): #TODO: constant ?
                 block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
             else:
@@ -580,7 +643,7 @@ class _BlockRegistry(object):
 
     def get_compatible_blocks(self, model=None):
         """Returns the list of registered blocks that are configurable and compatible with the given ContentType.
-        @param model Constraint on a CremeEntity class ; means blocks must be compatible with all kind of CremeEntity
+        @param model Constraint on a CremeEntity class ; None means blocks must be compatible with all kind of CremeEntity
         """
         for block in self._blocks.itervalues():
             if block.configurable and hasattr(block, 'detailview_display') \
@@ -589,10 +652,7 @@ class _BlockRegistry(object):
 
         #TODO: filter compatible relation types (but the constraints can change after we config blocks...)
         for rbi in RelationBlockItem.objects.all(): #select_related('relation_type') ??
-            block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id) #TODO: factorise ?? only rbi arg ??
-            block.verbose_name = ugettext(u'Relationship block: %s') % rbi.relation_type.predicate
-
-            yield block
+            yield SpecificRelationsBlock(rbi)
 
         for ibi in InstanceBlockConfigItem.objects.all():
             block = self._get_block_4_instance(ibi)
@@ -600,6 +660,10 @@ class _BlockRegistry(object):
             if block and hasattr(block, 'detailview_display') \
                and (not block.target_ctypes or model in block.target_ctypes):
                 yield block
+
+        if model:
+            for cbci in CustomBlockConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)):
+                yield CustomBlock(cbci.generate_id(), cbci)
 
     def get_compatible_portal_blocks(self, app_name):
         method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'

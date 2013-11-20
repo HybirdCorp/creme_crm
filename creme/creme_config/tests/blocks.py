@@ -4,13 +4,23 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import RelationType
+    from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.models import RelationType, CustomField
     from creme.creme_core.models.block import *
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme.creme_core.blocks import history_block
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Contact  #need CremeEntity
+    from creme.creme_config.blocks import(BlockDetailviewLocationsBlock, BlockPortalLocationsBlock,
+        BlockDefaultMypageLocationsBlock, RelationBlocksConfigBlock,
+        InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
+
+    from creme.documents.models import Folder, Document
+
+    from creme.persons.models import Contact, Organisation  #need CremeEntity
+
+    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -38,8 +48,24 @@ class BlocksConfigTestCase(CremeTestCase):
     def _build_editdetail_url(self, ct=None):
         return '/creme_config/blocks/detailview/edit/%s' % (ct.id if ct else 0)
 
+    def _build_rblock_addctypes_url(self, rbi):
+        return '/creme_config/blocks/relation_block/add_ctypes/%s' % rbi.id
+
+    def _build_rblock_editctype_url(self, rbi, model):
+        return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
+                    rbi.id, ContentType.objects.get_for_model(model).id,
+                )
+
     def test_portal(self):
-        self.assertGET200('/creme_config/blocks/portal/')
+        response = self.assertGET200('/creme_config/blocks/portal/')
+
+        fmt = 'id="%s"'
+        self.assertContains(response, fmt % BlockDetailviewLocationsBlock.id_)
+        self.assertContains(response, fmt % BlockPortalLocationsBlock.id_)
+        self.assertContains(response, fmt % BlockDefaultMypageLocationsBlock.id_)
+        self.assertContains(response, fmt % RelationBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % InstanceBlocksConfigBlock.id_)
+        self.assertContains(response, fmt % CustomBlocksConfigBlock.id_)
 
     def test_add_detailview(self):
         url = self.ADD_DT_URL
@@ -705,9 +731,9 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertStillExists(loc)
 
     def test_add_relationblock(self):
-        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                      ('test-objfoo', 'object_predicate'), is_custom=False
-                                     )
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate'),
+                                )[0]
         self.assertFalse(RelationBlockItem.objects.count())
 
         url = '/creme_config/blocks/relation_block/add/'
@@ -715,14 +741,258 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.assertNoFormError(self.client.post(url, data={'relation_type': rt.id}))
 
-        rbi = RelationBlockItem.objects.all()
-        self.assertEqual(1,     len(rbi))
-        self.assertEqual(rt.id, rbi[0].relation_type.id)
+        rb_items = RelationBlockItem.objects.all()
+        self.assertEqual(1, len(rb_items))
+
+        rb_item = rb_items[0]
+        self.assertEqual(rt.id, rb_item.relation_type.id)
+        self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.block_id)
+        self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(Contact)))
+
+    def test_add_relationblock_ctypes01(self):
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate', [Contact, Organisation, Document]),
+                                )[0]
+
+        rb_item = RelationBlockItem.objects.create(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rt,
+                    )
+
+        url = self._build_rblock_addctypes_url(rb_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctypes'].ctypes
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn(get_ct(Contact),      choices)
+        self.assertIn(get_ct(Organisation), choices)
+        self.assertIn(get_ct(Document),     choices)
+        self.assertNotIn(get_ct(Folder),    choices)
+
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'ctypes': [get_ct(m).id for m in (Contact, Organisation)]},
+        ))
+
+        rb_item = self.refresh(rb_item)
+        self.assertIsNone(rb_item.get_cells(get_ct(Document)))
+        self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
+        self.assertEqual([], rb_item.get_cells(get_ct(Organisation)))
+
+        #used CTypes should not be proposed
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctypes'].ctypes
+
+        self.assertIn(get_ct(Document),        choices) #compatible & not used
+        self.assertNotIn(get_ct(Folder),       choices) #still not compatible
+        self.assertNotIn(get_ct(Contact),      choices) #used
+        self.assertNotIn(get_ct(Organisation), choices) #used
+
+    def test_add_relationblock_ctypes02(self):
+        "All ContentTypes allowed"
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate'),
+                                )[0]
+
+        rb_item = RelationBlockItem.objects.create(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rt,
+                    )
+
+        url = self._build_rblock_addctypes_url(rb_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctypes'].ctypes
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn(get_ct(Contact),      choices)
+        self.assertIn(get_ct(Organisation), choices)
+        self.assertIn(get_ct(Document),     choices)
+
+        self.assertNoFormError(self.client.post( url, data={'ctypes': [get_ct(Contact).id]}))
+
+        rb_item = self.refresh(rb_item)
+        self.assertIsNone(rb_item.get_cells(get_ct(Organisation)))
+        self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
+
+        #used CTypes should not be proposed
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['ctypes'].ctypes
+
+        self.assertNotIn(get_ct(Contact),   choices) #used
+        self.assertIn(get_ct(Organisation), choices) #not used
+
+    def test_edit_relationblock_ctypes01(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate'),
+                                )[0]
+
+        rb_item = RelationBlockItem(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rt,
+                    )
+        rb_item.set_cells(ct, ())
+        rb_item.save()
+
+        self.assertGET404(self._build_rblock_editctype_url(rb_item, Organisation))
+
+        url = self._build_rblock_editctype_url(rb_item, Contact)
+        self.assertGET200(url)
+
+        funcfield = Contact.function_fields.get('get_pretty_properties')
+        field_fname = 'first_name'
+        field_lname = 'last_name'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,function_field-%(ffield)s' % {
+                                'rfield1': field_fname,
+                                'rfield2': field_lname,
+                                'ffield':  funcfield.name,
+                            },
+                 }
+           )
+        )
+
+        rb_item = self.refresh(rb_item)
+        cells = rb_item.get_cells(ct)
+        self.assertIsInstance(cells, list)
+        self.assertEqual(3, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellRegularField)
+        self.assertEqual(field_fname, cell.value)
+
+        self.assertEqual(field_lname, cells[1].value)
+
+        cell = cells[2]
+        self.assertIsInstance(cell, EntityCellFunctionField)
+        self.assertEqual(funcfield.name, cell.value)
+
+    def test_edit_relationblock_ctypes02(self):
+        "Validation errors with URLField & ForeignKey"
+        rb_item = RelationBlockItem(
+                block_id='specificblock_creme_config-test-subfoo',
+                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                                  ('test-objfoo', 'object_predicate'),
+                                                 )[0],
+            )
+        rb_item.set_cells(ContentType.objects.get_for_model(Contact), ())
+        rb_item.save()
+
+        url = self._build_rblock_editctype_url(rb_item, Contact)
+
+        def post(field_name, error=True):
+            response = self.assertPOST200(
+                url,
+                data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
+                                    'rfield1': field_name,
+                                    'rfield2': 'last_name',
+                                },
+                     }
+            )
+            if error:
+                self.assertFormError(response, 'form', 'cells',
+                                    _('This type of field can not be the first column.')
+                                    )
+            else:
+                self.assertNoFormError(response)
+
+        post('url_site')
+        post('email')
+        post('image')
+        post('image__name')
+        post('civility', error=False)
+        post('civility__shortcut', error=False)
+
+    def test_edit_relationblock_ctypes03(self):
+        "Validation errors with M2M"
+        rb_item = RelationBlockItem(
+                block_id='specificblock_creme_config-test-subfoo',
+                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                                  ('test-objfoo', 'object_predicate'),
+                                                 )[0],
+            )
+        rb_item.set_cells(ContentType.objects.get_for_model(EmailCampaign), ())
+        rb_item.save()
+
+        url = self._build_rblock_editctype_url(rb_item, EmailCampaign)
+
+        def post(field_name):
+            response = self.assertPOST200(
+                url,
+                data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
+                                    'rfield1': field_name,
+                                    'rfield2': 'name',
+                                },
+                    }
+            )
+            self.assertFormError(response, 'form', 'cells',
+                                 _('This type of field can not be the first column.')
+                                )
+
+        post('mailing_lists')
+        post('mailing_lists__name')
+
+    def test_edit_relationblock_ctypes04(self):
+        "Validation errors with Relation"
+        create_rtype = RelationType.create
+        rt1 = create_rtype(('test-subfoo', 'subject_predicate1'), ('test-objfoo', 'object_predicate2'))[0]
+        rt2 = create_rtype(('test-subbar', 'subject_predicate2'), ('test-objbar', 'object_predicate2'))[0]
+
+        rb_item = RelationBlockItem(
+                block_id='specificblock_creme_config-test-subfoo',
+                relation_type=rt1,
+            )
+        rb_item.set_cells(ContentType.objects.get_for_model(Organisation), ())
+        rb_item.save()
+
+        response = self.assertPOST200(
+            self._build_rblock_editctype_url(rb_item, Organisation),
+            data={'cells': 'relation-%(rtype)s,regular_field-%(rfield)s' % {
+                                'rtype':  rt2.id,
+                                'rfield': 'name',
+                            },
+                 }
+        )
+        self.assertFormError(response, 'form', 'cells',
+                             _('This type of field can not be the first column.')
+                            )
+
+    def test_delete_relationblock_ctypes(self):
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Contact)
+
+        rb_item = RelationBlockItem(
+                block_id='specificblock_creme_config-test-subfoo',
+                relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
+                                                  ('test-objfoo', 'object_predicate'),
+                                                 )[0],
+            )
+        rb_item.set_cells(ct, [EntityCellRegularField.build(Contact, 'first_name')])
+        rb_item.save()
+
+        url_fmt = '/creme_config/blocks/relation_block/%s/delete_ctype'
+        self.assertPOST404(url_fmt % rb_item.id, data={'id': get_ct(Organisation).id})
+
+        url = url_fmt % rb_item.id
+        data = {'id': ct.id}
+        self.assertGET404(url, data=data) #only POST
+
+        self.assertPOST200(url, data=data)
+        self.assertIsNone(self.refresh(rb_item).get_cells(ct))
 
     def test_delete_relationblock(self):
-        rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                      ('test-objfoo', 'object_predicate'), is_custom=False
-                                     )
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate'), is_custom=False
+                                )[0]
         rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5,
                                              zone=BlockDetailviewLocation.RIGHT,
@@ -752,4 +1022,105 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
         self.assertDoesNotExist(ibi)
+        self.assertDoesNotExist(loc)
+
+    def test_add_customblock(self):
+        url = '/creme_config/blocks/custom/add/'
+        self.assertGET200(url)
+
+        ct = ContentType.objects.get_for_model(Contact)
+        self.assertFalse(CustomBlockConfigItem.objects.filter(content_type=ct))
+
+        name = 'Regular info'
+        self.assertNoFormError(self.client.post(url,
+                                                data={'ctype': ct.id,
+                                                      'name':  name,
+                                                     }
+                                               )
+                              )
+
+        cbc_items = CustomBlockConfigItem.objects.filter(content_type=ct)
+        self.assertEqual(1, len(cbc_items))
+
+        cbc_item = cbc_items[0]
+        self.assertEqual(name, cbc_item.name)
+        self.assertEqual([], cbc_item.cells)
+
+        self.assertNoFormError(self.client.post(url,
+                                                data={'ctype': ct.id,
+                                                      'name':  'Other info',
+                                                     }
+                                               )
+                              )
+        self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
+
+    def test_edit_customblock(self):
+        ct = ContentType.objects.get_for_model(Contact)
+
+        loves = RelationType.create(('test-subject_love', u'Is loving'),
+                                    ('test-object_love',  u'Is loved by')
+                                   )[0]
+        customfield = CustomField.objects.create(name=u'Size (cm)',
+                                                 field_type=CustomField.INT,
+                                                 content_type=ct,
+                                                )
+        funcfield = Contact.function_fields.get('get_pretty_properties')
+
+        name = 'info'
+        cbc_item = CustomBlockConfigItem.objects.create(id='tests-contacts1',
+                                                        content_type=ct, name=name,
+                                                       )
+
+        url = '/creme_config/blocks/custom/edit/%s' % cbc_item.id
+        self.assertGET200(url)
+
+        name = name.title()
+        field_fname = 'first_name'
+        field_lname = 'last_name'
+        self.assertNoFormError(self.client.post(
+            url, follow=True,
+            data={'name':  name,
+                  'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,relation-%(rtype)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
+                                'rfield1': field_fname,
+                                'rfield2': field_lname,
+                                'cfield':  customfield.id,
+                                'rtype':   loves.id,
+                                'ffield':  funcfield.name,
+                            },
+                 }
+           )
+        )
+
+        cbc_item = self.refresh(cbc_item)
+        self.assertEqual(name, cbc_item.name)
+
+        cells = cbc_item.cells
+        self.assertIsInstance(cells, list)
+        self.assertEqual(5, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellRegularField)
+        self.assertEqual(field_fname, cell.value)
+
+        self.assertEqual(field_lname, cells[1].value)
+
+        cell = cells[2]
+        self.assertIsInstance(cell, EntityCellRelation)
+        self.assertEqual(loves.id, cell.value)
+
+        cell = cells[3]
+        self.assertIsInstance(cell, EntityCellFunctionField)
+        self.assertEqual(funcfield.name, cell.value)
+
+        cell = cells[4]
+        self.assertIsInstance(cell, EntityCellCustomField)
+        self.assertEqual(str(customfield.id), cell.value)
+
+    def test_delete_customblock(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        cbci = CustomBlockConfigItem.objects.create(content_type=ct, name='Info')
+        loc = BlockDetailviewLocation.create(block_id=cbci.generate_id(), order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+
+        self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
+        self.assertDoesNotExist(cbci)
         self.assertDoesNotExist(loc)

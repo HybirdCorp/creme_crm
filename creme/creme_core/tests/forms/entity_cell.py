@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 try:
     from django.contrib.contenttypes.models import ContentType
@@ -38,13 +38,13 @@ class EntityCellsFieldTestCase(FieldTestCase):
     def test_clean_invalid_choice(self):
         field = EntityCellsField(content_type=self.ct_contact)
         self.assertFieldValidationError(EntityCellsField, 'invalid', field.clean,
-                                        'rfield-first_name,rfield-unknown'
+                                        'regular_field-first_name,regular_field-unknown'
                                        )
 
     def test_ok01(self):
         "One regular field"
         field = EntityCellsField(content_type=self.ct_contact)
-        cells = field.clean('rfield-first_name')
+        cells = field.clean('regular_field-first_name')
         self.assertEqual(1, len(cells))
 
         cell = cells[0]
@@ -69,7 +69,7 @@ class EntityCellsFieldTestCase(FieldTestCase):
         funcfield = Contact.function_fields.get('get_pretty_properties')
 
         field = EntityCellsField(content_type=self.ct_contact)
-        cells = field.clean('rtype-%s,rfield-last_name,ffield-%s,cfield-%s,rfield-first_name' % (
+        cells = field.clean('relation-%s,regular_field-last_name,function_field-%s,custom_field-%s,regular_field-first_name' % (
                                     loves.id, funcfield.name, customfield.id,
                                 )
                            )

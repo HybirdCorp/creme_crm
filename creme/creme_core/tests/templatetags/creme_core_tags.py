@@ -122,12 +122,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())
 
-    def assertFieldEditorTag(self, render, entity, field_name):
-        self.assertTrue(render.strip()
-                              .startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/%s/field/%s',""" % (
-                                              entity.entity_type_id, entity.id, field_name)
-                                         )
-                       )
+    def assertFieldEditorTag(self, render, entity, field_name, block=False):
+        fmt = """<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/%s/field/%s',""" if block else \
+              """<a onclick="creme.utils.showInnerPopup('/creme_core/entity/edit/%s/%s/field/%s',"""
+        self.assertTrue(render.strip().startswith(fmt % (entity.entity_type_id, entity.id, field_name)))
 
     def test_get_field_editor01(self):
         self.login()
@@ -149,9 +147,13 @@ class CremeCoreTagsTestCase(CremeTestCase):
             template = Template(r"{% load creme_block %}"
                                 r'{% get_field_editor on regular "name" for object %}'
                                )
-            render = template.render(Context({'object': orga, 'user': self.user}))
+            render = template.render(Context({'object':     orga,
+                                              'user':       self.user,
+                                              'block_name': 'tests-test_block',
+                                             })
+                                    )
 
-        self.assertFieldEditorTag(render, orga, 'name')
+        self.assertFieldEditorTag(render, orga, 'name', block=True)
 
     def test_get_field_editor03(self):
         self.login()

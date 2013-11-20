@@ -48,9 +48,9 @@
 <div class="creme_field_selectors inline_selectors">
     <h4 class="selector_title">Champs Crème</h4>
     <ul class="selector_list">
-        <li class="selector" data-column="created"><input type="checkbox">Date de création</li>
-        <li class="selector" data-column="modified"><input type="checkbox">Dernière modification</li>
-        <li class="selector" data-column="user"><input type="checkbox">Utilisateur</li>
+        <li class="selector" data-column="created"><input type="checkbox">Created</li>
+        <li class="selector" data-column="modified"><input type="checkbox">Modified</li>
+        <li class="selector" data-column="user"><input type="checkbox">User</li>
     </ul>
 </div>
 {% endcomment %}
@@ -168,7 +168,7 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            new creme.headerfilter.HeaderFilter('{{id}}', {{samples}});
+            new creme.entity_cell.EntityCellsWidget('{{id}}', {{samples}});
         });
     </script>
 </div>

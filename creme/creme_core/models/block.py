@@ -19,6 +19,7 @@
 ################################################################################
 
 from functools import partial
+from json import loads as jsonloads, dumps as jsondumps
 import logging
 
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
@@ -28,24 +29,26 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from ..constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID
+from ..constants import (SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
+        SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
+from ..utils import creme_entity_content_types
 from .base import CremeModel
+from .custom_field import CustomField
 from .entity import CremeEntity
-from .relation import RelationType
 from .fields import CTypeForeignKey
+from .relation import RelationType
 
 from creme.creme_config.models import SettingValue
 
 
 __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation',
-           'RelationBlockItem', 'InstanceBlockConfigItem',
+           'RelationBlockItem', 'InstanceBlockConfigItem', 'CustomBlockConfigItem',
            'BlockState',
           )
 logger = logging.getLogger(__name__)
 
 
 class BlockDetailviewLocation(CremeModel):
-    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
     content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
     block_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
@@ -60,6 +63,7 @@ class BlockDetailviewLocation(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
+        ordering = ('order',)
 
     def __repr__(self):
         return 'BlockDetailviewLocation(id=%s, content_type_id=%s, block_id=%s, order=%s, zone=%s)' % (
@@ -104,6 +108,7 @@ class BlockPortalLocation(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
+        ordering = ('order',)
 
     def __repr__(self):
         return 'BlockPortalLocation(id=%s, app_name=%s)' % (
@@ -135,6 +140,7 @@ class BlockMypageLocation(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
+        ordering = ('order',)
 
     def __repr__(self):
         return 'BlockMypageLocation(id=%s, user=%s)' % (
@@ -179,18 +185,38 @@ post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
 
 
 class RelationBlockItem(CremeModel):
-    block_id      = CharField(_(u"Block ID"), max_length=100) #really useful ?? (can be retrieved with type)
-    relation_type = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
+    block_id       = CharField(_(u"Block ID"), max_length=100, editable=False) #TODO: not really useful (can be retrieved with type)
+    relation_type  = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
+    json_cells_map = TextField(editable=False, null=True) #TODO: JSONField
+
+    _cells_map = None
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Specific relationship block')
-        verbose_name_plural = _(u'Specific relationship blocks')
+        #verbose_name = _(u'Specific relationship block')
+        #verbose_name_plural = _(u'Specific relationship blocks')
+
+    def __init__(self, *args, **kwargs):
+        super(RelationBlockItem, self).__init__(*args, **kwargs)
+        if self.json_cells_map is None:
+            self._cells_map = {}
+            self._dump_cells_map()
 
     def delete(self):
         BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
         super(RelationBlockItem, self).delete()
+
+    @property
+    def all_ctypes_configured(self):
+        #TODO: cache (object_ctypes) ??
+        compat_ctype_ids = set(self.relation_type.object_ctypes.values_list('id', flat=True)) or \
+                           set(ct.id for ct in creme_entity_content_types())
+
+        for ct_id in self._cells_by_ct().iterkeys():
+            compat_ctype_ids.discard(ct_id)
+
+        return not bool(compat_ctype_ids)
 
     @staticmethod
     def create(relation_type_id):
@@ -204,23 +230,77 @@ class RelationBlockItem(CremeModel):
 
         return rbi
 
+    def _dump_cells_map(self):
+        self.json_cells_map = jsondumps(
+                dict((ct_id, [cell.to_dict() for cell in cells])
+                        for ct_id, cells in self._cells_map.iteritems()
+                    )
+            )
+
+    def _cells_by_ct(self):
+        cells_map = self._cells_map
+
+        if cells_map is None:
+            from ..core.entity_cell import CELLS_MAP
+
+            self._cells_map = cells_map = {}
+            get_ct = ContentType.objects.get_for_id
+            build = CELLS_MAP.build_cells_from_dicts
+            total_errors = False
+
+            for ct_id, cells_as_dicts in jsonloads(self.json_cells_map).iteritems():
+                ct = get_ct(ct_id)
+                cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts) #TODO: do it lazily ??
+
+                if errors:
+                    total_errors = True
+
+                cells_map[ct.id] = cells
+
+            if total_errors:
+                logger.warn('RelationBlockItem (id="%s") is saved with valid cells.', self.id)
+                self._dump_cells_map()
+                self.save()
+
+        return cells_map
+
+    def delete_cells(self, ctype):
+        del self._cells_by_ct()[ctype.id]
+        self._dump_cells_map()
+
+    def get_cells(self, ctype):
+        return self._cells_by_ct().get(ctype.id)
+
+    def iter_cells(self):
+        "Beware: do not modify the returned objects"
+        get_ct = ContentType.objects.get_for_id
+
+        for ct_id, cells in self._cells_by_ct().iteritems():
+            yield get_ct(ct_id), cells #TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
+
+    def set_cells(self, ctype, cells):
+        self._cells_by_ct()[ctype.id] = cells
+        self._dump_cells_map()
+
 
 class InstanceBlockConfigItem(CremeModel):
-    block_id = CharField(_(u"Block ID"), max_length=300, blank=False, null=False)
+    block_id = CharField(_(u"Block ID"), max_length=300, blank=False, null=False, editable=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_(u"Block related entity"))
     data     = TextField(blank=True, null=True)
     verbose  = CharField(_(u"Verbose"), max_length=200, blank=True, null=True)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u"Instance's Block to display")
-        verbose_name_plural = _(u"Instance's Blocks to display")
+        #verbose_name = _(u"Instance's Block to display")
+        #verbose_name_plural = _(u"Instance's Blocks to display")
 
     def __unicode__(self):
         return unicode(self.verbose or self.entity)
 
     def delete(self):
-        BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
+        block_id = self.block_id
+        BlockDetailviewLocation.objects.filter(block_id=block_id).delete()
+        BlockState.objects.filter(block_id=block_id).delete()
 
         super(InstanceBlockConfigItem, self).delete()
 
@@ -247,6 +327,74 @@ class InstanceBlockConfigItem(CremeModel):
         return block_id.split('|', 1)[0]
 
 
+class CustomBlockConfigItem(CremeModel):
+    id           = CharField(primary_key=True, max_length=100, editable=False)
+    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), editable=False)
+    name         = CharField(_(u'Name'), max_length=200)
+    json_cells   = TextField(editable=False, null=True) #TODO: JSONField
+
+    _cells = None
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def __init__(self, *args, **kwargs):
+        super(CustomBlockConfigItem, self).__init__(*args, **kwargs)
+        if self.json_cells is None:
+            self.cells = []
+
+    def __unicode__(self):
+        return self.name
+
+    def delete(self):
+        block_id = self.generate_id()
+        BlockDetailviewLocation.objects.filter(block_id=block_id).delete()
+        BlockState.objects.filter(block_id=block_id).delete()
+
+        super(CustomBlockConfigItem, self).delete()
+
+    def generate_id(self):
+        return 'customblock-%s' % self.id
+
+    @staticmethod
+    def id_from_block_id(block_id):
+        try:
+            prefix, cbci_id = block_id.split('-', 1)
+        except ValueError: #unpacking error
+            return None
+
+        return None if prefix != 'customblock' else cbci_id
+
+    #TODO: factorise with HeaderFilter.cells
+    @property
+    def cells(self):
+        cells = self._cells
+
+        if cells is None:
+            from ..core.entity_cell import CELLS_MAP
+
+            cells, errors = CELLS_MAP.build_cells_from_dicts(model=self.content_type.model_class(),
+                                                             dicts=jsonloads(self.json_cells),
+                                                            )
+
+            if errors:
+                logger.warn('CustomBlockConfigItem (id="%s") is saved with valid cells.', self.id)
+                self._dump_cells(cells)
+                self.save()
+
+            self._cells = cells
+
+        return cells
+
+    def _dump_cells(self, cells):
+        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
+
+    @cells.setter
+    def cells(self, cells):
+        self._cells = cells = [cell for cell in cells if cell]
+        self._dump_cells(cells)
+
+
 class BlockState(CremeModel):
     user              = ForeignKey(User)
     block_id          = CharField(_(u"Block ID"), max_length=100)
@@ -255,8 +403,8 @@ class BlockState(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Block state')
-        verbose_name_plural = _(u'Blocks states')
+        #verbose_name = _(u'Block state')
+        #verbose_name_plural = _(u'Blocks states')
         unique_together = ("user", "block_id")
 
     @staticmethod
@@ -276,10 +424,9 @@ class BlockState(CremeModel):
     @staticmethod
     def get_for_block_ids(block_ids, user):
         """Get current states of blocks
-
-            @params block_ids: a list of block ids
-            @params user: owner of a blockstate
-            @returns: a dict with block_id as key and state as value
+        @params block_ids: a list of block ids
+        @params user: owner of a blockstate
+        @returns: a dict with block_id as key and state as value
         """
         states = {}
 

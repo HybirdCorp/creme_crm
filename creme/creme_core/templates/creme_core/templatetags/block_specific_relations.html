@@ -1,8 +1,8 @@
 {% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load creme_core_tags creme_block creme_widgets creme_listview %}
 {% has_perm_to link object as subject_link_perm %}{% has_perm_to unlink object as subject_unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=colspan %}
         <th class="collapser label">
             {% blocktrans with relation_type.predicate as predicate %}Entities related to: {{predicate}}{% endblocktrans %}
         </th>
@@ -13,27 +13,59 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
-            <tr class="header">
-                <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
-            </tr>
-            {% for relation in page.object_list %}
-                {% with relation.object_entity.get_real_entity as entity_obj %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                    <tr class="content">
-                        <td class="{{row_color}}">{% widget_entity_hyperlink entity_obj user %}</td>
-                        <td class="{{row_color}} action">
-                            {% has_perm_to unlink entity_obj as object_unlink_perm %}
-                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
-                        </td>
+        {% for entities, cells in groups %}
+            {% if cells %}
+                {% with len=cells|length %}{% with fixed_colspan=colspan|sub:len %}
+                    {% if groups|length > 1 %}<tr class="header"><th class="block_header_line_dark" colspan="{{colspan}}">{{entities.0|get_meta_value:'verbose_name_plural'}}</th></tr>{% endif %}
+                    <tr class="header">
+                        {% for cell in cells %}
+                            <th class="block_header_line_light" {% if forloop.first %}colspan="{{fixed_colspan}}"{% endif %}>{{cell.title}}</th>
+                        {% endfor %}
+                        <th class="block_header_line_light action">{% trans "Unlink" %}</th>
                     </tr>
+                    {% for entity_obj in entities %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                        <tr class="content">{% has_perm_to view entity_obj as object_view_perm %}
+                            {% if object_view_perm %}
+                                {% for cell in cells %}
+                                    {% if forloop.first %}
+                                        <td class="{{row_color}}" colspan="{{fixed_colspan}}"><a href="{{entity_obj.get_absolute_url}}">{% get_listview_cell cell entity_obj user %}</a></td>
+                                    {% else %}
+                                        <td class="{{row_color}}">{% get_listview_cell cell entity_obj user %}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for cell in cells %}
+                                    <td class="{{row_color}}">??</td>
+                                {% endfor %}
+                            {% endif %}
+                            <td class="{{row_color}} action">{% has_perm_to unlink entity_obj as object_unlink_perm %}
+                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endwith %}{% endwith %}
+            {% else %}
+                {% with fixed_colspan=colspan|sub:1 %}
+                    {% if groups|length > 1 %}<tr class="header"><th class="block_header_line_dark" colspan="{{colspan}}">{% trans "Other types" %}</th></tr>{% endif %}
+                    <tr class="header">
+                        <th class="block_header_line_light" colspan="{{fixed_colspan}}">{% trans "Name" %}</th>
+                        <th class="block_header_line_light action">{% trans "Unlink" %}</th>
+                    </tr>
+                    {% for entity_obj in entities %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                        <tr class="content">
+                            <td class="{{row_color}}" colspan="{{fixed_colspan}}">{% widget_entity_hyperlink entity_obj user %}</td>
+                            <td class="{{row_color}} action">{% has_perm_to unlink entity_obj as object_unlink_perm %}
+                                {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{entity_obj.srb_relation_cache.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endwith %}
-            {% endfor %}
-        {% else %}
+            {% endif %}
+        {% empty %}
             <tr class="content empty">
-                <td colspan="2" class="block_line_dark">{% trans "No related entity for the moment" %}</td>
+                <td colspan="colspan" class="block_line_dark">{% trans "No related entity for the moment" %}</td>
             </tr>
-        {% endif %}
+        {% endfor %}
     </tbody>
-    {% get_block_footer 2 %}
+    {% get_block_footer colspan %}
 </table>

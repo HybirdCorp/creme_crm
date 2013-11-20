@@ -52,7 +52,6 @@ class RelationsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        #user   = context['user']
         relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
         excluded_types = BlocksManager.get(context).used_relationtypes_ids
 
@@ -65,9 +64,7 @@ class RelationsBlock(QuerysetBlock):
         btc = self.get_block_template_context(context, relations, update_url=update_url)
 
         #NB: DB optimisation
-        relations = btc['page'].object_list
-        Relation.populate_real_object_entities(relations)
-        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], user)
+        Relation.populate_real_object_entities(btc['page'].object_list)
 
         return self._render(btc)
 
@@ -107,10 +104,7 @@ class HistoryBlock(QuerysetBlock):
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for hline in hlines:
-            #hline.entity = entities_map[hline.entity_id]
-            hline.entity = entities_map.get(hline.entity_id) #should not happen that entity not more exists but...
-
-        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
+            hline.entity = entities_map.get(hline.entity_id) #should not happen (means that entity does not exist anymore) but...
 
     def detailview_display(self, context):
         pk = context['object'].pk

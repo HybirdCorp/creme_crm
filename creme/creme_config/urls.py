@@ -61,20 +61,32 @@ custom_fields_patterns = patterns('creme.creme_config.views.custom_fields',
 )
 
 blocks_patterns = patterns('creme.creme_config.views.blocks',
-    (r'^portal/$',                        'portal'),
+    (r'^portal/$', 'portal'),
+
     (r'^detailview/add/$',                'add_detailview'),
     (r'^detailview/edit/(?P<ct_id>\d+)$', 'edit_detailview'),
     (r'^detailview/delete$',              'delete_detailview'),
-    (r'^portal/add/$',                    'add_portal'),
-    (r'^portal/edit/(?P<app_name>\w+)$',  'edit_portal'),
-    (r'^portal/delete$',                  'delete_portal'),
-    (r'^mypage/edit/default$',            'edit_default_mypage'),
-    (r'^mypage/edit$',                    'edit_mypage'),
-    (r'^mypage/default/delete$',          'delete_default_mypage'),
-    (r'^mypage/delete$',                  'delete_mypage'),
-    (r'^relation_block/add/$',            'add_relation_block'),
-    (r'^relation_block/delete$',          'delete_relation_block'),
-    (r'^instance_block/delete$',          'delete_instance_block'),
+
+    (r'^portal/add/$',                   'add_portal'),
+    (r'^portal/edit/(?P<app_name>\w+)$', 'edit_portal'),
+    (r'^portal/delete$',                 'delete_portal'),
+
+    (r'^mypage/edit/default$',   'edit_default_mypage'),
+    (r'^mypage/edit$',           'edit_mypage'),
+    (r'^mypage/default/delete$', 'delete_default_mypage'),
+    (r'^mypage/delete$',         'delete_mypage'),
+
+    (r'^relation_block/add/$',                                      'add_relation_block'),
+    (r'^relation_block/add_ctypes/(?P<rbi_id>\d+)$',                'add_ctypes_2_relation_block'),
+    (r'^relation_block/(?P<rbi_id>\d+)/edit_ctype/(?P<ct_id>\d+)$', 'edit_ctype_of_relation_block'),
+    (r'^relation_block/(?P<rbi_id>\d+)/delete_ctype$',              'delete_ctype_of_relation_block'),
+    (r'^relation_block/delete$',                                    'delete_relation_block'),
+
+    (r'^instance_block/delete$', 'delete_instance_block'),
+
+    (r'^custom/add/$',                      'add_custom_block'),
+    (r'^custom/edit/(?P<cbci_id>[-_\w]+)$', 'edit_custom_block'),
+    (r'^custom/delete$',                    'delete_custom_block'),
 )
 
 prefered_menu_patterns = patterns('creme.creme_config.views.prefered_menu',

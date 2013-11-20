@@ -31,28 +31,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-from ..gui.field_printers import field_printers_registry
+#from ..gui.field_printers import field_printers_registry
 from ..gui.listview import smart_columns_registry
-from ..models.header_filter import HeaderFilter
-from ..models import RelationType, CustomField, EntityCredentials
+from ..models import RelationType, CustomField, EntityCredentials, HeaderFilter
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 
 
-#TODO: use type_id as prefix 
-_RFIELD_PREFIX = 'rfield-'
-_CFIELD_PREFIX = 'cfield-'
-_FFIELD_PREFIX = 'ffield-'
-_RTYPE_PREFIX  = 'rtype-'
+_RFIELD_PREFIX = EntityCellRegularField.type_id + '-'
+_CFIELD_PREFIX = EntityCellCustomField.type_id + '-'
+_FFIELD_PREFIX = EntityCellFunctionField.type_id + '-'
+_RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 
-_PREFIXES_MAP = {
-    EntityCellRegularField:     _RFIELD_PREFIX,
-    EntityCellCustomField:      _CFIELD_PREFIX,
-    EntityCellFunctionField:    _FFIELD_PREFIX,
-    EntityCellRelation:         _RTYPE_PREFIX,
-}
 
 #TODO: move to a separated file ??
 class EntityCellsWidget(Widget):
@@ -74,33 +66,33 @@ class EntityCellsWidget(Widget):
         model = self.model
         samples = []
 
-        #TODO: factorise with HF/listview templatetags
-        print_field_value = field_printers_registry.get_html_field_value
-        LEN_RFIELD_PREFIX = len(_RFIELD_PREFIX)
+        PREFIX = len(_RFIELD_PREFIX); build = EntityCellRegularField.build
+        cells = [(field_id, build(model, field_id[PREFIX:]))
+                    for field_id, field_vname in self.model_fields
+                ]
+        cells.extend((field_id, build(model, field_id[PREFIX:]))
+                        for choices in self.model_subfields.itervalues()
+                            for field_id, field_vname in choices
+                    )
 
-        get_func_field = model.function_fields.get
-        LEN_FFIELD_PREFIX = len(_FFIELD_PREFIX)
+        PREFIX = len(_FFIELD_PREFIX); build = EntityCellFunctionField.build
+        cells.extend((field_id, build(model, field_id[PREFIX:]))
+                        for field_id, field_vname in self.function_fields
+                    )
+
+        #missing CustomFields and Relationships
 
         for entity in EntityCredentials.filter(user, self.model.objects.order_by('-modified'))[:2]:
             dump = {}
 
-            #TODO: genexpr ?
-            for field_id, field_vname in self.model_fields:
-                dump[field_id] = unicode(print_field_value(entity, field_id[LEN_RFIELD_PREFIX:], user))
+            for field_id, cell in cells:
+                try:
+                    #TODO: is it OK that render_html() can return object like Users (not unicode) ??
+                    value = unicode(cell.render_html(entity, user))
+                except Exception: #field_printers_registry.get_html_field_value() can raise AttributeError if M2M is empty... TODO: improve (same problem in listview tags)
+                    value = ''
 
-            for choices in self.model_subfields.itervalues():
-                for field_id, field_vname in choices:
-                    try:
-                        value = unicode(print_field_value(entity, field_id[LEN_RFIELD_PREFIX:], user))
-                    except Exception: #print_field_value can raise AttributeError if M2M is empty...
-                        value = ''
-
-                    dump[field_id] = value
-
-            #missing CustomFields and Relationships
-
-            for field_id, field_vname in self.function_fields:
-                dump[field_id] = get_func_field(field_id[LEN_FFIELD_PREFIX:])(entity).for_html()
+                dump[field_id] = value
 
             samples.append(dump)
 
@@ -110,10 +102,9 @@ class EntityCellsWidget(Widget):
         attrs_map = self.build_attrs(attrs, name=name)
 
         if isinstance(value, list):
-            #value = ','.join(_PREFIXES_MAP[cell.type] + cell.value for cell in value)
-            value = ','.join(_PREFIXES_MAP[cell.__class__] + cell.value for cell in value)
+            value = ','.join('%s-%s' % (cell.type_id, cell.value) for cell in value)
 
-        return render_to_string('creme_core/header_filter_items_widget.html',
+        return render_to_string('creme_core/entity_cells_widget.html',
                                 {'attrs': mark_safe(flatatt(attrs)),
                                  'id':    attrs_map['id'],
                                  'name':  name,
@@ -145,7 +136,6 @@ class EntityCellsField(Field):
         return EntityCellCustomField(self._get_cfield(int(name[len(_CFIELD_PREFIX):])))
 
     def _build_4_functionfield(self, model, name):
-        #return EntityCellFunctionField(model.function_fields.get(name[len(_FFIELD_PREFIX):]))
         return EntityCellFunctionField.build(model, name[len(_FFIELD_PREFIX):])
 
     def _build_4_relation(self, model, name):

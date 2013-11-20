@@ -267,7 +267,8 @@ class LineRelatorNode(TemplateNode):
 
         return self.template.render(context)
 
-#-------------------------------------------------------------------------------
+
+#TAGS: "get_line_deletor" & "get_line_unlinker" ----------------------------------
 _LINE_SUPPR_RE = compile_re(r'at_url (.*?) with_args (.*?) with_perms (.*?)$')
 
 def _do_line_suppr(parser, token, template_path):
@@ -317,12 +318,13 @@ def do_line_unlinker(parser, token):
     """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
-#TAG : "get_field_editor"-----------------------------------------------------
+
+#TAG: "get_field_editor" -----------------------------------------------------
 _FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
 
 @register.tag(name="get_field_editor")
 def do_get_field_editor(parser, token):
-    """Eg: {% get_field_editor on custom|regular|header_filter_item field|'field_name'|"field_name" for object %}"""
+    """Eg: {% get_field_editor on custom|regular|entity_cell field|'field_name'|"field_name" for object %}"""
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
@@ -343,10 +345,12 @@ def do_get_field_editor(parser, token):
                              TemplateLiteral(parser.compile_filter(object_str), object_str))
 
 class RegularFieldEditorNode(TemplateNode):
+    template_name = 'creme_core/templatetags/widgets/block_field_editor.html'
+
     def __init__(self, field_var, object_var):
-        self.template       = get_template('creme_core/templatetags/widgets/block_field_editor.html')
-        self.field_var      = field_var
-        self.object_var     = object_var
+        #self.template   = get_template('creme_core/templatetags/widgets/block_field_editor.html')
+        self.field_var  = field_var
+        self.object_var = object_var
 
     def _update_context(self, context, field, instance):
         model = instance.__class__
@@ -358,46 +362,51 @@ class RegularFieldEditorNode(TemplateNode):
 
     def render(self, context):
         instance = self.object_var.eval(context)
-        field  = self.field_var.eval(context)
+        field    = self.field_var.eval(context)
 
+        #TODO: factorise with other code that manage auxiliary entities
         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
 
         context['object']    = instance
-        context['ct_id']     = ContentType.objects.get_for_model(instance).pk
+        context['ct_id']     = ContentType.objects.get_for_model(instance).pk #TODO: instance.entity_type_id ??
         context['edit_perm'] = context['user'].has_perm_to_change(owner)
 
         self._update_context(context, field, instance)
 
-        return self.template.render(context)
+        #return self.template.render(context)
+        return get_template(self.template_name).render(context)
 
 class CustomFieldEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, field, instance):
         context['field']     = field.id
         context['updatable'] = True
 
-class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
-    def __init__(self, field_var, object_var):
-        super(HeaderFilterColumnEditorNode, self).__init__(field_var, object_var)
-        self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
+class EntityCellEditorNode(RegularFieldEditorNode):
+    #template_name = 'creme_core/templatetags/widgets/block_listview_field_editor.html' #TODO: delete file
+
+    #def __init__(self, field_var, object_var):
+        #super(EntityCellEditorNode, self).__init__(field_var, object_var)
+        #self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
 
     def _update_context(self, context, cell, instance):
-        context['is_header_filter_item_valid'] = True
+        #context['is_header_filter_item_valid'] = True
 
         if isinstance(cell, EntityCellRegularField):
             model = instance.entity_type.model_class()
-            field_name = cell.value.partition('__')[0]
+            field_name = cell.value.partition('__')[0] #TODO: cell.field_info ?
             context['field'] = field_name
             context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
         elif isinstance(cell, EntityCellCustomField):
             context['field'] = cell.value
             context['updatable'] = True
         else:
-            context['is_header_filter_item_valid'] = False
+            #context['is_header_filter_item_valid'] = False
+            context['updatable'] = False
 
-_FIELD_EDITOR_NODES = {'regular':               RegularFieldEditorNode,
-                       'custom':                CustomFieldEditorNode,
-                       'header_filter_item':    HeaderFilterColumnEditorNode,
-                       }
+_FIELD_EDITOR_NODES = {'regular':       RegularFieldEditorNode,
+                       'custom':        CustomFieldEditorNode,
+                       'entity_cell':   EntityCellEditorNode,
+                      }
 
 #-------------------------------------------------------------------------------
 _LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -26,13 +26,16 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.models.block import (BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-                                     RelationBlockItem, InstanceBlockConfigItem, BlockState)
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
-from creme.creme_core.utils import get_from_POST_or_404
+        RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
+from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 
 from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
-                            BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
-                            BlockMypageLocationsForm, RelationBlockAddForm)
+        BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
+        BlockMypageLocationsForm,
+        RelationBlockAddForm, RelationBlockItemAddCtypesForm, RelationBlockItemEditCtypeForm,
+        CustomBlockConfigItemCreateForm, CustomBlockConfigItemEditForm)
 
 
 @login_required
@@ -49,6 +52,11 @@ def add_portal(request):
 @permission_required('creme_config.can_admin')
 def add_relation_block(request):
     return add_model_with_popup(request, RelationBlockAddForm, _(u'New type of block'))
+
+@login_required
+@permission_required('creme_config.can_admin')
+def add_custom_block(request):
+    return add_model_with_popup(request, CustomBlockConfigItemCreateForm, _(u'New custom block'))
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -158,6 +166,93 @@ def edit_default_mypage(request):
 def edit_mypage(request):
     return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
 
+
+@login_required
+@permission_required('creme_config.can_admin')
+def add_ctypes_2_relation_block(request, rbi_id):
+    return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
+                                 RelationBlockItemAddCtypesForm,
+                                 _(u'New customised types for <%s>'),
+                                )
+
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_ctype_of_relation_block(request, rbi_id, ct_id):
+    ctype = get_ct_or_404(ct_id)
+    rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
+
+    if rbi.get_cells(ctype) is None:
+        raise Http404('This ContentType is not set in the RelationBlockItem')
+
+    if request.method == 'POST':
+        form = RelationBlockItemEditCtypeForm(user=request.user, data=request.POST,
+                                              instance=rbi, ctype=ctype,
+                                             )
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = RelationBlockItemEditCtypeForm(user=request.user, instance=rbi, ctype=ctype)
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {'form':  form,
+                        'title': _(u'Edit <%s> configuration') % ctype,
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )
+
+@POST_only
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_ctype_of_relation_block(request, rbi_id):
+    ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
+    rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
+
+    try:
+        rbi.delete_cells(ctype)
+    except KeyError:
+        raise Http404('This ContentType is not set in the RelationBlockItem')
+
+    rbi.save()
+
+    return HttpResponse()
+
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_custom_block(request, cbci_id):
+    return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
+                                 CustomBlockConfigItemEditForm,
+                                 _(u'Edit the block <%s>'),
+                                )
+
+    ##No popup version
+    #cbci = get_object_or_404(CustomBlockConfigItem, id=cbci_id)
+
+    #if request.method == 'POST':
+        #POST = request.POST
+        #cbci_form = CustomBlockConfigItemEditForm(user=request.user, data=POST, instance=cbci)
+
+        #if cbci_form.is_valid():
+            #cbci_form.save()
+
+            #return HttpResponseRedirect('/creme_config/blocks/portal/')
+
+        #cancel_url = POST.get('cancel_url')
+    #else:
+        #cbci_form = CustomBlockConfigItemEditForm(user=request.user, instance=cbci)
+        #cancel_url = request.META.get('HTTP_REFERER')
+
+    #return render(request, 'creme_core/generics/blockform/edit.html',
+                  #{'form': cbci_form,
+                   #'object': cbci,
+                   #'cancel_url': cancel_url,
+                   #'submit_label': _('Save the custom block'),
+                  #}
+                 #)
+
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_detailview(request):
@@ -207,6 +302,13 @@ def delete_relation_block(request):
 def delete_instance_block(request):
     block_id = get_from_POST_or_404(request.POST, 'id')
     get_object_or_404(InstanceBlockConfigItem, pk=block_id).delete()
-    BlockState.objects.filter(block_id=block_id).delete()
+
+    return HttpResponse()
+
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_custom_block(request):
+    cbci_id = get_from_POST_or_404(request.POST, 'id')
+    get_object_or_404(CustomBlockConfigItem, pk=cbci_id).delete()
 
     return HttpResponse()

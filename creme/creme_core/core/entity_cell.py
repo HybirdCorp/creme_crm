@@ -112,7 +112,10 @@ class EntityCell(object):
         self.filter_string = filter_string #TODO: remove from public interface when quick search has been refactored
 
     def __repr__(self):
-        return u"<EntityCell(type=%s, value='%s')>" % (self.type, self.value)
+        return u"<EntityCell(type=%s, value='%s')>" % (self.type_id, self.value)
+
+    def __unicode__(self):
+        return self.title #used by CustomBlockConfigItem block (creme_config)
 
     def _get_field_class(self):
         return None
@@ -215,6 +218,10 @@ class EntityCellRegularField(EntityCell):
             return None
 
         return EntityCellRegularField(model, name, field_info, is_hidden)
+
+    @property
+    def field_info(self):
+        return self._field_info
 
     def _get_field_class(self):
         return self._field_info[-1]['field'].__class__
