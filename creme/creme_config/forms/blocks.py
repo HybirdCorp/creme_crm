@@ -21,22 +21,28 @@
 from itertools import chain
 
 from django.forms import MultipleChoiceField, ChoiceField, ValidationError
+from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.registry import creme_registry
-from creme.creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
-                               BlockMypageLocation, RelationBlockItem)
+from creme.creme_core.constants import MODELBLOCK_ID
+from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.forms.fields import EntityCTypeChoiceField
+from creme.creme_core.forms.fields import EntityCTypeChoiceField, MultiEntityCTypeChoiceField
+from creme.creme_core.forms.header_filter import EntityCellsField
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.gui.block import block_registry, SpecificRelationsBlock
-from creme.creme_core.constants import MODELBLOCK_ID
+from creme.creme_core.models import (RelationType, CremeEntity,
+    BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+    RelationBlockItem, CustomBlockConfigItem)
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
            'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
            'BlockMypageLocationsForm',
-           'RelationBlockAddForm',
+           'RelationBlockAddForm', 'RelationBlockItemAddCtypesForm', 'RelationBlockItemEditCtypeForm',
+           'CustomBlockConfigItemCreateForm', 'CustomBlockConfigItemEditForm',
           )
 
 
@@ -226,7 +232,6 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
 class RelationBlockAddForm(CremeModelForm):
     class Meta:
         model = RelationBlockItem
-        exclude = ('block_id',)
 
     def __init__(self, *args, **kwargs):
         super(RelationBlockAddForm, self).__init__(*args, **kwargs)
@@ -234,6 +239,119 @@ class RelationBlockAddForm(CremeModelForm):
         existing_type_ids = RelationBlockItem.objects.values_list('relation_type_id', flat=True)
         self.fields['relation_type'].queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.instance.block_id = SpecificRelationsBlock.generate_id('creme_config', self.cleaned_data['relation_type'].id)
-        super(RelationBlockAddForm, self).save()
+        return super(RelationBlockAddForm, self).save(*args, **kwargs)
+
+
+class RelationBlockItemAddCtypesForm(CremeModelForm):
+    ctypes = MultiEntityCTypeChoiceField(label=_(u'Customised resource'))
+
+    class Meta:
+        model = RelationBlockItem
+        exclude = ('relation_type',)
+
+    def __init__(self, *args, **kwargs):
+        super(RelationBlockItemAddCtypesForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        ct_field = self.fields['ctypes']
+        compatible_ctypes = instance.relation_type.object_ctypes.all()
+
+        if compatible_ctypes:
+            ct_field.ctypes = compatible_ctypes
+
+        used_ct_ids = frozenset(ct.id for ct, cells in instance.iter_cells()) #TODO: iter_ctypes() ??
+        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        for ctype in self.cleaned_data['ctypes']:
+            instance.set_cells(ctype, ())
+
+        return super(RelationBlockItemAddCtypesForm, self).save(*args, **kwargs)
+
+
+class RelationBlockItemEditCtypeForm(CremeModelForm):
+    cells = EntityCellsField(label=_(u'Columns'))
+
+    class Meta:
+        model = RelationBlockItem
+        exclude = ('relation_type',)
+
+    def __init__(self, ctype, *args, **kwargs):
+        super(RelationBlockItemEditCtypeForm, self).__init__(*args, **kwargs)
+        self.ctype = ctype
+
+        items_f = self.fields['cells']
+        items_f.content_type = ctype
+        items_f.initial = self.instance.get_cells(ctype)
+
+    def _is_valid_first_column(self, cell):
+        if isinstance(cell, EntityCellRegularField):
+            field_info = cell.field_info[0]
+            field = field_info['field']
+
+            #These fields are already rendered with <a> tag ; it would be better to
+            #have a higher semantic (ask to the fields printer how it renders thme ???)
+            if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
+               (isinstance(field, ForeignKey) and issubclass(field_info['model'], CremeEntity)):
+                return False
+        elif isinstance(cell, EntityCellRelation):
+            return False
+
+        return True
+
+    def clean_cells(self):
+        cells = self.cleaned_data['cells']
+
+        if not self._errors and not self._is_valid_first_column(cells[0]):
+            raise ValidationError(_('This type of field can not be the first column.'))
+
+        return cells
+
+    def save(self, *args, **kwargs):
+        self.instance.set_cells(self.ctype, self.cleaned_data['cells'])
+
+        return super(RelationBlockItemEditCtypeForm, self).save(*args, **kwargs)
+
+
+class CustomBlockConfigItemCreateForm(CremeModelForm):
+    ctype = EntityCTypeChoiceField(label=_(u'Related resource'))
+
+    class Meta:
+        model = CustomBlockConfigItem
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        ct = self.cleaned_data['ctype']
+        instance.content_type = ct
+
+        super(CustomBlockConfigItemCreateForm, self).save(commit=False)
+        generate_string_id_and_save(CustomBlockConfigItem, [instance],
+                                    'creme_core-user_customblock_%s-%s' % (ct.app_label, ct.model)
+                                   )
+
+        return instance
+
+
+class CustomBlockConfigItemEditForm(CremeModelForm):
+    cells = EntityCellsField(label=_(u'Lines'))
+
+    blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
+
+    class Meta:
+        model = CustomBlockConfigItem
+
+    def __init__(self, *args, **kwargs):
+        super(CustomBlockConfigItemEditForm, self).__init__(*args, **kwargs)
+
+        instance = self.instance
+        items_f = self.fields['cells']
+        items_f.content_type = instance.content_type
+        items_f.initial = instance.cells
+
+    def save(self, *args, **kwargs):
+        self.instance.cells = self.cleaned_data['cells']
+
+        return super(CustomBlockConfigItemEditForm, self).save(*args, **kwargs)

@@ -73,7 +73,7 @@ def get_value(dic, key, default=''):
   """
   try:
     return dic.get(key, default)
-  except Exception, e: #TODO: really useful ???
+  except Exception as e: #TODO: really useful ???
     logger.debug('Exception in get_value(): %s', e)
     return default
 

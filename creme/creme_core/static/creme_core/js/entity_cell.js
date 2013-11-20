@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.headerfilter = creme.headerfilter || {}
+creme.entity_cell = creme.entity_cell || {}
 
-creme.headerfilter.HeaderFilter = function(div_id, samples) {
+creme.entity_cell.EntityCellsWidget = function(div_id, samples) {
     var div = this.div = $('#' + div_id);
     this.store = div.find('input.inner_value');
     this.samples = $(samples);
@@ -32,7 +32,7 @@ creme.headerfilter.HeaderFilter = function(div_id, samples) {
     this.init();
 };
 
-creme.headerfilter.HeaderFilter.prototype = {
+creme.entity_cell.EntityCellsWidget.prototype = {
     init: function() {
         this._initSelectorCheck();
         this._initSelectorFilters();

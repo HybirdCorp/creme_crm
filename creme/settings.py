@@ -468,7 +468,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/relations.js',
                     'creme_core/js/list_view.core.js',
                     'creme_core/js/lv_widget.js',
-                    'creme_core/js/headerfilter.js',
+                    'creme_core/js/entity_cell.js',
                     'creme_core/js/export.js',
                     'creme_core/js/merge.js',
 

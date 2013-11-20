@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load creme_block %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
+    {% get_block_header colspan=4 %}
+        <th class="collapser label">{% get_block_title _('%s Custom block') _('%s Custom blocks') %}</th>
+        <th class="actions"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <tr class="header toolbar">
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="4">
+                {% get_line_adder at_url '/creme_config/blocks/custom/add/' with_label _("New custom block") with_perms 1 %}
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr class="header">
+                <th class="block_header_line_light">{% trans "Name" %}</th>
+                <th class="block_header_line_light">{% trans "Type" %}</th>
+                <th class="block_header_line_light">{% trans "Fields" %}</th>
+                <th class="block_header_line_light action">{% trans "Actions" %}</th>
+            </tr>
+            {% for config_item in page.object_list %}{% cycle row_color %}
+                <tr class="content">
+                    <td class="{{row_color}}">{{config_item.name}}</td>
+                    <td class="{{row_color}}">{{config_item.content_type}}</td>
+                    <td class="{{row_color}}">{{config_item.cells|join:" / "}}</td>
+                    <td class="{{row_color}} action">{% comment %}<a href="/creme_config/blocks/custom/edit/{{config_item.id}}">{% trans "Edit" %}</a>{% endcomment %}
+                        {% get_line_editor at_url '/creme_config/blocks/custom/edit/{{config_item.id}}' with_perms 1 %}
+                        {% get_line_deletor at_url '/creme_config/blocks/custom/delete' with_args "{'id': '{{config_item.id}}'}" with_perms 1 %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="content empty">
+                <td>{% trans "No custom block for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% get_block_footer 4 %}
+</table>

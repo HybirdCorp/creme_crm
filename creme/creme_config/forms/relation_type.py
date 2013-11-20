@@ -31,9 +31,9 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 
 _CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
-                      label=_(u'Type constraint'),
-                      help_text=_(u'No constraint means that all types are accepted'),
-                     )
+                       label=_(u'Type constraint'),
+                       help_text=_(u'No constraint means that all types are accepted'),
+                      )
 _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
                               label=_(u'Properties constraint'),
                               queryset=CremePropertyType.objects.all(),
@@ -42,7 +42,6 @@ _PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
 
 
 class RelationTypeCreateForm(CremeForm):
-    CremeModelForm
     subject_ctypes     = _CTypesField()
     subject_properties = _PropertyTypesField()
 

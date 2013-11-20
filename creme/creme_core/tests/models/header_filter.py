@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    from json import loads as jsonloads, dumps as jsondumps
 
     from django.conf import settings
-    from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 

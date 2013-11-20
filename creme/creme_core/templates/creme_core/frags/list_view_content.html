@@ -122,7 +122,7 @@
                     {% else %}
                         <td class="column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.value}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
                             {% get_listview_cell cell entity user %}
-                            {% if not is_popup_view %}{% get_field_editor on header_filter_item cell for entity %}{% endif %}
+                            {% if not is_popup_view %}{% get_field_editor on entity_cell cell for entity %}{% endif %}
                         </td>
                     {% endif %}
                 {% endfor %}

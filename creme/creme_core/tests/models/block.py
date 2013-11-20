@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+    from json import loads as jsonloads
+
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
 
-    from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-    from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+    from creme.creme_core.models import (BlockDetailviewLocation,
+            BlockPortalLocation, BlockMypageLocation,
+            RelationBlockItem, RelationType, CustomBlockConfigItem)
+    from creme.creme_core.blocks import (relations_block, properties_block,
+            customfields_block, history_block)
     from ..base import CremeTestCase
+
+    from creme.documents.models import Document
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -22,6 +31,8 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()
         BlockMypageLocation.objects.all().delete()
+
+        cls.autodiscover()
 
     def test_populate(self):
         self.populate('creme_core')
@@ -209,5 +220,143 @@ class BlockTestCase(CremeTestCase):
         user.set_password('password')
         user.save()
         self.get_object_or_fail(BlockMypageLocation, user=user, block_id=block_id, order=order)
+
+    def test_relation_block01(self):
+        rtype = RelationType.create(('test-subject_loves', 'loves'),
+                                    ('test-object_loved',  'is loved by')
+                                   )[0]
+
+        rbi = RelationBlockItem.create(rtype.id)
+
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_orga = get_ct(Organisation)
+        ct_doc = get_ct(Document)
+
+        rbi = self.refresh(rbi) #test persistence
+        self.assertIsNone(rbi.get_cells(ct_contact))
+        self.assertIsNone(rbi.get_cells(ct_orga))
+        self.assertIsNone(rbi.get_cells(ct_doc))
+        self.assertIs(rbi.all_ctypes_configured, False)
+
+        rbi.set_cells(ct_contact,
+                      [EntityCellRegularField.build(Contact, 'last_name'),
+                       EntityCellFunctionField.build(Contact, 'get_pretty_properties'),
+                      ],
+                     )
+        rbi.set_cells(ct_orga, [EntityCellRegularField.build(Organisation, 'name')])
+        rbi.save()
+
+        rbi = self.refresh(rbi) #test persistence
+        self.assertIsNone(rbi.get_cells(ct_doc))
+        self.assertIs(rbi.all_ctypes_configured, False)
+
+        cells_contact = rbi.get_cells(ct_contact)
+        self.assertEqual(2, len(cells_contact))
+
+        cell_contact = cells_contact[0]
+        self.assertIsInstance(cell_contact, EntityCellRegularField)
+        self.assertEqual('last_name', cell_contact.value)
+
+        cell_contact = cells_contact[1]
+        self.assertIsInstance(cell_contact, EntityCellFunctionField)
+        self.assertEqual('get_pretty_properties', cell_contact.value)
+
+        self.assertEqual(1, len(rbi.get_cells(ct_orga)))
+
+    def test_relation_block02(self):
+        "All ctypes configured"
+        rtype = RelationType.create(('test-subject_rented', 'is rented by'),
+                                    ('test-object_rented',  'rents', [Contact, Organisation]),
+                                   )[0]
+
+        rbi = RelationBlockItem.create(rtype.id)
+        get_ct = ContentType.objects.get_for_model
+
+        rbi.set_cells(get_ct(Contact), [EntityCellRegularField.build(Contact, 'last_name')])
+        rbi.save()
+        self.assertFalse(self.refresh(rbi).all_ctypes_configured)
+
+        rbi.set_cells(get_ct(Organisation), [EntityCellRegularField.build(Organisation, 'name')])
+        rbi.save()
+        self.assertTrue(self.refresh(rbi).all_ctypes_configured)
+
+    def test_relation_block_errors(self):
+        rtype = RelationType.create(('test-subject_rented', 'is rented by'),
+                                    ('test-object_rented',  'rents'),
+                                   )[0]
+        ct_contact = ContentType.objects.get_for_model(Contact)
+        rbi = RelationBlockItem.create(rtype.id)
+
+        build = partial(EntityCellRegularField.build, model=Contact)
+        rbi.set_cells(ct_contact,
+                      [build(name='last_name'), build(name='description')]
+                     )
+        rbi.save()
+
+        #inject error by bypassing checkings
+        RelationBlockItem.objects.filter(id=rbi.id) \
+                                 .update(json_cells_map=rbi.json_cells_map.replace('description', 'invalid'))
+
+        rbi = self.refresh(rbi)
+        cells_contact = rbi.get_cells(ct_contact)
+        self.assertEqual(1, len(cells_contact))
+        self.assertEqual('last_name', cells_contact[0].value)
+
+        with self.assertNoException():
+            deserialized = jsonloads(rbi.json_cells_map)
+
+        self.assertEqual({str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
+                         deserialized
+                        )
+
+    def test_custom_block(self):
+        cbci = CustomBlockConfigItem.objects.create(
+                    id='tests-organisations01', name='General',
+                    content_type=ContentType.objects.get_for_model(Organisation),
+                    cells=[EntityCellRegularField.build(Organisation, 'name')],
+                )
+
+        cells = self.refresh(cbci).cells 
+        self.assertEqual(1, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellRegularField)
+        self.assertEqual('name', cell.value)
+
+    def test_custom_block_errors01(self):
+        cbci = CustomBlockConfigItem.objects.create(
+                    id='tests-organisations01', name='General',
+                    content_type=ContentType.objects.get_for_model(Organisation),
+                    cells=[EntityCellRegularField.build(Organisation, 'name'),
+                           EntityCellRegularField.build(Organisation, 'description'),
+                          ],
+               )
+
+        #inject error by bypassing checkings
+        CustomBlockConfigItem.objects.filter(id=cbci.id) \
+                                     .update(json_cells=cbci.json_cells.replace('description', 'invalid'))
+
+        cbci = self.refresh(cbci)
+        self.assertEqual(1, len(cbci.cells))
+
+        with self.assertNoException():
+            deserialized = jsonloads(cbci.json_cells)
+
+        self.assertEqual([{'type': 'regular_field', 'value': 'name'}],
+                         deserialized
+                        )
+
+    def test_custom_block_errors02(self):
+        cbci = CustomBlockConfigItem.objects.create(
+                    id='tests-organisations01', name='General',
+                    content_type=ContentType.objects.get_for_model(Organisation),
+                    cells=[EntityCellRegularField.build(Organisation, 'name'),
+                           EntityCellRegularField.build(Organisation, 'invalid'),
+                          ],
+               )
+
+        cbci = self.refresh(cbci)
+        self.assertEqual(1, len(cbci.cells))
 
 #TODO: test other models

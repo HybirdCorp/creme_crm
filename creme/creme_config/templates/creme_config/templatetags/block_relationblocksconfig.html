@@ -1,25 +1,39 @@
 {% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_block_title _('%s Type of relation block created') _('%s Types of relation block created') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="2">
+            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
                 {% get_line_adder at_url '/creme_config/blocks/relation_block/add/' with_label _("New type of block") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
             <tr class="header">
                 <th class="block_header_line_light">{% trans "Related type of relation" %}</th>
+                <th class="block_header_line_light">{% trans "Customisation of columns" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
             {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
+                    <td class="{{row_color}}">{{block_type.relation_type}}</td>
                     <td class="{{row_color}}">
-                        {{block_type.relation_type}}
+                        <ul>
+                            {% for ct, cells in block_type.iter_cells %}
+                                <li>{{ct}}: {{cells|join:" / "|default:_("not configured yet")}}
+                                    {% get_line_editor at_url '/creme_config/blocks/relation_block/{{block_type.id}}/edit_ctype/{{ct.id}}' with_perms 1 %}
+                                    {% get_line_deletor at_url '/creme_config/blocks/relation_block/{{block_type.id}}/delete_ctype' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% if block_type.all_ctypes_configured %}
+                            {% trans "All types are configured" %}
+                        {% else %}
+                            {% get_line_adder at_url '/creme_config/blocks/relation_block/add_ctypes/{{block_type.id}}' with_label _("New customised types") with_perms 1 %}
+                        {% endif %}
                     </td>
                     <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_config/blocks/relation_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms 1 %}
@@ -28,9 +42,9 @@
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td colspan="2" class="block_line_dark">{% trans "No type of relation block created for the moment" %}</td>
+                <td colspan="3" class="block_line_dark">{% trans "No type of relation block created for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 2 %}
+    {% get_block_footer 3 %}
 </table>

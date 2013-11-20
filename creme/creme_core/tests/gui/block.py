@@ -1,8 +1,12 @@
 try:
+    from django.contrib.contenttypes.models import ContentType
+
     from ..base import CremeTestCase
-    from creme.creme_core.models import Relation, RelationType, InstanceBlockConfigItem, RelationBlockItem
-    from creme.creme_core.gui.block import (Block, SimpleBlock, SpecificRelationsBlock,
-                                      _BlockRegistry, BlocksManager)
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.models import (Relation, RelationType,
+        InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
+    from creme.creme_core.gui.block import (Block, SimpleBlock,
+         SpecificRelationsBlock, CustomBlock, _BlockRegistry, BlocksManager)
 
     from creme.persons.models import Contact, Organisation
 
@@ -118,22 +122,35 @@ class BlockRegistryTestCase(CremeTestCase):
         rtype1 = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
         RelationBlockItem.create(rtype1.id)
 
+        create_ibci = CustomBlockConfigItem.objects.create
+        get_ct = ContentType.objects.get_for_model
+        cbci = create_ibci(id='test-contacts01', name='General (contact)', content_type=get_ct(Contact),
+                           cells=[EntityCellRegularField.build(Contact, 'last_name')],
+                          )
+        create_ibci(id='test-organisations01', name='General (orga)', content_type=get_ct(Organisation),
+                    cells=[EntityCellRegularField.build(Organisation, 'name')],
+                   ) #not compatible with Contact
+
         block_registry.register(foobar_block1, foobar_block2, FoobarBlock3(), FoobarBlock4(), foobar_block5)
         block_registry.register_4_instance(FoobarInstanceBlock1, FoobarInstanceBlock2, FoobarInstanceBlock3, FoobarInstanceBlock4)
 
         blocks = sorted(block_registry.get_compatible_blocks(Contact), key=lambda b: b.id_)
-        self.assertEqual(5, len(blocks))
+        self.assertEqual(6, len(blocks))
         self.assertEqual([foobar_block1, foobar_block2], blocks[:2])
 
         block = blocks[2]
+        self.assertIsInstance(block, CustomBlock)
+        self.assertEqual(cbci.generate_id(), block.id_)
+
+        block = blocks[3]
         self.assertIsInstance(block, FoobarInstanceBlock1)
         self.assertEqual(ibci1.block_id, block.id_)
 
-        block = blocks[3]
+        block = blocks[4]
         self.assertIsInstance(block, FoobarInstanceBlock2)
         self.assertEqual(ibci2.block_id, block.id_)
 
-        block = blocks[4]
+        block = blocks[5]
         self.assertIsInstance(block, SpecificRelationsBlock)
         self.assertEqual((rtype1.id,), block.relation_type_deps)
 
@@ -308,7 +325,41 @@ class BlockRegistryTestCase(CremeTestCase):
         self.assertEqual(1, len(blocks))
         self.assertIsInstance(blocks[0], Block)
 
-    #def test_get_blocks02(self): TODO: with specific relation blocks
+    def test_get_blocks02(self):
+        "Specific relation blocks, custom blocks"
+        class QuuxBlock1(SimpleBlock):
+            id_          = SimpleBlock.generate_id('creme_core', 'BlockRegistryTestCase__test_get_blocks_2')
+            verbose_name = u'Testing purpose #1'
+
+
+        block1 = QuuxBlock1()
+
+        rtype = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
+        rbi = RelationBlockItem.create(rtype.id)
+
+        cbci = CustomBlockConfigItem.objects.create(
+                    id='tests-organisations01', name='General',
+                    content_type=ContentType.objects.get_for_model(Organisation),
+                    cells=[EntityCellRegularField.build(Organisation, 'name')],
+                )
+
+        block_registry = _BlockRegistry()
+        block_registry.register(block1)
+
+        blocks = block_registry.get_blocks([block1.id_, rbi.block_id, cbci.generate_id()])
+        self.assertEqual(3, len(blocks))
+
+        self.assertEqual(block1, blocks[0])
+
+        rel_block = blocks[1]
+        self.assertIsInstance(rel_block, SpecificRelationsBlock)
+        self.assertEqual((rtype.id,), rel_block.relation_type_deps)
+
+        custom_block = blocks[2]
+        self.assertIsInstance(custom_block, CustomBlock)
+        self.assertEqual(cbci.generate_id(), custom_block.id_)
+        self.assertEqual((Organisation,),    custom_block.dependencies)
+        self.assertEqual(cbci.name,          custom_block.verbose_name)
 
     def test_block_4_model01(self):
         block_registry = _BlockRegistry()
@@ -549,9 +600,10 @@ class BlocksManagerTestCase(CremeTestCase):
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2()
         block3 = FoobarBlock3(); block4 = FoobarBlock4(); block5 = FoobarBlock5()
-        block6 = FoobarBlock6(id_=TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_6'),
-                              relation_type_id=rtype2_pk
-                             )
+        #block6 = FoobarBlock6(id_=TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_6'),
+                              #relation_type_id=rtype2_pk
+                             #)
+        block6 = FoobarBlock6(RelationBlockItem.create(rtype2_pk))
 
         mngr = BlocksManager()
         mngr.add_group('gname1', block1, block2, block3)

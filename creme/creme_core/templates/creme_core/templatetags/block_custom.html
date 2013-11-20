@@ -1,0 +1,22 @@
+{% load creme_block creme_listview %}
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=3 %}
+        {% with title=config_item.name %}
+            <th class="collapser label">{% get_basic_block_header title 'info_48.png' title %}</th>
+        {% endwith %}
+        <th class="actions">
+            <div class="buttons">
+                {% get_toggle_empty_field_button %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% for cell in config_item.cells %}
+            <tr class="content">
+                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{cell.title}}</th>
+                <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{% get_listview_cell cell object user %}</td>
+                <td class="{% cycle "block_line_dark" "block_line_light" %} edit_inner">{% get_field_editor on entity_cell cell for object %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

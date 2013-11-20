@@ -60,7 +60,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         name = 'DefaultHeaderFilter'
         response = self.client.post(url, data={'name':  name,
-                                               'cells': 'rfield-created',
+                                               'cells': 'regular_field-created',
                                               }
                                    )
         self.assertNoFormError(response, status=302)
@@ -114,7 +114,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'name':   name,
                                           'user':   self.user.id,
-                                          'cells': 'rtype-%(rtype)s,rfield-%(rfield)s,ffield-%(ffield)s,cfield-%(cfield)s' % {
+                                          'cells': 'relation-%(rtype)s,regular_field-%(rfield)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
                                                         'rfield': field_name,
                                                         'cfield': customfield.id,
                                                         'rtype':  loves.id,
@@ -188,7 +188,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         name = 'Entity view v2'
         field2 = 'last_name'
         response = self.client.post(url, data={'name':  name,
-                                               'cells': 'rfield-%s,rfield-%s' % (
+                                               'cells': 'regular_field-%s,regular_field-%s' % (
                                                                 field1, field2,
                                                             ),
                                               }
