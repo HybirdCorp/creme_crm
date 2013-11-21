@@ -145,10 +145,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var self = this;
         var url = this.popupURL(element);
 
-        // TODO : fix a bug in server view that doesn't accept empty q_filter
-        if (creme.object.isempty(this._popupURL.parameters.qfilter))
-            url = url.replace('?q_filter=', '');
-
         creme.utils.showInnerPopup(url, {
                                     send_button_label: gettext("Validate the selection"),
                                     send_button: function(dialog) {
