@@ -397,3 +397,37 @@ test('creme.widget.PlotSelector.reload (graphs, template name, template data url
     deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_BARGRAPH);
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_02_DATA);
 });
+
+test('creme.widget.PlotSelector.reset (graphs, template name, template data url)', function() {
+    var element = this.createMockPlotSelector({
+        'plot-data-url': 'mock/plot/${id}/data',
+        'plot-name': '${name}-graph'
+    });
+
+    this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
+    this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
+
+    var widget = creme.widget.create(element, {backend: this.backend});
+    var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
+
+    assertReady(element);
+    assertReady($('.ui-creme-jqueryplot', element));
+    assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'No Data');
+
+    deepEqual(plot_widget.plotOptions(), {});
+    deepEqual(plot_widget.plotData(), []);
+
+    widget.reload({name: 'pie', id: 1});
+
+    assertPlot(this, $('.ui-creme-jqueryplot', element));
+    deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
+    deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_01_DATA);
+
+    widget.reset();
+
+    assertReady(element);
+    assertReady($('.ui-creme-jqueryplot', element));
+
+    deepEqual(plot_widget.plotOptions(), PLOTSELECTOR_PIEGRAPH);
+    deepEqual(plot_widget.plotData(), []);
+});

@@ -82,6 +82,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
 
         if (plot_data_url.iscomplete() === false) {
             self._plot_last_url = undefined;
+            plot.plotData([]);
             throw new Error('incomplete data url');
         }
 
@@ -175,11 +176,10 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
 
     reset: function(element)
     {
-        this._plot_data_url.parameters = {};
-        this._plot_last_url
+        this._plot_data_url.parameters({});
 
         if (this._plot_name !== undefined)
-            this._plot_name.parameters = {};
+            this._plot_name.parameters({});
 
         this.reload(element, this.options.initial);
     },
