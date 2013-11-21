@@ -10,13 +10,16 @@ module("creme.ajax.query.js", {
                                     'mock/options/3': this.backend.response(200, ['a', 'b', 'c']),
                                     'mock/options/empty': this.backend.response(200, []),
                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+                                    'mock/custom': function(url, data, options) {
+                                         return self._custom_GET(url, data, options);
+                                     }});
 
         $.extend(this.backend.POST, {'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value:'', added:[1, 'newitem']}) + '</json>'),
                                      'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
                                      'mock/error': this.backend.response(500, 'HTTP - Error 500'),
                                      'mock/custom': function(url, data, options) {
-                                          return self._custom_POST(url, data, options);
+                                         return self._custom_POST(url, data, options);
                                      }});
 
         this.resetMockCalls();
@@ -27,6 +30,10 @@ module("creme.ajax.query.js", {
 
     _custom_POST: function(url, data, options) {
         return this.backend.response(200, $.toJSON({url: url, method: 'POST', data: data}));
+    },
+
+    _custom_GET: function(url, data, options) {
+        return this.backend.response(200, $.toJSON({url: url, method: 'GET', data: data}));
     },
 
     resetMockCalls: function() {
@@ -68,14 +75,14 @@ function assertMockQueryErrorCalls(expected, calls)
 }
 
 test('creme.ajax.Query.constructor', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
 
     equal(undefined, query.url());
     equal(this.backend, query.backend());
 });
 
 test('creme.ajax.Query.url (string)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
 
     equal(undefined, query.url());
     equal(this.backend, query.backend());
@@ -87,7 +94,7 @@ test('creme.ajax.Query.url (string)', function() {
 });
 
 test('creme.ajax.Query.url (function)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     var id = 1;
     var url = function() {
         return 'mock/options/%d'.format(id);
@@ -107,23 +114,26 @@ test('creme.ajax.Query.url (function)', function() {
 });
 
 test('creme.ajax.Query.get (empty url)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.get();
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([['cancel']], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('cancel'), this.mockListenerCalls('complete'));
 });
 
 test('creme.ajax.Query.get (url)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.url('mock/options/1').get();
 
@@ -132,6 +142,7 @@ test('creme.ajax.Query.get (url)', function() {
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 
     query.url('mock/options/3').get();
 
@@ -141,13 +152,53 @@ test('creme.ajax.Query.get (url)', function() {
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 });
 
-test('creme.ajax.Query.get (fail)', function() {
-    var query = new creme.ajax.Query(this.backend);
+test('creme.ajax.Query.get (url, data)', function() {
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
+
+    query.url('mock/custom').get();
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+
+    query.url('mock/custom').get({a: [1, 2]});
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})],
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+
+    query.url('mock/custom').data({b: 'b'}).get({a: [1, 2]});
+
+    deepEqual([
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {}})],
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {a: [1, 2]}})],
+               ['done', $.toJSON({url: 'mock/custom', method: 'GET', data: {b: 'b', a: [1, 2]}})]
+              ], this.mockListenerCalls('success'));
+    deepEqual([], this.mockListenerCalls('cancel'));
+    deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
+});
+
+test('creme.ajax.Query.get (fail)', function() {
+    var query = new creme.ajax.Query({}, this.backend);
+    query.onDone(this.mockListener('success'));
+    query.onCancel(this.mockListener('cancel'));
+    query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.url('/mock/options/unkown').get();
 
@@ -156,6 +207,7 @@ test('creme.ajax.Query.get (fail)', function() {
     assertMockQueryErrorCalls([
                                ['fail', '', 404]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
     query.url('mock/forbidden').get();
 
@@ -165,6 +217,7 @@ test('creme.ajax.Query.get (fail)', function() {
                                ['fail', '', 404],
                                ['fail', 'HTTP - Error 403', 403]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
     query.url('mock/error').get();
 
@@ -175,26 +228,30 @@ test('creme.ajax.Query.get (fail)', function() {
                                ['fail', 'HTTP - Error 403', 403],
                                ['fail', 'HTTP - Error 500', 500]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });
 
 test('creme.ajax.Query.post (empty url)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.post();
 
     deepEqual([], this.mockListenerCalls('success'));
     deepEqual([['cancel']], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('cancel'), this.mockListenerCalls('complete'));
 });
 
 test('creme.ajax.Query.post (url)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.url('mock/custom').post();
 
@@ -203,6 +260,7 @@ test('creme.ajax.Query.post (url)', function() {
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 
     query.url('mock/custom').post({a:[1, 2], b:'a'});
 
@@ -212,13 +270,15 @@ test('creme.ajax.Query.post (url)', function() {
               ], this.mockListenerCalls('success'));
     deepEqual([], this.mockListenerCalls('cancel'));
     deepEqual([], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('success'), this.mockListenerCalls('complete'));
 });
 
 test('creme.ajax.Query.post (fail)', function() {
-    var query = new creme.ajax.Query(this.backend);
+    var query = new creme.ajax.Query({}, this.backend);
     query.onDone(this.mockListener('success'));
     query.onCancel(this.mockListener('cancel'));
     query.onFail(this.mockListener('error'));
+    query.onComplete(this.mockListener('complete'));
 
     query.url('/mock/unknown').post();
 
@@ -227,6 +287,7 @@ test('creme.ajax.Query.post (fail)', function() {
     assertMockQueryErrorCalls([
                                ['fail', '', 404]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
     query.url('mock/forbidden').post();
 
@@ -236,6 +297,7 @@ test('creme.ajax.Query.post (fail)', function() {
                                ['fail', '', 404],
                                ['fail', 'HTTP - Error 403', 403]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 
     query.url('mock/error').post();
 
@@ -246,4 +308,5 @@ test('creme.ajax.Query.post (fail)', function() {
                                ['fail', 'HTTP - Error 403', 403],
                                ['fail', 'HTTP - Error 500', 500]
                               ], this.mockListenerCalls('error'));
+    deepEqual(this.mockListenerCalls('error'), this.mockListenerCalls('complete'));
 });

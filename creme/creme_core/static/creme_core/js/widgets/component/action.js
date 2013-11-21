@@ -25,7 +25,7 @@ creme.component.Action = creme.component.Component.sub({
         this._action = Object.isFunc(action) ? action : this.done;
     },
 
-    start: function(options)
+    start: function()
     {
         var self = this;
 
@@ -33,6 +33,7 @@ creme.component.Action = creme.component.Component.sub({
             return this;
 
         try {
+            this._events.trigger('start', Array.copy(arguments), this);
             this._status = 'run';
             this._action.apply(this, Array.copy(arguments));
         } catch(e) {
@@ -93,6 +94,14 @@ creme.component.Action = creme.component.Component.sub({
     unbind: function(key, listener) {
         this._events.unbind(key, listener);
         return this;
+    },
+
+    onStart: function(start) {
+        return this.bind('start', start);
+    },
+
+    onComplete: function(complete) {
+        return this.bind('done fail cancel', complete);
     },
 
     onDone: function(success) {

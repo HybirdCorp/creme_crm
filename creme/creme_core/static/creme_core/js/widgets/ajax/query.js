@@ -17,10 +17,10 @@
 *******************************************************************************/
 
 creme.ajax.Query = creme.component.Action.sub({
-    _init_: function(backend, options)
+    _init_: function(options, backend)
     {
         this._super_(creme.component.Action, '_init_', this._send, options);
-        this._backend = backend || new creme.ajax.Backend({dataType: 'json'});
+        this._backend = backend || new creme.ajax.Backend(options.backend);
         this._converter = function(data) {return data;}
         this._data = {};
 
@@ -66,12 +66,22 @@ creme.ajax.Query = creme.component.Action.sub({
         return this;
     },
 
+    data: function(data)
+    {
+        if (data === undefined)
+            return Object.isFunc(this._data) ? this._data() : this._data;
+
+        this._data = data;
+        return this;
+    },
+
     _send: function(options)
     {
-        var options = options || {};
-        var data = options.data || {};
+        var options = $.extend({}, this.options(), options || {});
+
+        var data = $.extend({}, this.data() || {}, options.data || {});
         var action = (options.action || 'get').toLowerCase();
-        var backend_options = options.options || {};
+        var backend_options = options.backend || {};
         var url = this.url() || '';
 
         if (Object.isNone(this._backend) || !url)
@@ -85,10 +95,16 @@ creme.ajax.Query = creme.component.Action.sub({
     },
 
     get: function(data, options) {
-        return this.start({action: 'get', data: data, options: options || {}});
+        return this.start({action: 'get', data: data, backend: options || {}});
     },
 
     post: function(data, options) {
-        return this.start({action: 'post', data: data, options: options || {}});
+        return this.start({action: 'post', data: data, backend: options || {}});
     }
 });
+
+creme.ajax.query = function(url, options, data, backend) {
+    var options = options || {};
+    return new creme.ajax.Query(options, backend).url(url).data(data || {});
+}
+

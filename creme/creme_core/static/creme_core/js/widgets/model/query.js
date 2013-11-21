@@ -72,7 +72,7 @@ creme.model.AjaxArray = creme.model.Array.sub({
 
     fetch: function(data, options, listeners)
     {
-        var query = new creme.ajax.Query(this.backend());
+        var query = this.backend().query();
 
         query.one(this._queryListeners)
              .one(listeners || {})
