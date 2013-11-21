@@ -53,6 +53,10 @@ creme.ajax.Backend.prototype = {
             console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
 
         creme.ajax.jqueryFormSubmit(form, on_success, on_error, opts);
+    },
+
+    query: function(options) {
+        return new creme.ajax.Query(options, this);
     }
 };
 
@@ -98,8 +102,8 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
         }
     }
 
-    submit_options = {
-            iframe:true,
+    var submit_options = {
+            iframe:true,  // TODO : disable iframe if no file input in form
             success:function(responseText, statusText, xhr, form) {
                 form.attr('action', form_action);
                 xhr.status = parse_response_status(responseText);
