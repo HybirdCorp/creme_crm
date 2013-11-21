@@ -51,6 +51,13 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         element.addClass('widget-ready');
     },
 
+    _destroy: function(element)
+    {
+        if (this._autocomplete) {
+            this._autocomplete.deactivate(element);
+        }
+    },
+
     _init_model: function(element, options)
     {
         var self = this;

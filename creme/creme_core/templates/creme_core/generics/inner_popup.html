@@ -13,6 +13,7 @@
                                 OR (entire own) close callback think about set.
                                 Think to set delegate_reload to True in your view
                             {% endcomment %}
+                            creme.widget.shutdown($('#{{whoami}}'));
                             $('#{{whoami}}').dialog('close');
                         {% else %}
                             creme.utils.closeDialog($('#{{whoami}}'), {{reload}});

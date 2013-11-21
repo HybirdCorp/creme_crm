@@ -6210,6 +6210,20 @@ $.widget("ui.dialog", {
 	isOpen: function() {
 		return this._isOpen;
 	},
+	
+	_findMaxZ: function() {
+	    var self = this;
+	    var maxZ = 0, thisZ; 
+
+	    $('.ui-dialog').filter(function() {
+	                        return this !== self.uiDialog[0] && !isNaN($(this).css('z-index')); 
+	                    })
+	                   .each(function() {
+                            maxZ = Math.max(maxZ, $(this).css('z-index'));
+	                   });
+
+	    return maxZ;
+	},
 
 	// the force parameter allows us to move modal dialogs to their correct
 	// position on open
@@ -6223,9 +6237,12 @@ $.widget("ui.dialog", {
 			return self._trigger('focus', event);
 		}
 
+		$.ui.dialog.maxZ = self._findMaxZ();
+
 		if (options.zIndex > $.ui.dialog.maxZ) {
 			$.ui.dialog.maxZ = options.zIndex;
 		}
+		
 		if (self.overlay) {
 			$.ui.dialog.maxZ += 1;
 			self.overlay.$el.css('z-index', $.ui.dialog.overlay.maxZ = $.ui.dialog.maxZ);

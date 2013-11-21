@@ -176,6 +176,15 @@ $.extend(creme.widget, {
         });
     },
 
+    shutdown: function(root)
+    {
+        var self = creme.widget;
+
+        $('.ui-creme-widget.widget-ready', root).each(function() {
+            self.destroy($(this));
+        });
+    },
+
     register: function(name, widget) {
         creme.widget._widgets[name] = widget;
     },

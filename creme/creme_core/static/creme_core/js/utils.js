@@ -377,6 +377,8 @@ creme.utils.handleDialogSubmit = function(dialog) {
               data += '<input type="hidden" name="whoami" value="' + div_id + '"/>'
               $('[name=inner_body]', '#' + div_id).html(data);
 
+              creme.widget.shutdown($('[name=inner_body]', '#' + div_id));
+
               var $error_list = $('.errorlist:first', '.non_field_errors');
 
               if ($error_list.size() > 0){
@@ -427,7 +429,10 @@ creme.utils.iframeInnerPopup = function(url) {
 
 creme.utils.closeDialog = function(dial, reload, beforeReloadCb, callback_url) {
     $(dial).dialog("destroy");
+
+    creme.widget.shutdown($(dial));
     $(dial).remove();
+
     creme.utils.stackedPopups.pop();//Remove dial from opened dialog array
 
 //     if (beforeReloadCb != undefined && $.isFunction(beforeReloadCb)) {

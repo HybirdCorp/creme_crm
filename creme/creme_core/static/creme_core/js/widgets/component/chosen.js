@@ -48,12 +48,12 @@ creme.component.Chosen = creme.component.Component.sub({
             return;
 
         var choicelist = $('ul.chzn-choices:not(.sortable)', element.parent());
-        
+
         if (this.options.sortable) {
             choicelist.sortable('destroy');
         }
 
-        element.chosen('destroy');
+        element.unchosen();
         this.chosen = undefined;
     },
 
