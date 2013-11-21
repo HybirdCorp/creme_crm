@@ -128,7 +128,7 @@ creme.utils.JSON.prototype = {
     {
         if (defaults !== undefined) {
             try {
-                this.decode(data);
+                return this.decode(data);
             } catch(e) {
                 return defaults;
             }
@@ -163,9 +163,17 @@ creme.utils.JSON.prototype = {
 }
 
 creme.utils.JSON.decoder = function(defaults) {
-    return function(data) {creme.utils.JSON.prototype.decode(data, defaults);};
+    var codec = new creme.utils.JSON();
+
+    return function(data, value) {
+        return codec.decode(data, value || defaults);
+    };
+}
+
+creme.utils.JSON.encoder = function() {
+    return new creme.utils.JSON().encode;
 }
 
 creme.utils.JSON.clean = function(data, defaults) {
-    return Object.isType(data, 'string') ? creme.utils.JSON.prototype.decode(data, defaults) : data;
+    return Object.isType(data, 'string') ? new creme.utils.JSON().decode(data, defaults) : data;
 }

@@ -85,16 +85,11 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
     update: function(element, data)
     {
-        var self = this;
+        var data = creme.utils.JSON.clean(data, null);
 
-        if (typeof data === 'string')
-            data = creme.widget.parseval(data, creme.ajax.json.parse);
-
-        if (typeof data !== 'object')
-            return;
-
-        var selected = data['value'];
-        self.val(element, selected);
+        if (data != null) {
+            this.val(element, data['value']);
+        }
     },
 
     _update: function(element, values)
