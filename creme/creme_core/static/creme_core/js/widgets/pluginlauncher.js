@@ -24,15 +24,24 @@ creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
 
     _create: function(element, options, cb, sync, arguments)
     {
-        var plugin_name = options['plugin'];
-        var plugin_options = creme.widget.cleanval(options['plugin_options'], {});
-        var plugin = plugin_name !== '' ? element[plugin_name] : undefined;
+        var plugin_name = options.plugin || '';
+        var plugin_options = this._pluginOptions = creme.utils.JSON.clean(options.plugin_options, {});
+        var plugin = this._plugin = plugin_name !== '' ? element[plugin_name] : undefined;
 
         //console.log('plugin-name:', plugin_name, 'options:', options, 'plugin-options:', plugin_options, 'is_valid:', (typeof plugin === 'function'));
 
-        if (typeof plugin === 'function')
-            element[plugin_name](plugin_options);
+        if (Object.isFunc(plugin)) {
+            plugin.apply(element, [plugin_options]);
+        }
 
         element.addClass('widget-ready');
+    },
+
+    _destroy: function(element) {
+        this._plugin.apply(element, 'destroy');
+    },
+
+    plugin: function(element) {
+        return this._plugin;
     }
 });
