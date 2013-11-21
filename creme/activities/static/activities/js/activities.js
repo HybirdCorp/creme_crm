@@ -181,8 +181,8 @@ creme.activities.calendar.load_calendar_event_listeners = function (user, creme_
 }
 
 creme.activities.calendar.chooseForeground = function (target, bgColor) {
-    var rgb = creme.utils.HEXtoRGB(bgColor);
-    target.css('color', creme.utils.maxContrastingColor (rgb.r, rgb.g, rgb.b));
+    var rgb = creme.color.HEXtoRGB(bgColor);
+    target.css('color', creme.color.maxContrastingColor (rgb.r, rgb.g, rgb.b));
 }
 
 creme.activities.calendar.updater = function (event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {

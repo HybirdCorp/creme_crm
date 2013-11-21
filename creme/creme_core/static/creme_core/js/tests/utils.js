@@ -78,9 +78,11 @@ test('(Un)Check all boxes:creme.utils.autoCheckallState() / creme.utils.toggleCh
     equal($(_checkboxes_selector).size(), 0);
 });
 
+/*
 test('Range:creme.utils.range()', function() {
 //    expect(5);
     deepEqual(creme.utils.range(),    []);
     deepEqual(creme.utils.range(0,1), [0]);
     deepEqual(creme.utils.range(1,5), [1, 2, 3, 4]);
 });
+*/
