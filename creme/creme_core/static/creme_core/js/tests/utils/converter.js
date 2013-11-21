@@ -197,6 +197,16 @@ test('creme.utils.JSON.encode', function() {
                         'b': 'test',
                         'c': 12
                        }), '{"a":["a","b",150],"b":"test","c":12}');
+
+    var encoder = creme.utils.JSON.encoder();
+
+    equal(encoder('test'), '"test"');
+    equal(encoder(12), '12');
+    equal(encoder(['a', 12, 'c', null, undefined]), '["a",12,"c",null,null]');
+    equal(encoder({'a': ['a', 'b', 150],
+                   'b': 'test',
+                   'c': 12
+                  }), '{"a":["a","b",150],"b":"test","c":12}');
 });
 
 test('creme.utils.JSON.decode (null)', function() {
@@ -211,8 +221,13 @@ test('creme.utils.JSON.decode (invalid)', function() {
     raises(function() {codec.decode('{"a\':1}');});
     raises(function() {codec.decode('{"a":1,}');});
     raises(function() {codec.decode('{a:1}');});
-});
 
+    var decoder = creme.utils.JSON.decoder();
+
+    raises(function() {decoder('{"a\':1}');});
+    raises(function() {decoder('{"a":1,}');});
+    raises(function() {decoder('{a:1}');});
+});
 
 test('creme.utils.JSON.decode (invalid or null, default)', function() {
     var codec = new creme.utils.JSON();
@@ -221,11 +236,39 @@ test('creme.utils.JSON.decode (invalid or null, default)', function() {
     equal(codec.decode('{"a":1,}', 'fail'), 'fail');
     equal(codec.decode('{a:1}', 'fail'), 'fail');
     equal(codec.decode(null, 'fail'), 'fail');
-});
 
+    var decoder = creme.utils.JSON.decoder('default');
+
+    equal(decoder('{"a\':1}'), 'default');
+    equal(decoder('{"a":1,}'), 'default');
+    equal(decoder('{a:1}'), 'default');
+    equal(decoder(null), 'default');
+
+    equal(decoder('{"a\':1}', 'fail'), 'fail');
+    equal(decoder('{"a":1,}', 'fail'), 'fail');
+    equal(decoder('{a:1}', 'fail'), 'fail');
+    equal(decoder(null, 'fail'), 'fail');
+});
 
 test('creme.utils.JSON.decode (valid)', function() {
     var codec = new creme.utils.JSON();
 
     deepEqual(codec.decode('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
+
+    var decoder = creme.utils.JSON.decoder();
+
+    deepEqual(decoder('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
+});
+
+test('creme.utils.JSON.clean', function() {
+    var clean = creme.utils.JSON.clean;
+
+    raises(function() {clean('{"a\':1}');});
+    equal(clean('{"a\':1}', 'default'), 'default');
+
+    equal(clean(null), null);
+    equal(clean(null, 'default'), null);
+
+    deepEqual(clean('{"a":1}'), {a: 1});
+    deepEqual(clean({a: 1}), {a: 1});
 });

@@ -109,10 +109,11 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
     {
         var self = this;
         var delegate = this._selector;
-        var item = creme.widget.parseval(data, creme.ajax.json.parse);
 
         if (Object.isEmpty(delegate))
             return;
+
+        var item = creme.utils.JSON.clean(data, null);
 
         if (item != null) {
             delegate.update(data);
