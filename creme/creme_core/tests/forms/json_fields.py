@@ -412,6 +412,25 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                                     )
                         )
 
+    def test_clean_duplicates_no_unique(self):
+        "Duplicates are removed"
+        self.login()
+        contact = self.create_contact()
+        orga    = self.create_orga()
+
+        field = MultiGenericEntityField(models=[Organisation, Contact], unique=False)
+        self.assertEqual([contact, orga, contact], # <= contact once
+                         field.clean('[{"ctype":"%(contact_ctid)s","entity":"%(contact_id)s"},'
+                                     ' {"ctype":"%(orga_ctid)s","entity":"%(orga_id)s"},'
+                                     ' {"ctype":"%(contact_ctid)s","entity":"%(contact_id)s"}]'% {
+                                            'contact_ctid': contact.entity_type_id,
+                                            'contact_id':   contact.pk,
+                                            'orga_ctid':    orga.entity_type_id,
+                                            'orga_id':      orga.pk,
+                                        }
+                                    )
+                        )
+
     def test_clean_incomplete_not_required(self):
         "Not required"
         self.login()
