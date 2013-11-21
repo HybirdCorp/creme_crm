@@ -294,8 +294,9 @@ class GenericEntityField(JSONField):
 class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
-    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
+    def __init__(self, models=None, autocomplete=False, unique=True, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, autocomplete, *args, **kwargs)
+        self.unique = unique
 
     def _create_widget(self):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
@@ -304,7 +305,9 @@ class MultiGenericEntityField(GenericEntityField):
         return list(map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value))
 
     def _value_from_unjsonfied(self, data):
-        entities_pks = OrderedSet() #in order to keep the global order (left by defaultdict)
+        entities_pks = OrderedSet() if self.unique else []#in order to keep the global order (left by defaultdict)
+        entities_pks_append = entities_pks.add if self.unique else entities_pks.append
+
         entities_by_ctype = defaultdict(list)
         clean_value = self.clean_value
 
@@ -318,7 +321,7 @@ class MultiGenericEntityField(GenericEntityField):
             if not entity_pk:
                 continue
 
-            entities_pks.add(entity_pk)
+            entities_pks_append(entity_pk)
             entities_by_ctype[ctype_pk].append(entity_pk)
 
         entities = {}
