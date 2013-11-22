@@ -218,3 +218,46 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}") # not editable
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}") # not editable
 #        self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'siren' for object %}") # not in bulk update registry
+
+    def _assertJsonifyFilter(self, expected, data):
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}{{data|jsonify|safe}}")
+            render = template.render(Context({'data': data}))
+
+        self.assertEqual(expected, render.strip());
+
+    def test_jsonify_filter(self):
+        self._assertJsonifyFilter('""', '');
+        self._assertJsonifyFilter('"test string"', 'test string');
+    
+        self._assertJsonifyFilter('[1, 2, 3]', (1, 2, 3));
+        self._assertJsonifyFilter('[1, 2, 3]', [1, 2, 3]);
+        self._assertJsonifyFilter('{"value": 1, "label": "a"}', {'value': 1, 'label':"a"});
+    
+        self._assertJsonifyFilter('[0, 1, 2]', (v for v in xrange(3)));
+        self._assertJsonifyFilter('[{"value": 0, "label": "a"}, {"value": 1, "label": "b"}, {"value": 2, "label": "c"}]',
+                                  ({'value': value, 'label': label} for value, label in enumerate(['a', 'b', 'c'])))
+
+    def test_optionize_model_iterable_filter(self):
+        self.login()
+
+        orgas = [Organisation.objects.create(user=self.user, name='Amestris'),
+                 Organisation.objects.create(user=self.user, name='Spectre')]
+
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable|jsonify|safe}}")
+            render = template.render(Context({'data': orgas}))
+
+        self.assertEqual('[[%d, "%s"], [%d, "%s"]]' % (orgas[0].pk, unicode(orgas[0]),
+                                                       orgas[1].pk, unicode(orgas[1])), render.strip());
+
+        with self.assertNoException():
+            template = Template("{% load creme_core_tags %}{{data|optionize_model_iterable:'dict'|jsonify|safe}}")
+            render = template.render(Context({'data': orgas}))
+
+        self.assertEqual("""[{"value": %d, "label": "%s"}, {"value": %d, "label": "%s"}]""" % 
+                            (
+                             orgas[0].pk, unicode(orgas[0]),
+                             orgas[1].pk, unicode(orgas[1])
+                            ),
+                         render.strip());
