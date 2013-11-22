@@ -196,10 +196,10 @@ INSTALLED_CREME_APPS = (
     #creme.'sms', #Work In Progress
     'creme.projects',
     'creme.tickets',
-    'creme.cti',
+    #'creme.cti',
     'creme.activesync',
     'creme.vcfs',
-    'creme.polls',  #need 'commercial'
+    #'creme.polls',  #need 'commercial'
 )
 
 
