@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-19 17:47+0100\n"
+"POT-Creation-Date: 2013-11-22 09:41+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -201,7 +201,7 @@ msgstr "Enlever le début (N caractères)"
 msgid "Remove the end (N characters)"
 msgstr "Enlever la fin (N caractères)"
 
-#: core/batch_process.py:93 forms/fields.py:678 forms/fields.py:679
+#: core/batch_process.py:93 forms/fields.py:681 forms/fields.py:682
 #: forms/widgets.py:336 models/base.py:42
 #: templates/creme_core/generics/blockform/add_popup.html:27
 #: templates/creme_core/generics/form/add.html:4
@@ -268,14 +268,14 @@ msgid "Invalid value => %s"
 msgstr "Valeur invalide => %s"
 
 #: forms/batch_process.py:142
-#: templates/creme_core/templatetags/listview_entityfilters.html:22
-#: templates/creme_core/templatetags/listview_entityfilters.html:26
-#: templates/creme_core/templatetags/listview_entityfilters.html:27
+#: templates/creme_core/templatetags/listview_entityfilters.html:5
+#: templates/creme_core/templatetags/listview_entityfilters.html:9
+#: templates/creme_core/templatetags/listview_entityfilters.html:10
 msgid "Filter"
 msgstr "Filtre"
 
 #: forms/batch_process.py:142
-#: templates/creme_core/templatetags/listview_entityfilters.html:30
+#: templates/creme_core/templatetags/listview_entityfilters.html:13
 #: templates/creme_core/templatetags/search_panel.html:17
 #: views/entity_filter.py:126 views/entity_filter.py:140
 msgid "All"
@@ -428,7 +428,7 @@ msgstr "Ce type de resource n'est pas autorisé."
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:882 forms/fields.py:916
+#: forms/entity_filter.py:882 forms/fields.py:919
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
@@ -492,7 +492,7 @@ msgstr "Sous-filtres"
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:1042 forms/header_filter.py:276
+#: forms/entity_filter.py:1042 forms/header_filter.py:275
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -514,38 +514,38 @@ msgstr "Format invalide"
 msgid "Invalid type"
 msgstr "Type invalide"
 
-#: forms/fields.py:72 forms/fields.py:222 forms/fields.py:365
-#: forms/fields.py:585 forms/fields.py:854
+#: forms/fields.py:72 forms/fields.py:222 forms/fields.py:368
+#: forms/fields.py:588 forms/fields.py:857
 msgid "This entity doesn't exist."
 msgstr "Cette fiche n'existe pas."
 
-#: forms/fields.py:220 forms/fields.py:915
+#: forms/fields.py:220 forms/fields.py:918
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:221 forms/fields.py:362 forms/fields.py:914
+#: forms/fields.py:221 forms/fields.py:365 forms/fields.py:917
 msgid "The content type is required."
 msgstr "Le type de resource est obligatoire."
 
-#: forms/fields.py:223 forms/fields.py:364 forms/fields.py:586
+#: forms/fields.py:223 forms/fields.py:367 forms/fields.py:589
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
 
-#: forms/fields.py:360
+#: forms/fields.py:363
 msgid "This type of relationship doesn't exist."
 msgstr "Ce type de relation n'existe pas."
 
-#: forms/fields.py:361
+#: forms/fields.py:364
 msgid "This type of relationship causes a constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
-#: forms/fields.py:363
+#: forms/fields.py:366
 msgid "This content type cause constraint error with the type of relationship."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
-#: forms/fields.py:366
+#: forms/fields.py:369
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -553,23 +553,23 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:655
+#: forms/fields.py:658
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/fields.py:679
+#: forms/fields.py:682
 #: templates/creme_core/templatetags/widgets/add_button.html:10
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
 msgid "Can't add"
 msgstr "Création interdite"
 
-#: forms/fields.py:786
+#: forms/fields.py:789
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:1144
+#: forms/fields.py:1147
 msgid ""
 "If you select «customized» you have to specify a start date and/or an end "
 "date."
@@ -577,43 +577,43 @@ msgstr ""
 "Si vous sélectionnez «Personnalisé» vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:1145
+#: forms/fields.py:1148
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1149 forms/widgets.py:231 forms/widgets.py:975
+#: forms/fields.py:1152 forms/widgets.py:231 forms/widgets.py:975
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1200
+#: forms/fields.py:1203
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1201
+#: forms/fields.py:1204
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
 
-#: forms/fields.py:1230
+#: forms/fields.py:1233
 msgid "Enter a value for \"Other\" choice."
 msgstr "Entrez une valeur pour le choix \"Autre\""
 
-#: forms/fields.py:1254
+#: forms/fields.py:1257
 msgid "Other"
 msgstr "Autre"
 
-#: forms/fields.py:1291
+#: forms/fields.py:1294
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
-#: forms/header_filter.py:263 forms/header_filter.py:265
+#: forms/header_filter.py:262 forms/header_filter.py:264
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/header_filter.py:277
+#: forms/header_filter.py:276
 msgid "All users can see the view, but only the owner can edit or delete it"
 msgstr ""
 "Cette vue sera visible par tous les utilisateurs, mais seul le propriétaire "
@@ -769,8 +769,8 @@ msgstr "Champs clé"
 #: forms/list_view_import.py:789
 msgid ""
 "Select at least one field if you want to use the \"update\" mode. If an "
-"entity already exists with the same field values, it will be simply updated"
-"(ie: a new entity will not be created).\n"
+"entity already exists with the same field values, it will be simply "
+"updated(ie: a new entity will not be created).\n"
 "But if several entities are found, a new entity is created (in order to "
 "avoid errors)."
 msgstr ""
@@ -969,7 +969,7 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models/auth.py:44 models/block.py:318 models/entity_filter.py:87
+#: models/auth.py:44 models/block.py:333 models/entity_filter.py:87
 #: models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:51
 #: templates/creme_core/templatetags/block_trash.html:22
@@ -1101,24 +1101,24 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:51 models/block.py:317 models/button_menu.py:32
+#: models/block.py:52 models/block.py:332 models/button_menu.py:32
 #: models/custom_field.py:55
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:187 models/block.py:272 models/block.py:383
+#: models/block.py:188 models/block.py:287 models/block.py:400
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:188
+#: models/block.py:189
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/block.py:273
+#: models/block.py:288
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/block.py:275
+#: models/block.py:290
 msgid "Verbose"
 msgstr "Verbeux"
 
@@ -2132,46 +2132,46 @@ msgstr "Ajout de relation multiple"
 msgid "Multiple update"
 msgstr "Modification multiple"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:20
+#: templates/creme_core/templatetags/listview_entityfilters.html:3
 msgid "Filter the lines of the table"
 msgstr "Filtrer les lignes de la table"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:23
+#: templates/creme_core/templatetags/listview_entityfilters.html:6
 msgid "Filters"
 msgstr "Filtres"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:38
+#: templates/creme_core/templatetags/listview_entityfilters.html:22
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:40
+#: templates/creme_core/templatetags/listview_entityfilters.html:26
 msgid "Edit custom filter"
 msgstr "Modifier le filtre personnalisé"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:41
+#: templates/creme_core/templatetags/listview_entityfilters.html:29
 msgid "Delete custom filter"
 msgstr "Supprimer le filtre personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:32
+#: templates/creme_core/templatetags/listview_headerfilters.html:4
 msgid "Show only the desired columns"
 msgstr "Afficher uniquement les colonnes désirées"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:34
-#: templates/creme_core/templatetags/listview_headerfilters.html:35
-#: templates/creme_core/templatetags/listview_headerfilters.html:38
-#: templates/creme_core/templatetags/listview_headerfilters.html:39
+#: templates/creme_core/templatetags/listview_headerfilters.html:6
+#: templates/creme_core/templatetags/listview_headerfilters.html:7
+#: templates/creme_core/templatetags/listview_headerfilters.html:10
+#: templates/creme_core/templatetags/listview_headerfilters.html:11
 msgid "View of list"
 msgstr "Vue de liste"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:49
+#: templates/creme_core/templatetags/listview_headerfilters.html:22
 msgid "Create a custom view"
 msgstr "Créer une vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:51
+#: templates/creme_core/templatetags/listview_headerfilters.html:26
 msgid "Edit custom view"
 msgstr "Modifier la vue personnalisée"
 
-#: templates/creme_core/templatetags/listview_headerfilters.html:52
+#: templates/creme_core/templatetags/listview_headerfilters.html:29
 msgid "Delete custom view"
 msgstr "Supprimer vue personnalisée"
 
@@ -2222,7 +2222,7 @@ msgid "Can't delete"
 msgstr "Suppression interdite"
 
 #: templates/creme_core/templatetags/widgets/block_line_linker.html:9
-#: templates/creme_core/templatetags/widgets/block_line_relator.html:9
+#: templates/creme_core/templatetags/widgets/block_line_relator.html:15
 msgid "Can't link"
 msgstr "Liaison interdite"
 

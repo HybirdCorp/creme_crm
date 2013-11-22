@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 18:25+0200\n"
+"POT-Creation-Date: 2013-11-21 15:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +28,7 @@ msgstr "Graphiques de rapport"
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: creme_core_register.py:30 models/report.py:355
+#: creme_core_register.py:30 models/report.py:117
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
@@ -41,7 +41,7 @@ msgstr "Portail des rapports"
 msgid "All reports"
 msgstr "Liste des rapports"
 
-#: populate.py:41
+#: populate.py:42
 msgid "Report view"
 msgstr "Vue de Rapport"
 
@@ -105,6 +105,36 @@ msgstr "le type de relation n'existe plus."
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
+#: core/report.py:115
+msgid "Regular field"
+msgstr "Champ normal"
+
+#: core/report.py:178
+msgid "Custom field"
+msgstr "Champ personnalisé"
+
+#: core/report.py:189
+#, fuzzy
+msgid "Relationship"
+msgstr "Relations"
+
+#: core/report.py:241
+#, fuzzy
+msgid "Function field"
+msgstr "Fonction"
+
+#: core/report.py:250
+msgid "Problem with function field"
+msgstr "Problème avec le champ fonction"
+
+#: core/report.py:255
+msgid "Calculated value"
+msgstr "Valeur calculée"
+
+#: core/report.py:279
+msgid "Related field"
+msgstr "Champ relatif"
+
 #: forms/blocks.py:38
 msgid "Related graph"
 msgstr "Graphique relatif"
@@ -117,7 +147,7 @@ msgstr "Colonne volatile"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:85 forms/report.py:472 models/graph.py:106
+#: forms/blocks.py:85 forms/report.py:480 models/graph.py:106
 #: templates/reports/templatetags/block_report_graph.html:19
 msgid "None"
 msgstr "Aucun"
@@ -162,7 +192,7 @@ msgstr "Champs"
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/graph.py:109 forms/graph.py:133 forms/report.py:329
+#: forms/graph.py:109 forms/graph.py:133 forms/report.py:337
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
@@ -172,7 +202,9 @@ msgstr "Aucun n'est utilisable pour un aggrégat"
 
 #: forms/graph.py:143
 msgid "You must make a count because no field is usable for aggregation"
-msgstr "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour un aggrégat"
+msgstr ""
+"Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour "
+"un aggrégat"
 
 #: forms/graph.py:265 forms/graph.py:272
 msgid "You have to specify a day range if you use 'by X days'"
@@ -191,64 +223,64 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:153
+#: forms/report.py:154
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:154
+#: forms/report.py:155
 msgid "The columns of the report will be copied from the list view."
 msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
 
-#: forms/report.py:156 models/report.py:347
+#: forms/report.py:157 models/report.py:109
 msgid "Filter"
 msgstr "Filtre"
 
 # from creme_core
-#: forms/report.py:216 forms/report.py:220
+#: forms/report.py:217 forms/report.py:221
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:305
+#: forms/report.py:313
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:310
+#: forms/report.py:318
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:327
+#: forms/report.py:335
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/report.py:328
+#: forms/report.py:336
 msgid "Related fields"
 msgstr "Champs relatifs"
 
-#: forms/report.py:330
+#: forms/report.py:338
 msgid "Relations"
 msgstr "Relations"
 
-#: forms/report.py:331
+#: forms/report.py:339
 msgid "Functions"
 msgstr "Fonctions"
 
-#: forms/report.py:334
+#: forms/report.py:342
 msgid "Calculated values"
 msgstr "Valeurs calculées"
 
-#: forms/report.py:464 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:472 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:465
+#: forms/report.py:473
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:466
+#: forms/report.py:474
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:511
+#: forms/report.py:519
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -296,39 +328,35 @@ msgstr "Graphiques de rapport"
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
 
-#: models/report.py:47
+#: models/report.py:38
 msgid "Name of the column"
 msgstr "Nom de la colonne"
 
-#: models/report.py:56
+#: models/report.py:49
 msgid "Column of report"
 msgstr "Colonne de rapport"
 
-#: models/report.py:57
+#: models/report.py:50
 msgid "Columns of report"
 msgstr "Colonnes de rapport"
 
-#: models/report.py:289
-msgid "Problem with function field"
-msgstr "Problème avec le champ fonction"
-
-#: models/report.py:341
+#: models/report.py:104
 msgid "Name of the report"
 msgstr "Nom du rapport"
 
-#: models/report.py:343
+#: models/report.py:105
 msgid "Entity type"
 msgstr "Type de fiche"
 
-#: models/report.py:344
+#: models/report.py:106
 msgid "Displayed columns"
 msgstr "Colonnes affichées"
 
-#: models/report.py:349
+#: models/report.py:111
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
-#: models/report.py:354 templates/reports/preview_report.html:10
+#: models/report.py:116 templates/reports/preview_report.html:10
 msgid "Report"
 msgstr "Rapport"
 
@@ -463,33 +491,33 @@ msgstr "Colonnes de"
 msgid "Value"
 msgstr "Valeur"
 
-#: templates/reports/templatetags/block_report_fields.html:65
 #: templates/reports/templatetags/block_report_fields.html:67
-#: templates/reports/templatetags/block_report_fields.html:79
+#: templates/reports/templatetags/block_report_fields.html:69
 #: templates/reports/templatetags/block_report_fields.html:81
-#: templates/reports/templatetags/block_report_fields.html:91
+#: templates/reports/templatetags/block_report_fields.html:83
 #: templates/reports/templatetags/block_report_fields.html:93
+#: templates/reports/templatetags/block_report_fields.html:95
 msgid "Unlink the report"
 msgstr "Délier le rapport"
 
-#: templates/reports/templatetags/block_report_fields.html:71
 #: templates/reports/templatetags/block_report_fields.html:73
-#: templates/reports/templatetags/block_report_fields.html:84
+#: templates/reports/templatetags/block_report_fields.html:75
 #: templates/reports/templatetags/block_report_fields.html:86
-#: templates/reports/templatetags/block_report_fields.html:96
+#: templates/reports/templatetags/block_report_fields.html:88
 #: templates/reports/templatetags/block_report_fields.html:98
+#: templates/reports/templatetags/block_report_fields.html:100
 msgid "Link a report"
 msgstr "Lier un rapport"
 
-#: templates/reports/templatetags/block_report_fields.html:103
+#: templates/reports/templatetags/block_report_fields.html:105
 msgid "Column up"
 msgstr "Monter la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:114
+#: templates/reports/templatetags/block_report_fields.html:116
 msgid "Column down"
 msgstr "Descendre la colonne"
 
-#: templates/reports/templatetags/block_report_fields.html:140
+#: templates/reports/templatetags/block_report_fields.html:142
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
 
@@ -571,11 +599,6 @@ msgstr "Création de bloc interdite"
 msgid "No graphs registered for the moment"
 msgstr "Aucun graphique enregistré pour le moment"
 
-#: templates/reports/templatetags/column_header.html:7
-#, python-format
-msgid "(inherited de %(report)s)"
-msgstr "(hérité de %(report)s)"
-
 #: templates/reports/templatetags/report_chart_selectors.html:6
 msgid "Histogram"
 msgstr "Histogramme"
@@ -603,30 +626,6 @@ msgstr "Descendant"
 #: templates/reports/templatetags/report_chart_selectors.html:21
 msgid "Regenerate"
 msgstr "Générer à nouveau"
-
-#: templatetags/reports_tags.py:40
-msgid "Regular field"
-msgstr "Champ normal"
-
-#: templatetags/reports_tags.py:41
-msgid "Relation"
-msgstr "Relation"
-
-#: templatetags/reports_tags.py:42
-msgid "Function"
-msgstr "Fonction"
-
-#: templatetags/reports_tags.py:43
-msgid "Custom field"
-msgstr "Champ personnalisé"
-
-#: templatetags/reports_tags.py:44
-msgid "Calculated value"
-msgstr "Valeur calculée"
-
-#: templatetags/reports_tags.py:45
-msgid "Related field"
-msgstr "Champ relatif"
 
 #: views/blocks.py:49
 #, python-format
@@ -669,6 +668,16 @@ msgstr "Ajout de colonne à <%s>"
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"
+
+#, fuzzy
+#~ msgid "Activity type"
+#~ msgstr "Type de fiche"
+
+#~ msgid "(inherited de %(report)s)"
+#~ msgstr "(hérité de %(report)s)"
+
+#~ msgid "Relation"
+#~ msgstr "Relation"
 
 #~ msgid "N/A"
 #~ msgstr "NC"

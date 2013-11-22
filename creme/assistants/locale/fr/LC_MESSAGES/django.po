@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-12 14:40+0200\n"
+"POT-Creation-Date: 2013-11-21 15:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -129,7 +129,7 @@ msgstr ""
 "\n"
 "            qui est rattachée à la fiche : %(entity)s"
 
-#: forms/action.py:34 forms/todo.py:31 models/action.py:38 models/todo.py:41
+#: forms/action.py:34 forms/todo.py:34 models/action.py:38 models/todo.py:41
 #: templates/assistants/block_actions_it.html:27
 #: templates/assistants/block_actions_nit.html:20
 #: templates/assistants/block_todos.html:26
@@ -144,15 +144,15 @@ msgstr "Heure"
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
 
-#: forms/todo.py:32
+#: forms/todo.py:35
 msgid "Deadline hour"
 msgstr "Heure de l'échéance"
 
-#: forms/todo.py:35
+#: forms/todo.py:38
 msgid "The hour is used only if you set the deadline date."
 msgstr "L'heure n'est utilisée que si vous donnez une date d'échéance."
 
-#: forms/todo.py:50
+#: forms/todo.py:64
 msgid "The hour is required if you set a date."
 msgstr "L'heure est obligatoire si vous donnez une date."
 
@@ -199,8 +199,8 @@ msgid "Validation date"
 msgstr "Date de validation"
 
 #: models/action.py:45 models/alert.py:45 models/memo.py:40 models/todo.py:42
-msgid "Assigned to"
-msgstr "Assigné à"
+msgid "Owner user"
+msgstr "Utilisateur propriétaire"
 
 #: models/action.py:49 templates/assistants/block_actions_it.html:6
 msgid "Action"
@@ -476,34 +476,34 @@ msgstr "Texte du Todo"
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/assistants/block_todos.html:48
+#: templates/assistants/block_todos.html:50
 msgid "The Todo is validated."
 msgstr "Le Todo est validé."
 
-#: templates/assistants/block_todos.html:53
+#: templates/assistants/block_todos.html:55
 msgid "Submit"
 msgstr "Envoyer"
 
-#: templates/assistants/block_todos.html:68
+#: templates/assistants/block_todos.html:70
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
 
-#: views/action.py:37
+#: views/action.py:36
 #, python-format
 msgid "New action for <%s>"
 msgstr "Nouvelle action pour <%s>"
 
-#: views/action.py:41
+#: views/action.py:40
 #, python-format
 msgid "Action for <%s>"
 msgstr "Action pour <%s>"
 
-#: views/alert.py:34
+#: views/alert.py:33
 #, python-format
 msgid "New alert for <%s>"
 msgstr "Nouvelle alerte pour <%s>"
 
-#: views/alert.py:38
+#: views/alert.py:37
 #, python-format
 msgid "Alert for <%s>"
 msgstr "Alerte pour <%s>"
@@ -518,12 +518,12 @@ msgstr "Nouveau Mémo pour <%s>"
 msgid "Memo for <%s>"
 msgstr "Mémo pour <%s>"
 
-#: views/todo.py:34
+#: views/todo.py:33
 #, python-format
 msgid "New Todo for <%s>"
 msgstr "Nouveau Todo pour <%s>"
 
-#: views/todo.py:38
+#: views/todo.py:37
 #, python-format
 msgid "Todo for <%s>"
 msgstr "Todo pour <%s>"
@@ -537,3 +537,6 @@ msgstr "Nouveau message à propos de <%s>"
 #, python-format
 msgid "You are not allowed to delete this message: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer ce message: %s"
+
+#~ msgid "Assigned to"
+#~ msgstr "Assigné à"

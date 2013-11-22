@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 18:16+0200\n"
+"POT-Creation-Date: 2013-11-22 15:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -228,23 +228,23 @@ msgstr "Télécom"
 msgid "Restoration"
 msgstr "Restauration"
 
-#: populate.py:112
+#: populate.py:113
 msgid "Contact view"
 msgstr "Vue de Contact"
 
-#: populate.py:121
+#: populate.py:122
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-#: populate.py:132
+#: populate.py:133
 msgid "Organisation view"
 msgstr "Vue de Société"
 
-#: populate.py:156
+#: populate.py:158
 msgid "Managed by creme"
 msgstr "Gérée par creme"
 
-#: populate.py:169
+#: populate.py:171
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
@@ -593,12 +593,11 @@ msgstr "Effectifs de société"
 msgid "Modify %(object)s"
 msgstr "Modifier %(object)s"
 
-#in creme_core (BEWARE %%s -> %s )
 #: templates/persons/edit_contact_form.html:8
 #: templates/persons/edit_organisation_form.html:8
-#, python-format
-msgid "Edit «%s»"
-msgstr ""
+#, fuzzy, python-format
+msgid "Edit «%%s»"
+msgstr "Modifier «%s»"
 
 #: templates/persons/portal.html:6
 msgid "Accounts & contacts portal"
@@ -788,13 +787,9 @@ msgid "Create a linked contact"
 msgstr "Créer un contact lié"
 
 #: templates/persons/templatetags/button_add_linked_contact.html:10
-#: templates/persons/templatetags/button_become.html:24
+#: templates/persons/templatetags/button_become.html:6
 msgid "forbidden"
 msgstr "interdit"
-
-#: templates/persons/templatetags/button_become.html:13
-msgid "Ok"
-msgstr "Ok"
 
 #: views/address.py:34
 #, python-format
@@ -840,6 +835,13 @@ msgstr "Nombre de société(s)"
 #, python-format
 msgid "Number of customers of %s"
 msgstr "Nombre de client(s) de %s"
+
+#, fuzzy
+#~ msgid "Select the concerned organisation."
+#~ msgstr "Société concernée"
+
+#~ msgid "Ok"
+#~ msgstr "Ok"
 
 #~ msgid "Assigned to"
 #~ msgstr "Assigné à"
