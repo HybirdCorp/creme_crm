@@ -1,7 +1,7 @@
-{% load i18n %}{% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% load i18n %}{% load creme_core_tags creme_block %}{% has_perm_to link object as link_perm %}
 {% trans "Link to" as link_label %}
 {% if link_perm %}
-    <a class="menu_button" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/?ids={{object.pk}}&persist=ids');">
+    <a class="menu_button" onclick="creme.blocks.deprecatedForm('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/?ids={{object.pk}}&persist=ids', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
         <img src="{% creme_media_url 'images/link_32.png' %}" border="0" title="{{link_label}}" alt="{{link_label}}" />{{link_label}}
     </a>
 {% else %}

@@ -1,34 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% with hfilter.id as hfilter_id %}
-    <script type="text/javascript">
-        //TODO: move to a js file...
-        function lv_hf_delete(a) {
-            creme.utils.ajaxDelete('/creme_core/header_filter/delete',
-                                   {'id': '{{hfilter_id}}'},
-                                   {
-                                       complete: function(req, st) {
-                                           if(st!='error') {
-                                               var hf_delete = $(a);
-                                               var lv_form = hf_delete.parents('form');
-
-                                               lv_form.list_view('reload');
-                                                //TODO: $(a).parents('form').list_view('reload');
-
-                                               /*var submit_opts = {
-                                                       'action':'?ajax=true',
-                                                       'success':function(data, status){
-                                                           lv_form.empty().html(data);
-                                                       }
-
-
-                                                   };
-                                              lv_form.list_view('handleSubmit', lv_form[0], submit_opts, null);*/
-                                           }
-                                       }
-                                   });
-        };
-    </script>
     <fieldset title="{% trans "Show only the desired columns" %}">
         <div class="legend"> <!-- legend for IceCream theme -->
             <img border="0" src="{% creme_media_url 'images/header_filter_32.png' %}" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
@@ -46,10 +18,16 @@
             {% endfor %}
         </select>
         {% if not is_popup_view %}
-            <a href="/creme_core/header_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/></a>
+            <a href="/creme_core/header_filter/add/{{content_type_id}}">
+                <img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
+            </a>
             {% if can_edit_or_delete %}
-                <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit"><img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/></a>
-                <a onclick="lv_hf_delete(this);"><img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/></a>
+                <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
+                    <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
+                </a>
+                <a onclick="creme.lv_widget.deleteHeaderFilter($(this).parents('form:first'), '{{hfilter_id}}');">
+                    <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
+                </a>
             {% endif %}
         {% endif %}
     </fieldset>

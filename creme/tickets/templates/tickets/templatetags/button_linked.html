@@ -2,7 +2,13 @@
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% trans "Ticket" as img_title %}
 {% if has_perm and link_perm %}
+    {% comment %}
     <a class="menu_button" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{rtype_id}}/entity/{{object.id}}/{{ticket_ct.id}}', '{{rtype_id}}', '{{object.id}}');">
+        <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+        {% trans "Link to a ticket" %}
+    </a>
+    {% endcomment %}
+    <a class="menu_button" onclick="creme.relations.addRelationTo('{{object.id}}', '{{rtype_id}}', '{{ticket_ct.id}}', {multiple: true, reloadOnSuccess:true});">
         <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
         {% trans "Link to a ticket" %}
     </a>

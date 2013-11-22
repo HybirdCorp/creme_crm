@@ -41,7 +41,7 @@
                         {% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms has_perm %}
                         {% comment %}{% get_line_deletor at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms has_perm %}{% endcomment %}
                         {% if has_perm %}
-                            <a onclick="creme.utils.innerPopupNReload('/creme_config/role/delete/{{role.pk}}', {% get_block_reload_uri %});">
+                            <a onclick="creme.blocks.deprecatedForm('/creme_config/role/delete/{{role.pk}}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                                 {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">
                             </a>
                         {% else %}

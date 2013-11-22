@@ -22,6 +22,11 @@
 
 creme.emails = {};
 
+creme.emails._processDone = function(cb) {
+    creme.dialogs.html(gettext('Process done'));
+    if ($.isFunction(cb)) cb();
+}
+
 creme.emails.mass_action = function(url, selector, block_url, complete_cb, values_post_process_cb) {
     var values = $(selector).getValues();
 
@@ -31,9 +36,15 @@ creme.emails.mass_action = function(url, selector, block_url, complete_cb, value
     }
 
     if (values.length == 0) {
-        creme.utils.showDialog(gettext("Nothing is selected."));
+        //creme.utils.showDialog(gettext("Nothing is selected."));
+        creme.dialogs.warning(gettext("Nothing is selected.")).open();
         return;
     }
+
+    creme.blocks.confirmPOSTQuery(url, {blockReloadUrl: block_url}, {ids: values})
+                .onDone(creme.emails._processDone)
+                .start();
+/*
     creme.utils.ajaxDelete(url,
                            {ids: values},
                            {
@@ -56,18 +67,19 @@ creme.emails.mass_action = function(url, selector, block_url, complete_cb, value
                                    creme.utils.loading('loading', true);
                                }
                            });
+*/
 };
 
 creme.emails.mass_relation = function(url, selector, block_url) { //TODO: rename
     var values = $(selector).getValues();
     if (values.length == 0) {
-        creme.utils.showDialog(gettext("Please select at least one entity."));
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
         return false;
     }
 
     url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
 
-    creme.utils.innerPopupNReload(url, block_url);
+    creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
 };
 
 creme.reload_synchronisation = function($target, target_url) {
@@ -79,7 +91,17 @@ creme.reload_synchronisation = function($target, target_url) {
     });
 };
 
+creme.emails.confirmResend = function(message, url, ids, block_url, complete_cb) {
+    return creme.blocks.confirmAjaxQuery(url, {blockReloadUrl: block_url}, {ids: ids})
+                       .onDone(creme.emails._processDone);
+}
+
 creme.emails.resend = function(url, ids, block_url, complete_cb) {
+    return creme.blocks.ajaxQuery(url, {blockReloadUrl: block_url})
+                       .data({ids: ids})
+                       .onDone(creme.emails._processDone)
+                       .start();
+/*
     creme.ajax.post({
             url: url,
             data: {'ids': ids},
@@ -100,4 +122,5 @@ creme.emails.resend = function(url, ids, block_url, complete_cb) {
                 creme.utils.loading('loading', true);
             }
         });
+*/
 }

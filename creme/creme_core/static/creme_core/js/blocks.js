@@ -38,13 +38,23 @@ creme.blocks.get_block = function(block_id) {
 };
 
 creme.blocks.reload = function(url) {
+    creme.ajax.query(url, {backend: {sync: true, dataType: 'json'}})
+              .onStart(creme.utils.showPageLoadOverlay)
+              .onDone(function(event, data) {
+                  data.forEach(function(entry) {
+                      creme.blocks.fill($('#' + entry[0]), $(entry[1]));
+                  });
+               })
+              .onComplete(creme.utils.hidePageLoadOverlay)
+              .start();
+    /*
     $.ajax({
         url:        url,
         async:      false,
         type:       "GET",
         dataType:   "json",
         cache:      false, // ??
-        beforeSend: creme.utils.loading('loading', false),
+        beforeSend: function() {creme.utils.loading('loading', false);},
         success:    function(data) {
                         for (var i = 0; i < data.length; ++i) {
                             var block_data    = data[i];                  // tuple: (block_name, block_html)
@@ -54,8 +64,9 @@ creme.blocks.reload = function(url) {
                             creme.blocks.fill(block, block_content);
                         }
                     },
-        complete:   creme.utils.loading('loading', true)
+        complete:   function() {creme.utils.loading('loading', true);}
     });
+    */
 };
 
 creme.blocks.fill = function(block, content) {
@@ -161,6 +172,55 @@ creme.blocks.bindEvents = function(block) {
     for (var i in __registeredBlocks) {
         creme.blocks.initialize(__registeredBlocks[i]);
     }
+};
+
+creme.blocks.scrollToError = function(block) {
+    creme.utils.scrollTo($('.errorlist:first'));
+}
+
+creme.blocks.deprecatedForm = function(url, options, data) {
+    var options = options || {};
+    var dialog = creme.dialogs.deprecatedForm(url, options, data);
+
+    if (options.blockReloadUrl) {
+        dialog.onSuccess(function() {
+                  creme.blocks.reload(options.blockReloadUrl);
+               });
+    }
+
+    return dialog;
+};
+
+creme.blocks.confirmPOSTQuery = function(url, options, data) {
+    return creme.blocks.confirmAjaxQuery(url, $.extend({action:'post'}, options), data);
+}
+
+creme.blocks.confirmAjaxQuery = function(url, options, data) {
+    var action = creme.utils.confirmAjaxQuery(url, options, data);
+
+    if (options.blockReloadUrl) {
+        action.onComplete(function(event, data) {
+                  creme.blocks.reload(options.blockReloadUrl);
+               });
+    }
+
+    return action;
+};
+
+creme.blocks.ajaxPOSTQuery = function(url, options, data) {
+    return creme.blocks.ajaxQuery(url, $.extend({action:'post'}, options), data);
+}
+
+creme.blocks.ajaxQuery = function(url, options, data) {
+    var query = creme.ajax.query(url, options, data);
+
+    if (options.blockReloadUrl) {
+        query.onComplete(function(event, data) {
+                 creme.blocks.reload(options.blockReloadUrl);
+              });
+    }
+
+    return query;
 };
 
 //TODO: remove this alias after templates refactor !

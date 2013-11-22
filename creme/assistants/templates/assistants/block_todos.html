@@ -50,7 +50,7 @@
                         {% elif has_perm %}
                             <form method="post" action="/assistants/todo/validate/{{todo.id}}/">{% csrf_token %}
                                 <input type="checkbox" name="checked_todo{{todo.id}}" id="checked_todo{{todo.id}}" />
-                                <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_todo{{todo.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
+                                <button type="button" onclick="creme.assistants.validateEntity(this.form, 'checked_todo{{todo.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
                                     <img src="{% creme_media_url 'images/refresh_16.png' %}" width="16" height="16" border="0" alt="{% trans "Submit" %}">
                                 </button>
                             </form>

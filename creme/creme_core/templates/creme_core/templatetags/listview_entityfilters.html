@@ -1,22 +1,5 @@
 {% load i18n %}
 {% load creme_core_tags %}
-<script type="text/javascript">
-    //TODO: move to a js file...
-    function lv_efilter_delete(a, efilter_id) {
-        creme.utils.ajaxDelete('/creme_core/entity_filter/delete',
-                               {'id': efilter_id},
-                               {
-                                   //TODO: do not overload complete but error & success ???
-                                   complete: function(req, status) {
-                                       if(status != 'error') {
-                                            $(a).parents('form').list_view('reload');
-                                       } else {
-                                            creme.utils.loading('loading', true); //hide reloading window
-                                       }
-                                   }
-                               });
-    };
-</script>
 <fieldset title="{% trans "Filter the lines of the table" %}">
     <div class="legend"> <!-- legend for IceCream theme -->
         <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
@@ -35,10 +18,16 @@
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-        <a href="/creme_core/entity_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/></a>
+        <a href="/creme_core/entity_filter/add/{{content_type_id}}">
+            <img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
+        </a>
         {% if can_edit_or_delete %}
-            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"><img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/></a>
-            <a onclick="lv_efilter_delete(this, '{{efilter_id}}');"><img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/></a>
+            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit">
+                <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/>
+            </a>
+            <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');">
+                <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/>
+            </a>
         {% endif %}
     {% endif %}
 </fieldset>

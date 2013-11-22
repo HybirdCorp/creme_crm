@@ -196,10 +196,10 @@ INSTALLED_CREME_APPS = (
     #creme.'sms', #Work In Progress
     'creme.projects',
     'creme.tickets',
-    #creme.'cti',
+    'creme.cti',
     'creme.activesync',
     'creme.vcfs',
-    #'creme.polls',  #need 'commercial'
+    'creme.polls',  #need 'commercial'
 )
 
 
@@ -440,6 +440,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/dialog/confirm.js',
                     'creme_core/js/widgets/dialog/form.js',
                     'creme_core/js/widgets/dialog/select.js',
+                    'creme_core/js/widgets/dialog/deprecated.js',
 
                     'creme_core/js/widgets/frame.js',
                     'creme_core/js/widgets/toggle.js',
@@ -470,6 +471,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/merge.js',
 
                     #OTHER APPS (mandatory ones)
+                    'assistants/js/assistants.js',
                     'activities/js/activities.js',
                     'media_managers/js/media_managers.js',
                     'persons/js/persons.js',

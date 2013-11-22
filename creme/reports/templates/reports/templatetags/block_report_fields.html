@@ -13,7 +13,7 @@
         <tr class="header toolbar">
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Delete a column" as del_label %}
                 {% if has_perm %}
-                    <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
+                    <a class="button_link" onclick="creme.blocks.deprecatedForm('/reports/report/{{object.id}}/field/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                         {% trans "Add a column" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         {% trans "Add" %} /
                         <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{del_label}}" alt="{{del_label}}" />

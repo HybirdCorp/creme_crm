@@ -10,7 +10,7 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
-                <a class="button_link" onclick="creme.utils.innerPopupNReload('/activesync/mobile_synchronization/edit', {% get_block_reload_uri %});">
+                <a class="button_link" onclick="creme.blocks.deprecatedForm('/activesync/mobile_synchronization/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "Edit" as label %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{label}}" />{{label}}
                 </a>
             </th>

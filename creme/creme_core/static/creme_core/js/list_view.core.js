@@ -160,7 +160,7 @@ if(!window.console) {
 
                 this.ensureSelection = function() {
                     if(!this.hasSelection()) {
-                        creme.utils.showDialog(gettext("Please select at least one entity."));
+                        creme.dialogs.warning(gettext("Please select at least one entity."));
                         return false;
                     }
                     return true;

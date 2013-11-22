@@ -103,10 +103,10 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             var chainname = element.parent().attr('chained-name');
             var chain = chainname ? element.parents('.ui-creme-chainedselect:first').creme().widget() : undefined;
 
-            if (creme.object.isempty(list))
+            if (Object.isEmpty(list))
                 return;
 
-            if (creme.object.isempty(chain)) {
+            if (Object.isEmpty(chain)) {
                 for(var index = 1; index < values.length; ++index) {
                     var selector = list.appendSelector(values[index]);
                 }
@@ -138,6 +138,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     _select: function(element, cb)
     {
         var self = this;
+        var multiple = this._popupSelectMode === creme.widget.EntitySelectorMode.MULTIPLE;
         var url = this.popupURL(element);
 
         creme.dialogs.deprecatedListViewAction(url, {multiple:multiple})
@@ -146,28 +147,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                                        creme.object.invoke(cb, element, data);
                                    })
                                   .start();
-        
-        /*
-        creme.utils.showInnerPopup(url, {
-                                    send_button_label: gettext("Validate the selection"),
-                                    send_button: function(dialog) {
-                                            var lv = $('form[name="list_view_form"]');
-                                            var result = lv.list_view("getSelectedEntitiesAsArray");
-
-                                            if (result.length == 0) {
-                                                creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
-                                                return;
-                                            }
-
-                                            self._update(element, result);
-                                            creme.utils.closeDialog(dialog, false);
-                                            creme.object.invoke(cb, element, result);
-                                        },
-                                    cancel: function(ui) {
-                                        creme.object.invoke(cb, element);
-                                    }
-                                   });
-         */
     },
 
     _reloadLabel: function(element, on_success, on_error, sync)
@@ -176,7 +155,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var button = $('button', element);
         var value = creme.widget.input(element).val();
 
-        if (creme.object.isempty(value) === true)
+        if (Object.isEmpty(value) === true)
         {
             button.text(options.label);
             creme.object.invoke(on_success, element);
@@ -235,6 +214,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     cleanedval: function(element)
     {
         var value = this.val(element);
-        return creme.object.isempty(value) ? null : value;
+        return Object.isEmpty(value) ? null : value;
     }
 });

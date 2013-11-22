@@ -7,7 +7,7 @@
         <th class="collapser label">{% get_basic_block_header _('Questions and Answers') 'info_48.png' _('Answers') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% if not object.is_complete %}{% comment %}{% if object.line_order %}{% endcomment %}
+                {% if object.is_complete %}{% comment %}{% if object.line_order %}{% endcomment %}
                     {% if has_perm %}
                         <a class="add" href="/polls/poll_reply/fill/{{object.id}}">
                             <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Fill" %}" alt="{% trans "Fill" %}" />{% trans "Fill the Form Reply" %}
@@ -19,7 +19,7 @@
                     {% endif %}
                 {% else %}
                     {% if has_perm %}
-                        <a class="negative" onclick="creme.utils.ajaxDelete('/polls/poll_reply/clean', {'id' : {{object.id}} }, {complete: function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                        <a class="negative" onclick="creme.blocks.confirmPOSTQuery('/polls/poll_reply/clean', {blockReloadUrl:{% get_block_reload_uri %}}, {id:{{object.id}}}).start();">
                             <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Clean" %}" alt="{% trans "Clean" %}">{% trans "Clean all answers" %}
                         </a>
                     {% else %}

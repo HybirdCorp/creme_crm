@@ -1,5 +1,5 @@
 {% load creme_core_tags %}
-<a class="list" onclick="creme.utils.showInnerPopup('/creme_core/lv_popup/{{ct_id}}/1?q_filter={{q_filter}}', {'send_button': false});">
+<a class="list" onclick="creme.dialogs.url('/creme_core/lv_popup/{{ct_id}}/1?q_filter={{q_filter}}').open({width:'80%'});">
     <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />
     {{ label }}
 </a>

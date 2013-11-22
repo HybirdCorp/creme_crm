@@ -2,33 +2,10 @@
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% trans which_document as img_title %}
 {% if link_perm %}
-    {% if managed_orga|length == 1 %}
-        <a class="menu_button" onclick="creme.utils.showInnerPopup('{{ become_url }}/source/{{managed_orga.0.pk}}');">
-            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-            {{verbose_name}}
-        </a>
-    {% else %}
-        <script type="text/javascript">
-            function create_related_{{ which_document }}(atag) {
-                creme.utils.showDialog(
-                        "{% trans "Who is the source, managed by Creme, for your billing document ?" %}" + "</br></br>" +
-                                "<center><select>{% for m_orga in managed_orga %}<option value='{{m_orga.pk}}'>{{m_orga}}</option>{% endfor %}</select></center>",
-                        {
-                            buttons: {
-                                '{% trans "Ok" %}': function() {
-                                    $(this).dialog("close");
-                                    creme.utils.showInnerPopup("{{become_url}}/source/" + $('select', this).val(), {'beforeClose': function(){location.reload();}});
-                                }
-                            }
-                        }
-                );
-            }
-        </script>
-        <a class="menu_button" onclick="create_related_{{which_document}}(this);">
-            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-            {{verbose_name}}
-        </a>
-    {% endif %}
+    <a class="menu_button" onclick="creme.billing.linkToDocument('{{become_url}}/source/', {{managed_orga|optionize_model_iterable:'dict'|jsonify}});">
+        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+        {{verbose_name}}
+    </a>
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">
         <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />

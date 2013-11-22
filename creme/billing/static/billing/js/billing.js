@@ -20,7 +20,7 @@
  * Requires : jQuery, Creme
  */
 
-creme.billing = {};
+creme.billing = creme.billing || {};
 
 // Commented 1/7/2013 (view has been commented too)
 // creme.billing.lineAutoPopulateSelection = function(id, targetInputId, nodesToPopulate) {
@@ -44,10 +44,6 @@ creme.billing = {};
 //         }
 //     );
 // }
-
-creme.billing.setDefaultPaymentInformation = function(payment_info_id, invoice_id, reload_url) {
-    creme.utils.postNReload('/billing/payment_information/set_default/'+payment_info_id+'/'+invoice_id, reload_url);
-}
 
 //creme.billing.enableCheckAllBoxes = function(checkbox) {
 //    var table = checkbox.parents("tbody:first");
@@ -228,6 +224,12 @@ creme.billing.setDefaultPaymentInformation = function(payment_info_id, invoice_i
 //        $(input).attr('creme-field-errormessage', gettext(error));
 //    }
 //}
+
+creme.billing.selectDefaultPayment = function(payment_id, invoice_id, reload_url) {
+    creme.blocks.ajaxPOSTQuery('/billing/payment_information/set_default/%s/%s'.format(payment_id, invoice_id),
+                               {blockReloadUrl: reload_url})
+                .start();
+}
 
 // TODO move most of these functions in core
 
@@ -457,35 +459,58 @@ creme.billing.restoreValue = function(input) {
 }
 
 creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
-    var buttons = {};
+    creme.dialogs.confirm(gettext('Do you really want to restore initial values of this line ?'))
+                 .onOk(function() {
+                      $('input,select,textarea', $('.restorable_' + line_id)).each(function(){
+                          creme.billing.restoreValue($(this));
+                      });
 
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Yes")] = function() {
-        $('input,select,textarea', $('.restorable_' + line_id)).each(function(){
-            creme.billing.restoreValue($(this));
-        });
+                      var delete_checkbox = $('#id_' + form_prefix + '-DELETE');
+                      var line_td = $('#line_content_' + line_id);
+                      var to_delete = !delete_checkbox.is(':checked');
 
-        var checkbox_name = form_prefix + '-DELETE';
-        var delete_checkbox = $('#id_' + checkbox_name);
-        var line_td = $('#line_content_' + line_id);
+                      if (!to_delete) {
+                          delete_checkbox.uncheck();
+                          line_td.removeClass('td_error');
+                          line_td.addClass('block_header_line_dark');
+                      }
 
-        var to_delete = !delete_checkbox.is(':checked');
-
-        if (!to_delete) {
-            delete_checkbox.uncheck();
-            line_td.removeClass('td_error');
-            line_td.addClass('block_header_line_dark');
-        }
-
-        var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
-        tbodyform.toggleClass('form_modified', to_delete);
-
-        $(this).dialog("destroy");
-        $(this).remove();
-    }
-
-    creme.utils.showDialog(gettext("Do you really want to restore initial values of this line ?"), {buttons: buttons, title: gettext("Confirmation")});
+                      var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
+                      tbodyform.toggleClass('form_modified', to_delete);
+                  })
+                 .open();
 }
+
+//creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
+//    var buttons = {};
+//
+//    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
+//    buttons[gettext("Yes")] = function() {
+//        $('input,select,textarea', $('.restorable_' + line_id)).each(function(){
+//            creme.billing.restoreValue($(this));
+//        });
+//
+//        var checkbox_name = form_prefix + '-DELETE';
+//        var delete_checkbox = $('#id_' + checkbox_name);
+//        var line_td = $('#line_content_' + line_id);
+//
+//        var to_delete = !delete_checkbox.is(':checked');
+//
+//        if (!to_delete) {
+//            delete_checkbox.uncheck();
+//            line_td.removeClass('td_error');
+//            line_td.addClass('block_header_line_dark');
+//        }
+//
+//        var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
+//        tbodyform.toggleClass('form_modified', to_delete);
+//
+//        $(this).dialog("destroy");
+//        $(this).remove();
+//    }
+//
+//    creme.utils.showDialog(gettext("Do you really want to restore initial values of this line ?"), {buttons: buttons, title: gettext("Confirmation")});
+//}
 
 creme.billing.initBoundedFields = function (element, currency) {
     var discounted = $('[name="discounted"]', element);
@@ -585,7 +610,48 @@ creme.billing.initBlockLines = function (currency) {
     });
 }
 
+creme.billing.serializeForm = function(form) {
+    var data = {};
+
+    creme.billing.inputs($(form)).each(function() {
+        var item = creme.billing.serializeInput($(this), false);
+
+        if (item !== undefined) {
+            data[item.key] = item.value;
+        }
+    });
+
+    return data;
+}
+
 creme.billing.multi_save_lines = function (document_id) {
+    creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
+                 .onOk(function() {
+                     var forms = $('tbody[id^=form_id_]');
+                     var forms_data = {};
+                     var url = '/billing/%s/multi_save_lines'.format(document_id);
+
+                     // TODO do not ask confirmation to leave the page in this precise case
+                     var blocks_to_reload = forms.filter('.form_modified').map(function() {
+                         var ct_id = $(this).attr('ct_id');
+                         forms_data[ct_id] = $.toJSON(creme.billing.serializeForm($(this)));
+                         return $(this).attr('reload_url') + creme.utils.getBlocksDeps($(this).attr('block_name'));
+                     }).get();
+
+                     creme.utils.ajaxQuery(url, {action: 'post'}, forms_data)
+                                .onFail(function(event, error, status) {
+                                     if (status.status === 409) {
+                                         creme.dialogs.warning(unescape(error), {title: gettext('Errors report')}).open();
+                                     }
+                                 })
+                                .onDone(function() {
+                                     blocks_to_reload.forEach(function(block_url) {
+                                         creme.blocks.reload(block_url);
+                                     });
+                                 })
+                                .start();
+                 }).open();
+/*
     var buttons = {};
 
     buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
@@ -646,6 +712,7 @@ creme.billing.multi_save_lines = function (document_id) {
     }
 
     creme.utils.showDialog(gettext("Do you really want to save all the modifications done on the lines of this document ?"), {buttons: buttons, title:gettext("Confirmation")});
+*/
 }
 
 creme.billing.updateBlockTotals = function(currency) {
@@ -665,4 +732,48 @@ creme.billing.updateBlockTotals = function(currency) {
 
     total_no_vat_element.text(total_no_vat.toFixed(2).replace(".",",") + " " + currency);
     total_vat_element.text(total_vat.toFixed(2).replace(".",",") + " " + currency);
+}
+
+creme.billing.EXPORT_FORMATS = [
+   //{value:'odt', label: gettext("Document open-office (ODT)")},
+   {value:'pdf', label: gettext("Pdf file (PDF)")}
+];
+
+creme.billing.exportAs = function(url, formats) {
+    var formats = formats || creme.billing.EXPORT_FORMATS;
+
+    if (formats.length === 1) {
+        window.location.href = url.format(formats[0].value);
+        return;
+    }
+
+    creme.dialogs.choice(gettext("Select the export format of your billing document"), {choices: formats})
+                 .onOk(function(event, data) {
+                     window.location.href = url.format(data);
+                 }).open();
+}
+
+creme.billing.convertAs = function (billing_id, type) {
+    return creme.utils.ajaxQuery('/billing/%s/convert/'.format(billing_id),
+                                 {action: 'post', warnOnFail: true, reloadOnSuccess: true},
+                                 {type:type})
+                      .start();
+}
+
+creme.billing.generateInvoiceNumber = function(billing_id) {
+    return creme.utils.ajaxQuery('/billing/invoice/generate_number/%s'.format(billing_id),
+                                 {action: 'post', warnOnFail: true, reloadOnSuccess: true})
+                      .start();
+}
+
+creme.billing.linkToDocument = function(url, organisations) {
+    if (Object.isEmpty(organisations))
+        return;
+
+    creme.dialogs.choice(gettext('Who is the source, managed by Creme, for your billing document ?'),
+                         {choices:organisations, title: gettext('Billing')})
+                 .onOk(function(event, orga_id) {
+                     creme.dialogs.deprecatedForm(url + orga_id, {reloadOnSuccess:true}).open({width:'80%'});
+                  })
+                 .open();
 }

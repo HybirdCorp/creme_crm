@@ -4,7 +4,7 @@
 
 {% block entity_buttons %}
     {% if can_download %}
-        <a href="/billing/generate_pdf/{{object.id}}" onclick="creme._export.select_one(event, this);">
+        <a href="/billing/generate_pdf/{{object.id}}" onclick="event.preventDefault();creme.billing.exportAs($(this).attr('href'));">
             <img src="{% creme_media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
         </a>
     {% endif %}

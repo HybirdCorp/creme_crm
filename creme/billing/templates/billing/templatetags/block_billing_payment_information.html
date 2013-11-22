@@ -38,7 +38,11 @@
                         </table>
                     </td>
                     <td class="{{row_color}} action">
-                        <input type="checkbox" {% if payment_info == object.payment_info %}checked="true"{% endif %} onclick="creme.billing.setDefaultPaymentInformation('{{payment_info.id}}', '{{object.id}}', {% get_block_reload_uri %});"/>
+                        {% if payment_info == object.payment_info %}
+                        <input type="checkbox" checked="checked" onclick="return false;"/>
+                        {% else %}
+                        <input type="checkbox" onclick="creme.billing.selectDefaultPayment('{{payment_info.id}}', '{{object.id}}', {% get_block_reload_uri %});"/>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

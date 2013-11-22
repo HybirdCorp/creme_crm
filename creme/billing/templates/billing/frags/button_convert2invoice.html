@@ -1,5 +1,9 @@
 {% load i18n %}
 {% if has_perm %}
+    <a class="menu_button" onclick="creme.billing.convertAs({{object.id}}, 'invoice');">
+        {% trans "Convert to Invoice" %}
+    </a>
+    {% comment %}
     <a class="menu_button" onclick="$('#id_convert2invoice', $(this)).submit();">
         {% trans "Convert to Invoice" %}
         <div style="display:none;">
@@ -8,6 +12,7 @@
             </form>
         </div>
     </a>
+    {% endcomment %}
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">{% trans "Convert to Invoice" %}</span>
 {% endif %}

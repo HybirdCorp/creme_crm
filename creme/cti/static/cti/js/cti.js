@@ -34,12 +34,10 @@ creme.cti.phoneCall = function(url, number, entity_id) {
                         data:     {entity_id: entity_id},
                         dataType: "json",
                         error:    function() { //TODO: better error message (wait for jsonify improvement)
-                                      creme.utils.showDialog('<p>' + gettext("Failed to create the phone call entity!") + '</p>',
-                                                             {'title': gettext("Error")}
-                                                            );
+                                      creme.dialogs.warning(gettext("Failed to create the phone call entity !")).open();
                                   },
                         success:  function(returnedData, status) {
-                                      creme.utils.showDialog($('<p></p>').append(returnedData), {'title': gettext("Success")});
+                                      creme.dialogs.html($('<p>').append(returnedData), {'title': gettext("Phone call")}).open();
                                   }
                     });
 }

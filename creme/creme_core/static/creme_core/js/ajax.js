@@ -175,6 +175,7 @@ creme.ajax.iframeSubmit = function(form, success_cb, pop_options) {
 };
 */
 
+/*
 creme.ajax.iframePopulate = function(iframe, form, options) {
     var iform = $('<form>').attr('action', options['action']||form.attr('action'))
                            .attr('method', 'post')
@@ -196,7 +197,10 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
 
     return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
 };
+*/
 
+// TODO : not used, remove it
+/*
 creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
     var delay = 100;
     
@@ -249,7 +253,7 @@ creme.ajax.iframeRedirect = function(iframe, form) {
     var iform = form.attr('target', iframe.attr('name'));
     return $('<input type="submit" name="submit" value="1" id="submit" style="display:none"/>').appendTo(iform);
 };
-
+*/
 
 creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {

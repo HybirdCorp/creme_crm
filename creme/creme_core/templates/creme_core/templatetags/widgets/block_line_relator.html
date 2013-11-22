@@ -1,7 +1,12 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
 {% if line_perm %}
-    <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{rtype_id}}/entity/{{subject_id}}/{{ct_id}}{% if not is_multiple %}/simple{% endif %}', '{{rtype_id}}', '{{subject_id}}', {% get_block_reload_uri %});">
+    {% comment %}
+        <a class="link" onclick="creme.relations.handleAddFromPredicateEntity('/creme_core/relation/objects2link/rtype/{{rtype_id}}/entity/{{subject_id}}/{{ct_id}}{% if not is_multiple %}/simple{% endif %}', '{{rtype_id}}', '{{subject_id}}', {% get_block_reload_uri %});">
+            <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
+        </a>
+    {% endcomment %}
+    <a class="link" onclick="creme.relations.addRelationTo('{{subject_id}}', '{{rtype_id}}', '{{ct_id}}', {multiple: {{is_multiple|lower}}, blockReloadUrl:{% get_block_reload_uri %}});">
         <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
     </a>
 {% else %}

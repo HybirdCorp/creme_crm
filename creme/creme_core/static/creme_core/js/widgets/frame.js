@@ -49,7 +49,7 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         this._overlay.unbind(element);
         this._overlay.update(false);
 
-        creme.widget.destroy(element);
+        creme.widget.destroy(element.children());
         element.empty();
         this._overlay.bind(element);
 

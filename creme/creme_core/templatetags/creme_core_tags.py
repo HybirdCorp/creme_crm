@@ -21,6 +21,8 @@
 import logging
 #from time import mktime
 from re import compile as compile_re
+from json import dumps as json_dump
+from types import GeneratorType
 
 #from django import template
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode # Token
@@ -39,6 +41,7 @@ from ..models import CremeEntity, Relation
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import get_verbose_field_name
+from ..utils import safe_unicode
 from ..registry import export_backend_registry, import_backend_registry
 
 
@@ -60,22 +63,22 @@ def print_boolean(x):
 
 @register.filter
 def get_value(dic, key, default=''):
-  """
-  Usage:
+    """
+    Usage:
 
-  view:
-  some_dict = {'keyA':'valueA','keyB':{'subKeyA':'subValueA','subKeyB':'subKeyB'},'keyC':'valueC'}
-  keys = ['keyA','keyC']
-  template:
-  {{ some_dict|get:"keyA" }}
-  {{ some_dict|get:"keyB"|get:"subKeyA" }}
-  {% for key in keys %}{{ some_dict|get:key }}{% endfor %}
-  """
-  try:
-    return dic.get(key, default)
-  except Exception as e: #TODO: really useful ???
-    logger.debug('Exception in get_value(): %s', e)
-    return default
+    view:
+    some_dict = {'keyA':'valueA','keyB':{'subKeyA':'subValueA','subKeyB':'subKeyB'},'keyC':'valueC'}
+    keys = ['keyA','keyC']
+    template:
+    {{ some_dict|get:"keyA" }}
+    {{ some_dict|get:"keyB"|get:"subKeyA" }}
+    {% for key in keys %}{{ some_dict|get:key }}{% endfor %}
+    """
+    try:
+        return dic.get(key, default)
+    except Exception as e: #TODO: really useful ???
+        logger.debug('Exception in get_value(): %s', e)
+        return default
 
 @register.filter
 def get_meta_value(obj, key, default=''):
@@ -166,7 +169,7 @@ def absolute(integer):
 
 @register.filter(name="in")
 def in_list(obj, list):
-   return obj in list
+    return obj in list
 
 @register.filter
 def idiv(integer, integer2):
@@ -208,6 +211,17 @@ def allowed_unicode(entity, user):
 @register.filter
 def format_amount(amount, currency_id):
     return currency(amount, currency_id)
+
+@register.filter
+def optionize_model_iterable(iterable, type='tuple'):
+    if type == 'dict':
+        return ({'value':model.id, 'label':safe_unicode(model)} for model in iterable)
+    else:
+        return ((model.id, safe_unicode(model)) for model in iterable)
+
+@register.filter
+def jsonify(value):
+    return json_dump(list(value) if isinstance(value, GeneratorType) else value)
 
 @register.simple_tag
 def get_entity_summary(entity, user):

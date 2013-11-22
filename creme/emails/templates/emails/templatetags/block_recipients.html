@@ -9,7 +9,7 @@
                 {% get_line_adder at_url '/emails/mailing_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
                 {% trans "Add from a CSV file" as add_label %}
                 {% if has_perm %}
-                    <a class="add" onclick="creme.utils.iframeInnerPopup('/emails/mailing_list/{{object.pk}}/recipient/add_csv');">
+                    <a class="add" onclick="creme.dialogs.deprecatedForm('/emails/mailing_list/{{object.pk}}/recipient/add_csv').open();">
                     {% comment %}<a class="add" href="/emails/mailing_list/{{object.pk}}/recipient/add_csv">{% endcomment %}
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />
                         {{add_label}}

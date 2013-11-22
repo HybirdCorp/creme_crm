@@ -21,7 +21,7 @@
     {% if form.errors %}
         <script type="text/javascript">
             $(document).ready(function(){
-                creme.utils.scrollTo($('.errorlist'));
+                creme.blocks.scrollToError();
             });
         </script>
     {% endif %}

@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 
 from creme.media_managers.models import Image
-from creme.media_managers.forms.widgets import ImageM2MWidget
+#from creme.media_managers.forms.widgets import ImageM2MWidget
 
 from ..models import Product
 from .fields import CategoryField
@@ -32,9 +32,7 @@ from .fields import CategoryField
 
 class ProductForm(CremeEntityForm):
     sub_category = CategoryField(label=_(u'Sub-category'))
-    images       = MultiCremeEntityField(label=_(u'Images'), model=Image,
-                                         widget=ImageM2MWidget(), required=False,
-                                        )
+    images       = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Product

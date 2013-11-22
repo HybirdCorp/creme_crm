@@ -31,7 +31,7 @@ from creme.creme_core.forms.widgets import Label
 #from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.media_managers.models import Image
-from creme.media_managers.forms.widgets import ImageM2MWidget
+#from creme.media_managers.forms.widgets import ImageM2MWidget
 
 from ..models import Organisation, Contact #Position, Sector, Civility
 from .base import _BasePersonForm
@@ -39,7 +39,7 @@ from .base import _BasePersonForm
 
 class ContactForm(_BasePersonForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
-    image    = CreatorEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
+    image    = CreatorEntityField(label=_('Image'), required=False, model=Image)
 #    position = ModelChoiceField(label=_('Position'), 
 #                                queryset=Position.objects.all(), 
 #                                required=False, 
