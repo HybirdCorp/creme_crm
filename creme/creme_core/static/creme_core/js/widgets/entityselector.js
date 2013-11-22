@@ -59,7 +59,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
             self._autoselect(element);
         });
 
-        var selection = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
+        var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
 
         this._popupURL = new creme.utils.Template(options.popupURL, {
                                                        qfilter: options.qfilter,
@@ -140,6 +140,14 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var self = this;
         var url = this.popupURL(element);
 
+        creme.dialogs.deprecatedListViewAction(url, {multiple:multiple})
+                                  .onDone(function(event, data) {
+                                       self._update(element, data);
+                                       creme.object.invoke(cb, element, data);
+                                   })
+                                  .start();
+        
+        /*
         creme.utils.showInnerPopup(url, {
                                     send_button_label: gettext("Validate the selection"),
                                     send_button: function(dialog) {
@@ -159,6 +167,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                                         creme.object.invoke(cb, element);
                                     }
                                    });
+         */
     },
 
     _reloadLabel: function(element, on_success, on_error, sync)

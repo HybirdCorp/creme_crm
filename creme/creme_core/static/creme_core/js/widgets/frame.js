@@ -20,15 +20,25 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
     options: {
         backend:        new creme.ajax.Backend({dataType:'html'}),
-        url:            '',
+        url:            undefined,
         overlay_delay:  100
     },
 
     _create: function(element, options, cb, sync)
     {
-        var overlay = this._create_overlay(element, options);
+        this._overlay = new creme.dialog.Overlay();
+        this._overlay.bind(element)
+                     .addClass('frame-loading');
 
-        element.append(overlay);
+        this._queryReloadListeners = {
+            done: function(data, statusText) {
+                    self._success_cb(element, data, statusText, cb, 'reloadOk');
+                },
+            fail: function(data, status) {
+                    self._error_cb(element, data, status, error_cb, 'reloadError');
+                }
+        }
+
         element.addClass('widget-ready');
 
         this.reload(element, undefined, cb);
@@ -36,10 +46,12 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
     _update: function(element, data)
     {
-        var overlay = $('> .ui-creme-overlay', element);
+        this._overlay.unbind(element);
+        this._overlay.update(false);
 
+        creme.widget.destroy(element);
         element.empty();
-        element.append(overlay);
+        this._overlay.bind(element);
 
         try {
             element.append($(data));
@@ -48,110 +60,129 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         }
     },
 
-    _overlay_state: function(element, visible, status)
-    {
-    	var visible = visible || false;
-        var options = this.options;
-        var overlay = $('> .ui-creme-overlay', element);
-        var z_index = visible ? 1 : -1;
-
-        overlay.css('z-index', z_index).toggleClass('overlay-active', visible || false);
-
-        if (status === undefined)
-            overlay.removeAttr('status');
-        else
-            overlay.attr('status', status);
-    },
-
     _clean_json: function(element, data)
     {
         var json_matches = data.match('^[\s]*<json>(.*)</json>[\s]*$');
         var json = (json_matches !== null && json_matches.length == 2) ? json_matches[1] : undefined;
 
-        if (creme.ajax.json.parse(json) !== null)
+        if (new creme.utils.JSON().isJSON(json)) {
             return [json, 'text/json'];
+        }
     },
 
-    _clean_data: function(element, data) {
-        return this._clean_json(element, data) || [data, 'text/html'];
+    _clean_data: function(element, data)
+    {
+        var dataType = typeof data;
+
+        if (dataType === 'string') {
+            return this._clean_json(element, data) || [data, 'text/html'];
+        }
+
+        if (dataType === 'object') {
+            return [data, Object.getPrototypeOf(data).jquery ? 'object/jquery' : 'object'];
+        }
+
+        return [data, dataType];
     },
 
-    _success_cb: function(element, data, statusText, cb)
+    _success_cb: function(element, data, statusText, cb, trigger)
     {
         var self = this;
         var cleaned = self._clean_data(element, data);
         var data = cleaned[0];
         var dataType = cleaned[1];
 
-        //console.log('reload done', data, dataType);
-
         // if guessed data is html, replace content of frame
-        if (dataType === 'text/html')
+        if (dataType === 'text/html' || dataType === 'object/jquery')
             self._update(element, data);
 
-        creme.object.deferred_cancel(element, 'overlay');
-        self._overlay_state(element, false);
-
         creme.object.invoke(cb, data, statusText, dataType);
+        element.trigger(trigger, [data, statusText]);
     },
 
-    _error_cb: function(element, data, status, cb)
+    _error_cb: function(element, data, status, cb, trigger)
     {
-        //console.log('reload failed', this.options, status);
-
-        var self = this;
-
-        creme.object.deferred_cancel(element, 'overlay');
-        self._overlay_state(element, true, status.status);
-
+        this._overlay.update(true, status.status, 0);
         creme.object.invoke(cb, data, status);
+        element.trigger(trigger, [data, status]);
+    },
+    
+    preferredSize: function(element)
+    {
+        var height = 0;
+        var width = 0;
+
+        $('> *', element).each(function() {
+            width = Math.max(width, $(this).position().left + $(this).outerWidth());
+            height = Math.max(height, $(this).position().top + $(this).outerHeight());
+        });
+
+        return [Math.round(width), Math.round(height)];
     },
 
-    fill: function(element, data) {
-        this._success_cb(element, data);
+    resize: function(element, args) {
+        element.trigger('resize', args);
     },
 
-    reload: function(element, url, cb, error_cb)
+    fill: function(element, data, cb) {
+        this._success_cb(element, data, '', cb, 'reloadOk');
+        this._lasturl = undefined;
+    },
+
+    reset: function(element, cb) {
+        this._success_cb(element, '', '', cb, 'reloadOk');
+        this._lasturl = undefined;
+    },
+
+    reload: function(element, url, data, listeners)
     {
         var self = this;
         var options = this.options;
-        var url = (url === undefined) ? options.url : url;
+        var url = url || this.url();
+        var listeners = listeners || {};
 
-        creme.object.deferred_start(element, 'overlay', function() {self._overlay_state(element, true, 'wait');}, options.overlay_delay);
-        options.url = url;
+        if (creme.object.isnone(url)) {
+            this.reset(element, listeners.done);
+            return;
+        }
 
-        options.backend.get(url, {},
+        element.trigger('beforeReload', [url]);
+
+        this._overlay.update(true, 'wait', options.overlay_delay);
+        this._lasturl = url;
+
+        options.backend.get(url, data, 
                             function(data, statusText) {
-                                self._success_cb(element, data, statusText, cb);
-                                element.trigger('reloadOk', [data, statusText]);
+                                self._success_cb(element, data, statusText, listeners.done, 'reloadOk');
                             },
                             function(data, status) {
-                                self._error_cb(element, data, status, error_cb);
-                                element.trigger('reloadError', [data, status]);
-                            })
+                                self._error_cb(element, data, status, listeners.fail, 'reloadError');
+                            });
     },
 
-    submit: function(element, form, cb, error_cb)
+    url: function(element) {
+        return this._lasturl || this.options.url;
+    },
+
+    submit: function(element, form, listeners)
     {
         var self = this;
         var options = this.options;
+        var listeners = listeners || {};
+        var url = this.url();
 
-        creme.object.deferred_start(element, 'overlay', function() {self._overlay_state(element, true, 'wait');}, options.overlay_delay);
+        this._overlay.update(true, 'wait', options.overlay_delay);
 
-        options.backend.submit(form,
+        element.trigger('beforeSubmit', [form]);
+
+        form.attr('action', form.attr('action') || url);
+
+        options.backend.submit(form, 
                                function(data, statusText) {
-                                   self._success_cb(element, data, statusText, cb);
-                                   element.trigger('submitOk', [data, statusText]);
+                                   self._success_cb(element, data, statusText, listeners.done, 'submitOk');
                                },
                                function(data, status) {
-                                   self._error_cb(element, data, status, error_cb);
-                                   element.trigger('submitError', [data, status]);
+                                   self._error_cb(element, data, status, listeners.fail, 'submitError');
                                });
-    },
-
-    _create_overlay: function(element, options)
-    {
-        var overlay = $('<div/>').addClass('ui-creme-overlay').css('z-index', -1);
-        return overlay;
     }
 });

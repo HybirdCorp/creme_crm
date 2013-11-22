@@ -149,101 +149,24 @@ creme.component.Action = creme.component.Component.sub({
 });
 
 
-creme.component.FormDialogAction = creme.component.Action.sub({
+creme.component.TimeoutAction = creme.component.Action.sub({
     _init_: function(options) {
-        this._super_(creme.component.Action, '_init_', this._open_popup, options);
+        this._super_(creme.component.Action, '_init_', this._startTimeout, options);
     },
 
-    _on_popup_submit: function(dialog, url)
+    _startTimeout: function(options)
     {
         var self = this;
-        var frame = $('.ui-creme-frame', dialog);
-        var form = $('form:first', frame);
+        var delay = options.delay;
 
-        form.attr('action', url);
-
-        frame.creme().widget().submit(form,
-                                      function(data, statusText, dataType) {
-                                          if ($.assertIEVersions(7, 8, 9)) {
-                                              data = data.endsWith('</json>') || data.endsWith('</JSON>') ? data.substr(0, data.length - '</json>'.length) : data;
-                                              dataType = new creme.object.JSON().isJSON(data) ? 'text/json' : dataType;
-                                          }
-
-                                          if (dataType === 'text/json')
-                                          {
-                                              self._close_popup(dialog);
-                                              self.done(data);
-                                              return;
-                                          }
-
-                                          self._update_buttons("send", dialog, ($('form', $(data)).length > 0));
-                                      },
-                                      function(data, statusText) {
-                                          self._update_buttons("send", dialog, false);
-                                      });
-    },
-
-    _on_popup_cancel: function(dialog)
-    {
-        this._close_popup(dialog);
-        this.cancel();
-    },
-
-    _on_popup_open: function(dialog, frame)
-    {
-        var self = this;
-        creme.widget.ready(dialog);
-
-        frame.bind('reloadError', function(data, status) {
-            self._update_buttons("send", dialog, false);
-        });
-
-        frame.bind('reloadOk', function(data, status) {
-            self._update_buttons("send", dialog, true);
-        });
-    },
-
-    _update_buttons: function(name, dialog, enabled)
-    {
-        var button = $('.ui-dialog-buttonset button[name="' + name + '"]', dialog.parent());
-
-        button.toggleClass('ui-state-disabled', !enabled);
-
-        if (enabled)
-            button.removeAttr('disabled');
-        else
-            button.attr('disabled', 'true');
-    },
-
-    _close_popup: function(dialog)
-    {
-        dialog.dialog('close');
-        dialog.dialog('destroy');
-        dialog.remove();
-    },
-
-    _open_popup: function(options)
-    {
-        var self = this;
-        var frame = creme.widget.buildTag($('<div/>'), 'ui-creme-frame', {'url': options.url}, true);
-
-        var buttons = {};
-        buttons[gettext('Close')] = {'name':'close',
-                                     'text': gettext('Close'),
-                                     'click':function() {self._on_popup_cancel($(this));}};
-        buttons[gettext('Send')] = {'name':'send',
-                                    'text': gettext('Send'),
-                                    'click':function() {self._on_popup_submit($(this), options.url);}};
-
-        $('<div/>').append(frame)
-                   .dialog({buttons:   buttons,
-                            title:     options.title,
-                            modal:     true,
-                            resizable: options.popupResizable,
-                            draggable: options.popupResizable,
-                            width:     options.popupWidth,
-                            minHeight: options.popupHeight,
-                            open:      function() {self._on_popup_open($(this), frame);}
-                           });
+        if (delay) {
+            window.setTimeout(function() {
+                if (self.isRunning()) {
+                    self.done(options);
+                }
+            }, delay);
+        } else {
+            this.done(0);
+        }
     }
 });

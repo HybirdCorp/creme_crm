@@ -42,6 +42,7 @@ creme.model.Renderer = creme.component.Component.sub({
         if (model === undefined)
             return this._model;
 
+        var model = Array.isArray(model) ? new creme.model.Array(model) : model;
         var previous = this._model;
 
         if (previous !== undefined) {
@@ -63,6 +64,8 @@ creme.model.Renderer = creme.component.Component.sub({
         if (this._model && this._model.length() > 0) {
             this.added(model._data, 0, model._data.length - 1);
         }
+
+        return this;
     }
 });
 

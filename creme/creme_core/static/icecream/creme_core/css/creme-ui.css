@@ -92,24 +92,59 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     height: 100%;
     background-repeat: no-repeat;
     background-position: 50% 50%;
-    background-color: white;
-    display: none;
-    opacity: .70;
-    filter: Alpha(Opacity=70);
+    display: inline-block;
+    z-index: 1;
 }
 
-.ui-creme-overlay.overlay-active { display: block; }
+.ui-creme-overlay .overlay-content {
+    z-index: 1;
+    height: 100%;
+    background: transparent;
+}
 
-.ui-creme-overlay.overlay-active[status] {
-    opacity: 1;
-    filter: none;
-    cursor: pointer;
+.ui-creme-overlay.frame-loading {
+    background-color: white;
+    opacity: .80;
+    filter: Alpha(Opacity=80);
+}
+
+.ui-creme-overlay.page-loading {
+    background-color: white;
+    opacity: .80;
+    filter: Alpha(Opacity=80);
+}
+
+.ui-creme-overlay.page-loading .overlay-content {
+    position: relative;
+}
+
+.ui-creme-overlay.page-loading .overlay-content img {
+    margin: 0 5px 0 0;
+}
+
+.ui-creme-overlay.page-loading .overlay-content h2 {
+    color: #376e86;
+    text-align: center;
+    position: fixed;
+    bottom: 50%;
+    width: 100%;
+    opacity: 1.0;
+    vertical-align: middle;
 }
 
 .ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
-.ui-creme-overlay.overlay-active[status="404"] { background-image: url("icecream/images/404_256.png"); }
-.ui-creme-overlay.overlay-active[status="500"] { background-image: url("icecream/images/500_256.png"); }
-.ui-creme-overlay.overlay-active[status="403"] { background-image: url("icecream/images/404_256.png"); }
+.ui-creme-overlay.overlay-active[status="404"] { background-image: url("icecream/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100);}
+.ui-creme-overlay.overlay-active[status="500"] { background-image: url("icecream/images/500_256.png"); opacity: 1; filter: Alpha(Opacity=100);}
+.ui-creme-overlay.overlay-active[status="403"] { background-image: url("icecream/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100);}
+
+/*----------------------------------*/
+.ui-dialog-scrollbackground {
+    position: fixed;
+}
+
+.ui-dialog-content .ui-creme-overlay {
+    background-color: #F6FCFF;
+}
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
@@ -219,22 +254,22 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[disa
     background-color: #D9E5EA;
 }
 
-ul.ui-creme-actionbuttonlist li button.ui-creme-actionbutton[name=create] {
+ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=create] {
     background-image: url("icecream/images/add_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist li button.ui-creme-actionbutton[name=delete] {
+ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=delete] {
     background-image: url("icecream/images/delete_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist li button.ui-creme-actionbutton[name=reset] {
+ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=reset] {
     background-image: url("icecream/images/delete_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist li button.ui-creme-actionbutton[name=edit] {
+ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=edit] {
     background-image: url("icecream/images/edit_16.png");
     padding-left: 20px;
 }
@@ -458,4 +493,20 @@ span.ui-creme-datepicker-trigger {
 .checklist-content.ie-checkbox-fallback .checkbox-field input[type=checkbox] {
     margin-top: 0px;
     vertical-align: middle;
+}
+
+/*----------------------------------*/
+.ui-creme-dialog-warn {
+    clear: both;
+}
+
+.ui-creme-dialog-warn .ui-icon {
+    float: left;
+    margin-right: 5px;
+    margin-left: 10px;
+}
+
+.ui-creme-dialog-warn .message {
+    display: inline-block;
+    font-size: 12px;
 }
