@@ -154,7 +154,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
                                                      url: '',
                                                      title: ''});
 
-        var action = new creme.component.FormDialogAction()
+        var action = new creme.dialog.FormDialogAction()
 
         action.onDone(function(event, data) {
                           element.trigger('actionSuccess', [data])

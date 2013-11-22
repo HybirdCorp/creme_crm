@@ -148,6 +148,7 @@ def js_testview_context(request, viewname):
         'TEST_VIEW_LIST':  test_views,
         'TEST_VIEW':       viewname,
         'TEST_SCREEN':     get('screen', ''),
+        'TEST_HEADLESS':     get('headless', False),
         'TEST_CONTENTTYPES': dict(ContentType.objects.values_list('model', 'id'))
     }
 

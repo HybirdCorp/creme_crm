@@ -29,12 +29,16 @@ var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "
 
 module("creme.widget.frame.js", {
     setup: function() {
+        var self = this;
         this.backend = new creme.ajax.MockAjaxBackend({delay:150, sync:true});
         $.extend(this.backend.GET, {'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
                                     'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
                                     'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+                                    'mock/custom': function(url, data, options) {
+                                        return self._custom_GET(url, data, options);
+                                     }});
 
         $.extend(this.backend.POST, {'mock/submit/json': this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON),
                                      'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),
@@ -46,15 +50,18 @@ module("creme.widget.frame.js", {
     },
 
     teardown: function() {
+    },
+
+    _custom_GET: function(url, data, options) {
+        return this.backend.response(200, '<div>' + $.toJSON({url: url, method: 'GET', data: data}) + '</div>');
     }
 });
 
-function assertOverlay(element, status, zindex, active, waiting)
+function assertOverlay(element, status, active)
 {
     var overlay = $('.ui-creme-overlay', element);
-    equal(1, overlay.length, 'has overlay');
+    equal(overlay.length, active ? 1 : 0, 'has overlay');
     equal(overlay.attr('status'), status, 'overlay status:' + status);
-    equal(overlay.css('z-index'), "" + zindex, 'overlay z-index');
     equal(overlay.hasClass('overlay-active'), active || false, 'overlay isactive');
 }
 
@@ -65,7 +72,7 @@ test('creme.widget.Frame.create (empty)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, '404', 1, true);
+    assertOverlay(element, '404', true);
     equal(0, $('h1', element).length);
 });
 
@@ -76,7 +83,7 @@ test('creme.widget.Frame.create (url)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1, false);
+    assertOverlay(element, undefined, false);
     equal(1, $('h1', element).length);
 });
 
@@ -88,8 +95,8 @@ test('creme.widget.Frame.create (404)', function()
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-       assertOverlay(element, '404', 1, true);
-       equal(0, $('h1', element).length);
+    assertOverlay(element, '404', true);
+    equal(0, $('h1', element).length);
 });
 
 test('creme.widget.Frame.create (403)', function() {
@@ -99,8 +106,8 @@ test('creme.widget.Frame.create (403)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-       assertOverlay(element, '403', 1, true);
-       equal(0, $('h1', element).length);
+    assertOverlay(element, '403', true);
+    equal(0, $('h1', element).length);
 });
 
 test('creme.widget.Frame.create (500)', function() {
@@ -110,8 +117,8 @@ test('creme.widget.Frame.create (500)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-       assertOverlay(element, '500', 1, true);
-       equal(0, $('h1', element).length);
+    assertOverlay(element, '500', true);
+    equal(0, $('h1', element).length);
 });
 
 test('creme.widget.Frame.create (url, overlay not shown, async)', function() {
@@ -125,21 +132,21 @@ test('creme.widget.Frame.create (url, overlay not shown, async)', function() {
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined, -1, false);
+    assertOverlay(element, undefined, false);
     equal(0, $('h1', element).length, 'content');
 
     stop(2);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, undefined, -1, false);
+        assertOverlay(element, undefined, false);
         equal($('h1', element).length, 0);
+        start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal($('h1', element).length, 1);
+        start();
     }, 150);
 });
 
@@ -154,27 +161,27 @@ test('creme.widget.Frame.create (url, overlay shown, async)', function() {
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
 
     stop(3);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(0, $('h1', element).length);
+        start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, 'wait', 1, true);
+        assertOverlay(element, 'wait', true);
         equal(0, $('h1', element).length);
+        start();
     }, 200);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(1, $('h1', element).length);
+        start();
     }, 700);
 });
 
@@ -189,27 +196,27 @@ test('creme.widget.Frame.create (url, overlay shown, async, error)', function() 
     equal(element.hasClass('widget-ready'), true);
     equal(element.creme().widget().options().overlay_delay, 100);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
 
     stop(3);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(0, $('h1', element).length);
+        start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, 'wait', 1, true);
+        assertOverlay(element, 'wait', true);
         equal(0, $('h1', element).length);
+        start();
     }, 150);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, '403', 1, true);
+        assertOverlay(element, '403', true);
         equal(0, $('h1', element).length);
+        start();
     }, 600);
 });
 
@@ -220,25 +227,25 @@ test('creme.widget.Frame.fill', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, 404, 1, true);
+    assertOverlay(element, 404, true);
     equal(0, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().fill(MOCK_FRAME_CONTENT_LIST);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
 });
@@ -250,7 +257,7 @@ test('creme.widget.Frame.reload (none)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -258,7 +265,7 @@ test('creme.widget.Frame.reload (none)', function() {
 
     element.creme().widget().reload();
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
 });
@@ -270,7 +277,7 @@ test('creme.widget.Frame.reload (none, async)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -280,24 +287,24 @@ test('creme.widget.Frame.reload (none, async)', function() {
 
     element.creme().widget().reload();
 
-    stop(2);
+    stop(3);
 
     setTimeout(function() {
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, 'wait', 1, true);
+        assertOverlay(element, 'wait', true);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
+        start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(0, $('h1', element).length);
         equal(1, $('ul', element).length);
         start();
@@ -311,15 +318,37 @@ test('creme.widget.Frame.reload (url)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().reload('mock/html2');
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(0, $('h1', element).length);
     equal(1, $('ul', element).length);
+});
+
+test('creme.widget.Frame.reload (url, data)', function() {
+    var element = mock_frame_create('mock/html');
+
+    creme.widget.create(element);
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    assertOverlay(element, undefined);
+    equal(1, $('h1', element).length);
+    equal(0, $('ul', element).length);
+
+    element.creme().widget().reload('mock/custom', {});
+
+    assertOverlay(element, undefined);
+    equal(0, $('h1', element).length);
+    equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {}}) + '</div>');
+
+    element.creme().widget().reload('mock/custom', {'a': 12});
+    equal(0, $('h1', element).length);
+    equal(element.html(), '<div>' + $.toJSON({url: 'mock/custom', method: 'GET', data: {'a': 12}}) + '</div>');
 });
 
 test('creme.widget.Frame.reload (url, async)', function() {
@@ -329,7 +358,7 @@ test('creme.widget.Frame.reload (url, async)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -338,24 +367,24 @@ test('creme.widget.Frame.reload (url, async)', function() {
 
     element.creme().widget().reload('mock/html2');
 
-    stop(2);
+    stop(3);
 
     setTimeout(function() {
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, 'wait', 1, true);
+        assertOverlay(element, 'wait', true);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
+        start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(0, $('h1', element).length);
         equal(1, $('ul', element).length);
         start();
@@ -369,13 +398,13 @@ test('creme.widget.Frame.reload (invalid url)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
     element.creme().widget().reload('mock/error');
 
-    assertOverlay(element, '500', 1, true);
+    assertOverlay(element, '500', true);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 });
@@ -386,7 +415,7 @@ test('creme.widget.Frame.reload (invalid url, async)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('h1', element).length);
     equal(0, $('ul', element).length);
 
@@ -395,24 +424,24 @@ test('creme.widget.Frame.reload (invalid url, async)', function() {
 
     element.creme().widget().reload('mock/unknown');
 
-    stop(2);
+    stop(3);
 
     setTimeout(function() {
-        assertOverlay(element, undefined, -1);
+        assertOverlay(element, undefined);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
     }, 90);
 
     setTimeout(function() {
-        start();
-        assertOverlay(element, 'wait', 1, true);
+        assertOverlay(element, 'wait', true);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
+        start();
     }, 150);
 
     setTimeout(function() {
-        assertOverlay(element, '404', -1);
+        assertOverlay(element, '404', true);
         equal(1, $('h1', element).length);
         equal(0, $('ul', element).length);
         start();
@@ -427,38 +456,43 @@ test('creme.widget.Frame.submit', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    assertOverlay(element, undefined, -1);
+    assertOverlay(element, undefined);
     equal(1, $('form', element).length);
 
+    var listeners = {
+        done: function(data, statusText, dataType) {response.push([data, dataType]);},
+        fail: function() {response.push('error')}
+    };
+
     var response = [];
-    element.creme().widget().submit($('form', element), function(data, statusText, dataType) {response.push([data, dataType]);}, function() {response.push('error')});
+    element.creme().widget().submit($('form', element), listeners);
     deepEqual(response, [[MOCK_FRAME_CONTENT_FORM, 'text/html']], 'form html');
 
     this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON);
 
     response = [];
     element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), function(data, statusText, dataType) {response.push([data, dataType]);}, function() {response.push('error')});
+    element.creme().widget().submit($('form', element), listeners);
     deepEqual(response, [[$.toJSON({value:1, added:[1, 'John Doe']}), 'text/json']], 'form json');
 
     this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG);
 
     response = [];
     element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), function(data, statusText, dataType) {response.push([data, dataType]);}, function() {response.push('error')});
+    element.creme().widget().submit($('form', element), listeners);
     deepEqual(response, [[MOCK_FRAME_CONTENT_SUBMIT_JSON_NOTAG, 'text/html']], 'form json no tag');
 
     this.backend.POST['mock/submit'] = this.backend.response(200, MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID);
 
     response = [];
     element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), function(data, statusText, dataType) {response.push([data, dataType]);}, function() {response.push('error')});
+    element.creme().widget().submit($('form', element), listeners);
     deepEqual(response, [[MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID, 'text/html']], 'form json invalid');
 
     this.backend.POST['mock/submit'] = this.backend.response(500, 'HTTP - Error 500');
 
     response = [];
     element.creme().widget().reload('mock/submit');
-    element.creme().widget().submit($('form', element), function(data, statusText, dataType) {response.push([data, dataType]);}, function() {response.push('error')});
+    element.creme().widget().submit($('form', element), listeners);
     deepEqual(response, ['error']);
 });

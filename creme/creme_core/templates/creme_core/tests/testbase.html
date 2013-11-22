@@ -1,3 +1,4 @@
+{% if not TEST_HEADLESS %}
 {% load i18n %}
 {% load media %}
 {% load creme_core_tags %}
@@ -30,6 +31,13 @@
                 background-image: -o-linear-gradient(top, #3875d7 20%, #2a62bc 90%);
                 background-image: linear-gradient(#3875d7 20%, #2a62bc 90%);
                 color: #fff;
+                position: fixed;
+                width: 100%;
+                padding: 0 0 0 5px;
+                margin: 0;
+                z-index: 10000;
+                top:0;
+                left:0;
             }
 
             h1.creme-test-header .item {
@@ -38,15 +46,19 @@
                 font-size: 14px;
                 vertical-align: middle;
             }
-            
+
             h1.creme-test-header .item select {
+                margin: 5px;
+            }
+
+            h1.creme-test-header .item button {
                 margin: 5px;
             }
 
             h1.creme-test-header .title {
                 display: inline;
             }
-            
+
             div.creme-test-body.resized {
                 margin-left: auto;
                 margin-right: auto;
@@ -56,7 +68,11 @@
                 border: 1px solid #888;
                 overflow: auto;
             }
-            
+
+            div.creme-test-body {
+                margin-top: 3em;
+            }
+
             table {
                 font-size: 13px;
             }
@@ -148,8 +164,13 @@
             </div>
         </h1>
         <div class="creme-test-body">
+{% endif %}
+
         {% block test_content %}
         {% endblock %}
+
+{% if not TEST_HEADLESS %}
         </div>
     </body>
 </html>
+{% endif %}

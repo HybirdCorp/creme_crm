@@ -88,9 +88,10 @@ creme.ajax.AjaxResponse = function(status, data, xhr) {
 creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 {
     var form_action = form.attr('action');
+    var needs_iframe = $('input[type=file]', form).length > 0; // disable iframe if no file input in form
     var options = options || {};
 
-    form.attr('action', (options['action'] || form_action));
+    form.attr('action', options.action || form_action);
 
     function parse_response_status(responseText) {
         if (responseText === "") {
@@ -103,7 +104,7 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
     }
 
     var submit_options = {
-            iframe:true,  // TODO : disable iframe if no file input in form
+            iframe: needs_iframe,
             success:function(responseText, statusText, xhr, form) {
                 form.attr('action', form_action);
                 xhr.status = parse_response_status(responseText);

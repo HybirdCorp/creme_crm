@@ -39,7 +39,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         if (options.sync !== true)
         {
              options.sync = true;
-             var delay = options.delay !== undefined ? options.delay : 500;
+             var delay = options.delay || 500;
 
              window.setTimeout(function() {self.send(url, data, method, on_success, on_error, options);}, delay);
              return;
@@ -87,7 +87,7 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         var action = options.action || form.attr('action');
 
         this.counts.SUBMIT += 1;
-        return this.send(action, undefined, this.POST, on_success, on_error, options);
+        return this.send(action, form, this.POST, on_success, on_error, options);
     },
 
     response: function(status, data) {
