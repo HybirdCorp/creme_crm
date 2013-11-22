@@ -20,8 +20,19 @@
  * Requires : jQuery lib, creme.utils
  */
 
-creme.merge = {};
+creme.merge = creme.merge || {};
+
 creme.merge.selectOtherEntityNRedirect = function(model_id) {
+    var url = '/creme_core/entity/merge/select_other/' + model_id;
+    var action = creme.dialogs.deprecatedListViewAction(url, {multiple:false});
+
+    action.onDone(function(event, data) {
+        window.location.href = '/creme_core/entity/merge/' + model_id + ',' + data[0];
+    });
+
+    return action.start();
+
+    /*
     creme.utils.showInnerPopup('/creme_core/entity/merge/select_other/' + model_id,
                                {
                                    send_button: function(dialog) {
@@ -41,4 +52,5 @@ creme.merge.selectOtherEntityNRedirect = function(model_id) {
                                     send_button_label: gettext("Validate the selection")
                                }
                               );
+    */
 }

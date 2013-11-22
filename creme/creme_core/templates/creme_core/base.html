@@ -126,7 +126,7 @@
             e.stopImmediatePropagation();
             var href = $('a:first', this).attr('href');
             //$.cookie('creme-menu-selected', href);
-            creme.utils.go_to($('a:first',this).attr('href'), false);
+            creme.utils.goTo($('a:first',this).attr('href'));
         });
 
         (function bind_scroll() {

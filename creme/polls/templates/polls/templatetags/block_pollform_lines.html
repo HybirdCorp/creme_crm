@@ -44,7 +44,7 @@
                                             {% get_line_editor at_url '/polls/pform_line/{{node.id}}/edit' with_perms has_perm %}
 
                                             {% if has_perm|and_op:no_deps %}
-                                                <a class="pointer" onclick="creme.utils.ajaxDelete('/polls/pform_line/{{node.id}}/disable', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                                                <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/polls/pform_line/{{node.id}}/disable', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
                                                     <img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Disable" %}" alt="{% trans "Disable" %}">
                                                 </a>
                                             {% else %}

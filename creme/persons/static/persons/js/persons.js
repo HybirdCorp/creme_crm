@@ -37,10 +37,28 @@ creme.persons.copyTo = function (from_id, to_id) {
 }
 
 //TODO: rename postBecome
+/*
 creme.persons.post_become = function(atag, id_value) {
     $form = $('form', $(atag));
     $input = $('#id_become' , $form);
     $input.attr('value', id_value);
 
     $form.submit();
+}
+*/
+
+creme.persons.become = function(url, organisations) {
+    if (Object.isEmpty(organisations))
+        return;
+
+    if (organisations && organisations.length > 1) {
+        creme.dialogs.choice(gettext('Select the concerned organisation.'), 
+                             {choices: organisations, title: gettext('Organisation')})
+                     .onOk(function(event, orga_id) {
+                          creme.utils.ajaxQuery(url, {action:'post', reloadOnSuccess:true, warnOnFail:true}, {id: orga_id}).start();
+                      })
+                     .open();
+    } else {
+        creme.utils.ajaxQuery(url, {action:'post', reloadOnSuccess:true, warnOnFail:true}, {id: organisations[0].value}).start();
+    }
 }

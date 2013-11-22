@@ -40,7 +40,7 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
         if($a.hasClass('confirm')) {
             creme.utils.confirmBeforeGo($a.attr('href'), true, {type: "POST"});
         } else {
-            creme.utils.go_to($a.attr('href'));
+            creme.utils.goTo($a.attr('href'));
         }
     });
 };
@@ -59,6 +59,8 @@ creme.menu.NavIt = function(trigger_selector, options) {
             type: (post)? "POST": "GET"
         }
 
+        e.preventDefault();
+
         if (ajax && list_view) {
             opts = $.extend(opts, {
                 success: function(data, status, req) {
@@ -71,7 +73,7 @@ creme.menu.NavIt = function(trigger_selector, options) {
 //                     } else {
 //                         creme.utils.showDialog(req.responseText);
 //                     }
-                    creme.utils.showDialog(req.responseText || gettext("Error"));
+                    creme.dialogs.warning(req.responseText || gettext("Error"));
                 }
             });
         }
@@ -79,9 +81,9 @@ creme.menu.NavIt = function(trigger_selector, options) {
         if (confirm) {
             creme.utils.confirmBeforeGo($a.attr('href'), ajax, opts);
         } else {
-            creme.utils.go_to($a.attr('href'));
+            creme.utils.goTo($a.attr('href'));
         }
-        e.preventDefault();
+
     });
 };
 

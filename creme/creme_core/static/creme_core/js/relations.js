@@ -20,8 +20,34 @@
  * Requires : creme, jQuery
  */
 
-if (!creme.relations) creme.relations = {}
+creme.relations = creme.relations || {};
 
+creme.relations.addRelationTo = function(subject, predicate, ctype, options, data) {
+    var options = options || {};
+    var query = new creme.ajax.Backend().query().url('/creme_core/relation/add_from_predicate/save');
+
+    if (options.blockReloadUrl) {
+        query.onDone(function(event, data) {creme.blocks.reload(options.blockReloadUrl);});
+    } else {
+        query.onDone(function(event, data) {creme.utils.reload(window);})
+    }
+
+    var url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
+                                                                                 options.multiple ? '' : '/simple');
+
+    var action = creme.dialogs.deprecatedListViewAction(url, options, data);
+    action.onDone(function(event, data) {
+        query.post({
+                  entities: data,
+                  subject_id: subject,
+                  predicate_id: predicate
+              });
+    });
+
+    return action.start();
+}
+
+/*
 //TODO: is 'url' arg useful ?? (it is always '/creme_core/relation/objects2link/rtype/...')
 creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subject_id, block_reload_url) {
     var options = {
@@ -74,7 +100,8 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                 }
     creme.utils.showInnerPopup(url, options);
 }
-
+*/
+/*
 //TODO: move to listview.core ? (used to add relations, properties etc...)
 creme.relations.addFromListView = function(lv_selector, url, ids) {
     if($(lv_selector).list_view('ensureSelection')) {
@@ -96,3 +123,4 @@ creme.relations.addFromListView = function(lv_selector, url, ids) {
                           });
     }
 }
+*/

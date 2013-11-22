@@ -21,7 +21,7 @@
 
                     {% get_export_backends as export_backends %}
                     {% if export_backends|length > 2 %}
-                        <a href="/reports/report/export/{{object.id}}/%s{% if form.cleaned_data %}?{{form.forge_url_data}}{% endif %}" onclick="creme._export.selectBackend(event, {{export_backends}}, this);">
+                        <a href="/reports/report/export/{{object.id}}/%s{% if form.cleaned_data %}?{{form.forge_url_data}}{% endif %}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});">
                         <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                         </a>&nbsp;
                     {% endif %}

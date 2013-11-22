@@ -10,7 +10,7 @@
             {% if page.paginator.count %}
                 <tr class="header toolbar">
                     <th colspan="{{colspan}}" class="block_header_line_dark" align="left">{% comment %}TODO: factorise {% endcomment %}
-                        <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/trash/empty', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                        <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/creme_core/entity/trash/empty', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
                         {% trans "Empty the trash" as label %}<img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{{label}}" alt="{{label}}">{{label}}
                         </a>
                     </th>
@@ -33,7 +33,7 @@
                         <td class="{{row_color}}">{% widget_entity_hyperlink entity.get_real_entity user 1 %}{% comment %}TODO: ignore_deleted=1{% endcomment %}</td>
                         <td class="{{row_color}} action">{% has_perm_to delete entity as has_perm %}
                             {% if has_perm %}
-                                <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/restore/{{entity.id}}', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                                <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/creme_core/entity/restore/{{entity.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
                                     {% trans "Restore" as img_title %}<img src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">
                                 </a>
                             {% else %}

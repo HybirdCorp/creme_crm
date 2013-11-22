@@ -16,10 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.exports = creme.exports || {};
+
+creme.exports.exportAs = function(url, formats) {
+    var formats = !Object.isEmpty(formats) ? formats : [['', 'No backend found']];
+
+    return creme.dialogs.choice(gettext("Select the export format"), {
+                      title: gettext("Export"),
+                      choices: formats.map(function(item) {return {value:item[0], label:item[1]}})
+                  })
+                 .onOk(function(event, data) {
+                      window.location.href = url.format(data);
+                  }).open();
+}
+
 /*
  * Requires : jQuery lib, creme declaration
  */
 
+/*
 creme._export = {}; //TODO: rename 'export'
 
 //TODO: move to billing ??
@@ -76,3 +91,4 @@ creme._export.selectBackend = function(evt, data, a) {
 
     creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
 }
+*/

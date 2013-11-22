@@ -11,7 +11,7 @@
                     {% get_line_adder at_url '/documents/document/add_related/{{object.id}}' with_label _("Add a document") with_perms creation_perm|and_op:obj_link_perm %}
                 {% endcomment %}
                 {% if creation_perm and obj_link_perm and doc_link_perm %}
-                    <a class="add" onclick="creme.utils.iframeInnerPopup('/documents/document/add_related/{{object.id}}');">
+                    <a class="add" onclick="creme.blocks.deprecatedForm('/documents/document/add_related/{{object.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% comment %}<a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">{% endcomment %}
                         {% trans "Add a document" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                     </a>

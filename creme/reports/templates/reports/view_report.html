@@ -8,7 +8,7 @@
     </a>&nbsp;
     {% get_export_backends as export_backends %}
     {% if export_backends|length > 2 %}
-        <a onclick="var backends = {{export_backends}}; if (backends.length) {creme.utils.showInnerPopup('/reports/date_filter_form/{{object.id}}');} else {creme._export.selectBackend(event, backends, this);}">
+        <a onclick="creme.reports.exportReport($(this), {{export_backends}}, '/reports/date_filter_form/{{object.id}}');">
             <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
         </a>&nbsp;
     {% endif %}

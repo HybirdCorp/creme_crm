@@ -20,8 +20,8 @@
 
 from datetime import date
 
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -106,4 +106,5 @@ def generate_number(request, invoice_id):
     else:
         raise Http404('This invoice has already a number: %s.' % invoice)
 
-    return redirect(invoice)
+    return HttpResponse("", mimetype="text/javascript")
+    #return redirect(invoice)

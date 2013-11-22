@@ -18,6 +18,17 @@
 
 creme.activities = {};
 
+creme.activities.exportAsICal = function(list) {
+    var selection = $(list).list_view('getSelectedEntities').trim();
+
+    if (!selection) {
+        creme.dialogs.warning(gettext('Please select at least a line in order to export.')).open();
+        return false;
+    }
+
+    document.location.href = '/activities/activities/%s/ical'.format(selection);
+}
+
 // creme.activities.ajax = {};
 
 creme.activities.calendar = {};
@@ -197,11 +208,11 @@ creme.activities.calendar.updater = function (event, dayDelta, minuteDelta, allD
         },
         error: function (request, textStatus, errorThrown) {
             if(request.status == 403) {
-                creme.utils.showDialog(gettext("You do not have permission, the change will not be saved."));
+                creme.dialogs.warning(gettext("You do not have permission, the change will not be saved."));
             } else if(request.status == 409) {
-                creme.utils.showDialog(unescape(request.responseText));
+                creme.dialogs.warning(unescape(request.responseText));
             } else if(request.status >= 300 || request.status == 0) {
-                creme.utils.showDialog(gettext("Error, please reload the page."));
+                creme.dialogs.warning(gettext("Error, please reload the page."));
             }
             revertFunc();
         },
@@ -351,6 +362,16 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             creme.activities.calendar.loading(!isLoading);
         },
         dayClick: function (date, allDay, jsEvent, view) {
+            var data = {
+                'year':   date.getFullYear(),
+                'month':  date.getMonth()+1,
+                'day':    date.getDate(),
+                'hour':   date.getHours(),
+                'minute': date.getMinutes()
+            };
+
+            creme.dialogs.deprecatedForm('/activities/activity/add_popup', {reloadOnSuccess:true}, data).open({width:'80%'});
+            /*
             creme.utils.showInnerPopup('/activities/activity/add_popup',
                                        {beforeClose: function (){
                                            location.reload();
@@ -365,6 +386,7 @@ creme.activities.calendar.fullCalendar = function (events_url) {
                                                }
                                        }
             );
+            */
         },
         eventRender: function (event, element, view) {
             var container = element.find('a');
@@ -392,7 +414,8 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function (event) {
-            creme.utils.showInnerPopup(event.url, {}, null, {}, true);
+            creme.dialogs.deprecatedForm(event.url, {reloadOnSuccess:true}).open({width:'80%'});
+            //creme.utils.showInnerPopup(event.url, {}, null, {}, true);
             return false;
         },
         eventResize: function (event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {

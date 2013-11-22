@@ -68,7 +68,7 @@ def simple_print(entity, fval, user):
     return unicode(escape(fval)) if fval is not None else ""
 
 def print_image(entity, fval, user):
-    return """<a href="javascript:creme.utils.openWindow('%(url)s','image_popup');"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
+    return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
             }

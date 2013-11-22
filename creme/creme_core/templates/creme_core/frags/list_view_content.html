@@ -51,10 +51,10 @@
                     {% endif %}
                     {% get_export_backends as export_backends %}
                     {% if export_backends|length > 2 %}
-                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{export_backends}}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                             {% trans "Download" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
-                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{export_backends}}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                             {% trans "Download header" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
                     {% endif %}
@@ -100,7 +100,7 @@
                     <th class="actions"></th>
                 {% else %}
                     <th class="column{% if cell.value in current_research_fields %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
-                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{cell.value}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
+                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.value}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{cell.title}}
                         </button>
                     </th>

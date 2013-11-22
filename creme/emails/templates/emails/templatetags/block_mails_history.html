@@ -32,14 +32,14 @@
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='sending_date' %}</td>
                     <td class="{{row_color}} action">
-                        <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mail/{{mail.pk}}/popup');">
+                        <a class="button_link" onclick="creme.dialogs.deprecatedForm('/emails/mail/{{mail.pk}}/popup').open();">
                             {% trans "Details" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </a>
                         {% if mail.status != sent_status %}
                             <a class="button_link" onclick="
                                 {% if mail.status in sync_statuses %}
                                     {% trans "This mail was synchronized. Are you sure you want to send it ?" as confirm_msg %}
-                                    creme.utils.simpleConfirm(function(){creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});}, '{{confirm_msg|escapejs}}');
+                                    creme.emails.confirmResend('{{confirm_msg|escapejs}}', '/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});
                                 {% else %}
                                     creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});
                                 {% endif %}

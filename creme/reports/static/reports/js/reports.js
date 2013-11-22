@@ -58,6 +58,7 @@ creme.reports.load = function(options) {
 //     $(options.show_after_ct).show();
 }
 
+/*
 //Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
 creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     if($target_select.size() != 1) return;
@@ -112,6 +113,7 @@ creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
 
+
 creme.reports.loadFilters = function(ct_id, $target_select) {
     var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
@@ -124,6 +126,7 @@ creme.reports.loadFilters = function(ct_id, $target_select) {
 
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
+*/
 
 /*
 //todo: refactor when OrderedMultiSelect can be properly reload
@@ -211,31 +214,8 @@ creme.reports.loadAggregates = function(ct_id, options) {
     }
 }
 */
-creme.reports.unlink_report = function(field_id, block_url) {
-    var success_cb = function(data, textStatus, req) {
-        if(block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
-        }
-    };
 
-    var error_cb = function(req, textStatus, err) {
-
-    };
-
-    creme.ajax.json.post('/reports/report/field/unlink_report',
-                         {'field_id': field_id}, success_cb, success_cb,
-                         false, this.loading_options
-                        );
-}
-
-creme.reports.link_report = function(report_id, field_id, block_url) {
-    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_report', block_url);
-}
-
-creme.reports.link_related_report = function(report_id, field_id, block_url) {
-    creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_related_report', block_url);
-}
-
+/*
 creme.reports.getContentTypeForPredicate = function(predicate, success_cb, error_cb) {
     creme.ajax.json.get('/creme_core/relation/type/' + predicate + '/content_types/json',
             {
@@ -252,11 +232,11 @@ creme.reports.link_relation_report = function(report_id, field_id, predicate, bl
         var buttons = {};
         buttons[gettext("Ok")] = function() {
                 if($select.val() == "") {
-                    creme.utils.showDialog(gettext("Please select a type."));
+                    creme.dialogs.warning(gettext("Please select a type."));
                     return;
                 }
 
-                creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), block_url);
+                creme.blocks.deprecatedForm('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), {blockReloadUrl:block_url}).open();
 
                 $(this).dialog("close");
             }
@@ -270,8 +250,103 @@ creme.reports.link_relation_report = function(report_id, field_id, predicate, bl
 
     creme.reports.getContentTypeForPredicate(predicate, success_cb, error_cb);
 }
+*/
+
+creme.reports.AJAX_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(), {
+                                                             condition: new creme.ajax.CacheBackendTimeout(120 * 1000),
+                                                             dataType: 'json'
+                                                         });
+
+creme.reports.doAjaxAction = function(url, options, data) {
+    var options = options || {};
+    var query = creme.reports.AJAX_BACKEND.query();
+    var reload_cb = options.blockReloadUrl ? function() {creme.blocks.reload(options.blockReloadUrl);} : function() {};
+
+    query.url(url)
+         .onDone(reload_cb)
+         .onFail(function(event, req) {
+             creme.dialogs.warning(req.responseText || gettext("Error"))
+                          .onClose(reload_cb)
+                          .open();
+          })
+         .post(data);
+
+    return query;
+}
+
+creme.reports.unlink_report = function(field_id, block_url) {
+    creme.reports.doAjaxAction('/reports/report/field/unlink_report', {
+                                   blockReloadUrl: block_url
+                               }, {
+                                   'field_id': field_id
+                               });
+
+/*
+    var success_cb = function(data, textStatus, req) {
+        if(block_url && block_url != undefined) {
+            creme.utils.loadBlock(block_url);
+        }
+    };
+
+    var error_cb = function(req, textStatus, err) {
+
+    };
+
+    creme.ajax.json.post('/reports/report/field/unlink_report',
+                         {'field_id': field_id}, success_cb, success_cb,
+                         false, this.loading_options
+                        );
+*/
+}
+
+creme.reports.link_report = function(report_id, field_id, block_url) {
+    var url = '/reports/report/%s/field/%s/link_report'.format(report_id, field_id);
+    return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+}
+
+creme.reports.link_related_report = function(report_id, field_id, block_url) {
+    var url = '/reports/report/%s/field/%s/link_related_report'.format(report_id, field_id);
+    return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+}
+
+creme.reports.link_relation_report = function(report, field, predicate, block_url) {
+    var query = creme.reports.AJAX_BACKEND.query();
+
+    query.url('/creme_core/relation/type/%s/content_types/json'.format(predicate))
+         .onDone(function(event, data) {
+              var choices = data ? data.map(function(item) {return {value:item[0], label:item[1]};}) : [];
+
+              creme.dialogs.choice(gettext('Select a type'), {
+                                title: gettext('Link relation to report'),
+                                choices: choices
+                            })
+                           .onOk(function(event, type) {
+                                if (Object.isEmpty(type)) {
+                                    creme.dialogs.warning(gettext("Please select a type."));
+                                    return;
+                                }
+
+                                var url = '/reports/report/%s/field/%s/link_relation_report/%s'.format(report, field, type);
+
+                                creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+                            })
+                           .open();
+          })
+         .get({fields:['id', 'unicode']});
+
+     return query;
+}
 
 creme.reports.changeOrder = function(report_id, field_id, direction, block_url) {
+    return creme.reports.doAjaxAction('/reports/report/field/change_order', {
+                                          blockReloadUrl: block_url
+                                      }, {
+                                          'report_id': report_id,
+                                          'field_id': field_id,
+                                          'direction': direction
+                                      });
+
+/*
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
             creme.utils.loadBlock(block_url);
@@ -288,9 +363,18 @@ creme.reports.changeOrder = function(report_id, field_id, direction, block_url) 
     var data = {'report_id': report_id, 'field_id': field_id, 'direction': direction};
 
     creme.ajax.json.post('/reports/report/field/change_order', data, success_cb, success_cb, false, this.loading_options);
+*/
 }
 
 creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
+    return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
+                                          blockReloadUrl: block_url
+                                      }, {
+                                          'report_id': report_id,
+                                          'field_id': field_id,
+                                          'checked': $(checkbox).is(':checked') ? 1 : 0
+                                      });
+/*
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
             creme.utils.loadBlock(block_url);
@@ -307,6 +391,7 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
     var data = {'report_id': report_id, 'field_id': field_id, 'checked': +$(checkbox).is(':checked')};
 
     creme.ajax.json.post('/reports/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
+*/
 };
 
 creme.reports.toggleDisableOthers = function(me, others) {
@@ -344,6 +429,15 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 
     return jqplotData.length ? [jqplotData] : [];
 });
+
+
+creme.reports.exportReport = function(link, backends, filterurl) {
+    if (backends.length) {
+        creme.dialogs.deprecatedForm(filterurl).open({width:800});
+    } else {
+        creme.dialogs.warning(gettext('No backend found')).open({maxWidth:300, resizable:false});
+    }
+}
 
 /*
 if(!creme.reports.graphs) creme.reports.graphs = {};

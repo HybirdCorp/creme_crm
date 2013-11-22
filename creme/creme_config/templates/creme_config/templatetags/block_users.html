@@ -34,15 +34,15 @@
                 <td class="{{row_color}}">{{user.email}}</td>
                 <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>
                 <td class="{{row_color}}">
-                    <input{% if user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.utils.postNReload('/creme_config/user/activate/{{user.id}}', {% get_block_reload_uri %})}"{% endif %} name="user_{{user.id}}" value="false">{% trans "Yes" %}
-                    <input{% if not user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.utils.postNReload('/creme_config/user/deactivate/{{user.id}}', {% get_block_reload_uri %})}"{% endif %} name="user_{{user.id}}" value="true">{% trans "No" %}
+                    <input{% if user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/activate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="false">{% trans "Yes" %}
+                    <input{% if not user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/deactivate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="true">{% trans "No" %}
                 </td>
                 <td class="{{row_color}}">{{user.last_login}}</td>
                 <td class="{{row_color}}">{{user.date_joined}}</td>
                 <td class="{{row_color}} action">
                     {% get_line_editor at_url '/creme_config/user/edit/{{user.id}}' with_perms has_perm %}
                     {% if has_perm %}
-                        <a onclick="creme.utils.innerPopupNReload('/creme_config/user/delete/{{user.id}}', {% get_block_reload_uri %});">
+                        <a onclick="creme.blocks.deprecatedForm('/creme_config/user/delete/{{user.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                             {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </a>
                     {% else %}

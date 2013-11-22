@@ -42,6 +42,12 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
             .bind('click',
                   {input: input, input_id: id, lv_widget: creme.lv_widget},
                   function(e) {
+                      var ct_id = e.data.input.attr('ct_id');
+                      var multiple = e.data.input.attr('o2m');
+                      var input_id = e.data.input_id;
+
+                      creme.lv_widget.openFilterSelection(input_id, ct_id, q_filter, multiple);
+                        /*
                         var options = {
                             send_button: function(dialog) {
                                 var lv = $('form[name="list_view_form"]');
@@ -64,11 +70,23 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
                         }
 //                        var params='menubar=no, status=no, scrollbars=yes, height=800';
                         var dialog_id = creme.utils.showInnerPopup('/creme_core/lv_popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
+                        
+                        var ct_id = e.data.input.attr('ct_id');
+                        var multiple = e.data.input.attr('o2m')
+                        */
                   }
             )
             .addClass('pointer')
         )
     );
+}
+
+creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multiple) {
+    creme.dialogs.deprecatedListViewAction('/creme_core/lv_popup/%s/%s?q_filter=%s'.format(ct_id, multiple, q_filter), {multiple:multiple})
+                 .onDone(function(event, data) {
+                     creme.lv_widget.handleSelection(data, input_id);
+                 })
+                 .start();
 }
 
 creme.lv_widget.handleSelection = function(ids, targetInputId) {
@@ -152,4 +170,76 @@ creme.lv_widget.delete_a_value = function (img, targetInputId) {
     var id = $(img).parent().find('input[type="hidden"]').val();
     $('#' + targetInputId).val($('#' + targetInputId).val().replace(id + ',', ''));
     $(img).parent().empty().remove();
+}
+
+creme.lv_widget.deleteEntityFilter = function(list, filterid) {
+    var query = creme.utils.confirmPOSTQuery('/creme_core/entity_filter/delete', {}, {id: filterid});
+    query.onDone(function(event, data) {list.list_view('reload');});
+    return query.start();
+}
+
+creme.lv_widget.deleteHeaderFilter = function(list, filterid) {
+    var query = creme.utils.confirmPOSTQuery('/creme_core/header_filter/delete', {}, {id: filterid});
+    query.onDone(function(event, data) {list.list_view('reload');});
+    return query.start();
+}
+
+creme.lv_widget.selectedLines = function(list) {
+    var list = $(list);
+
+    if (list.list_view('countEntities') == 0)
+        return [];
+
+    return list.list_view('getSelectedEntitiesAsArray');
+}
+
+creme.lv_widget.deleteSelectedLines = function(list) {
+    var list = $(list);
+    var selection = creme.lv_widget.selectedLines(list);
+
+    if (!selection.length) {
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+        return;
+    }
+
+    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {}, {ids: selection.join(',')});
+    query.onDone(function(event, data) {list.list_view('reload');});
+
+    return query.start();
+}
+
+creme.lv_widget.addToSelectedLines = function(list, url) {
+    var list = $(list);
+    var selection = creme.lv_widget.selectedLines(list);
+
+    if (!selection.length) {
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+        return;
+    }
+
+    var action = creme.dialogs.deprecatedInnerPopupAction(url, {}, {ids: selection, persist: 'ids'});
+
+    action.onDone(function(event, data) {list.list_view('reload');});
+    action.start();
+
+    return action;
+}
+
+creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
+    var $sort_field = $(sort_field);
+    var $sort_order = $(sort_order);
+
+    if($sort_field.val() == new_sort_field) {
+        if($sort_order.val() == "") {
+            $sort_order.val("-");
+        } else {
+            $sort_order.val("");
+        }
+    } else {
+        $sort_order.val("");
+    }
+    $sort_field.val(new_sort_field);
+//     if(typeof(callback) == "function") callback(input);
+    if ($.isFunction(callback))
+        callback(input);
 }

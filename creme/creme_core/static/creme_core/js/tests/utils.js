@@ -10,6 +10,7 @@ module("creme.utils.js", {
   }
 });
 
+/*
 test('Loading:creme.utils.loading()', function() {
     expect(3);
     var dt = +new Date;
@@ -21,6 +22,7 @@ test('Loading:creme.utils.loading()', function() {
     equal($("#"+gen_id).size(), 0);
 
 });
+*/
 
 test('Append params in url:creme.utils.appendInUrl()', function() {
     expect(5);
