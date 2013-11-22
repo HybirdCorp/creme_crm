@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-29 16:17+0200\n"
+"POT-Creation-Date: 2013-11-21 15:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/reports/js/reports.js:65
-msgid "None available"
-msgstr "Aucun disponible"
+#: static/reports/js/reports.js:268
+msgid "Error"
+msgstr "Erreur"
 
-#: static/reports/js/reports.js:109
-msgid "No selected view"
-msgstr "Aucune vue sélectionnée"
-
-#: static/reports/js/reports.js:116
-msgid "All"
-msgstr "Tout"
-
-#: static/reports/js/reports.js:244
+#: static/reports/js/reports.js:319
 msgid "Select a type"
 msgstr "Sélectionnez un type"
 
-#: static/reports/js/reports.js:247
-msgid "Ok"
-msgstr "Ok"
+#: static/reports/js/reports.js:320
+msgid "Link relation to report"
+msgstr "Lier la relation au rapport"
 
-#: static/reports/js/reports.js:249
+#: static/reports/js/reports.js:325
 msgid "Please select a type."
 msgstr "Veuillez sélectionner un type."
 
-#: static/reports/js/reports.js:276 static/reports/js/reports.js.c:295
-msgid "Error"
-msgstr "Erreur"
+#: static/reports/js/reports.js:438
+msgid "No backend found"
+msgstr "Outil d'export indisponible"
+
+#~ msgid "None available"
+#~ msgstr "Aucun disponible"
+
+#~ msgid "No selected view"
+#~ msgstr "Aucune vue sélectionnée"
+
+#~ msgid "All"
+#~ msgstr "Tout"
+
+#~ msgid "Ok"
+#~ msgstr "Ok"

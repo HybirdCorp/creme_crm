@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing(JS) 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 17:32+0200\n"
+"POT-Creation-Date: 2013-11-22 14:59+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -17,36 +17,51 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 #: static/billing/js/billing.js:462
-msgid "Cancel"
-msgstr "Annuler"
-
-#: static/billing/js/billing.js:463
-msgid "Yes"
-msgstr "Oui"
-
-#: static/billing/js/billing.js:487
 msgid "Do you really want to restore initial values of this line ?"
 msgstr "Voulez vous vraiment réinitialiser les valeurs de cette ligne ?"
 
-#: static/billing/js/billing.js:487
-msgid "Confirmation"
-msgstr "Confirmation"
-
-#: static/billing/js/billing.js:555
+#: static/billing/js/billing.js:580
 msgid "You modified your lines."
 msgstr "Vous avez modifié vos lignes."
 
-#: static/billing/js/billing.js:630
-msgid "Errors report"
-msgstr "Rapport d'erreurs'"
-
-#: static/billing/js/billing.js:648
+#: static/billing/js/billing.js:628
 msgid ""
 "Do you really want to save all the modifications done on the lines of this "
 "document ?"
 msgstr ""
 "Voulez vous vraiment enregistrer toutes les modifications sur les lignes de "
 "ce document ?"
+
+#: static/billing/js/billing.js:644
+msgid "Errors report"
+msgstr "Rapport d'erreurs'"
+
+#: static/billing/js/billing.js:739
+msgid "Pdf file (PDF)"
+msgstr "Fichier Pdf (PDF)"
+
+#: static/billing/js/billing.js:750
+msgid "Select the export format of your billing document"
+msgstr "Sélectionnez le format d'export de votre document comptable"
+
+#: static/billing/js/billing.js:773
+msgid "Who is the source, managed by Creme, for your billing document ?"
+msgstr ""
+"Quelle société, gérée par Crème, souhaitez-vous utiliser pour générer votre "
+"document comptable ?"
+
+#: static/billing/js/billing.js:774
+msgid "Billing"
+msgstr "Facturation"
+
+#~ msgid "Cancel"
+#~ msgstr "Annuler"
+
+#~ msgid "Yes"
+#~ msgstr "Oui"
+
+#~ msgid "Confirmation"
+#~ msgstr "Confirmation"
 
 #~ msgid "Nothing is selected."
 #~ msgstr "Rien n'est sélectionné."

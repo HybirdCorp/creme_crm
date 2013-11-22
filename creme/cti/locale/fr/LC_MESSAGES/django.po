@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:03+0200\n"
+"POT-Creation-Date: 2013-11-21 15:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,75 +19,66 @@ msgstr ""
 msgid "Computer Telephony Integration"
 msgstr "Couplage Téléphonique Informatique"
 
-#: utils.py:37
+#: utils.py:36
 msgid "Call"
 msgstr "Appeler"
 
-#: views.py:54
+#: views.py:59
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
 
-#: views.py:84
+#: views.py:95
 #, python-format
 msgid "Call to %s"
 msgstr "Appel à %s"
 
-#: views.py:88
+#: views.py:99
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succés."
 
-#: views.py:137
+#: views.py:146
 #, python-format
 msgid "Call from %s"
 msgstr "Appel de %s"
 
-#: templates/cti/respond_to_a_call.html:11
+#: templates/cti/respond_to_a_call.html:10
 #, python-format
 msgid "%s Potential caller"
 msgstr "%s Appelant possible"
 
-#: templates/cti/respond_to_a_call.html:11
+#: templates/cti/respond_to_a_call.html:10
 #, python-format
 msgid "%s Potential callers"
 msgstr "%s Appelants possibles"
 
-#: templates/cti/respond_to_a_call.html:11
+#: templates/cti/respond_to_a_call.html:10
 msgid "Caller"
 msgstr "Appelant"
 
-#: templates/cti/respond_to_a_call.html:19
+#: templates/cti/respond_to_a_call.html:17
 msgid "Entity"
 msgstr "Fiche"
 
-#: templates/cti/respond_to_a_call.html:20
+#: templates/cti/respond_to_a_call.html:18
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/cti/respond_to_a_call.html:28
-msgid "Phone call"
-msgstr "Appel téléphonique"
-
-#: templates/cti/respond_to_a_call.html:29
-#: templates/cti/respond_to_a_call.html:33
-#: templates/cti/respond_to_a_call.html:34
+#: templates/cti/respond_to_a_call.html:23
 msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
-#: templates/cti/respond_to_a_call.html:41
+#: templates/cti/respond_to_a_call.html:37
 #, python-format
 msgid "No contact/organisation corresponds to this number : %(number)s"
 msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
-#: templates/cti/respond_to_a_call.html:45
-#: templates/cti/respond_to_a_call.html:46
-#: templates/cti/respond_to_a_call.html:50
-#: templates/cti/respond_to_a_call.html:51
+#: templates/cti/respond_to_a_call.html:38
 msgid "Create a contact"
 msgstr "Créer un contact"
 
-#: templates/cti/respond_to_a_call.html:57
-#: templates/cti/respond_to_a_call.html:58
-#: templates/cti/respond_to_a_call.html:62
-#: templates/cti/respond_to_a_call.html:63
+#: templates/cti/respond_to_a_call.html:50
 msgid "Create an organisation"
 msgstr "Créer une société"
+
+#~ msgid "Phone call"
+#~ msgstr "Appel téléphonique"
