@@ -1,16 +1,34 @@
 # -*- coding: utf-8 -*-
-#import datetime
+
 from south.db import db
-from south.v2 import SchemaMigration
-#from django.db import models
+from south.v2 import DataMigration
 
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
     def forwards(self, orm):
-        db.rename_column('reports_field', 'report_id', 'sub_report_id')
+        report_fields = orm['reports.Field'].objects.all()
+
+        for rfield in report_fields.filter(report__isnull=False):
+            rfield.sub_report_id = rfield.report_id
+            rfield.save()
+
+        for report in orm['reports.Report'].objects.all():
+            for rfield in report.columns.all():
+                rfield.report = report
+                rfield.save()
+
+        #invalid_rfields ; should not be used
+        report_fields.filter(report__isnull=True).delete()
 
     def backwards(self, orm):
-        db.rename_column('reports_field', 'sub_report_id', 'report_id')
+        report_fields = orm['reports.Field'].objects.all()
+
+        for report in orm['reports.Report'].objects.all():
+            report.columns = report_fields.filter(report=report)
+
+        for rfield in report_fields:
+            field.report_id = rfield.sub_report_id
+            rfield.save()
 
     models = {
         'auth.group': {
@@ -85,6 +103,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'order': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'fields'", 'null': 'True', 'to': "orm['reports.Report']"}),
             'selected': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'sub_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['reports.Report']", 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -112,3 +131,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['reports']
+    symmetrical = True

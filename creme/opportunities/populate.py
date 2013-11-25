@@ -235,13 +235,13 @@ class Populator(BasePopulator):
 
         #Create the report -----------------------------------------------------
         opp_report = Report.objects.create(name=report_name, ct=opp_ct, filter=opp_filter, user=admin)
+
         create_field = Field.objects.create
-        opp_report.columns = [create_field(name='name',              title=get_verbose_field_name(Opportunity, 'name'),              order=1, type=RFT_FIELD),
-                              create_field(name='estimated_sales',   title=get_verbose_field_name(Opportunity, 'estimated_sales'),   order=2, type=RFT_FIELD),
-                              create_field(name='made_sales',        title=get_verbose_field_name(Opportunity, 'made_sales'),        order=3, type=RFT_FIELD),
-                              create_field(name='sales_phase__name', title=get_verbose_field_name(Opportunity, 'sales_phase__name'), order=4, type=RFT_FIELD),
-                              create_field(name=rt_obj_emit_orga.id, title=unicode(rt_obj_emit_orga),                                order=5, type=RFT_RELATION),
-                             ]
+        create_field(report=opp_report, name='name',              order=1, type=RFT_FIELD)
+        create_field(report=opp_report, name='estimated_sales',   order=2, type=RFT_FIELD)
+        create_field(report=opp_report, name='made_sales',        order=3, type=RFT_FIELD)
+        create_field(report=opp_report, name='sales_phase__name', order=4, type=RFT_FIELD)
+        create_field(report=opp_report, name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
 
         #Create 2 graphs -------------------------------------------------------
         graph_name1 = _(u"Sum %(estimated_sales)s / %(sales_phase)s") % {

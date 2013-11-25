@@ -91,21 +91,21 @@ def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
     fields = get_model_field_info(model, field_name, silent)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
-def get_function_field_verbose_name(model, function_name):
-    """
-        @Returns : function field's verbose name if found else None
-        /!\ Model has to be a subclass of CremeAbstractEntity
-    """
-    f_field = model.function_fields.get(function_name)
+#def get_function_field_verbose_name(model, function_name):
+    #"""
+        #@Returns : function field's verbose name if found else None
+        #/!\ Model has to be a subclass of CremeAbstractEntity
+    #"""
+    #f_field = model.function_fields.get(function_name)
 
-    if f_field:
-        return unicode(f_field.verbose_name)
+    #if f_field:
+        #return unicode(f_field.verbose_name)
 
-def get_related_field_verbose_name(model, related_field_name):
-    """@returns the verbose name of the model of the related field or None"""
-    for related_field in model._meta.get_all_related_objects():
-        if related_field.var_name == related_field_name:
-            return unicode(related_field.model._meta.verbose_name)
+#def get_related_field_verbose_name(model, related_field_name):
+    #"""@returns the verbose name of the model of the related field or None"""
+    #for related_field in model._meta.get_all_related_objects():
+        #if related_field.var_name == related_field_name:
+            #return unicode(related_field.model._meta.verbose_name)
 
 def get_related_field(model, related_field_name):
     #TODO: use find_first
@@ -201,10 +201,9 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None,
 
     return m2m_instances
 
-#TODO: useless ???
-def filter_entities_on_ct(entities, ct):
-    ct_model_class = ct.model_class()
-    return [entity for entity in entities if isinstance(entity, ct_model_class)]
+#def filter_entities_on_ct(entities, ct):
+    #ct_model_class = ct.model_class()
+    #return [entity for entity in entities if isinstance(entity, ct_model_class)]
 
 def is_date_field(field):
     return isinstance(field, (models.DateTimeField, models.DateField))

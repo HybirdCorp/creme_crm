@@ -283,7 +283,7 @@ creme.reports.unlink_report = function(field_id, block_url) {
 
 /*
     var success_cb = function(data, textStatus, req) {
-        if(block_url && block_url != undefined) {
+        if (block_url && block_url != undefined) {
             creme.utils.loadBlock(block_url);
         }
     };
@@ -299,17 +299,17 @@ creme.reports.unlink_report = function(field_id, block_url) {
 */
 }
 
-creme.reports.link_report = function(report_id, field_id, block_url) {
-    var url = '/reports/report/%s/field/%s/link_report'.format(report_id, field_id);
+creme.reports.link_report = function(field_id, block_url) {
+    var url = '/reports/report/field/%s/link_report'.format(field_id);
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
 }
 
-creme.reports.link_related_report = function(report_id, field_id, block_url) {
-    var url = '/reports/report/%s/field/%s/link_related_report'.format(report_id, field_id);
+creme.reports.link_related_report = function(field_id, block_url) {
+    var url = '/reports/report/field/%s/link_related_report'.format(field_id);
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
 }
 
-creme.reports.link_relation_report = function(report, field, predicate, block_url) {
+creme.reports.link_relation_report = function(field, predicate, block_url) {
     var query = creme.reports.AJAX_BACKEND.query();
 
     query.url('/creme_core/relation/type/%s/content_types/json'.format(predicate))
@@ -326,7 +326,7 @@ creme.reports.link_relation_report = function(report, field, predicate, block_ur
                                     return;
                                 }
 
-                                var url = '/reports/report/%s/field/%s/link_relation_report/%s'.format(report, field, type);
+                                var url = '/reports/report/field/%s/link_relation_report/%s'.format(field, type);
 
                                 creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
                             })
@@ -337,11 +337,10 @@ creme.reports.link_relation_report = function(report, field, predicate, block_ur
      return query;
 }
 
-creme.reports.changeOrder = function(report_id, field_id, direction, block_url) {
+creme.reports.changeOrder = function(field_id, direction, block_url) {
     return creme.reports.doAjaxAction('/reports/report/field/change_order', {
                                           blockReloadUrl: block_url
                                       }, {
-                                          'report_id': report_id,
                                           'field_id': field_id,
                                           'direction': direction
                                       });
@@ -366,11 +365,10 @@ creme.reports.changeOrder = function(report_id, field_id, direction, block_url) 
 */
 }
 
-creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
+creme.reports.setSelected = function(checkbox, field_id, block_url) {
     return creme.reports.doAjaxAction('/reports/report/field/set_selected', {
                                           blockReloadUrl: block_url
                                       }, {
-                                          'report_id': report_id,
                                           'field_id': field_id,
                                           'checked': $(checkbox).is(':checked') ? 1 : 0
                                       });
@@ -397,7 +395,7 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
 creme.reports.toggleDisableOthers = function(me, others) {
     var is_checked = me.checked;//More generic with all node types ?
     $.each(others, function(i, n) {
-        $(n).attr('disabled', is_checked)
+        $(n).attr('disabled', is_checked);
     });
 };
 
@@ -411,7 +409,7 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
         return isNaN(res) ? 0.0 : res;
     }
 
-    for(var index = 0; index < Math.min(ticks.length, values.length); ++index) {
+    for (var index = 0; index < Math.min(ticks.length, values.length); ++index) {
         var tick = ticks[index];
         var value = values[index];
         var item;

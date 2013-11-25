@@ -23,7 +23,7 @@ from itertools import chain
 
 from django.contrib.auth.models import User
 from django.db.models import (CharField, PositiveIntegerField,
-        PositiveSmallIntegerField, BooleanField, ManyToManyField, ForeignKey)
+        PositiveSmallIntegerField, BooleanField, ForeignKey)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -34,13 +34,118 @@ from creme.creme_core.models.fields import EntityCTypeForeignKey
 #logger = logging.getLogger(__name__)
 
 
+class Report(CremeEntity):
+    name   = CharField(_(u'Name of the report'), max_length=100)
+    ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
+    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
+
+    creation_label = _('Add a report')
+    _columns = None
+
+    class Meta:
+        app_label = 'reports'
+        verbose_name = _(u'Report')
+        verbose_name_plural = _(u'Reports')
+        ordering = ('name',)
+
+    def __unicode__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return "/reports/report/%s" % self.id
+
+    def get_edit_absolute_url(self):
+        return "/reports/report/edit/%s" % self.id
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return "/reports/reports"
+
+    @property
+    def columns(self):
+        columns = self._columns
+
+        if columns is None:
+            self._columns = columns = list(self.fields.all())
+
+            for field in columns:
+                field.report = self #pre-cache
+
+        return columns
+
+    def get_ascendants_reports(self):
+        asc_reports = list(Report.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
+                                                                     .values_list('report', flat=True)
+                                                )
+                          )
+
+        for report in asc_reports:
+            asc_reports.extend(report.get_ascendants_reports())
+
+        return set(asc_reports)
+
+    def _fetch(self, limit_to=None, extra_q=None, user=None):
+        user = user or User(is_superuser=True)
+        entities = EntityCredentials.filter(user, self.ct.model_class().objects.filter(is_deleted=False))
+
+        if self.filter is not None:
+            entities = self.filter.filter(entities)
+
+        if extra_q is not None:
+            entities = entities.filter(extra_q)
+
+        fields = self.columns
+
+        return ([field.get_value(entity, scope=entities, user=user)
+                    for field in fields
+                ] for entity in entities[:limit_to]
+               )
+
+    #TODO: transform into generator (--> StreamResponse)
+    def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
+        from ..core.report import ExpandableLine #lazy loading
+
+        lines = []
+
+        for values in self._fetch(limit_to=limit_to, extra_q=extra_q, user=user):
+            lines.extend(ExpandableLine(values).get_lines())
+
+            if limit_to is not None and len(lines) >= limit_to:#Bof
+                break #TODO: test
+
+        return lines
+
+    def get_children_fields_flat(self):
+        return chain.from_iterable(f.get_children_fields_flat() for f in self.columns)
+
+    def _post_save_clone(self, source): #TODO: test
+        for graph in source.reportgraph_set.all():
+            new_graph = graph.clone()
+            new_graph.report = self
+            new_graph.save()
+
+    #TODO: add a similar EntityCell type in creme_core (& so move this code in core)
+    @staticmethod
+    def get_related_fields_choices(model):
+        allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
+        meta = model._meta
+        related_fields = chain(meta.get_all_related_objects(),
+                               meta.get_all_related_many_to_many_objects()
+                              )
+
+        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
+                    for related_field in related_fields
+                        if related_field.var_name in allowed_related_fields
+               ]
+
+
 class Field(CremeModel):
+    report     = ForeignKey(Report, related_name='fields').set_tags(viewable=False)
     name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
-    title      = CharField(max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
     type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> see RFT_* in constants #Add in choices ?
     selected   = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
-    sub_report = ForeignKey("Report", blank=True, null=True).set_tags(viewable=False) #Sub report
+    sub_report = ForeignKey(Report, blank=True, null=True).set_tags(viewable=False) #Sub report
 
     _hand = None
 
@@ -59,7 +164,7 @@ class Field(CremeModel):
                 #)
 
     def __eq__(self, other):
-        return (self.id == other.id and
+        return (self.id == other.id and #TODO id ??
                 self.name == other.name and
                 self.title == other.title and
                 self.order == other.order and
@@ -83,7 +188,7 @@ class Field(CremeModel):
         children = []
 
         if self.selected:
-            for child in self.sub_report.fields:
+            for child in self.sub_report.columns:
                 children.extend(child.get_children_fields_flat())
         else:
             children.append(self)
@@ -99,108 +204,6 @@ class Field(CremeModel):
         """
         return self.hand.get_value(entity, user, scope)
 
-
-class Report(CremeEntity):
-    name    = CharField(_(u'Name of the report'), max_length=100)
-    ct      = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
-    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), 
-                              related_name='report_columns_set', editable=False,
-                             ) #TODO: use a One2Many instead....
-    filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
-
-    creation_label = _('Add a report')
-    _report_fields_cache = None
-
-    class Meta:
-        app_label = 'reports'
-        verbose_name = _(u'Report')
-        verbose_name_plural = _(u'Reports')
-        ordering = ('name',)
-
-    def __unicode__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return "/reports/report/%s" % self.id
-
-    def get_edit_absolute_url(self):
-        return "/reports/report/edit/%s" % self.id
-
-    @staticmethod
-    def get_lv_absolute_url():
-        return "/reports/reports"
-
     @property
-    def fields(self):
-        fields = self._report_fields_cache
-
-        if fields is None:
-            self._report_fields_cache = fields = self.columns.all()
-
-        return fields
-
-    def get_ascendants_reports(self):
-        fields = Field.objects.filter(sub_report=self.id)
-        asc_reports = []
-
-        for field in fields:
-            asc_reports.extend(Report.objects.filter(columns__id=field.id))
-
-        for report in asc_reports:
-            asc_reports.extend(report.get_ascendants_reports())
-
-        return set(asc_reports)
-
-    def _fetch(self, limit_to=None, extra_q=None, user=None):
-        user = user or User(is_superuser=True)
-        entities = EntityCredentials.filter(user, self.ct.model_class().objects.filter(is_deleted=False))
-
-        if self.filter is not None:
-            entities = self.filter.filter(entities)
-
-        if extra_q is not None:
-            entities = entities.filter(extra_q)
-
-        fields = self.fields
-
-        return ([field.get_value(entity, scope=entities, user=user)
-                    for field in fields
-                ] for entity in entities[:limit_to]
-               )
-
-    #TODO: transform into generator (--> StreamResponse)
-    def fetch_all_lines(self, limit_to=None, extra_q=None, user=None):
-        from ..core.report import ExpandableLine #lazy loading
-
-        lines = []
-
-        for values in self._fetch(limit_to=limit_to, extra_q=extra_q, user=user):
-            lines.extend(ExpandableLine(values).get_lines())
-
-            if limit_to is not None and len(lines) >= limit_to:#Bof
-                break #TODO: test
-
-        return lines
-
-    def get_children_fields_flat(self):
-        return chain.from_iterable(f.get_children_fields_flat() for f in self.fields)
-
-    def _post_save_clone(self, source): #TODO: test
-        for graph in source.reportgraph_set.all():
-            new_graph = graph.clone()
-            new_graph.report = self
-            new_graph.save()
-
-    #TODO: add a similar EntityCell type in creme_core (& so move this code in core)
-    @staticmethod
-    def get_related_fields_choices(model):
-        allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
-        meta = model._meta
-        related_fields = chain(meta.get_all_related_objects(),
-                               meta.get_all_related_many_to_many_objects()
-                              )
-
-        return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
-                    for related_field in related_fields
-                        if related_field.var_name in allowed_related_fields
-               ]
+    def title(self):
+        return self.hand.title
