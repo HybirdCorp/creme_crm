@@ -846,9 +846,9 @@ class ReportTestCase(BaseReportsTestCase):
         img_report = self._build_image_report()
 
         url_fmt = '/reports/report/field/%s/link_report'
-        self.assertGET404(url_fmt % rfields[3].id) #not a RFT_FIELD Field
-        self.assertGET404(url_fmt % rfields[0].id) #not a FK field
-        self.assertGET404(url_fmt % rfields[1].id) #not a FK to a CremeEntity
+        self.assertGET409(url_fmt % rfields[3].id) #not a RFT_FIELD Field
+        self.assertGET409(url_fmt % rfields[0].id) #not a FK field
+        self.assertGET409(url_fmt % rfields[1].id) #not a FK to a CremeEntity
 
         rfield = rfields[2]
         url = url_fmt % rfield.id
@@ -863,7 +863,7 @@ class ReportTestCase(BaseReportsTestCase):
         rfield.save()
         url = '/reports/report/field/unlink_report'
         self.assertGET404(url)
-        self.assertPOST404(url, data={'field_id': rfields[0].id})
+        self.assertPOST409(url, data={'field_id': rfields[0].id})
         self.assertPOST200(url, data={'field_id': rfield.id})
 
         rfield = self.refresh(rfield)
@@ -887,8 +887,8 @@ class ReportTestCase(BaseReportsTestCase):
         orga_report = self._build_orga_report()
 
         url_fmt = '/reports/report/field/%s/link_relation_report/%s'
-        self.assertGET404(url_fmt % (reg_rfield.id, orga_ct.id)) #not a RFT_RELATION Field
-        self.assertGET404(url_fmt % (rel_rfield.id, get_ct(Image).id)) #ct not compatible
+        self.assertGET409(url_fmt % (reg_rfield.id, orga_ct.id)) #not a RFT_RELATION Field
+        self.assertGET409(url_fmt % (rel_rfield.id, get_ct(Image).id)) #ct not compatible
 
         url = url_fmt % (rel_rfield.id, orga_ct.id)
         self.assertGET200(url)
@@ -915,7 +915,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=doc_report, name="description", title='Description', order=2)
 
         url_fmt = '/reports/report/field/%s/link_related_report'
-        self.assertGET404(url_fmt % rfield1.id) #not a RFT_RELATION Field
+        self.assertGET409(url_fmt % rfield1.id) #not a RFT_RELATION Field
 
         url = url_fmt % rfield2.id
         self.assertGET200(url)
@@ -969,7 +969,7 @@ class ReportTestCase(BaseReportsTestCase):
                 'field_id':  reg_rfield.id,
                 'checked':   1,
                }
-        self.assertPOST404(url, data=data)
+        self.assertPOST409(url, data=data)
 
         data['field_id'] = fk_rfield.id
         self.assertPOST200(url, data=data)

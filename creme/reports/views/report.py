@@ -28,6 +28,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 #jsonify
 from creme.creme_core.utils.date_range import date_range_registry
@@ -80,7 +81,7 @@ def unlink_report(request):
     has_perm_or_die(field.report)
 
     if field.sub_report is None:
-        raise Http404('This field has no sub-report') #TODO: ConflictError
+        raise ConflictError('This field has no sub-report')
 
     has_perm_or_die(field.sub_report)
 
@@ -118,7 +119,7 @@ def link_report(request, field_id):
     field = get_object_or_404(Field, pk=field_id)
 
     if field.type != RFT_FIELD:
-        raise Http404('This does not represent a model field') #TODO: ConflictError
+        raise ConflictError('This does not represent a model field')
 
     #TODO: use report hand here
     for info in get_model_field_info(field.report.ct.model_class(), field.name):
@@ -126,12 +127,12 @@ def link_report(request, field_id):
             model = info['model']
             break
     else:
-        raise Http404('This field is not a ForeignKey/ManyToManyField') #TODO: ConflictError
+        raise ConflictError('This field is not a ForeignKey/ManyToManyField')
 
     ct = ContentType.objects.get_for_model(model)
 
     if not issubclass(model, CremeEntity):
-        raise Http404('The related model does not inherit CremeEntity') #TODO: ConflictError
+        raise ConflictError('The related model does not inherit CremeEntity')
 
     return _link_report_aux(request, field, ct)
 
@@ -141,12 +142,12 @@ def link_relation_report(request, field_id, ct_id):
     rfield = get_object_or_404(Field, pk=field_id)
 
     if rfield.type != RFT_RELATION:
-        raise Http404('This does not represent a Relationship') #TODO: ConflictError
+        raise ConflictError('This does not represent a Relationship')
 
     ct = get_ct_or_404(ct_id)
 
     if not RelationType.objects.get(symmetric_type=rfield.name).is_compatible(ct.id):
-        raise Http404('This ContentType is not compatible with the RelationType') #TODO: ConflictError
+        raise ConflictError('This ContentType is not compatible with the RelationType')
 
     return _link_report_aux(request, rfield, ct)
 
@@ -156,13 +157,13 @@ def link_related_report(request, field_id):
     rfield = get_object_or_404(Field, pk=field_id)
 
     if rfield.type != RFT_RELATED:
-        raise Http404('This does not represent a related model') #TODO: ConflictError
+        raise ConflictError('This does not represent a related model')
 
     related_field = get_related_field(rfield.report.ct.model_class(), rfield.name)
 
     if related_field is None:
         #should not happen (if form is not buggy of course)
-        raise Http404('This field is invalid') #TODO: ConflictError
+        raise ConflictError('This field is invalid')
 
     return _link_report_aux(request, rfield, ContentType.objects.get_for_model(related_field.model))
 
@@ -246,7 +247,7 @@ def set_selected(request):
     rfield = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
 
     if not rfield.sub_report_id:
-        raise Http404('This Field has no Report, so can no be (un)selected') #TODO: ConflictError
+        raise ConflictError('This Field has no Report, so can no be (un)selected')
 
     report = rfield.report
 
