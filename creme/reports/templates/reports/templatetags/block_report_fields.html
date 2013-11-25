@@ -47,12 +47,11 @@
                         <td class="{{row_color}}">{{column}}</td>
                         <td class="{{row_color}}">
                         {% if sub_report %}
-                            {% trans "Columns of" %} : <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.fields|join:", "}})
+                            {% trans "Columns of" %} : <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:", "}})
                         {% else %}
                             {% trans "Value" %}
                         {% endif %}
                         </td>
-                        {% comment %}<td class="{{row_color}}">{{column.type|get_verbose_type}}</td>{% endcomment %}
                         <td class="{{row_color}}">{{column.hand.verbose_name}}</td>
                         <td class="{{row_color}} action">
                             <table style="width: 100%;">
@@ -68,7 +67,7 @@
                                                     {% endif %}
                                                 {% elif column|is_field_is_linkable:object.ct %}
                                                     {% if link_perm %}
-                                                        <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                        <a onclick="creme.reports.link_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                     {% else %}
                                                         <span class="forbidden">{% trans 'Link a report' %}</span>
                                                     {% endif %}
@@ -81,7 +80,7 @@
                                                         <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                     {% endif %}
                                                 {% elif link_perm %}
-                                                    <a onclick="creme.reports.link_related_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                    <a onclick="creme.reports.link_related_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Link a report' %}</span>
                                                 {% endif %}
@@ -93,7 +92,7 @@
                                                         <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                     {% endif %}
                                                 {% elif link_perm %}
-                                                    <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                    <a onclick="creme.reports.link_relation_report('{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Link a report' %}</span>
                                                 {% endif %}
@@ -102,17 +101,16 @@
                                         <td style="width: 33%;" align="center" valign="middle">
                                             {% if column.order != 1 %}{% trans "Column up" as up_label %}
                                                 {% if has_perm %}
-                                                    <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
+                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'up', {% get_block_reload_uri %});">
                                                         <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                                     </a>
                                                 {% else %}
                                                     <img class="forbidden" src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                                 {% endif %}
                                             {% endif %}<br/>
-                                            {% comment %}{% if column.order != object.columns.count %}{% trans "Column down" as down_label %}{% endcomment %}
                                             {% if column.order != columns|length %}{% trans "Column down" as down_label %}
                                                 {% if has_perm %}
-                                                    <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
+                                                    <a onclick="creme.reports.changeOrder('{{column.pk}}', 'down', {% get_block_reload_uri %});">
                                                         <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
                                                     </a>
                                                 {% else %}
@@ -126,8 +124,8 @@
                         </td>
                         {% if expand %}
                             <td class="{{row_color}} action">
-                                {% if sub_report %}
-                                    <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
+                                {% if sub_report %}{% comment %}TODO: use {% get_block_reload_uri %}{% endcomment %}
+                                    <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
                                 {% endif %}
                             </td>
                         {% endif %}

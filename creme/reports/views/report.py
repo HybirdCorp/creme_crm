@@ -29,11 +29,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, RelationType
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 #jsonify
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                             list_view, inner_popup, add_to_entity)
 from creme.creme_core.utils.meta import get_model_field_info, get_related_field #ModelFieldEnumerator
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 #jsonify
 from creme.creme_core.registry import export_backend_registry
 
 from ..constants import RFT_FIELD, RFT_RELATION, RFT_RELATED
@@ -75,41 +75,37 @@ def listview(request):
 def unlink_report(request):
     field = get_object_or_404(Field, pk=get_from_POST_or_404(request.POST, 'field_id'))
 
-    try: #TODO: will be deleted when M2M has been replaced by a FK...
-        current_report = field.report_columns_set.all()[0]
-    except IndexError:
-        pass #Should never get here...
-    else:
-        has_perm_or_die = request.user.has_perm_to_unlink_or_die
-        has_perm_or_die(current_report)
+    #TODO: odd credentials ?! (only edit on field.report ??)
+    has_perm_or_die = request.user.has_perm_to_unlink_or_die
+    has_perm_or_die(field.report)
 
-        if field.sub_report is None:
-            raise Http404('This field has no sub-report') #TODO: ConflictError
+    if field.sub_report is None:
+        raise Http404('This field has no sub-report') #TODO: ConflictError
 
-        has_perm_or_die(field.sub_report)
+    has_perm_or_die(field.sub_report)
 
-        field.sub_report = None
-        field.selected = False
-        field.save()
+    field.sub_report = None
+    field.selected = False
+    field.save()
 
     return HttpResponse("", mimetype="text/javascript")
 
-def _link_report(request, report, field, ct):
+def _link_report_aux(request, rfield, ct):
     user = request.user
 
-    user.has_perm_to_link_or_die(report)
+    user.has_perm_to_link_or_die(rfield.report)
 
     if request.method == 'POST':
-        link_form = LinkFieldToReportForm(report, field, ct, user=user, data=request.POST)
+        link_form = LinkFieldToReportForm(rfield, ct, user=user, data=request.POST)
 
         if link_form.is_valid():
             link_form.save()
     else:
-        link_form = LinkFieldToReportForm(report=report, field=field, ct=ct, user=user)
+        link_form = LinkFieldToReportForm(field=rfield, ct=ct, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':   link_form,
-                        'title': _(u'Link of the column <%s>') % field,
+                        'title': _(u'Link of the column <%s>') % rfield,
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
@@ -118,15 +114,14 @@ def _link_report(request, report, field, ct):
 
 @login_required
 @permission_required('reports')
-def link_report(request, report_id, field_id):
+def link_report(request, field_id):
     field = get_object_or_404(Field, pk=field_id)
 
     if field.type != RFT_FIELD:
         raise Http404('This does not represent a model field') #TODO: ConflictError
 
-    report = get_object_or_404(Report, pk=report_id)
-
-    for info in get_model_field_info(report.ct.model_class(), field.name):
+    #TODO: use report hand here
+    for info in get_model_field_info(field.report.ct.model_class(), field.name):
         if isinstance(info['field'], (ForeignKey, ManyToManyField)):
             model = info['model']
             break
@@ -138,11 +133,11 @@ def link_report(request, report_id, field_id):
     if not issubclass(model, CremeEntity):
         raise Http404('The related model does not inherit CremeEntity') #TODO: ConflictError
 
-    return _link_report(request, report, field, ct)
+    return _link_report_aux(request, field, ct)
 
 @login_required
 @permission_required('reports')
-def link_relation_report(request, report_id, field_id, ct_id):
+def link_relation_report(request, field_id, ct_id):
     rfield = get_object_or_404(Field, pk=field_id)
 
     if rfield.type != RFT_RELATION:
@@ -153,32 +148,23 @@ def link_relation_report(request, report_id, field_id, ct_id):
     if not RelationType.objects.get(symmetric_type=rfield.name).is_compatible(ct.id):
         raise Http404('This ContentType is not compatible with the RelationType') #TODO: ConflictError
 
-    report = get_object_or_404(Report, pk=report_id)
-
-    return _link_report(request, report, rfield, ct)
+    return _link_report_aux(request, rfield, ct)
 
 @login_required
 @permission_required('reports')
-def link_related_report(request, report_id, field_id):
-    rfield  = get_object_or_404(Field,  pk=field_id)
+def link_related_report(request, field_id):
+    rfield = get_object_or_404(Field, pk=field_id)
 
     if rfield.type != RFT_RELATED:
         raise Http404('This does not represent a related model') #TODO: ConflictError
 
-    report = get_object_or_404(Report, pk=report_id)
-
-    if report.id not in rfield.report_columns_set.values_list('pk', flat=True):
-        return HttpResponse("", status=403, mimetype="text/javascript")
-
-    related_field = get_related_field(report.ct.model_class(), rfield.name)
+    related_field = get_related_field(rfield.report.ct.model_class(), rfield.name)
 
     if related_field is None:
         #should not happen (if form is not buggy of course)
         raise Http404('This field is invalid') #TODO: ConflictError
 
-    ct = ContentType.objects.get_for_model(related_field.model)
-
-    return _link_report(request, report, rfield, ct)
+    return _link_report_aux(request, rfield, ContentType.objects.get_for_model(related_field.model))
 
 @login_required
 @permission_required('reports')
@@ -196,18 +182,15 @@ _order_direction = {
 @permission_required('reports')
 def change_field_order(request):
     POST = request.POST
-    report = get_object_or_404(Report, pk=get_from_POST_or_404(POST,'report_id'))
-    field  = get_object_or_404(Field,  pk=get_from_POST_or_404(POST,'field_id'))
+    field = get_object_or_404(Field, pk=get_from_POST_or_404(POST, 'field_id'))
     direction = POST.get('direction', 'up')
-
-    if report.id not in field.report_columns_set.values_list('pk', flat=True):
-        return HttpResponse("", status=403, mimetype="text/javascript")
+    report = field.report
 
     request.user.has_perm_to_change_or_die(report)
 
-    field.order =  field.order + _order_direction[direction]
+    field.order = field.order + _order_direction[direction] #TODO: manage bad direction arg
     try:
-        other_field = report.columns.get(order=field.order)
+        other_field = report.fields.get(order=field.order)
     except Field.DoesNotExist:
         return HttpResponse("", status=403, mimetype="text/javascript")
 
@@ -252,7 +235,7 @@ def preview(request, report_id):
                    'form':     filter_form,
                    'start':    start,
                    'end':      end,
-                   },
+                  },
                  )
 
 #TODO: jsonify ?
@@ -265,11 +248,7 @@ def set_selected(request):
     if not rfield.sub_report_id:
         raise Http404('This Field has no Report, so can no be (un)selected') #TODO: ConflictError
 
-    #TODO: remove this sh*t when M2M is become a O2M
-    report = get_object_or_404(Report, pk=get_from_POST_or_404(POST, 'report_id'))
-
-    if report.id not in rfield.report_columns_set.values_list('pk', flat=True):
-        return HttpResponse("Forbidden", status=403, mimetype="text/javascript")
+    report = rfield.report
 
     request.user.has_perm_to_change_or_die(report)
 
@@ -280,7 +259,7 @@ def set_selected(request):
 
     if rfield.selected != checked:
         if checked: #Only one Field should be selected
-            report.columns.exclude(pk=rfield.pk).update(selected=False)
+            report.fields.exclude(pk=rfield.pk).update(selected=False)
 
         rfield.selected = checked
         rfield.save()

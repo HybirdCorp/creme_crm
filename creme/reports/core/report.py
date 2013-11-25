@@ -73,6 +73,7 @@ class ReportHand(object):
 
     def __init__(self, report_field):
         self._report_field = report_field
+        self._title = '??'
 
     def _get_customfield(self, cf_id):
         cf = getattr(self, 'custom_field_cache', None)
@@ -92,7 +93,7 @@ class ReportHand(object):
 
     def _handle_report_values(self, entity, user, scope):
         "@param entity CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.fields]
+        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
 
     def _get_value(self, entity, user, scope):
         raise NotImplementedError
@@ -106,13 +107,21 @@ class ReportHand(object):
         else:
             value = self._get_value(entity, user, scope)
 
-        return u'' if value is None else value 
+        return u'' if value is None else value
+
+    @property
+    def title(self):
+        return self._title
 
 
 #TODO: split for M2M etc... (__new__ ??)
 @REPORT_HANDS_MAP(RFT_FIELD)
 class RHRegularField(ReportHand):
     verbose_name = _(u'Regular field')
+
+    def __init__(self, report_field):
+        super(RHRegularField, self).__init__(report_field)
+        self._title = get_verbose_field_name(report_field.report.ct.model_class(), report_field.name)
 
     def _get_value(self, entity, user, scope):
         column_name = self._report_field.name
@@ -135,8 +144,8 @@ class RHRegularField(ReportHand):
                     get_verbose_name = partial(get_verbose_field_name, model=report.ct.model_class(), separator="-")
 
                     return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
-                                                                get_instance_field_info(sub_entity, sub_column.name)[1] or u'' #empty_value
-                                                                ) for sub_column in report.fields
+                                                              get_instance_field_info(sub_entity, sub_column.name)[1] or u'' #empty_value
+                                                             ) for sub_column in report.columns
                                                 ) for sub_entity in m2m_entities
                                         ) #or empty_value
 
@@ -159,7 +168,7 @@ class RHRegularField(ReportHand):
 
                     return " - ".join(u"%s: %s" % (get_verbose_field_name(field_name=sub_column.name, model=report.ct.model_class(), separator="-"),
                                                    get_instance_field_info(fk_entity, sub_column.name)[1] or u'' #empty_value
-                                                  ) for sub_column in report.fields
+                                                  ) for sub_column in report.columns
                                         )
 
             return unicode(get_fk_entity(entity, column_name, user=user, get_value=True) or u'') #empty_value
@@ -177,8 +186,15 @@ class RHRegularField(ReportHand):
 class RHCustomField(ReportHand):
     verbose_name = _(u'Custom field')
 
+    def __init__(self, report_field):
+        super(RHCustomField, self).__init__(report_field)
+        self._cfield = cf = self._get_customfield(report_field.name)
+
+        if cf:
+            self._title = cf.name
+
     def _get_value(self, entity, user, scope):
-        cf = self._get_customfield(self._report_field.name)
+        cf = self._cfield
 
         if cf:
             return entity.get_custom_value(cf) if user.has_perm_to_view(entity) else settings.HIDDEN_VALUE
@@ -188,34 +204,42 @@ class RHCustomField(ReportHand):
 class RHRelation(ReportHand):
     verbose_name = _(u'Relationship')
 
+    def __init__(self, report_field):
+        super(RHRelation, self).__init__(report_field)
+        rtype_id = report_field.name
+
+        try:
+            rtype = RelationType.objects.get(id=rtype_id)
+        except RelationType.DoesNotExist: #TODO: test
+            #TODO: remove the Field ?? Notify the user
+            logger.warn('Field.get_value(): RelationType "%s" does not exist any more', rtype_id)
+            rtype = None
+        else:
+            self._title = unicode(rtype.predicate)
+
+        self._rtype = rtype
+
     def _get_value(self, entity, user, scope):
-        column_name = self._report_field.name
-        report = self._report_field.sub_report
+        rtype = self._rtype
 
-        rtype = getattr(self, 'rtype_cache', None)
-
-        if rtype is None: #'None' means RelationType has not been retrieved yet
-            rtype = False #'False' means RelationType is unfoundable
-
-            try:
-                rtype = RelationType.objects.get(symmetric_type=column_name)
-            except RelationType.DoesNotExist: #TODO: test
-                #TODO: remove the Field ?? Notify the user
-                logger.warn('Field.get_value(): RelationType "%s" does not exist any more', column_name)
-
-            self.rtype_cache = rtype
+        report_field = self._report_field
+        report = report_field.sub_report
 
         if report:
             sub_model = report.ct.model_class()
-            related_entities = EntityCredentials.filter(user, sub_model.objects.filter(relations__type=rtype,
-                                                                                       relations__object_entity=entity.id,
-                                                                                      )
-                                                       )
 
-            if report.filter is not None:
-                related_entities = report.filter.filter(related_entities)
+            if rtype is None:
+                related_entities = ()
+            else:
+                related_entities = EntityCredentials.filter(user, sub_model.objects.filter(relations__type=rtype.symmetric_type,
+                                                                                           relations__object_entity=entity.id,
+                                                                                          )
+                                                           )
 
-            if self._report_field.selected:
+                if report.filter is not None:
+                    related_entities = report.filter.filter(related_entities)
+
+            if report_field.selected:
                 gen_values = self._handle_report_values
                 #if sub-scope if empty, with must generate empty columns for this line
                 return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
@@ -225,7 +249,7 @@ class RHRelation(ReportHand):
                 #TODO: !!!WORK ONLY WITH RFT_FIELD columns !! (& maybe this work is already done by get_value())
                 return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                           get_instance_field_info(sub_entity, sub_column.name)[1] or u''
-                                                         ) for sub_column in report.fields
+                                                         ) for sub_column in report.columns
                                             ) for sub_entity in related_entities
                                  )
 
@@ -233,57 +257,82 @@ class RHRelation(ReportHand):
             #TODO: filter queryset instead ??
             has_perm = user.has_perm_to_view
 
-            return u', '.join(unicode(e) for e in entity.get_related_entities(column_name, True) if has_perm(e)) #or empty_value
+            return u', '.join(unicode(e) for e in entity.get_related_entities(report_field.name, True) if has_perm(e)) #or empty_value
 
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
 class RHFunctionField(ReportHand):
     verbose_name = _(u'Function field') #TODO: homogenous with HeaderFilter ??
 
+    def __init__(self, report_field):
+        super(RHFunctionField, self).__init__(report_field)
+        self._funcfield = funcfield = report_field.report.ct.model_class().function_fields.get(report_field.name)
+
+        if funcfield:
+            self._title = unicode(funcfield.verbose_name)
+
     def _get_value(self, entity, user, scope):
         if not user.has_perm_to_view(entity):
             return settings.HIDDEN_VALUE
 
-        funfield = entity.function_fields.get(self._report_field.name) #TODO: in a cache ??
+        funfield = self._funcfield
 
         #TODO: delete column when funfield is invalid ??
         return funfield(entity).for_csv() if funfield else ugettext("Problem with function field")
 
 
+#TODO: separate RFT_REGULAR_CALCULATED & RFT_CUSTOM_CALCULATED cases
 @REPORT_HANDS_MAP(RFT_CALCULATED)
 class RHCalculated(ReportHand):
     verbose_name = _(u'Calculated value')
 
-    def _get_value(self, entity, user, scope):
-        column_name = self._report_field.name
+    def __init__(self, report_field):
+        super(RHCalculated, self).__init__(report_field)
 
         #TODO: factorise with form code (_get_calculated_title)
-        field_name, sep, aggregate = column_name.rpartition('__')
+        field_name, sep, aggregate = report_field.name.rpartition('__')
         aggregation = field_aggregation_registry.get(aggregate)
+        self._aggregation_q = None
 
         if aggregation is not None: #TODO: notify that an error happened ??
-            #TODO: cache result
+            verbose_name = '??'
+
             if field_name.startswith('cf__'):
                 prefix, cf_type, cf_id = field_name.split('__') #TODO: the type is not useful anymore (datamigration...)
                 cfield = self._get_customfield(cf_id)
 
                 if cfield:
-                    return scope.aggregate(custom_agg=aggregation.func('%s__value' % cfield.get_value_class().get_related_name())) \
-                                .get('custom_agg') or 0
+                    self._aggregation_q = aggregation.func('%s__value' % cfield.get_value_class().get_related_name())
+                    verbose_name = cfield.name
+
             else: #regular field
-                return scope.aggregate(aggregation.func(field_name)).get(column_name) or 0
+                #TODO: test field validity
+                self._aggregation_q = aggregation.func(field_name)
+                verbose_name = get_verbose_field_name(report_field.report.ct.model_class(), field_name)
+
+            self._title = u'%s - %s' % (aggregation.title, verbose_name)
+
+    def _get_value(self, entity, user, scope):
+        if self._aggregation_q:
+            return scope.aggregate(rh_calculated_agg=self._aggregation_q).get('rh_calculated_agg') or 0
 
 
 @REPORT_HANDS_MAP(RFT_RELATED)
 class RHRelated(ReportHand):
     verbose_name = _(u'Related field')
 
+    def __init__(self, report_field):
+        super(RHRelated, self).__init__(report_field)
+        #TODO: test validity...
+        related_field = get_related_field(report_field.report.ct.model_class(), report_field.name)
+        self._attr_name = related_field.get_accessor_name()
+        self._title = unicode(related_field.model._meta.verbose_name)
+
     def _get_value(self, entity, user, scope): #TODO: factorise with RHRelation
         report = self._report_field.sub_report
         related_entities = EntityCredentials.filter(
                                 user,
-                                getattr(entity, get_related_field(entity.__class__, self._report_field.name).get_accessor_name())
-                                        .filter(is_deleted=False)
+                                getattr(entity, self._attr_name).filter(is_deleted=False)
                             )
 
         if report:
@@ -298,7 +347,7 @@ class RHRelated(ReportHand):
 
                 return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
                                                           get_instance_field_info(sub_entity, sub_column.name)[1] or u''
-                                                         ) for sub_column in report.fields
+                                                         ) for sub_column in report.columns
                                             ) for sub_entity in related_entities
                                  )
 

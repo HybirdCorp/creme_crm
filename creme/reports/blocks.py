@@ -39,10 +39,8 @@ class ReportFieldsBlock(Block):
         report = context['object']
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                                            #columns=report.columns.all(),
-                                                            columns=report.fields,
-                                                            #expand=any(field.report_id for field in report.columns.all()),
-                                                            expand=any(field.sub_report_id for field in report.fields),
+                                                            columns=report.columns,
+                                                            expand=any(field.sub_report_id for field in report.columns),
                                                             RFT_FIELD=RFT_FIELD,
                                                             RFT_RELATION=RFT_RELATION,
                                                             RFT_RELATED=RFT_RELATED,

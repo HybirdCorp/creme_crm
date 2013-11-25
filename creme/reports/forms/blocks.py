@@ -54,7 +54,7 @@ class GraphInstanceBlockForm(CremeForm):
         results = []
         targets = defaultdict(list)
 
-        for column in report.columns.filter(type__in=[RFT_FIELD, RFT_RELATION]):
+        for column in report.fields.filter(type__in=[RFT_FIELD, RFT_RELATION]):
             targets[column.type].append(column)
 
         cts = list(creme_entity_cts) #TODO: frozenset ??

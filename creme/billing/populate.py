@@ -231,10 +231,9 @@ class Populator(BasePopulator):
             self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
 
     def create_reports(self, rt_sub_bill_received, resulted, resulted_collection):
+        from functools import partial
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
-
-        from creme.creme_core.utils.meta import get_verbose_field_name
 
         from creme.reports.models import Report, Field, ReportGraph
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
@@ -254,16 +253,15 @@ class Populator(BasePopulator):
                                                            EntityFilterCondition.build_4_field(model=Invoice, operator=EntityFilterCondition.EQUALS_NOT, name='status', values=[resulted.pk, resulted_collection.pk]),
                                                           ])
 
-        def create_report_columns():
-            create_field = Field.objects.create
-            return [create_field(name='name',                  title=get_verbose_field_name(Invoice, 'name'),            order=1, type=RFT_FIELD),
-                    create_field(name=rt_sub_bill_received.id, title=unicode(rt_sub_bill_received),                      order=2, type=RFT_RELATION),
-                    create_field(name='number',                title=get_verbose_field_name(Invoice, 'number'),          order=3, type=RFT_FIELD),
-                    create_field(name='status',                title=get_verbose_field_name(Invoice, 'status'),          order=4, type=RFT_FIELD),
-                    create_field(name='total_no_vat',          title=get_verbose_field_name(Invoice, 'total_no_vat'),    order=5, type=RFT_FIELD),
-                    create_field(name='issuing_date',          title=get_verbose_field_name(Invoice, 'issuing_date'),    order=6, type=RFT_FIELD),
-                    create_field(name='expiration_date',       title=get_verbose_field_name(Invoice, 'expiration_date'), order=7, type=RFT_FIELD),
-                   ]
+        def create_report_columns(report):
+            create_field = partial(Field.objects.create, report=report)
+            create_field(name='name',                  order=1, type=RFT_FIELD)
+            create_field(name=rt_sub_bill_received.id, order=2, type=RFT_RELATION)
+            create_field(name='number',                order=3, type=RFT_FIELD)
+            create_field(name='status',                order=4, type=RFT_FIELD)
+            create_field(name='total_no_vat',          order=5, type=RFT_FIELD)
+            create_field(name='issuing_date',          order=6, type=RFT_FIELD)
+            create_field(name='expiration_date',       order=7, type=RFT_FIELD)
 
         create_graph = ReportGraph.objects.create
 
@@ -273,7 +271,7 @@ class Populator(BasePopulator):
             Report.objects.get(name=report_name, ct=invoice_ct)
         except:
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_invoice_filter, user=admin)
-            invoices_report.columns = create_report_columns()
+            create_report_columns(invoices_report)
 
             rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"), report=invoices_report, abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False, user=admin)
             create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"), report=invoices_report, abscissa='status',       ordinate='total_no_vat__sum', type=RGT_FK,    is_count=False, user=admin)
@@ -289,7 +287,7 @@ class Populator(BasePopulator):
             Report.objects.get(name=report_name, ct=invoice_ct)
         except:
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_unpaid_invoice_filter, user=admin)
-            invoices_report.columns = create_report_columns()
+            create_report_columns(invoices_report)
 
             rgraph = create_graph(name=_(u"Sum of current year and unpaid invoices total without taxes / month"),
                                   report=invoices_report, user=admin,
