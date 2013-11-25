@@ -148,6 +148,9 @@ class _CremeTestCase(object):
     def assertGET404(self, *args, **kwargs):
         return self.assertGET(404, *args, **kwargs)
 
+    def assertGET409(self, *args, **kwargs):
+        return self.assertGET(409, *args, **kwargs)
+
     def assertPOST(self, expected_status, *args, **kwargs):
         response = self.client.post(*args, **kwargs)
         self.assertEqual(expected_status, response.status_code)
@@ -162,6 +165,9 @@ class _CremeTestCase(object):
 
     def assertPOST404(self, *args, **kwargs):
         return self.assertPOST(404, *args, **kwargs)
+
+    def assertPOST409(self, *args, **kwargs):
+        return self.assertPOST(409, *args, **kwargs)
 
     def assertRedirectsToLogin(self, response, url):
         self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
