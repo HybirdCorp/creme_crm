@@ -54,7 +54,8 @@ _CFIELD_PREFIX = 'cf__'
 
 def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: move to utils ?? as protected method ??
     for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                         field_type__in=[CustomField.INT, CustomField.FLOAT]
+                                         #field_type__in=[CustomField.INT, CustomField.FLOAT]
+                                         field_type__in=field_aggregation_registry.authorized_customfields,
                                         ):
         yield ('%s%s__%s' % (_CFIELD_PREFIX, cf.field_type, aggregate_pattern % cf.id),
                cf.name

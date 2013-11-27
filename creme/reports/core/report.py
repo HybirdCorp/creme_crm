@@ -22,13 +22,14 @@ from functools import partial
 import logging
 
 from django.conf import settings
-from django.db.models import ManyToManyField, ForeignKey
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ManyToManyField, ForeignKey, FieldDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import RelationType, CustomField
-from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
-        get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
+from creme.creme_core.models import CremeEntity, RelationType, CustomField
+from creme.creme_core.utils.meta import (get_instance_field_info,
+        get_model_field_info, get_related_field, get_verbose_field_name)
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_CALCULATED, RFT_RELATED)
@@ -71,37 +72,98 @@ class ReportHand(object):
     "Class that computes values of a report column"
     verbose_name = 'OVERLOADME'
 
-    def __init__(self, report_field):
+    class ValueError(Exception):
+        pass
+
+    def __init__(self, report_field, title, support_subreport=False):
         self._report_field = report_field
-        self._title = '??'
+        self._title = title
 
-    def _get_customfield(self, cf_id):
-        cf = getattr(self, 'custom_field_cache', None)
+        #build the 'self._get_value' atribute (see get_value() method)
+        if support_subreport:
+            if report_field.sub_report:
+                get_value = self._get_value_extended_subreport if report_field.selected else \
+                            self._get_value_flattened_subreport
+            else:
+                get_value = self._get_value_no_subreport
+        else:
+            get_value = self._get_value_single
 
-        if cf is None: #'None' means CustomField has not been retrieved yet
-            cf = False #'False' means CustomField is unfoundable
+        self._get_value = get_value
 
-            try:
-                cf = CustomField.objects.get(id=cf_id)
-            except CustomField.DoesNotExist:
-                #TODO: remove the Field ??
-                logger.debug('CustomField "%s" does not exist any more', cf_id)
+    def _generate_flattened_report(self, entities):
+        report = self._report_field.sub_report
+        get_verbose_name = partial(get_verbose_field_name, model=report.ct.model_class(), separator="-")
 
-            self.custom_field_cache = cf
+        #TODO: !!!WORK ONLY WITH HFI_FIELD columns !! (& maybe this work is already done by get_value())
+        #TODO: view credentials (FK case)
+        return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=column.name),
+                                                  get_instance_field_info(entity, column.name)[1] or u''
+                                                 ) for column in report.columns
+                                    ) for entity in entities
+                         )
 
-        return cf
-
-    def _handle_report_values(self, entity, user, scope):
-        "@param entity CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
-
-    def _get_value(self, entity, user, scope):
+    #TODO: user & scope ??
+    def _get_related_instances(self, entity, user):
         raise NotImplementedError
 
+    def _get_filtered_related_entities(self, entity, user):
+        related_entities = EntityCredentials.filter(user, self._get_related_instances(entity, user))
+        report = self._report_field.sub_report
+
+        if report.filter is not None:
+            related_entities = report.filter.filter(related_entities)
+
+        return related_entities
+
+    def _get_value_extended_subreport(self, entity, user, scope):
+        """Used as _get_value() method by subclasses which manage
+        sub-reports (extended sub-report case).
+        """
+        related_entities = self._get_filtered_related_entities(entity, user)
+        gen_values = self._handle_report_values
+
+        #"(None,)" : even if sub-scope if empty, with must generate empty columns for this line
+        return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
+
+    def _get_value_flattened_subreport(self, entity, user, scope):
+        """Used as _get_value() method by subclasses which manage
+        sub-reports (flattened sub-report case).
+        """
+        return self._generate_flattened_report(self._get_filtered_related_entities(entity, user))
+
+    def _get_value_no_subreport(self, entity, user, scope):
+        """Used as _get_value() method by subclasses which manage
+        sub-reports (no sub-report case).
+        """
+        qs = self._get_related_instances(entity, user)
+        extract = self._related_model_value_extractor
+
+        if issubclass(qs.model, CremeEntity):
+            qs = EntityCredentials.filter(user, qs)
+
+        return u', '.join(unicode(extract(instance)) for instance in qs)
+
+    def _get_value_single(self, entity, user, scope):
+        """Used as _get_value() method by subclasses which does not manage
+        sub-reports.
+        """
+        return settings.HIDDEN_VALUE if not user.has_perm_to_view(entity) else \
+               self._get_value_single_on_allowed(entity, user, scope)
+
+    def _get_value_single_on_allowed(self, entity, user, scope):
+        "Overload this in sub-class when you compute the hand value (entity is viewable)"
+        return
+
     def get_value(self, entity, user, scope):
+        """Extract the value from entity for a Report cell.
+        @param entity CremeEntity instance.
+        @param user User instance ; used to compute credentials.
+        @param scope QuerySet where 'entity' it comming from ; used by aggregates.
+        """
         value = None
 
-        if entity is None :
+        if entity is None: #eg: a FK column was NULL, or the instance did not pass a filter
             if self._report_field.selected: #selected=True => self._report_field.sub_report is not None
                 value = [self._handle_report_values(None, user, scope)]
         else:
@@ -109,77 +171,110 @@ class ReportHand(object):
 
         return u'' if value is None else value
 
+    def _handle_report_values(self, entity, user, scope):
+        "@param entity CremeEntity instance, or None"
+        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
+
+    def _related_model_value_extractor(self, instance):
+        return instance
+
     @property
     def title(self):
         return self._title
 
 
-#TODO: split for M2M etc... (__new__ ??)
 @REPORT_HANDS_MAP(RFT_FIELD)
 class RHRegularField(ReportHand):
     verbose_name = _(u'Regular field')
 
+    def __new__(cls, report_field):
+        try:
+            field_info = get_model_field_info(report_field.model, report_field.name, silent=False)
+        except FieldDoesNotExist:
+            raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
+
+        #TODO: check depth too ?? ( + second part can not be FK/M2M)
+
+        fields_classes = [f['field'].__class__ for f in field_info]
+
+        if ManyToManyField in fields_classes:
+            return ReportHand.__new__(RHManyToManyField)
+
+        if ForeignKey in fields_classes:
+            return ReportHand.__new__(RHForeignKey)
+
+        return super(RHRegularField, cls).__new__(cls)
+
+    def __init__(self, report_field, support_subreport=False):
+        super(RHRegularField, self).__init__(report_field,
+                                             title=get_verbose_field_name(report_field.model, report_field.name),
+                                             support_subreport=support_subreport,
+                                            )
+
+    def _get_value_single_on_allowed(self, entity, user, scope):
+        model_field, value = get_instance_field_info(entity, self._report_field.name)
+
+        return unicode(value or u'') #Maybe format map (i.e : datetime...)
+
+
+class RHForeignKey(RHRegularField):
     def __init__(self, report_field):
-        super(RHRegularField, self).__init__(report_field)
-        self._title = get_verbose_field_name(report_field.report.ct.model_class(), report_field.name)
+        super(RHForeignKey, self).__init__(report_field, support_subreport=True)
+        field_info = get_model_field_info(report_field.model, report_field.name) #TODO: factorise with __new__
+        fk_info = field_info[0]
+        self._fk_attr_name = fk_info['field'].get_attname()
+        fk_model = fk_info['model']
+        qs = fk_model.objects.all()
+        sub_report = report_field.sub_report
 
-    def _get_value(self, entity, user, scope):
-        column_name = self._report_field.name
-        report = self._report_field.sub_report
-
-        #TODO; this job is also done by 'get_fk_entity()' (which is only use here) => a refactoring would be cool
-        fields_through = [f['field'].__class__ for f in get_model_field_info(entity.__class__, column_name)]
-
-        if ManyToManyField in fields_through: #TODO: factorise with RHRelation
-            if report:
-                m2m_entities = get_m2m_entities(entity, column_name, False,
-                                                q_filter=None if report.filter is None else report.filter.get_q() #TODO: get_q() can return doublons: is it a problem ??
-                                               )
-                m2m_entities = EntityCredentials.filter(user, m2m_entities) #TODO: test
-
-                if self._report_field.selected: #The sub report generates new lines
-                    gen_values = self._handle_report_values
-                    return [gen_values(e, user, m2m_entities) for e in m2m_entities or (None,)]
-                else:
-                    get_verbose_name = partial(get_verbose_field_name, model=report.ct.model_class(), separator="-")
-
-                    return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
-                                                              get_instance_field_info(sub_entity, sub_column.name)[1] or u'' #empty_value
-                                                             ) for sub_column in report.columns
-                                                ) for sub_entity in m2m_entities
-                                        ) #or empty_value
-
-            return get_m2m_entities(entity, column_name, True, user=user)
-
-        elif ForeignKey in fields_through: #TODO: factorise with RHRelation
-            if report:
-                fk_entity = get_fk_entity(entity, column_name, user=user)
-
-                if report.filter is not None and \
-                    not report.ct.model_class().objects.filter(pk=fk_entity.id).filter(report.filter.get_q()).exists(): #TODO: cache (part of queryset)
-                    fk_entity = None
-
-                if self._report_field.selected:
-                    return [self._handle_report_values(fk_entity, user, scope)]
-                else:
-                    if fk_entity is None: #TODO: test
-                        #return empty_value
-                        return
-
-                    return " - ".join(u"%s: %s" % (get_verbose_field_name(field_name=sub_column.name, model=report.ct.model_class(), separator="-"),
-                                                   get_instance_field_info(fk_entity, sub_column.name)[1] or u'' #empty_value
-                                                  ) for sub_column in report.columns
-                                        )
-
-            return unicode(get_fk_entity(entity, column_name, user=user, get_value=True) or u'') #empty_value
-
-        if not user.has_perm_to_view(entity):
-            value = settings.HIDDEN_VALUE
+        if sub_report:
+            if sub_report.filter:
+                qs = sub_report.filter.filter(qs)
         else:
-            model_field, value = get_instance_field_info(entity, column_name)
-            value = unicode(value or u'') #Maybe format map (i.e : datetime...)
+            #small optimization: only used by _get_value_no_subreport()
+            self._check_perm = issubclass(fk_model, CremeEntity)
+            self._attr_name = field_info[1]['field'].name
 
-        return value
+        self._qs = qs
+
+    #NB: cannot rename to _get_related_instances() because fordibben entities are filtered instead of outputting '??'
+    def _get_fk_instance(self, entity):
+        try:
+            entity = self._qs.get(pk=getattr(entity, self._fk_attr_name))
+        except ObjectDoesNotExist:
+            entity = None
+
+        return entity
+
+    def _get_value_flattened_subreport(self, entity, user, scope):
+        fk_entity = self._get_fk_instance(entity)
+
+        if fk_entity is not None: #TODO: test
+            return self._generate_flattened_report((fk_entity,)) #TODO: view credentials !!
+
+    def _get_value_extended_subreport(self, entity, user, scope):
+        return [self._handle_report_values(self._get_fk_instance(entity), user, scope)]
+
+    def _get_value_no_subreport(self, entity, user, scope):
+        fk_instance = self._get_fk_instance(entity)
+
+        if fk_instance is not None:
+            if self._check_perm and not user.has_perm_to_view(fk_instance):
+                return settings.HIDDEN_VALUE
+
+            return getattr(fk_instance, self._attr_name, None)
+
+
+class RHManyToManyField(RHRegularField):
+    def __init__(self, report_field):
+        super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
+        self._m2m_attr_name, sep, self._attr_name = report_field.name.partition('__')
+
+    def _get_related_instances(self, entity, user):
+        return getattr(entity, self._m2m_attr_name).all()
+
+    def _related_model_value_extractor(self, instance):
+        return getattr(instance, self._attr_name, None) or u'' #TODO: move "or u''" in base class ??
 
 
 @REPORT_HANDS_MAP(RFT_CUSTOM)
@@ -187,17 +282,15 @@ class RHCustomField(ReportHand):
     verbose_name = _(u'Custom field')
 
     def __init__(self, report_field):
-        super(RHCustomField, self).__init__(report_field)
-        self._cfield = cf = self._get_customfield(report_field.name)
+        try:
+            self._cfield = cf = CustomField.objects.get(id=report_field.name)
+        except CustomField.DoesNotExist:
+            raise ReportHand.ValueError('Invalid custom field: "%s"' % report_field.name)
 
-        if cf:
-            self._title = cf.name
+        super(RHCustomField, self).__init__(report_field, title=cf.name)
 
-    def _get_value(self, entity, user, scope):
-        cf = self._cfield
-
-        if cf:
-            return entity.get_custom_value(cf) if user.has_perm_to_view(entity) else settings.HIDDEN_VALUE
+    def _get_value_single_on_allowed(self, entity, user, scope):
+        return entity.get_custom_value(self._cfield)
 
 
 @REPORT_HANDS_MAP(RFT_RELATION)
@@ -205,59 +298,28 @@ class RHRelation(ReportHand):
     verbose_name = _(u'Relationship')
 
     def __init__(self, report_field):
-        super(RHRelation, self).__init__(report_field)
         rtype_id = report_field.name
 
         try:
-            rtype = RelationType.objects.get(id=rtype_id)
-        except RelationType.DoesNotExist: #TODO: test
-            #TODO: remove the Field ?? Notify the user
-            logger.warn('Field.get_value(): RelationType "%s" does not exist any more', rtype_id)
-            rtype = None
-        else:
-            self._title = unicode(rtype.predicate)
+            self._rtype = rtype = RelationType.objects.get(id=rtype_id)
+        except RelationType.DoesNotExist:
+            raise ReportHand.ValueError('Invalid relation type: "%s"' % rtype_id)
 
-        self._rtype = rtype
+        if report_field.sub_report:
+            self._related_model = report_field.sub_report.ct.model_class()
 
-    def _get_value(self, entity, user, scope):
-        rtype = self._rtype
+        super(RHRelation, self).__init__(report_field, title=unicode(rtype.predicate), support_subreport=True)
 
-        report_field = self._report_field
-        report = report_field.sub_report
+    def _get_related_instances(self, entity, user):
+        return self._related_model.objects.filter(relations__type=self._rtype.symmetric_type,
+                                                  relations__object_entity=entity.id,
+                                                 )
 
-        if report:
-            sub_model = report.ct.model_class()
-
-            if rtype is None:
-                related_entities = ()
-            else:
-                related_entities = EntityCredentials.filter(user, sub_model.objects.filter(relations__type=rtype.symmetric_type,
-                                                                                           relations__object_entity=entity.id,
-                                                                                          )
-                                                           )
-
-                if report.filter is not None:
-                    related_entities = report.filter.filter(related_entities)
-
-            if report_field.selected:
-                gen_values = self._handle_report_values
-                #if sub-scope if empty, with must generate empty columns for this line
-                return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
-            else:
-                get_verbose_name = partial(get_verbose_field_name, model=sub_model, separator="-")
-
-                #TODO: !!!WORK ONLY WITH RFT_FIELD columns !! (& maybe this work is already done by get_value())
-                return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
-                                                          get_instance_field_info(sub_entity, sub_column.name)[1] or u''
-                                                         ) for sub_column in report.columns
-                                            ) for sub_entity in related_entities
-                                 )
-
-        if rtype:
-            #TODO: filter queryset instead ??
-            has_perm = user.has_perm_to_view
-
-            return u', '.join(unicode(e) for e in entity.get_related_entities(report_field.name, True) if has_perm(e)) #or empty_value
+    #TODO: add a feature in base class to retrieved efficently real entities ??
+    #TODO: extract algorithm that retrieve efficently real entity from CremeEntity.get_related_entities()
+    def _get_value_no_subreport(self, entity, user, scope):
+        has_perm = user.has_perm_to_view
+        return u', '.join(unicode(e) for e in entity.get_related_entities(self._rtype.id, True) if has_perm(e))
 
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
@@ -265,20 +327,16 @@ class RHFunctionField(ReportHand):
     verbose_name = _(u'Function field') #TODO: homogenous with HeaderFilter ??
 
     def __init__(self, report_field):
-        super(RHFunctionField, self).__init__(report_field)
-        self._funcfield = funcfield = report_field.report.ct.model_class().function_fields.get(report_field.name)
+        funcfield = report_field.model.function_fields.get(report_field.name)
+        if not funcfield:
+            raise ReportHand.ValueError('Invalid function field: "%s"' % report_field.name)
 
-        if funcfield:
-            self._title = unicode(funcfield.verbose_name)
+        self._funcfield = funcfield
 
-    def _get_value(self, entity, user, scope):
-        if not user.has_perm_to_view(entity):
-            return settings.HIDDEN_VALUE
+        super(RHFunctionField, self).__init__(report_field, title=unicode(funcfield.verbose_name))
 
-        funfield = self._funcfield
-
-        #TODO: delete column when funfield is invalid ??
-        return funfield(entity).for_csv() if funfield else ugettext("Problem with function field")
+    def _get_value_single_on_allowed(self, entity, user, scope):
+        return self._funcfield(entity).for_csv()
 
 
 #TODO: separate RFT_REGULAR_CALCULATED & RFT_CUSTOM_CALCULATED cases
@@ -287,34 +345,41 @@ class RHCalculated(ReportHand):
     verbose_name = _(u'Calculated value')
 
     def __init__(self, report_field):
-        super(RHCalculated, self).__init__(report_field)
-
         #TODO: factorise with form code (_get_calculated_title)
-        field_name, sep, aggregate = report_field.name.rpartition('__')
-        aggregation = field_aggregation_registry.get(aggregate)
-        self._aggregation_q = None
+        field_name, sep, aggregation_id = report_field.name.rpartition('__')
+        aggregation = field_aggregation_registry.get(aggregation_id)
 
-        if aggregation is not None: #TODO: notify that an error happened ??
-            verbose_name = '??'
+        if aggregation is None:
+            raise ReportHand.ValueError('Invalid aggregation: "%s"' % aggregation_id)
 
-            if field_name.startswith('cf__'):
+        if field_name.startswith('cf__'): #custom field
+            try:
                 prefix, cf_type, cf_id = field_name.split('__') #TODO: the type is not useful anymore (datamigration...)
-                cfield = self._get_customfield(cf_id)
+                cfield = CustomField.objects.get(id=cf_id)
+            except (ValueError, CustomField.DoesNotExist):
+                raise ReportHand.ValueError('Invalid custom field aggregation: "%s"' % field_name)
 
-                if cfield:
-                    self._aggregation_q = aggregation.func('%s__value' % cfield.get_value_class().get_related_name())
-                    verbose_name = cfield.name
+            if cfield.field_type not in field_aggregation_registry.authorized_customfields:
+                raise ReportHand.ValueError('This type of custom field can not be aggregated: "%s"' % field_name)
 
-            else: #regular field
-                #TODO: test field validity
-                self._aggregation_q = aggregation.func(field_name)
-                verbose_name = get_verbose_field_name(report_field.report.ct.model_class(), field_name)
+            self._aggregation_q = aggregation.func('%s__value' % cfield.get_value_class().get_related_name())
+            verbose_name = cfield.name
+        else: #regular field
+            try:
+                field = report_field.model._meta.get_field(field_name)
+            except FieldDoesNotExist:
+                raise ReportHand.ValueError('Unknown field: "%s"' % field_name)
 
-            self._title = u'%s - %s' % (aggregation.title, verbose_name)
+            if not isinstance(field, field_aggregation_registry.authorized_fields):
+                raise ReportHand.ValueError('This type of field can not be aggregated: "%s"' % field_name)
 
-    def _get_value(self, entity, user, scope):
-        if self._aggregation_q:
-            return scope.aggregate(rh_calculated_agg=self._aggregation_q).get('rh_calculated_agg') or 0
+            self._aggregation_q = aggregation.func(field_name)
+            verbose_name = field.verbose_name
+
+        super(RHCalculated, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
+
+    def _get_value_single(self, entity, user, scope):
+        return scope.aggregate(rh_calculated_agg=self._aggregation_q).get('rh_calculated_agg') or 0
 
 
 @REPORT_HANDS_MAP(RFT_RELATED)
@@ -322,36 +387,19 @@ class RHRelated(ReportHand):
     verbose_name = _(u'Related field')
 
     def __init__(self, report_field):
-        super(RHRelated, self).__init__(report_field)
-        #TODO: test validity...
-        related_field = get_related_field(report_field.report.ct.model_class(), report_field.name)
+        related_field = get_related_field(report_field.model, report_field.name)
+        if not related_field:
+            raise ReportHand.ValueError('Invalid related field: "%s"' % report_field.name)
+
         self._attr_name = related_field.get_accessor_name()
-        self._title = unicode(related_field.model._meta.verbose_name)
 
-    def _get_value(self, entity, user, scope): #TODO: factorise with RHRelation
-        report = self._report_field.sub_report
-        related_entities = EntityCredentials.filter(
-                                user,
-                                getattr(entity, self._attr_name).filter(is_deleted=False)
-                            )
+        super(RHRelated, self).__init__(report_field,
+                                        title=unicode(related_field.model._meta.verbose_name),
+                                        support_subreport=True,
+                                       )
 
-        if report:
-            if report.filter is not None: #TODO: test
-                related_entities = report.filter.filter(related_entities)
-
-            if self._report_field.selected:
-                gen_values = self._handle_report_values
-                return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
-            else:
-                get_verbose_name = partial(get_verbose_field_name, model=related_entities.model, separator="-")
-
-                return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=sub_column.name),
-                                                          get_instance_field_info(sub_entity, sub_column.name)[1] or u''
-                                                         ) for sub_column in report.columns
-                                            ) for sub_entity in related_entities
-                                 )
-
-        return u', '.join(unicode(e) for e in related_entities)
+    def _get_related_instances(self, entity, user):
+        return getattr(entity, self._attr_name).filter(is_deleted=False)
 
 
 class ExpandableLine(object):

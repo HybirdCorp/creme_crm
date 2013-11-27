@@ -14,7 +14,6 @@ try:
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
             EntityFilter, EntityFilterCondition,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
-    from creme.creme_core.utils.meta import get_verbose_field_name
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.persons.models import Organisation, Contact, Position, Sector
@@ -80,10 +79,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
-        create_field(name='name',         title=get_verbose_field_name(Invoice, 'name'),         order=1)
-        create_field(name=self.rtype.id,  title=unicode(self.rtype),                             order=2, type=RFT_RELATION)
-        create_field(name='total_no_vat', title=get_verbose_field_name(Invoice, 'total_no_vat'), order=3)
-        create_field(name='issuing_date', title=get_verbose_field_name(Invoice, 'issuing_date'), order=4)
+        create_field(name='name',                            order=1)
+        create_field(name=self.rtype.id,  type=RFT_RELATION, order=2)
+        create_field(name='total_no_vat',                    order=3)
+        create_field(name='issuing_date',                    order=4)
 
         #TODO: we need a helper ReportGraph.create() ??
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
