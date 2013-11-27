@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-#import logging
+import logging
 
 from django.contrib.auth.models import User
 from django.db.models import (CharField, PositiveIntegerField,
@@ -31,7 +31,7 @@ from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
 
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Report(CremeEntity):
@@ -66,7 +66,7 @@ class Report(CremeEntity):
         columns = self._columns
 
         if columns is None:
-            self._columns = columns = list(self.fields.all())
+            self._columns = columns = [rfield for rfield in self.fields.all() if rfield.hand]
 
             for field in columns:
                 field.report = self #pre-cache
@@ -163,24 +163,27 @@ class Field(CremeModel):
                     #self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
                 #)
 
-    def __eq__(self, other):
-        return (self.id == other.id and #TODO id ??
-                self.name == other.name and
-                self.title == other.title and
-                self.order == other.order and
-                self.type == other.type and
-                self.selected == other.selected and
-                self.sub_report_id == other.sub_report_id)
+    #def __eq__(self, other):
+        #return (self.id == other.id and #todo id ??
+                #self.name == other.name and
+                ##self.title == other.title and
+                #self.order == other.order and
+                #self.type == other.type and
+                #self.selected == other.selected and
+                #self.sub_report_id == other.sub_report_id)
 
     @property
     def hand(self):
-        from ..core.report import REPORT_HANDS_MAP #lazy loading
+        from ..core.report import REPORT_HANDS_MAP, ReportHand #lazy loading
 
         hand = self._hand
 
         if hand is None:
-            #TODO: manage invalid type
-            self._hand = hand = REPORT_HANDS_MAP[self.type](self)
+            try:
+                self._hand = hand = REPORT_HANDS_MAP[self.type](self)
+            except (ReportHand.ValueError, KeyError) as e:
+                logger.warn('Invalid column is deleted (%s)', e)
+                self.delete()
 
         return hand
 
@@ -203,6 +206,10 @@ class Field(CremeModel):
         @return An unicode or a list (that correspond to an expanded column).
         """
         return self.hand.get_value(entity, user, scope)
+
+    @property
+    def model(self):
+        return self.report.ct.model_class()
 
     @property
     def title(self):

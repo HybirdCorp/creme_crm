@@ -79,16 +79,14 @@ class BaseReportsTestCase(CremeTestCase):
     def _create_simple_contacts_report(self, name='Contact report', efilter=None):
         ct = ContentType.objects.get_for_model(Contact)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
-        Field.objects.create(report=report, name='last_name', #title=_(u'Last name'),
-                             order=1, type=RFT_FIELD,
-                            )
+        Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
 
         return report
 
     def _create_simple_organisations_report(self, name='Orga report', efilter=None):
         ct = ContentType.objects.get_for_model(Organisation)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
-        Field.objects.create(report=report, name=u'name', title=u'Name', order=1, type=RFT_FIELD)
+        Field.objects.create(report=report, name=u'name', type=RFT_FIELD, order=1)
 
         return report
 
@@ -119,24 +117,24 @@ class BaseReportsTestCase(CremeTestCase):
         create_report = partial(Report.objects.create, user=self.user, filter=None)
 
         report_opp = self.report_opp = create_report(name="Report on opportunities", ct=get_ct(Opportunity))
-        create_field(report=report_opp, name='name',      title="Name",      order=1)
-        create_field(report=report_opp, name='reference', title="Reference", order=2)
+        create_field(report=report_opp, name='name',      order=1)
+        create_field(report=report_opp, name='reference', order=2)
 
         report_invoice = self.report_invoice = create_report(name="Report on invoices", ct=get_ct(Invoice))
-        create_field(report=report_invoice, name='name',           title="Name",                                              order=1)
-        create_field(report=report_invoice, name='total_vat__sum', title="Sum - Total inclusive of tax", type=RFT_CALCULATED, order=2)
+        create_field(report=report_invoice, name='name',                                order=1)
+        create_field(report=report_invoice, name='total_vat__sum', type=RFT_CALCULATED, order=2)
 
         report_orga = self.report_orga = create_report(name="Organisations report", ct=get_ct(Organisation))
-        create_field(report=report_orga, name='name',                    title="Name",                                                                                         order=1)
-        create_field(report=report_orga, name=REL_OBJ_BILL_ISSUED,       title="has issued",                    selected=True, sub_report=report_invoice, type=RFT_RELATION,   order=2)
-        create_field(report=report_orga, name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of",                                                        type=RFT_RELATION,   order=3)
-        create_field(report=report_orga, name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity",                sub_report=report_opp,     type=RFT_RELATION,   order=4)
-        create_field(report=report_orga, name='capital__min',            title="Minimum - Capital",                                                       type=RFT_CALCULATED, order=5)
+        create_field(report=report_orga, name='name',                                                                                   order=1)
+        create_field(report=report_orga, name=REL_OBJ_BILL_ISSUED,       type=RFT_RELATION,   sub_report=report_invoice, selected=True, order=2)
+        create_field(report=report_orga, name=REL_OBJ_CUSTOMER_SUPPLIER, type=RFT_RELATION,                                             order=3)
+        create_field(report=report_orga, name=REL_SUB_EMIT_ORGA,         type=RFT_RELATION,   sub_report=report_opp,                    order=4)
+        create_field(report=report_orga, name='capital__min',            type=RFT_CALCULATED,                                           order=5)
 
         report_contact = self.report_contact = create_report(name="Report on contacts", ct=get_ct(Contact))
-        create_field(report=report_contact, name='last_name',         title="Last name",                                                                order=1)
-        create_field(report=report_contact, name='first_name',        title="First name",                                                               order=2)
-        create_field(report=report_contact, name=REL_SUB_EMPLOYED_BY, title="is employed by", selected=True, sub_report=report_orga, type=RFT_RELATION, order=3)
+        create_field(report=report_contact, name='last_name',                                                                   order=1)
+        create_field(report=report_contact, name='first_name',                                                                  order=2)
+        create_field(report=report_contact, name=REL_SUB_EMPLOYED_BY, type=RFT_RELATION, sub_report=report_orga, selected=True, order=3)
 
     def _create_invoice(self, source, target, name="", total_vat=Decimal("0")):
         # TODO: improve billing to make this code simpler

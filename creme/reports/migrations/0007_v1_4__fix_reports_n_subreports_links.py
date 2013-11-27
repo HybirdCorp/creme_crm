@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from south.db import db
+#from south.db import db
 from south.v2 import DataMigration
 
 
@@ -27,7 +27,7 @@ class Migration(DataMigration):
             report.columns = report_fields.filter(report=report)
 
         for rfield in report_fields:
-            field.report_id = rfield.sub_report_id
+            rfield.report_id = rfield.sub_report_id
             rfield.save()
 
     models = {

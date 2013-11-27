@@ -125,25 +125,26 @@ def _get_entity_column(entity, column_name, field_class):
 
     return ('__'.join(fields_names), cols[len(cols)-i-1:])
 
-def get_fk_entity(entity, column_name, get_value=False, user=None):
-    """Get the first foreign key entity found in the column_name path
-        entity=Contact(), column_name='photo__name' returns entity.photo
-        if get_value returns the value i.e : entity.photo.name
-        if get_value and user returns the value if the user can read it else settings.HIDDEN_VALUE
-            NB: If not get_value the fk is returned no matter what
-    """
-    fk_column, rest = _get_entity_column(entity, column_name, ForeignKey)
-    if get_value:
-        fk = getattr(entity, fk_column)
+#def get_fk_entity(entity, column_name, get_value=False, user=None):
+    #"""Get the first foreign key entity found in the column_name path
+        #entity=Contact(), column_name='photo__name' returns entity.photo
+        #if get_value returns the value i.e : entity.photo.name
+        #if get_value and user returns the value if the user can read it else settings.HIDDEN_VALUE
+            #NB: If not get_value the fk is returned no matter what
+    #"""
+    #fk_column, rest = _get_entity_column(entity, column_name, ForeignKey)
+    #if get_value:
+        #fk = getattr(entity, fk_column)
 
-        if isinstance(fk, CremeEntity) and user is not None and not user.has_perm_to_view(fk):
-            return settings.HIDDEN_VALUE
+        #if isinstance(fk, CremeEntity) and user is not None and not user.has_perm_to_view(fk):
+            #return settings.HIDDEN_VALUE
 
-        #return getattr(fk, '__'.join(rest))
-        return getattr(fk, '__'.join(rest)) if fk else fk #TODO: split, join again == ugly
+        ##return getattr(fk, '__'.join(rest))
+        #return getattr(fk, '__'.join(rest)) if fk else fk #TODO: split, join again == ugly
 
-    return getattr(entity, fk_column)
+    #return getattr(entity, fk_column)
 
+#TODO: used only once => remove ?
 #TODO: rename
 #TODO: get_value + get_value_func args ??
 #TODO: compose 2 functions to 'stringyfy' instances insted of give get_value_func ??
