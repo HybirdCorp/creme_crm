@@ -80,6 +80,9 @@ class ReportTestCase(BaseReportsTestCase):
                                                                         )
                                     ])
 
+    def _build_linkreport_url(self, rfield):
+        return '/reports/report/field/%s/link_report' % rfield.id
+
     def _create_cf_int(self):
         return CustomField.objects.create(content_type=ContentType.objects.get_for_model(Contact),
                                           name='Size (cm)', field_type=CustomField.INT
@@ -826,7 +829,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         return orga_report
 
-    def test_link_report01(self):
+    def test_link_report_regular(self):
         "RFT_FIELD (FK) field"
         self.login()
 
@@ -835,66 +838,91 @@ class ReportTestCase(BaseReportsTestCase):
                                               )
 
         create_field = partial(Field.objects.create, report=contact_report, selected=False, sub_report=None, type=RFT_FIELD)
-        rfields = [
-            create_field(name="last_name",             order=1),
-            create_field(name="sector__title",         order=2),
-            create_field(name="image__name",           order=3),
-            create_field(name="get_pretty_properties", order=4, type=RFT_FUNCTION),
-          ]
+        str_field    = create_field(name="last_name",             order=1)
+        fk_field     = create_field(name="sector__title",         order=2)
+        fk_img_field = create_field(name="image__name",           order=3)
+        func_field   = create_field(name="get_pretty_properties", order=4, type=RFT_FUNCTION)
+
+        self.assertIsNone(func_field.hand.get_linkable_ctypes())
+        self.assertGET409(self._build_linkreport_url(func_field)) #not a RFT_FIELD Field
+
+        self.assertIsNone(str_field.hand.get_linkable_ctypes())
+        self.assertGET409(self._build_linkreport_url(str_field)) #not a FK field
+
+        self.assertIsNone(fk_field.hand.get_linkable_ctypes())
+        self.assertGET409(self._build_linkreport_url(fk_field)) #not a FK to a CremeEntity
+
+        self.assertEqual([ContentType.objects.get_for_model(Image)],
+                         list(fk_img_field.hand.get_linkable_ctypes())
+                        )
 
         img_report = self._build_image_report()
-
-        url_fmt = '/reports/report/field/%s/link_report'
-        self.assertGET409(url_fmt % rfields[3].id) #not a RFT_FIELD Field
-        self.assertGET409(url_fmt % rfields[0].id) #not a FK field
-        self.assertGET409(url_fmt % rfields[1].id) #not a FK to a CremeEntity
-
-        rfield = rfields[2]
-        url = url_fmt % rfield.id
+        url = self._build_linkreport_url(fk_img_field)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'report': img_report.id}))
 
-        rfield = self.refresh(rfield)
-        self.assertEqual(img_report, rfield.sub_report)
+        fk_img_field = self.refresh(fk_img_field)
+        self.assertEqual(img_report, fk_img_field.sub_report)
 
         #unlink --------------------------------------------------------------
-        rfield.selected = True
-        rfield.save()
+        fk_img_field.selected = True
+        fk_img_field.save()
         url = '/reports/report/field/unlink_report'
         self.assertGET404(url)
-        self.assertPOST409(url, data={'field_id': rfields[0].id})
-        self.assertPOST200(url, data={'field_id': rfield.id})
+        self.assertPOST409(url, data={'field_id': str_field.id})
+        self.assertPOST200(url, data={'field_id': fk_img_field.id})
 
-        rfield = self.refresh(rfield)
-        self.assertIsNone(rfield.sub_report)
-        self.assertFalse(rfield.selected)
+        fk_img_field = self.refresh(fk_img_field)
+        self.assertIsNone(fk_img_field.sub_report)
+        self.assertFalse(fk_img_field.selected)
 
-    def test_link_report02(self):
-        "RFT_RELATION field"
+    def test_link_report_relation01(self):
+        "RelationType has got constraints on CT"
         self.login()
 
-        get_ct = ContentType.objects.get_for_model
-        contact_report = Report.objects.create(user=self.user, ct=get_ct(Contact),
-                                               name="Report on contacts",
+        contact_report = Report.objects.create(user=self.user, name="Report on contacts",
+                                               ct=ContentType.objects.get_for_model(Contact),
                                               )
 
         create_field = partial(Field.objects.create, report=contact_report, selected=False, sub_report=None)
-        reg_rfield = create_field(name='last_name',         order=1, type=RFT_FIELD)
-        rel_rfield = create_field(name=REL_SUB_EMPLOYED_BY, order=2, type=RFT_RELATION)
+        reg_rfield = create_field(name='last_name',         type=RFT_FIELD,    order=1)
+        rel_rfield = create_field(name=REL_SUB_EMPLOYED_BY, type=RFT_RELATION, order=2)
 
-        orga_ct = get_ct(Organisation)
-        orga_report = self._build_orga_report()
+        self.assertGET409(self._build_linkreport_url(reg_rfield)) #not a RFT_RELATION Field
 
-        url_fmt = '/reports/report/field/%s/link_relation_report/%s'
-        self.assertGET409(url_fmt % (reg_rfield.id, orga_ct.id)) #not a RFT_RELATION Field
-        self.assertGET409(url_fmt % (rel_rfield.id, get_ct(Image).id)) #ct not compatible
-
-        url = url_fmt % (rel_rfield.id, orga_ct.id)
+        url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)
+
+        #incompatible CT
+        response = self.assertPOST200(url, data={'report': self._build_image_report().id})
+        self.assertFormError(response, 'form', 'report', _("This entity doesn't exist."))
+
+        orga_report = self._build_orga_report()
         self.assertNoFormError(self.client.post(url, data={'report': orga_report.id}))
         self.assertEqual(orga_report, self.refresh(rel_rfield).sub_report)
 
-    def test_link_report03(self):
+    def test_link_report_relation02(self):
+        "RelationType hasn't any constraint on CT"
+        self.login()
+
+        contact_report = Report.objects.create(user=self.user,
+                                               ct=ContentType.objects.get_for_model(Contact),
+                                               name="Report on contacts",
+                                              )
+        rtype = RelationType.create(('reports-subject_obeys',   'obeys to'),
+                                    ('reports-object_commands', 'commands'),
+                                   )[0]
+
+        create_field = partial(Field.objects.create, report=contact_report, selected=False, sub_report=None)
+        reg_rfield = create_field(name='last_name', type=RFT_FIELD,    order=1)
+        rel_rfield = create_field(name=rtype.id,    type=RFT_RELATION, order=2)
+
+        url = self._build_linkreport_url(rel_rfield)
+        img_report = self._build_image_report()
+        self.assertNoFormError(self.client.post(url, data={'report': img_report.id}))
+        self.assertEqual(img_report, self.refresh(rel_rfield).sub_report)
+
+    def test_link_report_related(self):
         "RFT_RELATED field"
         self.login()
 
@@ -913,15 +941,14 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=doc_report, name='title',       order=1)
         create_field(report=doc_report, name="description", order=2)
 
-        url_fmt = '/reports/report/field/%s/link_related_report'
-        self.assertGET409(url_fmt % rfield1.id) #not a RFT_RELATION Field
+        self.assertGET409(self._build_linkreport_url(rfield1)) #not a RFT_RELATION Field
 
-        url = url_fmt % rfield2.id
+        url = self._build_linkreport_url(rfield2)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'report': doc_report.id}))
         self.assertEqual(doc_report, self.refresh(rfield2).sub_report)
 
-    def test_link_report04(self):
+    def test_link_report_error(self):
         "Cycle error"
         self.login()
 
@@ -931,18 +958,21 @@ class ReportTestCase(BaseReportsTestCase):
                                               )
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_RELATION)
-        create_field(report=contact_report, name='last_name', order=1, type=RFT_FIELD)
+        create_field(report=contact_report, name='last_name', type=RFT_FIELD, order=1)
         rel_rfield = create_field(report=contact_report, name=REL_SUB_EMPLOYED_BY, order=2)
 
-        orga_ct = get_ct(Organisation)
         orga_report = self._build_orga_report()
         create_field(report=orga_report, name=REL_OBJ_EMPLOYED_BY, title="Employs", order=3, sub_report=contact_report),
 
-        url = '/reports/report/field/%s/link_relation_report/%s' % (rel_rfield.id, orga_ct.id)
+        url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)
 
         response = self.assertPOST200(url, data={'report': orga_report.id})
         self.assertFormError(response, 'form', 'report', _(u"This entity doesn't exist."))
+
+        #invalid field -> no 500 error
+        rfield = create_field(report=contact_report, name='invalid', type=RFT_FIELD, order=3)
+        self.assertGET409(self._build_linkreport_url(rfield))
 
     def test_set_selected(self):
         self.login()
@@ -1426,6 +1456,10 @@ class ReportTestCase(BaseReportsTestCase):
         rfield.selected = True
         rfield.save()
 
+        self.assertEqual([ContentType.objects.get_for_model(MailingList)],
+                         list(rfield.hand.get_linkable_ctypes())
+                        )
+
         report_camp = self.refresh(report_camp)
         self.assertHeaders(['name', 'name', 'get_pretty_properties'], report_camp)
         self.assertEqual([[name1, ml1.name, ptype1.text],
@@ -1464,9 +1498,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._build_image_report()
-        Field.objects.create(report=report, name='categories__name', order=3,
-                             type=RFT_FIELD, selected=False, sub_report=None,
-                            )
+        rfield = Field.objects.create(report=report, name='categories__name', order=3,
+                                      type=RFT_FIELD, selected=False, sub_report=None,
+                                     )
+        self.assertIsNone(rfield.hand.get_linkable_ctypes())
 
         create_img = partial(Image.objects.create, user=self.user)
         img1 = create_img(name='Img#1', description='Pretty picture')

@@ -304,6 +304,7 @@ creme.reports.link_report = function(field_id, block_url) {
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
 }
 
+/*
 creme.reports.link_related_report = function(field_id, block_url) {
     var url = '/reports/report/field/%s/link_related_report'.format(field_id);
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
@@ -336,6 +337,7 @@ creme.reports.link_relation_report = function(field, predicate, block_url) {
 
      return query;
 }
+*/
 
 creme.reports.changeOrder = function(field_id, direction, block_url) {
     return creme.reports.doAjaxAction('/reports/report/field/change_order', {

@@ -113,6 +113,10 @@ def get_field_verbose_name(model_or_entity, field_name):
     #return date1.replace(hour=0, minute=0, second=0, microsecond=0) <= date2.replace(hour=0, minute=0, second=0, microsecond=0)
 
 @register.filter
+def is_none(obj):
+    return obj is None
+
+@register.filter
 def is_entity(obj):
     return isinstance(obj, CremeEntity)
 
