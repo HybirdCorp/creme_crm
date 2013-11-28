@@ -19,25 +19,23 @@
 ################################################################################
 
 from django.http import Http404, HttpResponse
-from django.db.models import ForeignKey, ManyToManyField, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 #from django.utils.simplejson import JSONEncoder
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import CremeEntity, RelationType
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404 #jsonify
+#from creme.creme_core.models import RelationType
+from creme.creme_core.utils import get_from_POST_or_404 #jsonify get_ct_or_404
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                             list_view, inner_popup, add_to_entity)
-from creme.creme_core.utils.meta import get_model_field_info, get_related_field #ModelFieldEnumerator
+#from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.registry import export_backend_registry
 
-from ..constants import RFT_FIELD, RFT_RELATION, RFT_RELATED
 from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm,
                             AddFieldToReportForm, DateReportFilterForm) #get_aggregate_custom_fields
 from ..models import Report, Field
@@ -91,18 +89,31 @@ def unlink_report(request):
 
     return HttpResponse("", mimetype="text/javascript")
 
-def _link_report_aux(request, rfield, ct):
+@login_required
+@permission_required('reports')
+def link_report(request, field_id):
+    rfield = get_object_or_404(Field, pk=field_id)
     user = request.user
 
     user.has_perm_to_link_or_die(rfield.report)
 
+    hand = rfield.hand
+
+    if hand is None:
+        raise ConflictError('This field is invalid') #TODO: force block to reload
+
+    ctypes = rfield.hand.get_linkable_ctypes()
+
+    if ctypes is None:
+        raise ConflictError('This field is not linkable')
+
     if request.method == 'POST':
-        link_form = LinkFieldToReportForm(rfield, ct, user=user, data=request.POST)
+        link_form = LinkFieldToReportForm(rfield, ctypes, user=user, data=request.POST)
 
         if link_form.is_valid():
             link_form.save()
     else:
-        link_form = LinkFieldToReportForm(field=rfield, ct=ct, user=user)
+        link_form = LinkFieldToReportForm(rfield, ctypes, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':   link_form,
@@ -112,60 +123,6 @@ def _link_report_aux(request, rfield, ct):
                        reload=False,
                        delegate_reload=True,
                       )
-
-@login_required
-@permission_required('reports')
-def link_report(request, field_id):
-    field = get_object_or_404(Field, pk=field_id)
-
-    if field.type != RFT_FIELD:
-        raise ConflictError('This does not represent a model field')
-
-    #TODO: use report hand here
-    for info in get_model_field_info(field.report.ct.model_class(), field.name):
-        if isinstance(info['field'], (ForeignKey, ManyToManyField)):
-            model = info['model']
-            break
-    else:
-        raise ConflictError('This field is not a ForeignKey/ManyToManyField')
-
-    ct = ContentType.objects.get_for_model(model)
-
-    if not issubclass(model, CremeEntity):
-        raise ConflictError('The related model does not inherit CremeEntity')
-
-    return _link_report_aux(request, field, ct)
-
-@login_required
-@permission_required('reports')
-def link_relation_report(request, field_id, ct_id):
-    rfield = get_object_or_404(Field, pk=field_id)
-
-    if rfield.type != RFT_RELATION:
-        raise ConflictError('This does not represent a Relationship')
-
-    ct = get_ct_or_404(ct_id)
-
-    if not RelationType.objects.get(symmetric_type=rfield.name).is_compatible(ct.id):
-        raise ConflictError('This ContentType is not compatible with the RelationType')
-
-    return _link_report_aux(request, rfield, ct)
-
-@login_required
-@permission_required('reports')
-def link_related_report(request, field_id):
-    rfield = get_object_or_404(Field, pk=field_id)
-
-    if rfield.type != RFT_RELATED:
-        raise ConflictError('This does not represent a related model')
-
-    related_field = get_related_field(rfield.report.ct.model_class(), rfield.name)
-
-    if related_field is None:
-        #should not happen (if form is not buggy of course)
-        raise ConflictError('This field is invalid')
-
-    return _link_report_aux(request, rfield, ContentType.objects.get_for_model(related_field.model))
 
 @login_required
 @permission_required('reports')

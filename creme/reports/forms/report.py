@@ -227,14 +227,16 @@ class EditForm(CremeEntityForm):
 class LinkFieldToReportForm(CremeForm):
     report = CreatorEntityField(label=_(u"Sub-report linked to the column"), model=Report)
 
-    def __init__(self, field, ct, *args, **kwargs):
+    def __init__(self, field, ctypes, *args, **kwargs):
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
         self.rfield = field
         report = field.report
-        self.fields['report'].q_filter = {
-                'ct__id':  ct.id,
-                '~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]
-            }
+        q_filter = {'~id__in': [r.id for r in chain(report.get_ascendants_reports(), [report])]}
+
+        if ctypes:
+            q_filter['ct__in'] = [ct.id for ct in ctypes]
+
+        self.fields['report'].q_filter = q_filter
 
     def save(self):
         rfield = self.rfield

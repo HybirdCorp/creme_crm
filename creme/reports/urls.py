@@ -15,16 +15,12 @@ urlpatterns = patterns('creme.reports.views',
 
     #Fields block
     #TODO: put field_id even on POST urls (instead of POST arg)
-    (r'^report/field/unlink_report$',                                         'report.unlink_report'),
-    (r'^report/field/change_order$',                                          'report.change_field_order'),
-    (r'^report/field/set_selected$',                                          'report.set_selected'),
-    (r'^report/field/(?P<field_id>\d+)/link_report$',                         'report.link_report'),
-    (r'^report/field/(?P<field_id>\d+)/link_related_report$',                 'report.link_related_report'),
-    (r'^report/field/(?P<field_id>\d+)/link_relation_report/(?P<ct_id>\d+)$', 'report.link_relation_report'),
-    (r'^report/(?P<report_id>\d+)/field/add$',                                'report.add_field'),
-    #(r'^get_aggregate_fields$',                                               'report.get_aggregate_fields'),
-    #(r'^get_related_fields$',                                                 'report.get_related_fields'),
-    (r'^date_filter_form/(?P<report_id>\d+)$',                                'report.date_filter_form'),
+    (r'^report/field/unlink_report$',                   'report.unlink_report'),
+    (r'^report/field/change_order$',                    'report.change_field_order'),
+    (r'^report/field/set_selected$',                    'report.set_selected'),
+    (r'^report/field/(?P<field_id>\d+)/link_report$',   'report.link_report'),
+    (r'^report/(?P<report_id>\d+)/field/add$',          'report.add_field'), #TODO: rename (edit fields)
+    (r'^date_filter_form/(?P<report_id>\d+)$',          'report.date_filter_form'),
 
     (r'^graph/(?P<report_id>\d+)/add$',                                                                 'graph.add'),
     (r'^graph/edit/(?P<graph_id>\d+)$',                                                                 'graph.edit'),

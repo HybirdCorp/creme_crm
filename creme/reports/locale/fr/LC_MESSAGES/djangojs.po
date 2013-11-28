@@ -1,18 +1,16 @@
 # FR LOCALISATION OF 'REPORTS' APP (JavaScript only)
-# Copyright (C) 2012 Hybird
+# Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Creme Reports 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-21 15:45+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2013-11-28 11:26+0100\n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,21 +20,18 @@ msgstr ""
 msgid "Error"
 msgstr "Erreur"
 
-#: static/reports/js/reports.js:319
-msgid "Select a type"
-msgstr "Sélectionnez un type"
-
-#: static/reports/js/reports.js:320
-msgid "Link relation to report"
-msgstr "Lier la relation au rapport"
-
-#: static/reports/js/reports.js:325
-msgid "Please select a type."
-msgstr "Veuillez sélectionner un type."
-
-#: static/reports/js/reports.js:438
+#: static/reports/js/reports.js:442
 msgid "No backend found"
 msgstr "Outil d'export indisponible"
+
+#~ msgid "Select a type"
+#~ msgstr "Sélectionnez un type"
+
+#~ msgid "Link relation to report"
+#~ msgstr "Lier la relation au rapport"
+
+#~ msgid "Please select a type."
+#~ msgstr "Veuillez sélectionner un type."
 
 #~ msgid "None available"
 #~ msgstr "Aucun disponible"

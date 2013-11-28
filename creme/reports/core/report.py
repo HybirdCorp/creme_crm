@@ -22,6 +22,7 @@ from functools import partial
 import logging
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField, ForeignKey, FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
@@ -155,6 +156,20 @@ class ReportHand(object):
         "Overload this in sub-class when you compute the hand value (entity is viewable)"
         return
 
+    def _handle_report_values(self, entity, user, scope):
+        "@param entity CremeEntity instance, or None"
+        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
+
+    def _related_model_value_extractor(self, instance):
+        return instance
+
+    def get_linkable_ctypes(self):
+        """Return the ContentType that are compatique, in order to link a subreport.
+        @return A sequence of ContentTypes instances, or None (that means "can not link").
+                An empty sequence means "All kind of CremeEntities are linkable"
+        """
+        return None
+
     def get_value(self, entity, user, scope):
         """Extract the value from entity for a Report cell.
         @param entity CremeEntity instance.
@@ -170,13 +185,6 @@ class ReportHand(object):
             value = self._get_value(entity, user, scope)
 
         return u'' if value is None else value
-
-    def _handle_report_values(self, entity, user, scope):
-        "@param entity CremeEntity instance, or None"
-        return [rfield.get_value(entity, user, scope) for rfield in self._report_field.sub_report.columns]
-
-    def _related_model_value_extractor(self, instance):
-        return instance
 
     @property
     def title(self):
@@ -224,6 +232,7 @@ class RHForeignKey(RHRegularField):
         fk_info = field_info[0]
         self._fk_attr_name = fk_info['field'].get_attname()
         fk_model = fk_info['model']
+        self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
         sub_report = report_field.sub_report
 
@@ -232,7 +241,6 @@ class RHForeignKey(RHRegularField):
                 qs = sub_report.filter.filter(qs)
         else:
             #small optimization: only used by _get_value_no_subreport()
-            self._check_perm = issubclass(fk_model, CremeEntity)
             self._attr_name = field_info[1]['field'].name
 
         self._qs = qs
@@ -259,10 +267,13 @@ class RHForeignKey(RHRegularField):
         fk_instance = self._get_fk_instance(entity)
 
         if fk_instance is not None:
-            if self._check_perm and not user.has_perm_to_view(fk_instance):
+            if self._linked2entity and not user.has_perm_to_view(fk_instance):
                 return settings.HIDDEN_VALUE
 
             return getattr(fk_instance, self._attr_name, None)
+
+    def get_linkable_ctypes(self):
+        return (ContentType.objects.get_for_model(self._qs.model),) if self._linked2entity else None
 
 
 class RHManyToManyField(RHRegularField):
@@ -275,6 +286,11 @@ class RHManyToManyField(RHRegularField):
 
     def _related_model_value_extractor(self, instance):
         return getattr(instance, self._attr_name, None) or u'' #TODO: move "or u''" in base class ??
+
+    def get_linkable_ctypes(self):
+        m2m_model = self._report_field.model._meta.get_field(self._m2m_attr_name).rel.to
+
+        return (ContentType.objects.get_for_model(m2m_model),) if issubclass(m2m_model, CremeEntity) else None
 
 
 @REPORT_HANDS_MAP(RFT_CUSTOM)
@@ -320,6 +336,9 @@ class RHRelation(ReportHand):
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
         return u', '.join(unicode(e) for e in entity.get_related_entities(self._rtype.id, True) if has_perm(e))
+
+    def get_linkable_ctypes(self):
+        return self._rtype.object_ctypes.all()
 
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
@@ -388,9 +407,11 @@ class RHRelated(ReportHand):
 
     def __init__(self, report_field):
         related_field = get_related_field(report_field.model, report_field.name)
+
         if not related_field:
             raise ReportHand.ValueError('Invalid related field: "%s"' % report_field.name)
 
+        self._related_field = related_field
         self._attr_name = related_field.get_accessor_name()
 
         super(RHRelated, self).__init__(report_field,
@@ -400,6 +421,9 @@ class RHRelated(ReportHand):
 
     def _get_related_instances(self, entity, user):
         return getattr(entity, self._attr_name).filter(is_deleted=False)
+
+    def get_linkable_ctypes(self):
+        return (ContentType.objects.get_for_model(self._related_field.model),)
 
 
 class ExpandableLine(object):
