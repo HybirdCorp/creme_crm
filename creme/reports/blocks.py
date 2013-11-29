@@ -23,7 +23,6 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import InstanceBlockConfigItem
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from .constants import RFT_FIELD, RFT_RELATION, RFT_RELATED
 from .core.graph import fetch_graph_from_instance_block
 from .models import Report, Field, ReportGraph
 
@@ -41,9 +40,6 @@ class ReportFieldsBlock(Block):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                                             columns=report.columns,
                                                             expand=any(field.sub_report_id for field in report.columns),
-                                                            RFT_FIELD=RFT_FIELD,
-                                                            RFT_RELATION=RFT_RELATION,
-                                                            RFT_RELATED=RFT_RELATED,
                                                            )
                             )
 

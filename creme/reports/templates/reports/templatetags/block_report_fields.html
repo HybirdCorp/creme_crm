@@ -64,7 +64,7 @@
                                                     {% endif %}
                                                 {% else %}
                                                     {% if link_perm %}
-                                                        <a onclick="creme.reports.link_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                        <a onclick="creme.blocks.deprecatedForm('/reports/report/field/{{column.pk}}/link_report', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a>
                                                     {% else %}
                                                         <span class="forbidden">{% trans 'Link a report' %}</span>
                                                     {% endif %}
