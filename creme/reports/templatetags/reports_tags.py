@@ -41,7 +41,7 @@ register = Library()
     ##registred_models = creme_registry.iter_entity_models()
     #registred_models = frozenset(creme_registry.iter_entity_models())
 
-    ##TODO: any(...)
+    ##todo: any(...)
     #for field_dict in field_infos:
         #if isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and \
            #field_dict.get('model') in registred_models:

@@ -299,12 +299,12 @@ creme.reports.unlink_report = function(field_id, block_url) {
 */
 }
 
+/*
 creme.reports.link_report = function(field_id, block_url) {
     var url = '/reports/report/field/%s/link_report'.format(field_id);
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
 }
 
-/*
 creme.reports.link_related_report = function(field_id, block_url) {
     var url = '/reports/report/field/%s/link_related_report'.format(field_id);
     return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
