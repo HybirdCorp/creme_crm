@@ -61,15 +61,27 @@ class Report(CremeEntity):
     def get_lv_absolute_url():
         return "/reports/reports"
 
+    def _build_columns(self, allow_selected):
+        """@param allow_selected Boolean, 'True' allows columns to be 'selected'
+                                 (expanded sub-report)
+        """
+        self._columns = columns = []
+
+        for rfield in self.fields.all():
+            rfield.report = self #pre-cache
+
+            if rfield.hand: #field is valid
+                rfield._build_children(allow_selected)
+                columns.append(rfield)
+
+        return columns
+
     @property
     def columns(self):
         columns = self._columns
 
-        if columns is None:
-            self._columns = columns = [rfield for rfield in self.fields.all() if rfield.hand]
-
-            for field in columns:
-                field.report = self #pre-cache
+        if columns is None: #root report
+            columns = self._build_columns(allow_selected=True)
 
         return columns
 
@@ -171,6 +183,18 @@ class Field(CremeModel):
                 #self.type == other.type and
                 #self.selected == other.selected and
                 #self.sub_report_id == other.sub_report_id)
+
+    def _build_children(self, allow_selected):
+        """Force the tree to be built, and fix the 'selected' attributes.
+        Only root fields (ie: deep==0), or children a selected root field,
+        can be selected.
+        """
+        self.selected &= allow_selected
+
+        sub_report = self.sub_report
+
+        if sub_report:
+            sub_report._build_columns(self.selected)
 
     @property
     def hand(self):
