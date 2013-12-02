@@ -807,6 +807,19 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
+    def test_invalid_hands(self):
+        self.login()
+        report = self._create_simple_contacts_report()
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD, order=2)
+        rfield = create_field(name='image__categories__name')
+        self.assertIsNone(rfield.hand)
+        self.assertDoesNotExist(rfield)
+
+        rfield = create_field(name='image__categories')
+        self.assertIsNone(rfield.hand)
+        self.assertDoesNotExist(rfield)
+        
     def _build_image_report(self):
         img_report = Report.objects.create(user=self.user, name="Report on images",
                                            ct=ContentType.objects.get_for_model(Image),
@@ -1280,6 +1293,32 @@ class ReportTestCase(BaseReportsTestCase):
                          self.doc_report.fetch_all_lines()
                         )
 
+    def test_fetch_fk_04(self):
+        "Not Entity, no (sub) attribute"
+        self.login()
+
+        self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
+        starks = self.starks
+
+        starks.legal_form = lform = LegalForm.objects.get_or_create(title="Hord")[0]
+        starks.save()
+
+        report = self.report_orga
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        lf_field   = create_field(name='legal_form', order=2)
+        user_field = create_field(name='user',       order=3)
+
+        self.assertEqual(_('Legal form'), lf_field.title)
+        self.assertEqual(_('Owner user'), user_field.title)
+
+        username = self.user.username
+        self.assertEqual([[self.lannisters.name, '',          username],
+                          [starks.name,          lform.title, username],
+                         ],
+                         report.fetch_all_lines()
+                        )
+
     def test_fetch_cf_01(self):
         "Custom fields"
         self.login()
@@ -1498,10 +1537,16 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         report = self._build_image_report()
-        rfield = Field.objects.create(report=report, name='categories__name', order=3,
-                                      type=RFT_FIELD, selected=False, sub_report=None,
-                                     )
-        self.assertIsNone(rfield.hand.get_linkable_ctypes())
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        rfield1 = create_field(name='categories__name', order=3)
+        rfield2 = create_field(name='categories',       order=4)
+
+        self.assertIsNone(rfield1.hand.get_linkable_ctypes())
+        self.assertIsNone(rfield2.hand.get_linkable_ctypes())
+
+        self.assertEqual(_('Categories') + ' - ' + _('Name of media category'), rfield1.title)
+        self.assertEqual(_('Categories'),                                       rfield2.title)
 
         create_img = partial(Image.objects.create, user=self.user)
         img1 = create_img(name='Img#1', description='Pretty picture')
@@ -1513,8 +1558,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         img1.categories = [cat1, cat2]
 
-        self.assertEqual([[img1.name, img1.description, u'%s, %s' % (cat1.name, cat2.name)],
-                          [img2.name, '',               ''],
+        cats_str = u'%s, %s' % (cat1.name, cat2.name)
+        self.assertEqual([[img1.name, img1.description, cats_str, cats_str],
+                          [img2.name, '',               '',       ''],
                         ],
                         report.fetch_all_lines()
                     )

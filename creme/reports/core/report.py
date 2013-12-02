@@ -201,15 +201,16 @@ class RHRegularField(ReportHand):
         except FieldDoesNotExist:
             raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        #TODO: check depth too ?? ( + second part can not be FK/M2M)
+        if len(field_info) > 1 and isinstance(field_info[1]['field'], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
+            raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        fields_classes = [f['field'].__class__ for f in field_info]
+        first_part = field_info[0]['field']
 
-        if ManyToManyField in fields_classes:
-            return ReportHand.__new__(RHManyToManyField)
-
-        if ForeignKey in fields_classes:
+        if isinstance(first_part, ForeignKey):
             return ReportHand.__new__(RHForeignKey)
+
+        if isinstance(first_part, ManyToManyField):
+            return ReportHand.__new__(RHManyToManyField)
 
         return super(RHRegularField, cls).__new__(cls)
 
@@ -241,7 +242,12 @@ class RHForeignKey(RHRegularField):
                 qs = sub_report.filter.filter(qs)
         else:
             #small optimization: only used by _get_value_no_subreport()
-            self._attr_name = field_info[1]['field'].name
+            #self._attr_name = field_info[1]['field'].name
+            if len(field_info) > 1: #TODO: len() > 2
+                attr_name = field_info[1]['field'].name
+                self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
+            else:
+                self._value_extractor = unicode
 
         self._qs = qs
 
@@ -270,7 +276,8 @@ class RHForeignKey(RHRegularField):
             if self._linked2entity and not user.has_perm_to_view(fk_instance):
                 return settings.HIDDEN_VALUE
 
-            return getattr(fk_instance, self._attr_name, None)
+            #return getattr(fk_instance, self._attr_name, None)
+            return self._value_extractor(fk_instance)
 
     def get_linkable_ctypes(self):
         return (ContentType.objects.get_for_model(self._qs.model),) if self._linked2entity else None
@@ -279,13 +286,18 @@ class RHForeignKey(RHRegularField):
 class RHManyToManyField(RHRegularField):
     def __init__(self, report_field):
         super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
-        self._m2m_attr_name, sep, self._attr_name = report_field.name.partition('__')
+        #self._m2m_attr_name, sep, self._attr_name = report_field.name.partition('__')
+        self._m2m_attr_name, sep, attr_name = report_field.name.partition('__')
+
+        #TODO: move "or u''" in base class ??
+        self._related_model_value_extractor = (lambda instance: getattr(instance, attr_name, None) or u'') if attr_name else \
+                                              unicode
 
     def _get_related_instances(self, entity, user):
         return getattr(entity, self._m2m_attr_name).all()
 
-    def _related_model_value_extractor(self, instance):
-        return getattr(instance, self._attr_name, None) or u'' #TODO: move "or u''" in base class ??
+    #def _related_model_value_extractor(self, instance):
+        #return getattr(instance, self._attr_name, None) or u'' #todo: move "or u''" in base class ??
 
     def get_linkable_ctypes(self):
         m2m_model = self._report_field.model._meta.get_field(self._m2m_attr_name).rel.to
