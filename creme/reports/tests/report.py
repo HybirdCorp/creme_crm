@@ -80,6 +80,39 @@ class ReportTestCase(BaseReportsTestCase):
                                                                         )
                                     ])
 
+    def _build_doc_report(self):
+        doc_report = Report.objects.create(name="Documents report", user=self.user,
+                                           ct=ContentType.objects.get_for_model(Document)
+                                          )
+
+        create_field = partial(Field.objects.create, type=RFT_FIELD)
+        create_field(report=doc_report, name='title',       order=1)
+        create_field(report=doc_report, name="description", order=2)
+
+        return doc_report
+
+    def _build_image_report(self):
+        img_report = Report.objects.create(user=self.user, name="Report on images",
+                                           ct=ContentType.objects.get_for_model(Image),
+                                          )
+
+        create_field = partial(Field.objects.create, report=img_report, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field(name="name",        order=1)
+        create_field(name="description", order=2)
+
+        return img_report
+
+    def _build_orga_report(self):
+        orga_report = Report.objects.create(user=self.user, name="Report on organisations",
+                                            ct=ContentType.objects.get_for_model(Organisation),
+                                           )
+
+        create_field = partial(Field.objects.create, report=orga_report, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field(name="name",              order=1)
+        create_field(name="legal_form__title", order=2)
+
+        return orga_report
+
     def _build_linkreport_url(self, rfield):
         return '/reports/report/field/%s/link_report' % rfield.id
 
@@ -189,7 +222,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
 
-        self.assertEqual('user', columns[1].name)
+        field = columns[1]
+        self.assertEqual('user',          field.name)
+        self.assertEqual(_('Owner user'), field.title)
 
         field = columns[2]
         self.assertEqual(REL_SUB_HAS,  field.name)
@@ -664,7 +699,7 @@ class ReportTestCase(BaseReportsTestCase):
             rt_choices = fields['relations'].choices
             ff_choices = fields['functions'].choices
 
-        f_name = 'last_name'
+        f_name = 'user__username'
         rf_index = self._find_choice(f_name, rf_choices)
 
         rtype_id = REL_SUB_EMPLOYED_BY
@@ -694,7 +729,9 @@ class ReportTestCase(BaseReportsTestCase):
         columns = report.columns
         self.assertEqual(3, len(columns))
 
-        self.assertEqual(f_name, columns[0].name)
+        column = columns[0]
+        self.assertEqual(f_name, column.name)
+        self.assertEqual(_('Owner user') + ' - ' + _('username'), column.title)
 
         column = columns[1]
         self.assertEqual(rtype_id,        column.name)
@@ -819,28 +856,6 @@ class ReportTestCase(BaseReportsTestCase):
         rfield = create_field(name='image__categories')
         self.assertIsNone(rfield.hand)
         self.assertDoesNotExist(rfield)
-        
-    def _build_image_report(self):
-        img_report = Report.objects.create(user=self.user, name="Report on images",
-                                           ct=ContentType.objects.get_for_model(Image),
-                                          )
-
-        create_field = partial(Field.objects.create, report=img_report, selected=False, sub_report=None, type=RFT_FIELD)
-        create_field(name="name",        order=1)
-        create_field(name="description", order=2)
-
-        return img_report
-
-    def _build_orga_report(self):
-        orga_report = Report.objects.create(user=self.user, name="Report on organisations",
-                                            ct=ContentType.objects.get_for_model(Organisation),
-                                           )
-
-        create_field = partial(Field.objects.create, report=orga_report, selected=False, sub_report=None, type=RFT_FIELD)
-        create_field(name="name",              order=1)
-        create_field(name="legal_form__title", order=2)
-
-        return orga_report
 
     def test_link_report_regular(self):
         "RFT_FIELD (FK) field"
@@ -942,20 +957,18 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual([('document', _(u'Document'))],
                          Report.get_related_fields_choices(Folder)
                         )
-        get_ct = ContentType.objects.get_for_model
-        create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
-        create_report = partial(Report.objects.create, user=self.user, filter=None)
 
-        folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
-        rfield1 = create_field(report=folder_report, name='title',    order=1)
-        rfield2 = create_field(report=folder_report, name='document', order=2, type=RFT_RELATED)
+        folder_report = Report.objects.create(name="Report on folders", user=self.user,
+                                              ct=ContentType.objects.get_for_model(Folder),
+                                             )
 
-        doc_report = create_report(name="Documents report", ct=get_ct(Document))
-        create_field(report=doc_report, name='title',       order=1)
-        create_field(report=doc_report, name="description", order=2)
+        create_field = Field.objects.create
+        rfield1 = create_field(report=folder_report, name='title',    type=RFT_FIELD,   order=1)
+        rfield2 = create_field(report=folder_report, name='document', type=RFT_RELATED, order=2)
 
         self.assertGET409(self._build_linkreport_url(rfield1)) #not a RFT_RELATION Field
 
+        doc_report = self._build_doc_report()
         url = self._build_linkreport_url(rfield2)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'report': doc_report.id}))
@@ -1058,10 +1071,10 @@ class ReportTestCase(BaseReportsTestCase):
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
 
         if report_4_contact:
-            self.report_contact = create_report(name="Report on Contacts", ct=get_ct(Contact))
+            self.report_contact = report = create_report(name="Report on Contacts", ct=get_ct(Contact))
 
-            create_field(report=self.report_contact, name='last_name',  order=1),
-            create_field(report=self.report_contact, name='first_name', order=2),
+            create_field(report=report, name='last_name',  order=1)
+            create_field(report=report, name='first_name', order=2)
 
         self.report_orga = create_report(name="Report on Organisations", ct=get_ct(Organisation), filter=efilter)
         create_field(report=self.report_orga, name='name', order=1)
@@ -1190,7 +1203,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_rel(object_entity=sega)
 
         opportunity_nintendo_1 = self.create_opportunity(name="Opportunity nintendo 1", reference="1.1", emitter=nintendo)
-        opp_nintendo_values = u"%s: %s - %s: %s" % (
+        opp_nintendo_values = u"%s: %s/%s: %s" % (
                                     _(u"Name of the opportunity"), opportunity_nintendo_1.name,
                                     _(u"Reference"),               opportunity_nintendo_1.reference,
                                 )
@@ -1223,17 +1236,15 @@ class ReportTestCase(BaseReportsTestCase):
                       )
 
     def _aux_test_fetch_documents(self, efilter=None, selected=True):
-        get_ct = ContentType.objects.get_for_model
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
-        create_report = partial(Report.objects.create, user=self.user, filter=None)
 
-        self.folder_report = create_report(name="Folders report", ct=get_ct(Folder), filter=efilter)
+        self.folder_report = Report.objects.create(name="Folders report", user=self.user,
+                                                   ct=ContentType.objects.get_for_model(Folder), filter=efilter
+                                                  )
         create_field(report=self.folder_report, name='title',       order=1)
         create_field(report=self.folder_report, name='description', order=2)
 
-        self.doc_report = create_report(name="Documents report", ct=get_ct(Document))
-        create_field(report=self.doc_report, name='title',         order=1)
-        create_field(report=self.doc_report, name='description',   order=2)
+        self.doc_report = self._build_doc_report()
         create_field(report=self.doc_report, name='folder__title', order=3,
                      sub_report=self.folder_report, selected=selected,
                     )
@@ -1281,12 +1292,12 @@ class ReportTestCase(BaseReportsTestCase):
                         )
 
     def test_fetch_fk_03(self):
-        "Sub report (not expanded)"
+        "Sub report (flattened)"
         self.login()
         self._aux_test_fetch_documents(selected=False)
 
         doc1 = self.doc1; folder2 = self.folder2
-        fmt = '%s: %%s - %s: %%s' % (_(u'Title'), _(u'Description'))
+        fmt = '%s: %%s/%s: %%s' % (_(u'Title'), _(u'Description'))
         self.assertEqual([[doc1.title,      doc1.description, fmt % (self.folder1.title, '')],
                           [self.doc2.title, '',               fmt % (folder2.title,      folder2.description)],
                          ],
@@ -1524,8 +1535,10 @@ class ReportTestCase(BaseReportsTestCase):
         report_camp = self.refresh(report_camp)
         self.assertHeaders(['name', 'mailing_lists__name'], report_camp)
 
-        fmt = '%s: %%s - %s: %%s' % (_(u'Name of the mailing list'), '') #TODO: _('Properties')
-        self.assertEqual([[self.camp1.name, fmt % (self.ml1.name, '') + ', ' + fmt % (self.ml2.name, '')],
+        fmt = '%s: %%s/%s: %%s' % (_(u'Name of the mailing list'), _('Properties'))
+        self.assertEqual([[self.camp1.name, fmt % (self.ml1.name, self.ptype1.text) + ', ' +
+                                            fmt % (self.ml2.name, self.ptype2.text),
+                          ],
                           [self.camp2.name, fmt % (self.ml3.name, '')],
                           [self.camp3.name, ''],
                          ],
@@ -1571,13 +1584,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
 
-        if select_doc_report is not None:
-            self.doc_report = create_report(name="Documents report", ct=get_ct(Document))
-
-            create_field(report=self.doc_report, name='title',       order=1)
-            create_field(report=self.doc_report, name="description", order=2)
-        else:
-            self.doc_report = None
+        self.doc_report = self._build_doc_report() if select_doc_report is not None else None
 
         self.folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
         create_field(report=self.folder_report, name='title',    order=1)
@@ -1642,7 +1649,7 @@ class ReportTestCase(BaseReportsTestCase):
         folder3 = Folder.objects.create(user=self.user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
-        fmt = '%s: %%s - %s: %%s' % (_('Title'), _('Description'))
+        fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
         doc11_str = fmt % (doc11.title, doc11.description)
         lines = [[folder1.title,      doc11_str + ', ' + fmt % (self.doc12.title, '')],
                  [self.folder2.title, fmt % (self.doc21.title, '')],
@@ -1781,26 +1788,51 @@ class ReportTestCase(BaseReportsTestCase):
         self.login_as_basic_user()
         self._aux_test_fetch_persons()
 
-        report = self.report_orga
-        Field.objects.create(report=report, name=REL_OBJ_EMPLOYED_BY, order=2,
-                             type=RFT_RELATION, selected=False, sub_report=self.report_contact,
-                            )
-        self.assertHeaders(['name', 'persons-object_employed_by'], report)
+        ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Dwarf')
+        CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
+
+        report_contact = self.report_contact
+
+        create_field = Field.objects.create
+        create_field(report=report_contact, name='get_pretty_properties',
+                     type=RFT_FUNCTION, order=3,
+                    )
+        create_field(report=report_contact, name='image__name',
+                     type=RFT_FIELD, order=4,
+                     sub_report=self._build_image_report(), selected=True,
+                    )
+
+        report_orga = self.report_orga
+        create_field(report=report_orga, name=REL_OBJ_EMPLOYED_BY, order=2,
+                     type=RFT_RELATION, selected=False, sub_report=report_contact,
+                    )
+        self.assertHeaders(['name', 'persons-object_employed_by'], report_orga)
 
         ned = self.ned; robb = self.robb; tyrion = self.tyrion
 
         robb.user = self.other_user
         robb.save()
 
-        fmt = '%s: %%s - %s: %%s' % (_('Last name'), _('First name'))
-        ned_str = fmt % (ned.last_name,  ned.first_name)
-        lines = [[self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name)],
-                 [self.starks.name,     ned_str + ', ' + fmt % (robb.last_name, robb.first_name)],
+        ned.image = img = Image.objects.create(name='Ned pic', user=self.user,
+                                               description='Ned Stark selfie',
+                                              )
+        ned.save()
+
+        fmt = '%s: %%s/%s: %%s/%s: %%s/%s: %%s' % (
+                    _('Last name'), _('First name'), _(u'Properties'), _(u'Photograph'),
+                )
+        ned_str = fmt % (ned.last_name,  ned.first_name, '',
+                         '%s: %s/%s: %s' % (_('Name'), img.name, _('Description'), img.description)
+                        )
+        lines = [[self.lannisters.name, fmt % (tyrion.last_name, tyrion.first_name, ptype.text, '')],
+                 [self.starks.name,     ned_str + ', ' +
+                                        fmt % (robb.last_name, robb.first_name, '', '')
+                 ],
                 ]
-        self.assertEqual(lines, report.fetch_all_lines())
+        self.assertEqual(lines, report_orga.fetch_all_lines())
 
         lines[1][1] = ned_str
-        self.assertEqual(lines, report.fetch_all_lines(user=self.user))
+        self.assertEqual(lines, report_orga.fetch_all_lines(user=self.user))
 
     def test_fetch_relation_04(self):
         "Sub-report (expanded) with a filter"
@@ -1837,6 +1869,46 @@ class ReportTestCase(BaseReportsTestCase):
                           [self.starks.name,     '',               '',                '',               ''],
                          ],
                          report.fetch_all_lines()
+                        )
+
+    def test_fetch_relation_05(self):
+        "Several expanded sub-reports"
+        self.login()
+        self._aux_test_fetch_persons()
+        user = self.user
+        tyrion = self.tyrion; ned = self.ned; robb = self.robb; starks = self.starks
+
+        report_orga = self.report_orga
+        create_field = partial(Field.objects.create, type=RFT_RELATION)
+        create_field(report=report_orga, name=REL_OBJ_EMPLOYED_BY, order=2,
+                     selected=True, sub_report=self.report_contact,
+                    )
+
+        folder = Folder.objects.create(user=user, title='Ned folder')
+
+        create_doc = partial(Document.objects.create, user=user)
+        doc1 = create_doc(title='Sword',  folder=folder, description='Blbalabla')
+        doc2 = create_doc(title='Helmet', folder=folder)
+
+        rtype = RelationType.objects.get(pk=REL_SUB_HAS)
+        doc_report = self._build_doc_report()
+        create_field(report=self.report_contact, name=rtype.id, order=3,
+                     selected=True, sub_report=doc_report,
+                    )
+
+        create_rel = partial(Relation.objects.create, type=rtype, user=user, subject_entity=ned)
+        create_rel(object_entity=doc1)
+        create_rel(object_entity=doc2)
+
+        self.assertEqual([_('Name'), _('Last name'), _('First name'), _('Title'), _('Description')],
+                         [column.title for column in report_orga.get_children_fields_flat()]
+                        )
+        self.assertEqual([[self.lannisters.name, tyrion.last_name, tyrion.first_name, '',         ''],
+                          [starks.name,          ned.last_name,    ned.first_name,    doc1.title, doc1.description],
+                          [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''],
+                          [starks.name,          robb.last_name,   robb.first_name,   '',         '']
+                         ],
+                         report_orga.fetch_all_lines()
                         )
 
     def _aux_test_fetch_calculated(self, invalid_ones=False):

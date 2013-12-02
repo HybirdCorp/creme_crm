@@ -79,32 +79,17 @@ class ReportHand(object):
     def __init__(self, report_field, title, support_subreport=False):
         self._report_field = report_field
         self._title = title
+        self._support_subreport = support_subreport
 
-        #build the 'self._get_value' atribute (see get_value() method)
-        if support_subreport:
-            if report_field.sub_report:
-                get_value = self._get_value_extended_subreport if report_field.selected else \
-                            self._get_value_flattened_subreport
-            else:
-                get_value = self._get_value_no_subreport
-        else:
-            get_value = self._get_value_single
+    def _generate_flattened_report(self, entities, user, scope):
+        columns = self._report_field.sub_report.columns
 
-        self._get_value = get_value
-
-    def _generate_flattened_report(self, entities):
-        report = self._report_field.sub_report
-        get_verbose_name = partial(get_verbose_field_name, model=report.ct.model_class(), separator="-")
-
-        #TODO: !!!WORK ONLY WITH HFI_FIELD columns !! (& maybe this work is already done by get_value())
-        #TODO: view credentials (FK case)
-        return u", ".join(" - ".join(u"%s: %s" % (get_verbose_name(field_name=column.name),
-                                                  get_instance_field_info(entity, column.name)[1] or u''
-                                                 ) for column in report.columns
-                                    ) for entity in entities
+        return u', '.join('/'.join(u"%s: %s" % (column.title, column.get_value(entity, user, scope))
+                                        for column in columns
+                                  ) for entity in entities
                          )
 
-    #TODO: user & scope ??
+    #TODO: scope ??
     def _get_related_instances(self, entity, user):
         raise NotImplementedError
 
@@ -116,6 +101,24 @@ class ReportHand(object):
             related_entities = report.filter.filter(related_entities)
 
         return related_entities
+
+    def _get_value(self, entity, user, scope):
+        # we are not building 'self._get_value' in __init__() because the
+        # report_field.selected can change after the Hand building
+        if self._support_subreport:
+            report_field = self._report_field
+
+            if report_field.sub_report:
+                get_value = self._get_value_extended_subreport if report_field.selected else \
+                            self._get_value_flattened_subreport
+            else:
+                get_value = self._get_value_no_subreport
+        else:
+            get_value = self._get_value_single
+
+        self._get_value = get_value #cache
+
+        return get_value(entity, user, scope)
 
     def _get_value_extended_subreport(self, entity, user, scope):
         """Used as _get_value() method by subclasses which manage
@@ -131,7 +134,7 @@ class ReportHand(object):
         """Used as _get_value() method by subclasses which manage
         sub-reports (flattened sub-report case).
         """
-        return self._generate_flattened_report(self._get_filtered_related_entities(entity, user))
+        return self._generate_flattened_report(self._get_filtered_related_entities(entity, user), user, scope)
 
     def _get_value_no_subreport(self, entity, user, scope):
         """Used as _get_value() method by subclasses which manage
@@ -214,9 +217,9 @@ class RHRegularField(ReportHand):
 
         return super(RHRegularField, cls).__new__(cls)
 
-    def __init__(self, report_field, support_subreport=False):
+    def __init__(self, report_field, support_subreport=False, title=None):
         super(RHRegularField, self).__init__(report_field,
-                                             title=get_verbose_field_name(report_field.model, report_field.name),
+                                             title=title or get_verbose_field_name(report_field.model, report_field.name),
                                              support_subreport=support_subreport,
                                             )
 
@@ -228,28 +231,33 @@ class RHRegularField(ReportHand):
 
 class RHForeignKey(RHRegularField):
     def __init__(self, report_field):
-        super(RHForeignKey, self).__init__(report_field, support_subreport=True)
         field_info = get_model_field_info(report_field.model, report_field.name) #TODO: factorise with __new__
         fk_info = field_info[0]
-        self._fk_attr_name = fk_info['field'].get_attname()
+        fk_field = fk_info['field']
+        self._fk_attr_name = fk_field.get_attname()
         fk_model = fk_info['model']
         self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
         sub_report = report_field.sub_report
 
         if sub_report:
-            if sub_report.filter:
-                qs = sub_report.filter.filter(qs)
+            efilter = sub_report.filter
+            if efilter:
+                qs = efilter.filter(qs)
         else:
             #small optimization: only used by _get_value_no_subreport()
             #self._attr_name = field_info[1]['field'].name
-            if len(field_info) > 1: #TODO: len() > 2
+            if len(field_info) > 1:
                 attr_name = field_info[1]['field'].name
                 self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
             else:
                 self._value_extractor = unicode
 
         self._qs = qs
+        super(RHForeignKey, self).__init__(report_field,
+                                           support_subreport=True,
+                                           title=unicode(fk_field.verbose_name) if sub_report else None,
+                                          )
 
     #NB: cannot rename to _get_related_instances() because fordibben entities are filtered instead of outputting '??'
     def _get_fk_instance(self, entity):
@@ -264,7 +272,7 @@ class RHForeignKey(RHRegularField):
         fk_entity = self._get_fk_instance(entity)
 
         if fk_entity is not None: #TODO: test
-            return self._generate_flattened_report((fk_entity,)) #TODO: view credentials !!
+            return self._generate_flattened_report((fk_entity,), user, scope)
 
     def _get_value_extended_subreport(self, entity, user, scope):
         return [self._handle_report_values(self._get_fk_instance(entity), user, scope)]
