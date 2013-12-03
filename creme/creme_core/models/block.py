@@ -33,7 +33,6 @@ from ..constants import (SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
         SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
 from ..utils import creme_entity_content_types
 from .base import CremeModel
-from .custom_field import CustomField
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
 from .relation import RelationType

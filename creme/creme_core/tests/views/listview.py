@@ -236,12 +236,12 @@ class ListViewTestCase(ViewsTestCase):
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
-        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=EmailCampaign,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                             (EntityCellRegularField, {'name': fname}),
-                                             (EntityCellFunctionField, {'func_field_name': func_field_name}),
-                                            ]
-                                )
+        HeaderFilter.create(pk='test-hf_camp', name='Campaign view', model=EmailCampaign,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': fname}),
+                                        (EntityCellFunctionField, {'func_field_name': func_field_name}),
+                                       ]
+                           )
 
         url = EmailCampaign.get_lv_absolute_url()
         #we just check that it does not crash

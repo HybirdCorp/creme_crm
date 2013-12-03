@@ -29,7 +29,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from ..core.entity_cell import (EntityCell, EntityCellRegularField,
+from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 #from ..gui.field_printers import field_printers_registry
 from ..gui.listview import smart_columns_registry

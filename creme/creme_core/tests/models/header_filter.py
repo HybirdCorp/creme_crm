@@ -344,7 +344,6 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_cells_property_errors01(self):
         self.login()
-        user = self.user
 
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'

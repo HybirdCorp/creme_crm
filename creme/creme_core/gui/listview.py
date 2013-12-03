@@ -145,7 +145,7 @@ class ListViewState(object):
                                cell.type_id == cell_type_id
                        )
         except StopIteration:
-            logger.warn('No EntityCell with type=%s name=%s', cell_type, cell_value)
+            logger.warn('No EntityCell with type=%s name=%s', cell_type_id, cell_value)
 
     #TODO: move some parts of code to EntityCell (more object code) ?
     #TODO: stop using 'filter_string' (and update pickled tuple)

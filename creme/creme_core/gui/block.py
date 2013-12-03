@@ -29,7 +29,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from ..models import (Relation, RelationType, RelationBlockItem,
+from ..models import (Relation, RelationBlockItem,
         InstanceBlockConfigItem, CustomBlockConfigItem, BlockState) #CremeEntity
 
 
