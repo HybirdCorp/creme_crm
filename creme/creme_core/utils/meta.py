@@ -22,7 +22,7 @@ from functools import partial
 from itertools import chain
 
 from django.db import models
-from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist #Field
+from django.db.models import ManyToManyField, FieldDoesNotExist #Field ForeignKey
 from django.conf import settings
 
 from ..models import CremeEntity

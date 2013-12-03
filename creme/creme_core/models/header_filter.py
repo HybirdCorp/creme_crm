@@ -26,8 +26,6 @@ from django.db.models import Model, CharField, TextField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from .entity import CremeEntity
-from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
 

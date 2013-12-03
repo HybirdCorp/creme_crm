@@ -31,7 +31,6 @@ from ..models.fields import EntityCTypeForeignKey
 from ..gui.list_view_import import import_form_registry
 from ..utils import creme_entity_content_types, build_ct_choices
 from ..utils.meta import get_model_field_info
-from .creme_widgets import widget_entity_hyperlink
 
 
 logger = logging.getLogger(__name__)

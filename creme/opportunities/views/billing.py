@@ -24,7 +24,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+#from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.models import Relation, Vat
