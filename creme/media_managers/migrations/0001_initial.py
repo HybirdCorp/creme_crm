@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'MediaCategory'
         db.create_table('media_managers_mediacategory', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -39,9 +39,7 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('media_managers_image_categories', ['image_id', 'mediacategory_id'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'MediaCategory'
         db.delete_table('media_managers_mediacategory')
 
@@ -50,7 +48,6 @@ class Migration(SchemaMigration):
 
         # Removing M2M table for field categories on 'Image'
         db.delete_table('media_managers_image_categories')
-
 
     models = {
         'auth.group': {

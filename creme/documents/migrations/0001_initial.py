@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'FolderCategory'
         db.create_table('documents_foldercategory', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -23,9 +23,9 @@ class Migration(SchemaMigration):
         db.create_table('documents_folder', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('parent_folder', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='parent_folder_set', null=True, to=orm['documents.Folder'])),
-            ('category', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='folder_category_set', null=True, to=orm['documents.FolderCategory'])),
+            ('category', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='folder_category_set', null=True, on_delete=models.SET_NULL, to=orm['documents.FolderCategory'])),
         ))
         db.send_create_signal('documents', ['Folder'])
 
@@ -35,13 +35,11 @@ class Migration(SchemaMigration):
             ('title', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('filedata', self.gf('django.db.models.fields.files.FileField')(max_length=500)),
-            ('folder', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['documents.Folder'])),
+            ('folder', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['documents.Folder'], on_delete=models.PROTECT)),
         ))
         db.send_create_signal('documents', ['Document'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'FolderCategory'
         db.delete_table('documents_foldercategory')
 
@@ -50,7 +48,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Document'
         db.delete_table('documents_document')
-
 
     models = {
         'auth.group': {
@@ -80,7 +77,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -104,7 +101,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -115,14 +113,14 @@ class Migration(SchemaMigration):
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'filedata': ('django.db.models.fields.files.FileField', [], {'max_length': '500'}),
-            'folder': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documents.Folder']"}),
+            'folder': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documents.Folder']", 'on_delete': 'models.PROTECT'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'documents.folder': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Folder', '_ormbases': ['creme_core.CremeEntity']},
-            'category': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'folder_category_set'", 'null': 'True', 'to': "orm['documents.FolderCategory']"}),
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'folder_category_set'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': "orm['documents.FolderCategory']"}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'parent_folder': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'parent_folder_set'", 'null': 'True', 'to': "orm['documents.Folder']"}),
             'title': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'})
         },

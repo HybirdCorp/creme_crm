@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import datetime
+
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
 
 
 class Migration(SchemaMigration):
-
     def forwards(self, orm):
         # Adding field 'RelationType.is_copiable'
         db.add_column('creme_core_relationtype', 'is_copiable',
@@ -18,14 +16,12 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
 
-
     def backwards(self, orm):
         # Deleting field 'RelationType.is_copiable'
         db.delete_column('creme_core_relationtype', 'is_copiable')
 
         # Deleting field 'CremePropertyType.is_copiable'
         db.delete_column('creme_core_cremepropertytype', 'is_copiable')
-
 
     models = {
         'auth.group': {

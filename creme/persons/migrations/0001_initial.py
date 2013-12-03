@@ -1,21 +1,22 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'Civility'
         db.create_table('persons_civility', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('shortcut', self.gf('django.db.models.fields.CharField')(max_length=100)),
         ))
         db.send_create_signal('persons', ['Civility'])
 
@@ -53,11 +54,11 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('address', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('po_box', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
-            ('city', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('state', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('zipcode', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('country', self.gf('django.db.models.fields.CharField')(max_length=40, null=True, blank=True)),
+            ('city', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('department', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            ('state', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            ('country', self.gf('django.db.models.fields.CharField')(max_length=40, null=True, blank=True)),
             ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(related_name='object_set', to=orm['contenttypes.ContentType'])),
             ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
@@ -66,23 +67,23 @@ class Migration(SchemaMigration):
         # Adding model 'Contact'
         db.create_table('persons_contact', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
-            ('civility', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Civility'], null=True, blank=True)),
-            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('civility', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Civility'], null=True, on_delete=models.SET_NULL, blank=True)),
             ('last_name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('skype', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('phone', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('mobile', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('fax', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('position', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Position'], null=True, blank=True)),
-            ('sector', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Sector'], null=True, blank=True)),
+            ('position', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Position'], null=True, on_delete=models.SET_NULL, blank=True)),
+            ('sector', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Sector'], null=True, on_delete=models.SET_NULL, blank=True)),
             ('email', self.gf('django.db.models.fields.EmailField')(max_length=100, null=True, blank=True)),
             ('url_site', self.gf('django.db.models.fields.URLField')(max_length=100, null=True, blank=True)),
             ('billing_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='billing_address_contact_set', null=True, to=orm['persons.Address'])),
             ('shipping_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='shipping_address_contact_set', null=True, to=orm['persons.Address'])),
-            ('is_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='related_contact', null=True, to=orm['auth.User'])),
+            ('is_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='related_contact', null=True, on_delete=models.SET_NULL, to=orm['auth.User'])),
             ('birthday', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('image', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['media_managers.Image'], null=True, blank=True)),
+            ('image', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['media_managers.Image'], null=True, on_delete=models.SET_NULL, blank=True)),
         ))
         db.send_create_signal('persons', ['Contact'])
 
@@ -102,7 +103,7 @@ class Migration(SchemaMigration):
             ('fax', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('email', self.gf('django.db.models.fields.EmailField')(max_length=100, null=True, blank=True)),
             ('url_site', self.gf('django.db.models.fields.URLField')(max_length=100, null=True, blank=True)),
-            ('sector', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Sector'], null=True, blank=True)),
+            ('sector', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Sector'], null=True, on_delete=models.SET_NULL, blank=True)),
             ('capital', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
             ('siren', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('naf', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
@@ -110,8 +111,8 @@ class Migration(SchemaMigration):
             ('rcs', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('tvaintra', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('subject_to_vat', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('legal_form', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.LegalForm'], null=True, blank=True)),
-            ('staff_size', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.StaffSize'], null=True, blank=True)),
+            ('legal_form', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.LegalForm'], null=True, on_delete=models.SET_NULL, blank=True)),
+            ('staff_size', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.StaffSize'], null=True, on_delete=models.SET_NULL, blank=True)),
             ('billing_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='billing_address_orga_set', null=True, to=orm['persons.Address'])),
             ('shipping_address', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='shipping_address_orga_set', null=True, to=orm['persons.Address'])),
             ('annual_revenue', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
@@ -121,9 +122,7 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('persons', ['Organisation'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'Civility'
         db.delete_table('persons_civility')
 
@@ -150,7 +149,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Organisation'
         db.delete_table('persons_organisation')
-
 
     models = {
         'auth.group': {
@@ -180,7 +178,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -210,7 +208,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -249,26 +248,27 @@ class Migration(SchemaMigration):
         'persons.civility': {
             'Meta': {'object_name': 'Civility'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'shortcut': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'persons.contact': {
             'Meta': {'ordering': "('last_name', 'first_name')", 'object_name': 'Contact', '_ormbases': ['creme_core.CremeEntity']},
             'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'billing_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'birthday': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'blank': 'True'}),
+            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'fax': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'blank': 'True'}),
-            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': "orm['auth.User']"}),
             'language': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['creme_core.Language']", 'null': 'True', 'blank': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'mobile': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'blank': 'True'}),
-            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
+            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'skype': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
@@ -289,16 +289,16 @@ class Migration(SchemaMigration):
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'fax': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'blank': 'True'}),
-            'legal_form': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.LegalForm']", 'null': 'True', 'blank': 'True'}),
+            'legal_form': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.LegalForm']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'naf': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'rcs': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
+            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_orga_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'siren': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'siret': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'staff_size': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.StaffSize']", 'null': 'True', 'blank': 'True'}),
+            'staff_size': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.StaffSize']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'subject_to_vat': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'tvaintra': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})

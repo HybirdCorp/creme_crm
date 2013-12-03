@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'Category'
         db.create_table('products_category', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -33,15 +33,16 @@ class Migration(SchemaMigration):
         db.create_table('products_product', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('code', self.gf('django.db.models.fields.IntegerField')()),
+            ('code', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('quantity_per_unit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('unit_price', self.gf('django.db.models.fields.DecimalField')(max_digits=8, decimal_places=2)),
+            ('unit', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
+            ('quantity_per_unit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('weight', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=8, decimal_places=2, blank=True)),
             ('stock', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('web_site', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.Category'])),
-            ('sub_category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.SubCategory'])),
+            ('sub_category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.SubCategory'], on_delete=models.PROTECT)),
         ))
         db.send_create_signal('products', ['Product'])
 
@@ -60,9 +61,9 @@ class Migration(SchemaMigration):
             ('description', self.gf('django.db.models.fields.CharField')(max_length=200)),
             ('reference', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.Category'])),
-            ('sub_category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.SubCategory'])),
+            ('sub_category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['products.SubCategory'], on_delete=models.PROTECT)),
             ('countable', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('unit', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('unit', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
             ('quantity_per_unit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('unit_price', self.gf('django.db.models.fields.DecimalField')(max_digits=8, decimal_places=2)),
             ('web_site', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
@@ -79,7 +80,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-
         # Deleting model 'Category'
         db.delete_table('products_category')
 
@@ -127,7 +127,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -151,7 +151,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -182,14 +183,15 @@ class Migration(SchemaMigration):
         'products.product': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Product', '_ormbases': ['creme_core.CremeEntity']},
             'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['products.Category']"}),
-            'code': ('django.db.models.fields.IntegerField', [], {}),
+            'code': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
             'images': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'ProductImages_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['media_managers.Image']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'quantity_per_unit': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'stock': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'sub_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['products.SubCategory']"}),
+            'sub_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['products.SubCategory']", 'on_delete': 'models.PROTECT'}),
+            'unit': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'unit_price': ('django.db.models.fields.DecimalField', [], {'max_digits': '8', 'decimal_places': '2'}),
             'web_site': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'weight': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '8', 'decimal_places': '2', 'blank': 'True'})
@@ -204,8 +206,8 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'quantity_per_unit': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'reference': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'sub_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['products.SubCategory']"}),
-            'unit': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'sub_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['products.SubCategory']", 'on_delete': 'models.PROTECT'}),
+            'unit': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'unit_price': ('django.db.models.fields.DecimalField', [], {'max_digits': '8', 'decimal_places': '2'}),
             'web_site': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         },

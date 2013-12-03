@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'Calendar'
         db.create_table('activities_calendar', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -34,11 +34,21 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('activities', ['ActivityType'])
 
+        # Adding model 'ActivitySubType'
+        db.create_table('activities_activitysubtype', (
+            ('id', self.gf('django.db.models.fields.CharField')(max_length=100, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
+            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.ActivityType'])),
+            ('is_custom', self.gf('django.db.models.fields.BooleanField')(default=True)),
+        ))
+        db.send_create_signal('activities', ['ActivitySubType'])
+
         # Adding model 'Status'
         db.create_table('activities_status', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('description', self.gf('django.db.models.fields.TextField')()),
+            ('is_custom', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
         db.send_create_signal('activities', ['Status'])
 
@@ -50,10 +60,14 @@ class Migration(SchemaMigration):
             ('end', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('minutes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.ActivityType'])),
-            ('is_all_day', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('place', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
+            ('duration', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.ActivityType'], on_delete=models.PROTECT)),
+            ('sub_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.ActivitySubType'], null=True, on_delete=models.SET_NULL, blank=True)),
             ('status', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.Status'], null=True, blank=True)),
+            ('is_all_day', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('busy', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('floating_type', self.gf('django.db.models.fields.PositiveIntegerField')(default=1)),
         ))
         db.send_create_signal('activities', ['Activity'])
 
@@ -65,43 +79,15 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('activities_activity_calendars', ['activity_id', 'calendar_id'])
 
-        # Adding model 'Meeting'
-        db.create_table('activities_meeting', (
-            ('activity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['activities.Activity'], unique=True, primary_key=True)),
-            ('place', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-        ))
-        db.send_create_signal('activities', ['Meeting'])
-
-        # Adding model 'Task'
-        db.create_table('activities_task', (
-            ('activity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['activities.Activity'], unique=True, primary_key=True)),
-            ('duration', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('activities', ['Task'])
-
-        # Adding model 'PhoneCallType'
-        db.create_table('activities_phonecalltype', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('activities', ['PhoneCallType'])
-
-        # Adding model 'PhoneCall'
-        db.create_table('activities_phonecall', (
-            ('activity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['activities.Activity'], unique=True, primary_key=True)),
-            ('call_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['activities.PhoneCallType'], null=True, blank=True)),
-        ))
-        db.send_create_signal('activities', ['PhoneCall'])
-
-
     def backwards(self, orm):
-
         # Deleting model 'Calendar'
         db.delete_table('activities_calendar')
 
         # Deleting model 'ActivityType'
         db.delete_table('activities_activitytype')
+
+        # Deleting model 'ActivitySubType'
+        db.delete_table('activities_activitysubtype')
 
         # Deleting model 'Status'
         db.delete_table('activities_status')
@@ -112,19 +98,6 @@ class Migration(SchemaMigration):
         # Removing M2M table for field calendars on 'Activity'
         db.delete_table('activities_activity_calendars')
 
-        # Deleting model 'Meeting'
-        db.delete_table('activities_meeting')
-
-        # Deleting model 'Task'
-        db.delete_table('activities_task')
-
-        # Deleting model 'PhoneCallType'
-        db.delete_table('activities_phonecalltype')
-
-        # Deleting model 'PhoneCall'
-        db.delete_table('activities_phonecall')
-
-
     models = {
         'activities.activity': {
             'Meta': {'ordering': "('-start',)", 'object_name': 'Activity', '_ormbases': ['creme_core.CremeEntity']},
@@ -132,12 +105,23 @@ class Migration(SchemaMigration):
             'calendars': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['activities.Calendar']", 'null': 'True', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'duration': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'end': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'floating_type': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'is_all_day': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'minutes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'place': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'start': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.Status']", 'null': 'True', 'blank': 'True'}),
+            'sub_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivitySubType']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivityType']", 'on_delete': 'models.PROTECT'})
+        },
+        'activities.activitysubtype': {
+            'Meta': {'object_name': 'ActivitySubType'},
+            'id': ('django.db.models.fields.CharField', [], {'max_length': '100', 'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivityType']"})
         },
         'activities.activitytype': {
@@ -158,32 +142,12 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
-        'activities.meeting': {
-            'Meta': {'ordering': "('-start',)", 'object_name': 'Meeting', '_ormbases': ['activities.Activity']},
-            'activity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['activities.Activity']", 'unique': 'True', 'primary_key': 'True'}),
-            'place': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
-        },
-        'activities.phonecall': {
-            'Meta': {'ordering': "('-start',)", 'object_name': 'PhoneCall', '_ormbases': ['activities.Activity']},
-            'activity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['activities.Activity']", 'unique': 'True', 'primary_key': 'True'}),
-            'call_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.PhoneCallType']", 'null': 'True', 'blank': 'True'})
-        },
-        'activities.phonecalltype': {
-            'Meta': {'object_name': 'PhoneCallType'},
-            'description': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
-        },
         'activities.status': {
             'Meta': {'object_name': 'Status'},
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'activities.task': {
-            'Meta': {'ordering': "('-start',)", 'object_name': 'Task', '_ormbases': ['activities.Activity']},
-            'activity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['activities.Activity']", 'unique': 'True', 'primary_key': 'True'}),
-            'duration': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -212,7 +176,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -236,7 +200,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),

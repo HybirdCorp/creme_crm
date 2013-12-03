@@ -1,17 +1,17 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+
 import datetime
+
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
+
 
 class Migration(SchemaMigration):
-
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'CremeExchangeMapping'
         db.create_table('activesync_cremeexchangemapping', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -88,9 +88,7 @@ class Migration(SchemaMigration):
         # Adding unique constraint on 'EntityASData', fields ['entity', 'field_name']
         db.create_unique('activesync_entityasdata', ['entity_id', 'field_name'])
 
-
     def backwards(self, orm):
-
         # Removing unique constraint on 'EntityASData', fields ['entity', 'field_name']
         db.delete_unique('activesync_entityasdata', ['entity_id', 'field_name'])
 
@@ -111,7 +109,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'EntityASData'
         db.delete_table('activesync_entityasdata')
-
 
     models = {
         'activesync.as_folder': {

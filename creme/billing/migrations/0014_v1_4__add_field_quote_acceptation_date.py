@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
-import datetime
+
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
 
 
 class Migration(SchemaMigration):
-
     def forwards(self, orm):
         # Adding field 'Quote.acceptation_date'
         db.add_column('billing_quote', 'acceptation_date',
                       self.gf('django.db.models.fields.DateField')(null=True, blank=True),
                       keep_default=False)
 
-
     def backwards(self, orm):
         # Deleting field 'Quote.acceptation_date'
         db.delete_column('billing_quote', 'acceptation_date')
-
 
     models = {
         'auth.group': {
