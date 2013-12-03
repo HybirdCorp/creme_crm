@@ -24,14 +24,26 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.login()
 
         create_ptype = CremePropertyType.create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
-        ptype03 = create_ptype(str_pk='test-prop_foobar02', text='wears strange shoes')
+        ptype01 = create_ptype(str_pk='test-prop_foobar01', text=u'Wears strange gloves')
+        ptype02 = create_ptype(str_pk='test-prop_foobar02', text=u'Wears strange glasses')
+        ptype03 = create_ptype(str_pk='test-prop_foobar03', text=u'Wears strange hats')
+
         entity  = CremeEntity.objects.create(user=self.user)
         self.assertFalse(entity.properties.all())
 
         url = '/creme_core/property/add/%s' % entity.id
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['types'].choices
+
+        #choices are sorted with 'text'
+        self.assertEqual([(ptype02.id, ptype02.text),
+                          (ptype01.id, ptype01.text),
+                          (ptype03.id, ptype03.text),
+                         ],
+                         list(choices)
+                        )
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 
