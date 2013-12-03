@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'Graph'
         db.create_table('graphs_graph', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
@@ -43,9 +43,7 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('graphs_rootnode_relation_types', ['rootnode_id', 'relationtype_id'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'Graph'
         db.delete_table('graphs_graph')
 
@@ -57,7 +55,6 @@ class Migration(SchemaMigration):
 
         # Removing M2M table for field relation_types on 'RootNode'
         db.delete_table('graphs_rootnode_relation_types')
-
 
     models = {
         'auth.group': {

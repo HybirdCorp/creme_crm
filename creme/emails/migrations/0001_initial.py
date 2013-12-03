@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'EmailSignature'
         db.create_table('emails_emailsignature', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -35,8 +35,8 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('subject', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('body', self.gf('django.db.models.fields.TextField')()),
-            ('use_rte', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('signature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['emails.EmailSignature'], null=True, blank=True)),
+            ('body_html', self.gf('django.db.models.fields.TextField')()),
+            ('signature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['emails.EmailSignature'], null=True, on_delete=models.SET_NULL, blank=True)),
         ))
         db.send_create_signal('emails', ['EmailTemplate'])
 
@@ -110,12 +110,12 @@ class Migration(SchemaMigration):
             ('sender', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('recipient', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('subject', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('body_html', self.gf('django.db.models.fields.TextField')()),
             ('body', self.gf('django.db.models.fields.TextField')()),
             ('sending_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('reception_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('identifier', self.gf('django.db.models.fields.CharField')(default='2RReVFOqoXmgAEQI8AwrF00hlpf3BED9', unique=True, max_length=32)),
+            ('body_html', self.gf('django.db.models.fields.TextField')()),
             ('signature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['emails.EmailSignature'], null=True, blank=True)),
-            ('identifier', self.gf('django.db.models.fields.CharField')(default='wpiqwOzgjYgsLW7d0IEVXDh4NKKUrfbl', unique=True, max_length=32)),
         ))
         db.send_create_signal('emails', ['EntityEmail'])
 
@@ -137,6 +137,7 @@ class Migration(SchemaMigration):
             ('state', self.gf('django.db.models.fields.PositiveSmallIntegerField')()),
             ('subject', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('body', self.gf('django.db.models.fields.TextField')()),
+            ('body_html', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('signature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['emails.EmailSignature'], null=True, blank=True)),
         ))
         db.send_create_signal('emails', ['EmailSending'])
@@ -156,28 +157,16 @@ class Migration(SchemaMigration):
             ('sender', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('recipient', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('subject', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
-            ('body_html', self.gf('django.db.models.fields.TextField')()),
             ('body', self.gf('django.db.models.fields.TextField')()),
             ('sending_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('reception_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('signature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['emails.EmailSignature'], null=True, blank=True)),
             ('id', self.gf('django.db.models.fields.CharField')(max_length=32, primary_key=True)),
-            ('sending', self.gf('django.db.models.fields.related.ForeignKey')(related_name='mails_set', null=True, to=orm['emails.EmailSending'])),
+            ('sending', self.gf('django.db.models.fields.related.ForeignKey')(related_name='mails_set', to=orm['emails.EmailSending'])),
             ('recipient_entity', self.gf('django.db.models.fields.related.ForeignKey')(related_name='received_lw_mails', null=True, to=orm['creme_core.CremeEntity'])),
         ))
         db.send_create_signal('emails', ['LightWeightEmail'])
 
-        # Adding M2M table for field attachments on 'LightWeightEmail'
-        db.create_table('emails_lightweightemail_attachments', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('lightweightemail', models.ForeignKey(orm['emails.lightweightemail'], null=False)),
-            ('document', models.ForeignKey(orm['documents.document'], null=False))
-        ))
-        db.create_unique('emails_lightweightemail_attachments', ['lightweightemail_id', 'document_id'])
-
-
     def backwards(self, orm):
-
         # Deleting model 'EmailSignature'
         db.delete_table('emails_emailsignature')
 
@@ -226,10 +215,6 @@ class Migration(SchemaMigration):
         # Deleting model 'LightWeightEmail'
         db.delete_table('emails_lightweightemail')
 
-        # Removing M2M table for field attachments on 'LightWeightEmail'
-        db.delete_table('emails_lightweightemail_attachments')
-
-
     models = {
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -258,7 +243,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -288,7 +273,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -299,14 +285,14 @@ class Migration(SchemaMigration):
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'filedata': ('django.db.models.fields.files.FileField', [], {'max_length': '500'}),
-            'folder': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documents.Folder']"}),
+            'folder': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['documents.Folder']", 'on_delete': 'models.PROTECT'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'documents.folder': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Folder', '_ormbases': ['creme_core.CremeEntity']},
-            'category': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'folder_category_set'", 'null': 'True', 'to': "orm['documents.FolderCategory']"}),
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'folder_category_set'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': "orm['documents.FolderCategory']"}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'parent_folder': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'parent_folder_set'", 'null': 'True', 'to': "orm['documents.Folder']"}),
             'title': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'})
         },
@@ -331,6 +317,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'EmailSending'},
             'attachments': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['documents.Document']", 'symmetrical': 'False'}),
             'body': ('django.db.models.fields.TextField', [], {}),
+            'body_html': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'campaign': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'sendings_set'", 'to': "orm['emails.EmailCampaign']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'sender': ('django.db.models.fields.EmailField', [], {'max_length': '100'}),
@@ -352,11 +339,11 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "('id',)", 'object_name': 'EmailTemplate', '_ormbases': ['creme_core.CremeEntity']},
             'attachments': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['documents.Document']", 'symmetrical': 'False'}),
             'body': ('django.db.models.fields.TextField', [], {}),
+            'body_html': ('django.db.models.fields.TextField', [], {}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'signature': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['emails.EmailSignature']", 'null': 'True', 'blank': 'True'}),
-            'subject': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'use_rte': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+            'signature': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['emails.EmailSignature']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'subject': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'emails.entityemail': {
             'Meta': {'object_name': 'EntityEmail', '_ormbases': ['creme_core.CremeEntity']},
@@ -364,7 +351,7 @@ class Migration(SchemaMigration):
             'body': ('django.db.models.fields.TextField', [], {}),
             'body_html': ('django.db.models.fields.TextField', [], {}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
-            'identifier': ('django.db.models.fields.CharField', [], {'default': "'rIijUTknxAqABapC1HU4tbzgItfk3ANK'", 'unique': 'True', 'max_length': '32'}),
+            'identifier': ('django.db.models.fields.CharField', [], {'default': "'H7tALVEIHe8xQL6e6rxCW354EfMgQ46c'", 'unique': 'True', 'max_length': '32'}),
             'reads': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
             'reception_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'recipient': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -376,18 +363,15 @@ class Migration(SchemaMigration):
         },
         'emails.lightweightemail': {
             'Meta': {'object_name': 'LightWeightEmail'},
-            'attachments': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['documents.Document']", 'symmetrical': 'False'}),
             'body': ('django.db.models.fields.TextField', [], {}),
-            'body_html': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'primary_key': 'True'}),
             'reads': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'null': 'True', 'blank': 'True'}),
             'reception_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'recipient': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'recipient_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'received_lw_mails'", 'null': 'True', 'to': "orm['creme_core.CremeEntity']"}),
             'sender': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'sending': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'mails_set'", 'null': 'True', 'to': "orm['emails.EmailSending']"}),
+            'sending': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'mails_set'", 'to': "orm['emails.EmailSending']"}),
             'sending_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'signature': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['emails.EmailSignature']", 'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '2'}),
             'subject': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         },
@@ -432,29 +416,30 @@ class Migration(SchemaMigration):
         'persons.civility': {
             'Meta': {'object_name': 'Civility'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'shortcut': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'persons.contact': {
             'Meta': {'ordering': "('last_name', 'first_name')", 'object_name': 'Contact', '_ormbases': ['creme_core.CremeEntity']},
             'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'billing_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'birthday': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'blank': 'True'}),
+            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'fax': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'blank': 'True'}),
-            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': "orm['auth.User']"}),
             'language': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['creme_core.Language']", 'null': 'True', 'blank': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'mobile': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'blank': 'True'}),
-            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
+            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'skype': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'url_site': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
+            'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         },
         'persons.legalform': {
             'Meta': {'object_name': 'LegalForm'},
@@ -472,16 +457,16 @@ class Migration(SchemaMigration):
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'fax': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'blank': 'True'}),
-            'legal_form': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.LegalForm']", 'null': 'True', 'blank': 'True'}),
+            'legal_form': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.LegalForm']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'naf': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'rcs': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
+            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_orga_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'siren': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'siret': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'staff_size': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.StaffSize']", 'null': 'True', 'blank': 'True'}),
+            'staff_size': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.StaffSize']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'subject_to_vat': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'tvaintra': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})

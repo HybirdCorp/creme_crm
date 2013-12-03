@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'MessagingList'
         db.create_table('sms_messaginglist', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
@@ -88,9 +88,7 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('sms', ['SMSAccount'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'MessagingList'
         db.delete_table('sms_messaginglist')
 
@@ -117,7 +115,6 @@ class Migration(SchemaMigration):
 
         # Deleting model 'SMSAccount'
         db.delete_table('sms_smsaccount')
-
 
     models = {
         'auth.group': {

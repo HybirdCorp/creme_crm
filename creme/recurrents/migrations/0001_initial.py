@@ -1,17 +1,15 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
+
 
 class Migration(SchemaMigration):
-
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'Periodicity'
         db.create_table('recurrents_periodicity', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -35,15 +33,12 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('recurrents', ['RecurrentGenerator'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'Periodicity'
         db.delete_table('recurrents_periodicity')
 
         # Deleting model 'RecurrentGenerator'
         db.delete_table('recurrents_recurrentgenerator')
-
 
     models = {
         'auth.group': {

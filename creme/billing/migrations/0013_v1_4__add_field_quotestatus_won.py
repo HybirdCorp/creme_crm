@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import datetime
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
 
 class Migration(SchemaMigration):
-
     def forwards(self, orm):
-
         # Changing field 'Base.currency'
         db.alter_column('billing_base', 'currency_id', self.gf('django.db.models.fields.related.ForeignKey')(on_delete=models.PROTECT, to=orm['creme_core.Currency']))
 
@@ -39,7 +38,6 @@ class Migration(SchemaMigration):
         db.alter_column('billing_invoice', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.InvoiceStatus'], on_delete=models.PROTECT))
 
     def backwards(self, orm):
-
         # Changing field 'Base.currency'
         db.alter_column('billing_base', 'currency_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['creme_core.Currency']))
 

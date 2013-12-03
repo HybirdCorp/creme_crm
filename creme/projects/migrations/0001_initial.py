@@ -1,17 +1,17 @@
-# encoding: utf-8
-import datetime
+# -*- coding: utf-8 -*-
+
 from south.db import db
 from south.v2 import SchemaMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
+class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
 
     def forwards(self, orm):
-
         # Adding model 'TaskStatus'
         db.create_table('projects_taskstatus', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -36,7 +36,7 @@ class Migration(SchemaMigration):
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.ProjectStatus'])),
+            ('status', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.ProjectStatus'], on_delete=models.PROTECT)),
             ('start_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('effective_end_date', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
@@ -48,8 +48,7 @@ class Migration(SchemaMigration):
             ('activity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['activities.Activity'], unique=True, primary_key=True)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tasks_set', to=orm['projects.Project'])),
             ('order', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('duration', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('tstatus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.TaskStatus'])),
+            ('tstatus', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.TaskStatus'], on_delete=models.PROTECT)),
         ))
         db.send_create_signal('projects', ['ProjectTask'])
 
@@ -81,9 +80,7 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('projects', ['WorkingPeriod'])
 
-
     def backwards(self, orm):
-
         # Deleting model 'TaskStatus'
         db.delete_table('projects_taskstatus')
 
@@ -105,7 +102,6 @@ class Migration(SchemaMigration):
         # Deleting model 'WorkingPeriod'
         db.delete_table('projects_workingperiod')
 
-
     models = {
         'activities.activity': {
             'Meta': {'ordering': "('-start',)", 'object_name': 'Activity', '_ormbases': ['creme_core.CremeEntity']},
@@ -113,12 +109,23 @@ class Migration(SchemaMigration):
             'calendars': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['activities.Calendar']", 'null': 'True', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'duration': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'end': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'floating_type': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
             'is_all_day': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'minutes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'place': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'start': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.Status']", 'null': 'True', 'blank': 'True'}),
+            'sub_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivitySubType']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivityType']", 'on_delete': 'models.PROTECT'})
+        },
+        'activities.activitysubtype': {
+            'Meta': {'object_name': 'ActivitySubType'},
+            'id': ('django.db.models.fields.CharField', [], {'max_length': '100', 'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['activities.ActivityType']"})
         },
         'activities.activitytype': {
@@ -143,6 +150,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Status'},
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'auth.group': {
@@ -172,7 +180,7 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.UserRole']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
@@ -202,7 +210,8 @@ class Migration(SchemaMigration):
         },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -241,29 +250,30 @@ class Migration(SchemaMigration):
         'persons.civility': {
             'Meta': {'object_name': 'Civility'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'shortcut': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'persons.contact': {
             'Meta': {'ordering': "('last_name', 'first_name')", 'object_name': 'Contact', '_ormbases': ['creme_core.CremeEntity']},
             'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'billing_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'birthday': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'blank': 'True'}),
+            'civility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Civility']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'fax': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'blank': 'True'}),
-            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'to': "orm['auth.User']"}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'image': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['media_managers.Image']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'is_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'related_contact'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': "orm['auth.User']"}),
             'language': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['creme_core.Language']", 'null': 'True', 'blank': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'mobile': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'blank': 'True'}),
-            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'blank': 'True'}),
+            'position': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Position']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
+            'sector': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Sector']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'shipping_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'shipping_address_contact_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
             'skype': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'url_site': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
+            'url_site': ('django.db.models.fields.URLField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'})
         },
         'persons.position': {
             'Meta': {'object_name': 'Position'},
@@ -283,7 +293,7 @@ class Migration(SchemaMigration):
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'start_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['projects.ProjectStatus']"})
+            'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['projects.ProjectStatus']", 'on_delete': 'models.PROTECT'})
         },
         'projects.projectstatus': {
             'Meta': {'object_name': 'ProjectStatus'},
@@ -295,11 +305,10 @@ class Migration(SchemaMigration):
         'projects.projecttask': {
             'Meta': {'ordering': "('-start',)", 'object_name': 'ProjectTask', '_ormbases': ['activities.Activity']},
             'activity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['activities.Activity']", 'unique': 'True', 'primary_key': 'True'}),
-            'duration': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'order': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'parent_tasks': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'children_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['projects.ProjectTask']"}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tasks_set'", 'to': "orm['projects.Project']"}),
-            'tstatus': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['projects.TaskStatus']"})
+            'tstatus': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['projects.TaskStatus']", 'on_delete': 'models.PROTECT'})
         },
         'projects.resource': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Resource', '_ormbases': ['creme_core.CremeEntity']},

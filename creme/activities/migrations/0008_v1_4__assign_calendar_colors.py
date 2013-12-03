@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from south.v2 import DataMigration
+
 from django.db import models
 
-class Migration(DataMigration):
 
+class Migration(DataMigration):
     def forwards(self, orm):
         # from ...constants import COLOR_POOL
         COLOR_POOL = ('c1d9ec', '94c6db', #blue icecream
@@ -25,7 +26,6 @@ class Migration(DataMigration):
         for i, calendar in enumerate(Calendar.objects.filter(Q(color__isnull=True) | Q(color__exact=''))):
             calendar.color = COLOR_POOL[(n + i) % color_pool_len]
             calendar.save()
-
 
     def backwards(self, orm):
         "No backwards methods"
