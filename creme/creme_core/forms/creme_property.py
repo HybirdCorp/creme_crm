@@ -84,19 +84,18 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
                                                   )
 
     def clean(self):
-        if self._errors:
-            return self.cleaned_data
-
         cleaned_data = self.cleaned_data
-        types_ids = cleaned_data['types'].values_list('id', flat=True)
 
-        if not types_ids:
-            raise ValidationError(ugettext(u'No property types'))
+        if not self._errors:
+            types_ids = cleaned_data['types'].values_list('id', flat=True)
 
-        if CremePropertyType.objects.filter(pk__in=types_ids).count() < len(types_ids):
-            raise ValidationError(ugettext(u"Some property types doesn't not exist"))
+            if not types_ids:
+                raise ValidationError(ugettext(u'No property types'))
 
-        validate_editable_entities(cleaned_data['entities'], self.user)
+            if CremePropertyType.objects.filter(pk__in=types_ids).count() < len(types_ids):
+                raise ValidationError(ugettext(u"Some property types doesn't not exist"))
+
+            validate_editable_entities(cleaned_data['entities'], self.user)
 
         return cleaned_data
 

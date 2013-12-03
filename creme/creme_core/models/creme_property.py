@@ -42,6 +42,7 @@ class CremePropertyType(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Type of property')
         verbose_name_plural = _(u'Types of property')
+        ordering = ('text',)
 
     def delete(self):
         #self.property_i18n_set.all().delete()
