@@ -32,7 +32,6 @@ creme.reports.loading_options = {
       }
 };
 
-
 creme.reports.load = function(options) {
     if(!options || options == undefined) return;
 
@@ -58,8 +57,7 @@ creme.reports.load = function(options) {
 //     $(options.show_after_ct).show();
 }
 
-/*
-//Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
+//TODO: Could use creme.forms.Select.optionsFromData & creme.forms.Select.fill with a hack for default/error options?
 creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     if($target_select.size() != 1) return;
 
@@ -76,17 +74,17 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
         $target_select.empty();
 
         //TODO: factorise 'data.length == 0'
-        if(data.length == 0 && !params.empty_option) {
+        if (data.length == 0 && !params.empty_option) {
             $target_select.append($def_option);
         }
-        if(data.length == 0 && params.empty_option) {
+        if (data.length == 0 && params.empty_option) {
             $target_select.append(params.empty_option);
         }
-        if(data.length > 0 && params.always_option) {
+        if (data.length > 0 && params.always_option) {
             $target_select.append(params.always_option);
         }
 
-        for(var i in data) {
+        for (var i in data) {
             var d = data[i];
 //             $target_select.append($('<option value="'+d.pk+'">'+d.fields.name+'</option>'));
             $target_select.append($('<option value="' + d[0] + '">' + d[1] + '</option>'));
@@ -95,7 +93,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     };
 
     var error_cb = function(req, textStatus, err) {
-        if(!params.err_option) {
+        if (!params.err_option) {
             $target_select.empty().append($def_option);
         } else {
             $target_select.empty().append(params.empty_option);
@@ -126,7 +124,6 @@ creme.reports.loadFilters = function(ct_id, $target_select) {
 
     creme.reports.__loadFilters(url, ct_id, $target_select, params);
 }
-*/
 
 /*
 //todo: refactor when OrderedMultiSelect can be properly reload
