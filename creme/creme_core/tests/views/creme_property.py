@@ -20,6 +20,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         cls.populate('creme_config')
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 
+        CremePropertyType.objects.all().delete()
+
     def test_add(self):
         self.login()
 
