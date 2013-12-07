@@ -187,6 +187,14 @@ class _CremeTestCase(object):
         except Exception as e:
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
 
+    def assertIndex(self, elt, sequence):
+        try:
+            index = sequence.index(elt)
+        except ValueError:
+            self.fail('{0} not found'.format(elt))
+
+        return index
+
     def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
         """Warning : this method has not the same behaviour than assertFormError()
         It checks both error and no error tests.
