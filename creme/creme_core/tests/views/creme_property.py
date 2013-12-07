@@ -20,8 +20,6 @@ class PropertyViewsTestCase(ViewsTestCase):
         cls.populate('creme_config')
         cls.centity_ct = ContentType.objects.get_for_model(CremeEntity)
 
-        CremePropertyType.objects.all().delete()
-
     def test_add(self):
         self.login()
 
@@ -40,12 +38,12 @@ class PropertyViewsTestCase(ViewsTestCase):
             choices = response.context['form'].fields['types'].choices
 
         #choices are sorted with 'text'
-        self.assertEqual([(ptype02.id, ptype02.text),
-                          (ptype01.id, ptype01.text),
-                          (ptype03.id, ptype03.text),
-                         ],
-                         list(choices)
-                        )
+        choices = list(choices)
+        i1 = self.assertIndex((ptype02.id, ptype02.text), choices)
+        i2 = self.assertIndex((ptype01.id, ptype01.text), choices)
+        i3 = self.assertIndex((ptype03.id, ptype03.text), choices)
+        self.assertLess(i1, i2)
+        self.assertLess(i2, i3)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 
