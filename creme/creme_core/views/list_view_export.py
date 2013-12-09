@@ -74,7 +74,7 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
             entities = entities.filter(current_lvs.extra_q)
 
         entities = entities.filter(current_lvs.get_q_with_research(model, cells))
-        entities = EntityCredentials.filter(request.user, entities)
+        entities = EntityCredentials.filter(user, entities)
         entities = current_lvs.sort_query(entities)
 
         for entities_slice in iter_as_slices(entities, 256):

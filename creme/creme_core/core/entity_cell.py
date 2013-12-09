@@ -388,8 +388,11 @@ class EntityCellRelation(EntityCell):
         return u''.join(relations_list)
 
     def render_csv(self, entity, user):
-        #TODO: entity credentials !!
-        return u'/'.join(unicode(o) for o in entity.get_related_entities(self.value, True))
+        has_perm = user.has_perm_to_view
+        return u'/'.join(unicode(o)
+                            for o in entity.get_related_entities(self.value, True)
+                                if has_perm(o)
+                        )
 
 
 #@CELLS_MAP TODO ??

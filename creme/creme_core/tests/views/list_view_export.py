@@ -41,8 +41,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         user = self.user
 
         create_orga = partial(Organisation.objects.create, user=user)
-        bebop     = create_orga(name='Bebop')
-        swordfish = create_orga(name='Swordfish')
+        self.organisations = organisations = dict((name, create_orga(name=name) )for name in ('Bebop', 'Swordfish'))
 
         rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
                                            ('test-object_pilots',  'is piloted by')
@@ -61,10 +60,16 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                                          ]
                         )
 
-        create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots)
-        create_rel(subject_entity=contacts['Jet'],   object_entity=bebop)
-        create_rel(subject_entity=contacts['Spike'], object_entity=bebop)
-        create_rel(subject_entity=contacts['Spike'], object_entity=swordfish)
+        #create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots)
+        create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,
+                             object_entity=organisations['Bebop']
+                            )
+        #create_rel(subject_entity=contacts['Jet'],   object_entity=bebop)
+        #create_rel(subject_entity=contacts['Spike'], object_entity=bebop)
+        #create_rel(subject_entity=contacts['Spike'], object_entity=swordfish)
+        create_rel(subject_entity=contacts['Jet'])
+        create_rel(subject_entity=contacts['Spike'])
+        create_rel(subject_entity=contacts['Spike'], object_entity=organisations['Swordfish'])
 
         create_prop = CremeProperty.objects.create
         create_prop(type=ptype_girl,      creme_entity=contacts['Faye'])
@@ -178,6 +183,28 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         self.role.exportable_ctypes = [self.ct] # set the 'export' credentials
         self.assertGET200(url, data=data)
+
+    def test_list_view_export04(self):
+        "Credential"
+        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
+        self.role.exportable_ctypes = [self.ct]
+
+        self._build_hf_n_contacts()
+
+        organisations = self.organisations
+        bebop = organisations['Bebop']
+        bebop.user = self.other_user
+        bebop.save()
+        self.assertFalse(self.user.has_perm_to_view(bebop))
+        self.assertTrue(self.user.has_perm_to_view(organisations['Swordfish']))
+
+        response = self.assertGET200(self._build_url(self.ct),
+                                     data={'list_url': self._set_listview_state()}
+                                    )
+        result = map(force_unicode, response.content.splitlines())
+        self.assertEqual(5, len(result)) #Fulbert is not viewable
+        self.assertEqual(result[1], '"","Black","Jet","",""')
+        self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
