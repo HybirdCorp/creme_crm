@@ -51,14 +51,14 @@ creme.color.luminance = function(r, g, b) {
 };
 
 creme.color.contrast = function(r, g, b, r2, g2, b2) {
-    var luminance1 = creme.utils.luminance(r, g, b);
-    var luminance2 = creme.utils.luminance(r2, g2, b2);
+    var luminance1 = creme.color.luminance(r, g, b);
+    var luminance2 = creme.color.luminance(r2, g2, b2);
     return (Math.max(luminance1, luminance2) + 0.05) / (Math.min(luminance1, luminance2) + 0.05);
 };
 
 creme.color.maxContrastingColor = function(r, g, b) {
-    var withWhite = creme.utils.contrast(r, g, b, 255, 255, 255);
-    var withBlack = creme.utils.contrast(r, g, b, 0, 0, 0);
+    var withWhite = creme.color.contrast(r, g, b, 255, 255, 255);
+    var withBlack = creme.color.contrast(r, g, b, 0, 0, 0);
 
     if (withWhite > withBlack)
         return 'white';
