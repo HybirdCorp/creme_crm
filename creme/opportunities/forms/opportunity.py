@@ -41,6 +41,12 @@ class OpportunityEditForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Opportunity
 
+    def __init__(self, *args, **kwargs):
+        super(OpportunityEditForm, self).__init__(*args, **kwargs)
+
+        if self.instance.pk: #edition
+            self.fields['target'].initial = self.instance.target
+
     def clean_target(self):
         self.instance.target = target = validate_linkable_entity(self.cleaned_data['target'], self.user)
 
@@ -48,8 +54,9 @@ class OpportunityEditForm(CremeEntityForm):
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    emitter = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme())
-
+    emitter = ModelChoiceField(label=_(u"Concerned organisation"),
+                               queryset=Organisation.get_all_managed_by_creme(),
+                              )
 
     def clean_emitter(self):
         self.instance.emitter = emitter = validate_linkable_entity(self.cleaned_data['emitter'], self.user)
