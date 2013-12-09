@@ -514,7 +514,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         name = 'opportunity01'
         opp, target, emitter = self._create_opportunity_n_organisations(name)
         url = opp.get_edit_absolute_url()
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            target_f = response.context['form'].fields['target']
+
+        self.assertEqual(target, target_f.initial)
 
         name = name.title()
         reference = '1256'
