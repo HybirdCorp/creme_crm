@@ -52,10 +52,14 @@ def edit(request, order_id):
 @login_required
 @permission_required('billing')
 def detailview(request, order_id):
+    user = request.user
+    has_perm = user.has_perm
+    isnt_staff = not user.is_staff
+
     return view_entity(request, order_id, SalesOrder, '/billing/sales_order',
                        'billing/view_sales_order.html',
                        {'can_download':       True,
-                        'can_create_invoice': request.user.has_perm('billing.add_invoice'),
+                        'can_create_invoice': has_perm('billing.add_invoice') and isnt_staff,
                        }
                       )
 
