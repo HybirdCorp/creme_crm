@@ -652,7 +652,7 @@ creme.utils.openQuickForms = function(element) {
     var type = $('[name="ct_id"]', element).val();
     var count = $('[name="entity_count"]', element).val();
 
-    creme.dialogs.form(uri.format(type, count)).open();
+    creme.dialogs.deprecatedForm(uri.format(type, count), {reloadOnSuccess: true}).open();
 }
 
 /*
