@@ -63,6 +63,11 @@ class Populator(BasePopulator):
                             'login':    login,
                             'password': password,
                         })
+        else:
+            #User created by 'syncdb' is a staff user, which is annoying when there is only one user (he cannot own any entity)
+            if root.is_staff and User.objects.count() == 1:
+                root.is_staff = False
+                root.save()
 
         sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
                                description=_(u"By default, are blocks open ?"),
