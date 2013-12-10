@@ -51,7 +51,7 @@ class Populator(BasePopulator):
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                         (EntityCellRegularField, {'name': 'image'}),
                                         (EntityCellRegularField, {'name': 'description'}),
-                                        (EntityCellRegularField, {'name': 'user__username'}),
+                                        (EntityCellRegularField, {'name': 'user'}),
                                         (EntityCellRegularField, {'name': 'categories'}),
                                        ],
                            )

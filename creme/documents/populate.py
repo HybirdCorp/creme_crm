@@ -64,7 +64,7 @@ class Populator(BasePopulator):
         HeaderFilter.create(pk='documents-hf_folder', name=_(u"Folder view"), model=Folder,
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
                                         (EntityCellRegularField, {'name': 'description'}),
-                                        (EntityCellRegularField, {'name': 'category__name'}),
+                                        (EntityCellRegularField, {'name': 'category'}),
                                        ]
                            )
 

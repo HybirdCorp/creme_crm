@@ -58,17 +58,17 @@ class Populator(BasePopulator):
         create_hf = HeaderFilter.create
         create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                              (EntityCellRegularField, {'name': 'status__name'}),
-                              (EntityCellRegularField, {'name': 'priority__name'}),
-                              (EntityCellRegularField, {'name': 'criticity__name'}),
+                              (EntityCellRegularField, {'name': 'status'}),
+                              (EntityCellRegularField, {'name': 'priority'}),
+                              (EntityCellRegularField, {'name': 'criticity'}),
                               (EntityCellRegularField, {'name': 'closing_date'}),
                              ],
                  )
         create_hf(pk='tickets-hf_template', name=_(u'Ticket template view'), model=TicketTemplate,
                   cells_desc=[(EntityCellRegularField, {'name': 'title'}),
-                              (EntityCellRegularField, {'name': 'status__name'}),
-                              (EntityCellRegularField, {'name': 'priority__name'}),
-                              (EntityCellRegularField, {'name': 'criticity__name'}),
+                              (EntityCellRegularField, {'name': 'status'}),
+                              (EntityCellRegularField, {'name': 'priority'}),
+                              (EntityCellRegularField, {'name': 'criticity'}),
                              ],
                  )
 
