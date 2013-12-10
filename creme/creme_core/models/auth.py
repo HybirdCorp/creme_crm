@@ -346,10 +346,6 @@ class UserProfile(Model):
 
         return teammates
 
-    @property
-    def can_admin(self):
-        return self.is_superuser or self.is_staff
-
     @teammates.setter
     def teammates(self, users):
         assert self.is_team

@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block creme_widgets creme_core_tags %}
-{% with has_perm=user.can_admin %}
+{% with has_perm=user.is_superuser %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_block_title  _('%s Team') _('%s Teams') %}</th>
