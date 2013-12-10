@@ -24,6 +24,8 @@ from creme.creme_core.gui.button_menu import Button
 
 from creme.persons.models import Contact, Organisation
 
+from .models import Quote, Invoice, SalesOrder
+
 
 class GenerateInvoiceNumberButton(Button):
     id_           = Button.generate_id('billing', 'generate_invoice_number')
@@ -45,10 +47,13 @@ class GenerateInvoiceNumberButton(Button):
 #TODO: rename 'become' (surely copied-pasted)
 class _AddBillingDocumentButton(Button):
     template_name   = 'billing/templatetags/button_add_billing_document.html'
-    which_document  = "OVERLOADME"
+    model_to_create = "OVERLOADME"
 
     def get_ctypes(self):
         return (Organisation, Contact)
+
+    def has_perm(self, context):
+        return context['user'].has_perm_to_create(self.model_to_create)
 
     def ok_4_display(self, entity):
         self.__managed_orga = Organisation.get_all_managed_by_creme()
@@ -57,33 +62,33 @@ class _AddBillingDocumentButton(Button):
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
         context['verbose_name'] = self.verbose_name
-        context['which_document'] = self.which_document
+        context['which_document'] = self.model_to_create.__name__.lower()
         context['become_url'] = self.become_url % context['object'].id
 
         return super(_AddBillingDocumentButton, self).render(context)
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
+    model_to_create = Invoice
     id_             = Button.generate_id('billing', 'add_invoice')
     verbose_name    = _(u'Add a related invoice')
     permission      = 'billing.add_invoice'
-    which_document  = "invoice"
     become_url      = "/billing/invoice/add/%s"
 
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
+    model_to_create = SalesOrder
     id_             = Button.generate_id('billing', 'add_salesorder')
     verbose_name    = _(u'Add a related sales order')
     permission      = 'billing.add_salesorder'
-    which_document  = "salesorder"
     become_url      = "/billing/sales_order/add/%s"
 
 
 class AddQuoteButton(_AddBillingDocumentButton):
+    model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
     verbose_name    = _(u'Add a related quote')
     permission      = 'billing.add_quote'
-    which_document  = "quote"
     become_url      = "/billing/quote/add/%s"
 
 
