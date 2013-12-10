@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
-{% with has_perm=user.can_admin %}
+{% with has_perm=user.can_admin current_user_id=user.id%}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=11 %}
         <th class="collapser label">{% get_block_title  _('%s User') _('%s Users') %}</th>
@@ -34,8 +34,8 @@
                 <td class="{{row_color}}">{{user.email}}</td>
                 <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>
                 <td class="{{row_color}}">
-                    <input{% if user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/activate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="false">{% trans "Yes" %}
-                    <input{% if not user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/deactivate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="true">{% trans "No" %}
+                    <input{% if user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff  or user.id == current_user_id %}disabled="true"{% else %} onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/activate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="false">{% trans "Yes" %}
+                    <input{% if not user.is_active %} checked{% endif %} type="radio" {% if not has_perm or user.is_staff or user.id == current_user_id %}disabled="true"{% else %}onmousedown="if (!this.checked){creme.blocks.ajaxPOSTQuery('/creme_config/user/deactivate/{{user.id}}', {blockReloadUrl: {% get_block_reload_uri %}}).start()}"{% endif %} name="user_{{user.id}}" value="true">{% trans "No" %}
                 </td>
                 <td class="{{row_color}}">{{user.last_login}}</td>
                 <td class="{{row_color}}">{{user.date_joined}}</td>
