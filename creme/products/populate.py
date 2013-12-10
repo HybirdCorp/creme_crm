@@ -36,7 +36,7 @@ class Populator(BasePopulator):
                   cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'code'}),
-                              (EntityCellRegularField, {'name': 'user__username'}),
+                              (EntityCellRegularField, {'name': 'user'}),
                              ],
                  )
 
@@ -44,7 +44,7 @@ class Populator(BasePopulator):
                   cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),
                               (EntityCellRegularField, {'name': 'name'}),
                               (EntityCellRegularField, {'name': 'reference'}),
-                              (EntityCellRegularField, {'name': 'user__username'}),
+                              (EntityCellRegularField, {'name': 'user'}),
                              ],
                  )
 

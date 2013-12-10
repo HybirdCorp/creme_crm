@@ -76,7 +76,7 @@ class Populator(BasePopulator):
 
         HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        (EntityCellRegularField, {'name': 'type__name'}),
+                                        (EntityCellRegularField, {'name': 'type'}),
                                         (EntityCellRegularField, {'name': 'start_date'}),
                                         (EntityCellRegularField, {'name': 'end_date'}),
                                        ],
