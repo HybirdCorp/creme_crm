@@ -21,6 +21,6 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-
+#TODO: delete me
 def clean(request):
     return HttpResponseRedirect(reverse('creme_logout'))
