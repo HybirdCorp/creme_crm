@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 18-06-2013 pour la version 1.3 de Creme
+:Version: 10-12-2013 pour la version 1.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -80,7 +80,7 @@ Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
 Nous vous conseillons d'utiliser l'app `django extensions <https://github.com/django-extensions/django-extensions>`_
 qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
-``shell_plus``, ``clean_pyc``, ...)
+``shell_plus``, ``clean_pyc``, …).
 
 
 Création du répertoire parent
@@ -91,7 +91,7 @@ Plaçons nous dans notre projet, dans le répertoire ``creme/`` : ::
     > cd creme_crm/creme
 
 Il existe une commande pour créer une app (``django-admin.py startapp``), cependant
-la tâche étant très simple, nous allons faire ce travail nous mêmes, petit à petit.
+la tâche étant très simple, nous allons faire ce travail nous-mêmes, petit à petit.
 D'abord nous créons le répertoire contenant notre app : ::
 
     > mkdir beavers
@@ -244,7 +244,7 @@ Faire apparaître notre module
 Il va bien falloir remplir cette base de données avec des castors. Pourtant si nous
 lançons Creme avec le serveur de développement de Django, et que nous y connectons
 avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans la configuration),
-que ce passe-t-il ? ::
+que se passe-t-il ? ::
 
     > python manage.py runserver
 
@@ -299,7 +299,7 @@ Nous allons à présent créer la vue permettant d'afficher la liste des castors
 auquelle on accède par l'url: '/beavers/beavers', que l'on a utilisé dans
 ``creme_core_register.py``.
 
-Premièrement, jettons un coup d'oeil au fichier ``creme/urls.py`` ; on y trouve
+Premièrement, jetons un coup d'œil au fichier ``creme/urls.py`` ; on y trouve
 la configuration des chemins de base pour chaque app. Nous remarquons ici que
 pour chaque app présente dans le tuple INSTALLED_CREME_APPS, on récupère le fichier
 ``urls.py`` se trouvant dans le répertoire ``nom_de_votre_appli/``.
@@ -431,7 +431,7 @@ La vue d'édition
 ~~~~~~~~~~~~~~~~
 
 Si nous cliquons sur le bouton d'édition (le gros stylo dans la vue détaillée),
-nous avons encore une erreur 404. Ajoutons cete vue dans ``views/beaver.py`` : ::
+nous avons encore une erreur 404. Ajoutons cette vue dans ``views/beaver.py`` : ::
 
     @login_required
     @permission_required('beavers')
@@ -451,7 +451,7 @@ et rajoutons l'url associée : ::
 La vue de portail
 ~~~~~~~~~~~~~~~~~
 
-La plupart des apps possède un portail ; il sert nottament à afficher les blocs
+La plupart des apps possède un portail ; il sert notamment à afficher les blocs
 relatifs aux entités de l'app en question (par exemple tous les ToDos attachés
 à des castors dans notre cas), ainsi que des statistiques. C'est très simple à
 mettre en place ; nous afficherons le nombre de castors en tout dans nos
@@ -523,7 +523,7 @@ Ne reste plus qu'à créer le fameux fichier ``beavers/templates/beavers/portal.
     {% block list_msg %}{% trans "List of beavers" %}{% endblock %}
 
 Vous remarquerez qu'il ne sert qu'à surcharger des blocs du portail génériques ;
-d'autres blocs sont surchargeables, par exemple celui pour rajouter une icone
+d'autres blocs sont surchargeables, par exemple celui pour rajouter une icône
 à votre portail.
 
 
@@ -541,7 +541,8 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
 
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import HeaderFilterItem, HeaderFilter, SearchConfigItem
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.models import HeaderFilter, SearchConfigItem
     from creme.creme_core.utils import create_or_update as create
     from creme.creme_core.management.commands.creme_populate import BasePopulator
 
@@ -552,10 +553,11 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
         dependencies = ['creme_core']
 
         def populate(self):
-            hf = HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver)
-            hf.set_items([HeaderFilterItem.build_4_field(model=Beaver, name='name'),
-                          HeaderFilterItem.build_4_field(model=Beaver, name='birthday'),
-                         ])
+            HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver,
+                                cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                            (EntityCellRegularField, {'name': 'birthday'}),
+                                           ],
+                               )
 
             SearchConfigItem.create_if_needed(Beaver, ['name'])
 
@@ -563,8 +565,8 @@ Explications :
 
 - Nous créons une vue de liste (``HeaderFilter``) avec 2 colonnes, correspondant
   tout simplement au nom et la date de naissance de nos castors. Pour les
-  ``HeaderFilterItem``, la methode ``build_4_field`` correspond à des champs
-  normaux de nos castors (il y a d'autres méthodes, comme ``build_4_relation``
+  colonnes, la classe ``EntityCellRegularField`` correspond à des champs
+  normaux de nos castors (il y a d'autres classes, comme ``EntityCellRelation``
   par exemple).
 - La ligne avec ``SearchConfigItem`` sert à configurer la recherche globale :
   elle se fera sur le champ 'name' pour les castors.
@@ -583,7 +585,7 @@ Localisation (l10n)
 Jusqu'ici nous avons mis uniquement des labels en anglais. Donc même si votre
 navigateur est configuré pour récupérer les pages en français quand c'est possible,
 l'interface du module *beavers* reste en anglais. Mais nous avons toujours utilisé
-les methodes ``ugettext`` et ``ugettext_lazy`` (importées en tant que '_') pour
+les méthodes ``ugettext`` et ``ugettext_lazy`` (importées en tant que '_') pour
 'wrapper' nos labels. Il va donc être facile de localiser notre module.
 Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
 construit le fichier de traduction (en français ici) : ::
@@ -845,7 +847,7 @@ Ce fichier va être chargé par le module de configuration générale de Creme,
 variable ``to_register``.
 Si vous allez sur le portail de la 'Configuration générale', dans le
 'Portails des applications', la section 'Portail configuration Gestion des castors'
-est bien apparue : elle nous permet bien de créer des nouveaux Status.
+est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 
 
 Utilisation des blocs
@@ -928,10 +930,10 @@ Maintenant au tour du fichier template associé, ``beavers/templates/beavers/tem
         </span>
     {% endif %}
 
-La variable ``has_perm`` est renseignée gràce à l'attribut ``permission`` de
+La variable ``has_perm`` est renseignée grâce à l'attribut ``permission`` de
 notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
-référence à une url auquelle nous n'avons pas (encore) associé de vue.
+référence à une url à laquelle nous n'avons pas (encore) associée de vue.
 
 
 Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
@@ -999,13 +1001,72 @@ Champs fonctions
 Hooking des formulaires
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-[TODO]
+Les formulaires Creme possèdent 3 méthodes qui permettent de changer leur
+comportement sans avoir à modifier leur code directement, ce qui est utile pour
+adapter les apps existantes de manière propre :
+
+ - ``add_post_init_callback()``
+ - ``add_post_clean_callback()``
+ - ``add_post_save_callback()``
+
+Elles prennent chacune une fonction comme seul paramètre ; comme leur nom
+le suggère, ces fonctions (*callbacks*) sont respectivement appelées après les
+appels à __init__(), clean() et save(). Ces callbacks doivent avoir un et un
+seul paramètre, l'instance du formulaire.
+
+Le plus simple est de *hooker* les formulaires voulus depuis le ``creme_config_register.py``
+d'une de vos apps personnelles (comme *beavers*).
+ 
+[TODO: à compléter]
 
 
 Surcharge des templates
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-[TODO]
+Une des manières les plus simple de modifier une app existante pour l'adapter à
+ses propres besoin consiste à surcharger tout ou partie de ses templates.
+
+Pour cela, Creme s'appuie sur le système de chargement des templates de Django.
+Si vous regarder votre fichier ``settings.py``, vous pouvez y trouver la variable
+suivante : ::
+
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', (
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        )),
+    )
+
+L'ordre des *loaders* est important ; cet ordre va faire que les templates présent
+dans le répertoire ``creme/templates/`` seront chargés en priorité par rapport
+aux templates présent dans les répertoires ``templates/`` que l'on trouve dans
+les répertoires des apps.
+
+Exemple : plutôt que de modifier directement le template ``creme/persons/templates/persons/view_contact.html``,
+vous pouvez mettre votre version modifiée dans le fichier ``creme/templates/persons/view_contact.html``.
+
+
+Surcharge de label
+~~~~~~~~~~~~~~~~~~
+
+Il est assez courant de vouloir personnaliser certains labels ; par exemple,
+vouloir remplacer les occurrences de 'Société' par 'Association'.
+
+Dans le répertoire ``creme/``, il faut lancer la commande suivante (notez que
+'organisation' est le terme utilisé en anglais pour 'société') : ::
+
+    > python manage.py i18n_overload -l fr organisation Organisation
+
+
+Il faut ensuite éditer le fichier de traduction nouvellement créé dans
+``locale_overload/`` (indiqué par la commande), en modifiant les phrases en
+français. Dans notre exemple, on remplacera donc 'société' par 'collectivité'.
+N'oubliez pas de supprimer les lignes "#, fuzzy".
+Il ne restera alors plus qu'à compiler ces nouvelles traductions comme déjà
+vu auparavant. En se plaçant dans le répertoire ``locale_overload/`` : ::
+
+    > django-admin.py compilemessages
+
 
 
 Liste des différents services
@@ -1017,3 +1078,85 @@ Liste des différents services
   les fichiers ``recurrents_register.py`` dans ``billing`` ou ``tickets``.
 - L'app *crudity* permet de créer des objets depuis des données externes, comme
   les e-mails par exemple.
+
+
+Tests unitaires et développement piloté par les tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creme utilise autant que possible le `Développement Piloté par les Tests <http://fr.wikipedia.org/wiki/Test_Driven_Development>`_.
+Ainsi les tests des fonctionnalités sont écrits en même temps que les
+fonctionnalités elles-mêmes. En fournissant en permanence un filet de sécurité
+aux développeurs, le code peut constamment être amélioré sans régression, ou du
+moins en les limitant considérablement.
+
+Une fois un peu à l'aise avec la programmation de code Creme, vous pourrez
+envisager de tester et déboguer votre code en rafraîchissant vos vues dans
+votre navigateur Web.
+
+Pour notre module *beavers*, voici un exemple qui teste la vue de création.
+Créez un fichier ``beavers/tests.py`` : ::
+
+    # -*- coding: utf-8 -*-
+
+    try:
+        import datetime
+
+        from creme.creme_core.tests.base import CremeTestCase
+
+        from .models import Beaver, Status
+    except Exception as e:
+        print 'Error in <%s>: %s' % (__name__, e)
+
+
+    class BeaverTestCase(CremeTestCase):
+        @classmethod
+        def setUpClass(cls):
+            CremeTestCase.setUpClass()
+            cls.populate('creme_config', 'beavers')
+
+    def test_createview(self):
+        self.login()
+
+        self.assertEqual(0, Beaver.objects.count())
+        url = '/beavers/beaver/add'
+        self.assertGET200(url)
+
+        name   = 'Hector'
+        status = Status.objects.all()[0]
+        response = self.client.post(url, follow=True,
+                                    data={'user':     self.user.pk,
+                                          'name':     name,
+                                          'birthday': '2008-6-7',
+                                          'status':   status.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        beavers = Beaver.objects.all()
+        self.assertEqual(1, len(beavers))
+
+        beaver = beavers[0]
+        self.assertEqual(name,   beaver.name)
+        self.assertEqual(status, beaver.status)
+        self.assertEqual(datetime.date(year=2008, month=6, day=7),
+                         beaver.birthday
+                        )
+
+
+[TODO: tester ce code]
+
+Remarques:
+ - Les imports initiaux sont mis par un bloc try/except, car si une erreur se
+   produit au moment de l'importation des modules, l'exception est capturée
+   silencieusement par l'infrastructure de test, et vos tests ne seront pas
+   exécutés (tout se passera comme s'il y avait 0 test).
+ - La méthode setUpClass est appelé une seul fois, avant que les test soient
+   exécutés. Y lancer les commande *populate* utiles permet d'être bien plus
+   rapide que si on les lance dans la méthode ``setUp()``, exécutée avant
+   chaque test de la classe.
+
+
+Vous pouvez alors lancer vos tests : ::
+
+    > python manage.py test beavers
+   
