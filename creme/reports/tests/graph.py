@@ -812,6 +812,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
         create_orga(name='Orga2', creation_date='2013-06-25', capital=200)
         create_orga(name='Orga3', creation_date='2013-07-5',  capital=150)
+        create_orga(name='Orga4', creation_date='2013-07-5',  capital=1000, is_deleted=True)
 
         #ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()

@@ -67,8 +67,7 @@ class ReportGraph(CremeEntity):
     def fetch(self, extra_q=None, order='ASC'):
         assert order == 'ASC' or order == 'DESC'
         report = self.report
-
-        entities = report.ct.model_class().objects.all()
+        entities = report.ct.model_class().objects.filter(is_deleted=False)
 
         if report.filter is not None:
             entities = report.filter.filter(entities)
