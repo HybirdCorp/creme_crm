@@ -68,16 +68,32 @@ class MiscViewsTestCase(ViewsTestCase):
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self): #TODO: improve test
-        self.assertGET200('/')
+        response = self.assertGET200('/')
+        self.assertTemplateUsed('creme_core/home.html')
 
     def test_my_page(self):
         self.assertGET200('/my_page')
+        self.assertTemplateUsed('creme_core/my_page.html')
 
     def test_clean(self):
-        with self.assertNoException():
-            response = self.client.get('/creme_core/clean/', follow=True)
+        #with self.assertNoException():
+            #response = self.client.get('/creme_core/clean/', follow=True)
 
-        self.assertEqual(200, response.status_code)
+        #self.assertEqual(200, response.status_code)
+        #self.assertRedirects(response, '/creme_login/')
+
+        #reverse() forces all views to load & can detect some errors
+        #will be useless when test covers all code
+        #Problem: it 'artificially' increases coverage rate
+        from django.core.urlresolvers import reverse
+        with self.assertNoException():
+            reverse('creme_logout')
+
+    def test_logout(self):
+        self.assertIn('_auth_user_id', self.client.session)
+        response = self.assertGET200('/creme_logout/', follow=True)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
         self.assertRedirects(response, '/creme_login/')
 
     def test_js_view(self):
@@ -103,6 +119,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             js_testview_or_404(request, '', '')
+
 
 class LanguageTestCase(ViewsTestCase):
     @classmethod

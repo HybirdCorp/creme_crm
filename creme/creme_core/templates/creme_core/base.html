@@ -230,7 +230,8 @@
                 {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{user.first_name|escape}}{% else %}{{user.username}}{% endif %}</strong> ({% blocktrans %}Time zone: {{TIME_ZONE}}{% endblocktrans %}) -
                 {% block userlinks %}
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
-                    <a href="/creme_core/clean/">{% trans 'Log out' %}</a> -
+                    {% comment %}<a href="/creme_core/clean/">{% trans 'Log out' %}</a> -{% endcomment %}
+                    <a href="/creme_logout/">{% trans 'Log out' %}</a> -
                     <a href="/creme_core/entity/trash">
                         {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}
                     </a>

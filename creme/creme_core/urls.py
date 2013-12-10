@@ -87,7 +87,7 @@ creme_core_patterns = patterns('creme.creme_core.views',
     (r'^header_filter/', include(headerfilter_patterns)),
     (r'^enumerable/',    include(enumerable_patterns)),
 
-    (r'^clean/$', 'clean.clean'),
+    #(r'^clean/$', 'clean.clean'), #TODO: remove code too
 
     (r'^list_view/import/(?P<ct_id>\d+)$',                                 'list_view_import.import_listview'),
     (r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',          'list_view_export.dl_listview'),
