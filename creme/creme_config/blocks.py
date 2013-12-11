@@ -29,6 +29,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
 from creme.creme_core.gui.block import PaginatedBlock, QuerysetBlock
 from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils.unicode_collation import collator
 
 from .models import  SettingValue
 
@@ -260,10 +261,14 @@ class BlockPortalLocationsBlock(PaginatedBlock):
     def detailview_display(self, context):
         get_app = creme_registry.get_app
         apps = [get_app(name) for name in BlockPortalLocation.objects.exclude(app_name='creme_core')
+                                                             .order_by('app_name') #in order that distinct() works correctly
                                                              .distinct()
                                                              .values_list('app_name', flat=True)
                                   if name
                ]
+
+        sort_key = collator.sort_key
+        apps.sort(key=lambda app: sort_key(app.verbose_name))
 
         return self._render(self.get_block_template_context(
                                 context, apps,
