@@ -213,7 +213,7 @@ def get_date_fields(model, exclude_func=lambda f: False):
     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
 
 
-
+# ModelFieldEnumerator -------------------------------------------------------
 class _FilterModelFieldQuery(object):
     _TAGS = ('viewable', 'clonable', 'enumerable') #TODO: use a constants in fields_tags ??
 
@@ -224,18 +224,18 @@ class _FilterModelFieldQuery(object):
             conditions.append(function)
 
         for attr_name, value in kwargs.iteritems():
-            fun = (lambda field, attr_name, value: field.get_tag(attr_name) == value) if attr_name in self._TAGS else \
-                  (lambda field, attr_name, value: getattr(field, attr_name) == value)
+            fun = (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value) if attr_name in self._TAGS else \
+                  (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
 
             conditions.append(partial(fun, attr_name=attr_name, value=value))
 
-    def __call__(self, field):
-        return all(cond(field) for cond in self._conditions)
+    def __call__(self, field, deep):
+        return all(cond(field, deep) for cond in self._conditions)
 
 
 class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
-    def __call__(self, field):
-        return not any(cond(field) for cond in self._conditions)
+    def __call__(self, field, deep):
+        return not any(cond(field, deep) for cond in self._conditions)
 
 
 class ModelFieldEnumerator(object):
@@ -255,22 +255,23 @@ class ModelFieldEnumerator(object):
 
     def __iter__(self):
         if self._fields is None:
-            self._fields = self._build_fields([], self._model, (), self._deep)
+            self._fields = self._build_fields([], self._model, (), self._deep, 0)
 
         return iter(self._fields)
 
-    def _build_fields(self, fields_info, model, parents_fields, deep):
+    def _build_fields(self, fields_info, model, parents_fields, rem_depth, depth):
+        "@param rem_depth Remaining depth to look into"
         ffilters = self._ffilters
         include_fk = not self._only_leafs
         deeper_fields_args = []
         meta = model._meta
 
         for field in chain(meta.fields, meta.many_to_many):
-            if all(ffilter(field) for ffilter in ffilters):
+            if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
                 if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
-                    if deep:
+                    if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
                         deeper_fields_args.append((field.rel.to, field_info))
@@ -281,7 +282,7 @@ class ModelFieldEnumerator(object):
 
         # Fields of related model are displayed at the end
         for sub_model, field_info in deeper_fields_args:
-            self._build_fields(fields_info, sub_model, field_info, deep - 1)
+            self._build_fields(fields_info, sub_model, field_info, rem_depth - 1, depth + 1)
 
         return fields_info
 

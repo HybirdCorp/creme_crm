@@ -26,7 +26,7 @@ RFT_FIELD      = 1
 RFT_RELATION   = 2
 RFT_FUNCTION   = 3
 RFT_CUSTOM     = 4
-RFT_CALCULATED = 5 #TODO: separate regular & custom cases
+RFT_AGGREGATE = 5 #TODO: separate regular & custom cases
 #RFT_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see EntityCell.volatile_render
 RFT_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 

@@ -114,7 +114,7 @@ class ReportGraphForm(CremeEntityForm):
 
         #Ordinate -----------------------------------------------------------
         aggfield_choices = ModelFieldEnumerator(model, deep=0) \
-                                .filter((lambda f: isinstance(f, field_aggregation_registry.authorized_fields)),
+                                .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
                                         viewable=True
                                        ) \
                                 .choices()
@@ -171,7 +171,7 @@ class ReportGraphForm(CremeEntityForm):
             aggregate_field_f.widget.attrs = disabled_attrs
             fields['aggregate'].widget.attrs = disabled_attrs
 
-    def _filter_abcissa_field(self, field):
+    def _filter_abcissa_field(self, field, depth):
         if isinstance(field, DateField): #TODO: meta.is_date_field ?
             return True
 

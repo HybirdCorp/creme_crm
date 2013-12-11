@@ -3,27 +3,22 @@
 {% with 6 as colspan %}
 {% has_perm_to change object as has_perm %}{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    <thead>
-        <tr>
-            <th valign="middle" colspan="{{colspan}}">{% trans 'Columns of the report' %}</th>
-        </tr>
-    </thead>
+    {% get_block_header colspan=colspan %}
+        <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _('Columns of the report') %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Delete a column" as del_label %}
+            <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Edit the columns" as edit_label %}
                 {% if has_perm %}
-                    <a class="button_link" onclick="creme.blocks.deprecatedForm('/reports/report/{{object.id}}/field/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
-                        {% trans "Add a column" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-                        {% trans "Add" %} /
-                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{del_label}}" alt="{{del_label}}" />
-                        {{del_label}}
+                    <a class="button_link" onclick="creme.blocks.deprecatedForm('/reports/report/{{object.id}}/edit_fields', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});">
+                        <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{edit_label}}" alt="{{edit_label}}" />
+                        {{edit_label}}
                     </a>
                 {% else %}
                     <span class="button_link forbidden">
-                        {% trans "Can't add" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-                        {% trans "Add" %} /
-                        {% trans "Can't delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
-                        {{del_label}}
+                        {% trans "Can't edit" as img_title %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+                        {{edit_label}}
                     </span>
                 {% endif %}
             </th>
