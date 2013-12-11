@@ -186,10 +186,14 @@ class MetaTestCase(CremeTestCase):
 
     def test_field_enumerator04(self):
         "Filter with function, exclude"
-        self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=1).filter(lambda f: f.name.endswith('ied'), viewable=True).choices(),
+        self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=1)
+                             .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
+                             .choices(),
                          [('modified', _('Last modification'))]
                         )
-        self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=0).exclude(lambda f: f.name.endswith('ied'), viewable=False).choices(),
+        self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=0)
+                             .exclude(lambda f, depth: f.name.endswith('ied'), viewable=False)
+                             .choices(),
                          [('created',  _('Creation date')),
                           #('user',     _('User')),
                          ]
@@ -205,7 +209,7 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
         choices = meta.ModelFieldEnumerator(EmailCampaign, only_leafs=False) \
-                      .filter((lambda f: f.get_internal_type() != 'ForeignKey'), viewable=True) \
+                      .filter((lambda f, depth: f.get_internal_type() != 'ForeignKey'), viewable=True) \
                       .choices()
 
         expected.append(('mailing_lists', _('Related mailing lists')))
@@ -263,6 +267,35 @@ class MetaTestCase(CremeTestCase):
                           ('user__is_team',     fs % (user_lbl, _('Is a team ?'))),
                           ('status__name',      fs % (_('Status'), _('Name'))),
                           #('status__is_custom', fs % (_('Status'), _('is custom'))),
+                          ('priority__name',    fs % (_('Priority'), _('Name'))),
+                          ('criticity__name',   fs % (_('Criticity'), _('Name'))),
+                         ],
+                         choices, choices
+                        )
+
+    def test_field_enumerator08(self):
+        "'depth' argument"
+
+        choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False) \
+                      .filter((lambda f, depth: not depth or f.name == 'name'), viewable=True) \
+                      .choices()
+
+        fs = u'[%s] - %s'
+        self.assertEqual([
+                          ('created',           _('Creation date')),
+                          ('modified',          _('Last modification')),
+                          ('user',              _('Owner user')),
+                          ('title',             _('Title')),
+                          ('description',       _('Description')),
+                          ('status',            _('Status')),
+                          ('priority',          _('Priority')),
+                          ('criticity',         _('Criticity')),
+                          ('solution',          _('Solution')),
+                          ('closing_date',      _('Closing date')),
+                          #('user__username',    fs % (user_lbl, _('username'))),
+                          #('user__first_name',  fs % (user_lbl, _('first name'))),
+                          # ...
+                          ('status__name',      fs % (_('Status'), _('Name'))),
                           ('priority__name',    fs % (_('Priority'), _('Name'))),
                           ('criticity__name',   fs % (_('Criticity'), _('Name'))),
                          ],

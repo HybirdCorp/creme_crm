@@ -32,7 +32,7 @@ from creme.creme_core.utils.meta import (get_instance_field_info,
         get_model_field_info, get_related_field, get_verbose_field_name)
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
-        RFT_CALCULATED, RFT_RELATED)
+        RFT_AGGREGATE, RFT_RELATED)
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -192,6 +192,10 @@ class ReportHand(object):
     def title(self):
         return self._title
 
+    #def to_entity_cell(self):
+        #"@return An equivalent EntityCell"
+        #return None #todo: avoid None
+
 
 @REPORT_HANDS_MAP(RFT_FIELD)
 class RHRegularField(ReportHand):
@@ -226,6 +230,8 @@ class RHRegularField(ReportHand):
         model_field, value = get_instance_field_info(entity, self._report_field.name)
 
         return unicode(value or u'') #Maybe format map (i.e : datetime...)
+
+    #def to_entity_cell(self):
 
 
 class RHForeignKey(RHRegularField):
@@ -362,7 +368,7 @@ class RHRelation(ReportHand):
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
 class RHFunctionField(ReportHand):
-    verbose_name = _(u'Function field') #TODO: homogenous with HeaderFilter ??
+    verbose_name = _(u'Computed field')
 
     def __init__(self, report_field):
         funcfield = report_field.model.function_fields.get(report_field.name)
@@ -377,10 +383,11 @@ class RHFunctionField(ReportHand):
         return self._funcfield(entity).for_csv()
 
 
-#TODO: separate RFT_REGULAR_CALCULATED & RFT_CUSTOM_CALCULATED cases
-@REPORT_HANDS_MAP(RFT_CALCULATED)
-class RHCalculated(ReportHand):
-    verbose_name = _(u'Calculated value')
+#TODO: separate RFT_REGULAR_AGGREGATE & RFT_CUSTOM_AGGREGATE cases
+@REPORT_HANDS_MAP(RFT_AGGREGATE)
+class RHAggregate(ReportHand):
+    #verbose_name = _(u'Calculated value')
+    verbose_name = _(u'Aggregated value')
 
     def __init__(self, report_field):
         #TODO: factorise with form code (_get_calculated_title)
@@ -414,7 +421,7 @@ class RHCalculated(ReportHand):
             self._aggregation_q = aggregation.func(field_name)
             verbose_name = field.verbose_name
 
-        super(RHCalculated, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
+        super(RHAggregate, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
 
     def _get_value_single(self, entity, user, scope):
         return scope.aggregate(rh_calculated_agg=self._aggregation_q).get('rh_calculated_agg') or 0

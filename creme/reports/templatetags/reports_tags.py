@@ -27,7 +27,7 @@ from django.template import Library
 #from creme.creme_core.registry import creme_registry
 
 #from ..constants import (RFT_FIELD, RFT_RELATION, RFT_FUNCTION,
-        #RFT_CUSTOM, RFT_CALCULATED, RFT_RELATED)
+        #RFT_CUSTOM, RFT_AGGREGATE, RFT_RELATED)
 #from ..models.graph import (RGT_RELATION, RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH,
                             #RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 #from ..report_aggregation_registry import field_aggregation_registry

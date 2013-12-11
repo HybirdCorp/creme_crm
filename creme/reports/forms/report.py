@@ -18,30 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
 from functools import partial
-from itertools import chain, count
+from itertools import chain
 #import logging
 
-#from django.db.models.query_utils import Q
 from django.db.transaction import commit_on_success
-from django.forms.fields import MultipleChoiceField, ChoiceField
-from django.forms.util import ErrorList #ValidationError
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
+from django.forms.fields import ChoiceField
+from django.db.models import ForeignKey, ManyToManyField
+from django.forms.util import ErrorList
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.core.entity_cell import (EntityCellRegularField,
+from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 from creme.creme_core.forms import CremeEntityForm, CremeForm
-from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField #AjaxMultipleChoiceField
-from creme.creme_core.models import HeaderFilter, EntityFilter, RelationType, CustomField
+from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
+from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
+from creme.creme_core.models import HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils.meta import get_date_fields, ModelFieldEnumerator
 
-from ..constants import RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION, RFT_CALCULATED, RFT_RELATED
+from ..constants import RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION, RFT_AGGREGATE, RFT_RELATED
 from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
@@ -50,75 +48,53 @@ from ..report_aggregation_registry import field_aggregation_registry
 #logger = logging.getLogger(__name__)
 
 
-_CFIELD_PREFIX = 'cf__'
+#No need to validate (only built by form that does validation for us).
+class _EntityCellRelated(EntityCell):
+    type_id = 'related'
 
-def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: move to utils ?? as protected method ??
-    for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                         #field_type__in=[CustomField.INT, CustomField.FLOAT]
-                                         field_type__in=field_aggregation_registry.authorized_customfields,
-                                        ):
-        yield ('%s%s__%s' % (_CFIELD_PREFIX, cf.field_type, aggregate_pattern % cf.id),
-               cf.name
-              )
+    def __init__(self, agg_id):
+        super(_EntityCellRelated, self).__init__(value=agg_id, title='Related')
+
+class _EntityCellAggregate(EntityCell):
+    type_id = 'regular_aggregate'
+
+    def __init__(self, agg_id):
+        super(_EntityCellAggregate, self).__init__(value=agg_id, title='Aggregate')
+
+class _EntityCellCustomAggregate(EntityCell):
+    type_id = 'custom_aggregate'
+
+    def __init__(self, agg_id):
+        super(_EntityCellCustomAggregate, self).__init__(value=agg_id, title='Custom Aggregate')
 
 
-class CreateForm(CremeEntityForm):
-    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), #required=True,
+_CELL_2_HAND_MAP = {
+    EntityCellRegularField.type_id:     RFT_FIELD,
+    EntityCellCustomField.type_id:      RFT_CUSTOM,
+    EntityCellFunctionField.type_id:    RFT_FUNCTION,
+    EntityCellRelation.type_id:         RFT_RELATION,
+    _EntityCellRelated.type_id:         RFT_RELATED,
+    _EntityCellAggregate.type_id:       RFT_AGGREGATE,
+    _EntityCellCustomAggregate.type_id: RFT_AGGREGATE,
+}
+_HAND_2_CELL_MAP = dict((v,k) for k, v in _CELL_2_HAND_MAP.iteritems())
+
+_RELATED_PREFIX     = _EntityCellRelated.type_id + '-'
+_REGULAR_AGG_PREFIX = _EntityCellAggregate.type_id + '-'
+_CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
+
+
+class ReportCreateForm(CremeEntityForm):
+    hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(),
                                   help_text=_('The columns of the report will be copied from the list view.')
                                  )
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
-    #regular_fields = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    #custom_fields  = AjaxMultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    #related_fields = AjaxMultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    #relations      = AjaxMultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    #functions      = AjaxMultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-
-    #blocks = CremeEntityForm.blocks.new(
-        #('hf_block',         _(u'Select from a existing view : '), ['hf']),
-        #('fields_block',     _(u'Or'), ['regular_fields', 'related_fields', 'custom_fields','relations', 'functions']),
-        #('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
-    #)
-
     class Meta(CremeEntityForm.Meta):
         model = Report
 
-    #def __init__(self, *args, **kwargs):
-        #super(CreateForm, self).__init__(*args, **kwargs)
-        #fields = self.fields
-
-        #self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
-
-        #for aggregate in self.aggregates:
-            #fields[aggregate.name] = AjaxMultipleChoiceField(label=_(aggregate.title), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-
-        #To hande a validation error get ct_id data to rebuild all ?
-
     def clean(self):
         cleaned_data = self.cleaned_data
-        #get_data     = cleaned_data.get
-        #fields       = self.fields
-
-        #hf             = get_data('hf')
-        #regular_fields = get_data('regular_fields')
-        #related_fields = get_data('related_fields')
-        #custom_fields  = get_data('custom_fields')
-        #relations      = get_data('relations')
-        #functions      = get_data('functions')
-
-        #aggregates = self.aggregates
-
-        #is_one_aggregate_selected = False
-        #for aggregate in aggregates:
-            #for data in get_data(aggregate.name):
-                #is_one_aggregate_selected |= bool(data)
-
-        #if not hf and not (regular_fields or related_fields or custom_fields or relations or functions or is_one_aggregate_selected):
-            #rfield_fields = ['regular_fields', 'related_fields', 'custom_fields', 'relations', 'functions']
-            #rfield_fields.extend(aggregate.name for aggregate in aggregates)
-            #raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") %
-                                    #u", ".join(unicode(fields[f].label) for f in rfield_fields)
-                                 #)
 
         if not self._errors:
             get_data = cleaned_data.get
@@ -134,91 +110,27 @@ class CreateForm(CremeEntityForm):
 
         return cleaned_data
 
-    #def save(self, *args, **kwargs):
-        #report = super(CreateForm, self).save(*args, **kwargs)
-        #report_fields = []
-        #get_data = self.cleaned_data.get
-        #hf = get_data('hf')
-
-        #if hf is not None:
-            ##Have to build from an existant header filter
-            #field_get_instance_from_hf_item = Field.get_instance_from_hf_item
-
-            #for hf_item in hf.items:
-                #f = field_get_instance_from_hf_item(hf_item)
-                #f.save()
-                #report_fields.append(f)
-        #else:
-            #model = report.ct.model_class()
-            #i = 1
-
-            #for regular_field in get_data('regular_fields'):
-                #report_fields.append(save_hfi_field(model, regular_field, i))
-                #i += 1
-
-            #for related_field in get_data('related_fields'):
-                #report_fields.append(save_hfi_related_field(model, related_field, i))
-                #i += 1
-
-            #cf_ids = get_data('custom_fields')
-            #if cf_ids:
-                #cfields = CustomField.objects.filter(content_type=report.ct).in_bulk(cf_ids)
-
-                #for cf_id in cf_ids:
-                    #try:
-                        #cfield = cfields[int(cf_id)]
-                    #except (ValueError, KeyError):
-                        #logger.exception('CreateForm.save()')
-                    #else:
-                        #report_fields.append(save_hfi_cf(cfield, i))
-                        #i += 1
-
-            #for relation in get_data('relations'):
-                #report_fields.append(save_hfi_relation(relation, i))
-                #i += 1
-
-            #for function in get_data('functions'):
-                #report_fields.append(save_hfi_function(model, function, i))
-                #i += 1
-
-            #for aggregate in self.aggregates:
-                #for calculated_column in get_data(aggregate.name):
-                    #title = _get_hfi_calculated_title(aggregate, calculated_column, model)
-                    #report_fields.append(save_hfi_calculated(calculated_column, title, i))
-                    #i += 1
-
-        #report.columns = report_fields
-
-        #return report
-
-    _TYPE_TRANSLATION_MAP = {
-            EntityCellRegularField.type_id:     RFT_FIELD,
-            EntityCellCustomField.type_id:      RFT_CUSTOM,
-            EntityCellFunctionField.type_id:    RFT_FUNCTION,
-            EntityCellRelation.type_id:         RFT_RELATION,
-        }
-
     @commit_on_success
     def save(self, *args, **kwargs):
-        report = super(CreateForm, self).save(*args, **kwargs)
+        report = super(ReportCreateForm, self).save(*args, **kwargs)
         build_field = partial(Field.objects.create, report=report)
 
         for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
             #TODO: check in clean() that id is OK
             build_field(name=cell.value, title=cell.title, order=i,
-                        type=self._TYPE_TRANSLATION_MAP[cell.type_id],
+                        type=_CELL_2_HAND_MAP[cell.type_id],
                        )
 
         return report
 
 
-class EditForm(CremeEntityForm):
+class ReportEditForm(CremeEntityForm):
     class Meta:
         model = Report
         exclude = CremeEntityForm.Meta.exclude + ('ct',)
 
     def __init__(self, *args, **kwargs):
-        super(EditForm, self).__init__(*args, **kwargs)
+        super(ReportEditForm, self).__init__(*args, **kwargs)
         filter_f = self.fields['filter']
         filter_f.empty_label = ugettext(u'All')
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
@@ -244,117 +156,143 @@ class LinkFieldToReportForm(CremeForm):
         rfield.save()
 
 
-class AddFieldToReportForm(CremeForm):
-    regular_fields = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    related_fields = MultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    custom_fields  = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations      = MultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    functions      = MultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+class ReportHandsWidget(EntityCellsWidget):
+    def __init__(self, related_entities=(), *args, **kwargs):
+        super(ReportHandsWidget, self).__init__(*args, **kwargs)
+        self.related_entities = related_entities
+        self.regular_aggregates = ()
+        self.custom_aggregates = ()
 
-    blocks = CremeEntityForm.blocks.new(
-        ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
-    )
+    def _build_render_context(self, name, value, attrs):
+        ctxt = super(ReportHandsWidget, self)._build_render_context(name, value, attrs)
+        ctxt['related_entities']   = self.related_entities
+        ctxt['regular_aggregates'] = self.regular_aggregates
+        ctxt['custom_aggregates']  = self.custom_aggregates
+
+        return ctxt
+
+    def render(self, name, value, attrs=None):
+        return render_to_string('reports/reports_hands_widget.html',
+                                self._build_render_context( name, value, attrs)
+                               )
+
+
+class ReportHandsField(EntityCellsField):
+    widget = ReportHandsWidget
+
+    def _build_4_custom_aggregate(self, model, name):
+        return _EntityCellCustomAggregate(name[len(_CUSTOM_AGG_PREFIX):])
+
+    def _build_4_regular_aggregate(self, model, name):
+        return _EntityCellAggregate(name[len(_REGULAR_AGG_PREFIX):])
+
+    def _build_4_related(self, model, name):
+        return _EntityCellRelated(name[len(_RELATED_PREFIX):])
+
+    def _regular_fields_enum(self, model):
+        fields = super(ReportHandsField, self)._regular_fields_enum(model)
+        fields.filter(lambda field, depth: not (depth and isinstance(field, (ForeignKey, ManyToManyField))))
+
+        return fields
+
+    @EntityCellsField.content_type.setter
+    def content_type(self, ct):
+        EntityCellsField.content_type.fset(self, ct)
+
+        #if ct is None:
+            #widget.regular_aggregates = ()
+        #else:
+        if ct is not None:
+            builders = self._builders
+            widget = self.widget
+            model = ct.model_class()
+
+            #Related ---------------------------------------------------------
+            widget.related_entities = related_choices = []
+
+            for related_name, related_vname in Report.get_related_fields_choices(model):
+                rel_id = _RELATED_PREFIX + related_name
+                related_choices.append((rel_id, related_vname))
+                builders[rel_id] = ReportHandsField._build_4_related
+
+            #Aggregates ------------------------------------------------------
+            widget.regular_aggregates = reg_agg_choices = []
+            widget.custom_aggregates  = cust_agg_choices = []
+            authorized_fields       = field_aggregation_registry.authorized_fields
+            authorized_customfields = field_aggregation_registry.authorized_customfields
+
+            for aggregate in field_aggregation_registry.itervalues():
+                pattern = aggregate.pattern
+                title   = aggregate.title
+
+                for f_name, f_vname in ModelFieldEnumerator(model, deep=0) \
+                                            .filter((lambda f, deep: isinstance(f, authorized_fields)),
+                                                    viewable=True,
+                                                   ) \
+                                            .choices():
+                    agg_id = _REGULAR_AGG_PREFIX + pattern % f_name
+                    reg_agg_choices.append((agg_id, u'%s - %s' % (title, f_vname)))
+
+                    builders[agg_id] = ReportHandsField._build_4_regular_aggregate
+
+                for cf in self._custom_fields:
+                    if cf.field_type in authorized_customfields:
+                        agg_id = '%scf__%s__%s' % (_CUSTOM_AGG_PREFIX, cf.field_type, pattern % cf.id)
+                        cust_agg_choices.append((agg_id, u'%s - %s' % (title, cf.name)))
+                        builders[agg_id] = ReportHandsField._build_4_custom_aggregate
+
+
+class ReportFieldsForm(CremeForm):
+    columns = ReportHandsField(label=_(u'Columns'))
 
     def __init__(self, entity, *args, **kwargs):
         self.report = entity
-        super(AddFieldToReportForm, self).__init__(*args, **kwargs)
-        ct = entity.ct
-        model = ct.model_class()
+        super(ReportFieldsForm, self).__init__(*args, **kwargs)
 
-        fields = self.fields
-        self.rfields = rfields = list(entity.columns) #pool of Fields
-        initial_data = defaultdict(list)
+        columns_f = self.fields['columns']
+        columns_f.content_type = entity.ct
+
+        cells = []
+        for column in entity.columns:
+            #NB: this is a hack : EntityCellWidgets only use value & type_id to check initial data
+            #    it would be better to use a method column.hand.to_entity_cell()
+            if column.hand: #check validity
+                cell = EntityCell(value=column.name)
+                cell.type_id = _HAND_2_CELL_MAP[column.type]
+                cells.append(cell)
+
+        columns_f.initial = cells
+
+    def _get_sub_report_n_selected(self, rfields, new_rfield):
+        ftype = new_rfield.type
+        fname = new_rfield.name
 
         for rfield in rfields:
-            initial_data[rfield.type].append(rfield.name)
+            if rfield.type == ftype and rfield.name == fname:
+                return rfield.sub_report, rfield.selected
 
-        regular_fields_f = fields['regular_fields']
-        regular_fields_f.choices = ModelFieldEnumerator(model, deep=1) \
-                                        .filter(viewable=True) \
-                                        .choices()
-        regular_fields_f.initial = initial_data[RFT_FIELD]
-
-        related_fields_f = fields['related_fields']
-        related_fields_f.choices = Report.get_related_fields_choices(model)
-        related_fields_f.initial = initial_data[RFT_RELATED]
-
-        custom_fields_f = fields['custom_fields']
-        self.custom_fields = cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ct)) #TODO: remove when title is now more store in Field
-        custom_fields_f.choices = [(str(cf.id), cf.name) for cf in cfields.itervalues()]
-        custom_fields_f.initial = initial_data[RFT_CUSTOM]
-
-        relations_f = fields['relations']
-        self.rtypes = rtypes = OrderedDict(RelationType.get_compatible_ones(ct)
-                                                       .order_by('predicate') #TODO: unicode collation
-                                                       .values_list('id', 'predicate')
-                                          )
-        relations_f.choices = rtypes.items()
-        relations_f.initial = initial_data[RFT_RELATION]
-
-        function_fields_f = fields['functions']
-        function_fields_f.choices = [(f.name, f.verbose_name) for f in model.function_fields] #TODO: unicode collation ??
-        function_fields_f.initial = initial_data[RFT_FUNCTION]
-
-        self._set_aggregate_fields(model, initial_data=initial_data[RFT_CALCULATED])
-
-    def _set_aggregate_fields(self, model, initial_data=None):
-        fields = self.fields
-        authorized_fields = field_aggregation_registry.authorized_fields
-
-        for aggregate in field_aggregation_registry.itervalues():
-            pattern = aggregate.pattern
-            choices = [(pattern % f_name, f_vname)
-                            for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
-                                                    .filter((lambda f: isinstance(f, authorized_fields)),
-                                                            viewable=True,
-                                                           )
-                                                    .choices()
-                      ]
-
-            choices.extend(get_aggregate_custom_fields(model, pattern))
-
-            fields[aggregate.name] = MultipleChoiceField(label=aggregate.title,
-                                                         required=False, choices=choices,
-                                                         widget=OrderedMultipleChoiceWidget,
-                                                         initial=initial_data,
-                                                        )
+        return None, False
 
     @commit_on_success
     def save(self):
-        get_data = self.cleaned_data.get
         report = self.report
+        old_rfields = report.columns
+        old_ids = [rfield.id for rfield in old_rfields]
+        sub_report_n_selected = self._get_sub_report_n_selected
 
-        old_rfields = self.rfields
-        order = count(1)
-
-        def add_rfield(name, ftype):
-            rfield = Field(pk=old_rfields.pop(0).pk if old_rfields else None,
-                           report=report, name=name, type=ftype,
-                           order=order.next(),
+        for i, cell in enumerate(self.cleaned_data['columns'], start=1):
+            #rfield = Field(id=old_rfields.pop(0).id if old_rfields else None,
+            rfield = Field(id=old_ids.pop(0) if old_ids else None,
+                           report=report, name=cell.value,
+                           type=_CELL_2_HAND_MAP[cell.type_id],
+                           order=i,
                           )
-            rfield.save() #TODO: only if different than the old one
+            rfield.sub_report, rfield.selected = sub_report_n_selected(old_rfields, rfield)
 
-        for field_name in get_data('regular_fields'):
-            add_rfield(name=field_name, ftype=RFT_FIELD)
+            rfield.save() #TODO: only if different from the old one
 
-        for related_field_name in get_data('related_fields'):
-            add_rfield(name=related_field_name, ftype=RFT_RELATED)
-
-        for cf_id in get_data('custom_fields'):
-            cfield = self.custom_fields[int(cf_id)]
-            add_rfield(name=cfield.id, ftype=RFT_CUSTOM)
-
-        for rtype_id in get_data('relations'):
-            add_rfield(name=rtype_id, ftype=RFT_RELATION)
-
-        for funfield_name in get_data('functions'):
-            add_rfield(name=funfield_name, ftype=RFT_FUNCTION)
-
-        for aggregation in field_aggregation_registry.itervalues():
-            for aggregate_id in get_data(aggregation.name):
-                add_rfield(name=aggregate_id, ftype=RFT_CALCULATED)
-
-        Field.objects.filter(pk__in=[rfield.id for rfield in old_rfields]).delete()
+        #Field.objects.filter(pk__in=[rfield.id for rfield in old_rfields]).delete()
+        Field.objects.filter(pk__in=old_ids).delete()
 
 
 class DateReportFilterForm(CremeForm):

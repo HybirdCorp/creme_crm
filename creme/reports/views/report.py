@@ -23,23 +23,19 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
-#from django.utils.simplejson import JSONEncoder
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.core.exceptions import ConflictError
-#from creme.creme_core.models import RelationType
-from creme.creme_core.utils import get_from_POST_or_404 #jsonify get_ct_or_404
+from creme.creme_core.utils import get_from_POST_or_404 #jsonify
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                             list_view, inner_popup, add_to_entity)
-#from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.registry import export_backend_registry
 
-from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm,
-                            AddFieldToReportForm, DateReportFilterForm) #get_aggregate_custom_fields
+from ..forms.report import (ReportCreateForm, ReportEditForm, LinkFieldToReportForm,
+                            ReportFieldsForm, DateReportFilterForm)
 from ..models import Report, Field
-#from ..report_aggregation_registry import field_aggregation_registry
 from ..utils import decode_datetime
 
 
@@ -47,7 +43,7 @@ from ..utils import decode_datetime
 @permission_required('reports')
 @permission_required('reports.add_report')
 def add(request):
-    return add_entity(request, CreateForm, template="reports/add_report.html", #TODO: improve widgets & drop this template
+    return add_entity(request, ReportCreateForm, template="reports/add_report.html", #TODO: improve widgets & drop this template
                       extra_template_dict={'submit_label': _('Save the report'),
                                            #'help_messages': [],
                                            #'ct_posted':     request.POST.get('ct'),
@@ -57,7 +53,7 @@ def add(request):
 @login_required
 @permission_required('reports')
 def edit(request, report_id):
-    return edit_entity(request, report_id, Report, EditForm)
+    return edit_entity(request, report_id, Report, ReportEditForm)
 
 @login_required
 @permission_required('reports')
@@ -126,9 +122,9 @@ def link_report(request, field_id):
 
 @login_required
 @permission_required('reports')
-def add_field(request, report_id):
-    return add_to_entity(request, report_id, AddFieldToReportForm,
-                         _(u'Adding column to <%s>'),
+def edit_fields(request, report_id):
+    return add_to_entity(request, report_id, ReportFieldsForm,
+                         _(u'Edit columns of <%s>'),
                         )
 
 _order_direction = {
@@ -261,44 +257,18 @@ def export(request, report_id, doc_type):
 
     return writer.response
 
-##todo: factorise with forms.report.AddFieldToReportForm._set_aggregate_fields
-#@login_required
-##@permission_required('reports') ??
-#@jsonify
-#def get_aggregate_fields(request):
-    #POST = request.POST
-    #aggregate_name = POST.get('aggregate_name')
-    #ct = get_ct_or_404(get_from_POST_or_404(POST, 'ct_id'))
-    #choices = []
-
-    #if aggregate_name:
-        #aggregate = field_aggregation_registry.get(aggregate_name)
-
-        #if aggregate:
-            #model = ct.model_class()
-            #aggregate_pattern = aggregate.pattern
-            #authorized_fields = field_aggregation_registry.authorized_fields
-            #choices = [(aggregate_pattern % f_name, f_vname)
-                            #for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
-                                                    #.filter((lambda f: isinstance(f, authorized_fields)), viewable=True)
-                                                    #.choices()
-                      #]
-
-            #choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
-
-    ##return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")
-    #return choices
-
 @login_required
 @permission_required('reports')
 def date_filter_form(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
-    request.user.has_perm_to_view_or_die(report)
+    user = request.user
+
+    user.has_perm_to_view_or_die(report)
 
     callback_url = None
 
     if request.method == 'POST':
-        form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
+        form = DateReportFilterForm(report=report, user=user, data=request.POST)
         if form.is_valid():
             callback_url = '/reports/report/export/%s/%s%s' % (
                                     report_id,
@@ -306,7 +276,7 @@ def date_filter_form(request, report_id):
                                     form.forge_url_data,
                                 )
     else:
-        form = DateReportFilterForm(report=report, user=request.user)
+        form = DateReportFilterForm(report=report, user=user)
 
     return inner_popup(request, 'reports/frags/date_filter_form.html',
                        {'form':            form,
@@ -319,19 +289,3 @@ def date_filter_form(request, report_id):
                        delegate_reload=False,
                        callback_url=callback_url,
                       )
-
-#@jsonify
-#@login_required
-#def get_predicates_choices_4_ct(request): #todo: move to creme_core ???
-    #ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))  #todo: why not GET ??
-    #return [(rtype.id, rtype.predicate)
-                #for rtype in RelationType.get_compatible_ones(ct, include_internals=True)
-                                         #.order_by('predicate') #todo: move in RelationType meta ??
-           #]
-
-#@jsonify
-#@login_required
-#@permission_required('reports')
-#def get_related_fields(request):
-    #ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id')) #todo: why not GET ??
-    #return Report.get_related_fields_choices(ct.model_class())

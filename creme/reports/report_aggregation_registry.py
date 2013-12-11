@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.db import models
-#from django.db.models import Avg, Min, Max, Sum#, Count
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CustomField

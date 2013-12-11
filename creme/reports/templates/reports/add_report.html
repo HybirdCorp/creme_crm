@@ -8,47 +8,9 @@
                     'ct': this,
                     'hf': '#{{form.hf.auto_id}}',
                     'filter': '#{{form.filter.auto_id}}',
-{% comment %}
-                    'show_after_ct':'.show_after_ct',
-                    'regular_fields': {
-                            'table_id':'{{form.regular_fields.auto_id}}',
-                            'name' : '{{form.regular_fields.name}}'
-                        },
-                    'related_fields': {
-                            'table_id':'{{form.related_fields.auto_id}}',
-                            'name' : '{{form.related_fields.name}}'
-                        },
-                    'cf' : {
-                            'table_id':'{{form.custom_fields.auto_id}}',
-                            'name' : '{{form.custom_fields.name}}'
-                        },
-                    'relations' : {
-                            'table_id':'{{form.relations.auto_id}}',
-                            'name' : '{{form.relations.name}}'
-                        },
-                    'functions' : {
-                            'table_id':'{{form.functions.auto_id}}',
-                            'name' : '{{form.functions.name}}'
-                        },
-                    'aggregates' : [
-                            {% for aggregate in form.aggregates %}
-                                {
-                                    'target_node': 'id_{{aggregate.name}}',
-                                    'input_name' : '{{aggregate.name}}',
-                                    'name': '{{aggregate.name}}'
-                                }{% if not forloop.last %},{% endif %}{# Prevent trailing comma incompatible with IE #}
-                            {% endfor %}
-                        ]
-{% endcomment %}
                 };
                 creme.reports.load(opts);
             });
-
-{% comment %}
-            {% if ct_posted %}
-                $('#{{form.ct.auto_id}}').val('{{ct_posted}}');
-            {% endif %}
-{% endcomment %}
 
             $('#{{form.ct.auto_id}}').change();
         });

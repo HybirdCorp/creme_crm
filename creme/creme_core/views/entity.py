@@ -41,7 +41,7 @@ from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseF
 from ..views.generic import inner_popup, list_view_popup_from_widget
 from ..views.decorators import POST_only
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
-from ..utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
+from ..utils.meta import ModelFieldEnumerator
 
 
 logger = logging.getLogger(__name__)

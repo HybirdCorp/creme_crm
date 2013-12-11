@@ -60,7 +60,7 @@ class SearchConfigItem(CremeModel):
         excluded = SearchConfigItem.EXCLUDED_FIELDS_TYPES
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
-                .exclude(lambda f: f.get_internal_type() in excluded) \
+                .exclude(lambda f, depth: f.get_internal_type() in excluded) \
                 .choices()
 
     @property

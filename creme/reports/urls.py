@@ -19,7 +19,7 @@ urlpatterns = patterns('creme.reports.views',
     (r'^report/field/change_order$',                    'report.change_field_order'),
     (r'^report/field/set_selected$',                    'report.set_selected'),
     (r'^report/field/(?P<field_id>\d+)/link_report$',   'report.link_report'),
-    (r'^report/(?P<report_id>\d+)/field/add$',          'report.add_field'), #TODO: rename (edit fields)
+    (r'^report/(?P<report_id>\d+)/edit_fields$',        'report.edit_fields'),
     (r'^date_filter_form/(?P<report_id>\d+)$',          'report.date_filter_form'),
 
     (r'^graph/(?P<report_id>\d+)/add$',                                                                 'graph.add'),
@@ -30,6 +30,4 @@ urlpatterns = patterns('creme.reports.views',
     (r'^graph/fetch_from_instance_block/(?P<instance_block_id>\d+)/(?P<entity_id>\d+)/(?P<order>\w+)$', 'graph.fetch_graph_from_instanceblock'),
 
     (r'^graph/(?P<graph_id>\d+)/block/add$', 'blocks.add_graph_instance_block'),
-
-    #(r'^get_predicates_choices_4_ct$', 'report.get_predicates_choices_4_ct'),
 )
