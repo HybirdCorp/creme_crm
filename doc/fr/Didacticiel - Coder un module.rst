@@ -933,7 +933,7 @@ Maintenant au tour du fichier template associé, ``beavers/templates/beavers/tem
 La variable ``has_perm`` est renseignée grâce à l'attribut ``permission`` de
 notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
-référence à une url à laquelle nous n'avons pas (encore) associée de vue.
+référence à une url à laquelle nous n'avons pas (encore) associé de vue.
 
 
 Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
@@ -1146,12 +1146,12 @@ Créez un fichier ``beavers/tests.py`` : ::
 [TODO: tester ce code]
 
 Remarques:
- - Les imports initiaux sont mis par un bloc try/except, car si une erreur se
+ - Les imports initiaux sont mis dans un bloc try/except, car si une erreur se
    produit au moment de l'importation des modules, l'exception est capturée
    silencieusement par l'infrastructure de test, et vos tests ne seront pas
    exécutés (tout se passera comme s'il y avait 0 test).
- - La méthode setUpClass est appelé une seul fois, avant que les test soient
-   exécutés. Y lancer les commande *populate* utiles permet d'être bien plus
+ - La méthode setUpClass est appelée une seule fois, avant que les tests soient
+   exécutés. Y lancer les commandes *populate* utiles permet d'être bien plus
    rapide que si on les lance dans la méthode ``setUp()``, exécutée avant
    chaque test de la classe.
 
