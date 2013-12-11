@@ -54,7 +54,7 @@ class _TurnoverField(FunctionField):
 
 class SalesPhase(CremeModel):
     name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    order = PositiveIntegerField(_(u"Order"), default=1, editable=False)
+    order = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False)
     won   = BooleanField(_(u'Won'), default=False)
 
     def __unicode__(self):

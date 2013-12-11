@@ -43,7 +43,7 @@ class Category(CremeModel):
 class SubCategory(CremeModel):
     name        = CharField(_(u'Name of the sub-category'), max_length=100)
     description = CharField(_(u'Description'), max_length=100)
-    category    = ForeignKey(Category, verbose_name=_(u'Parent category'))
+    category    = ForeignKey(Category, verbose_name=_(u'Parent category')).set_tags(viewable=False)
 
     def __unicode__(self):
         return self.name

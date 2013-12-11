@@ -32,8 +32,8 @@ class ActivityType(CremeModel):
     id                    = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name                  = CharField(_(u'Name'), max_length=100)
     # color                 = CharField(_(u'Color'), max_length=100, blank=True, null=True)
-    default_day_duration  = IntegerField(_(u'Default day duration'))
-    default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15)
+    default_day_duration  = IntegerField(_(u'Default day duration')).set_tags(viewable=False)
+    default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15).set_tags(viewable=False)
     is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
@@ -55,7 +55,7 @@ class ActivityType(CremeModel):
 class ActivitySubType(CremeModel):
     id        = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name      = CharField(_(u'Name'), max_length=100)
-    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'))
+    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity')).set_tags(viewable=False)
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):

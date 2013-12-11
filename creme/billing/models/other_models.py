@@ -39,9 +39,9 @@ class SettlementTerms(CremeModel):
 
 
 class AbstractStatus(CremeModel):
-    name      = CharField(_(u'Status'), max_length=100)
+    name      = CharField(_(u'Name'), max_length=100)
     is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-    order     = PositiveIntegerField(_(u"Order"), default=1, editable=False) #used by creme_config
+    order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name
