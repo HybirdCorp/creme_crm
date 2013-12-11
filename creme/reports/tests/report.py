@@ -1809,7 +1809,7 @@ class ReportTestCase(BaseReportsTestCase):
                          report_orga.fetch_all_lines()
                         )
 
-    def _aux_test_fetch_calculated(self, invalid_ones=False):
+    def _aux_test_fetch_aggregate(self, invalid_ones=False):
         self.login()
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
 
@@ -1835,9 +1835,9 @@ class ReportTestCase(BaseReportsTestCase):
             create_field(name=fmt % str_cf.id,    order=8) #invalid CustomField (bad type)
             create_field(name='cf__%s__%s__additionalarg__max' % (cf.field_type, cf.id), order=9) #invalid string
 
-    def test_fetch_calculated_01(self):
+    def test_fetch_aggregate_01(self):
         "Regular field, Custom field (valid & invalid ones)"
-        self._aux_test_fetch_calculated(invalid_ones=True)
+        self._aux_test_fetch_aggregate(invalid_ones=True)
         starks = self.starks; lannisters = self.lannisters
         starks.capital = 500;      starks.save()
         lannisters.capital = 1000; lannisters.save()
@@ -1856,9 +1856,9 @@ class ReportTestCase(BaseReportsTestCase):
                          report.fetch_all_lines()
                         )
 
-    def test_fetch_calculated_02(self):
+    def test_fetch_aggregate_02(self):
         "Regular field, Custom field (valid & invalid ones): None replaced by 0"
-        self._aux_test_fetch_calculated()
+        self._aux_test_fetch_aggregate()
         self.assertEqual([[self.lannisters.name, 0, 0],
                           [self.starks.name,     0, 0],
                          ],
@@ -1866,7 +1866,7 @@ class ReportTestCase(BaseReportsTestCase):
                         )
 
     @skipIfNotInstalled('creme.billing')
-    def test_fetch_calculated_03(self):
+    def test_fetch_aggregate_03(self):
         "Aggregate in sub-lines (expanded sub-report)"
         self.login()
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)

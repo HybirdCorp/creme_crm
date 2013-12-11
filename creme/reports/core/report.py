@@ -390,9 +390,10 @@ class RHAggregate(ReportHand):
     verbose_name = _(u'Aggregated value')
 
     def __init__(self, report_field):
-        #TODO: factorise with form code (_get_calculated_title)
         field_name, sep, aggregation_id = report_field.name.rpartition('__')
         aggregation = field_aggregation_registry.get(aggregation_id)
+        self._cache_key   = None
+        self._cache_value = None
 
         if aggregation is None:
             raise ReportHand.ValueError('Invalid aggregation: "%s"' % aggregation_id)
@@ -424,7 +425,14 @@ class RHAggregate(ReportHand):
         super(RHAggregate, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
 
     def _get_value_single(self, entity, user, scope):
-        return scope.aggregate(rh_calculated_agg=self._aggregation_q).get('rh_calculated_agg') or 0
+        if self._cache_key is scope:
+            return self._cache_value
+
+        self._cache_key = scope
+        self._cache_value = result = scope.aggregate(rh_calculated_agg=self._aggregation_q) \
+                                          .get('rh_calculated_agg') or 0
+
+        return result
 
 
 @REPORT_HANDS_MAP(RFT_RELATED)
