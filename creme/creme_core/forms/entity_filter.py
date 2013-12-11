@@ -32,6 +32,7 @@ from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, Valid
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
                       RelationType, CremePropertyType, CustomField)
@@ -139,6 +140,9 @@ class FieldConditionWidget(ChainedInput):
         pinput.add_dselect('^enum.*',
                            '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
 
+        pinput.add_dselect('^user.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+                           '/creme_core/enumerable/userfilter/json', attrs=field_attrs)
+
         pinput.add_input('fk.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                          EntitySelector, content_type='${field.ctype}', attrs={'auto': False});
 
@@ -191,7 +195,13 @@ class FieldConditionWidget(ChainedInput):
     @staticmethod
     def field_choicetype(field):
         if isinstance(field, ModelForeignKey):
-            return 'enum' if not issubclass(field.rel.to, CremeEntity) else 'fk'
+            if issubclass(field.rel.to, User):
+                return 'user'
+
+            if issubclass(field.rel.to, CremeEntity):
+                return 'fk'
+
+            return 'enum'
 
         if isinstance(field, ModelDateField):
             return 'date'

@@ -10,6 +10,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
+                                         EntityFilterVariable,
                                          CustomField, RelationType, CremePropertyType)
     from .base import ViewsTestCase
 
@@ -256,6 +257,41 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_('The filter must have at least one condition.'))
+
+    def test_create_currentuser_filter(self):
+        self.login()
+
+        ct = self.ct_orga
+        response = self.client.post(self._build_add_url(ct),
+                                    data={'name':   'Filter 01',
+                                          'user':   self.user.id,
+                                          'use_or': 'True',
+                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
+                                                                   'operator': EntityFilterCondition.EQUALS,
+                                                                   'name':     'user',
+                                                                   'value':    '"' + EntityFilterVariable.CURRENT_USER + '"',
+                                                               },
+                                         }
+                                   )
+
+        self.assertNoFormError(response, status=302)
+
+        efilter = self.get_object_or_fail(EntityFilter, name='Filter 01')
+        self.assertEqual(self.user.id, efilter.user.id)
+        self.assertIs(efilter.use_or, True)
+
+        conditions = efilter.conditions.all()
+        self.assertEqual(1, len(conditions))
+        iter_conds = iter(conditions)
+
+        condition = iter_conds.next()
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual('user',                          condition.name)
+        self.assertEqual({'operator': EntityFilterCondition.EQUALS,
+                          'values':   [EntityFilterVariable.CURRENT_USER],
+                         },
+                         condition.decoded_value
+                        )
 
     def test_edit01(self):
         self.login()

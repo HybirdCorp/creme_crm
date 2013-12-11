@@ -18,38 +18,48 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from itertools import chain
+
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-#from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _
 
+from creme.creme_core.models import CustomFieldEnumValue, CustomField
 from creme.creme_core.utils import get_ct_or_404, jsonify
 
 from creme.creme_config.registry import config_registry, NotRegisteredInConfig
-from creme.creme_core.models.custom_field import CustomFieldEnumValue, CustomField
 
 
 @login_required
 @jsonify
 def json_list_enumerable(request, ct_id):
     ct = get_ct_or_404(ct_id)
-    app_name = ct.app_label
-
-    if not request.user.has_perm(app_name):
-        #raise Http404(_(u"You are not allowed to acceed to this app %s") % app_name)
-        raise Http404(u"You are not allowed to acceed to the app '%s'" % app_name)
-
     model = ct.model_class()
 
     if model is not User:
+        app_name = ct.app_label
+
+        if not request.user.has_perm(app_name):
+            #raise Http404(_(u"You are not allowed to acceed to this app %s") % app_name)
+            raise Http404(u"You are not allowed to acceed to the app '%s'" % app_name)
+
         try:
-            model = config_registry.get_app(app_name).get_model_conf(ct.id).model
+            config_registry.get_app(app_name).get_model_conf(ct.id)
         except (KeyError, NotRegisteredInConfig):
             #raise Http404(_(u"Content type is not registered in config"))
             raise Http404(u"Content type is not registered in config")
 
     return [(e.id, unicode(e)) for e in model.objects.all()]
+
+@login_required
+@jsonify
+def json_list_userfilter(request):
+    return list(chain((('__currentuser__', _('Current user')),),
+                      ((e.id, unicode(e)) for e in User.objects.all()),
+                     )
+               )
 
 @login_required
 @jsonify

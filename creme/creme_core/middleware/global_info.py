@@ -25,7 +25,7 @@ from creme.creme_config.utils import get_user_theme
 
 class GlobalInfoMiddleware(object):
     def process_request(self, request):
-        set_global_info(username=request.user.username,
+        set_global_info(user=request.user,
                         usertheme=get_user_theme(request),
                        )
 

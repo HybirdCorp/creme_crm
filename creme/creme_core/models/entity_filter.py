@@ -30,17 +30,19 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
+
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.timezone import now
 
+from ..global_info import get_global_info
 from ..utils.meta import is_date_field, get_model_field_info
 from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from .relation import RelationType, Relation
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
-
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +74,27 @@ class EntityFilterList(list):
         return self._selected
 
 
+class EntityFilterVariable(object):
+    CURRENT_USER = '__currentuser__'
+
+    def validate(self, field, value):
+        return field.formfield().clean(value)
+
+
+class _CurrentUserVariable(EntityFilterVariable):
+    def resolve(self, value, user=None):
+        return user.pk if user is not None else None
+
+    def validate(self, field, value):
+        if not isinstance(field, ForeignKey) or not issubclass(field.rel.to, User):
+            return field.formfield().clean(value) 
+
+        if isinstance(value, basestring) and value == EntityFilterVariable.CURRENT_USER:
+            return
+
+        field.formfield().clean(value)
+
+
 class EntityFilter(Model): #CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
@@ -94,6 +117,10 @@ class EntityFilter(Model): #CremeModel ???
     creation_label = _('Add a filter')
     _conditions_cache = None
     _connected_filter_cache = None
+
+    _VARIABLE_MAP = {
+            EntityFilterVariable.CURRENT_USER: _CurrentUserVariable()
+        }
 
     class Meta:
         app_label = 'creme_core'
@@ -170,9 +197,9 @@ class EntityFilter(Model): #CremeModel ???
 
         super(EntityFilter, self).delete()
 
-    def filter(self, qs):
+    def filter(self, qs, user=None):
         #distinct is useful with condition on m2m that can retrieve several times the same Entity
-        return qs.filter(self.get_q()).distinct()
+        return qs.filter(self.get_q(user)).distinct()
 
     def get_connected_filter_ids(self):
         #NB: 'level' means a level of filters connected to this filter :
@@ -199,15 +226,18 @@ class EntityFilter(Model): #CremeModel ???
 
         return connected
 
-    def get_q(self):
+    def get_q(self, user=None):
         query = Q()
+
+        if user is None:
+            user = get_global_info('user')
 
         if self.use_or:
             for condition in self.get_conditions():
-                query |= condition.get_q()
+                query |= condition.get_q(user)
         else:
             for condition in self.get_conditions():
-                query &= condition.get_q()
+                query &= condition.get_q(user)
 
         return query
 
@@ -252,6 +282,14 @@ class EntityFilter(Model): #CremeModel ???
 
         self._build_conditions_cache(conditions)
 
+    @staticmethod
+    def get_variable(value):
+        return EntityFilter._VARIABLE_MAP.get(value) if isinstance(value, basestring) else None
+
+    @staticmethod
+    def resolve_variable(value, user):
+        variable = EntityFilter.get_variable(value)
+        return variable.resolve(value, user) if variable else value
 
 class _ConditionOperator(object):
     __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
@@ -300,9 +338,15 @@ class _ConditionOperator(object):
         """Raises a ValidationError to notify of a problemn with 'values'."""
         if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
             clean = field.formfield().clean
+            variable = None
 
             for value in values:
-                clean(value)
+                variable = EntityFilter.get_variable(value)
+
+                if variable is not None:
+                    variable.validate(field, value)
+                else:
+                    clean(value)
 
         return values
 
@@ -390,11 +434,11 @@ class EntityFilterCondition(Model):
 
     _OPERATOR_MAP = {
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact',
-                                                accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'boolean', 'fk',)),
+                                                accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'boolean', 'fk', 'user')),
             IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact',
                                                 accept_subpart=False, allowed_fieldtypes=('string',)),
             EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact',
-                                                exclude=True, accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date',)),
+                                                exclude=True, accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'fk', 'user')),
             IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact',
                                                 exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
             CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains', allowed_fieldtypes=('string',)),
@@ -413,7 +457,7 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk',)),
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk', 'user')),
             RANGE:           _RangeOperator(_(u"Range")),
         }
 
@@ -586,7 +630,7 @@ class EntityFilterCondition(Model):
             except FieldDoesNotExist as e:
                 return str(e)
 
-    def _get_q_customfield(self):
+    def _get_q_customfield(self, user):
         #NB: Sadly we retrieve the ids of the entity that match with this condition
         #    instead of use a 'JOIN', in order to avoid the interaction between
         #    several conditions on the same type of CustomField (ie: same table).
@@ -616,7 +660,7 @@ class EntityFilterCondition(Model):
 
         return date_range_registry.get_range(**kwargs)
 
-    def _get_q_datecustomfield(self):
+    def _get_q_datecustomfield(self, user):
         #NB: see _get_q_customfield() remark
         search_info = self.decoded_value
         related_name = search_info['rname']
@@ -627,10 +671,13 @@ class EntityFilterCondition(Model):
 
         return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
 
-    def _get_q_field(self):
+    def _get_q_field(self, user):
         search_info = self.decoded_value
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
-        query = operator.get_q(self, search_info['values'])
+        resolve = EntityFilter.resolve_variable
+        values = [resolve(value, user) for value in search_info['values']]
+
+        query = operator.get_q(self, values)
 
         if operator.exclude:
             query.negate()
@@ -639,7 +686,7 @@ class EntityFilterCondition(Model):
 
     #TODO: "relations__*" => old method that does not work with several conditions
     #      on relations use it when there is only one condition on relations ??
-    def _get_q_relation(self):
+    def _get_q_relation(self, user):
         #kwargs = {'relations__type': self.name}
         kwargs = {'type': self.name}
         value = self.decoded_value
@@ -662,7 +709,7 @@ class EntityFilterCondition(Model):
 
     #TODO: "relations__*" => old method that does not work with several conditions
     #      on relations use it when there is only one condition on relations ??
-    def _get_q_relation_subfilter(self):
+    def _get_q_relation_subfilter(self, user):
         value = self.decoded_value
         subfilter = EntityFilter.objects.get(pk=value['filter_id'])
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
@@ -677,7 +724,7 @@ class EntityFilterCondition(Model):
 
         return query
 
-    def _get_q_property(self):
+    def _get_q_property(self, user):
         query = Q(properties__type=self.name)
 
         if not self.decoded_value: #is a boolean indicating if got or has not got the property type
@@ -686,18 +733,18 @@ class EntityFilterCondition(Model):
         return query
 
     _GET_Q_FUNCS = {
-            EFC_SUBFILTER:          (lambda self: EntityFilter.objects.get(id=self.name).get_q()),
+            EFC_SUBFILTER:          (lambda self, user: EntityFilter.objects.get(id=self.name).get_q(user)),
             EFC_FIELD:              _get_q_field,
             EFC_RELATION:           _get_q_relation,
             EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
             EFC_PROPERTY:           _get_q_property,
-            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=now()))),
+            EFC_DATEFIELD:          (lambda self, user: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=now()))),
             EFC_CUSTOMFIELD:        _get_q_customfield,
             EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
         }
 
-    def get_q(self):
-        return EntityFilterCondition._GET_Q_FUNCS[self.type](self)
+    def get_q(self, user=None):
+        return EntityFilterCondition._GET_Q_FUNCS[self.type](self, user)
 
     def _get_subfilter_id(self):
         type = self.type
