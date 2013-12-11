@@ -6,10 +6,11 @@ try:
     from logging import info
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import ValidationError
     from django.utils.timezone import now
 
+    from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import *
-    from creme.creme_core.models.header_filter import *
     from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation, Civility
@@ -127,6 +128,37 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), Contact, self._list_contact_ids('spike', 'faye'))
+
+    def test_filter_field_equals_currentuser(self):
+        set_global_info(user=self.user)
+
+        efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='user',
+                                                                    values=['__currentuser__']
+                                                                   )
+                               ])
+
+        self.assertEqual(1, efilter.conditions.count())
+        self.assertExpectedFiltered(self.refresh(efilter), Contact, 
+                                    self._list_contact_ids(*self.contacts.keys())
+                                   )
+
+        self.contacts.get('spike').user = self.other_user
+        self.contacts.get('spike').save()
+
+        self.contacts.get('rei').user = self.other_user
+        self.contacts.get('rei').save()
+
+        self.assertExpectedFiltered(self.refresh(efilter), Contact,
+                                    self._list_contact_ids('jet', 'faye', 'ed', 'misato', 'asuka', 'shinji', 'yui', 'gendou', 'genji', 'risato')
+                                   )
+
+        set_global_info(user=self.other_user)
+        self.assertExpectedFiltered(self.refresh(efilter), Contact,
+                                    self._list_contact_ids('spike', 'rei')
+                                   )
 
     def test_filter_field_iequals(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari (insensitive)', Contact,
@@ -1391,3 +1423,22 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertDoesNotExist(cond2)
         self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
+
+    def test_invalid_currentuser(self):
+        efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)
+
+        with self.assertRaises(EntityFilterCondition.ValueError):
+            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                        operator=EntityFilterCondition.EQUALS,
+                                                                        name='birthday',
+                                                                        values=['__currentuser__']
+                                                                       )
+                                   ])
+
+        with self.assertNoException():
+            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                        operator=EntityFilterCondition.EQUALS,
+                                                                        name='last_name',
+                                                                        values=['__currentuser__']
+                                                                       )
+                                   ])

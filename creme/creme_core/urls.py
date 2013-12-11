@@ -76,6 +76,7 @@ headerfilter_patterns = patterns('creme.creme_core.views.header_filter',
 enumerable_patterns = patterns('creme.creme_core.views.enumerable',
     (r'^(?P<ct_id>\d+)/json$',          'json_list_enumerable'),
     (r'^custom/(?P<cf_id>\d+)/json$',   'json_list_enumerable_custom'),
+    (r'^userfilter/json$',              'json_list_userfilter'),
 )
 
 creme_core_patterns = patterns('creme.creme_core.views',

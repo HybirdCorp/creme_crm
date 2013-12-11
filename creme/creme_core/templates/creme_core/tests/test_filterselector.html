@@ -28,6 +28,7 @@
                                     <option value="{&quot;name&quot;:&quot;skype&quot;, &quot;type&quot;:&quot;string&quot;}">Skype</option>
                                     <option value="{&quot;name&quot;:&quot;billing_address&quot;, &quot;type&quot;:&quot;fk&quot;, &quot;ctype&quot;:&quot;{{TEST_CONTENTTYPES.address}}&quot;}">Adresse de facturation</option>
                                     <option value="{&quot;name&quot;:&quot;shipping_address&quot;, &quot;type&quot;:&quot;fk&quot;, &quot;ctype&quot;:&quot;{{TEST_CONTENTTYPES.address}}&quot;}">Adresse de livraison</option>
+                                    <option value="{&quot;name&quot;:&quot;user&quot;, &quot;type&quot;:&quot;user&quot;, &quot;ctype&quot;:&quot;{{TEST_CONTENTTYPES.user}}&quot;}">Propriétaire</option>
                                 </optgroup>
                                 <optgroup label="Adresse de facturation">
                                     <option value="{&quot;name&quot;:&quot;billing_address__address&quot;, &quot;type&quot;:&quot;string&quot;}">[Adresse de facturation] - Adresse</option>
@@ -94,9 +95,9 @@
                                     dependencies="field"
                                     filter="context.field ? item.value.types.indexOf(context.field.type) !== -1 : true;"
                                     class="ui-creme-input ui-creme-widget ui-creme-dselect">
-                                <option value="{&quot;id&quot;:1, &quot;types&quot;:&quot;string enum number date fk&quot;}">Est égal à</option>
+                                <option value="{&quot;id&quot;:1, &quot;types&quot;:&quot;string enum number date fk user&quot;}">Est égal à</option>
                                 <option value="{&quot;id&quot;:2, &quot;types&quot;:&quot;string number&quot;}">Est égal à (Ne respecte pas la casse)</option>
-                                <option value="{&quot;id&quot;:3, &quot;types&quot;:&quot;string enum number date fk&quot;}">N'est pas égal à</option>
+                                <option value="{&quot;id&quot;:3, &quot;types&quot;:&quot;string enum number date fk user&quot;}">N'est pas égal à</option>
                                 <option value="{&quot;id&quot;:4, &quot;types&quot;:&quot;string number&quot;}">N'est pas égal à (Ne respecte pas la casse)</option>
                                 <option value="{&quot;id&quot;:5, &quot;types&quot;:&quot;string&quot;}">Contient</option>
                                 <option value="{&quot;id&quot;:6, &quot;types&quot;:&quot;string&quot;}">Contient (Ne respecte pas la casse)</option>
@@ -114,8 +115,8 @@
                                 <option value="{&quot;id&quot;:18, &quot;types&quot;:&quot;string&quot;}">Se termine par (Ne respecte pas la casse)</option>
                                 <option value="{&quot;id&quot;:19, &quot;types&quot;:&quot;string&quot;}">Ne se termine pas par</option>
                                 <option value="{&quot;id&quot;:20, &quot;types&quot;:&quot;string&quot;}">Ne se termine pas par (Ne respecte pas la casse)</option>
-                                <option value="{&quot;id&quot;:21, &quot;types&quot;:&quot;string fk&quot;}">Est vide</option>
-                                <option value="{&quot;id&quot;:22, &quot;types&quot;:&quot;string fk&quot;}">N'est pas vide</option>
+                                <option value="{&quot;id&quot;:21, &quot;types&quot;:&quot;string fk user&quot;}">Est vide</option>
+                                <option value="{&quot;id&quot;:22, &quot;types&quot;:&quot;string fk user&quot;}">N'est pas vide</option>
                                 <option value="{&quot;id&quot;:23, &quot;types&quot;:&quot;number date&quot;}">Intervalle</option>
                             </select>
                         </li> 
@@ -125,6 +126,11 @@
                                 <script selector-key="^enum.*" type="text/template">
                                         <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                                                 url="/creme_core/enumerable/${field.ctype}/json" datatype="json">
+                                        </select>
+                                </script>
+                                <script selector-key="^user.(1|3)" type="text/template">
+                                        <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                                                url="/creme_core/enumerable/userfilter/json" datatype="json">
                                         </select>
                                 </script>
                                 <script selector-key="^fk.(1|3)" type="text/template">

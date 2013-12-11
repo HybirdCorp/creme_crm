@@ -602,7 +602,8 @@ class HistoryLine(Model):
         return HistoryLine.objects.create(**kwargs)
 
     def save(self, *args, **kwargs):
-        self.username = get_global_info('username') or ''
+        user = get_global_info('user')
+        self.username = user.username if user else ''
         super(HistoryLine, self).save(*args, **kwargs)
 
 

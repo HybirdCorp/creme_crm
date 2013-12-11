@@ -2,6 +2,7 @@
 try:
     import json
 
+    from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
@@ -63,12 +64,20 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url)
         self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
 
+    def test_userfilter_list(self):
+        self.login()
+
+        response = self.assertGET200('/creme_core/enumerable/userfilter/json')
+        self.assertEqual([['__currentuser__', _('Current user')]] +
+                         [[u.id, unicode(u)] for u in User.objects.all()],
+                         json.loads(response.content)
+                        )
+
     def test_custom_enum_not_exists(self):
         self.login()
 
         url  = '/creme_core/enumerable/custom/%s/json' % 666
         response = self.assertGET404(url)
-        print response.content
         self.assertContains(response, 'No CustomField matches the given query', status_code=404)
 
     def test_custom_enum(self):

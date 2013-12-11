@@ -8,7 +8,7 @@ from .creme_property import CremePropertyType, CremeProperty
 from .custom_field import *
 
 from .header_filter import HeaderFilter
-from .entity_filter import EntityFilter, EntityFilterCondition
+from .entity_filter import EntityFilter, EntityFilterCondition, EntityFilterVariable
 
 from .lock import Mutex
 
