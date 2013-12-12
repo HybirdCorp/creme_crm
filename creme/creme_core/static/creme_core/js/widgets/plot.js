@@ -278,7 +278,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
 
     _onDrawSuccess: function(element, data, cb)
     {
-        //console.log('success:', element, data);
+        // console.log('success:', element, data);
         element.addClass('widget-ready').attr("status", "valid");
         element.trigger('plotSuccess', [this._plot, data]);
         creme.object.invoke(cb, element);

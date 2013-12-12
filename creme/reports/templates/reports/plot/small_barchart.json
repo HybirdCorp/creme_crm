@@ -1,11 +1,24 @@
 {% comment %} {% load creme_core_tags %} {% endcomment %}
 {% comment %}{% load reports_tags %}{% endcomment %}
 {
+    "title": {
+        "text":       "",
+        "textColor":  "black",
+        "fontSize":   "12pt",
+        "renderer":   "jqplot.DivTitleRenderer"
+    },
     "seriesDefaults": {
+        "shadow": false,
         "renderer": "jqplot.BarRenderer", 
         "rendererOptions": {
             "varyBarColor": true
         }
+    },
+    "grid": {
+        "drawGridlines": true,
+        "shadow": false,
+        "background": "#ffffff",
+        "drawBorder": false
     },
     "axes": {
         "xaxis": {
@@ -30,15 +43,18 @@
             "tickInterval": 1,
             "min": 0.0,
             {% endif %}
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
-                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%.2f"{% endif %}
+                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
+                "textColor":  "black",
+                "fontSize":   "9pt"
             },
             {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
-                "fontSize": "10pt",
-                "textColor": "black"
+                "fontSize":   "10pt",
+                "textColor":  "black"
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         }
@@ -54,7 +70,6 @@
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
-    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataDefaults": [[[" ", 0.0]]]
 }

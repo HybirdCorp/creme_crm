@@ -105,7 +105,7 @@ creme.widget.PlotProcessors.register('formatSerieLabel', function(series, option
     var serie = seriesIndex < series.length ? series[seriesIndex] : [];
 
     var formatter = function(format) {
-        return function(value, index, data) {return format.format(data);}
+        return function(value, index, data) {return format.format(value);}
     }(options.format);
 
     return serie.map(new Generator().each(formatter).iterator());

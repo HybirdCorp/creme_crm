@@ -1,8 +1,17 @@
 {
+    "title": {
+        "text":       "<b>{{rgraph}}</b>",
+        "textColor":  "black",
+        "fontSize":   "13pt",
+        "renderer":   "jqplot.DivTitleRenderer"
+    },
     "seriesDefaults": {
         "renderer": "jqplot.PieRenderer", 
         "rendererOptions": {
-            "showDataLabels": true
+            "showDataLabels": true,
+            "shadow": false,
+            "padding": 5,
+            "dataLabelFormatString": "<span style='color:black'>%1$.2f %%</span>"
         }
     },
     "legend": {
@@ -10,10 +19,19 @@
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
             {% if legend_rows %}"numberRows": {{legend_rows}},{% endif %}
-            "disableIEFading": false
+            "disableIEFading": false,
+            "fontSize":   "9pt"
         },
-        "placement": "outsideGrid",
+        "labels": "preprocess.formatSerieLabel",
+        "formatSerieLabelOptions": {
+            "format": "<span style='color:black;'>%0$s&nbsp;&nbsp;<span style='float:right;'>%3$.2f&nbsp;%%</span></span>"
+        },
         "location": "e"
+    },
+    "grid": {
+        "shadow": false,
+        "background": "#ffffff",
+        "drawBorder": false
     },
     "highlighter": {
         "show": true,
@@ -27,6 +45,13 @@
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
-    "title": "{{rgraph}}",
-    "dataFormat": "creme.graphael.BargraphData"
+    "dataFormat": "creme.graphael.BargraphData",
+    "dataPreprocessors": [{
+                              "preprocessor": "percentEntry",
+                              "options": {
+                                  "valueIndex": 1,
+                                  "targetIndex": 3
+                              }
+                          }
+                         ]
 }

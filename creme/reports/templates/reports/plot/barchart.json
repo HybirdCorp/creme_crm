@@ -1,7 +1,14 @@
 {% comment %} {% load creme_core_tags %} {% endcomment %}
 {% comment %}{% load reports_tags %}{% endcomment %}
 {
+    "title": {
+        "text":       "<b>{{rgraph}}</b>",
+        "textColor":  "black",
+        "fontSize":   "13pt",
+        "renderer":   "jqplot.DivTitleRenderer"
+    },
     "seriesDefaults": {
+        "shadow": false,
         "renderer": "jqplot.BarRenderer", 
         "rendererOptions": {
             "showDataLabels": true,
@@ -9,17 +16,28 @@
             "varyBarColor": true
         }
     },
+    "grid": {
+        "drawGridlines": true,
+        "shadow": false,
+        "background": "#ffffff",
+        "drawBorder": false
+    },
     "axes": {
         "xaxis": {
             "renderer": "jqplot.CategoryAxisRenderer",
             "ticks": [],
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "textColor":  "black",
+                "fontSize":   "9pt"
+            },
             {% comment %}"label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
             "labelOptions": {
+                {% if plotXAxisAngle %}"angle": {{plotXAxisAngle}},{% endif %}
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
                 "textColor":  "black"
-                {% if plotXAxisAngle %}"angle": {{plotXAxisAngle}},{% endif %}
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
@@ -28,15 +46,18 @@
             "tickInterval": 1,
             "min": 0.0,
             {% endif %}
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
-                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%.2f"{% endif %}
+                "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
+                "textColor":  "black",
+                "fontSize":   "9pt"
             },
             {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
-                "fontSize": "10pt",
-                "textColor": "black"
+                "fontSize":   "10pt",
+                "textColor":  "black"
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         }
@@ -52,7 +73,6 @@
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}
     ],
-    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataDefaults": [[["", 0.0]]]
 }
