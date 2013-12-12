@@ -22,14 +22,15 @@ creme.dialogs = $.extend(creme.dialogs, {
     deprecatedForm: function(url, options, data)
     {
         var options = options || {};
-        var dialog = this.form().validator(function(data, statusText, dataType) {
-                                               return dataType !== 'text/html' || 
-                                                      data.startsWith('<div class="in-popup" closing="true">');
-                                           })
-                                .reload(url, data);
+        var dialog = new creme.dialog.FormDialog()
+                                     .validator(function(data, statusText, dataType) {
+                                                    return dataType !== 'text/html' || 
+                                                           data.startsWith('<div class="in-popup" closing="true">');
+                                                })
+                                     .reload(url, data);;
 
         if (options.reloadOnSuccess) {
-            dialog.onSuccess(function() {location.reload();});
+            dialog.onSuccess(function() {creme.utils.reload();});
         }
 
         return dialog;

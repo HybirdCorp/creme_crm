@@ -31,7 +31,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
             width:      640,
             height:     350,
             scroll:     'frame',
-            fitFrame:   true
+            fitFrame:   true,
+            initWidget: true
         }, options || {});
 
         this._initFrame(this.options);
@@ -43,7 +44,12 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var frame = creme.widget.buildTag($('<div/>'), 'ui-creme-frame', true).css('margin', '0')
                                                                               .css('padding', '0');
 
-        this._frame = creme.widget.create(frame, options.backend ? {backend: options.backend} : {});
+        var frame_options = {
+            backend: options.backend,
+            widget_init: options.initWidget
+        }
+
+        this._frame = creme.widget.create(frame, frame_options);
 
         if (options.fitFrame)
         {
