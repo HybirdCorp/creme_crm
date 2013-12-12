@@ -21,7 +21,8 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
     options: {
         backend:        new creme.ajax.Backend({dataType:'html'}),
         url:            undefined,
-        overlay_delay:  100
+        overlay_delay:  100,
+        widget_init:    true
     },
 
     _create: function(element, options, cb, sync)
@@ -55,7 +56,10 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
 
         try {
             element.append($(data));
-            creme.widget.ready(element);
+
+            if (this.options.widget_init) {
+                creme.widget.ready(element);
+            }
         } catch(e) {
         }
     },

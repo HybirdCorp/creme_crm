@@ -52,6 +52,19 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
         var $target = $form.find('[name='+field_value_name+']');
         var $parent_target = $target.parents(element.data('parent_selector'));
 
+        var query = creme.ajax.query(element.data('url'), {backend: {dataType: 'json'}})
+                              .onDone(function(event, data) {
+                                   $parent_target.empty().html(data.rendered);
+                                   creme.widget.ready($parent_target);
+                               });
+
+        query.post({
+                  'field_name': value,
+                  'field_value_name': field_value_name,
+                  'object_id': object_id
+              });
+
+        /*
         creme.ajax.post({
             url: element.data('url'),
             dataType: 'json',
@@ -68,7 +81,7 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
             }
 
         });
-
+        */
     }
 
 });

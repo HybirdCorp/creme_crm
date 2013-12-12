@@ -74,6 +74,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
         if (Object.isFunc(validator) && validator(data, statusText, dataType) == false) {
             this._updateButtons("send", this.dialog(), true);
+            this._events.trigger('form-error', [data, statusText, dataType], this);
         } else {
             this._destroyDialog();
             this._events.trigger('success', [data, statusText, dataType], this);
@@ -118,6 +119,12 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     onSuccess: function(success)
     {
         this._events.bind('success', success);
+        return this;
+    },
+
+    onFormError: function(error)
+    {
+        this._events.bind('form-error', error);
         return this;
     }
 });
