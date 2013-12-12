@@ -60,6 +60,10 @@ class AddContactsToEventForm(CremeForm):
         self.event = kwargs.pop('instance')
         super(AddContactsToEventForm, self).__init__(*args, **kwargs)
 
+        #TODO: factorise (_RelationsCreateForm in creme_core) ??
+        relations_field = self.fields['related_contacts']
+        relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]
+
     def clean_related_contacts(self):
         #Because of the optimisations, the save() algo will be wrong with a contact that is present twice.
         related_contacts = self.cleaned_data['related_contacts']

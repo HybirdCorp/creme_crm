@@ -30,7 +30,7 @@ msgstr "Portail des évènements"
 
 #: creme_core_register.py:35
 msgid "All events"
-msgstr "Tous les évènements"
+msgstr "Lister les évènements"
 
 #: populate.py:48
 msgid "is invited to the event"
