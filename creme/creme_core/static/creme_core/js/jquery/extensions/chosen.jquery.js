@@ -373,10 +373,10 @@ Copyright (c) 2011 by Harvest
       
       if (this.overflow_container)
       {
-        this.container.parents('*').scroll(function(evt) {
+        this.container.parents('*').bind('scroll', function(evt) {
             _this.results_hide();
             return false;
-        }).resize(function(evt) {
+        }).bind('resize', function(evt) {
             _this.results_hide();
             return false;
         });
