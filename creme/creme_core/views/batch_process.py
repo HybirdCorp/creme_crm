@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -37,7 +36,7 @@ def batch_process(request, ct_id):
 
     #if not request.user.has_perm(ct.app_label):
     if not user.has_perm(ct.app_label): #TODO: factorise
-        raise Http404(_(u"You are not allowed to acceed to this app"))
+        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
 
     #try: #todo: factorise
         #callback_url = ct.model_class().get_lv_absolute_url()
@@ -51,6 +50,7 @@ def batch_process(request, ct_id):
                      #)
 
     if request.method == 'POST':
+        POST = request.POST
         bp_form = BatchProcessForm(user=user, data=request.POST, initial={'content_type': ct}) #TODO: make 'content_type' a real arg ?
 
         if bp_form.is_valid():
@@ -61,10 +61,17 @@ def batch_process(request, ct_id):
                            'back_url': request.GET.get('list_url', '/'),
                           }
                          )
+
+        cancel_url = POST.get('cancel_url')
     else:
         bp_form = BatchProcessForm(user=user, initial={'content_type': ct})
+        cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/batch_process.html', {'form': bp_form})
+    return render(request, 'creme_core/batch_process.html',
+                  {'form':       bp_form,
+                   'cancel_url': cancel_url,
+                  }
+                 )
 
 @login_required
 @jsonify

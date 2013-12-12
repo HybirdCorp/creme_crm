@@ -41,7 +41,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_no_app_perm(self):
         self.login(is_superuser=False)
-        self.assertGET404(self.build_url(Organisation))
+        self.assertGET403(self.build_url(Organisation))
 
     def test_app_perm(self):
         self.login(is_superuser=False, allowed_apps=['persons'])
@@ -291,16 +291,21 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
     def test_get_ops02(self):
+        "Charfield"
         self.login()
 
-        response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'first_name'))
+        def assertStrOps(fieldname):
+            response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
 
-        json_data = simplejson.loads(response.content)
-        self.assertIsInstance(json_data, list)
-        self.assertTrue(json_data)
-        self.assertIn(['upper', _('To upper case')], json_data)
-        self.assertIn(['lower', _('To lower case')], json_data)
-        self.assertNotIn('add_int', (e[0] for e in json_data))
+            json_data = simplejson.loads(response.content)
+            self.assertIsInstance(json_data, list)
+            self.assertTrue(json_data)
+            self.assertIn(['upper', _('To upper case')], json_data)
+            self.assertIn(['lower', _('To lower case')], json_data)
+            self.assertNotIn('add_int', (e[0] for e in json_data))
+
+        assertStrOps('first_name')
+        assertStrOps('email')
 
     def test_get_ops03(self):
         "Organisation CT, other category of operator"
