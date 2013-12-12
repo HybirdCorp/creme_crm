@@ -1,10 +1,16 @@
 {% comment %} {% load creme_core_tags %} {% endcomment %}
 {% comment %}{% load reports_tags %}{% endcomment %}
 {
+    "title": {
+        "text":       "<b>{{rgraph}}</b>",
+        "textColor":  "black",
+        "fontSize":   "13pt",
+        "renderer":   "jqplot.DivTitleRenderer"
+    },
     "stackSeries": true,
     "seriesDefaults": {
         "renderer": "jqplot.BarRenderer",
-        "shadowAngle": 135, 
+        "shadow": false, 
         "rendererOptions": {
             "showDataLabels": true,
             "fillToZero": true,
@@ -21,20 +27,28 @@
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
             {% if legend_rows %}"numberRows": {{legend_rows}},{% endif %}
-            "disableIEFading": false
+            "disableIEFading": false,
+            "fontSize": {% if legend_rows > 1 %}"8pt"{% else %}"9pt"{% endif %}
         },
         "labels": "preprocess.formatEntryLabel",
         "formatEntryLabelOptions": {
-            "format": "%2$s&nbsp;(%0$.2f&nbsp;%%)"
+            "format": "<span style='color:black;'>%2$s&nbsp;(%0$.2f&nbsp;%%)</span>"
         },
         "placement": "outsideGrid",
         "location": "s"
+    },
+    "grid": {
+        "drawGridlines": true,
+        "shadow": false,
+        "background": "#ffffff",
+        "drawBorder": false
     },
     "axes": {
         "xaxis": {
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
-                "fontSize": "10pt",
+                "textColor":  "black",
+                "fontSize": "8pt",
                 "formatString": "%d%%"
             },
             {% comment %}"label": "{{rgraph|verbose_ordinate:rgraph.ordinate}}",{% endcomment %}
@@ -78,7 +92,6 @@
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%5$s"}
     ],
-    "title": "{{rgraph}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataPreprocessors": ["tee",
                           {
