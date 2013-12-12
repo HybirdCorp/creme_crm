@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-11 15:17+0100\n"
+"POT-Creation-Date: 2013-12-12 17:35+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -125,7 +125,7 @@ msgstr "Champ calculé"
 msgid "Aggregated value"
 msgstr "Valeur agrégée"
 
-#: core/report.py:432
+#: core/report.py:440
 msgid "Related field"
 msgstr "Champ relatif"
 
@@ -146,71 +146,81 @@ msgstr "Aucun choix disponible"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/graph.py:44
+#: forms/graph.py:45
 msgid "Abscissa field"
 msgstr "Champ d'abscisse"
 
-#: forms/graph.py:47
+#: forms/graph.py:48
 msgid "Abscissa : Group by"
 msgstr "Abscisse : Grouper par"
 
-#: forms/graph.py:50
+#: forms/graph.py:51
 msgid "Ordinate aggregate"
 msgstr "Valeur calculée (Ordonnée)"
 
-#: forms/graph.py:53
+#: forms/graph.py:54
 msgid "Ordinate aggregate field"
 msgstr "Champ de valeur calculée (Ordonnée)"
 
-#: forms/graph.py:54
+#: forms/graph.py:55
 msgid "Entities count"
 msgstr "Comptage de fiches"
 
-#: forms/graph.py:55
+#: forms/graph.py:56
 msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: forms/graph.py:60
+#: forms/graph.py:61
 msgid "Abscissa informations"
 msgstr "Informations sur les abscisses"
 
-#: forms/graph.py:61
+#: forms/graph.py:62
 msgid "Ordinates informations"
 msgstr "Informations sur les ordonnées"
 
-#: forms/graph.py:96 forms/graph.py:132
+#: forms/graph.py:97 forms/graph.py:147
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/graph.py:97
+#: forms/graph.py:98
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/graph.py:109 forms/graph.py:133
+#: forms/graph.py:110 forms/graph.py:148
 #: templates/reports/reports_hands_widget.html:36
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/graph.py:137
+#: forms/graph.py:141
+#, python-format
+msgid ""
+"If you use a field related to money, the entities should use the same "
+"currency or the result will be wrong. Concerned fields are : %s"
+msgstr ""
+"Si vous utilisez un champ relatif à de l'argent, les fiches devraient "
+"utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
+"concernés sont : %s"
+
+#: forms/graph.py:152
 msgid "No field is usable for aggregation"
 msgstr "Aucun n'est utilisable pour une agrégation"
 
-#: forms/graph.py:143
+#: forms/graph.py:158
 msgid "You must make a count because no field is usable for aggregation"
 msgstr ""
 "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour "
 "une agrégation"
 
-#: forms/graph.py:265 forms/graph.py:272
+#: forms/graph.py:280 forms/graph.py:287
 msgid "You have to specify a day range if you use 'by X days'"
 msgstr ""
 "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
 
-#: forms/graph.py:278
+#: forms/graph.py:293
 msgid "This field is required if you choose a field to aggregate."
 msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
 
-#: forms/graph.py:280
+#: forms/graph.py:295
 msgid ""
 "If you don't choose an ordinate field (or none available) you have to check "
 "'Make a count instead of aggregate ?'"

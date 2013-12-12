@@ -21,7 +21,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from django.db.models import DateTimeField, CharField, ForeignKey, SET
+from django.db.models import DateTimeField, CharField, DecimalField, ForeignKey, SET
 from django.utils.timezone import now
 
 
@@ -43,6 +43,17 @@ class DurationField(CharField):
         """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
         from south.modelsinspector import introspector
         field_class = "django.db.models.fields.CharField"
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
+
+
+class MoneyField(DecimalField):
+    #TODO: factorise
+    def south_field_triple(self):
+        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.DecimalField"
         args, kwargs = introspector(self)
 
         return (field_class, args, kwargs)
