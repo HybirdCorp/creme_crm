@@ -1733,7 +1733,7 @@ msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
 
 # beware makemessages seems to add a '%' (msgid "View of list: %%s") => remove it
-#: templates/creme_core/header_filters.html:6
+#: templates/creme_core/header_filter_form.html:6
 #, python-format
 msgid "View of list: %s"
 msgstr "Vue de liste : %s"

@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.decorators import login_required
 
-from ..models import HeaderFilter
 from ..forms.header_filter import HeaderFilterForm
 from ..gui.listview import ListViewState
+from ..models import HeaderFilter
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify
 from .generic import add_entity
 
@@ -42,7 +42,7 @@ def add(request, content_type_id, extra_template_dict=None):
     ct_entity = get_ct_or_404(content_type_id)
 
     if not request.user.has_perm(ct_entity.app_label):
-        raise Http404(ugettext(u"You are not allowed to acceed to this app"))
+        raise PermissionDenied(ugettext(u"You are not allowed to acceed to this app"))
 
     try:
         callback_url = ct_entity.model_class().get_lv_absolute_url()
@@ -54,7 +54,7 @@ def add(request, content_type_id, extra_template_dict=None):
         ctx.update(extra_template_dict)
 
     return add_entity(request, HeaderFilterForm, callback_url,
-                      template='creme_core/header_filters.html',
+                      template='creme_core/header_filter_form.html',
                       extra_initial={'content_type': ct_entity},
                       extra_template_dict=ctx,
                       function_post_save=lambda r, i: _set_current_hf(r, callback_url, i),
@@ -67,7 +67,7 @@ def edit(request, header_filter_id):
     allowed, msg = hf.can_edit_or_delete(user)
 
     if not allowed:
-        raise Http404(msg)
+        raise PermissionDenied(msg)
 
     if request.method == 'POST':
         POST = request.POST
@@ -83,7 +83,7 @@ def edit(request, header_filter_id):
         hf_form = HeaderFilterForm(user=user, instance=hf)
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/header_filters.html', #TODO: rename template...
+    return render(request, 'creme_core/header_filter_form.html',
                   {'form': hf_form,
                    'cancel_url': cancel_url,
                    'submit_label': _('Save the modified view'),

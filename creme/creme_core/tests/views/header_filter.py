@@ -151,7 +151,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
 
         uri = self._build_add_url(self.contact_ct)
-        self.assertGET404(uri)
+        self.assertGET403(uri)
 
         self.role.allowed_apps = ['persons']
         self.role.save()
@@ -166,7 +166,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=CremeEntity, is_custom=False,
                                  cells_desc=[EntityCellRegularField.build(model=CremeEntity, name='created')],
                                 )
-        self.assertGET404(self._build_edit_url(hf))
+        self.assertGET403(self._build_edit_url(hf))
 
     def test_edit02(self):
         self.login()
@@ -210,7 +210,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=Contact, is_custom=True, user=self.other_user,
                                 )
-        self.assertGET404(self._build_edit_url(hf))
+        self.assertGET403(self._build_edit_url(hf))
 
     def test_edit04(self):
         "User do not have the app credentials"
@@ -219,7 +219,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=Contact, is_custom=True, user=self.user,
                                 )
-        self.assertGET404(self._build_edit_url(hf))
+        self.assertGET403(self._build_edit_url(hf))
 
     def test_delete01(self):
         self.login()
