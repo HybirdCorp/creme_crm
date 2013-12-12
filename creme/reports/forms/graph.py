@@ -26,10 +26,11 @@ from django.forms.util import ValidationError, ErrorList
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import RelationType, CustomField
 from creme.creme_core.forms.base import CremeEntityForm
 from creme.creme_core.forms.widgets import DependentSelect
 from creme.creme_core.forms.fields import AjaxChoiceField
+from creme.creme_core.models import RelationType, CustomField
+from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
@@ -113,20 +114,34 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
 
         #Ordinate -----------------------------------------------------------
-        aggfield_choices = ModelFieldEnumerator(model, deep=0) \
-                                .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
-                                        viewable=True
-                                       ) \
-                                .choices()
+        #aggfield_choices = ModelFieldEnumerator(model, deep=0) \
+                                #.filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
+                                        #viewable=True
+                                       #) \
+                                #.choices()
+        aggfields = [field_info[0]
+                        for field_info in ModelFieldEnumerator(model, deep=0)
+                                            .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
+                                                    viewable=True
+                                                   )
+                    ]
+        aggfield_choices = [(field.name, field.verbose_name) for field in aggfields]
         aggcustom_choices = list(CustomField.objects.filter(field_type__in=field_aggregation_registry.authorized_customfields,
                                                             content_type=report_ct,
-                                                           ) \
+                                                           )
                                                     .values_list('id', 'name')
                                 )
         ordinate_choices = aggfield_choices or aggcustom_choices
 
         if ordinate_choices:
             self.force_count = False
+
+            money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
+            if money_fields:
+                aggregate_field_f.help_text = ugettext('If you use a field related to money, the entities should use the same '
+                                                       'currency or the result will be wrong. Concerned fields are : %s'
+                                                      ) % ', '.join(unicode(field.verbose_name) for field in money_fields)
+
 
             if aggcustom_choices and aggfield_choices:
                 ordinate_choices = [(_('Fields'),        aggfield_choices),

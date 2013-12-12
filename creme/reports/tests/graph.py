@@ -62,6 +62,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def _build_add_block_url(self, rgraph):
         return '/reports/graph/%s/block/add' % rgraph.id
 
+    def _build_edit_url(self, rgraph):
+        return '/reports/graph/edit/%s'  % rgraph.id
+
     def _builf_fetch_url(self, rgraph, order='ASC'):
         return '/reports/graph/fetch_graph/%s/%s' % (rgraph.id, order)
 
@@ -70,7 +73,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         ibi.id, entity.id, order,
                     )
 
-    def _create_report_n_graph(self):
+    def _create_invoice_report_n_graph(self):
         self.report = report = Report.objects.create(user=self.user,
                                                      name=u"All invoices of the current year",
                                                      ct=self.ct_invoice,
@@ -552,17 +555,64 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
-    @skipIfNotInstalled('creme.billing')
-    def test_editview(self):
-        rgraph = self._create_report_n_graph()
-        url = '/reports/graph/edit/%s'  % rgraph.id
-        self.assertGET200(url)
+    def test_editview01(self):
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='Capital per month of creation',
+                                            abscissa='created',
+                                            ordinate='capital__sum',
+                                            type=RGT_MONTH,
+                                            is_count=False,
+                                           )
 
-        name = rgraph.name[:10] + '...'
+        url = self._build_edit_url(rgraph)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            aggregate_field_f = response.context['form'].fields['aggregate_field']
+
+        self.assertFalse(aggregate_field_f.help_text)
+
+        name = 'Organisations per sector'
+        abscissa = 'sector'
+        gtype = RGT_FK
+        response = self.client.post(url, data={'user':              self.user.pk,
+                                               'name':              name,
+                                               'abscissa_field':    abscissa,
+                                               'abscissa_group_by': gtype,
+                                               'is_count':          True,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        rgraph = self.refresh(rgraph)
+        self.assertEqual(name,     rgraph.name)
+        self.assertEqual(abscissa, rgraph.abscissa)
+        self.assertEqual('',       rgraph.ordinate)
+        self.assertEqual(gtype,    rgraph.type)
+        self.assertIsNone(rgraph.days)
+        self.assertTrue(rgraph.is_count)
+
+    @skipIfNotInstalled('creme.billing')
+    def test_editview02(self):
+        "Another ContentType"
+        rgraph = self._create_invoice_report_n_graph()
+        url = self._build_edit_url(rgraph)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            aggregate_field_f = response.context['form'].fields['aggregate_field']
+
+        self.assertEqual(_('If you use a field related to money, the entities should use the same '
+                           'currency or the result will be wrong. Concerned fields are : %s'
+                          ) % ('%s, %s' % (_('Total with VAT'), _(u'Total without VAT'))),
+                         aggregate_field_f.help_text
+                        )
+
         abscissa = 'created'
         gtype = RGT_DAY
         response = self.client.post(url, data={'user':              self.user.pk,
-                                               'name':              name,
+                                               'name':              rgraph.name,
                                                'abscissa_field':    abscissa,
                                                'abscissa_group_by': gtype,
                                                'aggregate_field':   'total_vat',
@@ -1470,7 +1520,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
-        rgraph = self._create_report_n_graph()
+        rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
         url = self._build_add_block_url(rgraph)
@@ -1544,7 +1594,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block02(self):
         "Volatile relation"
-        rgraph = self._create_report_n_graph()
+        rgraph = self._create_invoice_report_n_graph()
         rtype_id = self.rtype.id
         response = self.client.post(self._build_add_block_url(rgraph),
                                     data={'graph':           rgraph.name,
