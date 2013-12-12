@@ -181,6 +181,7 @@ class BatchProcessForm(CremeForm):
     def read_objects_count(self):
         return  self._read_objects_count
 
+    #TODO: move to a job when job engine is done
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
         entities = self._entity_type.objects.all()

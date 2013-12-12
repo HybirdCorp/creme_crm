@@ -76,6 +76,7 @@ class BatchOperator(object):
     def need_arg(self):
         return self._need_arg
 
+
 class BatchOperatorManager(object):
     _CAT_STR = 'str'
     _CAT_INT = 'int'
@@ -98,15 +99,16 @@ class BatchOperatorManager(object):
         }
 
     _OPERATOR_FIELD_MATRIX = {
-            models.CharField:                  _CAT_STR,
-            models.TextField:                  _CAT_STR,
-            models.IntegerField:               _CAT_INT,
-            models.PositiveIntegerField:       _CAT_INT,
-            models.PositiveSmallIntegerField:  _CAT_INT,
+            models.CharField:       _CAT_STR,
+            models.TextField:       _CAT_STR,
+            models.IntegerField:    _CAT_INT,
         }
 
     def _get_category(self, model_field_type):
-        return self._OPERATOR_FIELD_MATRIX.get(model_field_type)
+        #return self._OPERATOR_FIELD_MATRIX.get(model_field_type)
+        for field_cls, cat in self._OPERATOR_FIELD_MATRIX.iteritems():
+            if issubclass(model_field_type, field_cls):
+                return cat
 
     def get(self, model_field_type, operator_name):
         """Get the wanted BatchOperator object.
