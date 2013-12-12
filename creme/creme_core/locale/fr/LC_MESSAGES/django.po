@@ -1718,7 +1718,7 @@ msgid "Remove all columns"
 msgstr "Enlever toutes les colonnes"
 
 # beware makemessages seems to add a '%' (msgid "Filter: %%s") => remove it
-#: templates/creme_core/entity_filters.html:6
+#: templates/creme_core/entity_filter_form.html:6
 #, python-format
 msgid "Filter: %s"
 msgstr "Filtre : %s"

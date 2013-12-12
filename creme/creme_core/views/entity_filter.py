@@ -21,7 +21,7 @@
 import logging
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -48,7 +48,7 @@ def add(request, ct_id):
     ct = get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label):
-        raise Http404(_(u"You are not allowed to acceed to this app"))
+        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
 
     try:
         callback_url = ct.model_class().get_lv_absolute_url()
@@ -57,7 +57,7 @@ def add(request, ct_id):
         callback_url = '/'
 
     return add_entity(request, EntityFilterCreateForm, callback_url,
-                      template='creme_core/entity_filters.html',
+                      template='creme_core/entity_filter_form.html',
                       extra_initial={'content_type': ct},
                       function_post_save=lambda req, instance: _set_current_efilter(req, callback_url, instance),
                       extra_template_dict={'submit_label': _('Save the filter')},
@@ -70,7 +70,7 @@ def edit(request, efilter_id):
     allowed, msg = efilter.can_edit_or_delete(user)
 
     if not allowed:
-        raise Http404(msg)#TODO:Permission denied instead ?
+        raise PermissionDenied(msg)
 
     if request.method == 'POST':
         POST = request.POST
@@ -86,7 +86,7 @@ def edit(request, efilter_id):
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/entity_filters.html', #TODO: rename the template
+    return render(request, 'creme_core/entity_filter_form.html', #TODO: rename the template
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
                    'submit_label': _('Save the modified filter'),

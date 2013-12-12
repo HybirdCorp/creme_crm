@@ -59,7 +59,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
 
         uri = self._build_add_url(ct)
-        self.assertGET404(uri)
+        self.assertGET403(uri)
 
         self.role.allowed_apps = ['persons']
         self.role.save()
@@ -466,7 +466,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=False)
-        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
+        self.assertGET403('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit03(self):
         "Can not edit Filter that belongs to another user"
@@ -476,14 +476,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.role.save()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
-        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
+        self.assertGET403('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit04(self):
         "User do not have the app credentials"
         self.login(is_superuser=False)
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
-        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
+        self.assertGET403('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit05(self):
         "Cycle error"
