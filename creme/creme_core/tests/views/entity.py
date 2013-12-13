@@ -54,18 +54,18 @@ class EntityViewsTestCase(ViewsTestCase):
 
         content = simplejson.loads(response.content)
         self.assertIsInstance(content, list)
-        self.assertEqual(7, len(content))
+        self.assertEqual(5, len(content))
 
         fmt = u'[%s] - %s'
         #user_str = _('User')
         user_str = _('Owner user')
         self.assertEqual(content[0],    ['created',          _('Creation date')])
         self.assertEqual(content[1],    ['modified',         _('Last modification')])
-        self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('username'))]) #TODO: hook user to set 'Username' ??
-        self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))]) #TODO: idem
-        self.assertEqual(content[4][0], 'user__last_name')
-        self.assertEqual(content[5][0], 'user__email')
-        self.assertEqual(content[6][0], 'user__is_team')
+        self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('Username'))])
+        #self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))])
+        self.assertEqual(content[3][0], 'user__last_name')
+        self.assertEqual(content[4][0], 'user__email')
+        #self.assertEqual(content[6][0], 'user__is_team')
 
         response = self.assertPOST404(url, data={'ct_id': 0})
         self.assertEqual('text/javascript', response['Content-Type'])
