@@ -612,7 +612,7 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[1]
         self.assertEqual(f_name, column.name)
         self.assertEqual(RFT_FIELD,    column.type)
-        self.assertEqual(_('Owner user') + ' - ' + _('username'), column.title)
+        self.assertEqual(_('Owner user') + ' - ' + _('Username'), column.title)
 
         column = columns[2]
         self.assertEqual(funcfield.name,         column.name)

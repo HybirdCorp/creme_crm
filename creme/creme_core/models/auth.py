@@ -520,3 +520,18 @@ def _user_unicode(user):
         return user.username
 
 User.__unicode__ = _user_unicode
+User._meta.ordering = ('username',)
+
+get_user_field = User._meta.get_field
+for fname in ('first_name', 'password', 'is_staff', 'is_active', 'is_superuser',
+              'last_login', 'date_joined', 'groups', 'user_permissions',
+              'role', 'is_team',
+             ):
+    get_user_field(fname).set_tags(viewable=False)
+
+get_user_field('username').verbose_name = _('Username')
+get_user_field('last_name').verbose_name = _('Last name')
+get_user_field('email').verbose_name = _('Email address')
+
+del get_user_field
+
