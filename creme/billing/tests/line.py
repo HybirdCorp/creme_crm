@@ -175,6 +175,54 @@ class LineTestCase(_BillingTestCase):
     #     self.assertFalse(invoice.product_lines)
     #     self.assertFalse(Product.objects.exists())
 
+    def test_listviews(self):
+        self.login()
+
+        invoice1 = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
+
+        create_pline = partial(ProductLine.objects.create, user=self.user)
+        pline1 = create_pline(related_document=invoice1, on_the_fly_item='FlyP1')
+        pline2 = create_pline(related_document=invoice2, on_the_fly_item='FlyP2')
+
+        create_sline = partial(ServiceLine.objects.create, user=self.user)
+        sline1 = create_sline(related_document=invoice1, on_the_fly_item='FlyS1')
+        sline2 = create_sline(related_document=invoice2, on_the_fly_item='FlyS2')
+
+        #---------------------------------------------------------------------
+        response = self.assertGET200('/billing/lines')
+
+        with self.assertNoException():
+            lines_page = response.context['entities']
+
+        self.assertEqual(4, lines_page.paginator.count)
+
+        real_lines = [l.get_real_entity() for l in lines_page.object_list]
+        self.assertIn(pline1, real_lines)
+        self.assertIn(sline2, real_lines)
+
+        #---------------------------------------------------------------------
+        response = self.assertGET200('/billing/product_lines')
+
+        with self.assertNoException():
+            plines_page = response.context['entities']
+
+        self.assertEqual(2, plines_page.paginator.count)
+
+        self.assertIn(pline1, plines_page.object_list)
+        self.assertIn(pline2, plines_page.object_list)
+
+        #---------------------------------------------------------------------
+        response = self.assertGET200('/billing/service_lines')
+
+        with self.assertNoException():
+            slines_page = response.context['entities']
+
+        self.assertEqual(2, slines_page.paginator.count)
+
+        self.assertIn(sline1, slines_page.object_list)
+        self.assertIn(sline2, slines_page.object_list)
+
     def test_delete_product_line01(self):
         self.login()
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]

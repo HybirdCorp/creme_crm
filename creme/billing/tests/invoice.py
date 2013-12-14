@@ -5,13 +5,14 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.conf import settings
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency, Vat #CremeProperty
+    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency, Vat # CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
     from creme.persons.models import Organisation, Address
@@ -32,6 +33,9 @@ class InvoiceTestCase(_BillingTestCase):
     #def setUpClass(cls):
         ##cls.populate('creme_core', 'creme_config', 'persons', 'billing')
         #cls.populate('creme_config', 'billing')
+
+    def _build_gennumber_url(self, invoice):
+        return '/billing/invoice/generate_number/%s' % invoice.id
 
     def test_createview01(self):
         self.login()
@@ -199,6 +203,45 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertEqual(target, invoice.get_target().get_real_entity())
 
+    def test_create_linked(self):
+        self.login()
+        source, target = self.create_orgas()
+        url = '/billing/invoice/add/%s/source/%s' % (target.id, source.id)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+                         form.initial
+                        )
+
+        name = 'Invoice#1'
+        currency = Currency.objects.all()[0]
+        status   = InvoiceStatus.objects.all()[1]
+        response = self.client.post(url, follow=True,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'issuing_date':    '2013-12-15',
+                                          'expiration_date': '2014-1-22',
+                                          'status':          status.id,
+                                          'currency':        currency.id,
+                                          'discount':        Decimal(),
+                                          'source':          source.id,
+                                          'target':          self.genericfield_format_entity(target),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        invoice = self.get_object_or_fail(Invoice, name=name)
+        self.assertEqual(date(year=2013, month=12, day=15), invoice.issuing_date)
+        self.assertEqual(date(year=2014, month=1,  day=22), invoice.expiration_date)
+        self.assertEqual(currency,                         invoice.currency)
+        self.assertEqual(status,                           invoice.status)
+
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
+
     def test_listview(self):
         self.login()
 
@@ -325,7 +368,7 @@ class InvoiceTestCase(_BillingTestCase):
         issuing_date = invoice.issuing_date
         self.assertTrue(issuing_date)
 
-        url = '/billing/invoice/generate_number/%s' % invoice.id
+        url = self._build_gennumber_url(invoice)
         self.assertGET404(url, follow=True)
         self.assertPOST200(url, follow=True)
 
@@ -349,11 +392,26 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.issuing_date = None
         invoice.save()
 
-        self.assertPOST200('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
-
+        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
         invoice = self.refresh(invoice)
         self.assertTrue(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
+
+    def test_generate_number03(self):
+        "Managed orga"
+        self.login()
+
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        #ct = invoice.entity_type
+        #self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=source, ct=ct))
+        #self.assertFalse(SimpleBillingAlgo.objects.filter(organisation=source, ct=ct))
+
+        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        self._set_managed(source)
+        #self.get_object_or_fail(ConfigBillingAlgo, organisation=source, ct=ct)
+
+        self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
+        self.assertTrue(settings.INVOICE_NUMBER_PREFIX + '1', self.refresh(invoice).number)
 
     def test_product_lines_property01(self):
         self.login()
