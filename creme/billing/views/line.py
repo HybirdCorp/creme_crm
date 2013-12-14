@@ -131,7 +131,6 @@ def listview_product_line(request):
 def listview_service_line(request):
     return list_view(request, ServiceLine, show_actions=False)
 
-
 @login_required
 @permission_required('billing')
 def add_to_catalog(request, line_id):

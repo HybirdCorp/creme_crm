@@ -12,7 +12,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (RelationType, Currency, Vat,
-                                         CremePropertyType, CremeProperty)
+            CremePropertyType, CremeProperty, BlockDetailviewLocation)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.creme_config.models import SettingValue
@@ -21,8 +21,9 @@ try:
 
     from creme.products.models import Product, Service, Category, SubCategory
 
-    from ..models import *
+    from ..blocks import persons_statistics_block
     from ..constants import *
+    from ..models import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -62,13 +63,15 @@ class _BillingTestCaseMixin(object):
 
         return invoice
 
-    def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
-        user = user or self.user
-        create = partial(Organisation.objects.create, user=user)
-        source = create(name='Source Orga')
-        target = create(name='Target Orga')
+    def create_orgas(self):
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        return create_orga(name='Source Orga'), create_orga(name='Target Orga')
 
-        invoice = self.create_invoice(name, source, target, user=user, discount=discount, currency=currency)
+    def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
+        source, target = self.create_orgas()
+        invoice = self.create_invoice(name, source, target, user=self.user,
+                                      discount=discount, currency=currency,
+                                     )
 
         return invoice, source, target
 
@@ -95,10 +98,7 @@ class _BillingTestCaseMixin(object):
         return quote
 
     def create_quote_n_orgas(self, name, currency=None, status=None):
-        create = partial(Organisation.objects.create, user=self.user)
-        source = create(name='Source Orga')
-        target = create(name='Target Orga')
-
+        source, target = self.create_orgas()
         quote = self.create_quote(name, source, target, currency, status)
 
         return quote, source, target
@@ -134,6 +134,10 @@ class _BillingTestCaseMixin(object):
 
         doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
         self.assertEqual(status, doc.status)
+
+    def _set_managed(self, orga):
+        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
+        CremeProperty.objects.create(type=ptype, creme_entity=orga)
 
 
 class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCaseMixin):
@@ -348,10 +352,6 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         self.assertGET200('/billing/')
 
-    def _set_managed(self, orga):
-        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
-        CremeProperty.objects.create(type=ptype, creme_entity=orga)
-
     def test_algoconfig(self):
         self.login()
 
@@ -417,3 +417,16 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, payment_info_tlpt)
 
+    def test_block_orga03(self):
+        "Statistics"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='NERV')
+
+        BlockDetailviewLocation.create(block_id=persons_statistics_block.id_, order=1000,
+                                        zone=BlockDetailviewLocation.LEFT, model=Organisation,
+                                       )
+
+        response = self.assertGET200(orga.get_absolute_url())
+        self.assertTemplateUsed('billing/templatetags/block_persons_statistics.html')
+        self.assertContains(response, 'id="%s"' % persons_statistics_block.id_)

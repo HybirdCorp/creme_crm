@@ -136,17 +136,6 @@ class Base(CremeEntity):
 
         return credit_notes
 
-    #COMMENTED on 2 March 2013
-    ##todo: use get_source/get_target
-    #def populate_with_organisation(self):
-        #relations_getter = Relation.objects.get
-        #try:
-            #self.source = relations_getter(subject_entity=self.id, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
-            #self.target = relations_getter(subject_entity=self.id, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
-        #except Relation.DoesNotExist:
-            #self.source = None
-            #self.target = None
-
     def generate_number(self, source=None):
         from creme.billing.registry import algo_registry #lazy loading of number generators
 

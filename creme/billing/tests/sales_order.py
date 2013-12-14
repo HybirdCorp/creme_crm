@@ -42,10 +42,7 @@ class SalesOrderTestCase(_BillingTestCase):
         return self.get_object_or_fail(SalesOrder, name=name)
 
     def create_salesorder_n_orgas(self, name, currency=None, status=None):
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
-
+        source, target = self.create_orgas()
         order = self.create_salesorder(name, source, target, currency, status)
 
         return order, source, target
@@ -64,11 +61,49 @@ class SalesOrderTestCase(_BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
+    def test_create_linked(self):
+        source, target = self.create_orgas()
+        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+                         form.initial
+                        )
+
+        name = 'Order#1'
+        currency = Currency.objects.all()[0]
+        status   = SalesOrderStatus.objects.all()[1]
+        response = self.client.post(url, follow=True,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'issuing_date':    '2013-12-13',
+                                          'expiration_date': '2014-1-20',
+                                          'status':          status.id,
+                                          'currency':        currency.id,
+                                          'discount':        Decimal(),
+                                          'source':          source.id,
+                                          'target':          self.genericfield_format_entity(target),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        order = self.get_object_or_fail(SalesOrder, name=name)
+        self.assertEqual(date(year=2013, month=12, day=13), order.issuing_date)
+        self.assertEqual(date(year=2014, month=1,  day=20), order.expiration_date)
+        self.assertEqual(currency,                         order.currency)
+        self.assertEqual(status,                           order.status)
+
+        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+
     def test_editview(self):
         name = 'my sales order'
         order, source, target = self.create_salesorder_n_orgas(name)
 
-        url = '/billing/sales_order/edit/%s' % order.id
+        url = order.get_edit_absolute_url()
         self.assertGET200(url)
 
         name     = name.title()

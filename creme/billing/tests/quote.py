@@ -36,6 +36,44 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('My Quote Two')
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
 
+    def test_create_linked(self):
+        source, target = self.create_orgas()
+        url = '/billing/quote/add/%s/source/%s' % (target.id, source.id)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+                         form.initial
+                        )
+
+        name = 'Quote#1'
+        currency = Currency.objects.all()[0]
+        status   = QuoteStatus.objects.all()[1]
+        response = self.client.post(url, follow=True,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'issuing_date':    '2013-12-14',
+                                          'expiration_date': '2014-1-21',
+                                          'status':          status.id,
+                                          'currency':        currency.id,
+                                          'discount':        Decimal(),
+                                          'source':          source.id,
+                                          'target':          self.genericfield_format_entity(target),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        quote = self.get_object_or_fail(Quote, name=name)
+        self.assertEqual(date(year=2013, month=12, day=14), quote.issuing_date)
+        self.assertEqual(date(year=2014, month=1,  day=21), quote.expiration_date)
+        self.assertEqual(currency,                         quote.currency)
+        self.assertEqual(status,                           quote.status)
+
+        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
+        
     def test_editview(self):
         name = 'my quote'
         quote, source, target = self.create_quote_n_orgas(name)

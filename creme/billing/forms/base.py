@@ -193,7 +193,7 @@ class BaseCreateForm(BaseEditForm):
 
         super(BaseCreateForm, self).save(*args, **kwargs)
 
-        instance.billing_address  = copy_or_create_address(target.billing_address, instance,  _(u'Billing address'))
+        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
         instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
 
         instance.save()

@@ -250,7 +250,6 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u"Default payment information")
     template_name = "billing/templatetags/block_billing_payment_information.html"
-    #configurable  = False
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
     dependencies  = (Relation, PaymentInformation)
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)

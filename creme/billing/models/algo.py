@@ -71,13 +71,14 @@ if 'creme.billing' in settings.INSTALLED_APPS: #useful for tests (this file coul
 
         get_ct = ContentType.objects.get_for_model
 
-        if instance.type_id == PROP_IS_MANAGED_BY_CREME and instance.creme_entity.entity_type_id == get_ct(Organisation).id:
+        if instance.type_id == PROP_IS_MANAGED_BY_CREME and \
+           instance.creme_entity.entity_type_id == get_ct(Organisation).id:
             orga = instance.creme_entity.get_real_entity()
 
             if not ConfigBillingAlgo.objects.filter(organisation=orga):
-                for model, prefix in [(Quote, settings.QUOTE_NUMBER_PREFIX),
-                                    (Invoice, settings.INVOICE_NUMBER_PREFIX),
-                                    (SalesOrder, settings.SALESORDER_NUMBER_PREFIX)]:
+                for model, prefix in [(Quote,      settings.QUOTE_NUMBER_PREFIX),
+                                      (Invoice,    settings.INVOICE_NUMBER_PREFIX),
+                                      (SalesOrder, settings.SALESORDER_NUMBER_PREFIX)]:
                     ct = get_ct(model)
                     ConfigBillingAlgo.objects.create(organisation=orga, name_algo=SimpleBillingAlgo.ALGO_NAME, ct=ct)
                     SimpleBillingAlgo.objects.create(organisation=orga, last_number=0, prefix=prefix, ct=ct)
