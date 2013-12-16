@@ -6,6 +6,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
     from creme.creme_core.models import (BlockDetailviewLocation,
@@ -196,6 +197,8 @@ class BlockTestCase(CremeTestCase):
         block_id = history_block.id_
         loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
         self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user, block_id=block_id, order=order)
+
+        self.assertEqual(_('History'), unicode(loc.block_verbose_name))
 
     def test_create_mypage02(self):
         order = 10
