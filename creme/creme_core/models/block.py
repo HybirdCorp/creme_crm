@@ -172,10 +172,11 @@ class BlockMypageLocation(CremeModel):
     @property
     def block_verbose_name(self):
         from creme.creme_core.gui.block import block_registry
-        try:
-            return block_registry[self.block_id].verbose_name
-        except:
-            return '???'
+        #try:
+            #return block_registry[self.block_id].verbose_name
+        #except:
+            #return '???'
+        return block_registry.get_blocks((self.block_id,))[0].verbose_name
 
 
 post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
