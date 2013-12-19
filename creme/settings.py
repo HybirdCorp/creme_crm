@@ -439,6 +439,7 @@ CREME_CORE_JS = ('main.js',
 
                     'creme_core/js/widgets/dialog/dialog.js',
                     'creme_core/js/widgets/dialog/overlay.js',
+                    'creme_core/js/widgets/dialog/frame.js',
                     'creme_core/js/widgets/dialog/confirm.js',
                     'creme_core/js/widgets/dialog/form.js',
                     'creme_core/js/widgets/dialog/select.js',

@@ -27,10 +27,10 @@ creme.dialogs = $.extend(creme.dialogs, {
                                                     return dataType !== 'text/html' || 
                                                            data.startsWith('<div class="in-popup" closing="true">');
                                                 })
-                                     .reload(url, data);;
+                                     .fetch(url, data);
 
         if (options.reloadOnSuccess) {
-            dialog.onSuccess(function() {creme.utils.reload();});
+            dialog.onFormSuccess(function() {creme.utils.reload();});
         }
 
         return dialog;

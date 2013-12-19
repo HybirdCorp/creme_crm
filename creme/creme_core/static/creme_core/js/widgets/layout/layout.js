@@ -171,17 +171,8 @@ creme.layout.Layout = creme.component.Component.sub({
         this.resizable(options.resizable);
     },
 
-    preferredSize: function(element)
-    {
-        var height = 0;
-        var width = 0;
-
-        $('> *', element).each(function() {
-            width = Math.max(width, $(this).position().left + $(this).outerWidth());
-            height = Math.max(height, $(this).position().top + $(this).outerHeight());
-        });
-
-        return {width: Math.round(width), height: Math.round(height)};
+    preferredSize: function(element) {
+        return creme.layout.preferredSize(element);
     },
 
     filter: function(filter)
@@ -367,3 +358,16 @@ creme.layout.Layout = creme.component.Component.sub({
         return this._target !== undefined;
     }
 });
+
+creme.layout.preferredSize = function(element) {
+    var height = 0;
+    var width = 0;
+
+    $('> *', element).each(function() {
+        var position = $(this).position();
+        width = Math.max(width, position.left + $(this).outerWidth());
+        height = Math.max(height, position.top + $(this).outerHeight());
+    });
+
+    return [Math.round(width), Math.round(height)];
+}

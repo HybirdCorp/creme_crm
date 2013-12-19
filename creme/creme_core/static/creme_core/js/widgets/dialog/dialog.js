@@ -41,30 +41,32 @@ creme.dialog.Dialog = creme.component.Component.sub({
     _initFrame: function(options)
     {
         var self = this;
-        var frame = creme.widget.buildTag($('<div/>'), 'ui-creme-frame', true).css('margin', '0')
-                                                                              .css('padding', '0');
+        var frame = this._frame = new creme.dialog.Frame({backend: options.backend});
 
-        var frame_options = {
-            backend: options.backend,
-            widget_init: options.initWidget
-        }
-
-        this._frame = creme.widget.create(frame, frame_options);
+        frame.onCleanup($.proxy(this._onFrameCleanup, this))
+             .onUpdate($.proxy(this._onFrameUpdate, this));
 
         if (options.fitFrame)
         {
-            frame.bind('reloadOk', function() {self.fitToFrameSize();});
-            frame.bind('reloadError', function() {
-                self.resizeToDefault();
-                self.position(self.position());
-            });
-
-            frame.bind('submitOk', function() {self.fitToFrameSize();});
-            frame.bind('submitError', function() {
-                self.resizeToDefault();
-                self.position(self.position());
-            });
+            frame.on('fetch-fail submit-fail', function() {
+                      self.resizeToDefault();
+                      self.position(self.position());
+                  });
         }
+
+        frame.bind($('<div>').css('margin', 0).css('padding', 0));
+    },
+    
+    _onFrameCleanup: function() {
+        creme.widget.shutdown(this.frame().delegate().children());
+    },
+    
+    _onFrameUpdate: function()
+    {
+        creme.widget.ready(this.frame().delegate().children());
+
+        if (this.options.fitFrame)
+            this.fitToFrameSize();
     },
 
     _dialogBackground: function() {
@@ -99,7 +101,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (!Object.isEmpty(options.url)) {
-            this.reload(options.url);
+            this.fetch(options.url);
         } else if (!Object.isEmpty(options.html)) {
             this.fill($(options.html));
         }
@@ -117,7 +119,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         this._resizeFrame(body.width() - 5,
                           body.height() - (body.outerHeight() - body.height()))
 
-        this._events.trigger('resize', [frame.width(), frame.height()], this);
+        this._events.trigger('resize', [frame.delegate().width(), frame.delegate().height()], this);
     },
 
     _appendButton: function(buttons, name, label, action)
@@ -126,7 +128,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         buttons[label] = {'name': name,
                           'text': label,
-                          'click':function(e) {
+                          'click': function(e) {
                               action.apply(self, [$(this), e]);
                               return false;
                           }
@@ -138,20 +140,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var self = this;
 
         this._appendButton(buttons, 'close', gettext('Close'), this.close);
-
-        if (options.debug) {
-            this._appendButton(buttons, 'reload', gettext('Reload'), function() {
-                $('.ui-creme-frame', this).creme().widget().reload();
-            });
-        }
-
         return buttons;
     },
 
     _resizeFrame: function(width, height)
     {
-        this._frame.element.css('width', width - 5)
-                           .css('height', height - 5);
+        this._frame.delegate().css('width', width - 5)
+                              .css('height', height - 5);
 
         this._frame.resize();
     },
@@ -174,8 +169,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var body = $('> .ui-dialog-content', container);
 
         // set frame to default size
-        this._frame.element.css('width', this.options.width - (container.outerWidth() - body.outerWidth()))
-                           .css('height', this.options.height - (container.outerHeight() - body.outerHeight()));
+        this._frame.delegate().css('width', this.options.width - (container.outerWidth() - body.outerWidth()))
+                              .css('height', this.options.height - (container.outerHeight() - body.outerHeight()));
 
         // eval preferred size of frame elements
         var size = this._frame.preferredSize();
@@ -216,18 +211,22 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this._frame;
     },
 
+    content: function() {
+        return this._frame.delegate();
+    },
+
     resize: function(width, height)
     {
         this._resizeDialog(width, height);
-        this._onResize(this._dialog, this._frame.element);
+        this._onResize(this._dialog, this._frame.delegate());
     },
 
     resizeToDefault: function() {
         return this.resize(this.options.width, this.options.height);
     },
 
-    reload: function(url, data, listeners) {
-        this._frame.reload(url, data, listeners);
+    fetch: function(url, options, data, listeners) {
+        this._frame.fetch(url, options, data, listeners);
         return this;
     },
 
@@ -262,11 +261,12 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var self = this;
         var options = $.extend(this.options, options || {});
-        var frame = this._frame.element;
+        var frame = this._frame;
+        var container = frame.delegate();
 
         var buttons = this._populateButtons({}, options);
 
-        var content = $('<div/>').append(frame);
+        var content = $('<div/>').append(container);
 
         var position = {my: "center center", at: "center center", of: window};
         var resizable = options.scroll === 'frame' ? options.resizable : false;
@@ -306,32 +306,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
 creme.dialogs = creme.dialogs || {};
 
 creme.dialogs = $.extend(creme.dialogs, {
-/*
-    openImage: function(image, options, close_cb) {
-        var options = $.extend({
-            buttons:   {},
-            modal:     true,
-            resizable: false,
-            draggable: true,
-            width:     image.width + 20,
-            minHeight: image.height + 20,
-            close:     close_cb,
-            open:      function() {
-                           if ($.assertIEVersions(9, 10)) {
-                                $(this).parents('.ui-dialog').width(image.width)
-                                                             .css('left', (($(window).width() - image.width) / 2) + 'px');
-                           }
-                       } 
-        }, options || {})
-
-        $('<div>').css('overflow', 'hidden')
-                  .width(image.width)
-                  .height(image.height)
-                  .append(image)
-                  .dialog(options);
-    },
-*/
-
     image: function(source, options)
     {
         if (Object.isType(source, 'string'))
@@ -349,11 +323,11 @@ creme.dialogs = $.extend(creme.dialogs, {
     },
 
     url: function(url, options, data) {
-        return new creme.dialog.Dialog(options).reload(url, data);
+        return new creme.dialog.Dialog(options).fetch(url, {}, data);
     },
 
     form: function(url, options, data) {
-        return new creme.dialog.FormDialog(options).reload(url, data);
+        return new creme.dialog.FormDialog(options).fetch(url, {}, data);
     },
 
     html: function(html, options) {
