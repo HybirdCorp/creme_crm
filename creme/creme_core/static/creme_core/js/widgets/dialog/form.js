@@ -36,8 +36,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             self._updateButtons("send", self.dialog(), false);
         };
 
-        this.frame().element.bind('beforeSubmit', update_buttons);
-        this.frame().element.bind('beforeReload', update_buttons);
+        this.frame().on('before-submit before-fetch', update_buttons);
 
         this._submitListeners = {
             done: $.proxy(this._onSubmitDone, this),
@@ -57,31 +56,42 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return this;
     },
 
+    _validate: function(data, statusText, dataType)
+    {
+        var validator = this.validator();
+        return !Object.isFunc(validator) || validator(data, statusText, dataType);
+    },
+
     submit: function()
     {
         var self = this;
         var dialog = this.dialog();
-        var frame = $('.ui-creme-frame', dialog);
-        var form = $('form:first', frame);
+        var form = $('form:first', this.content());
 
-        frame.creme().widget().submit(form, this._submitListeners);
+        this.frame().submit('', {}, form, this._submitListeners);
         return this;
     },
 
-    _onSubmitDone: function(data, statusText, dataType)
+    _onFrameUpdate: function(event, data, dataType, action)
     {
-        var validator = this.validator();
-
-        if (Object.isFunc(validator) && validator(data, statusText, dataType) == false) {
-            this._updateButtons("send", this.dialog(), true);
-            this._events.trigger('form-error', [data, statusText, dataType], this);
-        } else {
-            this._destroyDialog();
-            this._events.trigger('success', [data, statusText, dataType], this);
-        }
+        if (action !== 'submit')
+            this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
     },
 
-    _onSubmitFail: function(data, statusText) {
+    _onSubmitDone: function(event, data, statusText, dataType)
+    {
+        if (this._validate(data, statusText, dataType)) {
+            this._destroyDialog();
+            this._events.trigger('form-success', [data, statusText, dataType], this);
+            return;
+        }
+
+        this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, 'submit');
+        this._updateButtons("send", this.dialog(), true);
+        this._events.trigger('form-error', [data, statusText, dataType], this);
+    },
+
+    _onSubmitFail: function(event, data, statusText) {
         this._updateButtons("send", this.dialog(), false);
     },
 
@@ -89,13 +99,12 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     {
         var self = this;
 
-        frame.bind('reloadError', function(data, status) {
-            self._updateButtons("send", dialog, false);
-        });
-
-        frame.bind('reloadOk', function(data, status) {
-            self._updateButtons("send", dialog, true);
-        });
+        frame.onFetchFail(function(data, status) {
+                  self._updateButtons("send", dialog, false);
+              })
+              .onFetchDone(function(data, status) {
+                  self._updateButtons("send", dialog, true);
+              });
 
         this._super_(creme.dialog.Dialog, '_onOpen', dialog, frame, options);
     },
@@ -116,9 +125,9 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return buttons;
     },
 
-    onSuccess: function(success)
+    onFormSuccess: function(success)
     {
-        this._events.bind('success', success);
+        this._events.bind('form-success', success);
         return this;
     },
 
@@ -148,7 +157,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
     {
         var self = this;
 
-        new creme.dialog.FormDialog(options).onSuccess(function(event, data) {self._onSubmit(data);})
+        new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) {self._onSubmit(data);})
                                             .onClose(function() {self.cancel();})
                                             .open();
     }

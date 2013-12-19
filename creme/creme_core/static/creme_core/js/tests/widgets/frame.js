@@ -460,8 +460,8 @@ test('creme.widget.Frame.submit', function() {
     equal(1, $('form', element).length);
 
     var listeners = {
-        done: function(data, statusText, dataType) {response.push([data, dataType]);},
-        fail: function() {response.push('error')}
+        done: function(event, data, statusText, dataType) {response.push([data, dataType]);},
+        fail: function(event, data, error) {response.push('error')}
     };
 
     var response = [];

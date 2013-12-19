@@ -67,7 +67,7 @@ creme.dialog.ConfirmAction = creme.component.Action.sub({
     {
         var self = this;
 
-        new creme.dialog.ConfirmAction(options).onSuccess(function(data) {self.done();})
+        new creme.dialog.ConfirmDialog(options).onOk(function(data) {self.done();})
                                                .onClose(function() {self.cancel();})
                                                .open();
     }

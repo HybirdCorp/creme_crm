@@ -21,8 +21,7 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
     options: {
         backend:        new creme.ajax.Backend({dataType:'html'}),
         url:            undefined,
-        overlay_delay:  100,
-        widget_init:    true
+        overlay_delay:  100
     },
 
     _create: function(element, options, cb, sync)
@@ -31,97 +30,29 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         this._overlay.bind(element)
                      .addClass('frame-loading');
 
-        this._queryReloadListeners = {
-            done: function(data, statusText) {
-                    self._success_cb(element, data, statusText, cb, 'reloadOk');
-                },
-            fail: function(data, status) {
-                    self._error_cb(element, data, status, error_cb, 'reloadError');
-                }
-        }
+        var frame = this._frame = new creme.dialog.Frame({backend: options.backend});
+
+        frame.on('update', function(event, data, type) {
+                  element.trigger('update', [data, statusText]);
+              })
+             .on('fetch-fail submit-fail', function(event, data, error) {
+                  element.trigger('fetch-fail' === event ? 'reloadError' : 'submitError', [data, error]);
+              })
+             .bind(element)
+             .overlayDelay(options.overlay_delay)
+             .overlay().addClass('frame-loading');
 
         element.addClass('widget-ready');
 
         this.reload(element, undefined, cb);
     },
 
-    _update: function(element, data)
-    {
-        this._overlay.unbind(element);
-        this._overlay.update(false);
-
-        creme.widget.destroy(element.children());
-        element.empty();
-        this._overlay.bind(element);
-
-        try {
-            element.append($(data));
-
-            if (this.options.widget_init) {
-                creme.widget.ready(element);
-            }
-        } catch(e) {
-        }
+    url: function(element) {
+        return this._lasturl || this.options.url;
     },
 
-    _clean_json: function(element, data)
-    {
-        var json_matches = data.match('^[\s]*<json>(.*)</json>[\s]*$');
-        var json = (json_matches !== null && json_matches.length == 2) ? json_matches[1] : undefined;
-
-        if (new creme.utils.JSON().isJSON(json)) {
-            return [json, 'text/json'];
-        }
-    },
-
-    _clean_data: function(element, data)
-    {
-        var dataType = typeof data;
-
-        if (dataType === 'string') {
-            return this._clean_json(element, data) || [data, 'text/html'];
-        }
-
-        if (dataType === 'object') {
-            return [data, Object.getPrototypeOf(data).jquery ? 'object/jquery' : 'object'];
-        }
-
-        return [data, dataType];
-    },
-
-    _success_cb: function(element, data, statusText, cb, trigger)
-    {
-        var self = this;
-        var cleaned = self._clean_data(element, data);
-        var data = cleaned[0];
-        var dataType = cleaned[1];
-
-        // if guessed data is html, replace content of frame
-        if (dataType === 'text/html' || dataType === 'object/jquery')
-            self._update(element, data);
-
-        creme.object.invoke(cb, data, statusText, dataType);
-        element.trigger(trigger, [data, statusText]);
-    },
-
-    _error_cb: function(element, data, status, cb, trigger)
-    {
-        this._overlay.update(true, status.status, 0);
-        creme.object.invoke(cb, data, status);
-        element.trigger(trigger, [data, status]);
-    },
-    
-    preferredSize: function(element)
-    {
-        var height = 0;
-        var width = 0;
-
-        $('> *', element).each(function() {
-            width = Math.max(width, $(this).position().left + $(this).outerWidth());
-            height = Math.max(height, $(this).position().top + $(this).outerHeight());
-        });
-
-        return [Math.round(width), Math.round(height)];
+    preferredSize: function(element) {
+        return creme.layout.preferredSize(element);
     },
 
     resize: function(element, args) {
@@ -129,13 +60,15 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
     },
 
     fill: function(element, data, cb) {
-        this._success_cb(element, data, '', cb, 'reloadOk');
-        this._lasturl = undefined;
+        this._frame.fill(data);
+        creme.object.invoke(cb, data);
     },
 
-    reset: function(element, cb) {
-        this._success_cb(element, '', '', cb, 'reloadOk');
+    reset: function(element, cb)
+    {
+        this._frame.clear();
         this._lasturl = undefined;
+        creme.object.invoke(cb);
     },
 
     reload: function(element, url, data, listeners)
@@ -145,27 +78,11 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         var url = url || this.url();
         var listeners = listeners || {};
 
-        if (creme.object.isnone(url)) {
-            this.reset(element, listeners.done);
-            return;
-        }
-
-        element.trigger('beforeReload', [url]);
-
-        this._overlay.update(true, 'wait', options.overlay_delay);
         this._lasturl = url;
 
-        options.backend.get(url, data, 
-                            function(data, statusText) {
-                                self._success_cb(element, data, statusText, listeners.done, 'reloadOk');
-                            },
-                            function(data, status) {
-                                self._error_cb(element, data, status, listeners.fail, 'reloadError');
-                            });
-    },
-
-    url: function(element) {
-        return this._lasturl || this.options.url;
+        if (Object.isNone(url) === false) {
+            this._frame.fetch(url, {}, data, listeners);
+        }
     },
 
     submit: function(element, form, listeners)
@@ -175,18 +92,6 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         var listeners = listeners || {};
         var url = this.url();
 
-        this._overlay.update(true, 'wait', options.overlay_delay);
-
-        element.trigger('beforeSubmit', [form]);
-
-        form.attr('action', form.attr('action') || url);
-
-        options.backend.submit(form, 
-                               function(data, statusText) {
-                                   self._success_cb(element, data, statusText, listeners.done, 'submitOk');
-                               },
-                               function(data, status) {
-                                   self._error_cb(element, data, status, listeners.fail, 'submitError');
-                               });
+        this._frame.submit(url, {}, form, listeners);
     }
 });

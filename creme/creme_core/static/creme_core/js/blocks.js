@@ -183,7 +183,7 @@ creme.blocks.deprecatedForm = function(url, options, data) {
     var dialog = creme.dialogs.deprecatedForm(url, options, data);
 
     if (options.blockReloadUrl) {
-        dialog.onSuccess(function() {
+        dialog.onFormSuccess(function() {
                   creme.blocks.reload(options.blockReloadUrl);
                });
     }

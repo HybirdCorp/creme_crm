@@ -176,7 +176,7 @@
         $('#popup .popup-form').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
             var dialog = creme.dialogs.form('mock/form', {backend: mockbackend, title:'Form'})
-                                             .onSuccess(function(event, data) {console.log('submitted >', data);})
+                                             .onFormSuccess(function(event, data) {console.log('submitted >', data);})
                                              .onClose(function() {console.log('canceled');});
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
