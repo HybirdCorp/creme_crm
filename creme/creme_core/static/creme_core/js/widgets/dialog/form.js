@@ -110,7 +110,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _populateButtons: function(buttons, options)
     {
-        this._appendButton(buttons, 'send', gettext('Send'), this.submit);
+        this._appendButton(buttons, 'send', gettext('Save'), this.submit);
         this._appendButton(buttons, 'cancel', gettext('Cancel'), this.close);
 
         return buttons;
