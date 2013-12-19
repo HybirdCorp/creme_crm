@@ -34,7 +34,7 @@ creme.model.Array = creme.model.Collection.sub({
         return this._data[index];
     },
 
-    set: function(data, index)
+    set: function(data, index, action)
     {
         if (index < 0 || index > this._data.length) {
             throw new Error('index out of bound');
@@ -43,7 +43,7 @@ creme.model.Array = creme.model.Collection.sub({
         var previous = this._data[index];
 
         this._data[index] = data;
-        this._fireUpdate([data], index, index, [previous], 'set');
+        this._fireUpdate([data], index, index, [previous], action || 'set');
         return this;
     },
 
@@ -168,9 +168,9 @@ creme.model.Array = creme.model.Collection.sub({
         return removed;
     },
 
-    indexOf: function(value)
+    indexOf: function(value, comparator)
     {
-        var comparator = this._comparator;
+        var comparator = comparator || this._comparator;
         var data = this._data;
 
         if (Object.isFunc(comparator) === false)
@@ -183,6 +183,37 @@ creme.model.Array = creme.model.Collection.sub({
         }
 
         return -1;
+    },
+
+    indicesOf: function(values, comparator)
+    {
+        var comparator = comparator || this._comparator;
+        var data = this._data;
+        var values = Array.isArray(values) ? values.slice() : [values];
+        var result = [];
+
+        if (Object.isFunc(comparator) === false)
+        {
+            data.forEach(function(item, index) {
+                var i = values.indexOf(item);
+
+                if (i !== -1) {
+                    result.push(index);
+                    values.slice(i, 1)
+                }
+            });
+        } else {
+            data.forEach(function(item, index) {
+                for(var i = 0; i < values.length; ++i) {
+                    if (comparator(item, values[i]) === 0) {
+                        result.push(index);
+                        values.slice(i, 1);
+                    }
+                }
+            });
+        }
+
+        return result.length === 0 ? -1 : (result.length === 1 ? result[0] : result);
     },
 
     clear: function()

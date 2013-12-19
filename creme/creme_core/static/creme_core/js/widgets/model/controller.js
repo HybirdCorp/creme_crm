@@ -85,8 +85,23 @@ creme.model.CollectionController = creme.component.Component.sub({
 
 
 creme.model.SelectionController = creme.component.Component.sub({
-    _init_: function() {
+    _init_: function()
+    {
+        var self = this;
+
         this._events = new creme.component.EventHandler();
+        this.selectionFilter(null);
+
+        this._modelListeners = {
+            'add remove': function(event, data) {
+                              self._events.trigger('change', [], this);
+                          },
+            'update': function(event, data, start, end, previous, action) {
+                          if (action !== 'select') {
+                              self._events.trigger('change', [], this);
+                          }
+                      }
+        };
     },
 
     on: function(event, listener, decorator) {
@@ -108,20 +123,27 @@ creme.model.SelectionController = creme.component.Component.sub({
         if (model === undefined)
             return this._model;
 
-        this._model = model;
+        var previous = this._model;
 
-        if (model)
-        {
-            model.bind('update add remove', function() {
-                this._events.trigger('change', [], this);
-            });
+        if (!Object.isNone(previous)) {
+            previous.unbind(this._modelListeners);
         }
 
+        if (!Object.isNone(model)) {
+            model.bind(this._modelListeners);
+        }
+
+        this._model = model;
         return this;
     },
 
-    isItemSelectable: function(item, index) {
-        return true;
+    selectionFilter: function(filter)
+    {
+        if (filter === undefined)
+            return this._filter;
+
+        this._filter = Object.isFunc(filter) ? filter : null;
+        return this;
     },
 
     selected: function()
@@ -130,63 +152,147 @@ creme.model.SelectionController = creme.component.Component.sub({
         return model ? model.where(function(item) {return item.selected;}) : [];
     },
 
-    select: function(selections, key)
+    selectables: function()
     {
         var model = this.model();
+        var selectable = this._filter;
 
-        if (model === undefined) {
-            return this;
+        if (model !== undefined)
+            return Object.isFunc(selectable) ? model.where(selectable) : model.all();
+
+        return [];
+    },
+
+    _inRange: function(indices, index)
+    {
+        if (indices.length === 0)
+            return false;
+
+        for(var i = 0; i < indices.length; ++i)
+        {
+            var range = indices[i];
+
+            if (index >= range[0] && index <= range[1])
+                return true;
         }
 
-        var selections = selections.slice();
-        var selectable = this.isItemSelectable;
-        var key = key;
-
-        model.all().forEach(function(item, index) {
-            var selectionIndex = selections ? selections.indexOf(key ? key(item, index) : index) : -1;
-            var isSelected = selectionIndex !== -1;
-
-            if (isSelected)
-                selections.splice(selectionIndex, 1);
-
-            if (Object.isFunc(selectable) && selectable(item, index))
-                item.selected = isSelected;
-        });
-
-        model.reset(model.all());
-        this._events.trigger('change', [], this);
-
-        return this;
+        return false;
     },
 
-    toggle: function(index, state)
+    _cleanRange: function(range, min, max)
     {
-        var item = this.model().get(index);
+        var start, end;
 
-        if (!this.isItemSelectable(item, index))
-            return this;
+        if (range.length > 1) {
+            start = range[0];
+            end = range[1];
+        } else {
+            start = range;
+            end = range;
+        }
 
-        item.selected = state !== undefined ? (state === true) : !item.selected;
+        if (start > end) {
+            start = start + end;
+            end = start - end;
+            start = start - end;
+        }
 
-        this.model().set(item, index);
-        this._events.trigger('change', [], this);
-        return this;
+        return [Math.min(Math.max(min, start), max),
+                Math.max(min, Math.min(max, end))];
     },
 
-    toggleAll: function(state)
-    {
-        var selectable = this.isItemSelectable;
+    _compareRange: function(a, b) {
+        return a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0);
+    },
 
-        var items = this.model().all().map(function(item) {
-            if (selectable(item)) {
-                item.selected = (state !== undefined) ? (state === true) : !item.selected;
+    _cleanIndices: function(indices, min, max)
+    {
+        if (Object.isFunc(indices))
+            return indices;
+
+        var indices = Array.isArray(indices) ? indices : [indices];
+        var min = 0, max = this.model().length();
+        var cleaned = [];
+        var cleanRange = this._cleanRange;
+
+        var cleaned = indices.map(function(range) {
+                                      return cleanRange(range, min, max);
+                                  })
+                             .sort(this._compareRange);
+
+        return cleaned;
+    },
+
+    _updateSelection: function(indices, instate, outstate)
+    {
+        var model = this.model();
+        var filter = this.selectionFilter();
+        var indices = this._cleanIndices(indices);
+        var inrange = this._inRange;
+        var items = this.model().all();
+
+        var haschanges = false;
+        var next, previous, item;
+
+        for(var index = 0; index < items.length; ++index)
+        {
+            item = items[index];
+
+            if (filter && !filter(item, index))
+                continue;
+
+            previous = item.selected ? true : false;
+
+            if (inrange(indices, index)) {
+                next = instate(item, index);
+            } else {
+                next = outstate ? outstate(item, index) : previous;
             }
 
-            return item;
-        });
+            if (next !== undefined && next !== previous)
+            {
+                item.selected = next;
+                model.set(item, index, 'select');
+                haschanges = true;
+            }
+        }
 
-        this.model().reset(items);
-        this._events.trigger('change', [], this);
+        if (haschanges)
+            this._events.trigger('change', [], this);
+
         return this;
+    },
+
+    toggle: function(indices, state)
+    {
+        return this._updateSelection(indices,
+                                     function(item, index) {
+                                         return state !== undefined ? (state === true) : !item.selected;
+                                     });
+    },
+
+    select: function(indices, inclusive)
+    {
+        return this._updateSelection(indices,
+                                     function(item, index) {return true;},
+                                     inclusive ? undefined : function(item, index) {return false;});
+    },
+
+    unselect: function(indices)
+    {
+        return this._updateSelection(indices,
+                                     function(item, index) {return false;});
+    },
+
+    toggleAll: function(state) {
+        return this.toggle([[0, this.model().length() - 1]], state);
+    },
+
+    selectAll: function() {
+        return this.toggleAll(true);
+    },
+
+    unselectAll: function() {
+        return this.toggleAll(false);
     }
 });

@@ -48,8 +48,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         });
 
         $('.checkbox-field input[type="checkbox"]', element).bind('click change', function() {
-            $(this).data('checklist-item').data.selected = $(this).get()[0].checked;
-            self._updateDelegate(element);
+            self._selections.toggle(parseInt($(this).attr('checklist-index')), $(this).get()[0].checked);
         });
 
         element.addClass('widget-ready');
@@ -77,17 +76,9 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
     _updateViewSelection: function(element)
     {
-        var selections = this.val(element) || [];
-        var controller = this._controller;
-
-        controller.model().each(function(item, index) {
-            var next = selections.indexOf(item.value) !== -1;
-
-            if (item.selected !== next) {
-                item.selected = next;
-                controller.model().set(item, index)
-            }
-        });
+        var comparator = function(a, b) {return creme.utils.compareTo(a.value, b);}
+        var indices = this._controller.model().indicesOf(this.val(element) || [], comparator);
+        this._selections.select(indices);
     },
 
     _updateDelegate: function(element)
@@ -109,15 +100,21 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         var renderer = this._grouped ? new creme.model.CheckGroupListRenderer() : new creme.model.CheckListRenderer();
         var controller = this._controller = new creme.model.CollectionController(this._backend);
+        var selections = this._selections = new creme.model.SelectionController();
 
         var choices = this._grouped ? creme.model.ChoiceGroupRenderer.parse(input) : creme.model.ChoiceRenderer.parse(input);
+        var model = new creme.model.Array(choices);
+
+        selections.model(model)
+                  .selectionFilter(function(item, index) {return !item.disabled;})
+                  .on('change', function() {self._updateDelegate(element);});
 
         renderer.converter(this._converter)
                 .disabled(disabled);
 
         controller.renderer(renderer)
                   .target(content)
-                  .model(new creme.model.Array(choices))
+                  .model(model)
                   .redraw();
 
         input.bind('change', function() {self._updateViewSelection(element);});
@@ -206,43 +203,27 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     cleanedval: function(element)
     {
         return this.val(element).map(function(value) {
-            creme.utils.converters.convert('string', this.options.datatype.toLowerCase(), value, value);
+            creme.utils.convert('string', this.options.datatype.toLowerCase(), value, value);
         });
     },
 
     reset: function(element) {
-        this.unselectAll(element);
+        return this.unselectAll(element);
     },
 
     selected: function(element) {
-        return $('.checkbox-field input[type="checkbox"]:checked', element).map(function() {
-            return $(this).val();
-        }).get();
+        return this._selections.selected().map(function(item) {return item.value;});
     },
 
     selectAll: function(element)
     {
-        $('.checkbox-field input[type="checkbox"]:not([disabled])', element).each(function() {
-            $(this).get()[0].checked = true;
-        });
-
-        this._controller.model().where(function(item) {return !item.disabled})
-                                .forEach(function(item) {item.selected = true;});
-
-        this._updateDelegate(element);
+        this._selections.selectAll();
         return this;
     },
 
     unselectAll: function(element)
     {
-        $('.checkbox-field input[type="checkbox"]', element).each(function() {
-            $(this).get()[0].checked = false;
-        });
-
-        this._controller.model().where(function(item) {return !item.disabled})
-                                .forEach(function(item) {item.selected = false;});
-
-        this._updateDelegate(element);
+        this._selections.unselectAll();
         return this;
     }
 });

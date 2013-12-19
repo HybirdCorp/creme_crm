@@ -26,8 +26,11 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
         return item;
     },
 
-    updateItem: function(target, item, data, previous, index)
+    updateItem: function(target, item, data, previous, index, action)
     {
+        if (action === 'select')
+            return this.selectItem(target, item, data, previous, index);
+
         var value = Object.isNone(data.value) ? '' : data.value;
 
         if (typeof data.value === 'object')
@@ -38,6 +41,10 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
             .toggleAttr('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
+    },
+
+    selectItem: function(target, item, data, previous, index) {
+        item.toggleAttr('selected', data.selected === true);
     },
 
     items: function(target) {
@@ -117,8 +124,11 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
             group.remove();
     },
 
-    updateItem: function(target, item, data, previous, index)
+    updateItem: function(target, item, data, previous, index, action)
     {
+        if (action === 'select')
+            return this.selectItem(target, item, data, previous, index);
+
         var group = target;
         var prev_group = item.parent();
 
@@ -194,8 +204,11 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         return item;
     },
 
-    updateItem: function(target, item, data, previous, index)
+    updateItem: function(target, item, data, previous, index, action)
     {
+        if (action === 'select')
+            return this.selectItem(target, item, data, previous, index);
+
         var value = Object.isNone(data.value) ? '' : data.value;
         var checkbox = $('input[type="checkbox"]', item);
 
@@ -206,6 +219,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
+                .attr('checklist-index', index)
                 .data('checklist-item', {data: data, index:index})
 
         checkbox.get()[0].checked = data.selected;
@@ -215,11 +229,18 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         item.toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .toggleClass('hidden', !data.visible)
-            .toggleClass('disabled', disabled);
+            .toggleClass('disabled', disabled)
+            .attr('checklist-index', index);
+    },
+
+    selectItem: function(target, item, data, previous, index) {
+        $('input[type="checkbox"]', item).get()[0].checked = data.selected;
     },
 
     items: function(target) {
-        return $('.checkbox-field', target);
+        return $('.checkbox-field', target).sort(function(a, b) {
+            return parseInt($(a).attr('checklist-index')) - parseInt($(b).attr('checklist-index')); 
+        });
     },
 
     converter: function(converter) {
