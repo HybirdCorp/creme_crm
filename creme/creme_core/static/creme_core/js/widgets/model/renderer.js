@@ -45,7 +45,7 @@ creme.model.Renderer = creme.component.Component.sub({
         var model = Array.isArray(model) ? new creme.model.Array(model) : model;
         var previous = this._model;
 
-        if (previous !== undefined) {
+        if (!Object.isNone(previous)) {
             previous.unbind(this._modelListener);
         }
 
@@ -76,13 +76,15 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
     },
 
     createItem: function(target, before, data, index) {
-        return $('<li>').html(data);
+        var item = $('<li>');
+        this.updateItem(target, item, data, undefined, index);
+        return item;
     },
 
     insertItem: function(target, before, data, index)
     {
         var item = this.createItem(target, before, data, index)
-        
+
         if (before && before.length) {
             before.before(item);
         } else {
@@ -91,7 +93,7 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
     },
 
     updateItem: function(target, item, data, previous, index) {
-        item.html(data);
+        item.html('' + data);
         return item;
     },
 
@@ -125,7 +127,7 @@ creme.model.ListRenderer = creme.model.Renderer.sub({
         var target = this._target;
 
         this.items(target).slice(start, end + 1).each(function(index) {
-            self.updateItem(target, $(this), data[index], previous[index], start + index);
+            self.updateItem(target, $(this), data[index], previous[index], start + index, action);
         });
     },
 

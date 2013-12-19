@@ -254,6 +254,7 @@ test('creme.model.Array.indexOf', function() {
     var model = new creme.model.Array(['a', 'b', 'c', 'd', 12]);
 
     equal(undefined, model.comparator());
+
     equal(0, model.indexOf('a'));
     equal(1, model.indexOf('b'));
     equal(2, model.indexOf('c'));
@@ -305,6 +306,77 @@ test('creme.model.Array.indexOf (comparator)', function() {
     equal(-1, model.indexOf(1154));
 });
 
+test('creme.model.Array.indicesOf', function() {
+    var model = new creme.model.Array(['a', 'b', 'c', 'd', 12]);
+
+    equal(undefined, model.comparator());
+
+    equal(0, model.indicesOf('a'));
+    equal(1, model.indicesOf('b'));
+    equal(2, model.indicesOf('c'));
+    equal(3, model.indicesOf('d'));
+    equal(4, model.indicesOf(12));
+
+    deepEqual([0, 1], model.indicesOf(['a', 'b']));
+    deepEqual([2, 3, 4], model.indicesOf(['c', 'd', 12]));
+    deepEqual([0, 3], model.indicesOf(['a', 'd']));
+    deepEqual([0, 4], model.indicesOf(['a', 'unknown', 1154, 12]));
+
+    equal(-1, model.indicesOf([]));
+    equal(-1, model.indicesOf('unknown'));
+    equal(-1, model.indicesOf(1154));
+    equal(-1, model.indicesOf(['unknown', 1154]));
+});
+
+test('creme.model.Array.indicesOf (comparator)', function() {
+    var comparator = function(a, b) {
+        if (Array.isArray(b) === false)
+            return a[0] - b;
+
+        if (a[0] !== b[0])
+            return a[0] - b[0];
+
+        return a[1] < b[1] ? -1 : (a[1] > b[1] ? 1 : 0);
+    };
+
+    var model = new creme.model.Array([[1, 'a'], [1, 'b'], [2, 'c'], [8, 'd'], [12, 12]], comparator);
+
+    equal(0, comparator([1, 'a'], 1));
+    equal(-2, comparator([1, 'a'], 3));
+    equal(3, comparator([3, 'a'], 0));
+
+    equal(0, comparator([1, 'a'], [1, 'a']));
+    equal(-1, comparator([1, 'a'], [1, 'b']));
+    equal(1, comparator([1, 'c'], [1, 'a']));
+    equal(-1, comparator([1, 'a'], [1, 'c']));
+
+    equal(-5, comparator([3, 'a'], [8, 'b']));
+    equal(5, comparator([8, 'b'], [3, 'a']));
+
+    equal(comparator, model.comparator());
+    equal(-1, model.indicesOf('a'));
+
+    deepEqual([0, 1], model.indicesOf(1));
+    equal(2, model.indicesOf(2));
+
+    equal(0, model.indicesOf([[1, 'a']]));
+    equal(1, model.indicesOf([[1, 'b']]));
+
+    equal(-1, model.indicesOf('d'));
+    equal(3, model.indicesOf(8));
+    equal(3, model.indicesOf([[8, 'd']]));
+    equal(-1, model.indicesOf([[8, 'h']]));
+    
+    deepEqual([0, 1], model.indicesOf([[1, 'a'], [1, 'b']]));
+    deepEqual([2, 3, 4], model.indicesOf([[2, 'c'], [8, 'd'], [12, 12]]));
+    deepEqual([0, 3], model.indicesOf([[1, 'a'], [8, 'd']]));
+    deepEqual([0, 4], model.indicesOf([[1, 'a'], 'unknown', 1154, [12, 12]]));
+
+    equal(-1, model.indicesOf([]));
+    equal(-1, model.indicesOf('unknown'));
+    equal(-1, model.indicesOf(1154));
+    equal(-1, model.indicesOf(['unknown', 1154]));
+});
 test('creme.model.Array.pop (empty)', function() {
     var model = new creme.model.Array();
     model.bind('remove', this.mockListener('removed'));
