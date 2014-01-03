@@ -20,8 +20,10 @@
 
 from django.utils.translation import ugettext as _
 from django.forms import ModelMultipleChoiceField
-from django.forms.widgets import CheckboxSelectMultiple
+#from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
+
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 #from creme.activities.forms.activity import _ActivityCreateForm
 from creme.activities.forms.activity import ActivityCreateForm, CalendarActivityCreateForm
@@ -35,11 +37,14 @@ def add_users_field(form):
         return
 
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.filter(is_staff=False),
-                                                             widget=CheckboxSelectMultiple(),
-                                                             required=False, label=_(u"Users"),
+                                                             #widget=CheckboxSelectMultiple(),
+                                                             widget=UnorderedMultipleChoiceWidget,
+                                                             required=False,
+                                                             label=_(u'Users to keep informed'), #label=_(u"Users"),
                                                             )
 
-    form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))
+    #form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))
+    form.blocks = form.blocks.new(('informed_users', 'Users to keep informed', ['informed_users']))
 
 def save_users_field(form):
     if isinstance(form, CalendarActivityCreateForm):

@@ -32,7 +32,8 @@ from django.contrib.auth.models import User
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityForm
 #from creme.creme_core.forms.base import FieldBlockManager
-from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCreatorEntityField, MultiGenericEntityField
+from creme.creme_core.forms.fields import (CremeDateTimeField, CremeTimeField,
+        MultiCreatorEntityField, MultiGenericEntityField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 from creme.creme_core.utils.dates import make_aware_dt
