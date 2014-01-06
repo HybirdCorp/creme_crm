@@ -211,7 +211,7 @@ class EntityViewsTestCase(ViewsTestCase):
         nerv = Organisation.objects.create(user=self.other_user, name='Nerv')
         self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
 
-    def test_get_creme_entities_repr(self): #TODO: test with no permissons
+    def test_get_creme_entities_repr01(self):
         self.login()
 
         with self.assertNoException():
@@ -219,8 +219,40 @@ class EntityViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
         self.assertEqual('text/javascript', response['Content-Type'])
-        json_data = simplejson.loads(response.content)
-        self.assertEqual('Creme entity: %s' % entity.id, json_data[0]['text'])
+
+        self.assertEqual([{'id':   entity.id,
+                           'text': 'Creme entity: %s' % entity.id,
+                          }
+                         ],
+                         simplejson.loads(response.content)
+                        )
+
+    def test_get_creme_entities_repr02(self):
+        "Several entities, several ContentTypes, credentials"
+        self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.user
+
+        create_c = Contact.objects.create
+        rei   = create_c(user=user,            first_name='Rei',   last_name='Ayanami')
+        asuka = create_c(user=user,            first_name='Asuka', last_name='Langley')
+        mari  = create_c(user=self.other_user, first_name='Mari',  last_name='Makinami')
+
+        nerv = Organisation.objects.create(user=user, name='Nerv')
+
+        self.assertTrue(user.has_perm_to_view(rei))
+        self.assertFalse(user.has_perm_to_view(mari))
+
+        response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s' % (
+                                            rei.id, asuka.id, mari.id, nerv.id
+                                        )
+                                    )
+        self.assertEqual([{'id': rei.id,   'text': unicode(rei)},
+                          {'id': asuka.id, 'text': unicode(asuka)},
+                          {'id': mari.id,  'text': _(u'Entity #%s (not viewable)') % mari.id},
+                          {'id': nerv.id,  'text': unicode(nerv)},
+                         ],
+                         simplejson.loads(response.content)
+                        )
 
     def test_delete_entity01(self):
         "is_deleted=False -> trash"
