@@ -53,10 +53,10 @@ def get_creme_entities_repr(request, entities_ids):
     user = request.user
     has_perm = user.has_perm_to_view
 
-    #TODO: populate real entities....
+    CremeEntity.populate_real_entities(entities)
 
     return [{'id': entity.id,
-             'text': entity.get_real_entity().get_entity_summary(user) if has_perm(entity) else \
+             'text': entity.get_real_entity().get_entity_summary(user) if has_perm(entity) else
                      _(u'Entity #%s (not viewable)') % entity.id
             } for entity in entities
            ]
