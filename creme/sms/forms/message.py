@@ -22,14 +22,14 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeModelForm
-from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.fields import CreatorEntityField
 
 from ..models.message import Sending, Message, MESSAGE_STATUS_NOTSENT
 from ..models.template import MessageTemplate
 
 
 class SendingCreateForm(CremeModelForm):
-    template = CremeEntityField(label=_(u'Message template'), model=MessageTemplate)
+    template = CreatorEntityField(label=_(u'Message template'), model=MessageTemplate)
 
     class Meta:
         model   = Sending

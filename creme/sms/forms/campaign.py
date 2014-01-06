@@ -22,13 +22,13 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 
 from ..models import SMSCampaign, MessagingList
 
 
 class CampaignCreateForm(CremeEntityForm):
-    lists = MultiCremeEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
+    lists = MultiCreatorEntityField(label=_(u'Related messaging lists'), required=False, model=MessagingList)
 
     class Meta(CremeEntityForm.Meta):
         model = SMSCampaign
@@ -41,7 +41,7 @@ class CampaignEditForm(CremeEntityForm):
 
 
 class CampaignAddListForm(CremeForm):
-    messaging_lists = MultiCremeEntityField(label=_(u'Lists'), required=False, model=MessagingList)
+    messaging_lists = MultiCreatorEntityField(label=_(u'Lists'), required=False, model=MessagingList)
 
     blocks = FieldBlockManager(('general', _(u'Messaging lists'), '*'))
 

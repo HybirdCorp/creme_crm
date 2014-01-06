@@ -268,11 +268,16 @@ DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his ema
 #LOGS ##########################################################################
 
 import logging
+import warnings
 
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
+
+# Warnings behavior choices (see Python doc):
+# "error" "ignore" "always" "default" "module" "once"
+warnings.simplefilter("once")
 
 #LOGS [END]#####################################################################
 

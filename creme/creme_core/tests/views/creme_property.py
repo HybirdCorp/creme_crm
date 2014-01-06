@@ -54,7 +54,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         #-----------------------------------------------------------------------
         response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
         self.assertFormError(response, 'form', 'types',
-                             [_(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id]
+                             _(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id
                             )
 
     def test_delete(self):
@@ -97,7 +97,12 @@ class PropertyViewsTestCase(ViewsTestCase):
         url = self._build_bulk_url(self.centity_ct, *entities)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities':     ','.join(str(e.id) for e in entities),
+        response = self.assertPOST200(self._build_bulk_url(self.centity_ct, *entities),
+                                      data={'types': []}
+                                    )
+        self.assertFormError(response, 'form', 'types', _(u'This field is required.'))
+
+        response = self.client.post(url, data={#'entities':     ','.join(str(e.id) for e in entities),
                                                'types':        [ptype01.id, ptype02.id],
                                                'entities_lbl': '',
                                               }
@@ -144,7 +149,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.client.post(url,
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
-                                          'entities':         '%s,%s' % (entity03.id, entity04.id),
+                                          #'entities':         '%s,%s' % (entity03.id, entity04.id),
                                           'types':            [ptype01.id, ptype02.id],
                                          }
                                    )
@@ -196,14 +201,23 @@ class PropertyViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
-        response = self.assertPOST200(url, data={'entities_lbl': 'd:p',
-                                                 'entities':     '%s' % (uneditable.id,),
-                                                 'types':        [ptype01.id, ptype02.id],
-                                                }
-                                     )
-        self.assertFormError(response, 'form', None,
-                             [_(u"Some entities are not editable: %s") % uneditable]
-                            )
+        #response = self.assertPOST200(url, data={'entities_lbl': 'd:p',
+                                                 #'entities':     '%s' % (uneditable.id,),
+                                                 #'types':        [ptype01.id, ptype02.id],
+                                                #}
+                                     #)
+        #self.assertFormError(response, 'form', None,
+                             #[_(u"Some entities are not editable: %s") % uneditable]
+                            #)
+        response = self.client.post(url, data={'entities_lbl': 'd:p',
+                                               #'entities':     '%s' % (uneditable.id,),
+                                               'types':        [ptype01.id, ptype02.id],
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertEqual([entity01], [p.creme_entity for p in CremeProperty.objects.filter(type=ptype01)])
+        self.assertEqual([entity01], [p.creme_entity for p in CremeProperty.objects.filter(type=ptype02)])
 
     def test_not_copiable_properties(self):
         self.login()

@@ -27,7 +27,7 @@ from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
-        CremeEntityField, MultiGenericEntityField, MultiCremeEntityField)
+        CreatorEntityField, MultiGenericEntityField, MultiCreatorEntityField)
 from creme.creme_core.forms.validators import validate_editable_entities
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.forms.validators import validate_linkable_entity
@@ -40,7 +40,7 @@ from ..models import PollForm, PollReply, PollCampaign
 class PollRepliesCreateForm(CremeForm):
     user     = ModelChoiceField(label=_(u'User'), queryset=User.objects.filter(is_staff=False), required=True)
     name     = CharField(label=_(u'Name'), required=True)
-    campaign = CremeEntityField(label=_(u'Related campaign'), model=PollCampaign, required=False)
+    campaign = CreatorEntityField(label=_(u'Related campaign'), model=PollCampaign, required=False)
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)
     persons  = MultiGenericEntityField(label=_(u'Persons who filled'), required=False,
                                         models=[Organisation, Contact],
@@ -48,7 +48,7 @@ class PollRepliesCreateForm(CremeForm):
                                                      '(and "Number of replies" will be ignored)'
                                                    )
                                       )
-    pform = CremeEntityField(label=_(u'Related form'), model=PollForm)
+    pform    = CreatorEntityField(label=_(u'Related form'), model=PollForm)
 
     def __init__(self, *args, **kwargs):
         super(PollRepliesCreateForm, self).__init__(*args, **kwargs)
@@ -141,7 +141,7 @@ class PollReplyEditForm(CremeEntityForm):
 
 
 class PersonAddRepliesForm(CremeForm):
-    replies = MultiCremeEntityField(label=_(u'Replies'), model=PollReply) #TODO: qfilter to exclude linked replies ??
+    replies = MultiCreatorEntityField(label=_(u'Replies'), model=PollReply) #TODO: qfilter to exclude linked replies ??
 
     def __init__(self, entity, *args, **kwargs):
         super(PersonAddRepliesForm, self).__init__(*args, **kwargs)
