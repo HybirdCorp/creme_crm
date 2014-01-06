@@ -616,7 +616,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'replies': '%s,%s' % (preply1.id, preply2.id)}
+                                                data={'replies': '[%s,%s]' % (preply1.id, preply2.id)}
                                                )
                               )
 
@@ -649,7 +649,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         response = self.assertPOST200(self._build_linkto_url(leina),
-                                      data={'replies': preply.id}
+                                      data={'replies': '[%s]' % preply.id}
                                      )
         self.assertFormError(response, 'form', 'replies', 
                              _(u'Some entities are not editable: %s') % preply

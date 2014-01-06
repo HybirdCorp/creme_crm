@@ -23,6 +23,7 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from re import compile as compile_re
+import warnings
 
 from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
@@ -625,7 +626,7 @@ class CreatorEntityField(JSONField):
             q_filter = self._q_filter
             return get_q_from_dict(q_filter) if q_filter is not None else None
         except:
-            raise ValueError('Invalid qfilter %s' % q_filter)
+            raise ValueError('Invalid q_filter %s' % q_filter)
 
     @property
     def create_action_url(self):
@@ -861,6 +862,10 @@ class CremeEntityField(_EntityField):
         super(CremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
         self.o2m = 1
 
+        warnings.warn("CremeEntityField class is deprecated; use CreatorEntityField instead",
+                      DeprecationWarning
+                     )
+
     def clean(self, value):
         clean_id = super(CremeEntityField, self).clean(value)
         if not clean_id:
@@ -889,6 +894,10 @@ class MultiCremeEntityField(_EntityField):
     def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
         super(MultiCremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
         self.o2m = 0
+
+        warnings.warn("MultiCremeEntityField class is deprecated; use MultiCreatorEntityField instead",
+                      DeprecationWarning
+                     )
 
     def clean(self, value):
         cleaned_ids = super(MultiCremeEntityField, self).clean(value)
