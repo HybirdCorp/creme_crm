@@ -53,19 +53,24 @@ def add(request):
     #return add_entity(request, PollRepliesCreateForm)
 
     if request.method == 'POST':
-        reply_form = PollRepliesCreateForm(user=request.user, data=request.POST)
+        POST = request.POST
+        reply_form = PollRepliesCreateForm(user=request.user, data=POST)
 
         if reply_form.is_valid():
             reply_form.save()
 
             return redirect(reply_form.instance)
+
+        cancel_url = POST.get('cancel_url')
     else: #GET
         reply_form = PollRepliesCreateForm(user=request.user)
+        cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'creme_core/generics/blockform/add.html',
-                  {'form':  reply_form,
-                   'title': PollReply.creation_label,
+                  {'form':         reply_form,
+                   'title':        PollReply.creation_label,
                    'submit_label': _('Save the replies'),
+                   'cancel_url':   cancel_url,
                   }
                  )
 
@@ -225,6 +230,7 @@ def edit_line_wizard(request, preply_id, line_id):
                   {'title' :       ugettext(u'Answers of the form : %s') % preply,
                    'form':         form,
                    'help_message': previous_answer,
+                   'cancel_url':   preply.get_absolute_url(),
                   }
                  )
 
@@ -277,6 +283,7 @@ def fill(request, preply_id):
                   {'title':        ugettext(u'Answers of the form : %s') % preply,
                    'form':         form,
                    'help_message': previous_answer,
+                   'cancel_url':   preply.get_absolute_url(),
                   }
                  )
 
