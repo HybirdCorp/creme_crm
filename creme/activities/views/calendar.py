@@ -20,8 +20,8 @@
 
 import copy
 from datetime import datetime, timedelta
-import logging
 from collections import defaultdict
+import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
