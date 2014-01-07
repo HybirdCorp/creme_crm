@@ -71,7 +71,7 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                                 if (block_reload_url) {
                                     $(this).dialog("destroy");
                                     $(this).remove();
-                                    creme.utils.loadBlock(block_reload_url);
+                                    creme.blocks.reload(block_reload_url);
                                 } else {
                                     creme.utils.reload(window);
                                 }

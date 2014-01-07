@@ -34,7 +34,7 @@ creme.assistants.validateEntity = function(form, checkbox_id, reload_url) {
                                {'title': gettext("Error")}, 'error');
     } else {
 //        form.submit();
-        creme.ajax.submit(form, {}, {'success': function(){creme.utils.loadBlock(reload_url);}});
+        creme.ajax.submit(form, {}, {'success': function(){creme.blocks.reload(reload_url);}});
     }
 */
 }

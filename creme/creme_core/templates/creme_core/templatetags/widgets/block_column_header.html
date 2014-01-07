@@ -3,17 +3,17 @@
     {% if field_name == order %}
         {% if asc %}
             <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" />
-            <a class="button_link asc" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_order=-{{field_name}}')">
+            <a class="button_link asc" onclick="creme.blocks.reload({% get_block_reload_uri %} + '&{{block_name}}_order=-{{field_name}}')">
                 {{column_name}}
             </a>
         {% else %}
             <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" />
-            <a class="button_link desc" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_order={{field_name}}')">
+            <a class="button_link desc" onclick="creme.blocks.reload({% get_block_reload_uri %} + '&{{block_name}}_order={{field_name}}')">
                 {{column_name}}
             </a>
         {% endif %}
     {% else %}
-        <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_order={{field_name}}')">
+        <a class="button_link" onclick="creme.blocks.reload({% get_block_reload_uri %} + '&{{block_name}}_order={{field_name}}')">
             {{column_name}}
         </a>
     {% endif %}

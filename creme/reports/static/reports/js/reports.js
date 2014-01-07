@@ -281,7 +281,7 @@ creme.reports.unlink_report = function(field_id, block_url) {
 /*
     var success_cb = function(data, textStatus, req) {
         if (block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
+            creme.blocks.reload(block_url);
         }
     };
 
@@ -347,14 +347,14 @@ creme.reports.changeOrder = function(field_id, direction, block_url) {
 /*
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
+            creme.blocks.reload(block_url);
         }
     };
 
     var error_cb = function(req, textStatus, err) {
         creme.utils.showDialog(req.responseText || gettext("Error"));
         if(block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
+            creme.blocks.reload(block_url);
         }
     };
 
@@ -374,14 +374,14 @@ creme.reports.setSelected = function(checkbox, field_id, block_url) {
 /*
     var success_cb = function(data, textStatus, req) {
         if(block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
+            creme.blocks.reload(block_url);
         }
     };
 
     var error_cb = function(req, textStatus, err) {
         creme.utils.showDialog(req.responseText || gettext("Error"));
         if(block_url && block_url != undefined) {
-            creme.utils.loadBlock(block_url);
+            creme.blocks.reload(block_url);
         }
     };
 
