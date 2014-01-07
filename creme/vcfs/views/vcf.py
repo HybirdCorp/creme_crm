@@ -24,6 +24,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.utils import get_from_POST_or_404
+
 from creme.persons.models import Contact
 
 from ..forms.vcf import VcfForm, VcfImportForm
@@ -40,10 +42,11 @@ def vcf_import(request):
     if request.method == 'POST':
         POST = request.POST
 
-        try:
-            step = int(POST.get('vcf_step', 0))
-        except ValueError:
-            raise Http404('"vcf_step" must be in {0, 1}')
+        #try:
+            #step = int(POST.get('vcf_step', 0))
+        #except ValueError:
+            #raise Http404('"vcf_step" must be in {0, 1}')
+        step = get_from_POST_or_404(POST, 'vcf_step', cast=int, default=0)
 
         form = VcfForm(user=user, data=POST, files=request.FILES)
 

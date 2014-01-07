@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -787,7 +787,7 @@ class ImportForm(CremeModelForm):
                                      choices=(),
                                      widget=UnorderedMultipleChoiceWidget(columntype='wide'),
                                      help_text=_('Select at least one field if you want to use the "update" mode. '
-                                                 'If an entity already exists with the same field values, it will be simply updated'
+                                                 'If an entity already exists with the same field values, it will be simply updated '
                                                  '(ie: a new entity will not be created).\n'
                                                  'But if several entities are found, a new entity is created (in order to avoid errors).'
                                                 ),
