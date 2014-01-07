@@ -54,7 +54,7 @@ creme.emails.mass_action = function(url, selector, block_url, complete_cb, value
                                 complete: function(req, st) {
 //                                    if(block_url && typeof(block_url) != "undefined") {
                                     if (block_url) {
-                                        creme.utils.loadBlock(block_url);
+                                        creme.blocks.reload(block_url);
                                     }
 
                                     if (st != 'error') {
@@ -112,7 +112,7 @@ creme.emails.resend = function(url, ids, block_url, complete_cb) {
                 if (st != 'error') {
 //                     if (block_url && typeof(block_url) != "undefined") {
                     if (block_url) {
-                        creme.utils.loadBlock(block_url);
+                        creme.blocks.reload(block_url);
                     }
 //                     if (complete_cb && $.isFunction(complete_cb)) {
                     if ($.isFunction(complete_cb)) {

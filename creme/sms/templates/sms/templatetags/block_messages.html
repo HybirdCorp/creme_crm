@@ -25,7 +25,7 @@
 <script type="text/javascript">
     sms_messages = {
         _reload: function() {
-            creme.utils.loadBlock('{{update_url}}?base_url={{base_url}}');
+            creme.blocks.reload('{{update_url}}?base_url={{base_url}}');
         },
         send: function() {
             creme.ajax.json.post('/sms/campaign/sending/{{object.pk}}/messages/send/', {}, sms_messages._reload, sms_messages._reload);

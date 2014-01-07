@@ -77,7 +77,7 @@ creme.billing = creme.billing || {};
 //
 //    var ajax_opts = {
 //        'complete': function(data, status) {
-//                creme.utils.loadBlock(reload_url);
+//                creme.blocks.reload(reload_url);
 //        }
 //    };
 //
@@ -96,7 +96,7 @@ creme.billing = creme.billing || {};
 //        'data' : {'persist' : new Array('ids'), 'ids' : selected_lines_ids}
 //    };
 //
-//    var options = {'beforeClose' : function() {creme.utils.loadBlock(reload_url);}}
+//    var options = {'beforeClose' : function() {creme.blocks.reload(reload_url);}}
 //
 //    creme.utils.showInnerPopup('/creme_core/entity/bulk_update/' + ct_id + '/', options, undefined, ajax_opts);
 //}
@@ -127,7 +127,7 @@ creme.billing = creme.billing || {};
 //    target.addClass('line-error');
 //    var message_one = gettext("Some errors were found on your lines. Click => ");
 //    var message_two = gettext("here");
-//    var message_three = "<a onclick='creme.utils.loadBlock(\"" + reload_url + "\");'><b>" + message_two + "</b></a> ";
+//    var message_three = "<a onclick='creme.blocks.reload(\"" + reload_url + "\");'><b>" + message_two + "</b></a> ";
 //    var message_four = gettext("<= to restore the last coherent state. An error correction will restabilize all other ones.");
 //    target.html(message_one + message_three + message_four);
 //
@@ -211,7 +211,7 @@ creme.billing = creme.billing || {};
 //        if(isDiscountFormValid) {
 //            var defaults = {
 //                'success': function(data, status) {
-//                    creme.utils.loadBlock(reload_url);
+//                    creme.blocks.reload(reload_url);
 //                }
 //            }
 //            var datas = creme.billing.mapInputs(line);
@@ -702,7 +702,7 @@ creme.billing.multi_save_lines = function (document_id) {
             success : function(request, txtStatus) {
                 if (blocks_reload.length != 0) {
                     for(var i = 0; i < blocks_reload.length; i++) {
-                        creme.utils.loadBlock(blocks_reload[i]);
+                        creme.blocks.reload(blocks_reload[i]);
                     }
                 } else {
                     creme.utils.loading('loading', true, {});

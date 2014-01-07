@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2011  Hybird
+ Copyright (C) 2009-2014  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -38,14 +38,15 @@ creme.blocks.get_block = function(block_id) {
 };
 
 creme.blocks.reload = function(url) {
-    creme.ajax.query(url, {backend: {sync: true, dataType: 'json'}})
-              .onStart(creme.utils.showPageLoadOverlay)
+//     creme.ajax.query(url, {backend: {sync: true, dataType: 'json'}})
+    creme.ajax.query(url, {backend: {sync: false, dataType: 'json'}})
+//               .onStart(creme.utils.showPageLoadOverlay)
               .onDone(function(event, data) {
                   data.forEach(function(entry) {
                       creme.blocks.fill($('#' + entry[0]), $(entry[1]));
                   });
                })
-              .onComplete(creme.utils.hidePageLoadOverlay)
+//               .onComplete(creme.utils.hidePageLoadOverlay)
               .start();
     /*
     $.ajax({
@@ -223,5 +224,4 @@ creme.blocks.ajaxQuery = function(url, options, data) {
     return query;
 };
 
-//TODO: remove this alias after templates refactor !
-creme.utils.loadBlock = creme.blocks.reload;
+// creme.utils.loadBlock = creme.blocks.reload;
