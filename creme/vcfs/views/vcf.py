@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+from django.contrib.auth.decorators import permission_required, login_required
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.encoding import smart_str
-from django.contrib.auth.decorators import permission_required, login_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme.persons.models import Contact
 
@@ -34,10 +35,16 @@ from ..vcfgenerator import VcfGenerator
 @permission_required('persons.add_contact')
 def vcf_import(request):
     user = request.user
+    submit_label = _('Save the contact')
 
     if request.method == 'POST':
         POST = request.POST
-        step = int(POST.get('vcf_step', 0))
+
+        try:
+            step = int(POST.get('vcf_step', 0))
+        except ValueError:
+            raise Http404('"vcf_step" must be in {0, 1}')
+
         form = VcfForm(user=user, data=POST, files=request.FILES)
 
         if step == 0:
@@ -46,8 +53,11 @@ def vcf_import(request):
                                      vcf_data=form.cleaned_data['vcf_file'],
                                      initial={'vcf_step': 1},
                                     )
+            else:
+                submit_label = _('Import this VCF file')
         else:
-            assert step == 1
+            if step != 1:
+                raise Http404('"vcf_step" must be in {0, 1}')
 
             form = VcfImportForm(user=user, data=POST)
 
@@ -55,10 +65,19 @@ def vcf_import(request):
                 contact = form.save()
                 return redirect(contact)
 
+        cancel_url = POST.get('cancel_url')
     else:
         form = VcfForm(user=user, initial={'vcf_step': 0})
+        submit_label = _('Import this VCF file')
+        cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/generics/blockform/edit.html', {'form': form})
+    return render(request, 'creme_core/generics/blockform/edit.html',
+                  {'form':         form,
+                   'title':        _('Import contact from VCF file'),
+                   'submit_label': submit_label,
+                   'cancel_url':   cancel_url,
+                  }
+                 )
 
 @login_required
 @permission_required('persons')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,8 @@ from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, CremeModelWithUserForm
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
+
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.media_managers.models import Image
 
@@ -71,10 +73,12 @@ class VcfImportForm(CremeModelWithUserForm):
 
     vcf_step      = IntegerField(widget=HiddenInput)
 
-    civility      = ModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
+    #civility      = ModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
+    civility      = CreatorModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
     first_name    = CharField(label=_('First name'))
     last_name     = CharField(label=_('Last name'))
-    position      = ModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
+    #position      = ModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
+    position      = CreatorModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
     image_encoded = CharField(required=False, widget=HiddenInput)
 
     phone         = CharField(label=_('Phone number'),   required=False)
