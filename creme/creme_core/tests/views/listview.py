@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
+    from datetime import date, timedelta
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -15,6 +16,8 @@ try:
     from .base import ViewsTestCase
 
     from creme.persons.models import Organisation, Contact, Civility
+
+    from creme.activities.models import Activity, ActivityType
 
     from creme.billing.constants import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
     from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
@@ -247,6 +250,41 @@ class ListViewTestCase(ViewsTestCase):
         #we just check that it does not crash
         self.assertPOST200(url, data={'sort_field': fname})
         self.assertPOST200(url, data={'sort_field': func_field_name})
+
+    def test_order04(self):
+        "Ordering = '-fieldname'"
+        self.assertTrue('-start', Activity._meta.ordering[0])
+        self.login()
+
+        act_type = ActivityType.objects.create(pk='creme_core-lvtest1', name='Karate session',
+                                               default_day_duration=1, default_hour_duration="00:15:00",
+                                               is_custom=True,
+                                              )
+
+        create_act = partial(Activity.objects.create, user=self.user, type=act_type)
+        act1 = create_act(title='Act#1', start=now())
+        act2 = create_act(title='Act#2', start=act1.start + timedelta(hours=1))
+
+        HeaderFilter.create(pk='test-hf_act', name='Activity view',
+                            model=Activity,
+                            cells_desc=[(EntityCellRegularField, {'name': 'title'}),
+                                        (EntityCellRegularField, {'name': 'start'}),
+                                       ],
+                           )
+
+        response = self.assertPOST200(Activity.get_lv_absolute_url())
+        content = self._get_lv_content(response)
+        first_idx  = self.assertFound(act2.title, content)
+        second_idx = self.assertFound(act1.title, content)
+        self.assertLess(first_idx, second_idx)
+
+        with self.assertNoException():
+            lvs = response.context['list_view_state']
+            sort_field = lvs.sort_field
+            sort_order = lvs.sort_order
+
+        self.assertEqual('start', sort_field)
+        self.assertEqual('-',     sort_order)
 
     def test_efilter01(self):
         self.login()

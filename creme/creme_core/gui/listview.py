@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import defaultdict
 from functools import partial
 import logging
 
-from django.db.models import Q, FieldDoesNotExist, DateField, DateTimeField
+from django.db.models import Q, DateField, DateTimeField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
@@ -31,7 +31,6 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..models import RelationType, Relation, CustomField
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
-from ..utils.meta import get_model_field_info
 
 
 logger = logging.getLogger(__name__)
@@ -148,7 +147,7 @@ class ListViewState(object):
             logger.warn('No EntityCell with type=%s name=%s', cell_type_id, cell_value)
 
     #TODO: move some parts of code to EntityCell (more object code) ?
-    #TODO: stop using 'filter_string' (and update pickled tuple)
+    #TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
     def get_q_with_research(self, model, cells):
         query = Q()
         cf_searches = defaultdict(list)
@@ -161,22 +160,16 @@ class ListViewState(object):
                 continue
 
             if isinstance(cell, EntityCellRegularField):
-                try:
-                    field = get_model_field_info(model, cell_value, silent=False)[-1]['field']
-                except FieldDoesNotExist:
-                    logger.warn('Field does not exist: %s', cell_value)
-                    continue
+                field = cell.field_info[-1]['field']
+                #TODO: Hacks for dates => refactor
+                if isinstance(field, DateTimeField):
+                    condition = self._build_datetime_range_dict(cell_value, value)
+                elif isinstance(field, DateField):
+                    condition = self._build_date_range_dict(cell_value, value)
                 else:
-                    #TODO: Hacks for dates => refactor
-                    if isinstance(field, DateTimeField):
-                        condition = self._build_datetime_range_dict(cell_value, value)
-                    elif isinstance(field, DateField):
-                        condition = self._build_date_range_dict(cell_value, value)
-                    else:
-                        #condition = self._build_condition(pattern, value)
-                        condition = self._build_condition(cell.filter_string, value)
+                    condition = self._build_condition(cell.filter_string, value)
 
-                    query &= Q(**condition)
+                query &= Q(**condition)
             elif isinstance(cell, EntityCellRelation):
                 query &= Relation.filter_in(model, cell.relation_type, value[0])
             elif isinstance(cell, EntityCellFunctionField):
@@ -253,8 +246,13 @@ class ListViewState(object):
                                )
         else:
             ordering = model._meta.ordering
+
             if ordering:
                 sort_field = ordering[0]
+
+                if sort_field.startswith('-'):
+                    order = '-'
+                    sort_field = sort_field[1:]
 
         self.sort_field = sort_field
         self._extra_sort_field = extra_sort_field
