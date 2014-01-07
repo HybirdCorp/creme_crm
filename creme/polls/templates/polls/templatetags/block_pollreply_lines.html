@@ -7,7 +7,7 @@
         <th class="collapser label">{% get_basic_block_header _('Questions and Answers') 'info_48.png' _('Answers') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% if object.is_complete %}{% comment %}{% if object.line_order %}{% endcomment %}
+                {% if not object.is_complete %}
                     {% if has_perm %}
                         <a class="add" href="/polls/poll_reply/fill/{{object.id}}">
                             <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Fill" %}" alt="{% trans "Fill" %}" />{% trans "Fill the Form Reply" %}
