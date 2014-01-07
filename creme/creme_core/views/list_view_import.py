@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.forms.list_view_import import UploadForm, form_factory
 from creme.creme_core.gui.list_view_import import import_form_registry
-from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 #django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
@@ -34,6 +34,7 @@ from creme.creme_core.utils import get_ct_or_404
 def import_listview(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
+    submit_label = _('Save the entities')
 
     try:
         import_form_registry.get(ct)
@@ -44,7 +45,7 @@ def import_listview(request, ct_id):
 
     if request.method == 'POST':
         POST = request.POST
-        step = int(POST.get('step', 0))
+        step = get_from_POST_or_404(POST, 'step', cast=int, default=0) #TODO: int -> boundedInt
         form = UploadForm(user=user, data=POST)
 
         if step == 0:
@@ -57,8 +58,9 @@ def import_listview(request, ct_id):
                                            'has_header': cleaned_data['has_header'],
                                           }
                                  )
+            else:
+                submit_label = _('Import this file')
         else:
-            #assert step == 1
             if step != 1:
                 raise Http404('Step should be in (0, 1)')
 
@@ -74,11 +76,17 @@ def import_listview(request, ct_id):
                                'back_url': request.GET['list_url'],
                               }
                              )
+
+        cancel_url = POST.get('cancel_url')
     else:
         form = UploadForm(user=user, initial={'step': 0})
+        submit_label = _('Import this file')
+        cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'creme_core/generics/blockform/add.html',
-                  {'form': form,
-                   'title': _('Import data file'),
+                  {'form':         form,
+                   'title':        _('Import data file'),
+                   'cancel_url':   cancel_url,
+                   'submit_label': submit_label,
                   }
                  )
