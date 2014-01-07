@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,34 +34,39 @@ from creme.creme_core.utils import get_from_GET_or_404, jsonify
 
 from creme.persons.models import Contact
 
-from ..models import Activity, ActivityType, ActivitySubType
+from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
+        ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
+        REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
-                              RelatedActivityCreateForm, CalendarActivityCreateForm,
-                              ActivityEditForm)
+        RelatedActivityCreateForm, CalendarActivityCreateForm, ActivityEditForm)
+from ..models import Activity, ActivityType, ActivitySubType
 from ..utils import get_ical
-from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
-                         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 
 
 def _add_activity(request, form_class,
                   content_template='activities/frags/activity_form_content.html',
                   type_id=None, **form_args):
     if request.method == 'POST':
-        form = form_class(activity_type_id=type_id, user=request.user, data=request.POST, **form_args)
+        POST = request.POST
+        form = form_class(activity_type_id=type_id, user=request.user, data=POST, **form_args)
 
         if form.is_valid():
             form.save()
             entity = form_args.get('related_entity', form.instance)
 
             return redirect(entity)
+
+        cancel_url = POST.get('cancel_url')
     else:
         form = form_class(activity_type_id=type_id, user=request.user, **form_args)
+        cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'activities/add_activity_form.html',
                   {'form':             form,
                    'title':            Activity.get_creation_title(type_id),
                    'content_template': content_template,
                    'submit_label':     _('Save the activity'),
+                   'cancel_url':       cancel_url,
                   }
                  )
 
@@ -208,6 +213,7 @@ def download_ical(request, ids):
 @login_required
 def get_types(request, type_id):
     get_object_or_404(ActivityType, pk=type_id)
-    return list(ActivitySubType.objects.filter(type=type_id).order_by('id')
+    return list(ActivitySubType.objects.filter(type=type_id)
+                                       .order_by('id')
                                        .values_list('id', 'name')
                )
