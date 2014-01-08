@@ -1,10 +1,33 @@
 # -*- coding: utf-8 -*-
 
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2014  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
 from imp import find_module
+import logging
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.core.field_tags import _add_tags_to_fields
+
+
+logger = logging.getLogger(__name__)
 
 
 #TODO: move to core ?
@@ -38,3 +61,17 @@ def new_fk_formfield(self, **kwargs):
     return original_fk_formfield(self, **defaults)
 
 ForeignKey.formfield = new_fk_formfield
+
+#-----------------------------------------------------------------------------
+_APPS = frozenset(app_name.split('.')[-1] for app_name in settings.INSTALLED_APPS)
+
+for app_label in ContentType.objects.order_by('app_label') \
+                                    .distinct() \
+                                    .values_list('app_label', flat=True):
+    if app_label not in _APPS:
+        logger.warning("""The app "%s" seems not been correctly uninstalled. """
+                       """If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                       """(you must enable this app in your settings before).""" % app_label
+                      )
+
+del _APPS
