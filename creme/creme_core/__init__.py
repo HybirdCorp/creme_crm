@@ -23,6 +23,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.utils import DatabaseError
 
 from creme.creme_core.core.field_tags import _add_tags_to_fields
 
@@ -63,15 +64,21 @@ def new_fk_formfield(self, **kwargs):
 ForeignKey.formfield = new_fk_formfield
 
 #-----------------------------------------------------------------------------
-_APPS = frozenset(app_name.split('.')[-1] for app_name in settings.INSTALLED_APPS)
+try:
+    app_labels = list(ContentType.objects.order_by('app_label')
+                                         .distinct()
+                                         .values_list('app_label', flat=True)
+                     )
+except DatabaseError: #happens during syncdb (ContentType table does not exist yet)
+    pass
+else:
+    _INSTALLED_APPS = frozenset(app_name.split('.')[-1] for app_name in settings.INSTALLED_APPS)
 
-for app_label in ContentType.objects.order_by('app_label') \
-                                    .distinct() \
-                                    .values_list('app_label', flat=True):
-    if app_label not in _APPS:
-        logger.warning("""The app "%s" seems not been correctly uninstalled. """
-                       """If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                       """(you must enable this app in your settings before).""" % app_label
-                      )
+    for app_label in app_labels:
+        if app_label not in _INSTALLED_APPS:
+            logger.warning("""The app "%s" seems not been correctly uninstalled. """
+                        """If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                        """(you must enable this app in your settings before).""" % app_label
+                        )
 
-del _APPS
+    del _INSTALLED_APPS
