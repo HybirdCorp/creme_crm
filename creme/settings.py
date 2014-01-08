@@ -271,7 +271,7 @@ import logging
 import warnings
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.WARNING, #Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 

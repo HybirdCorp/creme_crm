@@ -22,12 +22,12 @@ from __future__ import print_function
 
 import sys
 from traceback import format_exception
-from optparse import OptionParser #make_option
+#from optparse import OptionParser #make_option
 from imp import find_module
 
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.utils import translation
 from django.conf import settings
@@ -45,7 +45,7 @@ def _extended_app_name(app_name, app_names, raise_exception=True):
 
     if inner_app_name not in app_names:
         if raise_exception:
-            raise ValueError('%s seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_name)
+            raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_name)
 
         return None
 
@@ -98,16 +98,13 @@ class Command(BaseCommand):
             'entire site if no apps are specified.')
     args = '[appname ...]'
 
-    def create_parser(self, prog_name, subcommand):
-        """Create and return the ``OptionParser`` which will be used to parse
-        the arguments to this command.
-        """
-        return OptionParser(prog=prog_name,
-                            usage=self.usage(subcommand),
-                            version=self.get_version(),
-                            option_list=self.option_list,
-                            conflict_handler="resolve",
-                           )
+    #def create_parser(self, prog_name, subcommand):
+        #return OptionParser(prog=prog_name,
+                            #usage=self.usage(subcommand),
+                            #version=self.get_version(),
+                            #option_list=self.option_list,
+                            #conflict_handler="resolve",
+                           #)
 
     def handle(self, *app_names, **options):
         #action = options.get('action') or 'populate' #TODO: when reset is possible
