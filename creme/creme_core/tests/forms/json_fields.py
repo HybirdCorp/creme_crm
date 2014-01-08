@@ -1213,9 +1213,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = CreatorEntityField(Contact)
-        qfilter_errors = ("Invalid qfilter ['~pk', %d]" % contact.pk,
-                          "Invalid qfilter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
-                                                                                        # uses longs and alter json format result
+        qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
+                          "Invalid q_filter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
+                                                                        # uses longs and alter json format result
                          )
 
         # set qfilter property
@@ -1502,9 +1502,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
 
         field = MultiCreatorEntityField(Contact)
-        qfilter_errors = ("Invalid qfilter ['~pk', %d]" % contact.pk,
-                          "Invalid qfilter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
-                                                                                        # uses longs and alter json format result
+        qfilter_errors = ("Invalid q_filter ['~pk', %d]" % contact.pk,
+                          "Invalid q_filter ['~pk', %dL]" % contact.pk, # do this hack for MySql database that
+                                                                        # uses longs and alter json format result
                          )
 
         field.q_filter = ['~pk', contact.pk]
