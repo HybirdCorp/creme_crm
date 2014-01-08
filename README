@@ -55,9 +55,7 @@ run the following commands in the root directory:
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate
 
-And if you are upgrading from Creme 1.2:
- - Run the following command:
-    >> python manage.py convert_naive_datetimes
+And if you are upgrading from Creme 1.3:
  - Clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session
