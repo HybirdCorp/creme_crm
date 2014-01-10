@@ -100,6 +100,14 @@ def _build_extrafilter(request, extra_filter=None):
 
     return json_q_filter, filter
 
+def _select_entityfilter(request, entity_filters, default_filter):
+    filter = request.GET.get('filter')
+
+    if not filter:
+        filter = request.POST.get('filter', default_filter)
+
+    return entity_filters.select_by_id(filter)
+
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
                       show_actions=True, extra_q=None, o2m=False, post_process=None,
@@ -153,7 +161,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
                         )
 
     entity_filters = EntityFilterList(ct)
-    efilter = entity_filters.select_by_id(POST_get('filter', current_lvs.entity_filter_id))
+    efilter = _select_entityfilter(request, entity_filters, current_lvs.entity_filter_id)
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
     json_q_filter, extra_filter = _build_extrafilter(request, extra_q)

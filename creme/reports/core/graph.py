@@ -37,11 +37,14 @@ from ..report_aggregation_registry import field_aggregation_registry
 
 #TODO: move to creme_core ?
 class ListViewURLBuilder(object):
-    def __init__(self, model):
-        self._fmt = model.get_lv_absolute_url() + '?q_filter='
+    def __init__(self, model, filter=None):
+        self._fmt = model.get_lv_absolute_url() + '?q_filter=%s'
 
-    def __call__(self, q_filter):
-        return self._fmt + json_encode(q_filter)
+        if filter:
+            self._fmt += '&filter=' + filter.id
+
+    def __call__(self, q_filter=None):
+        return self._fmt % (json_encode(q_filter) if q_filter is not None else '')
 
 
 class ReportGraphHandRegistry(object):
@@ -170,7 +173,7 @@ class ReportGraphHand(object):
         self.ordinate_error = y_calculator.error
 
     def _listview_url_builder(self):
-        return ListViewURLBuilder(self._graph.report.ct.model_class())
+        return ListViewURLBuilder(self._graph.report.ct.model_class(), self._graph.report.filter)
 
     def _fetch(self, entities, order):
         #TODO: Python3.3 version: yield from ()

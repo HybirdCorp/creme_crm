@@ -24,6 +24,7 @@ try:
         from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase
+    from ..core.graph import ListViewURLBuilder
     from ..models import Field, Report, ReportGraph
     from ..constants import *
 except Exception as e:
@@ -96,6 +97,22 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                            )
 
         return rgraph
+
+    def test_listview_URL_builder(self):
+        builder = ListViewURLBuilder(Contact)
+        self.assertEqual(builder(None), Contact.get_lv_absolute_url() + '?q_filter=')
+        self.assertEqual(builder({'id': '1'}), Contact.get_lv_absolute_url() + '?q_filter={"id": "1"}')
+
+        efilter = EntityFilter.create('test-filter', 'Names', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IENDSWITH,
+                                                                    name='last_name', values=['Stark'],
+                                                                   )
+                               ])
+
+        builder = ListViewURLBuilder(Contact, efilter)
+        self.assertEqual(builder(None), Contact.get_lv_absolute_url() + '?q_filter=&filter=test-filter')
+        self.assertEqual(builder({'id': '1'}), Contact.get_lv_absolute_url() + '?q_filter={"id": "1"}&filter=test-filter')
 
     def test_createview01(self):
         "RGT_FK"
@@ -663,7 +680,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
 
-        fmt = '/persons/contacts?q_filter={"position": %s}'
+        fmt = '/persons/contacts?q_filter={"position": %s}&filter=test-filter'
         self.assertEqual([1, fmt % hand.id], y_asc[x_asc.index(hand.title)])
         self.assertEqual([2, fmt % lord.id], y_asc[x_asc.index(lord.title)])
 
@@ -703,7 +720,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
 
-        fmt = '/persons/organisations?q_filter={"sector": %s}'
+        fmt = '/persons/organisations?q_filter={"sector": %s}&filter=test-filter'
         index = x_asc.index
         self.assertEqual([100,  fmt % war.id],   y_asc[index(war.title)])
         self.assertEqual([1000, fmt % trade.id], y_asc[index(trade.title)])
