@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,13 +23,13 @@ from itertools import chain
 
 from django.db import models
 from django.db.models import ManyToManyField, FieldDoesNotExist #Field ForeignKey
-from django.conf import settings
+#from django.conf import settings
 
-from ..models import CremeEntity
+#from ..models import CremeEntity
 
 
-class NotDjangoModel(Exception):
-    pass
+#class NotDjangoModel(Exception):
+    #pass
 
 #TODO: manage better M2M values
 def get_instance_field_info(obj, field_name):
@@ -74,6 +74,7 @@ def get_model_field_info(model, field_name, silent=True):
             info.append({'field': field, 'model': model})
 
         field = model._meta.get_field(subfield_names[-1])
+        #TODO: isinstance() ?? ManyToManyField too ??
         model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
         info.append({'field': field, 'model': model})
     except (AttributeError, FieldDoesNotExist) as e:
@@ -113,17 +114,17 @@ def get_related_field(model, related_field_name):
         if related_field.var_name == related_field_name:
             return related_field
 
-def _get_entity_column(entity, column_name, field_class):
-    fields_names = [] #TODO: slice once at the end instead of several append()...
-    cols = column_name.split('__')
+#def _get_entity_column(entity, column_name, field_class):
+    #fields_names = [] #TODO: slice once at the end instead of several append()...
+    #cols = column_name.split('__')
 
-    for i, f_info in enumerate(get_model_field_info(entity.__class__, column_name)):
-        fields_names.append(cols[i])
+    #for i, f_info in enumerate(get_model_field_info(entity.__class__, column_name)):
+        #fields_names.append(cols[i])
 
-        if issubclass(f_info['field'].__class__, field_class):
-            break
+        #if issubclass(f_info['field'].__class__, field_class):
+            #break
 
-    return ('__'.join(fields_names), cols[len(cols)-i-1:])
+    #return ('__'.join(fields_names), cols[len(cols)-i-1:])
 
 #def get_fk_entity(entity, column_name, get_value=False, user=None):
     #"""Get the first foreign key entity found in the column_name path
@@ -144,72 +145,74 @@ def _get_entity_column(entity, column_name, field_class):
 
     #return getattr(entity, fk_column)
 
-#TODO: used only once => remove ?
-#TODO: rename
-#TODO: get_value + get_value_func args ??
-#TODO: compose 2 functions to 'stringyfy' instances insted of give get_value_func ??
-def get_m2m_entities(entity, column_name, get_value=False, q_filter=None,
-                     get_value_func=lambda values: u', '.join(values), user=None):
-    """Get the first many to many entity found in the column_name path
-        entity=Contact(), column_name='photos__name' returns entity.photos.all()
-        if get_value returns the values i.e : [e.name for e in entity.photos.all()]
+##todo: rename
+##todo: get_value + get_value_func args ??
+##todo: compose 2 functions to 'stringyfy' instances insted of give get_value_func ??
+#def get_m2m_entities(entity, column_name, get_value=False, q_filter=None,
+                     #get_value_func=lambda values: u', '.join(values), user=None):
+    #"""Get the first many to many entity found in the column_name path
+        #entity=Contact(), column_name='photos__name' returns entity.photos.all()
+        #if get_value returns the values i.e : [e.name for e in entity.photos.all()]
 
-        if get_value and user returns the values and replaces values that the user can't view by settings.HIDDEN_VALUE
-            NB: If not get_value, entities are NOT filtered by credentials => TODO/Usefull?
-    """
-    m2m_column, rest = _get_entity_column(entity, column_name, ManyToManyField)
-    m2m_field = getattr(entity, m2m_column)
-    #TODO: m2m_field = getattr(entity, m2m_column, None) to not raise exception when m2m is empty ??
+        #if get_value and user returns the values and replaces values that the user can't view by settings.HIDDEN_VALUE
+            #NB: If not get_value, entities are NOT filtered by credentials => todo/Usefull?
+    #"""
+    #m2m_column, rest = _get_entity_column(entity, column_name, ManyToManyField)
+    #m2m_field = getattr(entity, m2m_column)
+    ##todo: m2m_field = getattr(entity, m2m_column, None) to not raise exception when m2m is empty ??
 
-    if q_filter is not None:
-        m2m_instances = m2m_field.filter(q_filter)
-    else:
-        m2m_instances = m2m_field.all()
+    #if q_filter is not None:
+        #m2m_instances = m2m_field.filter(q_filter)
+    #else:
+        #m2m_instances = m2m_field.all()
 
-    if get_value:
-        #has_to_check_view_perms = issubclass(m2m_field.model, CremeEntity) and user is not None
+    #if get_value:
+        ##has_to_check_view_perms = issubclass(m2m_field.model, CremeEntity) and user is not None
+        ##rest = u'__'.join(rest)
+        ##values = []
+
+        ##if has_to_check_view_perms:
+            ##HIDDEN_VALUE = settings.HIDDEN_VALUE
+
+            ##for m in m2m_instances:
+                ##if user.has_perm_to_view(m):
+                    ##attr = getattr(m, rest, None) or u''
+                ##else:
+                    ##attr = HIDDEN_VALUE
+
+                ##values.append(unicode(attr))
+        ##else:
+            ##for m in m2m_instances:
+                ##attr = getattr(m, rest, None) or u''
+                ##values.append(unicode(attr))
+
+        ##return get_value_func(values)
+
         #rest = u'__'.join(rest)
-        #values = []
 
-        #if has_to_check_view_perms:
+        ##todo: assert that user is not None when CremeEntity ???
+        #if issubclass(m2m_field.model, CremeEntity) and user is not None: #has to check 'view' perms
             #HIDDEN_VALUE = settings.HIDDEN_VALUE
-
-            #for m in m2m_instances:
-                #if user.has_perm_to_view(m):
-                    #attr = getattr(m, rest, None) or u''
-                #else:
-                    #attr = HIDDEN_VALUE
-
-                #values.append(unicode(attr))
+            #has_perm = user.has_perm_to_view
+            #extract_value = lambda m: (getattr(m, rest, None) or u'') if has_perm(m) else HIDDEN_VALUE
         #else:
-            #for m in m2m_instances:
-                #attr = getattr(m, rest, None) or u''
-                #values.append(unicode(attr))
+            #extract_value = lambda m: getattr(m, rest, None) or u''
 
-        #return get_value_func(values)
+        #return get_value_func(unicode(extract_value(m)) for m in m2m_instances)
 
-        rest = u'__'.join(rest)
-
-        #TODO: assert that user is not None when CremeEntity ???
-        if issubclass(m2m_field.model, CremeEntity) and user is not None: #has to check 'view' perms
-            HIDDEN_VALUE = settings.HIDDEN_VALUE
-            has_perm = user.has_perm_to_view
-            extract_value = lambda m: (getattr(m, rest, None) or u'') if has_perm(m) else HIDDEN_VALUE
-        else:
-            extract_value = lambda m: getattr(m, rest, None) or u''
-
-        return get_value_func(unicode(extract_value(m)) for m in m2m_instances)
-
-    return m2m_instances
+    #return m2m_instances
 
 #def filter_entities_on_ct(entities, ct):
     #ct_model_class = ct.model_class()
     #return [entity for entity in entities if isinstance(entity, ct_model_class)]
 
+#TODO: remove & replace by: isinstance(field, DateField)
 def is_date_field(field):
     return isinstance(field, (models.DateTimeField, models.DateField))
 
+#TODO: remove (used once) ?
 def get_date_fields(model, exclude_func=lambda f: False):
+    #TODO: generator ?
     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
 
 

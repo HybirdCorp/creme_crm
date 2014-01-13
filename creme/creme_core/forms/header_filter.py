@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-#from ..gui.field_printers import field_printers_registry
 from ..gui.listview import smart_columns_registry
 from ..models import CremeEntity, RelationType, CustomField, EntityCredentials, HeaderFilter
 from ..utils.id_generator import generate_string_id_and_save
@@ -48,7 +47,6 @@ _RTYPE_PREFIX  = EntityCellRelation.type_id + '-'
 
 #TODO: move to a separated file ??
 class EntityCellsWidget(Widget):
-    #def __init__(self, user=None, model=None, model_fields=(), model_subfields=(), custom_fields=(),
     def __init__(self, user=None, model=None, model_fields=(), model_subfields=None, custom_fields=(),
                  function_fields=(), relation_types=(), *args, **kwargs
                 ):
@@ -88,9 +86,8 @@ class EntityCellsWidget(Widget):
 
             for field_id, cell in cells:
                 try:
-                    #TODO: is it OK that render_html() can return object like Users (not unicode) ??
                     value = unicode(cell.render_html(entity, user))
-                except Exception: #field_printers_registry.get_html_field_value() can raise AttributeError if M2M is empty... TODO: improve (same problem in listview tags)
+                except Exception:
                     value = ''
 
                 dump[field_id] = value

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,15 @@
 
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import (FieldDoesNotExist, BooleanField, PositiveIntegerField,
         DecimalField, DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, RelationType, CustomField
 from ..templatetags.creme_widgets import widget_entity_hyperlink
-from ..utils.meta import get_model_field_info, get_instance_field_info
+from ..utils.meta import get_model_field_info
 
 
 logger = logging.getLogger(__name__)
@@ -200,6 +200,7 @@ class EntityCellRegularField(EntityCell):
             sortable = False
 
         super(EntityCellRegularField, self).__init__(value=name,
+                                                     #TODO: add a FieldInfo class with a verbose_name() method -> remove utils.get_verbose_field_name() ??
                                                      title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
                                                      has_a_filter=has_a_filter,
                                                      editable=True,
@@ -228,15 +229,26 @@ class EntityCellRegularField(EntityCell):
 
     @staticmethod
     def populate_entities(cells, entities, user):
-        #TODO: use self._field_info ??
-        CremeEntity.populate_fk_fields(entities, [cell.value.partition('__')[0] for cell in cells])
+        #CremeEntity.populate_fk_fields(entities, [cell.value.partition('__')[0] for cell in cells])
+        CremeEntity.populate_fk_fields(entities, [cell.field_info[0]['field'].name for cell in cells])
 
     def render_html(self, entity, user):
         from ..gui.field_printers import field_printers_registry
-        return field_printers_registry.get_html_field_value(entity, self.value, user)
+        #return field_printers_registry.get_html_field_value(entity, self.value, user)
+
+        self.render_html = printer = \
+            field_printers_registry.build_field_printer(entity.__class__, self.value, output='html')
+
+        return printer(entity, user)
 
     def render_csv(self, entity, user):
-        return get_instance_field_info(entity, self.value)[1]
+        from ..gui.field_printers import field_printers_registry
+        #return field_printers_registry.get_csv_field_value(entity, self.value, user)
+
+        self.render_csv = printer = \
+            field_printers_registry.build_field_printer(entity.__class__, self.value, output='csv')
+
+        return printer(entity, user)
 
 
 @CELLS_MAP

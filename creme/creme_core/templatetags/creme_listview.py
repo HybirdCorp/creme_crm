@@ -101,7 +101,7 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
                             } for id_, val in choices
                            ]
 
-#TODO: add methods to EntityCells ?
+#TODO: add methods to EntityCells ? -> map of behaviours instead
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
     model           = context['model']
@@ -118,6 +118,7 @@ def get_listview_columns_header(context):
         widget_ctx = {'value': search_value, 'type': 'text'}
 
         if isinstance(cell, EntityCellRegularField):
+            #TODO: field = cell.field_info[-1]['field']
             try:
                 field_name = cell.value
                 if field_name.find('__') > -1:
@@ -127,7 +128,7 @@ def get_listview_columns_header(context):
                         field = sub_field_obj
                 else:
                     field = get_model_field(field_name)
-            except models.FieldDoesNotExist:
+            except models.FieldDoesNotExist: #TODO: useless (cell validity is checked before)
                 continue
 
             if isinstance(field, models.ForeignKey):

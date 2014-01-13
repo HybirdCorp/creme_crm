@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
 from itertools import chain
 
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.template.defaultfilters import linebreaks
-from django.utils.html import escape
 from django.utils.formats import date_format
-from django.utils.safestring import mark_safe
+from django.utils.html import escape
+#from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
 
 from ..models import CremeEntity, fields
-from ..utils.meta import get_instance_field_info, get_model_field_info, get_m2m_entities
+from ..utils.meta import get_model_field_info
 from ..templatetags.creme_widgets import widget_entity_hyperlink
 
 
@@ -67,11 +66,26 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 def simple_print(entity, fval, user):
     return unicode(escape(fval)) if fval is not None else ""
 
+def simple_print_csv(entity, fval, user):
+    return unicode(fval) if fval is not None else ""
+
 def print_image(entity, fval, user):
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
             }
+
+def print_boolean(entity, fval, user):
+    if fval:
+        checked = 'checked '
+        label = _('Yes')
+    else:
+        checked = ''
+        label = _('No')
+
+    return u'<input type="checkbox" value="%s" %sdisabled/>%s' % (
+                escape(fval), checked, label
+            )
 
 def print_urlfield(entity, fval, user):
     if not fval:
@@ -93,14 +107,21 @@ def print_foreignkey(entity, fval, user):
 
     return unicode(fval) if fval else u''
 
+def print_foreignkey_csv(entity, fval, user):
+    if isinstance(fval, CremeEntity):
+        #TODO: change allowed unicode ??
+        return unicode(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+
+    return unicode(fval) if fval else u''
+
 def print_many2many(entity, fval, user):
     output = []
 
     if issubclass(fval.model, CremeEntity):
-        entities = list(fval.filter(is_deleted=False))
         output.extend('<li>%s</li>' % (e.get_entity_m2m_summary(user) if user.has_perm_to_view(e) else
-                                       e.allowed_unicode(user)
-                                      ) for e in entities
+                                       #e.allowed_unicode(user)
+                                       settings.HIDDEN_VALUE
+                                      ) for e in fval.filter(is_deleted=False)
                      )
     else:
         output.extend('<li>%s</li>' % escape(a) for a in fval.all())
@@ -109,6 +130,16 @@ def print_many2many(entity, fval, user):
         output = chain(['<ul>'], output, ['</ul>'])
 
     return ''.join(output)
+
+def print_many2many_csv(entity, fval, user):
+    if issubclass(fval.model, CremeEntity):
+        #TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
+        return u'/'.join(unicode(e) if user.has_perm_to_view(e)
+                         else settings.HIDDEN_VALUE
+                            for e in fval.filter(is_deleted=False)
+                        )
+
+    return u'/'.join(unicode(a) for a in fval.all())
 
 def print_duration(entity, fval, user):
     try:
@@ -133,37 +164,57 @@ def print_duration(entity, fval, user):
 class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = {
-            models.AutoField:                  simple_print,
-            models.BooleanField:               lambda entity, fval, user: '<input type="checkbox" value="%s" %s disabled/>%s' % (escape(fval), 'checked' if fval else '', _('Yes') if fval else _('No')),
-            models.CharField:                  simple_print,
-            models.CommaSeparatedIntegerField: simple_print,
+            #models.AutoField:                  simple_print,
+            models.BooleanField:               print_boolean,
+            #models.CharField:                  simple_print,
+            #models.CommaSeparatedIntegerField: simple_print,
             models.DateField:                  print_date,
             models.DateTimeField:              print_datetime,
-            models.DecimalField:               simple_print,
+            #models.DecimalField:               simple_print,
             models.EmailField:                 lambda entity, fval, user: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
-            models.FileField:                  simple_print,
-            models.FilePathField:              simple_print,
-            models.FloatField:                 simple_print,
+            #models.FileField:                  simple_print,
+            #models.FilePathField:              simple_print,
+            #models.FloatField:                 simple_print,
             models.ImageField:                 print_image,
-            models.IntegerField:               simple_print,
-            models.IPAddressField:             simple_print,
-            models.NullBooleanField:           simple_print,
-            models.PositiveIntegerField:       simple_print,
-            models.PositiveSmallIntegerField:  simple_print,
-            models.SlugField:                  simple_print,
-            models.SmallIntegerField:          simple_print,
+            #models.IntegerField:               simple_print,
+            #models.IPAddressField:             simple_print,
+            #models.NullBooleanField:           simple_print,
+            #models.PositiveIntegerField:       simple_print,
+            #models.PositiveSmallIntegerField:  simple_print,
+            #models.SlugField:                  simple_print,
+            #models.SmallIntegerField:          simple_print,
             models.TextField:                  lambda entity, fval, user: linebreaks(fval) if fval else "",
-            models.TimeField:                  simple_print,
+            #models.TimeField:                  simple_print,
             models.URLField:                   print_urlfield,
             models.ForeignKey:                 print_foreignkey,
             models.ManyToManyField:            print_many2many,
             models.OneToOneField:              print_foreignkey,
 
-            fields.PhoneField:                 simple_print,
+            #fields.PhoneField:                 simple_print,
             fields.DurationField:              print_duration,
+
+            fields.ModificationDateTimeField:  print_datetime, #TODO: use inheritance, & remove this line ??
+            fields.CreationDateTimeField :     print_datetime,
+        }
+        self._csv_printers = {
+            models.BooleanField:               lambda entity, fval, user: _('Yes') if fval else _('No'),
+            models.DateField:                  print_date,
+            models.DateTimeField:              print_datetime,
+            #models.ImageField:                 print_image, TODO ??
+
+            models.ForeignKey:                 print_foreignkey_csv,
+            models.ManyToManyField:            print_many2many_csv,
+            models.OneToOneField:              print_foreignkey_csv,
+
+            fields.DurationField:              print_duration,
+
             fields.ModificationDateTimeField:  print_datetime,
             fields.CreationDateTimeField :     print_datetime,
         }
+        self._printers_maps = {
+                'html': (self._printers,     simple_print),
+                'csv':  (self._csv_printers, simple_print_csv),
+            }
 
         self.css_default_listview = css_default_listview = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
         self.css_default_header_listview = css_default_header_listview = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
@@ -209,23 +260,92 @@ class _FieldPrintersRegistry(object):
     def get_header_listview_css_class_for_field(self, field_class):
         return self._header_listview_css_printers.get(field_class, self.css_default_header_listview)
 
+    def build_field_printer(self, model, field_name, output='html'):
+        field_info = get_model_field_info(model, field_name)
+        base_info = field_info[0]
+        base_field = base_info['field']
+        base_name = base_field.name
+        HIDDEN_VALUE = settings.HIDDEN_VALUE
+
+        if len(field_info) > 1:
+            base_model = base_info['model']
+            sub_printer = self.build_field_printer(base_model, field_info[1]['field'].name, output)
+
+            if isinstance(base_field, models.ForeignKey):
+                if issubclass(base_model, CremeEntity):
+                    def printer(obj, user):
+                        base_value = getattr(obj, base_name)
+
+                        if base_value is None:
+                            return ''
+
+                        if not user.has_perm_to_view(base_value):
+                            return HIDDEN_VALUE
+
+                        return sub_printer(base_value, user)
+                else:
+                    def printer(obj, user):
+                        base_value = getattr(obj, base_name)
+
+                        if base_value is None:
+                            return ''
+
+                        return sub_printer(base_value, user)
+            else:
+                assert isinstance(base_field, models.ManyToManyField)
+
+                if issubclass(base_model, CremeEntity):
+                    if output == 'csv':
+                        def printer(obj, user):
+                            has_perm = user.has_perm_to_view
+
+                            return u'/'.join(sub_printer(e, user) if has_perm(e) else HIDDEN_VALUE
+                                                for e in getattr(obj, base_name).filter(is_deleted=False)
+                                            )
+                    else:
+                        def printer(obj, user):
+                            has_perm = user.has_perm_to_view
+                            lines = ['<li>%s</li>' % (
+                                            sub_printer(e, user) if has_perm(e)
+                                            else HIDDEN_VALUE
+                                        ) for e in getattr(obj, base_name).filter(is_deleted=False)
+                                    ]
+
+                            if lines:
+                                lines = chain(('<ul>',), lines, ('</ul>',))
+
+                            return ''.join(lines)
+                else:
+                    if output == 'csv':
+                        def printer(obj, user):
+                            return u'/'.join(sub_printer(a, user)
+                                                for a in getattr(obj, base_name).all()
+                                            )
+                    else:
+                        def printer(obj, user):
+                            lines = ['<li>%s</li>' % sub_printer(a, user)
+                                        for a in getattr(obj, base_name).all()
+                                    ]
+
+                            if lines:
+                                lines = chain(('<ul>',), lines, ('</ul>',))
+
+                            return ''.join(lines)
+        else:
+            printer_funcs, default_func = self._printers_maps[output]
+            print_func = printer_funcs.get(base_field.__class__, default_func)
+
+            def printer(obj, user):
+                #return mark_safe(print_func(obj, getattr(obj, base_name), user))
+                return print_func(obj, getattr(obj, base_name), user)
+
+        return printer
+
     def get_html_field_value(self, obj, field_name, user):
-        field_class, field_value = get_instance_field_info(obj, field_name)
+        return self.build_field_printer(obj.__class__, field_name)(obj, user)
 
-        if field_class is None: #None means error or a M2M without value TODO: improve this ??
-            if any(isinstance(f['field'], models.ManyToManyField) for f in get_model_field_info(obj.__class__, field_name)):
-                #can raise AttributeError TODO: change this behavior ??
-                return get_m2m_entities(obj, field_name, get_value=True,
-                                        get_value_func=(lambda values: u', '.join(filter(None, values))),
-                                        user=user,
-                                       )
-
-        print_func = self._printers.get(field_class)
-
-        if print_func:
-            return mark_safe(print_func(obj, field_value, user))
-
-        return field_value
+    def get_csv_field_value(self, obj, field_name, user):
+        return self.build_field_printer(obj.__class__, field_name, output='csv')(obj, user)
 
 
 field_printers_registry = _FieldPrintersRegistry()

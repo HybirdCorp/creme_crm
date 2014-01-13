@@ -3,8 +3,11 @@
 try:
     from functools import partial
 
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.encoding import force_unicode
+    from django.utils.formats import date_format
+    from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
 
@@ -12,20 +15,21 @@ try:
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (RelationType, Relation,
             CremePropertyType, CremeProperty, HeaderFilter)
-
+    from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.views.base import ViewsTestCase
+
+    from creme.media_managers.models import Image
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
-
 try:
     from creme.creme_core.utils.xlrd_utils import XlrdReader
     from creme.creme_core.registry import export_backend_registry
-    XlsImport = not 'xls' in export_backend_registry.iterkeys()
-except Exception as e:
-    XlsImport = True
+    XlsMissing = 'xls' not in export_backend_registry.iterkeys()
+except Exception:
+    XlsMissing = True
 
 __all__ = ('CSVExportViewsTestCase',)
 
@@ -92,13 +96,14 @@ class CSVExportViewsTestCase(ViewsTestCase):
     def _build_url(self, ct, method='download', doc_type='csv'):
         return '/creme_core/list_view/%s/%s/%s' % (method, ct.id, doc_type)
 
-    def _set_listview_state(self):
-        lv_url = Contact.get_lv_absolute_url()
+    def _set_listview_state(self, model=Contact):
+        lv_url = model.get_lv_absolute_url()
         self.assertGET200(lv_url) #set the current list view state...
 
         return lv_url
 
-    def test_export_error01(self): # Assert doc_type in ('xls', 'csv')
+    def test_export_error01(self):
+        "Assert doc_type in ('xls', 'csv')"
         self.login()
         lv_url = self._set_listview_state()
 
@@ -115,7 +120,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                          [force_unicode(line) for line in response.content.splitlines()]
                         )
 
-    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export_header(self):
         self.login()
         cells = self._build_hf_n_contacts()
@@ -206,7 +211,97 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[1], '"","Black","Jet","",""')
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
 
-    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_list_view_export05(self):
+        "Datetime field"
+        self.login()
+
+        HeaderFilter.create(pk='test-hf_contact', name='Contact view', model=Contact,
+                            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                        (EntityCellRegularField, {'name': 'created'}),
+                                       ],
+                           )
+
+        lv_url = self._set_listview_state()
+        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        result = [force_unicode(line) for line in response.content.splitlines()]
+        self.assertEqual(2, len(result))
+
+        fulbert = Contact.objects.get(last_name='Creme')
+
+        self.assertEqual(result[1],
+                         u'"Creme","%s"' % date_format(localtime(fulbert.created), 'DATETIME_FORMAT')
+                        )
+
+    def test_list_view_export06(self):
+        "FK field on CremeEntity"
+        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
+        self.role.exportable_ctypes = [self.ct]
+
+        user = self.user
+
+        create_img = Image.objects.create
+        spike_face = create_img(name='Spike face', user=self.other_user, description="Spike's selfie")
+        jet_face   = create_img(name='Jet face',   user=user,            description="Jet's selfie")
+        self.assertTrue(user.has_perm_to_view(jet_face))
+        self.assertFalse(user.has_perm_to_view(spike_face))
+
+        create_contact = partial(Contact.objects.create, user=user)
+        create_contact(first_name='Spike', last_name='Spiegel', image=spike_face)
+        create_contact(first_name='Jet',   last_name='Black',   image=jet_face)
+        create_contact(first_name='Faye',  last_name='Valentine')
+
+        HeaderFilter.create(pk='test-hf_contact', name='Contact view', model=Contact,
+                            cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
+                                        (EntityCellRegularField, {'name': 'image'}),
+                                        (EntityCellRegularField, {'name': 'image__description'}),
+                                       ],
+                           )
+
+        lv_url = self._set_listview_state()
+        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        result = [force_unicode(line) for line in response.content.splitlines()]
+        self.assertEqual(4, len(result))
+
+        self.assertEqual(result[1], '"Black","Jet face","Jet\'s selfie"')
+        #self.assertEqual(result[2], '"Spiegel","%s"' % spike_face.allowed_unicode(user))
+        HIDDEN_VALUE = settings.HIDDEN_VALUE
+        self.assertEqual(result[2], '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
+        self.assertEqual(result[3], '"Valentine","",""')
+
+    @skipIfNotInstalled('creme.emails')
+    def test_list_view_export07(self):
+        "M2M field on CremeEntities"
+        from creme.emails.models import EmailCampaign, MailingList
+
+        self.login()
+
+        create_camp = partial(EmailCampaign.objects.create, user=self.user)
+        camp1 = create_camp(name='Camp#1')
+        camp2 = create_camp(name='Camp#2')
+        create_camp(name='Camp#3')
+
+        create_ml = partial(MailingList.objects.create, user=self.user)
+        camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
+        camp2.mailing_lists = [create_ml(name='ML#3')]
+
+        HeaderFilter.create(pk='test_hf', name='Campaign view', model=EmailCampaign,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        (EntityCellRegularField, {'name': 'mailing_lists__name'}),
+                                       ],
+                           )
+
+        lv_url = self._set_listview_state(model=EmailCampaign)
+        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(EmailCampaign)),
+                                     data={'list_url': lv_url}
+                                    )
+        result = [force_unicode(line) for line in response.content.splitlines()]
+        self.assertEqual(4, len(result))
+
+        self.assertEqual(result[1], '"Camp#1","ML#1/ML#2"')
+        self.assertEqual(result[2], '"Camp#2","ML#3"')
+        self.assertEqual(result[3], '"Camp#3",""')
+
+    @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):
         self.login()
         cells = self._build_hf_n_contacts()
