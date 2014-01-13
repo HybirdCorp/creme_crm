@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.conf import settings
     from django.template import Template, Context
-    from django.utils.translation import ugettext as _
+    #from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
 
@@ -45,7 +46,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink orga user %}')
             render = tpl.render(Context({'user': user, 'orga': orga}))
 
-        self.assertEqual(render, _(u'Entity #%s (not viewable)') % orga.id)
+        #self.assertEqual(render, _(u'Entity #%s (not viewable)') % orga.id)
+        self.assertEqual(render, settings.HIDDEN_VALUE)
 
     def test_widget_entity_hyperlink03(self):
         "Is deleted"

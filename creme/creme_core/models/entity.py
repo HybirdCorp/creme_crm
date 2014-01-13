@@ -252,7 +252,7 @@ class CremeEntity(CremeAbstractEntity):
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
-        return '<a target="_blank" href="%s">%s</a></li>' % (self.get_absolute_url(), escape(unicode(self)))
+        return '<a target="_blank" href="%s">%s</a>' % (self.get_absolute_url(), escape(unicode(self)))
 
     def get_actions(self, user): #TODO: improve icon/css class management....
         actions = []
