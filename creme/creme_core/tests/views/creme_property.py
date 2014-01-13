@@ -193,13 +193,12 @@ class PropertyViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
-        entity01 = CremeEntity.objects.create(user=self.user)
-
-        url = self._build_bulk_url(self.centity_ct, entity01)
-        self.assertGET200(url)
-
         self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
+        entity01 = CremeEntity.objects.create(user=self.user)
         uneditable = CremeEntity.objects.create(user=self.other_user)
+
+        url = self._build_bulk_url(self.centity_ct, entity01, uneditable)
+        self.assertGET200(url)
 
         #response = self.assertPOST200(url, data={'entities_lbl': 'd:p',
                                                  #'entities':     '%s' % (uneditable.id,),
