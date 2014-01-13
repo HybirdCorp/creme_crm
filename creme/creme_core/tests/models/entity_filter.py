@@ -6,7 +6,6 @@ try:
     from logging import info
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.exceptions import ValidationError
     from django.utils.timezone import now
 
     from creme.creme_core.global_info import set_global_info
