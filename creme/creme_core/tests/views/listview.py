@@ -13,16 +13,12 @@ try:
             HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
             CustomField, CustomFieldEnumValue)
     from creme.creme_core.utils import safe_unicode
+    from creme.creme_core.tests.base import skipIfNotInstalled
     from .base import ViewsTestCase
 
     from creme.persons.models import Organisation, Contact, Civility
 
     from creme.activities.models import Activity, ActivityType
-
-    from creme.billing.constants import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-    from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
-
-    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -230,8 +226,10 @@ class ListViewTestCase(ViewsTestCase):
         post('civility__title', False, ed, faye, spike)
         post('civility__title', True, spike, faye, ed)
 
+    @skipIfNotInstalled('creme.emails')
     def test_order03(self):
         "Unsortable fields: ManyToMany, FunctionFields"
+        from creme.emails.models import EmailCampaign
         self.login()
 
         #bug on ORM with M2M happens only if there is at least one entity
@@ -529,7 +527,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(faye.last_name,  content)
         self.assertIn(ed.last_name,       content)
 
+    @skipIfNotInstalled('creme.emails')
     def test_search_m2mfields01(self):
+        from creme.emails.models import EmailCampaign
+
         self.login()
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
                                  model=EmailCampaign,
@@ -998,8 +999,12 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop,     orgas_set)
         self.assertIn(swordfish, orgas_set)
 
+    @skipIfNotInstalled('creme.billing')
     def test_search_functionfield02(self):
         "billing_LineTypeField"
+        from creme.billing.constants import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+        from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
+
         self.login()
         user = self.user
 

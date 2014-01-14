@@ -3,14 +3,12 @@
 try:
     from functools import partial
 
-    from ..base import CremeTestCase
+    from ..base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
 
     from creme.persons.models import Contact, Organisation
 
     from creme.activities.models import Activity
-
-    from creme.tickets.models import Ticket
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -129,7 +127,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         #self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
         #self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
 
-    def test_bulk_update_registry06(self): # unique field
+    @skipIfNotInstalled('creme.tickets')
+    def test_bulk_update_registry06(self):
+        "Unique field"
+        from creme.tickets.models import Ticket
         is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Ticket)
 
         # 'title' is an unique field which means that its not bulk updtable if the registry manage the unique

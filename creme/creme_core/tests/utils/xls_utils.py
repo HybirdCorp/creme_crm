@@ -10,18 +10,19 @@ try:
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
-
-XlwtImport = False
 try:
     from creme.creme_core.utils.xlwt_utils import XlwtWriter
-except Exception as e:
-    XlwtImport = True
+except Exception:
+    XlwtMissing = True
+else:
+    XlwtMissing = False
 
-XlrdImport = False
 try:
     from creme.creme_core.utils.xlrd_utils import XlrdReader
-except Exception as e:
-    XlrdImport = True
+except Exception:
+    XlrdMissing = True
+else:
+    XlrdMissing = False
 
 
 class XLSUtilsTestCase(CremeTestCase):
@@ -42,20 +43,20 @@ class XLSUtilsTestCase(CremeTestCase):
     def get_file_path(self, filename):
         return os.path.join(self.current_path, filename)
 
-    @skipIf(XlrdImport, "Skip tests, couldn't find xlrd libs")
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_01(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             for element in self.data:
                 self.assertEqual(element, rd.next())
 
-    @skipIf(XlrdImport, "Skip tests, couldn't find xlrd libs")
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_02(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             self.assertEqual(self.data, list(rd))
 
-    @skipIf(XlrdImport, "Skip tests, couldn't find xlrd libs")
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
     def test_03(self):
         for filename in self.files:
             with open(self.get_file_path(filename)) as filename:
@@ -63,7 +64,7 @@ class XLSUtilsTestCase(CremeTestCase):
                 rd = XlrdReader(file_contents=file_content)
                 self.assertEqual(list(rd), self.data)
 
-    @skipIf(XlrdImport or XlwtImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_04(self):
         file = NamedTemporaryFile(suffix=".xls")
 

@@ -12,13 +12,11 @@ try:
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
                                          Relation, RelationType)
     from creme.creme_core.models.history import *
-    from ..base import CremeTestCase
+    from ..base import CremeTestCase, skipIfNotInstalled
 
     from creme.persons.models import Contact, Organisation, Sector, LegalForm
 
     from creme.assistants.models import ToDo
-
-    from creme.billing.models import Invoice, InvoiceStatus, ProductLine
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -658,11 +656,14 @@ about this fantastic animation studio."""
                          vmodifs[2]
                         )
 
+    @skipIfNotInstalled('creme.billing')
     def test_edit_auxiliary03(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
         """
+        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
+
         old_count = HistoryLine.objects.count()
         user = self.user
         invoice = Invoice.objects.create(user=user, name='Invoice',

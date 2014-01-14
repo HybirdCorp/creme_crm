@@ -6,15 +6,11 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase
+    from ..base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from creme.creme_core.utils import meta
 
     from creme.persons.models import Contact
-
-    from creme.tickets.models import Ticket
-
-    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -199,8 +195,11 @@ class MetaTestCase(CremeTestCase):
                          ]
                         )
 
+    @skipIfNotInstalled('creme.emails')
     def test_field_enumerator05(self):
         "Other ct"
+        from creme.emails.models import EmailCampaign
+
         expected = [('created',     _('Creation date')),
                     ('modified',    _('Last modification')),
                     ('name',        _('Name of the campaign')),
@@ -243,8 +242,11 @@ class MetaTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(Contact, only_leafs=False).exclude(editable=False, viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
+    @skipIfNotInstalled('creme.tickets')
     def test_field_enumerator07(self):
         "Ordering of FKs"
+        from creme.tickets.models import Ticket
+
         choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False).filter(viewable=True).choices()
         fs = u'[%s] - %s'
         #user_lbl = _('User')
@@ -273,8 +275,10 @@ class MetaTestCase(CremeTestCase):
                          choices, choices
                         )
 
+    @skipIfNotInstalled('creme.tickets')
     def test_field_enumerator08(self):
         "'depth' argument"
+        from creme.tickets.models import Ticket
 
         choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False) \
                       .filter((lambda f, depth: not depth or f.name == 'name'), viewable=True) \

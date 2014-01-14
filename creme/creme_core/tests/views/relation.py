@@ -9,6 +9,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import ViewsTestCase
+    from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
                                          CremePropertyType, CremeProperty)
@@ -16,7 +17,7 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.tickets.models import Ticket
+    from creme.documents.models import Document
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -60,7 +61,9 @@ class RelationViewsTestCase(ViewsTestCase):
                                     ]
                         )
 
+    @skipIfNotInstalled('creme.tickets')
     def test_get_ctypes_of_relation02(self):
+        from creme.tickets.models import Ticket
         self.login()
 
         rtype = RelationType.create(('test-subject_foobar1', 'is loving'),
@@ -1146,7 +1149,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=orga)
 
         self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
-        
+
         #Contact2 < ---- > Orga
         contact2._copy_relations(contact1)
         self.assert_relation_count(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
@@ -1154,7 +1157,9 @@ class RelationViewsTestCase(ViewsTestCase):
         orga._copy_relations(contact1)
         self.assert_relation_count(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
 
+    @skipIfNotInstalled('creme.tickets')
     def test_json_entity_rtypes01(self):
+        from creme.tickets.models import Ticket
         self.login()
 
         rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')

@@ -34,9 +34,8 @@ try:
         from creme.billing.constants import REL_OBJ_BILL_ISSUED
         from creme.billing.models import Invoice
 
-    from creme.opportunities.constants import REL_SUB_EMIT_ORGA
-
-    from creme.emails.models import EmailCampaign, MailingList
+    if 'creme.emails' in settings.INSTALLED_APPS:
+        from creme.emails.models import EmailCampaign, MailingList
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
             RFT_AGGREGATE, RFT_RELATED)
@@ -1064,6 +1063,8 @@ class ReportTestCase(BaseReportsTestCase):
     @skipIfNotInstalled('creme.billing')
     @skipIfNotInstalled('creme.opportunities')
     def test_fetch_complex(self): #TODO: move
+        from creme.opportunities.constants import REL_SUB_EMIT_ORGA
+
         self.login()
 
         self._create_reports()
@@ -1309,6 +1310,7 @@ class ReportTestCase(BaseReportsTestCase):
         ned_line[1] = ned_line[2] = settings.HIDDEN_VALUE #ned_face is not visible
         self.assertEqual(lines, report_contact.fetch_all_lines(user=user))
 
+    @skipIfNotInstalled('creme.emails')
     def test_fetch_m2m_01(self):
         "No sub report"
         self.login()
@@ -1377,6 +1379,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_prop(type=self.ptype1, creme_entity=ml1)
         create_prop(type=self.ptype2, creme_entity=ml2)
 
+    @skipIfNotInstalled('creme.emails')
     def test_fetch_m2m_02(self):
         "Sub report (expanded)"
         self._aux_test_fetch_m2m()
@@ -1418,6 +1421,7 @@ class ReportTestCase(BaseReportsTestCase):
                          report_camp.fetch_all_lines()
                         )
 
+    @skipIfNotInstalled('creme.emails')
     def test_fetch_m2m_03(self):
         "Sub report (not expanded)"
         self._aux_test_fetch_m2m()
