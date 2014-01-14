@@ -7,9 +7,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import ViewsTestCase
+    from creme.creme_core.models import CustomField, CustomFieldEnumValue
 
     from creme.persons.models import Contact, Civility
-    from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
