@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -153,6 +153,10 @@ class LinkFieldToReportForm(CremeForm):
     def save(self):
         rfield = self.rfield
         rfield.sub_report = self.cleaned_data['report']
+
+        # we could have a race condition here (so have several Field with selected=True)
+        # but it is manage by the 'Report.columns' property
+        rfield.selected = not rfield.report.fields.filter(sub_report__isnull=False).exists()
         rfield.save()
 
 
