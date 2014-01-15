@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,11 +66,20 @@ class Report(CremeEntity):
                                  (expanded sub-report)
         """
         self._columns = columns = []
+        selected_found = False
 
         for rfield in self.fields.all():
             rfield.report = self #pre-cache
 
             if rfield.hand: #field is valid
+                if rfield.selected:
+                    if selected_found:
+                        logger.warn('Several expanded sub-reports -> we fix it')
+                        rfield.selected = False
+                        rfield.save()
+
+                    selected_found = True
+
                 rfield._build_children(allow_selected)
                 columns.append(rfield)
 

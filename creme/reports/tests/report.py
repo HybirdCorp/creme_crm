@@ -788,6 +788,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         fk_img_field = self.refresh(fk_img_field)
         self.assertEqual(img_report, fk_img_field.sub_report)
+        self.assertTrue(fk_img_field.selected)
 
         #unlink --------------------------------------------------------------
         fk_img_field.selected = True
@@ -896,6 +897,36 @@ class ReportTestCase(BaseReportsTestCase):
         #invalid field -> no 500 error
         rfield = create_field(report=contact_report, name='invalid', type=RFT_FIELD, order=3)
         self.assertGET409(self._build_linkreport_url(rfield))
+
+    def test_link_report_selected(self):
+        "selected=True if only one sub-report"
+        self.login()
+
+        img_report = self._build_image_report()
+        contact_report = Report.objects.create(user=self.user, name="Report on contacts",
+                                               ct=ContentType.objects.get_for_model(Contact),
+                                              )
+
+        create_field = partial(Field.objects.create, report=contact_report, type=RFT_FIELD)
+        create_field(name="last_name",   order=1)
+        img_field  = create_field(name="image__name", order=2, sub_report=img_report)
+        rel_rfield = create_field(name=REL_SUB_EMPLOYED_BY, order=3, type=RFT_RELATION)
+
+
+        orga_report = self._build_orga_report()
+        self.assertNoFormError(self.client.post(self._build_linkreport_url(rel_rfield),
+                                                data={'report': orga_report.id},
+                                               )
+                              )
+
+        rel_rfield = self.refresh(rel_rfield)
+        self.assertEqual(orga_report, rel_rfield.sub_report)
+        self.assertFalse(rel_rfield.selected)
+
+        #'columns' property avoid several selected sub-reports
+        img_field.selected  = True; img_field.save()
+        rel_rfield.selected = True; rel_rfield.save()
+        self.assertEqual(1, len([f for f in self.refresh(contact_report).columns if f.selected]))
 
     def test_set_selected(self):
         self.login()
