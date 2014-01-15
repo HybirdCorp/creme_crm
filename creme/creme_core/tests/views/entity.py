@@ -736,7 +736,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
         self.assertGET404(self._build_url(0))
-        self.assertGET404(self._build_url(*range(10)))
+        self.assertGET404(self._build_url(*range(1024, 1034)))
 
         mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
         self.assertGET200(self._build_url(mario.id))

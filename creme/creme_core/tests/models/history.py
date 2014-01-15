@@ -32,6 +32,7 @@ class HistoryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
+        HistoryLine.objects.all().delete()
 
     def setUp(self):
         self.old_time = now().replace(microsecond=0)

@@ -240,9 +240,18 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_model_error(self):
         self.login()
 
+        description = 'Genshiken meber'
+
+        efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken', Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='description', values=[description]
+                                                                   )
+                               ])
+
         first_name = 'Kanako'
         last_name = 'Ouno'
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=self.user, description=description)
         contact01 = create_contact(first_name=first_name, last_name=last_name)
         create_contact(first_name='Mitsunori', last_name='Kugayama')
 
@@ -253,7 +262,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             contact01.full_clean()
 
         response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': self.format_str2 % {
+                                    data={'filter':  efilter.id,
+                                          'actions': self.format_str2 % {
                                                             'name01': 'last_name',  'operator01': 'rm_start', 'value01': 6,
                                                             'name02': 'first_name', 'operator02': 'upper',    'value02': '',
                                                         },
@@ -266,9 +276,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(first_name, contact01.first_name) #TODO: make the changes that are possible (u'KANAKO') ??
 
         form = response.context['form']
-        count = Contact.objects.count()
-        self.assertLess(form.modified_objects_count, count)
-        self.assertEqual(count, form.read_objects_count)
+        self.assertEqual(1, form.modified_objects_count)
+        self.assertEqual(2, form.read_objects_count)
 
         errors = form.process_errors
         self.assertEqual(1, len(errors))
