@@ -21,7 +21,8 @@ class _ActivitiesTestCase(CremeTestCase):
         create_contact = Contact.objects.create
         owner = other if other_is_owner else user
         self.contact = create_contact(user=owner, first_name='Kirika',
-                                      last_name=u'Yūmura', is_user=user,
+                                      #last_name=u'Yūmura', is_user=user, #XXX: seems cause problem on MySQL TODO: inspect further
+                                      last_name=u'Yûmura', is_user=user,
                                      )
         self.other_contact = create_contact(user=owner, first_name='Mireille',
                                             last_name='Bouquet', is_user=other,

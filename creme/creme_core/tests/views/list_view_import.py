@@ -91,10 +91,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         cls.populate('creme_core', 'creme_config')
 
-        Contact.objects.all().delete()
-        Organisation.objects.all().delete()
-        Position.objects.all().delete()
-        Sector.objects.all().delete()
+        #Contact.objects.all().delete()
+        #Organisation.objects.all().delete()
+        #Position.objects.all().delete()
+        #Sector.objects.all().delete()
 
         cls.data = {
             'step': 1,
@@ -193,8 +193,15 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def _test_import02(self, builder): #use header, default value, model search and create, properties, fixed and dynamic relations
         self.login()
 
-        self.assertFalse(Position.objects.exists())
-        self.assertFalse(Sector.objects.exists())
+        pos_title  = 'Pilot'
+        sctr_title = 'Army'
+        #self.assertFalse(Position.objects.exists())
+        self.assertFalse(Position.objects.filter(title=pos_title).exists())
+        #self.assertFalse(Sector.objects.exists())
+        self.assertFalse(Sector.objects.filter(title=sctr_title).exists())
+
+        position_ids = list(Position.objects.values_list('id', flat=True))
+        sector_ids   = list(Sector.objects.values_list('id', flat=True))
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cure in her suit')
 
@@ -209,11 +216,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         shinji = Contact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
         contact_count = Contact.objects.count()
 
-        pos_title = 'Pilot'
         city = 'Tokyo'
         lines = [('First name', 'Last name', 'Position', 'Sector', 'City', 'Organisation'),
-                 ('Rei',        'Ayanami',       pos_title,  'Army',   city,   nerv.name),
-                 ('Asuka',      'Langley',   pos_title,  'Army',   '',     nerv.name),
+                 ('Rei',        'Ayanami',   pos_title,  sctr_title,   city,   nerv.name),
+                 ('Asuka',      'Langley',   pos_title,  sctr_title,   '',     nerv.name),
                 ]
 
         doc = builder(lines)
@@ -267,13 +273,16 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(lines_count, form.lines_count)
         self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
-        positions = Position.objects.all()
+        #positions = Position.objects.all()
+        positions = Position.objects.exclude(id__in=position_ids)
         self.assertEqual(1, len(positions))
+        #self.assertEqual(pos_count + 1, len(positions))
 
         position = positions[0]
         self.assertEqual(pos_title, position.title)
 
-        self.assertFalse(Sector.objects.exists())
+        #self.assertFalse(Sector.objects.exists())
+        self.assertFalse(Sector.objects.exclude(id__in=sector_ids).exists())
 
         for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
@@ -289,6 +298,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def _test_import03(self, builder):
         "Create entities to link with them"
         self.login()
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
 
         orga_name = 'Nerv'
         self.assertFalse(Organisation.objects.filter(name=orga_name))
@@ -313,7 +323,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, len(form.import_errors)) #sector not found
         self.assertEqual(1, form.imported_objects_count)
 
-        contacts = Contact.objects.all()
+        #contacts = Contact.objects.all()
+        contacts = Contact.objects.exclude(id__in=contact_ids)
         self.assertEqual(1, len(contacts))
 
         rei = contacts[0]
@@ -348,8 +359,9 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def test_csv_import04(self): 
         "Other separator"
         self.login()
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
 
-        self.assertFalse(Contact.objects.exists())
+        #self.assertFalse(Contact.objects.exists())
 
         lines = [(u'First name', u'Last name'),
                  (u'Unchô',      u'Kan-u'),
@@ -375,7 +387,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
         self.assertEqual([], list(response.context['form'].import_errors))
 
-        self.assertEqual(len(lines) - 1, Contact.objects.count())
+        #self.assertEqual(len(lines) - 1, Contact.objects.count())
+        self.assertEqual(len(lines) - 1, Contact.objects.exclude(id__in=contact_ids).count())
 
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)

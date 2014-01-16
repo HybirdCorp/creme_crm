@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,12 +76,15 @@ class CremeEntity(CremeAbstractEntity):
         self._properties = None
         self._cvalues_map = {}
 
-    #def delete(self):
-        #if settings.TRUE_DELETE:
-            #super(CremeEntity, self).delete()
-        #else:
-            #self.is_deleted = True
-            #self.save()
+    def delete(self):
+        from .history import _get_deleted_entity_ids
+
+        #pre-delete signal is sent to auxiliary _before_, then sent to the entity
+        # so it causes problem with aux_deletion line that reference the entity
+        # (e.g.:this problem appears when deleting an EmailCampign with Sendings)
+        _get_deleted_entity_ids().add(self.id)
+
+        super(CremeEntity, self).delete()
 
     def __unicode__(self):
         real_entity = self.get_real_entity()

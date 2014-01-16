@@ -51,8 +51,8 @@ class CremeEntityFieldTestCase(FieldTestCase):
 
     def test_doesnotexist01(self):
         self.assertFieldValidationError(CremeEntityField, 'doesnotexist',
-                                        CremeEntityField().clean, ['2'],
-                                        message_args={'value': ['2']},
+                                        CremeEntityField().clean, ['1024'],
+                                        message_args={'value': ['1024']},
                                        )
 
     def test_ok01(self):
