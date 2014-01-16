@@ -52,8 +52,9 @@ class EmailCampaign(CremeEntity):
         return "/emails/campaigns"
 
     #def delete(self):
+        ## Avoid problem with HistoryLine (beware: useless with SQlite, but not other engine)
         #for sending in self.sendings_set.all():
-            #sending.mails_set.all().delete() #todo: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
+            ##sending.mails_set.all().delete() #todo: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
             #sending.delete()
 
         #super(EmailCampaign, self).delete()

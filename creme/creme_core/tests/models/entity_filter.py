@@ -24,8 +24,10 @@ class EntityFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        Contact.objects.all().delete()
-        Organisation.objects.all().delete()
+        #Contact.objects.all().delete()
+        #Organisation.objects.all().delete()
+
+        cls._excluded_ids = frozenset(CremeEntity.objects.values_list('id', flat=True))
 
     def setUp(self):
         self.login()
@@ -62,7 +64,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def assertExpectedFiltered(self, efilter, model, ids, case_insensitive=False):
         msg = '(NB: maybe you have case sensitive problems with your DB configuration).' if case_insensitive else ''
-        filtered = list(efilter.filter(model.objects.all()))
+        #filtered = list(efilter.filter(model.objects.all()))
+        filtered = list(efilter.filter(model.objects.exclude(id__in=self._excluded_ids)))
         self.assertEqual(len(ids), len(filtered), str(filtered) + msg)
         self.assertEqual(set(ids), set(c.id for c in filtered))
 
@@ -97,7 +100,7 @@ class EntityFiltersTestCase(CremeTestCase):
             efilter.entity_type
 
     def test_filter_field_equals01(self):
-        self.assertEqual(len(self.contacts), Contact.objects.count())
+        #self.assertEqual(len(self.contacts), Contact.objects.count())
 
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
