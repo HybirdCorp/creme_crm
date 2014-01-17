@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.conf import settings
 
 
-DEFAULT_VAT = Decimal(getattr(settings, "DEFAULT_VAT", "19.6"))
+DEFAULT_VAT = Decimal(getattr(settings, "DEFAULT_VAT", "20.0")) #TODO: depends on country...
 
 PROP_IS_MANAGED_BY_CREME = 'creme_core-is_managed_by_creme'
 
