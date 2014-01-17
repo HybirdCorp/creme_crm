@@ -175,7 +175,7 @@ class CommercialApproachTestCase(CremeTestCase):
         for comapp in comapps:
             self.assertEqual(title,       comapp.title)
             self.assertEqual(description, comapp.description)
-            self.assertAlmostEqual(now_value, comapp.creation_date, delta=timedelta(seconds=1))
+            self.assertAlmostEqual(now_value, comapp.creation_date, delta=timedelta(seconds=10))
 
     def test_sync_with_activity(self):
         self.login()
