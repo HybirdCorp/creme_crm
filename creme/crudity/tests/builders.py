@@ -2,13 +2,16 @@
 
 try:
     from itertools import chain
+    import os
     import re
+    import subprocess
     from xml.etree.ElementTree import XML, tostring # Element
 
     from django.contrib.auth.models import User
     from django.db.models.fields import FieldDoesNotExist
     #from django.utils import translation
     from django.utils.translation import ugettext as _
+    from django.utils.unittest.case import skipIf
     from django.test.client import RequestFactory
 
     from creme.creme_core.models import CremeEntity, Language
@@ -24,6 +27,15 @@ try:
                        FakeFetcher, FakeInput)
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
+
+
+lcabMissing = False
+try:
+    subprocess.call(['lcab'])
+except OSError as e:
+    if e.errno == os.errno.ENOENT:
+        lcabMissing = True
+        print 'It seems that "lcab" is not installed -> skip some tests'
 
 
 __all__ = ('InfopathFormBuilderTestCase', 'InfopathFormFieldTestCase')
@@ -620,6 +632,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          for_each_node.get('select')
                         )
 
+    @skipIf(lcabMissing, "Lcab seems not installed")
     def test_render01(self):
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                     body_map={'user_id':     1,
