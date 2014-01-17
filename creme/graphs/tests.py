@@ -9,6 +9,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation
+
     from .models import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
