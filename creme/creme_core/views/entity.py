@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
 from collections import defaultdict
+from datetime import datetime
+import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
@@ -28,8 +29,10 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 #from django.core import serializers
 from django.forms.models import modelform_factory, model_to_dict
 #from django.utils.encoding import smart_unicode
-from django.utils.translation import ugettext as _
+from django.utils.formats import date_format
 from django.utils.simplejson import JSONEncoder
+from django.utils.timezone import localtime
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -257,8 +260,14 @@ def get_widget(request, ct_id):
         if inner_edit_obj_id:
             form_field.initial = model_to_dict(instance, [field_name])[field_name]
 
+    value = form_field.initial
+
+    if isinstance(value, datetime):
+        value = date_format(localtime(value), 'DATETIME_FORMAT')
+
     return {'rendered': form_field.widget.render(name=field_value_name,
-                                                 value=form_field.initial,
+                                                 #value=form_field.initial,
+                                                 value=value,
                                                  attrs={'id': 'id_%s' % field_value_name},
                                                 ),
            }
