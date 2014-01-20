@@ -233,7 +233,7 @@ creme.reports.link_relation_report = function(report_id, field_id, predicate, bl
                     return;
                 }
 
-                creme.blocks.deprecatedForm('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), {blockReloadUrl:block_url}).open();
+                creme.blocks.form('/reports/report/'+report_id+'/field/'+field_id+'/link_relation_report/'+$select.val(), {blockReloadUrl:block_url}).open();
 
                 $(this).dialog("close");
             }
@@ -299,12 +299,12 @@ creme.reports.unlink_report = function(field_id, block_url) {
 /*
 creme.reports.link_report = function(field_id, block_url) {
     var url = '/reports/report/field/%s/link_report'.format(field_id);
-    return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+    return creme.blocks.form(url, {blockReloadUrl:block_url}).open();
 }
 
 creme.reports.link_related_report = function(field_id, block_url) {
     var url = '/reports/report/field/%s/link_related_report'.format(field_id);
-    return creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+    return creme.blocks.form(url, {blockReloadUrl:block_url}).open();
 }
 
 creme.reports.link_relation_report = function(field, predicate, block_url) {
@@ -326,7 +326,7 @@ creme.reports.link_relation_report = function(field, predicate, block_url) {
 
                                 var url = '/reports/report/field/%s/link_relation_report/%s'.format(field, type);
 
-                                creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+                                creme.blocks.form(url, {blockReloadUrl:block_url}).open();
                             })
                            .open();
           })
@@ -430,10 +430,18 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 
 creme.reports.exportReport = function(link, backends, filterurl) {
     if (backends.length) {
-        creme.dialogs.deprecatedForm(filterurl).open({width:800});
+        creme.dialogs.form(filterurl).open({width:800});
     } else {
         creme.dialogs.warning(gettext('No backend found')).open({maxWidth:300, resizable:false});
     }
+}
+
+creme.reports.openGraphEdition = function(graph_id, reload_uri)
+{
+    creme.blocks.form('/reports/graph/edit/%s'.format(graph_id), {blockReloadUrl:reload_uri})
+                .onFormSuccess(function() {
+                     $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
+                 }).open();
 }
 
 /*

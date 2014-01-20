@@ -24,7 +24,7 @@ creme.merge = creme.merge || {};
 
 creme.merge.selectOtherEntityNRedirect = function(model_id) {
     var url = '/creme_core/entity/merge/select_other/' + model_id;
-    var action = creme.dialogs.deprecatedListViewAction(url, {multiple:false});
+    var action = creme.lv_widget.listViewAction(url, {multiple:false});
 
     action.onDone(function(event, data) {
         window.location.href = '/creme_core/entity/merge/' + model_id + ',' + data[0];

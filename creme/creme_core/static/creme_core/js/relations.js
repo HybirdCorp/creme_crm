@@ -35,7 +35,7 @@ creme.relations.addRelationTo = function(subject, predicate, ctype, options, dat
     var url = '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s%s'.format(predicate, subject, ctype,
                                                                                  options.multiple ? '' : '/simple');
 
-    var action = creme.dialogs.deprecatedListViewAction(url, options, data);
+    var action = creme.lv_widget.listViewAction(url, options, data);
     action.onDone(function(event, data) {
         query.post({
                   entities: data,

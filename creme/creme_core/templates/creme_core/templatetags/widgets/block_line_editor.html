@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
 {% if edit_line_perm %}
-    <a onclick="creme.blocks.deprecatedForm('{{edit_url}}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'80%'});">
+    <a onclick="creme.blocks.form('{{edit_url}}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'80%'});">
         <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Edit" %}" alt="{% trans "Edit" %}" />
     </a>
 {% else %}

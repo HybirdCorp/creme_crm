@@ -48,7 +48,7 @@
                         {% has_perm_to create related_item_ct as item_create_perm %}
                         <br/>
                         {% if item_create_perm %}
-                            <a onclick="creme.blocks.deprecatedForm('/billing/line/{{line.id}}/add_to_catalog', {blockReloadUrl:{% get_block_reload_uri %}}).open();">[{% trans "add to catalog" %}]</a>
+                            <a onclick="creme.blocks.form('/billing/line/{{line.id}}/add_to_catalog', {blockReloadUrl:{% get_block_reload_uri %}}).open();">[{% trans "add to catalog" %}]</a>
                         {% else %}
                             <a class="forbidden">[{% trans "add to catalog" %}]</a>
                         {% endif %}

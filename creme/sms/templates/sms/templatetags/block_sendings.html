@@ -37,7 +37,7 @@
                     <td class="{{row_color}}">{{sending.messages.count}}</td>
                     <td class="{{row_color}}">{{sending.formatstatus}}</td>
                     <td class="{{row_color}} action">
-                        <a onclick="creme.dialogs.deprecatedForm('/sms/campaign/sending/{{sending.pk}}').open({width:'80%'})">
+                        <a onclick="creme.dialogs.form('/sms/campaign/sending/{{sending.pk}}').open({width:'80%'})">
                             <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{details_label}}" alt="{{details_label}}" />
                         </a>
                     </td>

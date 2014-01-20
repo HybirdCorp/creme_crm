@@ -770,10 +770,15 @@ creme.billing.linkToDocument = function(url, organisations) {
     if (Object.isEmpty(organisations))
         return;
 
+    if (organisations.length === 1) {
+        creme.dialogs.form(url + organisations[0].value, {reloadOnSuccess:true}).open({width:'80%'});
+        return;
+    }
+
     creme.dialogs.choice(gettext('Who is the source, managed by Creme, for your billing document ?'),
                          {choices:organisations, title: gettext('Billing')})
                  .onOk(function(event, orga_id) {
-                     creme.dialogs.deprecatedForm(url + orga_id, {reloadOnSuccess:true}).open({width:'80%'});
+                     creme.dialogs.form(url + orga_id, {reloadOnSuccess:true}).open({width:'80%'});
                   })
                  .open();
 }

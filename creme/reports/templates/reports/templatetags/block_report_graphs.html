@@ -41,7 +41,7 @@
                             {% has_perm_to change graph as graph_edit_perm %}{% has_perm_to delete graph as graph_delete_perm %}
                             {% if graph_edit_perm %}
                                 {% comment %}TODO : use a better method for plot cache issue. As temporary fix all cache is cleaned before popupNReload.{% endcomment %}
-                                <a onclick="$('#graph-{{graph.id}} .ui-creme-plotselector').creme().widget().resetBackend();creme.blocks.deprecatedForm('/reports/graph/edit/{{graph.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                                <a onclick="creme.reports.openGraphEdition('{{graph.id}}', {% get_block_reload_uri %});">
                                     <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{{edit_label}}" title="{{edit_label}}" border="0">
                                 </a>
                             {% else %}
@@ -60,7 +60,7 @@
                                     {% include 'reports/templatetags/report_chart_selectors.html' %}
                                     <li class="ui-creme-chainedselect-item" style="float:right;">
                                         {% if user_can_admin_report %}
-                                            <button onclick="creme.blocks.deprecatedForm('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();"
+                                            <button onclick="creme.blocks.form('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();"
                                                     style="padding: 1px 1px;vertical-align:middle;">
                                                 <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" title="{{addblock_label}}"
                                                     style="border:0; vertical-align:middle;"/>

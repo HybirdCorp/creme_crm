@@ -10,7 +10,7 @@
                 {% get_line_adder at_url '/sms/messaging_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
                 {% trans "Add from a CSV file" as csv_label %}
                 {% if has_perm %}
-                    <a class="add" onclick="creme.blocks.deprecatedForm('/sms/messaging_list/{{object.pk}}/recipient/add_csv').open();">
+                    <a class="add" onclick="creme.blocks.form('/sms/messaging_list/{{object.pk}}/recipient/add_csv').open();">
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{csv_label}}" alt="{{csv_label}}" />{{csv_label}}
                     </a>
                 {% else %}

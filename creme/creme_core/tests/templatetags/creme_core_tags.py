@@ -123,8 +123,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())
 
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
-        fmt = """<a onclick="creme.blocks.deprecatedForm('/creme_core/entity/edit/%s/%s/field/%s', {blockReloadUrl:""" if block else \
-              """<a onclick="creme.blocks.deprecatedForm('/creme_core/entity/edit/%s/%s/field/%s', {reloadOnSuccess:"""
+        fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/%s/%s/field/%s', {blockReloadUrl:""" if block else \
+              """<a onclick="creme.blocks.form('/creme_core/entity/edit/%s/%s/field/%s', {reloadOnSuccess:"""
         self.assertTrue(render.strip().startswith(fmt % (entity.entity_type_id, entity.id, field_name)))
 
     def test_get_field_editor01(self):

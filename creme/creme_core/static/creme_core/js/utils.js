@@ -193,8 +193,9 @@ creme.utils.bindShowHideTbody = function() {
     });
 }
 
-/*
+
 creme.utils.simpleConfirm = function(cb, msg) {
+    console.warn('this functions is deprecated. please use creme.dialogs.confirm() instead.');
     var buttons = [{
                         text: gettext("Ok"),
                         click: function() {
@@ -214,7 +215,7 @@ creme.utils.simpleConfirm = function(cb, msg) {
 
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
-*/
+
 
 // TODO : only used by menu, so refactor it when horizontal menu will replace old one. 
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factorise (see ajaxDelete()) ??
@@ -414,9 +415,9 @@ creme.utils.handleDialogSubmit = function(dialog) {
           },
           success: function(data, status) {
               data += '<input type="hidden" name="whoami" value="' + div_id + '"/>'
-              $('[name=inner_body]', '#' + div_id).html(data);
 
-              creme.widget.shutdown($('[name=inner_body]', '#' + div_id));
+              creme.widget.shutdown(dialog);
+              $('[name=inner_body]', '#' + div_id).html(data);
 
               creme.utils.scrollTo($('.errorlist:first', '.non_field_errors'));
           },
@@ -590,8 +591,8 @@ creme.utils.innerPopupNReload = function(url, reload_url) {
     });
 }
 
-/*
 creme.utils.postNReload = function(url, reload_url) {
+    console.warn('this function is deprecated. please use creme.blocks.ajaxPOSTQuery instead.');
     creme.ajax.post({
         url: url,
         success: function(data, status) {
@@ -599,7 +600,7 @@ creme.utils.postNReload = function(url, reload_url) {
         }
     });
 }
-*/
+
 
 /*
 creme.utils.submitNReload = function(form, reload_url, options) {
@@ -649,7 +650,7 @@ creme.utils.openQuickForms = function(element) {
     var type = $('[name="ct_id"]', element).val();
     var count = $('[name="entity_count"]', element).val();
 
-    creme.dialogs.deprecatedForm(uri.format(type, count), {reloadOnSuccess: true}).open();
+    creme.dialogs.form(uri.format(type, count), {reloadOnSuccess: true}).open();
 }
 
 /*
@@ -773,3 +774,54 @@ creme.utils.ajaxQuery = function(url, options, data) {
     return query;
 };
 
+creme.utils.innerPopupFormAction = function(url, options, data)
+{
+    var options = $.extend({
+                      submit_label: gettext("Save"),
+                      submit: function(dialog) {
+                          creme.utils.handleDialogSubmit(dialog);
+                      },
+                      reloadOnSuccess: false
+                  }, options || {});
+
+    return new creme.component.Action(function() {
+        var self = this;
+
+        creme.utils.showInnerPopup(url,
+                                   {
+                                       send_button_label: options.submit_label,
+                                       send_button: function(dialog) {
+                                           try {
+                                               var submitdata = options.submit.apply(this, arguments);
+
+                                               if (submitdata && Object.isFunc(options.validator) && options.validator(submitdata))
+                                               {
+                                                   self.done(submitdata);
+                                                   creme.utils.closeDialog(dialog, options.reloadOnSuccess);
+                                               }
+                                           } catch(e) {
+                                               self.fail(e);
+                                           }
+                                       },
+                                       cancel: function(event, ui) {
+                                           self.cancel();
+                                       },
+                                       close: function(event, ui) {
+                                           creme.utils.closeDialog($(this), false);
+                                           self.done();
+                                       }
+                                   },
+                                   null,
+                                   {
+                                       error: function(req, status, error) {
+                                           try {
+                                               creme.dialogs.warning(gettext("Error during loading the page.")).open();
+                                               self.fail(req, status, error);
+                                           } catch(e) {
+                                               self.fail(req, status, error);
+                                           }
+                                       },
+                                       data: data
+                                   });
+    });
+}

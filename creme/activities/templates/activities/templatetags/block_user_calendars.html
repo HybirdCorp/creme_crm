@@ -11,7 +11,7 @@
     <tbody class="collapsable">
         <tr>
             <th colspan="5" class="block_header_line_dark" align="left">
-                <a class="button_link" onclick="creme.blocks.deprecatedForm('/activities/calendar/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                <a class="button_link" onclick="creme.blocks.form('/activities/calendar/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "New calendar" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" alt="{{label}}" title="{{label}}"/>
                     {{label}}
                 </a>
@@ -34,7 +34,7 @@
                     <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                     <td class="{{row_color}} action">
-                        <a onclick="creme.blocks.deprecatedForm('/activities/calendar/{{calendar.id}}/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                        <a onclick="creme.blocks.form('/activities/calendar/{{calendar.id}}/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                             {% trans "Edit calendar" as img_title %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                         </a>
                     </td>

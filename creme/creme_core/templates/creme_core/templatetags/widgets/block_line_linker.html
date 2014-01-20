@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
 {% if line_perm %}
-    <a class="link" onclick="creme.blocks.deprecatedForm('{{action_url}}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'80%'});">
+    <a class="link" onclick="creme.blocks.form('{{action_url}}', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'80%'});">
         {% trans "Link" as img_title %}<img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{{label}}
     </a>
 {% else %}

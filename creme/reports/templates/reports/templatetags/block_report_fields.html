@@ -11,7 +11,7 @@
         <tr class="header toolbar">
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Edit the columns" as edit_label %}
                 {% if has_perm %}
-                    <a class="button_link" onclick="creme.blocks.deprecatedForm('/reports/report/{{object.id}}/edit_fields', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});">
+                    <a class="button_link" onclick="creme.blocks.form('/reports/report/{{object.id}}/edit_fields', {blockReloadUrl:{% get_block_reload_uri %}}).open({width:'90%'});">
                         <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{edit_label}}" alt="{{edit_label}}" />
                         {{edit_label}}
                     </a>
@@ -59,7 +59,7 @@
                                                     {% endif %}
                                                 {% else %}
                                                     {% if link_perm %}
-                                                        <a onclick="creme.blocks.deprecatedForm('/reports/report/field/{{column.pk}}/link_report', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a>
+                                                        <a onclick="creme.blocks.form('/reports/report/field/{{column.pk}}/link_report', {blockReloadUrl:{% get_block_reload_uri %}}).open();">{% trans 'Link a report' %}</a>
                                                     {% else %}
                                                         <span class="forbidden">{% trans 'Link a report' %}</span>
                                                     {% endif %}

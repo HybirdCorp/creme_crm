@@ -254,6 +254,16 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
+    on: function(event, listener, decorator) {
+        this._events.bind(event, listener, decorator);
+        return this;
+    },
+
+    off: function(event, listener) {
+        this._events.unbind(event, listener);
+        return this;
+    },
+
     open: function(options)
     {
         if (this._dialog !== undefined)
@@ -322,16 +332,48 @@ creme.dialogs = $.extend(creme.dialogs, {
         return this.html(source, options);
     },
 
-    url: function(url, options, data) {
-        return new creme.dialog.Dialog(options).fetch(url, {}, data);
+    url: function(url, options, data)
+    {
+        var options = options || {};
+        var dialog = new creme.dialog.Dialog(options).fetch(url, {}, data);
+
+        if (options.reloadOnClose) {
+            dialog.onClose(function() {creme.utils.reload();});
+        }
+
+        return dialog;
     },
 
-    form: function(url, options, data) {
-        return new creme.dialog.FormDialog(options).fetch(url, {}, data);
+    form: function(url, options, data)
+    {
+        var options = options || {};
+        var compatibility = function(data, statusText, dataType) {
+                                return dataType !== 'text/html' || 
+                                       data.startsWith('<div class="in-popup" closing="true">') ||
+                                       (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
+                            }
+
+        var dialog = new creme.dialog.FormDialog(options)
+                                     .validator(compatibility)
+                                     .fetch(url, {}, data);
+
+        if (options.reloadOnSuccess) {
+            dialog.onFormSuccess(function() {creme.utils.reload();});
+        }
+
+        return dialog;
     },
 
-    html: function(html, options) {
-        return new creme.dialog.Dialog($.extend({}, options, {html: html}));
+    html: function(html, options)
+    {
+        var options = options || {};
+        var dialog = new creme.dialog.Dialog($.extend({}, options, {html: html}));
+
+        if (options.reloadOnClose) {
+            dialog.onClose(function() {creme.utils.reload();});
+        }
+
+        return dialog;
     },
 
     confirm: function(message, options) {
