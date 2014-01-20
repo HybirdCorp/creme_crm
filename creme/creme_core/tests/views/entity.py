@@ -6,12 +6,15 @@ try:
     from functools import partial
     #from tempfile import NamedTemporaryFile
 
-    from django.core.serializers.json import simplejson
-    from django.utils.translation import ugettext as _
-    from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
+    from django.utils.formats import date_format
+    from django.utils.timezone import localtime
+    from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
+    from ..base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import *
     from creme.creme_core.forms.base import _CUSTOM_NAME
@@ -702,6 +705,8 @@ class EntityViewsTestCase(ViewsTestCase):
 
 
 class _BulkEditTestCase(ViewsTestCase):
+    GET_WIDGET_URL = '/creme_core/entity/get_widget/%s'
+
     def get_cf_values(self, cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
@@ -711,8 +716,6 @@ class _BulkEditTestCase(ViewsTestCase):
 
 
 class BulkEditTestCase(_BulkEditTestCase):
-    GET_WIDGET_URL = '/creme_core/entity/get_widget/%s'
-
     @classmethod
     def setUpClass(cls):
         _BulkEditTestCase.setUpClass()
@@ -798,7 +801,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                                'entities_lbl': 'whatever',
                                               }
                                    )
-        self.assertFormError(response, 'form', None, [_(u'This field is required.')])
+        self.assertFormError(response, 'form', None, _(u'This field is required.'))
 
     def test_regular_field05(self):
         self.login()
@@ -814,10 +817,9 @@ class BulkEditTestCase(_BulkEditTestCase):
                                               }
                                    )
         self.assertFormError(response, 'form', 'field_name',
-                            [_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                            _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                         'value': fname,
                                     }
-                            ]
                            )
 
     def test_regular_field06(self):
@@ -864,7 +866,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                                'entities_lbl': 'whatever',
                                               }
                                    )
-        self.assertFormError(response, 'form', None, [_(u'Enter a valid date.')])
+        self.assertFormError(response, 'form', None, _(u'Enter a valid date.'))
 
         settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
         self.client.post(url, data={'field_name':   'birthday',
@@ -1178,6 +1180,44 @@ class InnerEditTestCase(_BulkEditTestCase):
     def create_orga(self):
         return Organisation.objects.create(user=self.user, name="Organisation")
 
+    def test_get_widget_regular01(self):
+        self.login()
+
+        mario = self.create_contact()
+        response = self.assertPOST200(self.GET_WIDGET_URL % mario.entity_type_id,
+                                      data={'field_name':       'first_name',
+                                            'field_value_name': 'field_value',
+                                            'object_id':        mario.id,
+                                           }
+                                     )
+        self.assertEqual('<input id="id_field_value" type="text" name="field_value" value="%s" maxlength="100" />' % mario.first_name,
+                         simplejson.loads(response.content)['rendered']
+                        )
+
+    @skipIfNotInstalled('creme.projects')
+    def test_get_widget_regular02(self):
+        "Datetime field"
+        from creme.projects.models import Project, ProjectStatus
+
+        self.login()
+
+        eva06 = Project.objects.create(name='EVA 006', user=self.user,
+                                       status=ProjectStatus.objects.create(name='Starting'),
+                                       start_date=self.create_datetime(year=2014, month=1, day=20,
+                                                                       hour=11, minute=20,
+                                                                      ),
+                                      )
+        response = self.assertPOST200(self.GET_WIDGET_URL % eva06.entity_type_id,
+                                      data={'field_name':       'start_date',
+                                            'field_value_name': 'field_value',
+                                            'object_id':        eva06.id,
+                                           }
+                                     )
+        self.assertIn('<input type="hidden" name="field_value" value="%s" id="id_field_value" />' %
+                            date_format(localtime(eva06.start_date), 'DATETIME_FORMAT'),
+                      simplejson.loads(response.content)['rendered']
+                     )
+
     def test_regular_field_01(self):
         self.login()
 
@@ -1198,11 +1238,11 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         mario = self.create_contact()
         response = self.client.post(self.url % (mario.entity_type_id, mario.id, 'birthday'),
-                                    data={'entities_lbl': [unicode(mario)],
+                                    data={#'entities_lbl': [unicode(mario)],
                                           'field_value':  'whatever',
                                          }
                                    )
-        self.assertFormError(response, 'form', '', [_(u'Enter a valid date.')])
+        self.assertFormError(response, 'form', '', _(u'Enter a valid date.'))
 
     def test_regular_field_03(self):
         "No permissons"
