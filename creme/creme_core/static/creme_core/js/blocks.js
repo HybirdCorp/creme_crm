@@ -179,9 +179,9 @@ creme.blocks.scrollToError = function(block) {
     creme.utils.scrollTo($('.errorlist:first'));
 }
 
-creme.blocks.deprecatedForm = function(url, options, data) {
+creme.blocks.form = function(url, options, data) {
     var options = options || {};
-    var dialog = creme.dialogs.deprecatedForm(url, options, data);
+    var dialog = creme.dialogs.form(url, options, data);
 
     if (options.blockReloadUrl) {
         dialog.onFormSuccess(function() {

@@ -141,12 +141,12 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var multiple = this._popupSelectMode === creme.widget.EntitySelectorMode.MULTIPLE;
         var url = this.popupURL(element);
 
-        creme.dialogs.deprecatedListViewAction(url, {multiple:multiple})
-                                  .onDone(function(event, data) {
-                                       self._update(element, data);
-                                       creme.object.invoke(cb, element, data);
-                                   })
-                                  .start();
+        creme.lv_widget.listViewAction(url, {multiple:multiple})
+                       .onDone(function(event, data) {
+                            self._update(element, data);
+                            creme.object.invoke(cb, element, data);
+                        })
+                       .start();
     },
 
     _reloadLabel: function(element, on_success, on_error, sync)

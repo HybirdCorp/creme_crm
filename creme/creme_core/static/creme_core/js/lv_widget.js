@@ -82,11 +82,11 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
 }
 
 creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multiple) {
-    creme.dialogs.deprecatedListViewAction('/creme_core/lv_popup/%s/%s?q_filter=%s'.format(ct_id, multiple, q_filter), {multiple:multiple})
-                 .onDone(function(event, data) {
-                     creme.lv_widget.handleSelection(data, input_id);
-                 })
-                 .start();
+    creme.lv_widget.listViewAction('/creme_core/lv_popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
+                   .onDone(function(event, data) {
+                        creme.lv_widget.handleSelection(data, input_id);
+                    })
+                   .start();
 }
 
 creme.lv_widget.handleSelection = function(ids, targetInputId) {
@@ -217,10 +217,12 @@ creme.lv_widget.addToSelectedLines = function(list, url) {
         return;
     }
 
-    var action = creme.dialogs.deprecatedInnerPopupAction(url, {}, {ids: selection, persist: 'ids'});
+    var action = creme.dialogs.showInnerPopupAction(url, {}, {ids: selection, persist: 'ids'});
 
-    action.onDone(function(event, data) {list.list_view('reload');});
-    action.start();
+    action.onDone(function(event, data) {
+              list.list_view('reload');
+           })
+          .start();
 
     return action;
 }
@@ -242,4 +244,92 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
 //     if(typeof(callback) == "function") callback(input);
     if ($.isFunction(callback))
         callback(input);
+}
+
+creme.lv_widget.initialize = function(options, dialog) {
+    var id = dialog ? dialog.attr('id') : undefined;
+    var listview = $('form[name="list_view_form"]', dialog);
+    var submit_url = dialog ? $('[name="inner_header_from_url"]', dialog).val() : '?ajax=true';
+    var submit_handler;
+
+    if (id) {
+        submit_handler = function(input, extra_data) {
+            var extra_data = id ? $.extend({whoami: id}, extra_data) : extra_data;
+            var submit_options = {
+                    action: submit_url,
+                    success: function(data, status) {
+                        var data = id ? data + '<input type="hidden" name="whoami" value="' + id + '"/>' : data;
+                        $(input.form).html(data);
+                    }
+                };
+
+            $(input.form).list_view('setReloadUrl', submit_url);
+            $(input.form).list_view('handleSubmit', input.form, submit_options, input, extra_data);
+        }
+    } else {
+        submit_handler = function(input, extra_data) {
+            var submit_options = {
+                    action: submit_url,
+                    success: function(data, status) {$(input.form).html(data);}
+                };
+
+            $(input.form).list_view('handleSubmit', input.form, submit_options, input, extra_data);
+        }
+    }
+
+    listview.list_view({
+        o2m:              options.multiple,
+        submitHandler:    submit_handler,
+        kd_submitHandler: function (e, input, extra_data)
+        {
+            var e = (window.event) ? window.event : e;
+            var key= (window.event) ? e.keyCode : e.which;
+
+            if (key == 13)
+                $(input.form).list_view('getSubmit')(input, extra_data);
+
+            return true;
+        }
+    });
+
+    // TODO : WTF ??
+    $('.magnify', dialog).imageMagnifier();
+};
+
+
+creme.lv_widget.listViewAction = function(url, options, data) {
+    var options = options || {};
+
+    var selector = function(dialog) {
+        var values = $('form[name="list_view_form"] tr.selected input[name="entity_id"]', dialog).map(function(index, item) {
+                         return $(item).val();
+                     });
+
+        return values.get() || [];
+    };
+
+    var validator = function(data) {
+          if (!Array.isArray(data) || data.length == 0) {
+              creme.dialogs.warning(gettext('Please select at least one entity.'), {'title': gettext("Error")}).open();
+              return false;
+          }
+
+          if (!options.multiple && data.length > 1) {
+              creme.dialogs.warning(gettext('Please select only one entity.'), {'title': gettext("Error")}).open();
+              return false;
+          }
+
+          return true;
+    };
+
+    return creme.utils.innerPopupFormAction(url, {
+               submit_label: gettext("Validate the selection"),
+               submit: function(dialog) {
+                   var data = selector(dialog);
+                   return validator(data) ? data : null;
+               },
+               validator: function(data) {
+                   return data !== null;
+               }
+           }, data);
 }

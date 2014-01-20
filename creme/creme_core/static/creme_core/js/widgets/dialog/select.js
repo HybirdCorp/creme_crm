@@ -37,7 +37,7 @@ creme.dialog.SelectionDialog = creme.dialog.Dialog.sub({
 
     selected: function() {
         var selector = this._selector;
-        return Object.isFunc(selector) ? selector.apply(this, this.frame().element) : [];
+        return Object.isFunc(selector) ? selector.apply(this, [this.content()]) : [];
     },
 
     ok: function()

@@ -370,7 +370,7 @@ creme.activities.calendar.fullCalendar = function (events_url) {
                 'minute': date.getMinutes()
             };
 
-            creme.dialogs.deprecatedForm('/activities/activity/add_popup', {reloadOnSuccess:true}, data).open({width:'80%'});
+            creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess:true}, data).open({width:'80%'});
             /*
             creme.utils.showInnerPopup('/activities/activity/add_popup',
                                        {beforeClose: function (){
@@ -414,7 +414,7 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function (event) {
-            creme.dialogs.deprecatedForm(event.url, {reloadOnSuccess:true}).open({width:'80%'});
+            creme.dialogs.url(event.url, {reloadOnClose:true}).open({width:'80%'});
             //creme.utils.showInnerPopup(event.url, {}, null, {}, true);
             return false;
         },

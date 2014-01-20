@@ -79,7 +79,7 @@ creme.emails.mass_relation = function(url, selector, block_url) { //TODO: rename
 
     url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
 
-    creme.blocks.deprecatedForm(url, {blockReloadUrl:block_url}).open();
+    creme.blocks.form(url, {blockReloadUrl:block_url}).open();
 };
 
 creme.reload_synchronisation = function($target, target_url) {
