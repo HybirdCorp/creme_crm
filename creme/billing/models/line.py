@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,19 +92,19 @@ class Line(CremeEntity):
         if self.discount_unit == PERCENT_PK:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(ugettext(u"If you choose % for your discount unit, your discount must be between 1 and 100%"))
-        else: # amount €/$/...
-            if self.total_discount: # Global discount
-                if self.discount > self.unit_price * self.quantity:
-                    raise ValidationError(ugettext(u"Your overall discount is superior than the total line (unit price * quantity)"))
-            else: # Unitary discount
-                if self.discount > self.unit_price:
-                    raise ValidationError(ugettext(u"Your discount is superior than the unit price"))
+        elif self.total_discount: # Global discount
+            if self.discount > self.unit_price * self.quantity:
+                raise ValidationError(ugettext(u"Your overall discount is superior than the total line (unit price * quantity)"))
+        else: # Unitary discount
+            if self.discount > self.unit_price:
+                raise ValidationError(ugettext(u"Your discount is superior than the unit price"))
+
         if self.related_item:
             if self.on_the_fly_item:
                 raise ValidationError(ugettext(u"You cannot set an on the fly name to a line with a related item"))
-        else:
-            if not self.on_the_fly_item:
-                raise ValidationError(ugettext(u"You must define a name for an on the fly item"))
+        elif not self.on_the_fly_item:
+            raise ValidationError(ugettext(u"You must define a name for an on the fly item"))
+
         super(Line, self).clean()
 
     def clone(self, new_related_document=None):

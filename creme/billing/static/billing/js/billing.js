@@ -440,7 +440,7 @@ creme.billing.restoreValue = function(input) {
         if (input.attr('type') === 'checkbox') {
             input.check();
         } else {
-            if (input.attr('o2m')) { // TODO hack pour récup le creme entity widget
+            if (input.attr('o2m')) { // TODO hack to retrieve the creme entity widget
                 if (initial_value === '') {
                     input.val('');
                     $('div', $('div', input.parent())).empty().remove();

@@ -5,7 +5,7 @@ try:
     from functools import partial
 
     from django.utils.translation import ugettext as _
-    from django.contrib.contenttypes.models import ContentType
+    #from django.contrib.contenttypes.models import ContentType
     from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -782,40 +782,41 @@ class LineTestCase(_BillingTestCase):
         "1 service line updated"
         self.login()
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
         service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item=u'on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
-        service_line_ct_id = ContentType.objects.get_for_model(ServiceLine).id
-        # (name, unit price, quantity, discount, disocunt unit, vat, unit)
-        data = [('on the fly service updated', '100.0', '2', '20', '1', '1', 'day')]
 
+        name = 'on the fly service updated'
+        unit_price = '100.0'
+        quantity = '2'
+        unit = 'day'
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    data={service_line_ct_id: JSONEncoder().encode({
+                                    data={service_line.entity_type_id: JSONEncoder().encode({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
                                                         'service_line_formset-0-line_ptr':         service_line.id,
                                                         'service_line_formset-0-user':             self.user.id,
-                                                        'service_line_formset-0-on_the_fly_item':  data[0][0],
-                                                        'service_line_formset-0-unit_price':       data[0][1],
-                                                        'service_line_formset-0-quantity':         data[0][2],
-                                                        'service_line_formset-0-discount':         data[0][3],
-                                                        'service_line_formset-0-discount_unit':    data[0][4],
-                                                        'service_line_formset-0-vat_value':        data[0][5],
-                                                        'service_line_formset-0-unit':             data[0][6],
+                                                        'service_line_formset-0-on_the_fly_item':  name,
+                                                        'service_line_formset-0-unit_price':       unit_price,
+                                                        'service_line_formset-0-quantity':         quantity,
+                                                        'service_line_formset-0-discount':         '20',
+                                                        'service_line_formset-0-discount_unit':    '1',
+                                                        'service_line_formset-0-vat_value':        Vat.objects.all()[1].id,
+                                                        'service_line_formset-0-unit':             unit,
                                                     })
                                            }
                                    )
         self.assertNoFormError(response)
-
         self.assertEqual(1, ServiceLine.objects.count())
+
         service_line = self.refresh(service_line)
-        self.assertEqual('on the fly service updated', service_line.on_the_fly_item)
-        self.assertEqual(Decimal('100.0'), service_line.unit_price)
-        self.assertEqual(Decimal('2'), service_line.quantity)
-        self.assertEqual('day', service_line.unit)
+        self.assertEqual(name,                service_line.on_the_fly_item)
+        self.assertEqual(Decimal(unit_price), service_line.unit_price)
+        self.assertEqual(Decimal(quantity),   service_line.quantity)
+        self.assertEqual(unit,                service_line.unit)
 
     def test_multi_save_lines02(self):
         "1 product line created on the fly and 1 deleted"
@@ -826,10 +827,12 @@ class LineTestCase(_BillingTestCase):
                                                   on_the_fly_item=u'on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
-        product_line_ct_id = ContentType.objects.get_for_model(ProductLine).id
-
+        name = 'new on the fly product'
+        unit_price = '69.0'
+        quantity = '2'
+        unit = 'month'
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    data={product_line_ct_id: JSONEncoder().encode({
+                                    data={product_line.entity_type_id: JSONEncoder().encode({
                                                         'product_line_formset-TOTAL_FORMS':        len(invoice.product_lines) + 1,
                                                         'product_line_formset-INITIAL_FORMS':      1,
                                                         'product_line_formset-MAX_NUM_FORMS':      u'',
@@ -844,13 +847,13 @@ class LineTestCase(_BillingTestCase):
                                                         'product_line_formset-0-vat_value':        "whatever",
                                                         'product_line_formset-0-unit':             "whatever",
                                                         'product_line_formset-1-user':             self.user.id,
-                                                        'product_line_formset-1-on_the_fly_item':  "new on the fly product",
-                                                        'product_line_formset-1-unit_price':       "69.0",
-                                                        'product_line_formset-1-quantity':         "2",
+                                                        'product_line_formset-1-on_the_fly_item':  name,
+                                                        'product_line_formset-1-unit_price':       unit_price,
+                                                        'product_line_formset-1-quantity':         quantity,
                                                         'product_line_formset-1-discount':         "50.00",
                                                         'product_line_formset-1-discount_unit':    "1",
-                                                        'product_line_formset-1-vat_value':        "1",
-                                                        'product_line_formset-1-unit':             "month",
+                                                        'product_line_formset-1-vat_value':        Vat.objects.all()[0].id,
+                                                        'product_line_formset-1-unit':             unit,
                                                     })
                                          }
                                    )
@@ -859,13 +862,13 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(1, len(product_lines))
 
         product_line = product_lines[0]
-        self.assertEqual('new on the fly product', product_line.on_the_fly_item)
-        self.assertEqual(Decimal('69.0'), product_line.unit_price)
-        self.assertEqual(Decimal('2'), product_line.quantity)
-        self.assertEqual('month', product_line.unit)
+        self.assertEqual(name,                product_line.on_the_fly_item)
+        self.assertEqual(Decimal(unit_price), product_line.unit_price)
+        self.assertEqual(Decimal(quantity),   product_line.quantity)
+        self.assertEqual(unit,                product_line.unit)
 
     def test_multi_save_lines03(self):
-        "no creds"
+        "No creds"
         self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
                    creatable_models=[Invoice, Contact, Organisation],
                   )
@@ -882,24 +885,21 @@ class LineTestCase(_BillingTestCase):
                                                   on_the_fly_item=u'on the fly service',
                                                   unit_price=Decimal('50.0')
                                                  )
-        service_line_ct_id = ContentType.objects.get_for_model(ServiceLine).id
-        # (name, unit price, quantity, discount, disocunt unit, vat, unit)
-        data = [('on the fly service updated', '100.0', '2', '20', '1', '1', 'day')]
 
         self.assertPOST403('/billing/%s/multi_save_lines' % invoice.id,
-                           data={service_line_ct_id: JSONEncoder().encode({
+                           data={service_line.entity_type_id: JSONEncoder().encode({
                                                 'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                 'service_line_formset-INITIAL_FORMS':      1,
                                                 'service_line_formset-MAX_NUM_FORMS':      u'',
                                                 'service_line_formset-0-line_ptr':         service_line.id,
                                                 'service_line_formset-0-user':             self.user.id,
-                                                'service_line_formset-0-on_the_fly_item':  data[0][0],
-                                                'service_line_formset-0-unit_price':       data[0][1],
-                                                'service_line_formset-0-quantity':         data[0][2],
-                                                'service_line_formset-0-discount':         data[0][3],
-                                                'service_line_formset-0-discount_unit':    data[0][4],
-                                                'service_line_formset-0-vat_value':        data[0][5],
-                                                'service_line_formset-0-unit':             data[0][6],
+                                                'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
+                                                'service_line_formset-0-unit_price':       '100.0',
+                                                'service_line_formset-0-quantity':         '2',
+                                                'service_line_formset-0-discount':         '20',
+                                                'service_line_formset-0-discount_unit':    '1',
+                                                'service_line_formset-0-vat_value':        Vat.objects.all()[0].id,
+                                                'service_line_formset-0-unit':             'day',
                                             })
                                 }
                            )
