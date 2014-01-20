@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_ct_or_404 #jsonify
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
 from creme.products.models import Product, Service
@@ -162,6 +163,7 @@ LINE_FORMSET_PREFIX = {
     ServiceLine : 'service_line_formset',
 }
 
+@POST_only
 @login_required
 @permission_required('billing')
 def multi_save_lines(request, document_id):
@@ -182,44 +184,40 @@ def multi_save_lines(request, document_id):
 
         # TODO can always delete ??? for example a quote accepted, can we really delete a line of this document ???
         lineformset_class = modelformset_factory(model_line, form=_LineForm, extra=0, can_delete=True)
+        lineformset = lineformset_class(jsonloads(data),
+                                        prefix=LINE_FORMSET_PREFIX[model_line],
+                                        queryset=qs)
 
-        if request.method == "POST":
-            lineformset = lineformset_class(jsonloads(data),
-                                            prefix=LINE_FORMSET_PREFIX[model_line],
-                                            queryset=qs)
+        if lineformset.is_valid():
+            formset_to_save.append(lineformset)
+        else:
+            # TODO better display errors ??
+            errors = []
 
-            if lineformset.is_valid():
-                formset_to_save.append(lineformset)
-            else:
-                # TODO better display errors ??
-                errors_msg = None
-                for form in lineformset:
-                    if form.errors:
-                        instance = form.instance
-                        errors_msg = u"%s<center>--------------------</center><br>" % errors_msg if errors_msg else u""
+            for form in lineformset:
+                if form.errors:
+                    instance = form.instance
+                    #we retrieve the line again because the field 'on_the_fly_item' may have been cleaned #TODO: avoid this query
+                    on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
+                                 _(u"on the fly [creation]")
 
-                        if instance.pk:
-                            on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item
-                        else:
-                            on_the_fly = _(u"on the fly [creation]")
+                    errors.append(u"s%s <b>%s</b> : <br>%s" % (
+                                    _(u"Errors on the line"),
+                                    on_the_fly if on_the_fly else instance.related_item,
+                                    u''.join(u"==> %s : %s" % (_(u"General"), msg) if field == "__all__" else
+                                             u'==> %s "<i>%s</i>" : %s' % (
+                                                    _(u"Specific on the field"), #TODO: format string instead
+                                                    model_line._meta.get_field(field).verbose_name,
+                                                    msg,
+                                                )
+                                                for field, msg in form.errors.items()
+                                            )
+                                    )
+                                 )
 
-                        errors_msg = u"%s%s <b>%s</b> : <br>" % (errors_msg,
-                                                                 _(u"Errors on the line"),
-                                                                 on_the_fly if on_the_fly else instance.related_item)
-
-                        fields = u""
-                        for field, msg in form.errors.items():
-                            if field == "__all__":
-                                fields = u"%s==> %s : %s" % (fields, _(u"General"), msg)
-                            else:
-                                fields = u"%s==> %s \"<i>%s</i>\" : %s" % (
-                                                        fields, _(u"Specific on the field"),
-                                                        _(model_line._meta.get_field_by_name(field)[0].verbose_name),
-                                                        msg)
-
-                        errors_msg = u"%s%s" % (errors_msg, fields)
-
-                return HttpResponse(errors_msg, mimetype="text/plain", status=409)
+            return HttpResponse(u'<center>--------------------</center><br>'.join(errors),
+                                mimetype="text/plain", status=409,
+                               )
 
     # save all formset now that we haven't detect any errors
     for formset in formset_to_save:
