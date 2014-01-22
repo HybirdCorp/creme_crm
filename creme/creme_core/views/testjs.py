@@ -173,6 +173,9 @@ def test_widget(request, widget):
     set_global_info(usertheme=theme)
 
     try:
-        return render(request, 'creme_core/tests/test_' + widget + '.html', context)
+        if widget:
+            return render(request, 'creme_core/tests/test_' + widget + '.html', context)
+
+        return render(request, 'creme_core/tests/test.html', context)
     finally:
         set_global_info(usertheme=usertheme)
