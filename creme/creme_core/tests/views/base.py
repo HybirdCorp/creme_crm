@@ -69,11 +69,11 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_home(self): #TODO: improve test
         response = self.assertGET200('/')
-        self.assertTemplateUsed('creme_core/home.html')
+        self.assertTemplateUsed(response, 'creme_core/home.html')
 
     def test_my_page(self):
-        self.assertGET200('/my_page')
-        self.assertTemplateUsed('creme_core/my_page.html')
+        response = self.assertGET200('/my_page')
+        self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
     def test_clean(self):
         #with self.assertNoException():
