@@ -62,7 +62,7 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Photo" %}</th>
-            <td class="{% cycle row_color %} td_info">{% if object.image %}{% get_entity_summary object.image user %}{% endif %}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='image' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'image' for object %}</td>
         </tr>
         <tr class="content">

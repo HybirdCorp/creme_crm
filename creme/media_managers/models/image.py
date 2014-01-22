@@ -20,6 +20,7 @@
 
 import base64
 import mimetypes
+import warnings
 import os
 
 from PIL import ImageFile as PILImageFile
@@ -78,14 +79,18 @@ class Image(CremeEntity):
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
-        return mark_safe("""<a href="javascript:creme.utils.openWindow('%(url)s','image_popup');"><img src="%(url)s" %(size)s alt="%(name)s" title="%(name)s"/></a>""" % {
+        return mark_safe("""<img src="%(url)s" %(size)s alt="%(name)s" title="%(name)s"/>""" % {
                             'url':  self.get_image_url(),
-                            'size': image_size(self, 150, 150),
+                            'size': image_size(self.image, 150, 150),
                             'name': escape(self.get_image_name())
                         }
                       )
 
     def get_entity_m2m_summary(self, user):
+        warnings.warn("Image.get_entity_m2m_summary() method is deprecated; use Image.get_entity_summary() instead",
+                      DeprecationWarning
+                     )
+
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 

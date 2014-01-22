@@ -164,13 +164,13 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
         var url = creme.widget.template(options.labelURL, {'id': value});
 
-        options.backend.get(url, {fields:['unicode']},
+        options.backend.get(url, {fields:['summary']},
                             function(data, status) {
-                                button.text(data[0][0]);
+                                button.html(data[0][0]);
                                 creme.object.invoke(on_success, element, data);
                             },
                             function(data, error) {
-                                button.text(options.label);
+                                button.html(options.label);
                                 creme.object.invoke(on_error, element, error);
                             },
                             {dataType:'json', sync:sync});

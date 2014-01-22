@@ -252,6 +252,10 @@ class CremeEntity(CremeAbstractEntity):
 
     def get_entity_m2m_summary(self, user):
         """Return a string summary useful for list (ie: <ul><li>) representation."""
+        warnings.warn("CremeEntity.get_entity_m2m_summary() method is deprecated; use CremeEntity.get_entity_summary() instead",
+                      DeprecationWarning
+                     )
+
         if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
