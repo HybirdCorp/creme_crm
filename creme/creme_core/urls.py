@@ -50,11 +50,11 @@ property_patterns = patterns('creme.creme_core.views.creme_property',
 blocks_patterns = patterns('creme.creme_core.views.blocks',
     (r'^relations_block/(?P<entity_id>\d+)/$',                                'reload_relations_block'),
     (r'^relations_block/(?P<entity_id>\d+)/(?P<relation_type_ids>[\w,-]+)/$', 'reload_relations_block'),
-    (r'^(?P<block_id>[\w-]+)/(?P<entity_id>\d+)/$',                           'reload_detailview'), #TODO: change url to detailview/(?P<block_id>[\w-]+)....
-    (r'^home/(?P<block_id>[\w-]+)/$',                                         'reload_home'),
-    (r'^portal/(?P<block_id>[\w-]+)/(?P<ct_ids>[\d,]+)/$',                    'reload_portal'),
-    (r'^basic/(?P<block_id>[\w-]+)/$',                                        'reload_basic'), #most of blocks in creme_config for example
-    (r'^set_state/(?P<block_id>[\w-]+)/$',                                    'set_state'),#TODO: change url (reload not fit here...)
+    (r'^(?P<block_id>[\w\-\|]+)/(?P<entity_id>\d+)/$',                           'reload_detailview'), #TODO: change url to detailview/(?P<block_id>[\w-]+)....
+    (r'^home/(?P<block_id>[\w\-\|]+)/$',                                         'reload_home'),
+    (r'^portal/(?P<block_id>[\w\-\|]+)/(?P<ct_ids>[\d,]+)/$',                    'reload_portal'),
+    (r'^basic/(?P<block_id>[\w\-\|]+)/$',                                        'reload_basic'), #most of blocks in creme_config for example
+    (r'^set_state/(?P<block_id>[\w\-\|]+)/$',                                    'set_state'),#TODO: change url (reload not fit here...)
 )
 
 entity_filter_patterns = patterns('creme.creme_core.views.entity_filter',
