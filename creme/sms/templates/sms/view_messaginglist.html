@@ -1,16 +1,1 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% comment %}
-{% load creme_block %}
-
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'sms' named 'recipients' as 'recipients_block' %}
-    {% import_block from_app 'sms' named 'contacts' as 'contacts_block' %}
-{% endblock %}
-
-{% block after_object_as_table_1 %}
-    {% display_block_detailview 'recipients_block' %}
-    {% display_block_detailview 'contacts_block' %}
-{% endblock %}
-{% endcomment %}

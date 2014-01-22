@@ -1,19 +1,1 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% comment %}
-{% load creme_block %}
-
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'emails' named 'sendings' as 'sendings_block' %}
-    {% import_block from_app 'emails' named 'mailing_lists' as 'mailing_lists_block' %}
-{% endblock %}
-
-{% block detail_view_top_1 %}
-    {% display_block_detailview 'sendings_block' %}
-{% endblock %}
-
-{% block after_object_as_table_1 %}
-    {% display_block_detailview 'mailing_lists_block' %}
-{% endblock %}
-{% endcomment %}

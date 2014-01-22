@@ -1,7 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load creme_core_tags %}
-{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block entity_buttons %}
     <a href="/events/event/{{object.id}}/contacts">
@@ -9,15 +8,3 @@
     </a>&nbsp;
     {{block.super}}
 {% endblock %}
-
-{% comment %}
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'events' named 'results' as 'results_block' %}
-{% endblock %}
-
-{% block detail_view_right_1 %}
-    {% display_block_detailview 'results_block' %}
-{% endblock %}
-{% endcomment %}
