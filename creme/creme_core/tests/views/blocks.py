@@ -10,7 +10,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.blocks import RelationsBlock
     from creme.creme_core.models import BlockState, SetCredentials, RelationType, Relation
-    from creme.creme_core.gui.block import block_registry, Block
+    from creme.creme_core.gui.block import block_registry, Block, InstanceBlockConfigItem, _BlockRegistry
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -89,6 +89,43 @@ class BlockViewTestCase(CremeTestCase):
 
         self.assertFalse(block_state_other_user.is_open)
         self.assertFalse(block_state_other_user.show_empty_fields)
+
+    def test_set_state04(self):
+        "Block ids with |"
+
+        self.login()
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
+
+        class ContactBlock(Block):
+            id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
+            dependencies = (Organisation,)
+            template_name = 'persons/templatetags/block_thatdoesnotexist.html'
+
+            def __init__(self, instance_block_config_item):
+                self.ibci = instance_block_config_item
+
+            def detailview_display(self, context):
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                            self.id_, self.ibci.entity
+                        ) #useless :)
+
+        self.assertTrue(InstanceBlockConfigItem.id_is_specific(ContactBlock.id_))
+
+        ibci = InstanceBlockConfigItem.objects \
+                                      .create(entity=casca,
+                                              block_id=InstanceBlockConfigItem.generate_id(ContactBlock, casca, ''),
+                                              verbose=u"I am an awesome block",
+                                              data='',
+                                             )
+
+        block_registry = _BlockRegistry()
+        block_registry.register_4_instance(ContactBlock)
+
+        blocks = block_registry.get_blocks([ibci.block_id], entity=casca)
+        block_id = blocks[0].id_
+
+        self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
+
 
     class TestBlock(Block):
         verbose_name = u'Testing purpose'

@@ -17,12 +17,13 @@
  *******************************************************************************/
 
 creme.blocks = {
-    __registeredBlocks: {},
+    //__registeredBlocks: {},
     collapsed_class:    'collapsed',
     hide_fields_class:  'hide_empty_fields',
     status_stave_delay: 500
 };
 
+/*
 creme.blocks.register = function(block_id) {
     var $block = $(block_id);
 
@@ -36,6 +37,7 @@ creme.blocks.register = function(block_id) {
 creme.blocks.get_block = function(block_id) {
     return this.__registeredBlocks[block_id];
 };
+*/
 
 creme.blocks.reload = function(url) {
 //     creme.ajax.query(url, {backend: {sync: true, dataType: 'json'}})
@@ -43,7 +45,7 @@ creme.blocks.reload = function(url) {
 //               .onStart(creme.utils.showPageLoadOverlay)
               .onDone(function(event, data) {
                   data.forEach(function(entry) {
-                      creme.blocks.fill($('#' + entry[0]), $(entry[1]));
+                      creme.blocks.fill($('[id="' + entry[0] + '"]'), $(entry[1]));
                   });
                })
 //               .onComplete(creme.utils.hidePageLoadOverlay)
@@ -93,7 +95,7 @@ creme.blocks.saveState = function(block) {
 
     $.when(deferred.promise()).then(function(status) {
         block.removeData('block-deferred-save');
-        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block[0].id + '/',
+        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block.attr('id') + '/',
                              state, null, null, true);
     }, null, null);
 
@@ -167,12 +169,25 @@ creme.blocks.initialize = function(block) {
     creme.widget.ready(block);
 };
 
-creme.blocks.bindEvents = function(block) {
+creme.blocks.bindEvents = function(root) {
+    $('.table_detail_view[id]:not(.block-ready)', root).each(function() {
+        var block = $(this);
+
+        try {
+            creme.blocks.initialize(block);
+            block.addClass('block-ready');
+        } catch(e) {
+            console.warn('unable to initialize block', block.attr('id'), ':', e);
+        }
+    });
+
+    /*
     var __registeredBlocks = this.__registeredBlocks;
 
     for (var i in __registeredBlocks) {
         creme.blocks.initialize(__registeredBlocks[i]);
     }
+    */
 };
 
 creme.blocks.scrollToError = function(block) {

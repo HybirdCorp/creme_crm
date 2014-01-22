@@ -1,8 +1,10 @@
+{% comment %}
 <script type="text/javascript">
     {% if block_name %}
         creme.blocks.register('#{{ block_name }}');
     {% endif %}
 </script>
+{% endcomment %}
 <thead>
     <tr>
         <th colspan="{{colspan}}">
