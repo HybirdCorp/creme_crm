@@ -1,10 +1,1 @@
 {% extends "creme_core/generics/view_entity.html" %}
-
-{% block detail_view_top_1 %}
-    {% for object in object.images.all %}
-        <a href="/download_file/{{object.image}}" alt="{{object.image}}">
-            <img src="{{ object.get_image_url }}" />
-            {% comment %}<img src="{% media_url '' %}{{object.image}}" />{% endcomment %}
-        </a>
-    {% endfor %}
-{% endblock %}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import SearchConfigItem, HeaderFilter
+from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
+from .blocks import images_block
 from .models import Product, Service, Category, SubCategory
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -93,6 +101,26 @@ class Populator(BasePopulator):
             create_subcat(name=_(u"Women"),   category=clothes)
             create_subcat(name=_(u"Kids"),    category=clothes)
             create_subcat(name=_(u"Baybies"), category=clothes)
+
+        for model in (Product, Service):
+            BlockDetailviewLocation.create(block_id=images_block.id_,       order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=history_block.id_,      order=30,  zone=BlockDetailviewLocation.RIGHT, model=model)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            for model in (Product, Service):
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=model)
+
 
         SearchConfigItem.create_if_needed(Product, ['name', 'description', 'category__name', 'sub_category__name'])
         SearchConfigItem.create_if_needed(Service, ['name', 'description', 'category__name', 'sub_category__name'])

@@ -5,15 +5,18 @@ from django.conf.urls import patterns
 urlpatterns = patterns('creme.products.views',
     (r'^$', 'portal.portal'),
 
-    (r'^products$',                         'product.listview'),
-    (r'^product/add$',                      'product.add'),
-    (r'^product/edit/(?P<product_id>\d+)$', 'product.edit'),
-    (r'^product/(?P<product_id>\d+)$',      'product.detailview'),
-    (r'^sub_category/(?P<category_id>\d+)/json$', 'product.get_subcategories'),
+    (r'^products$',                                 'product.listview'),
+    (r'^product/add$',                              'product.add'),
+    (r'^product/edit/(?P<product_id>\d+)$',         'product.edit'),
+    (r'^product/(?P<product_id>\d+)/add_images$',   'product.add_images'),
+    (r'^product/(?P<product_id>\d+)$',              'product.detailview'),
 
-    (r'^services$',                         'service.listview'),
-    (r'^service/add$',                      'service.add'),
-    (r'^service/edit/(?P<service_id>\d+)$', 'service.edit'),
-    (r'^service/(?P<service_id>\d+)$',      'service.detailview'),
+    (r'^images/remove/(?P<entity_id>\d+)$',         'product.remove_image'),
+    (r'^sub_category/(?P<category_id>\d+)/json$',   'product.get_subcategories'),
 
+    (r'^services$',                                 'service.listview'),
+    (r'^service/add$',                              'service.add'),
+    (r'^service/edit/(?P<service_id>\d+)$',         'service.edit'),
+    (r'^service/(?P<service_id>\d+)/add_images$',   'service.add_images'),
+    (r'^service/(?P<service_id>\d+)$',              'service.detailview'),
 )

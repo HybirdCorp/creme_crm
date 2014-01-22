@@ -49,6 +49,9 @@ class CampaignAddMLForm(CremeForm):
         super(CampaignAddMLForm, self).__init__(*args, **kwargs)
         self.campaign = entity
 
+        #TODO: avoid duplicate like this
+        #self.fields['mailing_lists'].q_filter = {'~id__in': list(entity.mailing_lists.values_list('id', flat=True))}
+
     #in fact duplicate is not a problem with django's m2m
     def clean_mailing_lists(self):
         mailing_lists = self.cleaned_data['mailing_lists']

@@ -300,13 +300,14 @@ class _CremeTestCase(object):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 
-    def create_image(self, ident=1):
+    def create_image(self, ident=1, user=None):
         tmpfile = NamedTemporaryFile()
         tmpfile.width = tmpfile.height = 0
         tmpfile._committed = True
         tmpfile.path = 'upload/file_%s.jpg' % ident
 
-        return Image.objects.create(user=self.user, image=tmpfile,
+        return Image.objects.create(user=user or self.user,
+                                    image=tmpfile,
                                     name=u'Image #%s' % ident,
                                     description=u"Desc"
                                    )

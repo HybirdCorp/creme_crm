@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from ..models import Product
-from .base import _BaseCreateForm, _BaseEditForm
+from creme.creme_core.gui.block import Block
+
+from .models import Product, Service
 
 
-class ProductCreateForm(_BaseCreateForm):
-    class Meta(_BaseCreateForm.Meta):
-        model = Product
+class ImagesBlock(Block):
+    id_           = Block.generate_id('products', 'images')
+    #dependencies  = (Image,) ??
+    template_name = 'products/block_images.html'
+    target_ctypes = (Product, Service)
+
+    def detailview_display(self, context):
+        entity = context['object']
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                            object_type=entity.__class__.__name__.lower(), #'product' or 'service', used by URL
+                                                           )
+                           )
 
 
-class ProductEditForm(_BaseEditForm):
-    class Meta(_BaseEditForm.Meta):
-        model = Product
+images_block = ImagesBlock()

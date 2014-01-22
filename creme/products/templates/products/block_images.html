@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}{% has_perm_to change object as edit_perm %}
+{% with images=object.images.all %}
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=images|length|or_op:1 %}
+        <th class="collapser label">{% get_basic_block_header _("Images") 'image_48.png' _('Images') %}</th>
+        <th class="actions">
+            <div class="buttons">
+                {% get_line_linker at_url '/products/{{object_type}}/{{object.id}}/add_images' with_label _("Add from existing images") with_perms edit_perm %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+            {% if images %}
+                <tr class="content">
+                    {% for image_entity in images %}{% has_perm_to view image_entity as view_perm %}
+                        <td class="block_line_light td_info">
+                            {% if view_perm %}
+                                <a href="/download_file/{{image_entity.image}}" alt="{{image_entity.image}}">
+                                    <img src="{{image_entity.get_image_url}}" />
+                                </a>
+                            {% else %}
+                                {% trans "Viewing is not allowed" %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                <tr class="content">
+                    {% for image_entity in images %}
+                        <td class="block_line_light action">
+                            {% get_line_unlinker at_url '/products/images/remove/{{object.id}}' with_args "{'id' : {{image_entity.id}} }" with_perms edit_perm %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% else %}
+                <tr class="content empty">
+                    <td class="block_line_dark">{% trans "No image for the moment" %}</td>
+                </tr>
+            {% endif %}
+    </tbody>
+</table>
+{% endwith %}

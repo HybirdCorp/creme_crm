@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,26 +19,28 @@
 ################################################################################
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import (add_entity, add_to_entity, edit_entity,
+                                            view_entity, list_view)
 
 from ..models import Service
-from ..forms.service import ServiceForm
+from ..forms.base import AddImagesForm
+from ..forms.service import ServiceCreateForm, ServiceEditForm
 
 
 @login_required
 @permission_required('products')
 @permission_required('products.add_service')
 def add(request):
-    return add_entity(request, ServiceForm,
+    return add_entity(request, ServiceCreateForm,
                       extra_template_dict={'submit_label': _('Save the service')},
                      )
 
 @login_required
 @permission_required('products')
 def edit(request, service_id):
-    return edit_entity(request, service_id, Service, ServiceForm)
+    return edit_entity(request, service_id, Service, ServiceEditForm)
 
 @login_required
 @permission_required('products')
@@ -51,3 +53,11 @@ def detailview(request, service_id):
 @permission_required('products')
 def listview(request):
     return list_view(request, Service, extra_dict={'add_url': '/products/service/add'})
+
+@login_required
+@permission_required('products')
+def add_images(request, service_id):
+    return add_to_entity(request, service_id, AddImagesForm,
+                         ugettext('New images for <%s>'),
+                         entity_class=Service,
+                        )
