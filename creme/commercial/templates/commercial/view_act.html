@@ -1,5 +1,4 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block extrahead %}
     <script type="text/javascript">
@@ -24,17 +23,3 @@
         }
     </script>
 {% endblock %}
-
-{% comment %}
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'commercial' named 'objectives' as 'objectives_block' %}
-    {% import_block from_app 'commercial' named 'opportunities' as 'opps_block' %}
-{% endblock %}
-
-{% block after_object_as_table_1 %}
-    {% display_block_detailview 'objectives_block' %}
-    {% display_block_detailview 'opps_block' %}
-{% endblock %}
-{% endcomment %}
