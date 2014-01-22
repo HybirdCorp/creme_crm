@@ -59,26 +59,37 @@ class MailingListsTestCase(_EmailsTestCase):
             response.context['entities']
 
     def test_ml_and_campaign(self):
-        campaign = EmailCampaign.objects.create(user=self.user, name='camp01')
-        mlist    = MailingList.objects.create(user=self.user,   name='ml01')
+        user = self.user
+        campaign = EmailCampaign.objects.create(user=user, name='camp01')
+
+        create_ml = partial(MailingList.objects.create, user=user)
+        mlist01 = create_ml(name='Ml01')
+        mlist02 = create_ml(name='Ml02')
         self.assertFalse(campaign.mailing_lists.exists())
 
         url = '/emails/campaign/%s/mailing_list/add' % campaign.id
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True,
-                                    data={'mailing_lists': '[%s]' % mlist.id, #see MultiCreatorEntityField
-                                         }
+        def post(*mlists):
+            return self.client.post(url, follow=True,
+                                    data={'mailing_lists': '[%s]' % ','.join(str(ml.id) for ml in mlists)} #see MultiCreatorEntityField
                                    )
+
+        response = post(mlist01, mlist02)
         self.assertNoFormError(response)
+        self.assertEqual(set([mlist01, mlist02]), set(campaign.mailing_lists.all()))
 
-        with self.assertNoException():
-            campaign.mailing_lists.filter(pk=mlist.id)[0]
+        #doublon---------------------
+        mlist03 = create_ml(name='Ml03')
+        response = post(mlist01, mlist03)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'mailing_lists', _("This entity doesn't exist."))
 
+        #delete----------------------
         self.assertPOST200('/emails/campaign/%s/mailing_list/delete' % campaign.id,
-                           follow=True, data={'id': mlist.id}
+                           follow=True, data={'id': mlist01.id}
                           )
-        self.assertFalse(campaign.mailing_lists.exists())
+        self.assertEqual([mlist02], list(campaign.mailing_lists.all()))
 
     def test_recipients01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
