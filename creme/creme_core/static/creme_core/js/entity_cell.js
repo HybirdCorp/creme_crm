@@ -258,7 +258,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 
             this.store.attr('value', ''); //reset the value, that will be recreated by calls to onColumnChanged()
 
-            // build a list of that will contains the checkboxes in the rigth order
+            // build a list of that will contains the checkboxes in the right order
             var checkboxes = [];
             for (var i in to_check) {
                 checkboxes.push(undefined);
