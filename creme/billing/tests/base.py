@@ -429,5 +429,5 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
                                        )
 
         response = self.assertGET200(orga.get_absolute_url())
-        self.assertTemplateUsed('billing/templatetags/block_persons_statistics.html')
+        self.assertTemplateUsed(response, 'billing/templatetags/block_persons_statistics.html')
         self.assertContains(response, 'id="%s"' % persons_statistics_block.id_)

@@ -17,7 +17,7 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.documents.models import Document
+    #from creme.documents.models import Document
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

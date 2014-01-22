@@ -269,7 +269,7 @@ class ReportTestCase(BaseReportsTestCase):
         url = '/reports/report/preview/%s' % report.id
 
         response = self.assertGET200(url)
-        self.assertTemplateUsed('reports/preview_report.html')
+        self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertContains(response, chiyo.last_name)
         self.assertContains(response, osaka.last_name)
 
@@ -280,7 +280,7 @@ class ReportTestCase(BaseReportsTestCase):
                                             'date_field':    'birthday',
                                            }
                                      )
-        self.assertTemplateUsed('reports/preview_report.html')
+        self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertNoFormError(response)
         self.assertContains(response, osaka.last_name)
         self.assertNotContains(response, chiyo.last_name)
