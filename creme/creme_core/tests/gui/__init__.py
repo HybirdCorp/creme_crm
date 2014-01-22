@@ -118,7 +118,8 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(casca.position.title, get_html_val(casca, 'position__title', user))
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
 
-        self.assertEqual(u'<a href="/media_managers/image/%s">Casca&#39;s face</a>' % casca.image_id,
+        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (casca.image.get_image_url(), 
+                                                                                       casca.image.get_entity_summary(user)),
                          get_html_val(casca, 'image', user)
                         )
         self.assertEqual(unicode(casca.image),
@@ -266,7 +267,8 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a href="/media_managers/image/%s">Judo face</a>' % judo_face.id,
+        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (judo_face.get_image_url(), 
+                                                                                       judo_face.get_entity_summary(user)),
                          get_html_val(judo, 'image', user)
                         )
         self.assertEqual('<p>%s</p>' % judo_face.description,

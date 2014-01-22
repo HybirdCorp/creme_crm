@@ -21,7 +21,7 @@
                 <h5>entity</h5>
                 <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                      popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" qfilter="">
+                      popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/${selection}?q_filter=${qfilter}" qfilter="">
                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                     <button type="button">Sélectionner...</button>
                 </div>
@@ -30,7 +30,7 @@
                 <h5>entity (disabled)</h5>
                 <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                       labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                      popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" qfilter="" disabled>
+                      popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/${selection}?q_filter=${qfilter}" qfilter="" disabled>
                     <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" value="2"/>
                     <button type="button">Sélectionner...</button>
                 </div>
@@ -41,13 +41,31 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" qfilter="">
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/${selection}?q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
                     </li>
                     <li>
-                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/30/add/1">
+                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/{{TEST_CONTENTTYPES.contact}}/add/1">
+                            Créer
+                        </button>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <h5>image + creator</h5>
+                <ul class="ui-layout hbox ui-creme-widget ui-creme-actionbuttonlist widget-auto" widget="ui-creme-actionbuttonlist">
+                    <li class="delegate">
+                        <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.image}}/${selection}?q_filter=${qfilter}" qfilter="">
+                            <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </div>
+                    </li>
+                    <li>
+                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/{{TEST_CONTENTTYPES.image}}/add/1">
                             Créer
                         </button>
                     </li>
@@ -59,13 +77,13 @@
                     <li class="delegate">
                         <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/${selection}?q_filter=${qfilter}" qfilter="">
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/${selection}?q_filter=${qfilter}" qfilter="">
                             <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </div>
                     </li>
                     <li>
-                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/30/add/1">
+                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/{{TEST_CONTENTTYPES.contact}}/add/1">
                             Créer
                         </button>
                     </li>
@@ -149,7 +167,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0" qfilter="">
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/0" popupSelection="0" qfilter="">
                             <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -164,7 +182,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0" qfilter="">
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/0" popupSelection="0" qfilter="">
                             <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
                         </span>
@@ -179,7 +197,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0"
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/0" popupSelection="0"
                               qfilter="">
                             <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>
@@ -195,7 +213,7 @@
                     <div class="inner-selector-model" style="display:none;">
                         <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
                               labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
-                              popupURL="/creme_core/lv_popup/30/0" popupSelection="0" popupAuto
+                              popupURL="/creme_core/lv_popup/{{TEST_CONTENTTYPES.contact}}/0" popupSelection="0" popupAuto
                               qfilter="">
                             <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
                             <button type="button">Sélectionner...</button>

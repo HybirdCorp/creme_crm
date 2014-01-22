@@ -34,12 +34,12 @@ from ..utils import get_from_POST_or_404, get_ct_or_404, creme_entity_content_ty
 from .generic import inner_popup, list_view_popup_from_widget
 
 
-def _fields_values(instances, getters, range, sort_getter=None):
+def _fields_values(instances, getters, range, sort_getter=None, user=None):
     start, end = range
     result = []
 
     def values(i):
-        return [getter(i) for getter in getters]
+        return [getter(i, user) for getter in getters]
 
     if sort_getter:
         sorted_result = [(sort_getter(instance), values(instance)) for instance in instances]
@@ -75,10 +75,10 @@ def _clean_fields_values_args(data, allowed_fields):
 
     return getters, range, sort_getter
 
-
-JSON_ENTITY_FIELDS = {'unicode':     unicode,
-                      'id':          lambda e: e.id,
-                      'entity_type': lambda e: e.entity_type_id
+JSON_ENTITY_FIELDS = {'unicode':     lambda e, user: e.allowed_unicode(user),
+                      'id':          lambda e, user: e.id,
+                      'entity_type': lambda e, user: e.entity_type_id,
+                      'summary':     lambda e, user: e.get_real_entity().get_entity_summary(user),
                      }
 
 #TODO: move to entity.py, (rename ?) & change also url
@@ -88,11 +88,10 @@ def json_entity_get(request, entity_id):
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
     query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
 
-    return _fields_values(query, getters, (0, 1), sort)
+    return _fields_values(query, getters, (0, 1), sort, request.user)
 
-
-JSON_PREDICATE_FIELDS = {'unicode': unicode,
-                         'id':      lambda e: e.id
+JSON_PREDICATE_FIELDS = {'unicode': lambda e, user: unicode(e),
+                         'id':      lambda e, user: e.id
                         }
 
 @login_required
@@ -114,9 +113,9 @@ def json_entity_rtypes(request, entity_id): #TODO: seems unused
     return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
 
 
-JSON_CONTENT_TYPE_FIELDS = {'unicode':  unicode,
+JSON_CONTENT_TYPE_FIELDS = {'unicode':  lambda e, user: unicode(e),
                             #'name':     lambda e: e.name, #deprecated field
-                            'id':       lambda e: e.id
+                            'id':       lambda e, user: e.id
                            }
 
 @login_required

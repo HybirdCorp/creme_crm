@@ -102,6 +102,16 @@ def print_date(entity, fval, user):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 def print_foreignkey(entity, fval, user):
+    #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
+    from creme.media_managers.models.image import Image
+
+    if isinstance(fval, Image) and user.has_perm_to_view(fval):
+        return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (
+                fval.get_image_url(),
+                ' class="is_deleted"' if fval.is_deleted else u'',
+                fval.get_entity_summary(user)
+            )
+
     if isinstance(fval, CremeEntity):
         return widget_entity_hyperlink(fval, user)
 
@@ -117,12 +127,25 @@ def print_foreignkey_csv(entity, fval, user):
 def print_many2many(entity, fval, user):
     output = []
 
+    #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
+    from creme.media_managers.models.image import Image
+
+    def print_entity_link(e):
+        if not user.has_perm_to_view(e):
+            return settings.HIDDEN_VALUE
+
+        if isinstance(e, Image):
+            return u'<a onclick="creme.dialogs.image(\'%s\').open();"%s>%s</a>' % (e.get_image_url(),
+                                                                                   ' class="is_deleted"' if e.is_deleted else u'',
+                                                                                   e.get_entity_summary(user)
+                                                                                  )
+
+        return u'<a target="_blank" href="%s"%s>%s</a>' % (e.get_absolute_url(),
+                                                           ' class="is_deleted"' if e.is_deleted else u'',
+                                                           e.get_entity_summary(user))
+
     if issubclass(fval.model, CremeEntity):
-        output.extend('<li>%s</li>' % (e.get_entity_m2m_summary(user) if user.has_perm_to_view(e) else
-                                       #e.allowed_unicode(user)
-                                       settings.HIDDEN_VALUE
-                                      ) for e in fval.filter(is_deleted=False)
-                     )
+        output.extend('<li>%s</li>' % print_entity_link(e) for e in fval.filter(is_deleted=False))
     else:
         output.extend('<li>%s</li>' % escape(a) for a in fval.all())
 
