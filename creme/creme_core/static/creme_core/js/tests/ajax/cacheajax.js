@@ -191,6 +191,128 @@ test('CacheBackend.get (create entry, data changes)', function() {
     equal(2, this.backend.counts.GET);
 });
 
+test('CacheBackend.get (create entry, async)', function() {
+    var cache = new creme.ajax.CacheBackend(this.backend);
+
+    equal(0, Object.keys(cache.entries).length);
+    equal(0, this.backend.counts.GET);
+
+    var response = this.doRequest(cache, 'mock/default', {}, {delay: 200, sync: false});
+
+    equal(1, Object.keys(cache.entries).length);
+    var entry = cache.entries[Object.keys(cache.entries)[0]];
+
+    equal(true, entry.waiting);
+    equal(undefined, entry.response);
+    equal(1, entry.events.listeners('complete').length);
+    equal(undefined, response.responseText);
+
+    stop(1);
+
+    setTimeout(function() {
+        equal(false, entry.waiting);
+        deepEqual({data: 'this is a test message 1', textStatus: undefined}, entry.response);
+        equal(0, entry.events.listeners('complete').length);
+        deepEqual({responseText: 'this is a test message 1', status: 200}, response);
+        start();
+    }, 300);
+});
+
+test('CacheBackend.get (create entry, async, 403)', function() {
+    var cache = new creme.ajax.CacheBackend(this.backend);
+
+    equal(0, Object.keys(cache.entries).length);
+    equal(0, this.backend.counts.GET);
+
+    var response = this.doRequest(cache, 'mock/forbidden', {}, {delay: 200, sync: false});
+
+    equal(1, Object.keys(cache.entries).length);
+    var entry = cache.entries[Object.keys(cache.entries)[0]];
+
+    equal(true, entry.waiting);
+    equal(undefined, entry.response);
+    equal(1, entry.events.listeners('complete').length);
+    equal(undefined, response.responseText);
+
+    stop(1);
+
+    setTimeout(function() {
+        equal(false, entry.waiting);
+        equal(undefined, entry.response);
+        equal(0, entry.events.listeners('complete').length);
+        equal('HTTP - Error 403', response.message);
+        equal(403, response.status);
+        start();
+    }, 300);
+});
+
+test('CacheBackend.get (create entry, async, waiting queue)', function() {
+    var cache = new creme.ajax.CacheBackend(this.backend);
+
+    equal(0, Object.keys(cache.entries).length);
+    equal(0, this.backend.counts.GET);
+
+    var response1 = this.doRequest(cache, 'mock/default', {}, {delay: 200, sync: false});
+    var response2 = this.doRequest(cache, 'mock/default', {}, {delay: 200, sync: false});
+    var response3 = this.doRequest(cache, 'mock/default', {}, {delay: 200, sync: false});
+
+    equal(1, Object.keys(cache.entries).length);
+    var entry = cache.entries[Object.keys(cache.entries)[0]];
+
+    equal(true, entry.waiting);
+    equal(undefined, entry.response);
+    equal(3, entry.events.listeners('complete').length);
+    equal(undefined, response1.responseText);
+    equal(undefined, response2.responseText);
+    equal(undefined, response3.responseText);
+
+    stop(1);
+
+    setTimeout(function() {
+        equal(false, entry.waiting);
+        deepEqual({data: 'this is a test message 1', textStatus: undefined}, entry.response);
+        equal(0, entry.events.listeners('complete').length);
+        deepEqual({responseText: 'this is a test message 1', status: 200}, response1);
+        deepEqual({responseText: 'this is a test message 1', status: 200}, response2);
+        deepEqual({responseText: 'this is a test message 1', status: 200}, response3);
+        start();
+    }, 300);
+});
+
+
+test('CacheBackend.get (create entry, async, waiting queue, 403)', function() {
+    var cache = new creme.ajax.CacheBackend(this.backend);
+
+    equal(0, Object.keys(cache.entries).length);
+    equal(0, this.backend.counts.GET);
+
+    var response1 = this.doRequest(cache, 'mock/forbidden', {}, {delay: 200, sync: false});
+    var response2 = this.doRequest(cache, 'mock/forbidden', {}, {delay: 200, sync: false});
+    var response3 = this.doRequest(cache, 'mock/forbidden', {}, {delay: 200, sync: false});
+
+    equal(1, Object.keys(cache.entries).length);
+    var entry = cache.entries[Object.keys(cache.entries)[0]];
+
+    equal(true, entry.waiting);
+    equal(undefined, entry.response);
+    equal(3, entry.events.listeners('complete').length);
+    equal(undefined, response1.responseText);
+    equal(undefined, response2.responseText);
+    equal(undefined, response3.responseText);
+
+    stop(1);
+
+    setTimeout(function() {
+        equal(false, entry.waiting);
+        equal(undefined, entry.response);
+        equal(0, entry.events.listeners('complete').length);
+        equal('HTTP - Error 403', response1.message); equal(403, response1.status);
+        equal('HTTP - Error 403', response2.message); equal(403, response2.status);
+        equal('HTTP - Error 403', response3.message); equal(403, response3.status);
+        start();
+    }, 300);
+});
+
 test('CacheBackend.get (entry expired)', function() {
 
     var self = this;
