@@ -28,6 +28,9 @@ creme.ajax.CacheBackendEntry = function(key, url, data, dataType, response) {
     this.dataType = dataType;
     this.response = response;
     this.state = undefined;
+    this.waiting = false;
+    this.events = new creme.component.EventHandler();
+    this.registry = undefined;
 };
 
 
@@ -73,7 +76,7 @@ $.extend(creme.ajax.CacheBackendTimeout.prototype, {
             return true;
 
         var expirationTime = entry.state.time + this.maxdelay;
-        return expirationTime <= new Date().getTime();
+        return expirationTime - new Date().getTime() <= 0;
     },
 
     reset: function(entry) {
@@ -117,10 +120,18 @@ $.extend(creme.ajax.CacheBackend.prototype, {
     {
         entry.response = {data: response, textStatus: textStatus};
         this.condition.reset(entry);
-        this.entries[entry.key] = entry;
     },
 
-    _removeEntry: function(entry) {
+    _registerEntry: function(entry)
+    {
+        this.entries[entry.key] = entry;
+        this.condition.reset(entry);
+        entry.registry = this;
+    },
+
+    _removeEntry: function(entry)
+    {
+        entry.registry = undefined;
         delete this.entries[entry.key];
     },
 
@@ -128,18 +139,32 @@ $.extend(creme.ajax.CacheBackend.prototype, {
     {
         var self = this;
 
-        if (!options.forcecache && (this.condition.expired(entry, options) === false)) {
+        if (!options.forcecache && !entry.waiting && (this.condition.expired(entry, options) === false)) {
             return creme.object.invoke(on_success, entry.response.data, entry.response.textStatus);
         }
 
-        this.delegate.get(entry.url, entry.data,
-                          function(data, textStatus) {
-                              self._updateEntry(entry, data, textStatus);
-                              creme.object.invoke(on_success, data, textStatus);
-                          },
-                          function(data, status) {
-                              self._removeEntry(entry);
-                              creme.object.invoke(on_error, data, status);
-                          }, options);
+        if (entry.registry === undefined) {
+            this._registerEntry(entry);
+        }
+
+        entry.events.one('complete', function(event, is_success, data, status) {
+                         creme.object.invoke(is_success ? on_success : on_error, data, status);
+                    });
+
+        if (!entry.waiting)
+        {
+            entry.waiting = true;
+            this.delegate.get(entry.url, entry.data,
+                              function(data, textStatus) {
+                                  entry.waiting = false;
+                                  self._updateEntry(entry, data, textStatus);
+                                  entry.events.trigger('complete', [true, data, textStatus]);
+                              },
+                              function(data, status) {
+                                  self._removeEntry(entry);
+                                  entry.waiting = false;
+                                  entry.events.trigger('complete', [false, data, status]);
+                              }, options);
+        }
     }
 });
