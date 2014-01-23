@@ -129,26 +129,26 @@ class MediaManagersTestCase(CremeTestCase):
 
         self.assertEqual([image], list(images_page.object_list))
 
-    def test_listview_popup(self):
-        image = self._create_image()
+    #def test_listview_popup(self):
+        #image = self._create_image()
 
-        response = self.client.get('/media_managers/images/popup')
-        self.assertEqual(200, response.status_code)
+        #response = self.client.get('/media_managers/images/popup')
+        #self.assertEqual(200, response.status_code)
 
-        with self.assertNoException():
-            images_page = response.context['entities']
+        #with self.assertNoException():
+            #images_page = response.context['entities']
 
-        self.assertEqual([image], list(images_page.object_list))
+        #self.assertEqual([image], list(images_page.object_list))
 
-    def test_popupview(self):
-        image = self._create_image()
-        response = self.client.get('/media_managers/image/popup/%s' % image.id)
-        self.assertEqual(200, response.status_code)
+    #def test_popupview(self):
+        #image = self._create_image()
+        #response = self.client.get('/media_managers/image/popup/%s' % image.id)
+        #self.assertEqual(200, response.status_code)
 
-        with self.assertNoException():
-            entity = response.context['object']
+        #with self.assertNoException():
+            #entity = response.context['object']
 
-        self.assertEqual(image, entity)
+        #self.assertEqual(image, entity)
 
     def test_get_url(self):
         image = self._create_image()
