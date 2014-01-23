@@ -169,6 +169,11 @@ creme.utils.tableExpandState = function($self, state, trigger) {
 
     if (trigger === undefined || trigger) {
         $table.trigger('creme-table-collapse', {action: state ? 'show' : 'hide'});
+
+        if (state === true) {
+            $('.ui-creme-resizable', $table).trigger('resize')
+                                            .trigger('resizestop');
+        }
     }
 }
 
