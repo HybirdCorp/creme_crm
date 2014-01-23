@@ -24,24 +24,24 @@ creme.media_managers = {};
 //}
 
 
-creme.media_managers.createImageM2MWidget = function(url, name) {
-    creme.utils.openWindow(url, 'create_image');
-
-    if(window[name]) {
-        var popup_url = window[name].location.href;
-        window[name].close();
-    } else {
-        var popup_url = '';
-    }
-
-//    console.log(popup_url);
-//
-//
-//    if(window['create_image'].addEventListener)
-//        window['create_image'].addEventListener('unload',function(e, popup_url){image_m2m_widget.unloadHandler(e, popup_url)},false);
-//    else if (window['create_image'].attachEvent)
-//    {
-//        window['create_image'].attachEvent('onunload',function(){image_m2m_widget.unloadHandler()});
-////        window['create_image'].attachEvent('onbeforeunload',function(){alert('aaa');});
-//    }
-}
+// creme.media_managers.createImageM2MWidget = function(url, name) {
+//     creme.utils.openWindow(url, 'create_image');
+// 
+//     if(window[name]) {
+//         var popup_url = window[name].location.href;
+//         window[name].close();
+//     } else {
+//         var popup_url = '';
+//     }
+// 
+// //    console.log(popup_url);
+// //
+// //
+// //    if(window['create_image'].addEventListener)
+// //        window['create_image'].addEventListener('unload',function(e, popup_url){image_m2m_widget.unloadHandler(e, popup_url)},false);
+// //    else if (window['create_image'].attachEvent)
+// //    {
+// //        window['create_image'].attachEvent('onunload',function(){image_m2m_widget.unloadHandler()});
+// ////        window['create_image'].attachEvent('onbeforeunload',function(){alert('aaa');});
+// //    }
+// }

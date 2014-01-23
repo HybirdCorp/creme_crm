@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
-from django.utils.safestring import mark_safe
+#from django.utils.translation import ugettext as _
+#from django.utils.safestring import mark_safe
 
-from creme.creme_core.forms.widgets import ListViewWidget
+#from creme.creme_core.forms.widgets import ListViewWidget
 
 
-class ImageM2MWidget(ListViewWidget):
-    def render(self, name, value, attrs=None):
-        attrs = self.build_attrs(attrs, name=name)
-        html_output = u"""%(input)s<a href="javascript:creme.media_managers.createImageM2MWidget('/media_managers/image/add?popup=true&from_id=%(id)s', 'm2m_%(id)s_popup');">%(label)s</a>""" % {
-                    'input':   super(ImageM2MWidget, self).render(name, value, attrs),
-                    'id':      attrs['id'],
-                    'label':   _(u'Add image'),
-                  }
+#class ImageM2MWidget(ListViewWidget):
+    #def render(self, name, value, attrs=None):
+        #attrs = self.build_attrs(attrs, name=name)
+        #html_output = u"""%(input)s<a href="javascript:creme.media_managers.createImageM2MWidget('/media_managers/image/add?popup=true&from_id=%(id)s', 'm2m_%(id)s_popup');">%(label)s</a>""" % {
+                    #'input':   super(ImageM2MWidget, self).render(name, value, attrs),
+                    #'id':      attrs['id'],
+                    #'label':   _(u'Add image'),
+                  #}
 
-        return mark_safe(html_output)
+        #return mark_safe(html_output)

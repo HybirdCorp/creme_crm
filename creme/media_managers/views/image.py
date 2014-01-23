@@ -38,21 +38,21 @@ from ..forms.image import ImageCreateForm, ImageEditForm
 @permission_required('media_managers')
 @permission_required('media_managers.add_image')
 def add(request):
-    req_get = request.GET.get
-    kwargs = {}
-    popup = req_get('popup')
+    #req_get = request.GET.get
+    #kwargs = {}
+    #popup = req_get('popup')
 
-    if popup is not None:
-        popup = 'popup/'
-        kwargs.update(template='creme_core/generics/blockform/add_popup.html')
-    else:
-        popup = ''
+    #if popup is not None:
+        #popup = 'popup/'
+        #kwargs.update(template='creme_core/generics/blockform/add_popup.html')
+    #else:
+        #popup = ''
 
-    return_path = '/media_managers/image/%s%%s?from_id=%s' % (popup, req_get('from_id', ''))
+    #return_path = '/media_managers/image/%s%%s?from_id=%s' % (popup, req_get('from_id', ''))
 
-    return add_entity(request, ImageCreateForm, return_path,
+    return add_entity(request, ImageCreateForm, #return_path,
                       extra_template_dict={'submit_label': _('Save the image')},
-                      **kwargs
+                      #**kwargs
                      )
 
 @login_required
