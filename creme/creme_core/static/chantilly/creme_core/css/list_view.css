@@ -1,8 +1,8 @@
 .list_view {
     width: 100%;
-    border : 1px solid #548295;
-    padding : 4px;
-    margin : 0px;
+    border: 1px solid #548295;
+    padding: 4px;
+    margin: 0px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
@@ -18,12 +18,13 @@
 }
 
 .list_view thead .title th h2 {
-    padding-top:0.6em;
-    padding-bottom:0.6em;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
 }
 
 .list_view thead .sub_title th h4, .list_view thead .title th h2 {
     height: 1px;
+    margin-top: 0px;
 }
 
 .list_view thead .lines_modifiers > th > table {
@@ -41,27 +42,38 @@
 }
 
 .list_view thead .lines_modifiers .views {
-    text-align: right;
+    /*text-align: right;*/
+    text-align: left;
 }
 
 .list_view fieldset {
     border: 1px solid #548295;
-    padding:0 10px 2px 10px;
+    padding: 0 10px 2px 10px;
+}
+
+.list_view .filters img, .list_view .views img {
+    position: relative;
+    top: 5px;
 }
 
 /** Hide the temporary legend used by the IceCream theme */
-.list_view fieldset .legend {
+/*.list_view fieldset .legend {
     display: none;
-}
+}*/
 
-.list_view fieldset legend {
+/*.list_view fieldset legend {
     padding: 0 10px;
     border-left: #548295 1px solid;
     border-right: #548295 1px solid;
+}*/
+
+.list_view fieldset .legend {
+  display: inline-block;
+  padding-right: 25px;
 }
 
 .list_view fieldset:hover {
-    background-color:#95B6DB;
+    background-color: #95B6DB;
 }
 
 .list_view .toolbar th {
@@ -95,7 +107,7 @@
     text-decoration: none;
     cursor:pointer;*/
 
-    cursor:pointer;
+    cursor: pointer;
     border: 1px solid #f7b5ad;
     background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
@@ -147,12 +159,12 @@
 }
 
 .list_view tbody td {
-    color:#376e86;
-    padding-left:5px;
-    padding-right:5px;
+    color: #376e86;
+    padding-left: 5px;
+    padding-right: 5px;
     /*min-width:5% !important;*/
-    white-space:nowrap;
-    padding:2px 6px;
+    white-space: nowrap;
+    padding: 2px 6px;
     text-align: center;
     border-bottom: 1px solid #548295;
     border-left: 1px solid #548295;
@@ -184,8 +196,8 @@
 }*/
 .list_view button[disabled="true"], .list_view button[disabled="true"]:hover, .list_view button[disabled="true"]:active{
     background-color: #CCCCCC;
-    color : #919191;
-    cursor:auto;
+    color: #919191;
+    cursor: auto;
 }
 
 /*.list_view button:hover{
@@ -222,34 +234,34 @@
 */
 
 .list_view .cl_lv {
-    word-wrap:break-word;
+    word-wrap: break-word;
     /*max-width: 120px;
     white-space:normal;*/
 }
 
 .list_view .hd_cl_lv {
-    word-wrap:break-word;
+    word-wrap: break-word;
 }
 
 .list_view .hd_date_cl_lv {
-    word-wrap:break-word;
+    word-wrap: break-word;
     max-width: 120px;
 }
 
 
 .list_view .left_align {
     text-align: left;
-    padding-left : 5px;
+    padding-left: 5px;
 }
 
 .list_view .text_area {
     text-align: left;
-    padding-left : 5px;
+    padding-left: 5px;
     max-width: 120px;
-    white-space:normal;
+    white-space: normal;
 }
 
 .list_view .right_align {
     text-align: right;
-    padding-right : 5px;
+    padding-right: 5px;
 }
