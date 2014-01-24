@@ -463,6 +463,8 @@ ul.button_list.vbox li {
     height: 80%;
     margin-left: 1.2%;
     width: 98%;
+    clear: both;
+    padding-top: 3px;
 }
 
 .header {
