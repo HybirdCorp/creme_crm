@@ -2,31 +2,24 @@
 {% load creme_core_tags %}
 {% with hfilter.id as hfilter_id %}
     <fieldset title="{% trans "Show only the desired columns" %}">
-        <div class="legend"> <!-- legend for IceCream theme -->
-            <img border="0" src="{% creme_media_url 'images/header_filter_32.png' %}" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
-            {% trans "View of list" %}
+        <div class="legend">
+            {% trans "View of list" as label %}<img border="0" src="{% creme_media_url 'images/header_filter_32.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
         </div>
-        <legend> <!-- legend for Chantilly theme -->
-            <img border="0" src="{% creme_media_url 'images/header_filter_32.png' %}" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
-            {% trans "View of list" %}
-        </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
             {% for filter in select_values %}
-                <option value="{{filter.value}}" {% if hfilter_id == filter.value %}selected{% endif %}>
-                    {{filter.text}}
-                </option>
+                <option value="{{filter.value}}" {% if hfilter_id == filter.value %}selected{% endif %}>{{filter.text}}</option>
             {% endfor %}
         </select>
         {% if not is_popup_view %}
             <a href="/creme_core/header_filter/add/{{content_type_id}}">
-                <img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
+                {% trans "Create a custom view" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
             {% if can_edit_or_delete %}
                 <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
-                    <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
+                    {% trans "Edit custom view" as img_title %}<img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
                 </a>
                 <a onclick="creme.lv_widget.deleteHeaderFilter($(this).parents('form:first'), '{{hfilter_id}}');">
-                    <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
+                    {% trans "Delete custom view" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
                 </a>
             {% endif %}
         {% endif %}

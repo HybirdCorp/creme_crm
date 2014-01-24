@@ -1,32 +1,25 @@
 {% load i18n %}
 {% load creme_core_tags %}
 <fieldset title="{% trans "Filter the lines of the table" %}">
-    <div class="legend"> <!-- legend for IceCream theme -->
-        <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
-        {% trans "Filters" %}
+    <div class="legend">
+        {% trans "Filter" as label %}<img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
     </div>
-    <legend> <!-- legend for Chantilly theme -->
-        <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
-        {% trans "Filter" %}
-    </legend>
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
         <option value="">{% trans "All" %}</option>
         {% for efilter in select_values %}
-            <option value="{{efilter.value}}" {% if efilter_id == efilter.value %}selected{% endif %}>
-                {{efilter.text}}
-            </option>
+            <option value="{{efilter.value}}" {% if efilter_id == efilter.value %}selected{% endif %}>{{efilter.text}}</option>
         {% endfor %}
     </select>
     {% if not is_popup_view %}
         <a href="/creme_core/entity_filter/add/{{content_type_id}}">
-            <img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
+            {% trans "Create a custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
         </a>
         {% if can_edit_or_delete %}
             <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit">
-                <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/>
+                {% trans "Edit custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
             <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');">
-                <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/>
+                {% trans "Delete custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
         {% endif %}
     {% endif %}
