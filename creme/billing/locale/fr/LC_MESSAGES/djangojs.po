@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP (JavaScript)
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -34,7 +34,7 @@ msgstr ""
 
 #: static/billing/js/billing.js:644
 msgid "Errors report"
-msgstr "Rapport d'erreurs'"
+msgstr "Rapport d'erreurs"
 
 #: static/billing/js/billing.js:739
 msgid "Pdf file (PDF)"
