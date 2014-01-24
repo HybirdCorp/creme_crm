@@ -309,8 +309,11 @@ PRODUCTION_MEDIA_URL = '/static_media/'
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 
-THEMES        = [('chantilly', _(u"Chantilly")), ('icecream', _(u"Ice cream")), ] #Available themes. A theme is represented by (theme_dir, theme verbose name),
-DEFAULT_THEME = 'chantilly'
+#Available themes. A theme is represented by (theme_dir, theme verbose name)
+THEMES = [('icecream',  _('Ice cream')),
+          ('chantilly', _('Chantilly')),
+         ]
+DEFAULT_THEME = 'icecream' #'chantilly'
 
 CSS_DEFAULT_LISTVIEW = 'left_align'
 CSS_NUMBER_LISTVIEW = 'right_align'
