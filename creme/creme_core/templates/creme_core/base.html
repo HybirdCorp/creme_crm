@@ -241,10 +241,10 @@
                 {% get_search_panel %}
                 {% get_quickforms_panel %}
             </div>
-            <div class="widget last">{% comment %}:last-child is buggy so think to add last css class to the last element{% endcomment %}
+            {% comment %}<div class="widget last">{# :last-child is buggy so think to add last css class to the last element #}
                 <a href="/"><img src="{% creme_media_url 'images/creme_header_50.png' %}" alt="Crème" border="0" /></a>
-            </div>
-            <div class="spacer"></div>
+            </div>{% endcomment %}
+            {% comment %}<div class="spacer"></div>{% endcomment %}
         </div>
     {% endblock %}
 
