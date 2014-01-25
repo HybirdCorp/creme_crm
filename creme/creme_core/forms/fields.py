@@ -759,27 +759,6 @@ class MultiCreatorEntityField(CreatorEntityField):
         return entities
 
 
-class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!! #TODO2: Remove ?
-    """
-        An input with comma (or anything) separated values
-    """
-    default_error_messages = {
-    }
-
-    def __init__(self, separator=',', *args, **kwargs):
-        self.separator = separator
-        super(_CommaMultiValueField, self).__init__(*args, **kwargs)
-
-    def clean(self, value):
-        if not value and self.required:
-            raise ValidationError(self.error_messages['required'])
-
-        if value:
-            return [val for val in value.split(self.separator) if val]
-
-        return []
-
-
 class _EntityField(Field):
     """
         Base class for CremeEntityField and MultiCremeEntityField,
