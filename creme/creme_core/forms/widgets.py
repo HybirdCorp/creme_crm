@@ -20,6 +20,7 @@
 
 #from datetime import datetime
 from itertools import chain
+import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
@@ -689,6 +690,7 @@ class ListViewWidget(TextInput):
     @param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
     """
     def __init__(self, attrs=None, q_filter=None, model=None, separator=','):
+        warnings.warn("ListViewWidget class is deprecated.", DeprecationWarning)
         super(ListViewWidget, self).__init__(attrs)
         self.q_filter  = q_filter
         self._o2m      = 1
