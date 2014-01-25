@@ -30,13 +30,13 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from django.forms.models import modelform_factory, model_to_dict
 #from django.utils.encoding import smart_unicode
 from django.utils.formats import date_format
-from django.utils.simplejson import JSONEncoder
+#from django.utils.simplejson import JSONEncoder
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
-from ..models import CremeEntity, CustomField, EntityCredentials
+from ..models import CremeEntity, EntityCredentials #CustomField
 from ..gui.bulk_update import bulk_update_registry
 from ..forms import CremeEntityForm
 from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
@@ -63,30 +63,6 @@ def get_creme_entities_repr(request, entities_ids):
                      _(u'Entity #%s (not viewable)') % entity.id
             } for entity in entities
            ]
-
-#Commented 7/1/2013 (if uncomment: check possible security problem (not viewable fields etc...))
-#@login_required
-#def get_creme_entity_as_json(request):
-    #POST   = request.POST
-    #pk     = POST.get('pk')
-    #fields = POST.getlist('fields') or None
-
-    #data   = []
-    #status = 404
-
-    #if pk:
-        #try:
-            #entity = CremeEntity.objects.get(pk=pk).get_real_entity()
-        #except CremeEntity.DoesNotExist:
-            #pass
-        #else:
-            #if request.user.has_perm_to_view(entity):
-                #data = [entity]
-                #status = 200
-
-    #return HttpResponse(serializers.serialize('json', data, fields=fields),
-                        #mimetype="text/javascript", status=status,
-                       #)
 
 
 #TODO: bake the result in HTML instead of ajax view ??
@@ -157,67 +133,70 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
                        delegate_reload=True,
                       )
 
+#Commented on 25/01/2014
+#todo: use jsonify (and remove Exception handling)
+#todo: why POST ???
+#@login_required
+#def get_fields(request):
+    #"""@return Fields for a model [('field1', 'field1_verbose_name'),...]"""
+    #POST = request.POST
 
-#TODO: use jsonify (and remove Exception handling)
-#TODO: why POST ???
-@login_required
-def get_fields(request):
-    """@return Fields for a model [('field1', 'field1_verbose_name'),...]"""
-    POST = request.POST
+    #try:
+        #model = get_ct_or_404(int(get_from_POST_or_404(POST, 'ct_id'))).model_class()
+        #deep  = int(POST.get('deep', 1))
+    #except ValueError as e:
+        #msg    = str(e)
+        #status = 400
+    #except Http404 as e:
+        #msg    = str(e)
+        #status = 404
+    #else:
+        ##msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
+        #msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True) #todo: use deep ??
+                                       #.filter(viewable=True)
+                                       #.choices()
+                                  #)
+        #status = 200
 
-    try:
-        model = get_ct_or_404(int(get_from_POST_or_404(POST, 'ct_id'))).model_class()
-        deep  = int(POST.get('deep', 1))
-    except ValueError as e:
-        msg    = str(e)
-        status = 400
-    except Http404 as e:
-        msg    = str(e)
-        status = 404
-    else:
-        #msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
-        msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True) #TODO: use deep ??
-                                       .filter(viewable=True)
-                                       .choices()
-                                  )
-        status = 200
+    #return HttpResponse(msg, mimetype="text/javascript", status=status)
 
-    return HttpResponse(msg, mimetype="text/javascript", status=status)
+#Commented on 25/01/2014
+#todo: use jsonify (and remove Exception handling)
+#@login_required
+#def _get_ct_info(request, generator):
+    #try:
+        #ct = get_ct_or_404(int(get_from_POST_or_404(request.POST, 'ct_id')))
+    #except ValueError as e:
+        #status = 400
+        #msg    = str(e)
+    #except Http404 as e:
+        #status = 404
+        #msg    = str(e)
+    #else:
+        #status = 200
+        #msg    = JSONEncoder().encode(generator(ct))
 
-#TODO: use jsonify (and remove Exception handling)
-@login_required
-def _get_ct_info(request, generator):
-    try:
-        ct = get_ct_or_404(int(get_from_POST_or_404(request.POST, 'ct_id')))
-    except ValueError as e:
-        status = 400
-        msg    = str(e)
-    except Http404 as e:
-        status = 404
-        msg    = str(e)
-    else:
-        status = 200
-        msg    = JSONEncoder().encode(generator(ct))
+    #return HttpResponse(msg, mimetype="text/javascript", status=status)
 
-    return HttpResponse(msg, mimetype="text/javascript", status=status)
+#Commented on 25/01/2014
+#@login_required
+#def get_custom_fields(request):
+    #"@return Custom fields for a model [('cfield1_id', 'cfield1_name'), ...]"
+    #return _get_ct_info(request,
+                        #lambda ct: list(CustomField.objects.filter(content_type=ct)
+                                                           #.values_list('id', 'name')
+                                       #)
+                       #)
 
-@login_required
-def get_custom_fields(request):
-    "@return Custom fields for a model [('cfield1_id', 'cfield1_name'), ...]"
-    return _get_ct_info(request,
-                        lambda ct: list(CustomField.objects.filter(content_type=ct)
-                                                           .values_list('id', 'name')
-                                       )
-                       )
-
-@login_required
-def get_function_fields(request):
-    """@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
-    return _get_ct_info(request,
-                        lambda ct: [(f_field.name, unicode(f_field.verbose_name)) 
-                                        for f_field in ct.model_class().function_fields
-                                   ]
-                       )
+#Commented on 25/01/2014
+#@login_required
+#def get_function_fields(request):
+    #"""@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
+    #return _get_ct_info(request,
+                        #lambda ct: [(f_field.name, unicode(f_field.verbose_name)) 
+                                        #for f_field in ct.model_class().function_fields
+                                   #]
+                       #)
 
 @login_required
 @jsonify

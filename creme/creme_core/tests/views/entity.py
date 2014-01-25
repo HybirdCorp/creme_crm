@@ -47,145 +47,88 @@ class EntityViewsTestCase(ViewsTestCase):
     def _build_restore_url(self, entity):
         return '/creme_core/entity/restore/%s' % entity.id
 
-    def test_get_fields(self):
-        self.login()
-
-        url = '/creme_core/entity/get_fields'
-        ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.assertPOST200(url, data={'ct_id': ct_id})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        content = simplejson.loads(response.content)
-        self.assertIsInstance(content, list)
-        self.assertEqual(5, len(content))
-
-        fmt = u'[%s] - %s'
-        #user_str = _('User')
-        user_str = _('Owner user')
-        self.assertEqual(content[0],    ['created',          _('Creation date')])
-        self.assertEqual(content[1],    ['modified',         _('Last modification')])
-        self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('Username'))])
-        #self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))])
-        self.assertEqual(content[3][0], 'user__last_name')
-        self.assertEqual(content[4][0], 'user__email')
-        #self.assertEqual(content[6][0], 'user__is_team')
-
-        response = self.assertPOST404(url, data={'ct_id': 0})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        response = self.assertPOST(400, url, data={'ct_id': 'notint'})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        response = self.assertPOST(400, url, data={'ct_id': ct_id, 'deep': 'notint'})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-    def test_get_function_fields(self):
-        self.login()
-
-        url = '/creme_core/entity/get_function_fields'
-
-        ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.assertPOST200(url, data={'ct_id': ct_id})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        content = simplejson.loads(response.content)
-        self.assertIsInstance(content, list)
-        self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
-        self.assertIn(['get_pretty_properties', _('Properties')], content)
-
-        response = self.assertPOST404(url, data={'ct_id': 0})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        response = self.assertPOST(400, url, data={'ct_id': 'notint'})
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-    def test_get_custom_fields(self):
-        self.login()
-
-        def get_cf(ct_id):
-            return self.client.post('/creme_core/entity/get_custom_fields',
-                                    data={'ct_id': ct_id}
-                                   )
-
-        ct = ContentType.objects.get_for_model(CremeEntity)
-        response = get_cf(ct.id)
-        self.assertEqual(200,               response.status_code)
-        self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual([], simplejson.loads(response.content))
-
-        create_cf = partial(CustomField.objects.create, content_type=ct)
-        cf1 = create_cf(name='Size',   field_type=CustomField.INT)
-        cf2 = create_cf(name='Weight', field_type=CustomField.FLOAT)
-
-        response = get_cf(ct.id)
-        self.assertEqual([[cf1.id, cf1.name], [cf2.id, cf2.name]],
-                         simplejson.loads(response.content)
-                        )
-
-        response = get_cf(0)
-        self.assertEqual(404,               response.status_code)
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-        response = get_cf('notint')
-        self.assertEqual(400,               response.status_code)
-        self.assertEqual('text/javascript', response['Content-Type'])
-
-    #def test_get_creme_entity_as_json01(self):
+    #def test_get_fields(self):
         #self.login()
 
-        #with self.assertNoException():
-            #entity = CremeEntity.objects.create(user=self.user)
-
-        #response = self.assertPOST200('/creme_core/entity/json', data={'pk': entity.id})
+        #url = '/creme_core/entity/get_fields'
+        #ct_id = ContentType.objects.get_for_model(CremeEntity).id
+        #response = self.assertPOST200(url, data={'ct_id': ct_id})
         #self.assertEqual('text/javascript', response['Content-Type'])
 
-        #json_data = simplejson.loads(response.content)
-        ##[{'pk': 1,
-        ##  'model': 'creme_core.cremeentity',
-        ##  'fields': {'is_actived': False,
-        ##             'is_deleted': False,
-        ##             'created': '2010-11-09 14:34:04',
-        ##             'header_filter_search_field': '',
-        ##             'entity_type': 100,
-        ##             'modified': '2010-11-09 14:34:04',
-        ##             'user': 1
-        ##            }
-        ##}]
-        #with self.assertNoException():
-            #dic = json_data[0]
-            #pk     = dic['pk']
-            #model  = dic['model']
-            #fields = dic['fields']
-            #user = fields['user']
+        #content = simplejson.loads(response.content)
+        #self.assertIsInstance(content, list)
+        #self.assertEqual(5, len(content))
 
-        #self.assertEqual(entity.id, pk)
-        #self.assertEqual('creme_core.cremeentity', model)
-        #self.assertEqual(self.user.id, user)
+        #fmt = u'[%s] - %s'
+        ##user_str = _('User')
+        #user_str = _('Owner user')
+        #self.assertEqual(content[0],    ['created',          _('Creation date')])
+        #self.assertEqual(content[1],    ['modified',         _('Last modification')])
+        #self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('Username'))])
+        ##self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))])
+        #self.assertEqual(content[3][0], 'user__last_name')
+        #self.assertEqual(content[4][0], 'user__email')
+        ##self.assertEqual(content[6][0], 'user__is_team')
 
-    #def test_get_creme_entity_as_json02(self):
+        #response = self.assertPOST404(url, data={'ct_id': 0})
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+        #response = self.assertPOST(400, url, data={'ct_id': 'notint'})
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+        #response = self.assertPOST(400, url, data={'ct_id': ct_id, 'deep': 'notint'})
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+    #def test_get_function_fields(self):
         #self.login()
 
-        #with self.assertNoException():
-            #entity = CremeEntity.objects.create(user=self.user)
+        #url = '/creme_core/entity/get_function_fields'
 
-        #response = self.assertPOST200('/creme_core/entity/json',
-                                      #data={'pk':     entity.id,
-                                            #'fields': ['user', 'entity_type'],
-                                           #}
-                                     #)
+        #ct_id = ContentType.objects.get_for_model(CremeEntity).id
+        #response = self.assertPOST200(url, data={'ct_id': ct_id})
+        #self.assertEqual('text/javascript', response['Content-Type'])
 
-        #json_data = simplejson.loads(response.content)
-        ##[{'pk': 1,
-        ##  'model': 'creme_core.cremeentity',
-        ##  'fields': {'user': 1, 'entity_type': 100}}
-        ##]
-        #with self.assertNoException():
-            #fields = json_data[0]['fields']
-            #user = fields['user']
-            #entity_type = fields['entity_type']
+        #content = simplejson.loads(response.content)
+        #self.assertIsInstance(content, list)
+        #self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
+        #self.assertIn(['get_pretty_properties', _('Properties')], content)
 
-        #self.assertEqual(self.user.id, user)
-        #self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
+        #response = self.assertPOST404(url, data={'ct_id': 0})
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+        #response = self.assertPOST(400, url, data={'ct_id': 'notint'})
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+    #def test_get_custom_fields(self):
+        #self.login()
+
+        #def get_cf(ct_id):
+            #return self.client.post('/creme_core/entity/get_custom_fields',
+                                    #data={'ct_id': ct_id}
+                                   #)
+
+        #ct = ContentType.objects.get_for_model(CremeEntity)
+        #response = get_cf(ct.id)
+        #self.assertEqual(200,               response.status_code)
+        #self.assertEqual('text/javascript', response['Content-Type'])
+        #self.assertEqual([], simplejson.loads(response.content))
+
+        #create_cf = partial(CustomField.objects.create, content_type=ct)
+        #cf1 = create_cf(name='Size',   field_type=CustomField.INT)
+        #cf2 = create_cf(name='Weight', field_type=CustomField.FLOAT)
+
+        #response = get_cf(ct.id)
+        #self.assertEqual([[cf1.id, cf1.name], [cf2.id, cf2.name]],
+                         #simplejson.loads(response.content)
+                        #)
+
+        #response = get_cf(0)
+        #self.assertEqual(404,               response.status_code)
+        #self.assertEqual('text/javascript', response['Content-Type'])
+
+        #response = get_cf('notint')
+        #self.assertEqual(400,               response.status_code)
+        #self.assertEqual('text/javascript', response['Content-Type'])
 
     def test_json_entity_get01(self):
         self.login()
