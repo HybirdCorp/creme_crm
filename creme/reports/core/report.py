@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,9 @@ from django.db.models import ManyToManyField, ForeignKey, FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
-from creme.creme_core.utils.meta import (get_instance_field_info,
-        get_model_field_info, get_related_field, get_verbose_field_name)
+from creme.creme_core.utils.meta import get_model_field_info, get_related_field, get_verbose_field_name #get_instance_field_info
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_AGGREGATE, RFT_RELATED)
@@ -221,17 +221,19 @@ class RHRegularField(ReportHand):
         return super(RHRegularField, cls).__new__(cls)
 
     def __init__(self, report_field, support_subreport=False, title=None):
+        model = report_field.model
+        field_name = report_field.name
         super(RHRegularField, self).__init__(report_field,
-                                             title=title or get_verbose_field_name(report_field.model, report_field.name),
+                                             title=title or get_verbose_field_name(model, field_name),
                                              support_subreport=support_subreport,
                                             )
+        #TODO: get_verbose_field_name & build_field_printer do the same work (get_model_field_info): can we factorise this ??
+        self._printer = field_printers_registry.build_field_printer(model, field_name, output='csv')
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        model_field, value = get_instance_field_info(entity, self._report_field.name)
-
-        return unicode(value or u'') #Maybe format map (i.e : datetime...)
-
-    #def to_entity_cell(self):
+        #model_field, value = get_instance_field_info(entity, self._report_field.name)
+        #return unicode(value or u'') #Maybe format map (i.e : datetime...)
+        return self._printer(entity, user)
 
 
 class RHForeignKey(RHRegularField):

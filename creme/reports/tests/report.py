@@ -11,6 +11,7 @@ try:
     from django.utils.datastructures import SortedDict as OrderedDict
     from django.utils.translation import ugettext as _
     from django.utils.encoding import smart_str
+    from django.utils.formats import date_format
     from django.utils.unittest.case import skipIf
     #from django.core.serializers.json import simplejson
 
@@ -1049,7 +1050,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         username = self.user.username
         self.assertEqual([[self.lannisters.name, username, '',          ''],
-                          [starks.name,          username, lform.title, '2013-09-24'],
+                          #[starks.name,          username, lform.title, '2013-09-24'],
+                          [starks.name,          username, lform.title, date_format(starks.creation_date, 'DATE_FORMAT')],
                          ],
                          report.fetch_all_lines()
                         )
