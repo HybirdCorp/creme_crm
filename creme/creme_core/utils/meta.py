@@ -31,6 +31,7 @@ from django.db.models import ManyToManyField, FieldDoesNotExist #Field ForeignKe
 #class NotDjangoModel(Exception):
     #pass
 
+#TODO; used only in activesync
 #TODO: manage better M2M values
 def get_instance_field_info(obj, field_name):
     """ For a field_name 'att1__att2__att3', it searchs and returns the tuple
