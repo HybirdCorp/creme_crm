@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,11 @@ class Act(CremeEntity):
         return self.name
 
     def clean(self):
-        if self.due_date < self.start:
+        super(Act, self).clean()
+        start = self.start
+        due_date = self.due_date
+
+        if not due_date or not start or due_date < start:
             raise ValidationError(ugettext(u"Due date can't be before start."))
 
     def get_absolute_url(self):
