@@ -84,8 +84,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
     },
 
-    _onClose: function(dialog, frame, options) {
+    _onClose: function(dialog, frame, options)
+    {
         this._dialogBackground().toggleClass('ui-dialog-scrollbackground', false);
+        this._events.trigger('close', [], this);
     },
 
     _onOpen: function(dialog, frame, options)
@@ -303,7 +305,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     close: function()
     {
         this._destroyDialog();
-        this._events.trigger('close', [], this);
         return this;
     },
 
@@ -346,16 +347,21 @@ creme.dialogs = $.extend(creme.dialogs, {
 
     form: function(url, options, data)
     {
-        var options = options || {};
-        var compatibility = function(data, statusText, dataType) {
-                                return dataType !== 'text/html' || 
-                                       data.startsWith('<div class="in-popup" closing="true">') ||
-                                       (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
-                            }
+        var options = $.extend({compatible: true}, options || {});
+        var dialog = new creme.dialog.FormDialog(options);
 
-        var dialog = new creme.dialog.FormDialog(options)
-                                     .validator(compatibility)
-                                     .fetch(url, {}, data);
+        if (options.compatible === true)
+        {
+            var compatibility = function(data, statusText, dataType) {
+                return dataType !== 'text/html' ||
+                       data.startsWith('<div class="in-popup" closing="true">') ||
+                       (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
+            }
+
+            dialog.validator(compatibility);
+        }
+
+        dialog.fetch(url, {}, data);
 
         if (options.reloadOnSuccess) {
             dialog.onFormSuccess(function() {creme.utils.reload();});
