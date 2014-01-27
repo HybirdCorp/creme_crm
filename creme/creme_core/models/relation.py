@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 import logging
-import warnings
+#import warnings
 
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
 from django.db import transaction
@@ -277,34 +277,34 @@ class Relation(CremeAbstractEntity):
     def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
 
-    def update_links(self, subject_entity=None, object_entity=None, save=False):
-        """Deprecated
-        Beware: use this method if you have to update the related entities of a relation.
-        @param subject_entity Give the param if you want to update the value of the relation's subject.
-        @param object_entity Give the param if you want to update the value of the relation's object.
-        @param save Save the relation if needed. Default to False.
-        """
-        warnings.warn("Relation.update_links() method is deprecated; "
-                      "delete your old Relation instace and create a new one instead",
-                      DeprecationWarning
-                     )
+    #def update_links(self, subject_entity=None, object_entity=None, save=False):
+        #"""Deprecated
+        #Beware: use this method if you have to update the related entities of a relation.
+        #@param subject_entity Give the param if you want to update the value of the relation's subject.
+        #@param object_entity Give the param if you want to update the value of the relation's object.
+        #@param save Save the relation if needed. Default to False.
+        #"""
+        #warnings.warn("Relation.update_links() method is deprecated; "
+                      #"delete your old Relation instace and create a new one instead",
+                      #DeprecationWarning
+                     #)
 
-        changed = False
+        #changed = False
 
-        if subject_entity is not None:
-            if self.subject_entity_id != subject_entity.id:
-                self.subject_entity = subject_entity
-                self.symmetric_relation.object_entity = subject_entity
-                changed = True
+        #if subject_entity is not None:
+            #if self.subject_entity_id != subject_entity.id:
+                #self.subject_entity = subject_entity
+                #self.symmetric_relation.object_entity = subject_entity
+                #changed = True
 
-        if object_entity is not None:
-            if self.object_entity_id != object_entity.id:
-                self.object_entity = object_entity
-                self.symmetric_relation.subject_entity = object_entity
-                changed = True
+        #if object_entity is not None:
+            #if self.object_entity_id != object_entity.id:
+                #self.object_entity = object_entity
+                #self.symmetric_relation.subject_entity = object_entity
+                #changed = True
 
-        if save and changed:
-            self.save()
+        #if save and changed:
+            #self.save()
 
 
 class SemiFixedRelationType(CremeModel):
