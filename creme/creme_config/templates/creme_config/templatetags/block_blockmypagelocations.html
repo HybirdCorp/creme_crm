@@ -1,7 +1,13 @@
 {% extends 'creme_config/templatetags/block_blockdefmypagelocations.html' %}
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
 
 {% block title %}{% get_block_title _('%s Block on "Mypage"') _('%s Blocks on "Mypage"') %}{% endblock %}
-{% block edition %}{% get_line_adder at_url '/creme_config/blocks/mypage/edit' with_label _("Edit blocks configuration") with_perms 1 %}{% endblock %}
+{% block edition %}
+    {% comment %}{% get_line_adder at_url '/creme_config/blocks/mypage/edit' with_label _("Edit blocks configuration") with_perms 1 %}{% endcomment %}
+    <a class="button_link" onclick="creme.blocks.form('/creme_config/blocks/mypage/edit', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+        {% trans "Edit blocks configuration" as label %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{label}}" title="{{label}}"/>
+        {{label}}
+    </a>
+{% endblock %}
 {% block deletion %}{% get_line_deletor at_url '/creme_config/blocks/mypage/delete' with_args "{'id': '{{loc.id}}'}" with_perms 1 %}{% endblock %}
