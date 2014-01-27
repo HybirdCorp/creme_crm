@@ -382,95 +382,109 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         });
     },
 
-    _initSelectorUnderlays: function() {
+    _toggleSelectorUnderlay: function(target)
+    {
+        var self = this;
+        var underlays = this.underlays;
+        var selector = target.parent('.selector');
+        var column = selector.attr('data-column');
+        var underlay = underlays[column];
+
+        if (!underlay) {
+            underlays[column] = underlay = $('<div>').attr('data-column', column)
+                                                     .addClass('underlay')
+//TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+//                                                   .css('width', $(window).width())
+                                                     .data('underlay_selector', selector)
+                                                     .append(selector.find('.underlay-container'));
+        }
+
+        var lastItemOfLine = this.findLastItemOfLine(selector);
+        var container = selector.parents('.selector_list').find('.underlay'); // only 1 underlay per list
+
+        if (container.length == 0)  {
+            this.placeUnderlay(underlay, lastItemOfLine);
+
+            // underlay opening: sliding in animation
+            underlay.children().css ('opacity', 1);
+            underlay.find('.underlay-content').css('opacity', 0);
+            underlay.css('max-height', 0).css('opacity', 1);
+
+            var targetHeight = underlay.__underlay_height;
+
+            // animation version 1
+//            underlay.children().delay (100).animate ({opacity: 1}, 400);
+//            underlay.animate ({'max-height': targetHeight}, 300, function () {
+//                underlay.css ('width', $(window).width());
+//            });
+
+            underlay.find('.underlay-content').animate({opacity: 1}, 400);
+            underlay.children().delay (100).animate({opacity: 1}, 400);
+            underlay.animate({'max-height': targetHeight}, 300, function() {
+                // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+                // underlay.css('width', $(window).width());
+            });
+        } else if (container.attr('data-column') == column) {
+            // underlay closing: sliding out animation
+
+            // animation version 1
+//            container.children().animate ({opacity: 0}, 150);
+//            container.animate ({'max-height': 0}, 300, function (e) {
+//                container.detach();
+//            });
+
+            container.find('.underlay-content').animate({opacity: 0}, 150);
+            container.children().delay(130).animate({opacity: 0}, 150);
+            container.animate({'max-height': 0}, 300, function(e) {
+                container.detach();
+            });
+        } else {
+            // underlay transition : cross-fade animation
+            container.animate({opacity: 0}, 100, function(e) {
+                container.detach();
+
+                underlay.css('opacity', 0);
+                self.placeUnderlay(underlay, lastItemOfLine);
+
+                // animation version 1
+//                underlay.animate ({opacity: 1}, 150);
+//                underlay.children().animate ({opacity: 1}, 150);
+
+                underlay.animate({opacity: 1}, 150);
+                underlay.find('.underlay-content').animate({opacity: 1}, 150);
+                underlay.children().animate({opacity: 1}, 150);
+            });
+        }
+
+        // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
+        // underlay.find('.arrow').css('left', 20 + target.position().left + 'px');
+        
+        var arrow = underlay.find('.arrow');
+        // TODO: find a way to get the width from the arrow itself, right now, when it's showing, the width it returns is 0 instead of 17; possibly need to check with the latest jQuery
+        var arrowWidth = 17; // arrow width + its left and right borders -> arrow.outerWidth()
+        
+        var toggleOffset = target.offset().left - target.parents('.field_selectors').offset().left;
+        var arrowOffset = toggleOffset + (target.width() - arrowWidth) / 2;
+        arrow.css('left', arrowOffset + 'px');
+    },
+
+    _initSelectorUnderlays: function()
+    {
         var self = this;
         var div = this.div;
-        var underlays = this.underlays;
+
+        $('.underlay .selector_close').live('click', function(e) {
+            e.preventDefault();
+
+            var column = $(this).parents('.underlay:first').attr('data-column');
+            var target = div.find('.selector[data-column="' + column + '"] .sub_selector_toggle')
+
+            self._toggleSelectorUnderlay(target);
+        });
 
         div.find('.sub_selector_toggle').click(function(e) {
             e.preventDefault();
-
-            var target = $(e.target);
-            var selector = target.parent('.selector');
-            var column = selector.attr('data-column');
-
-            var underlay = underlays[column];
-            if (!underlay) {
-                underlays[column] = underlay = $('<div>').attr('data-column', column)
-                                                         .addClass('underlay')
-// TODO: uncomment after updating to an horizontal menu, to support full-width underlays
-//                                                       .css('width', $(window).width())
-                                                         .data('underlay_selector', selector)
-                                                         .append(selector.find('.underlay-container'));
-            }
-
-            var lastItemOfLine = self.findLastItemOfLine(selector);
-            var container = selector.parents('.selector_list').find('.underlay'); // only 1 underlay per list
-
-            if (container.length == 0)  {
-                self.placeUnderlay(underlay, lastItemOfLine);
-
-                // underlay opening: sliding in animation
-                underlay.children().css ('opacity', 1);
-                underlay.find('.underlay-content').css('opacity', 0);
-                underlay.css('max-height', 0).css('opacity', 1);
-
-                var targetHeight = underlay.__underlay_height;
-
-                // animation version 1
-    //            underlay.children().delay (100).animate ({opacity: 1}, 400);
-    //            underlay.animate ({'max-height': targetHeight}, 300, function () {
-    //                underlay.css ('width', $(window).width());
-    //            });
-
-                underlay.find('.underlay-content').animate({opacity: 1}, 400);
-                underlay.children().delay (100).animate({opacity: 1}, 400);
-                underlay.animate({'max-height': targetHeight}, 300, function() {
-                    // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
-                    // underlay.css('width', $(window).width());
-                });
-            } else if (container.attr('data-column') == column) {
-                // underlay closing: sliding out animation
-
-                // animation version 1
-    //            container.children().animate ({opacity: 0}, 150);
-    //            container.animate ({'max-height': 0}, 300, function (e) {
-    //                container.detach();
-    //            });
-
-                container.find('.underlay-content').animate({opacity: 0}, 150);
-                container.children().delay(130).animate({opacity: 0}, 150);
-                container.animate({'max-height': 0}, 300, function(e) {
-                    container.detach();
-                });
-            } else {
-                // underlay transition : cross-fade animation
-                container.animate({opacity: 0}, 100, function(e) {
-                    container.detach();
-
-                    underlay.css('opacity', 0);
-                    self.placeUnderlay(underlay, lastItemOfLine);
-
-                    // animation version 1
-    //                underlay.animate ({opacity: 1}, 150);
-    //                underlay.children().animate ({opacity: 1}, 150);
-
-                    underlay.animate({opacity: 1}, 150);
-                    underlay.find('.underlay-content').animate({opacity: 1}, 150);
-                    underlay.children().animate({opacity: 1}, 150);
-                });
-            }
-
-            // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
-            // underlay.find('.arrow').css('left', 20 + target.position().left + 'px');
-            
-            var arrow = underlay.find('.arrow');
-            // TODO: find a way to get the width from the arrow itself, right now, when it's showing, the width it returns is 0 instead of 17; possibly need to check with the latest jQuery
-            var arrowWidth = 17; // arrow width + its left and right borders -> arrow.outerWidth()
-            
-            var toggleOffset = target.offset().left - target.parents('.field_selectors').offset().left;
-            var arrowOffset = toggleOffset + (target.width() - arrowWidth) / 2;
-            arrow.css('left', arrowOffset + 'px');
+            self._toggleSelectorUnderlay($(this));
         });
 
 //         TODO: uncomment when relationships objects sub-fields
