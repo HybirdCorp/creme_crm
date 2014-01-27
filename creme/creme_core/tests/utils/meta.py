@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.db.models import fields
+    from django.db.models import fields, FieldDoesNotExist
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
@@ -10,7 +10,7 @@ try:
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from creme.creme_core.utils import meta
 
-    from creme.persons.models import Contact
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -35,7 +35,7 @@ class MetaTestCase(CremeTestCase):
 
         self.assertEqual(fields.CharField, meta.get_instance_field_info(prop, 'creme_entity__entity_type__name')[0])
 
-    def test_get_model_field_info(self):
+    def test_get_model_field_info01(self):
         self.assertEqual([], meta.get_model_field_info(CremeEntity, 'foobar'))
         self.assertEqual([], meta.get_model_field_info(CremeEntity, 'foo__bar'))
 
@@ -86,6 +86,45 @@ class MetaTestCase(CremeTestCase):
             desc = info[2]
             self.assertIsInstance(desc['field'], fields.CharField)
             self.assertIsNone(desc['model'])
+
+    def test_get_model_field_info02(self):
+        with self.assertNoException():
+            info = meta.get_model_field_info(CremeProperty, 'type', silent=False)
+            self.assertEqual(1, len(info))
+
+            desc = info[0]
+            self.assertIsInstance(desc['field'], fields.related.ForeignKey)
+            self.assertEqual(CremePropertyType, desc['model'])
+
+        with self.assertRaises(FieldDoesNotExist):
+            meta.get_model_field_info(CremeEntity, 'foobar', silent=False)
+
+        with self.assertRaises(FieldDoesNotExist):
+            meta.get_model_field_info(CremeEntity, 'foo__bar', silent=False)
+
+    def test_get_verbose_field_name(self):
+        gvfn = meta.get_verbose_field_name
+        self.assertEqual(_('First name'), gvfn(Contact,      'first_name'))
+        self.assertEqual(_('Last name'),  gvfn(Contact,      'last_name'))
+        self.assertEqual(_('Name'),       gvfn(Organisation, 'name'))
+
+        self.assertEqual(_('Photograph') + ' - ' + _('Name'), gvfn(Contact, 'image__name'))
+        self.assertEqual(_('Photograph') + '/'   + _('Name'), gvfn(Contact, 'image__name', separator='/'))
+
+        self.assertEqual('', gvfn(Contact, 'stuff'))
+        with self.assertRaises(FieldDoesNotExist):
+            gvfn(Contact, 'stuff', silent=False)
+
+        self.assertEqual(_('Photograph'), gvfn(Contact, 'image__stuff')) #'silent=True' is legacy mode but should be removed...
+        with self.assertRaises(FieldDoesNotExist):
+            gvfn(Contact, 'image__stuff', silent=False)
+
+    def test_get_related_field(self):
+        self.assertIsNone(meta.get_related_field(Contact, 'stuffes'))
+
+        rf = meta.get_related_field(Contact, 'cremeproperty')
+        self.assertEqual(CremeProperty, rf.model)
+        self.assertEqual('properties',  rf.get_accessor_name())
 
     def test_get_date_fields(self):
         entity = CremeEntity()
@@ -305,7 +344,3 @@ class MetaTestCase(CremeTestCase):
                          ],
                          choices, choices
                         )
-
-    #TODO: complete
-
-    
