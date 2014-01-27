@@ -86,8 +86,28 @@ class ActTestCase(CommercialBaseTestCase):
                                             'segment':        segment.id,
                                            }
                                      )
-        self.assertFormError(response, 'form', None, [_(u"Due date can't be before start.")])
+        self.assertFormError(response, 'form', None, _(u"Due date can't be before start."))
         self.assertFalse(Act.objects.all())
+
+    def test_create03(self):
+        "Error: start/due date not filled"
+        atype = ActType.objects.create(title='Show')
+        segment = self._create_segment()
+
+        def post(**kwargs):
+            return self.assertPOST200(self.ADD_URL, follow=True,
+                                    data=dict(user=self.user.pk,
+                                              name='Act#1',
+                                              expected_sales=1000,
+                                              act_type=atype.id,
+                                              segment=self._create_segment().id,
+                                              **kwargs
+                                             )
+                                    )
+
+        msg = _(u"This field is required.")
+        self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
+        self.assertFormError(post(due_date='2011-11-20'), 'form', 'start',    msg)
 
     def create_act(self, name='NAME', expected_sales=1000):
         return Act.objects.create(user=self.user, name=name,
