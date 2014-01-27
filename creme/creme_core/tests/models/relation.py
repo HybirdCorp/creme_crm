@@ -69,29 +69,29 @@ class RelationsTestCase(CremeTestCase):
         self.assertNotEqual(relation.subject_entity_id, relation.symmetric_relation.object_entity_id)
         self.assertNotEqual(relation.object_entity_id,  relation.symmetric_relation.subject_entity_id)
 
-    def test_relation03(self): #TODO: deprecated
-        rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                             ('test-object_foobar',  'is loved by'))
+    #def test_relation03(self):
+        #rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
+                                             #('test-object_foobar',  'is loved by'))
 
-        create_entity = CremeEntity.objects.create
-        relation = Relation.objects.create(user=self.user, type=rtype1,
-                                           subject_entity=create_entity(user=self.user),
-                                           object_entity=create_entity(user=self.user)
-                                          )
+        #create_entity = CremeEntity.objects.create
+        #relation = Relation.objects.create(user=self.user, type=rtype1,
+                                           #subject_entity=create_entity(user=self.user),
+                                           #object_entity=create_entity(user=self.user)
+                                          #)
 
-        entity3 = create_entity(user=self.user)
-        entity4 = create_entity(user=self.user)
-        relation.update_links(subject_entity=entity3, object_entity=entity4, save=True)
+        #entity3 = create_entity(user=self.user)
+        #entity4 = create_entity(user=self.user)
+        #relation.update_links(subject_entity=entity3, object_entity=entity4, save=True)
 
-        relation = Relation.objects.get(pk=relation.id) #refresh
-        self.assertEqual(entity3.id, relation.subject_entity.id)
-        self.assertEqual(entity4.id, relation.object_entity.id)
+        #relation = Relation.objects.get(pk=relation.id) #refresh
+        #self.assertEqual(entity3.id, relation.subject_entity.id)
+        #self.assertEqual(entity4.id, relation.object_entity.id)
 
-        sym = relation.symmetric_relation
-        self.assertEqual(entity4.id, sym.subject_entity.id)
-        self.assertEqual(entity3.id, sym.object_entity.id)
+        #sym = relation.symmetric_relation
+        #self.assertEqual(entity4.id, sym.subject_entity.id)
+        #self.assertEqual(entity3.id, sym.object_entity.id)
 
-    def test_relation04(self):
+    def test_delete_rtype(self):
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
                                              ('test-object_foobar',  'is loved by'))
         rtype1.delete()
