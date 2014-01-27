@@ -294,6 +294,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                                        maxHeight: options.scroll === 'frame' ? options.maxHeight : false,
                                        maxWidth:  options.maxWidth,
                                        position:  position,
+                                       closeOnEscape: false,
                                        open:      function() {self._onOpen($(this), frame, options);},
                                        resize:    function() {self._onResize($(this), frame);},
                                        close:     function() {self._onClose($(this), frame, options);}
