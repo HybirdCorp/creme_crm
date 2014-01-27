@@ -27,6 +27,7 @@
                                                 <span class="selector_title">
                                                     {% blocktrans count subfields_count=subfields|length with field=field_vname %}{{field}}: {{subfields_count}} sub-field{% plural %}{{field}}: {{subfields_count}} sub-fields{% endblocktrans %}
                                                 </span>
+                                                <span class="selector_close">×&nbsp;{% trans 'Close' %}</span>
                                                 <ul class="underlay_selector_list">
                                                     {% for subfield_name, subfield_vname in subfields %}
                                                         <li class="selector" data-column="{{subfield_name}}"><input type="checkbox">{{subfield_vname}}</li>
