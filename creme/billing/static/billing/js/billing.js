@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2014  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ creme.billing = creme.billing || {};
 //    }
 //}
 
-//creme.billing.get_selected_lines = function() { //TODO: rename (camelCase)
+//creme.billing.get_selected_lines = function() { //todo: rename (camelCase)
 //    var selected_lines_ids = new Array();
 //    var lines = $('[name="select_one"]');
 //
@@ -625,32 +625,33 @@ creme.billing.serializeForm = function(form) {
 }
 
 creme.billing.multi_save_lines = function (document_id) {
-    creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
-                 .onOk(function() {
-                     var forms = $('tbody[id^=form_id_]');
-                     var forms_data = {};
-                     var url = '/billing/%s/multi_save_lines'.format(document_id);
+//     creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
+//                  .onOk(function() {
+    var forms = $('tbody[id^=form_id_]');
+    var forms_data = {};
+    var url = '/billing/%s/multi_save_lines'.format(document_id);
 
-                     // TODO do not ask confirmation to leave the page in this precise case
-                     var blocks_to_reload = forms.filter('.form_modified').map(function() {
-                         var ct_id = $(this).attr('ct_id');
-                         forms_data[ct_id] = $.toJSON(creme.billing.serializeForm($(this)));
-                         return $(this).attr('reload_url') + creme.utils.getBlocksDeps($(this).attr('block_name'));
-                     }).get();
+    // TODO do not ask confirmation to leave the page in this precise case
+    var blocks_to_reload = forms.filter('.form_modified').map(function() {
+        var ct_id = $(this).attr('ct_id');
+        forms_data[ct_id] = $.toJSON(creme.billing.serializeForm($(this)));
+        return $(this).attr('reload_url') + creme.utils.getBlocksDeps($(this).attr('block_name'));
+    }).get();
 
-                     creme.utils.ajaxQuery(url, {action: 'post'}, forms_data)
-                                .onFail(function(event, error, status) {
-                                     if (status.status === 409) {
-                                         creme.dialogs.warning(unescape(error), {title: gettext('Errors report')}).open();
-                                     }
-                                 })
-                                .onDone(function() {
-                                     blocks_to_reload.forEach(function(block_url) {
-                                         creme.blocks.reload(block_url);
-                                     });
-                                 })
-                                .start();
-                 }).open();
+    creme.utils.ajaxQuery(url, {action: 'post'}, forms_data)
+               .onFail(function(event, error, status) {
+                    if (status.status === 409) {
+                        creme.dialogs.warning(unescape(error), {title: gettext('Errors report')}).open();
+                    }
+                })
+               .onDone(function() {
+                    blocks_to_reload.forEach(function(block_url) {
+                        creme.blocks.reload(block_url);
+                    });
+                })
+               .start();
+//                  }).open();
+
 /*
     var buttons = {};
 
@@ -664,7 +665,7 @@ creme.billing.multi_save_lines = function (document_id) {
         var blocks_reload = new Array();
         var i = 0;
 
-        // TODO do not ask confirmation to leave the page in this precise case
+        // todo do not ask confirmation to leave the page in this precise case
         forms.each(function() {
             if ($(this).hasClass('form_modified')) {
                 var ct_id = $(this).attr('ct_id');
