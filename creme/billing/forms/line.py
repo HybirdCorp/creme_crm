@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ class _LineMultipleAddForm(CremeForm):
                                   help_text=_(u'Percentage applied on the unit price'),
                                  )
     vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
-                                      initial=Vat.get_default_vat(),
+                                      empty_label=None,
                                      )
 
     def _get_line_class(self):
@@ -54,6 +54,7 @@ class _LineMultipleAddForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(_LineMultipleAddForm, self).__init__(*args, **kwargs)
         self.billing_document = entity
+        self.fields['vat'].initial = Vat.get_default_vat() #not in field declaration because default value can change
 
     def clean_items(self):
         return validate_linkable_entities(self.cleaned_data['items'], self.user)
@@ -186,18 +187,23 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 #         fields = ('comment',)
 
 
+#NB: model is set later, because this class is use as base class
 class LineEditForm(CremeModelWithUserForm):
+    #TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
+    vat_value = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
+                                 required=True, #TODO: remove when null=False in the model
+                                 empty_label=None,
+                                )
+
     def __init__(self, user, related_document=None, *args, **kwargs):
         super(LineEditForm, self).__init__(user=user, *args, **kwargs)
-
         self.related_document = related_document
-
         fields = self.fields
 
-        fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator' : 'Value'})
+        fields['on_the_fly_item'].widget = TextInput(attrs={'class': 'line-on_the_fly', 'validator': 'Value'})
 
-        fields['unit_price'].widget = TextInput(attrs={'class': 'line-unit_price bound', 'validator' : 'Decimal'})
-        fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator' : 'PositiveDecimal'})
+        fields['unit_price'].widget = TextInput(attrs={'class': 'line-unit_price bound', 'validator': 'Decimal'})
+        fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
         fields['unit'].widget = TextInput(attrs={'class': 'line-unit'})
         fields['discount'].widget = TextInput(attrs={'class': 'line-quantity_discount bound'})
         fields['discount_unit'].widget.attrs = fields['total_discount'].widget.attrs = {'class': 'bound'}
@@ -205,9 +211,10 @@ class LineEditForm(CremeModelWithUserForm):
 
         fields['comment'].widget = Textarea(attrs={'class': 'line-comment'})
 
-        vat_f = fields['vat_value']
-        vat_f.initial = Vat.get_default_vat()
-        vat_f.required = True
+        #vat_f = fields['vat_value']
+        #vat_f.initial = Vat.get_default_vat()
+        #vat_f.required = True
+        fields['vat_value'].initial = Vat.get_default_vat()
 
     def save(self, *args, **kwargs):
         instance = self.instance

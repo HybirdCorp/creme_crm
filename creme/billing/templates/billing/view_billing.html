@@ -16,7 +16,7 @@
     <script type='text/javascript'>
         $(document).ready(function() {
             $(window).bind('beforeunload', creme.billing.checkModifiedOnUnload);
-            creme.billing.initBlockLines('{{ object.currency.local_symbol }}');
+            creme.billing.initBlockLines('{{object.currency.local_symbol}}');
         });
     </script>
 {% endblock %}

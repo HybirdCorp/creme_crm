@@ -70,7 +70,7 @@ def add_multiple_service_line(request, document_id):
 #     return edit_model_with_popup(request, {'pk': line_id},
 #                                  Line, LineEditForm,
 #                                  #can_change=Line.can_change
-#                                 ) #TODO check line or billing document credentials ??
+#                                 ) #todo check line or billing document credentials ??
 #
 # @jsonify
 # @login_required
@@ -87,7 +87,7 @@ def add_multiple_service_line(request, document_id):
 #     request_POST = request.POST
 #     request_POST_get = request_POST.get
 #
-#     # TODO try/catch in case POST values didnt match Decimal, int ?
+#     # todo try/catch in case POST values didnt match Decimal, int ?
 #     new_unit_price      = Decimal(request_POST_get('unit_price')) if 'unit_price' in request_POST else None
 #     new_quantity        = Decimal(request_POST_get('quantity'))   if 'quantity' in request_POST else None
 #     new_vat             = request_POST_get('vat')                 if 'vat' in request_POST else None
