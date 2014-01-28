@@ -77,7 +77,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     {
         if (this._dialog)
         {
-            this._dialog.dialog('close');
             this._dialog.dialog('destroy');
             this._dialog.remove();
             this._dialog = undefined;
