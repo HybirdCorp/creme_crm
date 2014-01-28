@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ class Vat(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'VAT')
         verbose_name_plural = _(u'VAT')
+        ordering = ('value',)
 
     def save(self, *args, **kwargs):
         if self.is_default:
