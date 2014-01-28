@@ -21,6 +21,7 @@
     </script>
 {% endblock %}
 
+{% comment %}
 {% block extra_menu_buttons %}
     <li>{% has_perm_to change object as change_perm %}{% trans "Save all lines" as verbose_name %}
         {% if change_perm %}
@@ -36,3 +37,4 @@
         {% endif %}
     </li>
 {% endblock %}
+{% endcomment %}

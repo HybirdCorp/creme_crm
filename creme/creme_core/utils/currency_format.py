@@ -46,7 +46,7 @@ def currency(val, currency_id):
     lang = standardized_locale_code(settings.LANGUAGE_CODE)
 
     try:
-        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING)) #with certainly fail on windows (because of utf-8)
+        locale.setlocale(LC_MONETARY, (lang, settings.DEFAULT_ENCODING)) #will certainly fail on Windows (because of utf-8)
     except:
         try:
             locale.setlocale(LC_MONETARY, lang)

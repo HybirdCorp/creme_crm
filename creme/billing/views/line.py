@@ -46,7 +46,9 @@ from ..forms.line import ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
 @login_required
 @permission_required('billing')
 def add_multiple_product_line(request, document_id):
-    return add_to_entity(request, document_id, ProductLineMultipleAddForm, _(u"Add one or more product to <%s>"), link_perm = True)
+    return add_to_entity(request, document_id, ProductLineMultipleAddForm,
+                         _(u"Add one or more product to <%s>"), link_perm=True,
+                        )
 
 # def add_product_line_on_the_fly(request, document_id):
 #     return _add_line(request, ProductLineOnTheFlyForm, document_id)
@@ -54,7 +56,9 @@ def add_multiple_product_line(request, document_id):
 @login_required
 @permission_required('billing')
 def add_multiple_service_line(request, document_id):
-    return add_to_entity(request, document_id, ServiceLineMultipleAddForm, _(u"Add one or more service to <%s>"), link_perm = True)
+    return add_to_entity(request, document_id, ServiceLineMultipleAddForm,
+                         _(u"Add one or more service to <%s>"), link_perm=True,
+                        )
 
 # def add_service_line_on_the_fly(request, document_id):
 #     return _add_line(request, ServiceLineOnTheFlyForm, document_id)

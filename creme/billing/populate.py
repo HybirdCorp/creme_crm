@@ -269,7 +269,7 @@ class Populator(BasePopulator):
         report_name = _(u"All invoices of the current year")
         try:
             Report.objects.get(name=report_name, ct=invoice_ct)
-        except:
+        except (Report.DoesNotExist, Report.MultipleObjectsReturned):
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_invoice_filter, user=admin)
             create_report_columns(invoices_report)
 
@@ -285,7 +285,7 @@ class Populator(BasePopulator):
         report_name = _(u"Invoices unpaid of the current year")
         try:
             Report.objects.get(name=report_name, ct=invoice_ct)
-        except:
+        except (Report.DoesNotExist, Report.MultipleObjectsReturned):
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_unpaid_invoice_filter, user=admin)
             create_report_columns(invoices_report)
 
