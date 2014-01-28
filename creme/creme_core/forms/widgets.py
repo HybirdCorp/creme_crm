@@ -758,13 +758,17 @@ class UnorderedMultipleChoiceWidget(SelectMultiple):
         self.filtertype = filtertype
 
     def render(self, name, value, attrs=None, choices=()):
+        if not self.choices:
+            return _('No choice available.')
+
+        count = len(self.choices)
         attrs = self.build_attrs(attrs, name=name)
-        filtertype = self.filtertype or self._choicefilter_defaulttype()
+        filtertype = self._build_filtertype(count)
         input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices);
 
         context = widget_render_context('ui-creme-checklistselect', attrs,
                                         body=self._render_body(attrs, filtertype),
-                                        header=self._render_header(attrs, filtertype),
+                                        header=self._render_header(attrs, filtertype, count),
                                         counter=self._render_counter(attrs, filtertype),
                                         input=input)
 
@@ -776,8 +780,9 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
     %(body)s
 </div>""" % context)
 
-    def _choicefilter_defaulttype(self):
-        count = len(self.choices)
+    def _build_filtertype(self, count):
+        if self.filtertype:
+            return self.filtertype
 
         if count < 10:
             return None
@@ -790,21 +795,24 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
     def _render_counter(self, attrs, filtertype):
         return '<span class="checklist-counter"></span>' if filtertype == "filter" else ''
 
-    def _render_header(self, attrs, filtertype):
-        has_checkall = attrs.get('checkall', True)
+    def _render_header(self, attrs, filtertype, count):
+        has_checkall = attrs.get('checkall', True) and count > 2
 
-        filter = '<input type="%s" class="checklist-filter" placeholder="%s">' % (filtertype, filtertype) if filtertype else ''
+        if not has_checkall and not filtertype:
+            return ''
+
+        filter = checkall = ''
+
+        if filtertype:
+            filter = '<input type="%s" class="checklist-filter" placeholder="%s">' % (filtertype, _(filtertype.upper()))
 
         if has_checkall:
-            checkall = '<a type="button" class="checklist-check-all">%s</a>' % _(u'Check all')
-            checknone = '<a type="button" class="checklist-check-none">%s</a>' % _(u'Check none')
-        else:
-            checkall = checknone = ''
+            checkall = '<a type="button" class="checklist-check-all">%s</a>'\
+                       ' | <a type="button" class="checklist-check-none">%s</a>' % (_(u'Check all'), _(u'Check none'))
 
-        return '<div class="checklist-header">%(checkall)s | %(checknone)s %(filter)s</div>' % {
+        return '<div class="checklist-header">%(checkall)s%(filter)s</div>' % {
                    'filter': filter, 
-                   'checkall': checkall, 
-                   'checknone': checknone
+                   'checkall': checkall,
                }
 
     def _render_body(self, attrs, filtertype):
