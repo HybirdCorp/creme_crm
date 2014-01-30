@@ -32,12 +32,22 @@ DEFAULT_INVOICE_STATUS = 2
 DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
 #ISSUED_CREDIT_NOTE = 2 # TODO workflow status
+
+############################################
+#DEPRECATED
 PERCENT_PK = 1
 AMOUNT_PK  = 2
 
 DISCOUNT_UNIT = {PERCENT_PK: _(u"Percent"),
                  AMOUNT_PK:  _(u"Amount"),
                 }
+
+#NEW
+DISCOUNT_PERCENT     = 1
+DISCOUNT_LINE_AMOUNT = 2
+DISCOUNT_ITEM_AMOUNT = 3
+
+############################################
 
 DEFAULT_QUANTITY = Decimal('1.00')
 

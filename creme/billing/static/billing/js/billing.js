@@ -512,6 +512,7 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
 //    creme.utils.showDialog(gettext("Do you really want to restore initial values of this line ?"), {buttons: buttons, title: gettext("Confirmation")});
 //}
 
+//TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
 creme.billing.initBoundedFields = function (element, currency) {
     var discounted = $('[name="discounted"]', element);
     var inclusive_of_tax = $('[name="inclusive_of_tax"]', element);
@@ -523,27 +524,42 @@ creme.billing.initBoundedFields = function (element, currency) {
         var discount = $('input[name*="discount"]', element);
         var vat_value_widget = $('select[name*="vat_value"]', element);
         var vat_value = $("option[value='"+ vat_value_widget.val() +"']", vat_value_widget).text();
-        var discount_unit = $('[name*="discount_unit"]', element);
-        var total_discount = $('[name*="total_discount"]', element);
+//         var discount_unit = $('[name*="discount_unit"]', element);
+        var discount_unit = $('[name*="discount_unit"]', element).val();
+//         var total_discount = $('[name*="total_discount"]', element);
 
-        if(discount_unit.val() == 1) { // percent
-            if(total_discount.is(':checked')) {
-                var discounted_value = ((quantity.val()*unit_price.val()) - ((quantity.val()*unit_price.val()*discount.val())/100));
-            } else {
-                var discounted_value = quantity.val()*(unit_price.val()-(unit_price.val()*discount.val()/100));
-            }
-        } else {
-            if(total_discount.is(':checked')) {
-                var discounted_value = quantity.val()*unit_price.val()-discount.val();
-            } else {
-                var discounted_value = quantity.val()*(unit_price.val()-discount.val());
-            }
-        }
+//         if (discount_unit.val() == 1) { // percent
+// //             if (total_discount.is(':checked')) {
+// //                 var discounted_value = ((quantity.val()*unit_price.val()) - ((quantity.val()*unit_price.val()*discount.val())/100));
+// //             } else {
+//                 var discounted_value = quantity.val() * (unit_price.val() - (unit_price.val() * discount.val() / 100));
+// //             }
+//         } else {
+//             if (total_discount.is(':checked')) {
+//                 var discounted_value = quantity.val() * unit_price.val() - discount.val();
+//             } else {
+//                 var discounted_value = quantity.val() * (unit_price.val() - discount.val());
+//             }
+//         }
+        var discounted_value;
+        switch (discount_unit) {
+            case '1': //DISCOUNT_PERCENT
+                discounted_value = quantity.val() * (unit_price.val() - (unit_price.val() * discount.val() / 100));
+                break;
+            case '2': //DISCOUNT_LINE_AMOUNT
+                discounted_value = quantity.val() * unit_price.val() - discount.val();
+                break;
+            case '3': //DISCOUNT_ITEM_AMOUNT
+                discounted_value = quantity.val() * (unit_price.val() - discount.val());
+                break;
+            default:
+                console.log("Bad discount value ?!", discount_unit);
+        } 
 
         var global_discount_value = $('[name="overall_discount_document"]').attr('value');
 
         if (global_discount_value != "") {
-            discounted_value = discounted_value-(discounted_value*parseInt(global_discount_value)/100);
+            discounted_value = discounted_value - (discounted_value * parseInt(global_discount_value) / 100);
         }
 
         var exclusive_of_tax_discounted = Math.ceil(discounted_value * 100) / 100;
@@ -551,7 +567,7 @@ creme.billing.initBoundedFields = function (element, currency) {
         var is_discount_valid = creme.billing.checkDiscount(discount);
 
         var discount_closest_td = discount.closest('td');
-        is_discount_valid ? discount_closest_td.removeClass('td_error') : discount_closest_td.addClass('td_error');
+        is_discount_valid ? discount_closest_td.removeClass('td_error') : discount_closest_td.addClass('td_error'); //TODO: toggleClass ??
 
         if (isNaN(exclusive_of_tax_discounted) || !is_discount_valid || !creme.billing.checkPositiveDecimal(quantity)) {
             discounted.text('###');
@@ -559,7 +575,7 @@ creme.billing.initBoundedFields = function (element, currency) {
             exclusive_of_tax.text('###');
         } else {
             var ht_value = Math.ceil(quantity.val() * unit_price.val() * 100) / 100;
-            var ttc_value = Math.ceil((parseFloat(exclusive_of_tax_discounted)+parseFloat(exclusive_of_tax_discounted)*vat_value/100) * 100) / 100;
+            var ttc_value = Math.ceil((parseFloat(exclusive_of_tax_discounted) + parseFloat(exclusive_of_tax_discounted) * vat_value / 100) * 100) / 100;
 
             exclusive_of_tax.text(ht_value.toFixed(2).replace(".",",") + " " + currency);
             discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".",",") + " " + currency);
