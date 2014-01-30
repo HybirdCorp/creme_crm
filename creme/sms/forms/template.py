@@ -41,7 +41,7 @@ class TemplateCreateForm(CremeEntityForm):
         model = MessageTemplate
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(TemplateCreateForm, self).clean()
         subject = cleaned_data.get('subject', '')
         body = cleaned_data.get('body', '')
         content = subject + ' : ' + body if subject else body

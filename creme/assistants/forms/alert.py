@@ -49,7 +49,7 @@ class AlertForm(CremeModelWithUserForm):
                                                   ) if trigger_date else time()
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(AlertForm, self).clean()
 
         if not self._errors:
             #trigger_date = cleaned_data.get('trigger_date')

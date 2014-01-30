@@ -127,7 +127,7 @@ class EntityEmailForm(CremeEntityForm):
         return self._clean_recipients('o_recipients')
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(EntityEmailForm, self).clean()
 
         if not self._errors and not cdata['c_recipients'] and not cdata['o_recipients']:
             raise ValidationError(ugettext(u'Select at least a Contact or an Organisation'))

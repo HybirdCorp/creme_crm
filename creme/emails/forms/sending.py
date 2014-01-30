@@ -52,7 +52,7 @@ class SendingCreateForm(CremeModelForm):
         self.campaign = entity
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(SendingCreateForm, self).clean()
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
             sending_date = cleaned_data['sending_date']

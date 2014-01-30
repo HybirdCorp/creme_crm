@@ -47,7 +47,7 @@ class ActionForm(CremeModelWithUserForm):
                                                    ) if deadline else time()
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(ActionForm, self).clean()
 
         if not self._errors:
             deadline_time = cdata.get('deadline_time')

@@ -110,7 +110,7 @@ class _RelationsCreateForm(CremeForm):
         return relations
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(_RelationsCreateForm, self).clean()
 
         if not self._errors:
             relations_desc = cdata['relations']

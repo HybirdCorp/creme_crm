@@ -152,7 +152,7 @@ class PollFormLineCreateForm(_PollFormLineForm):
                                                    )
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(PollFormLineCreateForm, self).clean()
 
         if not self._errors:
             get_data = cleaned_data.get
@@ -258,7 +258,7 @@ class PollFormLineEditForm(_PollFormLineForm):
         return old_choices
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(PollFormLineEditForm, self).clean()
         self.type_args = None
 
         if not self._errors and self.initial_choices:

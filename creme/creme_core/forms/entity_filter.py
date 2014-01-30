@@ -1062,7 +1062,7 @@ class _EntityFilterForm(CremeModelForm):
         return conditions
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(_EntityFilterForm, self).clean()
 
         if not self._errors and not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
             raise ValidationError(ugettext(u'The filter must have at least one condition.'))

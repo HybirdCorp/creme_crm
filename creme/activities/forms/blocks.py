@@ -113,7 +113,7 @@ class ParticipantCreateForm(CremeForm):
         return my_participation
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(ParticipantCreateForm, self).clean()
 
         if not self._errors:
             activity = self.activity

@@ -92,7 +92,7 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
         return orga_name
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(ContactQuickForm, self).clean()
 
         if not self._errors and cdata['organisation']:
             owner = cdata['user']

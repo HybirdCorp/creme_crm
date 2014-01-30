@@ -86,7 +86,7 @@ class UploadForm(CremeForm):
         return self._header
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(UploadForm, self).clean()
 
         if not self._errors:
             document = cleaned_data['document']

@@ -150,7 +150,7 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
             block_ids.choices = choices
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(BlockDetailviewLocationsEditForm, self).clean()
         all_block_ids = set()
 
         for block_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):

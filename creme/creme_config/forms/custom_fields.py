@@ -42,7 +42,7 @@ class CustomFieldsBaseForm(CremeModelForm):
         model = CustomField
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(CustomFieldsBaseForm, self).clean()
 
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) and not cdata['enum_values'].strip():
             raise ValidationError(ugettext(u'The choices list must not be empty if you choose the type "Choices list".'))
