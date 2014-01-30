@@ -36,7 +36,7 @@ class SearchAddForm(CremeModelForm):
         model = SearchConfigItem
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(SearchAddForm, self).clean()
 
         if not self._errors and \
            SearchConfigItem.objects.filter(content_type=cdata['content_type'],

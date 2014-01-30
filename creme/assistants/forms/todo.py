@@ -50,7 +50,7 @@ class ToDoForm(CremeModelWithUserForm):
             self.fields['deadline_hour'].initial = localtime(deadline).hour
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(ToDoForm, self).clean()
 
         if not self._errors:
             get_data = cdata.get

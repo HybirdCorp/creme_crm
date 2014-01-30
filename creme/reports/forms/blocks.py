@@ -87,7 +87,7 @@ class GraphInstanceBlockForm(CremeForm):
         return results
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(GraphInstanceBlockForm, self).clean()
         volatile_column = cleaned_data.get('volatile_column')
         kwargs = {}
 

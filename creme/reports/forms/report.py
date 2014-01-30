@@ -94,7 +94,7 @@ class ReportCreateForm(CremeEntityForm):
         model = Report
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(ReportCreateForm, self).clean()
 
         if not self._errors:
             get_data = cleaned_data.get
@@ -342,20 +342,23 @@ class DateReportFilterForm(CremeForm):
         return None, None
 
     def clean(self):
-        super(DateReportFilterForm, self).clean()
-        cdata = self.cleaned_data
+        cdata = super(DateReportFilterForm, self).clean()
+
         if cdata['date_field']:
             start, end = self.get_dates()
             if not start and not end:
                 self.errors['date_filter'] = ErrorList([ugettext(u"If you chose a Date field, and select «customized» you have to specify a start date and/or an end date.")])
+
         return cdata
 
     @property
     def forge_url_data(self):
         cdata = self.cleaned_data
+
         if cdata:
             get_cdata = cdata.get
             date_field = get_cdata('date_field')
+
             if date_field:
                 data = ['field=%s' % date_field,
                         'range_name=%s' % get_cdata('date_filter').name
@@ -365,10 +368,12 @@ class DateReportFilterForm(CremeForm):
 
                 if start is not None:
                     data.append('start=%s' % encode_datetime(start))
+
                 if end is not None:
                     data.append('end=%s' % encode_datetime(end))
 
                 return "?%s" % "&".join(data)
+
         return ""
 
     #def save(self, *args, **kwargs):

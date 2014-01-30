@@ -149,7 +149,7 @@ class MergeEntitiesBaseForm(CremeForm):
         pass
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(MergeEntitiesBaseForm, self).clean()
 
         if not self._errors:
             entity1 = self.entity1

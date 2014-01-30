@@ -189,7 +189,7 @@ class PollReplyFillForm(CremeForm):
             fields['answer'] = answer_field
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(PollReplyFillForm, self).clean()
         errors = self._errors
 
         if not errors and not cdata.get('not_applicable', False) and \

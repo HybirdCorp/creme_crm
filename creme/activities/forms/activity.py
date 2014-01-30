@@ -78,7 +78,7 @@ class _ActivityForm(CremeEntityForm):
                                         )
 
     def clean(self):
-        cdata = self.cleaned_data
+        cdata = super(_ActivityForm, self).clean()
 
         if not self._errors:
             self.floating_type = self._clean_interval(self._get_activity_type_n_subtype()[0])

@@ -104,7 +104,7 @@ class BaseEditForm(CremeEntityForm):
         return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(BaseEditForm, self).clean()
 
         if cleaned_data.get('discount') > 100:
             raise ValidationError(ugettext(u"Your discount is a %. It must be between 1 and 100%"))

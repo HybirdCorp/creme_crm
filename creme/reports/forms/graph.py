@@ -256,7 +256,7 @@ class ReportGraphForm(CremeEntityForm):
                 return cfield
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cleaned_data = super(ReportGraphForm, self).clean()
         get_data     = cleaned_data.get
         model = self.report.ct.model_class()
 
