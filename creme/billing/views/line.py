@@ -205,7 +205,7 @@ def multi_save_lines(request, document_id):
                     on_the_fly = Line.objects.get(pk=instance.pk).on_the_fly_item if instance.pk else \
                                  _(u"on the fly [creation]")
 
-                    errors.append(u"s%s <b>%s</b> : <br>%s" % (
+                    errors.append(u"%s <b>%s</b> : <br>%s" % (
                                     _(u"Errors on the line"),
                                     on_the_fly if on_the_fly else instance.related_item,
                                     u''.join(u"==> %s : %s" % (_(u"General"), msg) if field == "__all__" else

@@ -20,7 +20,7 @@
 
 from decimal import Decimal
 
-from django.forms import ModelChoiceField, DecimalField, ValidationError, TextInput, Textarea
+from django.forms import ModelChoiceField, TypedChoiceField, DecimalField, ValidationError, TextInput, Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import Relation, Vat
@@ -31,7 +31,8 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.products.models import Product, Service
 from creme.products.forms.fields import CategoryField
 
-from ..constants import REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY
+from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
+        DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT, DISCOUNT_ITEM_AMOUNT)
 from ..models import ProductLine, ServiceLine #Line
 
 
@@ -187,13 +188,16 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 #         fields = ('comment',)
 
 
-#NB: model is set later, because this class is use as base class
+#NB: model (ie: _meta.model) is set later, because this class is only used as base class
 class LineEditForm(CremeModelWithUserForm):
     #TODO: we want to disabled CreatorChoiceField ; should we disabled globally this feature with Vat model ??
     vat_value = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
                                  required=True, #TODO: remove when null=False in the model
                                  empty_label=None,
                                 )
+
+    class Meta:
+        exclude = ('total_discount', 'discount_unit') #TODO: remove when total_discount is removed from Line..
 
     def __init__(self, user, related_document=None, *args, **kwargs):
         super(LineEditForm, self).__init__(user=user, *args, **kwargs)
@@ -206,8 +210,18 @@ class LineEditForm(CremeModelWithUserForm):
         fields['quantity'].widget = TextInput(attrs={'class': 'line-quantity bound', 'validator': 'PositiveDecimal'})
         fields['unit'].widget = TextInput(attrs={'class': 'line-unit'})
         fields['discount'].widget = TextInput(attrs={'class': 'line-quantity_discount bound'})
-        fields['discount_unit'].widget.attrs = fields['total_discount'].widget.attrs = {'class': 'bound'}
-        fields['discount_unit'].required = True
+        #fields['discount_unit'].widget.attrs = fields['total_discount'].widget.attrs = {'class': 'bound'}
+        #fields['discount_unit'].required = True
+
+        currency_str = related_document.currency.local_symbol
+        discount_units = [(DISCOUNT_PERCENT,        _(u"Percent")),
+                          (DISCOUNT_LINE_AMOUNT,    _(u"%s per line") % currency_str),
+                          (DISCOUNT_ITEM_AMOUNT,    _(u"%s per unit") % currency_str),
+                         ]
+
+        fields['discount_unit'] = discount_unit_f = TypedChoiceField(choices=discount_units, coerce=int)
+        discount_unit_f.widget.attrs = {'class': 'bound'}
+        discount_unit_f.required = True
 
         fields['comment'].widget = Textarea(attrs={'class': 'line-comment'})
 
@@ -215,6 +229,25 @@ class LineEditForm(CremeModelWithUserForm):
         #vat_f.initial = Vat.get_default_vat()
         #vat_f.required = True
         fields['vat_value'].initial = Vat.get_default_vat()
+
+    #TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount
+    def clean(self):
+        cdata = super(LineEditForm, self).clean()
+
+        if not self._errors:
+            discount_unit = cdata['discount_unit']
+            total_discount = False
+
+            if discount_unit == DISCOUNT_LINE_AMOUNT:
+                total_discount = True
+            elif discount_unit == DISCOUNT_ITEM_AMOUNT:
+                discount_unit = DISCOUNT_LINE_AMOUNT
+  
+            line = self.instance
+            line.total_discount = total_discount
+            line.discount_unit = discount_unit
+
+        return cdata
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -255,7 +288,7 @@ class AddToCatalogForm(CremeForm):
                                                       unit=line.unit,
                                                       category=sub_category.category,
                                                       sub_category=sub_category,
-                                                      )
+                                                     )
 
         # then update the line that is now related to the new created item and not on the fly any more
         line.on_the_fly_item = None

@@ -792,6 +792,8 @@ class LineTestCase(_BillingTestCase):
         unit_price = '100.0'
         quantity = '2'
         unit = 'day'
+        discount = '20'
+        discount_unit = DISCOUNT_PERCENT
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
                                     data={service_line.entity_type_id: JSONEncoder().encode({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
@@ -802,8 +804,8 @@ class LineTestCase(_BillingTestCase):
                                                         'service_line_formset-0-on_the_fly_item':  name,
                                                         'service_line_formset-0-unit_price':       unit_price,
                                                         'service_line_formset-0-quantity':         quantity,
-                                                        'service_line_formset-0-discount':         '20',
-                                                        'service_line_formset-0-discount_unit':    '1',
+                                                        'service_line_formset-0-discount':         discount,
+                                                        'service_line_formset-0-discount_unit':    discount_unit,
                                                         'service_line_formset-0-vat_value':        Vat.objects.all()[1].id,
                                                         'service_line_formset-0-unit':             unit,
                                                     })
@@ -817,6 +819,9 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal(unit_price), service_line.unit_price)
         self.assertEqual(Decimal(quantity),   service_line.quantity)
         self.assertEqual(unit,                service_line.unit)
+        self.assertEqual(Decimal(discount),   service_line.discount)
+        self.assertEqual(discount_unit,       service_line.discount_unit)
+        self.assertIs(service_line.total_discount, False)
 
     def test_multi_save_lines02(self):
         "1 product line created on the fly and 1 deleted"
@@ -903,6 +908,75 @@ class LineTestCase(_BillingTestCase):
                                             })
                                 }
                            )
+
+    def test_multi_save_lines04(self):
+        "Other type of discount: amount per line"
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item=u'on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+
+        discount_unit = DISCOUNT_LINE_AMOUNT
+        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+                                    data={service_line.entity_type_id: JSONEncoder().encode({
+                                                        'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
+                                                        'service_line_formset-INITIAL_FORMS':      1,
+                                                        'service_line_formset-MAX_NUM_FORMS':      u'',
+                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-user':             self.user.id,
+                                                        'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
+                                                        'service_line_formset-0-unit_price':       '100.0',
+                                                        'service_line_formset-0-quantity':         '2',
+                                                        'service_line_formset-0-discount':         '20',
+                                                        'service_line_formset-0-discount_unit':    discount_unit,
+                                                        'service_line_formset-0-vat_value':        Vat.objects.all()[1].id,
+                                                        'service_line_formset-0-unit':             'day',
+                                                    })
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(1, ServiceLine.objects.count())
+
+        service_line = self.refresh(service_line)
+        self.assertEqual(discount_unit, service_line.discount_unit)
+        self.assertIs(service_line.total_discount, True)
+
+    def test_multi_save_lines05(self):
+        "Other type of discount: amount per item"
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item=u'on the fly service',
+                                                  unit_price=Decimal('50.0')
+                                                 )
+
+        response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+                                    data={service_line.entity_type_id: JSONEncoder().encode({
+                                                        'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
+                                                        'service_line_formset-INITIAL_FORMS':      1,
+                                                        'service_line_formset-MAX_NUM_FORMS':      u'',
+                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-user':             self.user.id,
+                                                        'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
+                                                        'service_line_formset-0-unit_price':       '100.0',
+                                                        'service_line_formset-0-quantity':         '2',
+                                                        'service_line_formset-0-discount':         '20',
+                                                        'service_line_formset-0-discount_unit':    DISCOUNT_ITEM_AMOUNT,
+                                                        'service_line_formset-0-vat_value':        Vat.objects.all()[1].id,
+                                                        'service_line_formset-0-unit':             'day',
+                                                    })
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(1, ServiceLine.objects.count())
+
+        service_line = self.refresh(service_line)
+        self.assertEqual(DISCOUNT_LINE_AMOUNT, service_line.discount_unit)
+        self.assertIs(service_line.total_discount, False)
 
     def test_global_discount_change(self):
         self.login()

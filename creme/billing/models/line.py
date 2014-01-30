@@ -62,6 +62,8 @@ class Line(CremeEntity):
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
+    #TODO: remove total_discount & add a choice to discount_unit (see EditForm)
+    #TODO: null=False ???
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
@@ -131,10 +133,10 @@ class Line(CremeEntity):
         unit_price_line         = self.unit_price
 
         if self.discount_unit == PERCENT_PK and discount_line:
-            if global_discount_line:
-                product_qt_up = self.quantity * unit_price_line
-                total_after_first_discount = product_qt_up - (product_qt_up * discount_line / 100)
-            else:
+            #if global_discount_line:
+                #product_qt_up = self.quantity * unit_price_line
+                #total_after_first_discount = product_qt_up - (product_qt_up * discount_line / 100)
+            #else:
                 total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100 ))
         elif global_discount_line:
             total_after_first_discount = self.quantity * unit_price_line - discount_line

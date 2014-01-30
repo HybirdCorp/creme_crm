@@ -2,9 +2,7 @@
 {% load creme_core_tags creme_widgets creme_block %}
 
 {% with line=form.instance currency_id=object.currency.pk %}
-
-<table class="table_detail_view linetable linetable_{{ ct_id }}" style="border:0px;margin:0px;padding:0px;">
-
+<table class="table_detail_view linetable linetable_{{ct_id}}" style="border:0px;margin:0px;padding:0px;">
     <tr class="content">
         <td align="center" class="block_header_line_dark" width="5%">{% trans "Quantity" %}</td>
         <td align="center" class="block_header_line_dark" width="9%">{% trans "Unit price" %}</td>
@@ -21,8 +19,8 @@
         <td class="line-background-color" align="center">{{form.unit_price}} {{object.currency.local_symbol}}</td>
         <td class="line-background-color" align="center">/ {{form.unit}}</td>
         <td class="line-background-color" align="center">
-            {% trans "Check to apply on line total" %}<br>
-            {{form.discount}} {{form.discount_unit}} {{form.total_discount}}
+            {% comment %}{% trans "Check to apply on line total" %}<br>{% endcomment %}
+            {{form.discount}} {{form.discount_unit}}{% comment %} {{form.total_discount}}{% endcomment %}
         </td>
         <td class="line-background-color" align="center">{{form.vat_value}}</td>
         <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
@@ -60,7 +58,5 @@
         </td>
         <td class="line-background-color" align="left" colspan="5">{{form.comment}}</td>
     </tr>
-
 </table>
-
 {% endwith %}
