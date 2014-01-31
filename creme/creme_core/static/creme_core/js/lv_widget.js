@@ -217,7 +217,7 @@ creme.lv_widget.addToSelectedLines = function(list, url) {
         return;
     }
 
-    var action = creme.dialogs.showInnerPopupAction(url, {}, {ids: selection, persist: 'ids'});
+    var action = creme.utils.innerPopupFormAction(url, {}, {ids: selection, persist: 'ids'});
 
     action.onDone(function(event, data) {
               list.list_view('reload');
