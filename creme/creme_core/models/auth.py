@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from django.contrib.contenttypes.models import ContentType
 from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry
 from ..utils.contribute_to_model import contribute_to_model
+from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
 from .entity import CremeEntity
 
@@ -91,13 +92,18 @@ class UserRole(Model):
     def is_app_allowed_or_administrable(self, app_name):
         return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
 
-    def get_admin_4_apps_verbose(self): #for templates
+    def _build_apps_verbose(self, app_names):
         get_app = creme_registry.get_app
-        return [get_app(app_name).verbose_name for app_name in self.admin_4_apps]
+        apps = [get_app(app_name).verbose_name for app_name in app_names]
+        apps.sort(key=collator.sort_key)
+
+        return apps
+
+    def get_admin_4_apps_verbose(self): #for templates
+        return self._build_apps_verbose(self.admin_4_apps)
 
     def get_allowed_apps_verbose(self): #for templates
-        get_app = creme_registry.get_app
-        return [get_app(app_name).verbose_name for app_name in self.allowed_apps]
+        return self._build_apps_verbose(self.allowed_apps)
 
     def can_create(self, app_name, model_name):
         """@return True if a model with ContentType(app_name, model_name) can be created."""

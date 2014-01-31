@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,10 +38,11 @@ from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
+from ..utils import safe_unicode
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import get_verbose_field_name
-from ..utils import safe_unicode
+from ..utils.unicode_collation import collator
 from ..registry import export_backend_registry, import_backend_registry
 
 
@@ -212,6 +213,13 @@ def enumerate_iterable(iterable):
 @register.filter
 def to_timestamp(date):
     return date.strftime('%s')
+
+@register.filter
+def uca_sort(iterable):
+    strs = [unicode(e) for e in iterable]
+    strs.sort(key=collator.sort_key)
+
+    return strs
 
 @register.filter
 def allowed_unicode(entity, user):

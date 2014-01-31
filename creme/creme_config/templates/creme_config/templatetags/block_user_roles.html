@@ -1,8 +1,5 @@
 {% load i18n %}
 {% load creme_widgets creme_block creme_core_tags %}
-{% comment %}{% if not request.is_ajax %}
-    <div class="help_box">{% trans 'Remember that if you delete a role, all associated users will have the default credentials.' %}</div>
-{% endif %}{% endcomment %}
 {% with has_perm=user.is_superuser %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=7 %}
@@ -30,8 +27,8 @@
                     <td class="{{row_color}}">{{role.name}}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}</td>
-                    <td class="{{row_color}}">{% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}</td>
-                    <td class="{{row_color}}">{% widget_select_or_msg role.exportable_ctypes.all _('No export credential') %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.creatable_ctypes.all|uca_sort _('No creation credential') %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.exportable_ctypes.all|uca_sort  _('No export credential') %}</td>
                     <td class="{{row_color}}">{% comment %} TODO inline action? {% endcomment %}
                         {% comment %}{% widget_select_or_msg role.credentials.all _('No credential') %}{% endcomment %}
                         <ul>{% for sc in role.credentials.all %}<li>{{sc}}{% get_line_deletor at_url '/creme_config/role/delete_credentials' with_args "{'id': '{{sc.pk}}'}" with_perms has_perm %}</li>{% endfor %}</ul>

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 
 from ..registry import creme_registry
+from ..utils.unicode_collation import collator
 
 
 register = template.Library()
@@ -33,7 +34,8 @@ def get_search_panel(context, target_node_id='sub_content'):
                       'verbose_name': model._meta.verbose_name,
                      } for model in creme_registry.iter_entity_models()
                     ]
-    content_types.sort(key=lambda k: k['verbose_name'])
+    sort_key = collator.sort_key
+    content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
     context.update({
             'content_types':  content_types,
