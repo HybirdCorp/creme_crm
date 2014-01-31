@@ -214,7 +214,7 @@ class LineEditForm(CremeModelWithUserForm):
         #fields['discount_unit'].required = True
 
         currency_str = related_document.currency.local_symbol
-        discount_units = [(DISCOUNT_PERCENT,        _(u"Percent")),
+        discount_units = [(DISCOUNT_PERCENT,        '%'), #_(u"Percent")
                           (DISCOUNT_LINE_AMOUNT,    _(u"%s per line") % currency_str),
                           (DISCOUNT_ITEM_AMOUNT,    _(u"%s per unit") % currency_str),
                          ]
