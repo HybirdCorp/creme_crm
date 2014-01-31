@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
@@ -980,7 +980,7 @@ msgstr "Ajouter une information de paiement (aucune société émettrice)"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:23
 msgid "Selected by default in this document"
-msgstr "Séléctionné par défaut dans ce document"
+msgstr "Sélectionné par défaut dans ce document"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:31
 #: templates/billing/templatetags/block_payment_information.html:17
