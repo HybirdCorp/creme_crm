@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i tests.py
@@ -309,7 +309,7 @@ msgstr "Ordre"
 
 #: models/task.py:43
 msgid "Task situation"
-msgstr "Situationde la tâche"
+msgstr "Situation de la tâche"
 
 #: models/task.py:55
 msgid "Task of project"
