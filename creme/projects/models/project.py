@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import date
-
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -31,7 +29,7 @@ from .projectstatus import ProjectStatus
 
 
 class Project(CremeEntity):
-    name                = CharField(_(u'Name of the project'), max_length=100, blank=True, null=True)
+    name                = CharField(_(u'Name of the project'), max_length=100)
     description         = TextField(_(u'Description'), blank=True, null=True)
     status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
     start_date          = DateTimeField(_(u'Estimated start'), blank=True, null=True)
@@ -104,7 +102,6 @@ class Project(CremeEntity):
             already_closed = False
         else:
             already_closed = True
-            #self.effective_end_date = date.today()
             self.effective_end_date = now()
 
         return already_closed
