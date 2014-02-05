@@ -5,7 +5,7 @@ try:
 
     from django.utils.simplejson import dumps as jsondumps
 
-    from creme.creme_core.tests.forms import FieldTestCase
+    from creme.creme_core.tests.forms.base import FieldTestCase
 
     from ..models import ActivityType, ActivitySubType
     from ..forms.activity_type import ActivityTypeField
