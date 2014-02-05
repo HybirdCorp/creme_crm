@@ -4,7 +4,7 @@ try:
     import copy
     from functools import partial
 
-    from creme.creme_core.tests.forms import FieldTestCase
+    from creme.creme_core.tests.forms.base import FieldTestCase
 
     from ..models import Category, SubCategory
     from ..forms.fields import CategoryField
