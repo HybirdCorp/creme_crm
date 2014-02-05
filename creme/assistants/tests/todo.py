@@ -3,6 +3,7 @@
 try:
     #from datetime import datetime
 
+    from django.conf import settings
     from django.core.serializers.json import simplejson
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
@@ -146,7 +147,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
-    def test_block_reload01(self): #detailview
+    def test_block_reload01(self):
+        "Detailview"
         for i in xrange(1, 4):
             self._create_todo('Todo%s' % i, 'Description %s' % i)
 
@@ -167,8 +169,11 @@ class TodoTestCase(AssistantsTestCase):
         with self.assertNoException():
             page = response.context['page']
 
-        self.assertEqual(3, len(page.object_list))
-        self.assertEqual(set(todos), set(page.object_list))
+        #self.assertEqual(3, len(page.object_list))
+        #self.assertEqual(set(todos), set(page.object_list))
+        size = min(3, settings.BLOCK_SIZE)
+        self.assertEqual(size, len(page.object_list))
+        self.assertEqual(size, len(set(todos) & set(page.object_list)))
 
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
