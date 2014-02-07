@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,6 +56,7 @@ class OpportunityEditForm(CremeEntityForm):
 class OpportunityCreateForm(OpportunityEditForm):
     emitter = ModelChoiceField(label=_(u"Concerned organisation"),
                                queryset=Organisation.get_all_managed_by_creme(),
+                               empty_label=None
                               )
 
     def clean_emitter(self):
