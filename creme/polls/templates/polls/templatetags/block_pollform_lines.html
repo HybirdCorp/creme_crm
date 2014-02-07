@@ -4,7 +4,7 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=1 %}
-        <th class="collapser label">{% get_basic_block_header _('Questions') 'info_48.png' _('Question') %}</th>
+        <th class="label">{% get_basic_block_header _('Questions') 'info_48.png' _('Question') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% get_line_adder at_url '/polls/poll_form/{{object.id}}/add/line' with_label _("New question") with_perms has_perm %}

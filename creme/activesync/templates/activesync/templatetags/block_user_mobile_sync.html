@@ -1,14 +1,12 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
-    <thead>
-        <tr>
-            <th class="collapser" align="left" colspan="2">{% trans 'Phone synchronization' as img_title %}<img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{{img_title}}" title="{{img_title}}"/>{% trans "Your mobile synchronization configuration" %}</th>
-        </tr>
-    </thead>
+    {% get_block_header colspan=2 %}
+        <th class="label">{% get_basic_block_header _('Your mobile synchronization configuration') 'phone_sync_48.png' _('Phone synchronization') %}</th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
+            <th class="block_header_line_dark" style="font-size:14px;" align="left" colspan="2">
                 <a class="button_link" onclick="creme.blocks.form('/activesync/user_settings', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "Edit" as label %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{label}}"/>{{label}}
                 </a>

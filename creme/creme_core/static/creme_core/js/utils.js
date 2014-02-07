@@ -187,6 +187,11 @@ creme.utils.tableExpand = function($self, trigger) {
 
 creme.utils.bindTableToggle = function($self) {
     $self.click(function(e) {
+        // HACK: we avoid that clicking on a button in the header collapses the block;
+        //       we should stop the propagation of the event in the buttons => we _really_ need to refactor the button system.
+        if ($(e.target).parent('.buttons').length > 0)
+            return;
+
         creme.utils.tableExpandState($self, creme.utils.tableIsCollapsed($self));
     });
 }
@@ -197,7 +202,6 @@ creme.utils.bindShowHideTbody = function() {
         creme.utils.bindTableToggle($(this));
     });
 }
-
 
 creme.utils.simpleConfirm = function(cb, msg) {
     console.warn('this functions is deprecated. please use creme.dialogs.confirm() instead.');
@@ -257,7 +261,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                                             url: url,
                                             data: {},
                                             success: function(data, status, req) {
-                                                creme.utils.reload(window); //TODO: reload listview content instead (so rename the function)
+                                                creme.utils.reload(window); //todo: reload listview content instead (so rename the function)
                                             },
                                             error: function(req, status, error) {
                                                 creme.utils.showDialog(req.responseText || gettext("Error"));
@@ -277,7 +281,7 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
                    },
                    {
                         text: gettext("Cancel"),
-                        click: function() { //TODO: factorise
+                        click: function() { //todo: factorise
                             $(this).dialog("destroy");
                             $(this).remove();
                         }
@@ -541,12 +545,11 @@ creme.utils.appendInUrl = function(url, strToAppend) {
     return url + anchor;
 }
 
-// TODO : not used, remove it
 /*
 creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
-    //TODO: order of the OS for the buttons
+    //todo: order of the OS for the buttons
     var buttons = [{
-                        text: gettext("Ok"), //TODO: improve message ('Delete', 'Unlink'...)
+                        text: gettext("Ok"), //todo: improve message ('Delete', 'Unlink'...)
                         click: function() {
                             var options = jQuery.extend({
                                 url: url,
@@ -699,12 +702,11 @@ creme.utils.toggleCheckallState = function(select_all, checkboxes_selector) {
     }
 };
 
-//TODO: not used, remove it
-//TODO: rename (goTo ??)
+
 /*
 creme.utils.go_to = function(url, ajax, ajax_options) {
 //     if(typeof(ajax) != "undefined" && ajax) {
-    if (ajax) { // TODO: seems unused
+    if (ajax) { // todo: seems unused
 //         if(typeof(ajax_options) != "undefined" && ajax_options) {
         if (ajax_options) {
             $(ajax_options.target).load(url, ajax_options.data, ajax_options.complete);

@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
-        <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
+        <th class="label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
     {% end_get_block_header %}
     <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
         <tr>

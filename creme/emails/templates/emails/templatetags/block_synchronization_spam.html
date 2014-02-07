@@ -6,7 +6,7 @@
 
 {% block top_header %}
     {% get_block_header colspan=7 %}
-        <th class="collapser label">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>
+        <th class="label">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>
         <th class="actions">
             <div class="buttons">
                 <a class="add" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">

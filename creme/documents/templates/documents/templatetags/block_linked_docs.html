@@ -3,7 +3,7 @@
 {% has_perm_to create ct_doc as creation_perm %}{% has_perm_to link object as obj_link_perm %}{% has_perm_to link ct_doc.model_class as doc_link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
-        <th class="collapser label">{% get_block_title _('%s linked Document') _('%s linked Documents') 'document_48.png' _('Document') %}</th>
+        <th class="label">{% get_block_title _('%s linked Document') _('%s linked Documents') 'document_48.png' _('Document') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% comment %}

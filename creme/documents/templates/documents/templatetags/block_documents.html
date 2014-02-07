@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
-        <th class="collapser label">{% get_block_title _('%s Contained Document') _('%s Contained Documents') 'document_48.png' _('Document') %}</th>
+        <th class="label">{% get_block_title _('%s Contained Document') _('%s Contained Documents') 'document_48.png' _('Document') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% get_listview_button with_ct_id ct_id with_label _("List of documents") with_q_filter q_filter %}

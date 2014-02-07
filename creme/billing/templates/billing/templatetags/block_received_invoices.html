@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
-        <th class="collapser label">{% get_block_title _('%s Received invoice') _('%s Received invoices') 'invoice_48.png' _('Invoice') %}</th>
+        <th class="label">{% get_block_title _('%s Received invoice') _('%s Received invoices') 'invoice_48.png' _('Invoice') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% has_perm_to change object as has_perm %}

@@ -3,7 +3,7 @@
 {% load reports_tags %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
-        <th class="collapser label">
+        <th class="label">
             {% with report_graph=graph|capfirst %}
                 {% trans "Graph" context "reports-graphs" as img_title %}
                 {% get_basic_block_header report_graph 'graph_48.png' img_title %}

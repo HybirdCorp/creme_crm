@@ -9,33 +9,29 @@
 </script>
 
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id={{block_name}}>
-    <thead>
-        <tr>
-            <th class="collapser label" align="left">
-                {% block header %}HEADER{% endblock %}
-            </th>
-            <th>{% comment %} TODO more than one on the fly line at the same time ?? {% endcomment %}
-                <div class="buttons">{% has_perm_to change object as change_perm %}{% trans "Add a line on the fly" as add_label %}{% trans "Save all lines" as save_label %}
-                    {% block add_buttons %}BUTTONS HERE{% endblock %}
-                    {% if change_perm %}
-                        <a class="add add_on_the_fly_{{ct_id}}" onclick="creme.billing.showEmptyForm($(this), '{{ct_id}}', '{{formset.prefix}}', {{item_count}});return false;">
-                            <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />{{add_label}}
-                        </a>
-                        <a class="add" onclick="creme.billing.multi_save_lines('{{object.pk}}');return false;">
-                            <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{save_label}}" alt="{{save_label}}" />{{save_label}}
-                        </a>
-                    {% else %}
-                        <span class="add forbidden">
-                            <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />{{add_label}}
-                        </span>
-                        <span class="add forbidden">
-                            <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{save_label}}" alt="{{save_label}}" />{{save_label}}
-                        </span>
-                    {% endif %}
-                </div>
-            </th>
-        </tr>
-    </thead>
+    {% get_block_header colspan=5 %}
+        <th class="label">{% block block_title %}HEADER{% endblock %}</th>{# TODO more than one on the fly line at the same time ?? #}
+        <th class="actions" style="width:75%">{% comment %}TODO: remove this inline style when block header is fixed with log titles & lots of buttons{% endcomment %}
+            <div class="buttons">{% has_perm_to change object as change_perm %}{% trans "Add a line on the fly" as add_label %}{% trans "Save all lines" as save_label %}
+                {% block add_buttons %}BUTTONS HERE{% endblock %}
+                {% if change_perm %}
+                    <a class="add add_on_the_fly_{{ct_id}}" onclick="creme.billing.showEmptyForm($(this), '{{ct_id}}', '{{formset.prefix}}', {{item_count}});return false;">
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />{{add_label}}
+                    </a>
+                    <a class="add" onclick="creme.billing.multi_save_lines('{{object.pk}}');return false;">
+                        <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{save_label}}" alt="{{save_label}}" />{{save_label}}
+                    </a>
+                {% else %}
+                    <span class="add forbidden">
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_label}}" alt="{{add_label}}" />{{add_label}}
+                    </span>
+                    <span class="add forbidden">
+                        <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{save_label}}" alt="{{save_label}}" />{{save_label}}
+                    </span>
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
     {% comment %} TODO improve the opti of reload block that only have been modified {% endcomment %}
     <tbody class="collapsable" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" block_name="{{block_name}}" reload_url={% get_block_reload_uri %}>
         {% csrf_token %}

@@ -4,7 +4,7 @@
 {% with b_address=object.billing_address s_address=object.shipping_address %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}
-        <th class="collapser label">{% get_basic_block_header _("Addresses") 'info_48.png' _('Addresses') %}</th>
+        <th class="label">{% get_basic_block_header _("Addresses") 'info_48.png' _('Addresses') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% if b_address == None %}{% get_line_adder at_url '/persons/address/add/billing/{{object.id}}' with_label _("Add a billing address") with_perms has_perm %}{% endif %}
