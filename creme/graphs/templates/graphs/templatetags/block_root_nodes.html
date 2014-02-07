@@ -3,7 +3,7 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
-        <th class="collapser label">{% get_block_title _('%s Root node') _('%s Root nodes') 'graph_48.png' _('Root nodes') %}</th>
+        <th class="label">{% get_block_title _('%s Root node') _('%s Root nodes') 'graph_48.png' _('Root nodes') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% get_line_adder at_url '/graphs/graph/{{object.pk}}/roots/add' with_label _("Add root nodes from existing entities") with_perms has_perm %}

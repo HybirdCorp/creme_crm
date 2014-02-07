@@ -56,7 +56,7 @@ _COLSPAN_ARG = 'colspan='
 @register.tag(name="get_block_header")#TODO: 'templatize' colspan argument
 def do_block_header(parser, token):
     """Eg:{% get_block_header colspan=8 %}
-            <th class="collapser label">My title</th>
+            <th class="label">My title</th>
           {% end_get_block_header %}
     """
     try:

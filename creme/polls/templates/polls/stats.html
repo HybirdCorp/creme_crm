@@ -8,7 +8,7 @@
 {% block content %}
     <table class="table_detail_view ui-corner-all with-header">
         {% get_block_header colspan=1 %}
-            <th class="collapser label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
+            <th class="label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
         {% end_get_block_header %}
         <tbody class="table_detail_view ui-corner-all with-header ui-creme-widget ui-creme-scrollactivator widget-auto" widget="ui-creme-scrollactivator">
             {% for node in nodes %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->

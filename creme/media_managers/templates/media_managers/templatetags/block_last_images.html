@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5%}{# TODO: { % get_block_header colspan=limit_to% } when get_block_header will handle template vars #}
-        <th class="collapser label">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
+        <th class="label">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">

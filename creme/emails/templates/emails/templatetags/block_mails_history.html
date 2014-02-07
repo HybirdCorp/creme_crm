@@ -2,8 +2,8 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}
-        <th class="collapser label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
-        <th class="actions">
+        <th class="label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
+        <th class="actions" style="width:20%">{% comment %}TODO: remove this inline style when block header is fixed with log titles & lots of buttons{% endcomment %}
             <div class="buttons">
                 {% has_perm_to link object as link_perm %}
                 {% with create_linked_perm=creation_perm|and_op:link_perm %}

@@ -2,9 +2,9 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
-        {% comment %}TODO when inclusion_tag is improved in django <th class="collapser label">{% get_basic_block_header object|get_meta_value:"verbose_name"|format:_("Informations %s") 'info_48.png' _('Information') %}</th>{% endcomment %}
+        {% comment %}TODO when inclusion_tag is improved in django <th class="label">{% get_basic_block_header object|get_meta_value:"verbose_name"|format:_("Informations %s") 'info_48.png' _('Information') %}</th>{% endcomment %}
         {% with object|get_meta_value:"verbose_name"|format:_("Informations %s") as title %}
-            <th class="collapser label">{% get_basic_block_header title 'info_48.png' _('Information') %}</th>
+            <th class="label">{% get_basic_block_header title 'info_48.png' _('Information') %}</th>
             <th class="actions">
                 <div class="buttons">
                     {% get_toggle_empty_field_button %}

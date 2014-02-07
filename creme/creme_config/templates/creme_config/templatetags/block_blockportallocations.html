@@ -2,7 +2,7 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
-        <th class="collapser label">{% get_block_title _('%s Configured portal') _('%s Configured portals') %}</th>
+        <th class="label">{% get_block_title _('%s Configured portal') _('%s Configured portals') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">

@@ -26,7 +26,7 @@
             {% with errors|length as count %}
                 <table class="table_detail_view ui-corner-all with-header">
                     {% get_block_header colspan=2 %}
-                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Infos' count %}</th>
+                        <th class="label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Infos' count %}</th>
                         <th class="actions"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">

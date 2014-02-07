@@ -5,7 +5,7 @@
 {% block content %}
     <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
         {% get_block_header colspan=8 %}
-            <th class="collapser label">
+            <th class="label">
                 {% with callers|length as count %}
                     {% get_block_title _('%s Potential caller') _('%s Potential callers') 'phone_48.png' _('Caller') count %}
                 {% endwith %}
