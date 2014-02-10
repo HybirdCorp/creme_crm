@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load creme_core_tags creme_widgets creme_block %}
-
+{% load creme_core_tags creme_block creme_widgets %}
+{% has_perm_to change object as edit_perm %}
 {% with line=form.instance currency_id=object.currency.pk %}
 <table class="table_detail_view linetable linetable_{{ct_id}}" style="border:0px;margin:0px;padding:0px;">
     <tr class="content">
@@ -14,49 +14,89 @@
         <td align="center" class="block_header_line_dark" width="10%">{% trans "Total (inclusive of tax)" %}</td>
     </tr>
 
-    <tr class="content">
-        <td class="line-background-color" align="center">{{form.quantity}}</td>
-        <td class="line-background-color" align="center">{{form.unit_price}} {{object.currency.local_symbol}}</td>
-        <td class="line-background-color" align="center">/ {{form.unit}}</td>
-        <td class="line-background-color" align="center">
-            {% comment %}{% trans "Check to apply on line total" %}<br>{% endcomment %}
-            {{form.discount}} {{form.discount_unit}}{% comment %} {{form.total_discount}}{% endcomment %}
-        </td>
-        <td class="line-background-color" align="center">{{form.vat_value}}</td>
-        <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
-        {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-        <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency_id}}</td>
-        <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency_id}}</td>
-        {% endwith %}
-    </tr>
+    {% if edit_perm %}
+        <tr class="content">
+            <td class="line-background-color" align="center">{{form.quantity}}</td>
+            <td class="line-background-color" align="center">{{form.unit_price}} {{object.currency.local_symbol}}</td>
+            <td class="line-background-color" align="center">/ {{form.unit}}</td>
+            <td class="line-background-color" align="center">
+                {% comment %}{% trans "Check to apply on line total" %}<br>{% endcomment %}
+                {{form.discount}} {{form.discount_unit}}{% comment %} {{form.total_discount}}{% endcomment %}
+            </td>
+            <td class="line-background-color" align="center">{{form.vat_value}}</td>
+            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
+            {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
+                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency_id}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency_id}}</td>
+            {% endwith %}
+        </tr>
 
-    <tr class="content">
-        <td align="center" class="block_header_line_dark" colspan="3">{{related_item_label}}</td>
-        <td align="left" class="block_header_line_dark" colspan="5">{% trans "Comment" %}</td>
-    </tr>
+        <tr class="content">
+            <td align="center" class="block_header_line_dark" colspan="3">{{related_item_label}}</td>
+            <td align="left" class="block_header_line_dark" colspan="5">{% trans "Comment" %}</td>
+        </tr>
 
-    <tr class="content">
-        <td class="line-background-color" align="center" colspan="3">
-            {% if line.pk %}
+        <tr class="content">
+            <td class="line-background-color" align="center" colspan="3">
+                {% if line.pk %}
+                    {% with line.related_item as related_item %}
+                        {% if related_item %}
+                            {% widget_entity_hyperlink related_item user %}
+                        {% else %}
+                            {{form.on_the_fly_item}}
+                            <br/>{% has_perm_to create related_item_ct as item_create_perm %}
+                            {% if item_create_perm %}
+                                <a onclick="creme.blocks.form('/billing/line/{{line.id}}/add_to_catalog', {blockReloadUrl:{% get_block_reload_uri %}}).open();">[{% trans "add to catalog" %}]</a>
+                            {% else %}
+                                <span class="forbidden">[{% trans "add to catalog (forbidden)" %}]</span>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    {{form.on_the_fly_item}}
+                {% endif %}
+            </td>
+            <td class="line-background-color" align="left" colspan="5">{{form.comment}}</td>
+        </tr>
+    {% else %}{% comment %}READONLY BLOCK VERSION{% endcomment %}
+        <tr class="content">
+            <td class="line-background-color" align="center">{{line.quantity}}</td>
+            <td class="line-background-color" align="center">{{line.unit_price}} {{object.currency.local_symbol}}</td>
+            <td class="line-background-color" align="center">{% if line.unit %} / {{line.unit}}{% endif %}</td>
+            <td class="line-background-color" align="center">
+                {{line.discount}} {% with sel_dunit=form.fields.discount_unit.initial %}{% for dunit, label in form.fields.discount_unit.choices %}{% if dunit == sel_dunit %}{{label}}{% endif %}{% endfor %}{% endwith %}
+            </td>
+            <td class="line-background-color" align="center">{{line.vat_value}}</td>
+            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
+            {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
+                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency_id}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency_id}}</td>
+            {% endwith %}
+        </tr>
+
+        <tr class="content">
+            <td align="center" class="block_header_line_dark" colspan="3">{{related_item_label}}</td>
+            <td align="left" class="block_header_line_dark" colspan="5">{% trans "Comment" %}</td>
+        </tr>
+
+        <tr class="content">
+            <td class="line-background-color" align="center" colspan="3">
                 {% with line.related_item as related_item %}
                     {% if related_item %}
-                        <a href="{{related_item.get_absolute_url}}">{{related_item}}</a>
+                        {% widget_entity_hyperlink related_item user %}
                     {% else %}
-                        {{form.on_the_fly_item}}
-                        {% has_perm_to create related_item_ct as item_create_perm %}
-                        <br/>
+                        {{line.on_the_fly_item}}
+                        <br/>{% has_perm_to create related_item_ct as item_create_perm %}
                         {% if item_create_perm %}
                             <a onclick="creme.blocks.form('/billing/line/{{line.id}}/add_to_catalog', {blockReloadUrl:{% get_block_reload_uri %}}).open();">[{% trans "add to catalog" %}]</a>
                         {% else %}
-                            <a class="forbidden">[{% trans "add to catalog" %}]</a>
+                            <span class="forbidden">[{% trans "add to catalog (forbidden)" %}]</span>
                         {% endif %}
                     {% endif %}
                 {% endwith %}
-            {% else %}
-                {{form.on_the_fly_item}}
-            {% endif %}
-        </td>
-        <td class="line-background-color" align="left" colspan="5">{{form.comment}}</td>
-    </tr>
+            </td>
+            <td class="line-background-color" align="left" colspan="5">{{line.comment|linebreaks}}</td>
+        </tr>
+    {% endif %}
 </table>
 {% endwith %}

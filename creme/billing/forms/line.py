@@ -219,9 +219,12 @@ class LineEditForm(CremeModelWithUserForm):
                           (DISCOUNT_ITEM_AMOUNT,    _(u"%s per unit") % currency_str),
                          ]
 
+        line = self.instance
         fields['discount_unit'] = discount_unit_f = TypedChoiceField(choices=discount_units, coerce=int)
-        discount_unit_f.widget.attrs = {'class': 'bound'}
+        discount_unit_f.initial = DISCOUNT_PERCENT if line.discount_unit == DISCOUNT_PERCENT else \
+                                  (DISCOUNT_LINE_AMOUNT if line.total_discount else DISCOUNT_ITEM_AMOUNT) #HACK: see below
         discount_unit_f.required = True
+        discount_unit_f.widget.attrs = {'class': 'bound'}
 
         fields['comment'].widget = Textarea(attrs={'class': 'line-comment'})
 
@@ -230,7 +233,7 @@ class LineEditForm(CremeModelWithUserForm):
         #vat_f.required = True
         fields['vat_value'].initial = Vat.get_default_vat()
 
-    #TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount
+    #TODO: UGLY HACK: we should have our 3 choices in Line.discount_unit & remove Line.total_discount (refactor the template too)
     def clean(self):
         cdata = super(LineEditForm, self).clean()
 
@@ -264,7 +267,6 @@ class AddToCatalogForm(CremeForm):
 
     def __init__(self, user, line, related_item_class, *args, **kwargs):
         super(AddToCatalogForm, self).__init__(user, *args, **kwargs)
-
         self.line = line
         self.related_item_class = related_item_class
 
