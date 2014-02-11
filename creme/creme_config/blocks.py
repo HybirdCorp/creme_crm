@@ -373,15 +373,15 @@ class ButtonMenuBlock(Block):
                            #))
         buttons_map = defaultdict(list)
 
-        for bti in ButtonMenuItem.objects.order_by('order'): #TODO: meta.ordering...
-            buttons_map[bti.content_type_id].append(bti)
+        for bmi in ButtonMenuItem.objects.order_by('order'): #TODO: meta.ordering...
+            buttons_map[bmi.content_type_id].append(bmi)
 
-        build_verbose_names = lambda buttons_ids: [unicode(bti) for bti in buttons_ids]
+        build_verbose_names = lambda bm_items: [unicode(bmi) for bmi in bm_items if bmi.button_id]
         default_buttons = build_verbose_names(buttons_map.pop(None, ()))
 
         get_ct = ContentType.objects.get_for_id
-        buttons = [(get_ct(ct_id), build_verbose_names(buttons_ids))
-                        for ct_id, buttons_ids in buttons_map.iteritems()
+        buttons = [(get_ct(ct_id), build_verbose_names(bm_items))
+                        for ct_id, bm_items in buttons_map.iteritems()
                   ]
         sort_key = collator.sort_key
         buttons.sort(key=lambda t: sort_key(unicode(t[0])))
