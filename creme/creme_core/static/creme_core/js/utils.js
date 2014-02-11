@@ -740,7 +740,8 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
 
         query.onFail(function(event, error, status) {
                   if (options.warnOnFail) {
-                      creme.dialogs.warning(error.message || gettext("Error"))
+                      var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
+                      creme.dialogs.error(message, {title: options.warnOnFailTitle}, status)
                                    .onClose(function() {self.fail(error, status);})
                                    .open();
                   } else {
@@ -770,7 +771,10 @@ creme.utils.ajaxQuery = function(url, options, data) {
 
     if (options.warnOnFail) {
         query.onFail(function(event, error, status) {
-              creme.dialogs.warning(error.message || gettext("Error")).open();
+            var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
+            creme.dialogs.error(message, {title: options.warnOnFailTitle}, status)
+                         .onClose(function() {self.fail(error, status);})
+                         .open();
         });
     }
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-22 09:41+0100\n"
+"POT-Creation-Date: 2014-02-10 11:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/creme_core/js/blocks.js:133
+#: static/creme_core/js/blocks.js:136
 msgid "Show empty fields"
 msgstr "Montrer les champs vides"
 
-#: static/creme_core/js/blocks.js:133
+#: static/creme_core/js/blocks.js:136
 msgid "Hide empty fields"
 msgstr "Cacher les champs vides"
 
@@ -113,7 +113,7 @@ msgstr "Sélectionnez"
 
 #: static/creme_core/js/list_view.core.js:163
 #: static/creme_core/js/lv_widget.js:201 static/creme_core/js/lv_widget.js:216
-#: static/creme_core/js/widgets/dialog/deprecated.js:100
+#: static/creme_core/js/lv_widget.js:313
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins un enregistrement."
 
@@ -123,59 +123,66 @@ msgstr "Veuillez sélectionner au moins un enregistrement."
 msgid "Delete"
 msgstr "Supprimer"
 
-#: static/creme_core/js/menu.js:76 static/creme_core/js/utils.js:232
-#: static/creme_core/js/utils.js.c:738 static/creme_core/js/utils.js:768
-#: static/creme_core/js/widgets/dialog/deprecated.js:100
-#: static/creme_core/js/widgets/dialog/deprecated.js:105
-#: static/creme_core/js/widgets/dialog/dialog.js:380
+#: static/creme_core/js/lv_widget.js:313 static/creme_core/js/lv_widget.js:318
+#: static/creme_core/js/menu.js:76 static/creme_core/js/utils.js:241
+#: static/creme_core/js/utils.js.c:743 static/creme_core/js/utils.js:773
+#: static/creme_core/js/widgets/dialog/dialog.js:430
+#: static/creme_core/js/widgets/dialog/dialog.js:431
 msgid "Error"
 msgstr "Erreur"
+
+#: static/creme_core/js/lv_widget.js:318
+msgid "Please select only one entity."
+msgstr "Veuillez sélectioner un seul enregistrement."
+
+#: static/creme_core/js/lv_widget.js:326
+msgid "Validate the selection"
+msgstr "Valider la sélection"
 
 #: static/creme_core/js/utils.js:54
 msgid "Loading..."
 msgstr "Chargement..."
 
-#: static/creme_core/js/utils.js:102
+#: static/creme_core/js/utils.js:102 static/creme_core/js/utils.js.c:209
 #: static/creme_core/js/widgets/dialog/confirm.js:48
 #: static/creme_core/js/widgets/dialog/select.js:58
 msgid "Ok"
 msgstr "Ok"
 
-#: static/creme_core/js/utils.js:222 static/creme_core/js/utils.js.c:286
-#: static/creme_core/js/utils.js:730
-msgid "Are you sure ?"
-msgstr "Êtes-vous sûr ?"
-
-#: static/creme_core/js/utils.js:340
+#: static/creme_core/js/utils.js:217 static/creme_core/js/utils.js.c:349
 #: static/creme_core/js/widgets/dialog/confirm.js:49
-#: static/creme_core/js/widgets/dialog/form.js:113
+#: static/creme_core/js/widgets/dialog/form.js:123
 #: static/creme_core/js/widgets/dialog/select.js:59
 msgid "Cancel"
 msgstr "Annuler"
 
-#: static/creme_core/js/utils.js:374
-#: static/creme_core/js/widgets/dialog/deprecated.js:41
+#: static/creme_core/js/utils.js:225 static/creme_core/js/utils.js.c:231
+#: static/creme_core/js/utils.js:295 static/creme_core/js/utils.js.c:735
+msgid "Are you sure ?"
+msgstr "Êtes-vous sûr ?"
+
+#: static/creme_core/js/utils.js:383 static/creme_core/js/utils.js.c:787
+#: static/creme_core/js/widgets/dialog/form.js:122
 msgid "Save"
 msgstr "Enregistrer"
 
-#: static/creme_core/js/utils.js:392
-#: static/creme_core/js/widgets/dialog/deprecated.js:79
+#: static/creme_core/js/utils.js:401 static/creme_core/js/utils.js.c:825
 msgid "Error during loading the page."
 msgstr "Le chargement de la page a échoué"
 
-#: static/creme_core/js/utils.js:645
+#: static/creme_core/js/utils.js:651
 msgid "Search results..."
 msgstr "Résultats de recherche..."
 
-#: static/creme_core/js/utils.js:718
+#: static/creme_core/js/utils.js:723
 msgid "Error !"
 msgstr "Erreur !"
 
-#: static/creme_core/js/utils.js:718
+#: static/creme_core/js/utils.js:723
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
 
-#: static/creme_core/js/widgets/checklistselect.js:75
+#: static/creme_core/js/widgets/checklistselect.js:74
 #, c-format
 msgid "%d result of %d"
 msgid_plural "%d results of %d"
@@ -195,6 +202,35 @@ msgstr "Capture du graphique"
 msgid "View as image"
 msgstr "Capturer une image du graphique"
 
+#: static/creme_core/js/widgets/ajax/backend.js:64
+msgid "Bad Request"
+msgstr "Requête invalide"
+
+#: static/creme_core/js/widgets/ajax/backend.js:65
+msgid "Unauthorized"
+msgstr "Non authentifié"
+
+#: static/creme_core/js/widgets/ajax/backend.js:66
+msgid "Forbidden Access"
+msgstr "Interdit"
+
+#: static/creme_core/js/widgets/ajax/backend.js:67
+msgid "Not Found"
+msgstr "Non trouvé"
+
+#: static/creme_core/js/widgets/ajax/backend.js:68
+msgid "Not Acceptable"
+msgstr "Invalide"
+
+#: static/creme_core/js/widgets/ajax/backend.js:69
+#
+msgid "Conflict"
+msgstr "Conflit"
+
+#: static/creme_core/js/widgets/ajax/backend.js:70
+msgid "Internal Error"
+msgstr "Erreur interne"
+
 #: static/creme_core/js/widgets/component/chosen.js:25
 msgid "No result"
 msgstr "Aucun résultat"
@@ -203,30 +239,28 @@ msgstr "Aucun résultat"
 msgid "Confirm"
 msgstr "Confirmation"
 
-#: static/creme_core/js/widgets/dialog/deprecated.js:105
-msgid "Please select only one entity."
-msgstr "Veuillez sélectioner un seul enregistrement."
-
-#: static/creme_core/js/widgets/dialog/deprecated.js:113
-msgid "Validate the selection"
-msgstr "Valider la sélection"
-
-#: static/creme_core/js/widgets/dialog/dialog.js:134
+#: static/creme_core/js/widgets/dialog/dialog.js:143
 msgid "Close"
 msgstr "Fermer"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:137
-msgid "Reload"
-msgstr "Recharger"
+#: static/creme_core/js/widgets/dialog/dialog.js:408
+msgid "Alert"
+msgstr "Message"
 
-#: static/creme_core/js/widgets/dialog/form.js:112
-msgid "Send"
-msgstr "Envoyer"
+#: static/creme_core/js/widgets/dialog/dialog.js:424
+msgid "Warning"
+msgstr "Attention"
 
 #
 #: static/creme_core/js/widgets/dialog/select.js:22
 msgid "Selection"
 msgstr "Sélection"
+
+#~ msgid "Reload"
+#~ msgstr "Recharger"
+
+#~ msgid "Send"
+#~ msgstr "Envoyer"
 
 #~ msgid "Pdf file (PDF)"
 #~ msgstr "Fichier Pdf (PDF)"
