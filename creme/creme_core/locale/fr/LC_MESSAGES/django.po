@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-28 09:31+0100\n"
+"POT-Creation-Date: 2014-02-11 17:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -570,7 +570,7 @@ msgstr ""
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1140 forms/widgets.py:232 forms/widgets.py:984
+#: forms/fields.py:1140 forms/widgets.py:232 forms/widgets.py:985
 msgid "Customized"
 msgstr "Personnalisé"
 
@@ -689,7 +689,7 @@ msgstr ""
 "retrouver \"%(value)s\" sur %(model)s"
 
 #: forms/list_view_import.py:504 forms/list_view_import.py:1009
-#: models/auth.py:417
+#: models/auth.py:424
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
@@ -904,23 +904,23 @@ msgstr "Maintenant"
 msgid "No choice available."
 msgstr "Aucun choix disponible."
 
-#: forms/widgets.py:808
+#: forms/widgets.py:811
 msgid "Check all"
 msgstr "Tout sélectionner"
 
-#: forms/widgets.py:808
+#: forms/widgets.py:811
 msgid "Check none"
 msgstr "Tout déselectionner"
 
-#: forms/widgets.py:1031
+#: forms/widgets.py:1032
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
-#: forms/widgets.py:1032
+#: forms/widgets.py:1033
 msgid "Minute(s)"
 msgstr "Minute(s)"
 
-#: forms/widgets.py:1033
+#: forms/widgets.py:1034
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
@@ -935,13 +935,13 @@ msgid "Block of instance: %s"
 msgstr "Bloc d'instance: %s"
 
 #: gui/field_printers.py:81 gui/field_printers.py:223
-#: models/custom_field.py:270 templatetags/creme_core_tags.py:58
+#: models/custom_field.py:270 templatetags/creme_core_tags.py:59
 #: templatetags/creme_listview.py:80
 msgid "Yes"
 msgstr "Oui"
 
 #: gui/field_printers.py:84 gui/field_printers.py:223
-#: models/custom_field.py:270 templatetags/creme_core_tags.py:58
+#: models/custom_field.py:270 templatetags/creme_core_tags.py:59
 #: templatetags/creme_listview.py:84
 msgid "No"
 msgstr "Non"
@@ -964,39 +964,39 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: models/auth.py:44 models/block.py:333 models/entity_filter.py:110
+#: models/auth.py:45 models/block.py:333 models/entity_filter.py:110
 #: models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:51
 #: templates/creme_core/templatetags/block_trash.html:22
 msgid "Name"
 msgstr "Nom"
 
-#: models/auth.py:46
+#: models/auth.py:47
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: models/auth.py:47
+#: models/auth.py:48
 msgid "Exportable resources"
 msgstr "Ressources exportables"
 
-#: models/auth.py:189
+#: models/auth.py:195
 msgid "all entities"
 msgstr "toutes les fiches"
 
-#: models/auth.py:190
+#: models/auth.py:196
 msgid "user's own entities"
 msgstr "ses propres fiches"
 
-#: models/auth.py:201
+#: models/auth.py:207
 #: templates/creme_core/templatetags/widgets/block_line_viewer.html:5
 msgid "View"
 msgstr "Voir"
 
-#: models/auth.py:202
+#: models/auth.py:208
 msgid "Change"
 msgstr "Modifier"
 
-#: models/auth.py:203 models/entity.py:276
+#: models/auth.py:209 models/entity.py:276
 #: templates/creme_core/templatetags/block_relations.html:13
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/delete_button.html:12
@@ -1004,99 +1004,99 @@ msgstr "Modifier"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: models/auth.py:204
+#: models/auth.py:210
 #: templates/creme_core/templatetags/widgets/block_line_linker.html:5
 msgid "Link"
 msgstr "Lier"
 
-#: models/auth.py:205
+#: models/auth.py:211
 #: templates/creme_core/templatetags/block_specific_relations.html:24
 #: templates/creme_core/templatetags/block_specific_relations.html:52
 #: templates/creme_core/templatetags/widgets/block_line_unlinker.html:5
 msgid "Unlink"
 msgstr "Délier"
 
-#: models/auth.py:208
+#: models/auth.py:214
 msgid "Nothing allowed"
 msgstr "Rien d'autorisé"
 
-#: models/auth.py:216
+#: models/auth.py:222
 #, python-format
 msgid "For %(set)s of type “%(type)s”: %(perms)s"
 msgstr "Pour %(set)s du type “%(type)s”: %(perms)s"
 
-#: models/auth.py:218
+#: models/auth.py:224
 #, python-format
 msgid "For %(set)s: %(perms)s"
 msgstr "Pour %(set)s: %(perms)s"
 
-#: models/auth.py:305
+#: models/auth.py:311
 msgid "Role"
 msgstr "Rôle"
 
-#: models/auth.py:306
+#: models/auth.py:312
 msgid "Is a team ?"
 msgstr "Est une équipe ?"
 
-#: models/auth.py:316
+#: models/auth.py:322
 #, python-format
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/auth.py:391
+#: models/auth.py:398
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 
-#: models/auth.py:404
+#: models/auth.py:411
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:430 views/entity.py:487
+#: models/auth.py:437 views/entity.py:487
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:443
+#: models/auth.py:450
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:467
+#: models/auth.py:474
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:470
+#: models/auth.py:477
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:480
+#: models/auth.py:487
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:489
+#: models/auth.py:496
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/auth.py:515
+#: models/auth.py:522
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:532
+#: models/auth.py:539
 msgid "Username"
 msgstr "Utilisateur"
 
-#: models/auth.py:533
+#: models/auth.py:540
 msgid "Last name"
 msgstr ""
 
-#: models/auth.py:534
+#: models/auth.py:541
 msgid "Email address"
 msgstr ""
 
@@ -1108,7 +1108,7 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:51 models/block.py:332 models/button_menu.py:32
+#: models/block.py:51 models/block.py:332 models/button_menu.py:31
 #: models/custom_field.py:55
 msgid "Related type"
 msgstr "Type associé"
@@ -1129,21 +1129,25 @@ msgstr "Fiche associée au bloc"
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/button_menu.py:33
+#: models/button_menu.py:32
 msgid "Button ID"
 msgstr "Identifiant de bouton"
 
-#: models/button_menu.py:34 models/search.py:157
+#: models/button_menu.py:33 models/search.py:157
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/button_menu.py:38
+#: models/button_menu.py:37
 msgid "Button to display"
 msgstr "Bouton à afficher"
 
-#: models/button_menu.py:39
+#: models/button_menu.py:38
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
+
+#: models/button_menu.py:44
+msgid "Deprecated button"
+msgstr "Bouton obsolète"
 
 #: models/creme_property.py:44
 msgid "Types of property"
@@ -2490,7 +2494,7 @@ msgstr "Importer ce fichier"
 msgid "Import data file"
 msgstr "Importer un fichier de données"
 
-#: views/quick_forms.py:76
+#: views/quick_forms.py:75
 #, python-format
 msgid "Quick creation of <%s>"
 msgstr "Création rapide de <%s>"
@@ -2625,9 +2629,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Displayed on portal ?"
 #~ msgstr "Affiché sur la page d'accueil ?"
-
-#~ msgid "related to"
-#~ msgstr "est en relation avec"
 
 #~ msgid "Entity#%s can not be deleted because of its dependencies."
 #~ msgstr "La fiche#%s ne peut être effacé à cause de ses dépendances."

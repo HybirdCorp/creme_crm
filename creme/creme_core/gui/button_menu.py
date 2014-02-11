@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,17 @@ class ButtonsRegistry(object):
 
             buttons_dic[button_id] = button
 
+    def get_button(self, button_id):
+        return self._buttons.get(button_id)
+
     def get_buttons(self, id_list, entity):
+        """Get the list of Buttons to be displayed on the detailview of an entity.
+        Deprecated buttons & buttons that should not be displyed for this entity
+        are ignored.
+        @param id_list Sequence of button IDs
+        @param entity CremeEntity instance.
+        @return List of creme_core.gui.button_menu.Button instances.
+        """
         buttons = self._buttons
         buttons_2_display = []
 
