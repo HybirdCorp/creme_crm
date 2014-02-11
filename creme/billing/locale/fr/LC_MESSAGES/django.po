@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-31 19:20+0100\n"
+"POT-Creation-Date: 2014-02-11 19:03+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgid "Product lines"
 msgstr "Lignes produit"
 
 #: blocks.py:108 constants.py:58
-#: templates/billing/templatetags/block_product_line.html:8
+#: templates/billing/templatetags/block_product_line.html:6
 msgid "Product"
 msgstr "Produit"
 
@@ -29,7 +29,7 @@ msgid "Service lines"
 msgstr "Lignes service"
 
 #: blocks.py:121 constants.py:59
-#: templates/billing/templatetags/block_service_line.html:8
+#: templates/billing/templatetags/block_service_line.html:6
 msgid "Service"
 msgstr "Service"
 
@@ -46,7 +46,7 @@ msgid "Total"
 msgstr "Total"
 
 #: blocks.py:162 models/other_models.py:128
-#: templates/billing/templatetags/block_target.html:11
+#: templates/billing/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
 
@@ -400,7 +400,7 @@ msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
 #: forms/base.py:59 forms/lv_import.py:36
-#: templates/billing/templatetags/block_target.html:15
+#: templates/billing/templatetags/block_target.html:14
 msgid "Source organisation"
 msgstr "Société émettrice"
 
@@ -422,9 +422,9 @@ msgstr "Émission"
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: forms/base.py:66 models/algo.py:33 models/algo.py:43
-msgid "Organisation"
-msgstr "Société"
+#: forms/base.py:66
+msgid "Organisations"
+msgstr "Sociétés"
 
 #: forms/base.py:110
 msgid "Your discount is a %. It must be between 1 and 100%"
@@ -497,15 +497,15 @@ msgstr "%s sur le total"
 msgid "%s per unit"
 msgstr "%s par unité"
 
-#: forms/line.py:263
+#: forms/line.py:266
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/line.py:273
+#: forms/line.py:275
 msgid "You are not allowed to create this entity"
 msgstr "Vous n'êtes pas autorisé à créer cette fiche"
 
-#: forms/line.py:276
+#: forms/line.py:278
 msgid ""
 "You are not allowed to add this item to the catalog because it is not on the "
 "fly"
@@ -530,6 +530,10 @@ msgstr "Statut"
 #, python-format
 msgid "Status of %s"
 msgstr "Statut de %s"
+
+#: models/algo.py:33 models/algo.py:43
+msgid "Organisation"
+msgstr "Société"
 
 #: models/algo.py:34
 msgid "Algo name"
@@ -564,7 +568,8 @@ msgid "Currency"
 msgstr "Devise"
 
 #: models/base.py:60 models/line.py:60
-#: templates/billing/frags/generic_billing_line_frag.html:37
+#: templates/billing/frags/generic_billing_line_frag.html:38
+#: templates/billing/frags/generic_billing_line_frag.html:82
 #: templates/billing/templatetags/block_billing.html:60
 #: templates/billing/templatetags/block_credit_note.html:24
 msgid "Comment"
@@ -923,9 +928,14 @@ msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
 
 #: templates/billing/frags/generic_billing_line_frag.html:51
-#: templates/billing/frags/generic_billing_line_frag.html:53
+#: templates/billing/frags/generic_billing_line_frag.html:94
 msgid "add to catalog"
 msgstr "ajouter au catalogue"
+
+#: templates/billing/frags/generic_billing_line_frag.html:53
+#: templates/billing/frags/generic_billing_line_frag.html:96
+msgid "add to catalog (forbidden)"
+msgstr "ajouter au catalogue (interdit)"
 
 #: templates/billing/templatetags/block_billing.html:5
 msgid "Information on the billing document"
@@ -1024,18 +1034,21 @@ msgstr "Actions"
 msgid "Rib key"
 msgstr "Clé RIB"
 
-#: templates/billing/templatetags/block_product_line.html:10
+#: templates/billing/templatetags/block_product_line.html:6
 #, python-format
-msgid "%(item_count)s Product"
-msgid_plural "%(item_count)s Products"
-msgstr[0] "%(item_count)s Produit"
-msgstr[1] "%(item_count)s Produits"
+msgid "%s Product"
+msgstr "%s Produit"
 
-#: templates/billing/templatetags/block_product_line.html:20
+#: templates/billing/templatetags/block_product_line.html:6
+#, python-format
+msgid "%s Products"
+msgstr "%s Produits"
+
+#: templates/billing/templatetags/block_product_line.html:13
 msgid "Add one or more product"
 msgstr "Ajouter un ou plusieurs produits"
 
-#: templates/billing/templatetags/block_product_line.html:23
+#: templates/billing/templatetags/block_product_line.html:16
 msgid "No product in this document"
 msgstr "Aucun produit dans ce document"
 
@@ -1071,18 +1084,21 @@ msgstr "%s Factures reçues"
 msgid "No received invoice for the moment"
 msgstr "Aucune facture reçue pour le moment"
 
-#: templates/billing/templatetags/block_service_line.html:10
+#: templates/billing/templatetags/block_service_line.html:6
 #, python-format
-msgid "%(item_count)s Service"
-msgid_plural "%(item_count)s Services"
-msgstr[0] "%(item_count)s Service"
-msgstr[1] "%(item_count)s Services"
+msgid "%s Service"
+msgstr "%s Service"
 
-#: templates/billing/templatetags/block_service_line.html:20
+#: templates/billing/templatetags/block_service_line.html:6
+#, python-format
+msgid "%s Services"
+msgstr "%s Services"
+
+#: templates/billing/templatetags/block_service_line.html:13
 msgid "Add one or more service"
 msgstr "Ajouter un ou plusieurs services"
 
-#: templates/billing/templatetags/block_service_line.html:23
+#: templates/billing/templatetags/block_service_line.html:16
 msgid "No service in this document"
 msgstr "Aucun service dans ce document"
 
@@ -1094,20 +1110,20 @@ msgstr "Totaux"
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: templates/billing/templatetags/line.html:19
+#: templates/billing/templatetags/line.html:16
 msgid "Add a line on the fly"
 msgstr "Ajouter une ligne à la volée"
 
-#: templates/billing/templatetags/line.html:19
+#: templates/billing/templatetags/line.html:16
 msgid "Save all lines"
 msgstr "Sauver toutes les lignes"
 
-#: templates/billing/templatetags/line.html:59
-#: templates/billing/templatetags/line.html:96
+#: templates/billing/templatetags/line.html:55
+#: templates/billing/templatetags/line.html:92
 msgid "flag for delete"
 msgstr "marquer pour suppression"
 
-#: templates/billing/templatetags/line.html:63
+#: templates/billing/templatetags/line.html:59
 msgid "reset"
 msgstr "réinitialiser"
 
@@ -1212,6 +1228,16 @@ msgstr "Enregistrer le commande"
 #, python-format
 msgid "Add a sales order for <%s>"
 msgstr "Ajouter un bon de commande pour <%s>"
+
+#~ msgid "%(item_count)s Product"
+#~ msgid_plural "%(item_count)s Products"
+#~ msgstr[0] "%(item_count)s Produit"
+#~ msgstr[1] "%(item_count)s Produits"
+
+#~ msgid "%(item_count)s Service"
+#~ msgid_plural "%(item_count)s Services"
+#~ msgstr[0] "%(item_count)s Service"
+#~ msgstr[1] "%(item_count)s Services"
 
 #~ msgid "Check to apply on line total"
 #~ msgstr "Cochez pour appliquer sur le total de la ligne"
