@@ -60,6 +60,23 @@ creme.ajax.Backend.prototype = {
     }
 };
 
+creme.ajax.LOCALIZED_ERROR_MESSAGES = {
+    '400': gettext('Bad Request'),
+    '401': gettext('Unauthorized'),
+    '403': gettext('Forbidden Access'),
+    '404': gettext('Not Found'),
+    '406': gettext('Not Acceptable'),
+    '409': gettext('Conflict'),
+    '500': gettext('Internal Error')
+}
+
+creme.ajax.localizedErrorMessage = function(xhr) {
+    var status = Object.isEmpty(xhr) ? '200' : (['number', 'string'].indexOf(typeof xhr) !== -1 ? xhr : (xhr.status || '200'));
+    var message = creme.ajax.LOCALIZED_ERROR_MESSAGES[status];
+
+    return message ? message : gettext('Error') + (status && status !== '200' ? ' (' + status + ')' : '');
+}
+
 // mock XHR object (thanks to jquery.form author)
 creme.ajax.XHR = function(options) {
     return $.extend({

@@ -507,6 +507,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/ajax/mockajax.js',
     'creme_core/js/tests/ajax/cacheajax.js',
     'creme_core/js/tests/ajax/query.js',
+    'creme_core/js/tests/ajax/localize.js',
     'creme_core/js/tests/model/collection.js',
     'creme_core/js/tests/model/renderer.js',
     'creme_core/js/tests/model/query.js',

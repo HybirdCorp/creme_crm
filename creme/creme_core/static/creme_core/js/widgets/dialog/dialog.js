@@ -403,12 +403,34 @@ creme.dialogs = $.extend(creme.dialogs, {
         return dialog;
     },
 
+    alert: function(message, options)
+    {
+        var options = $.extend({title: gettext('Alert'), header: ''}, options || {});
+        var header = options.header || '';
+        var content = $('<p class="ui-creme-dialog-warn">').append($('<span class="ui-icon ui-icon-alert">'));
+
+        if (header) {
+            content.append($('<span class="header">').html(header))
+                   .append($('<p class="message">').html(message));
+        } else {
+            content.append($('<span class="message">').html(message));
+        }
+
+        return this.html(content, options);
+    },
+
     warning: function(message, options)
     {
-        var options = $.extend({title: gettext('Error')}, options || {});
+        var options = $.extend({title: gettext('Warning')}, options || {});
+        return this.alert(message, options);
+    },
 
-        return this.html($('<p class="ui-creme-dialog-warn">').append($('<span class="ui-icon ui-icon-alert">'))
-                                                              .append($('<span class="message">').html(message)),
-                         options);
+    error: function(message, options, xhr)
+    {
+        var xhr = $.extend({status: 200}, xhr);
+        var header = creme.ajax.localizedErrorMessage(xhr);
+        var options = $.extend({title: gettext('Error'), header: header}, options || {});
+
+        return this.alert(message || '', options);
     }
 });

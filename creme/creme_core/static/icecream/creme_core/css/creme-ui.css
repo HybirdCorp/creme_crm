@@ -506,7 +506,13 @@ span.ui-creme-datepicker-trigger {
     margin-left: 10px;
 }
 
-.ui-creme-dialog-warn .message {
-    display: inline-block;
-    font-size: 12px;
+.ui-creme-dialog-warn .header {
+    font-size: 13px;
+    font-weight: bold;
 }
+
+.ui-creme-dialog-warn .message {
+    font-size: 12px;
+    margin-left: 10px;
+}
+
