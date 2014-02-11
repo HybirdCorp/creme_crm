@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -27,7 +29,7 @@ from creme.creme_core.models import (CremeModel, CremeEntity, UserRole,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
-from creme.creme_core.gui.block import PaginatedBlock, QuerysetBlock
+from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
 
@@ -349,20 +351,45 @@ class CustomBlocksConfigBlock(_ConfigAdminBlock):
                            ))
 
 
-class ButtonMenuBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
+#class ButtonMenuBlock(_ConfigAdminBlock):
+class ButtonMenuBlock(Block):
+    #id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
+    id_           = Block.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
-    page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
+    #page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = u'Button menu configuration'
     template_name = 'creme_config/templatetags/block_button_menu.html'
+    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable  = False
 
     def detailview_display(self, context):
-        ct_ids = ButtonMenuItem.objects.exclude(content_type=None) \
-                                       .distinct() \
-                                       .values_list('content_type_id', flat=True)
+        #ct_ids = ButtonMenuItem.objects.exclude(content_type=None) \
+                                       #.distinct() \
+                                       #.values_list('content_type_id', flat=True)
+
+        #return self._render(self.get_block_template_context(
+                                #context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
+                                #update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                           #))
+        buttons_map = defaultdict(list)
+
+        for bti in ButtonMenuItem.objects.order_by('order'): #TODO: meta.ordering...
+            buttons_map[bti.content_type_id].append(bti)
+
+        build_verbose_names = lambda buttons_ids: [unicode(bti) for bti in buttons_ids]
+        default_buttons = build_verbose_names(buttons_map.pop(None, ()))
+
+        get_ct = ContentType.objects.get_for_id
+        buttons = [(get_ct(ct_id), build_verbose_names(buttons_ids))
+                        for ct_id, buttons_ids in buttons_map.iteritems()
+                  ]
+        sort_key = collator.sort_key
+        buttons.sort(key=lambda t: sort_key(unicode(t[0])))
 
         return self._render(self.get_block_template_context(
-                                context, ContentType.objects.filter(pk__in=ct_ids), #TODO: use get_for_id instead (avoid query) ??
+                                context,
+                                default_buttons=default_buttons,
+                                buttons=buttons,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
