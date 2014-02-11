@@ -10,9 +10,7 @@
     <table class="table_detail_view ui-corner-all"><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
         <thead>
             <tr>
-                <th colspan="1">
-                    {% trans "General" %}
-                </th>
+                <th colspan="1">{% trans "General" %}</th>
             </tr>
         </thead>
         <tbody class="collapsable">
@@ -29,7 +27,13 @@
                 <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}"><a href="/creme_config/prefered_menu/edit/">{% trans "Default prefered menu settings" %}</a></td>
+                <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_config' as admin_perm %}
+                    {% if admin_perm %}
+                        <a href="/creme_config/prefered_menu/edit/">{% trans "Default prefered menu settings" %}</a>
+                    {% else %}
+                        <span class="forbidden">{% trans "Default prefered menu settings" %}</a>
+                    {% endif %}
+                </td>
             </tr>
             <tr class="content">
                 <td class="{% cycle row_color %}"><a href="/creme_config/button_menu/portal/">{% trans "Button menu settings" %}</a></td>
@@ -70,8 +74,12 @@
         <tbody class="collapsable">
             {% for app_conf in app_configs %}
                 <tr class="content">
-                    <td class="{% cycle row_color %}">
-                        <a href="{{app_conf.portal_url}}">{% blocktrans with app_conf.verbose_name as app_name%}{{app_name}} configuration portal{% endblocktrans %}</a>
+                    <td class="{% cycle row_color %}">{% has_perm_to admin app_conf.name as admin_perm %}
+                        {% if admin_perm %}
+                            <a href="{{app_conf.portal_url}}">{% blocktrans with app_conf.verbose_name as app_name%}{{app_name}} configuration portal{% endblocktrans %}</a>
+                        {% else %}
+                            <span class="forbidden">{% blocktrans with app_conf.verbose_name as app_name%}{{app_name}} configuration portal{% endblocktrans %}</span>
+                        {% endif %}
                     </td>
                 </tr>
             {% empty %}

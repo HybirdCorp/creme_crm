@@ -321,10 +321,12 @@ _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 def _can_create(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
+    #return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
 
 def _can_export(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
     return user.has_perm('%s.export_%s' % (ct.app_label, ct.model))
+    #return user.has_perm_to_export(ct) #TODO ?
 
 _PERMS_FUNCS = {
         'create': _can_create,
@@ -334,6 +336,7 @@ _PERMS_FUNCS = {
         'delete': lambda entity, user: user.has_perm_to_delete(entity),
         'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
         'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
+        'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
     }
 
 @register.tag(name="has_perm_to")
