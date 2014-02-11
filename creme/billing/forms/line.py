@@ -226,7 +226,7 @@ class LineEditForm(CremeModelWithUserForm):
         discount_unit_f.required = True
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
-        fields['comment'].widget = Textarea(attrs={'class': 'line-comment'})
+        fields['comment'].widget = Textarea(attrs={'class': 'line-comment', 'rows': 2})
 
         #vat_f = fields['vat_value']
         #vat_f.initial = Vat.get_default_vat()
