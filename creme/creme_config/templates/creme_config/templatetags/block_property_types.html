@@ -3,6 +3,7 @@
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Delete a property type, will delete associated properties' %}</div>
 {% endif %}
+{% has_perm_to admin 'creme_config' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
         <th class="label">{% get_block_title _('%s Type of property') _('%s Types of property') %}</th>
@@ -11,7 +12,7 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th colspan="5" class="block_header_line_dark" align="left">
-                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms 1 %}
+                {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms admin_perm %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -32,10 +33,10 @@
                         {% print_field object=prop_type field='is_copiable' %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms 1 %}{% endif %}
+                        {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms admin_perm %}{% endif %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms 1 %}{% endif %}
+                        {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms admin_perm %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}

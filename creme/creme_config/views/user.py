@@ -59,13 +59,13 @@ def portal(request):
 @superuser_required
 def edit(request, user_id):
     user_filter = {'pk':       user_id,
-                   'is_team':  False}
+                   'is_team':  False,
+                  }
+
     if not request.user.is_staff:
         user_filter['is_staff'] = False
-    return edit_model_with_popup(request,
-                                 user_filter,
-                                 User,
-                                 UserEditForm)
+
+    return edit_model_with_popup(request, user_filter, User, UserEditForm)
 
 @login_required
 @superuser_required

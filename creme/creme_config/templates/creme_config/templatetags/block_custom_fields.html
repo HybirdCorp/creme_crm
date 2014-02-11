@@ -1,5 +1,6 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
+{% has_perm_to admin 'creme_config' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
         <th class="label">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
@@ -8,7 +9,7 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="4">
-                {% get_line_adder at_url '/creme_config/custom_fields/add/{{ct.id}}' with_label _("New custom field") with_perms 1 %}
+                {% get_line_adder at_url '/creme_config/custom_fields/add/{{ct.id}}' with_label _("New custom field") with_perms admin_perm %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -22,8 +23,8 @@
                 <tr class="content">
                     <td class="{{row_color}}">{{field.name}}</td>
                     <td class="{{row_color}}">{{field.type_verbose_name}}</td>
-                    <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/custom_fields/edit/{{field.id}}' with_perms 1 %}</td>
-                    <td class="{{row_color}} action">{% get_line_deletor at_url '/creme_config/custom_fields/delete' with_args "{'id': '{{field.id}}'}" with_perms 1 %}</td>
+                    <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/custom_fields/edit/{{field.id}}' with_perms admin_perm %}</td>
+                    <td class="{{row_color}} action">{% get_line_deletor at_url '/creme_config/custom_fields/delete' with_args "{'id': '{{field.id}}'}" with_perms admin_perm %}</td>
                 </tr>
             {% endfor %}
         {% else %}

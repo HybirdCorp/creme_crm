@@ -1,5 +1,6 @@
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
+{% has_perm_to admin 'creme_config' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
         <th class="label">{% get_block_title  _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
@@ -8,7 +9,7 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
-                {% get_line_adder at_url '/creme_config/button_menu/add/' with_label _("New buttons configuration") with_perms 1 %}
+                {% get_line_adder at_url '/creme_config/button_menu/add/' with_label _("New buttons configuration") with_perms admin_perm %}
             </th>
         </tr>
         <tr class="header">
@@ -20,7 +21,7 @@
         <tr class="content">
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}} action">
-                {% get_line_editor at_url '/creme_config/button_menu/edit/0' with_perms 1 %}
+                {% get_line_editor at_url '/creme_config/button_menu/edit/0' with_perms admin_perm %}
             </td>
             <td class="{{row_color}}"></td>
         </tr>
@@ -29,10 +30,10 @@
                 <tr class="content">
                     <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/button_menu/edit/{{ct.id}}' with_perms 1 %}
+                        {% get_line_editor at_url '/creme_config/button_menu/edit/{{ct.id}}' with_perms admin_perm %}
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_deletor at_url '/creme_config/button_menu/delete' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}
+                        {% get_line_deletor at_url '/creme_config/button_menu/delete' with_args "{'id': '{{ct.id}}'}" with_perms admin_perm %}
                     </td>
                 </tr>
             {% endfor %}

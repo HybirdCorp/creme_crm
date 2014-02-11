@@ -23,12 +23,25 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         cls.populate('creme_core', 'persons')
         cls.autodiscover()
 
+    def _create_superuser(self):
+        return User.objects.create_superuser(username='averagejoe',
+                                             email='averagejoe@company.com',
+                                             password='password',
+                                            )
+
     def test_actions_not_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
         #self.assertEqual([], field.widget.actions)
         self.assertFalse(hasattr(field.widget, 'actions'))
 
-        field.user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons'] #not admin
+        role.save()
+
+        user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        user.role = role
+
+        field.user = user
         self.assertEqual([('create', _(u'Add'), False,
                            {'title': _(u"Can't add"),
                             'url':   '/creme_config/persons/position/add_widget/',
@@ -51,7 +64,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.admin_4_apps = ['persons']
         role.save()
 
-        #field.user = User.objects.create_superuser(username='superjoe', email='superjoe@company.com', password='')
         admin = User.objects.create(username='chloe', role=role)
         admin.role = role
 
@@ -86,7 +98,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=Position.objects.all())
-        field.user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        field.user = self._create_superuser()
 
         positions = [(u'', u'---------')]
         positions.extend((p.pk, unicode(p)) for p in Position.objects.all())
@@ -117,7 +129,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_filtered_queryset02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=1))
-        field.user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        field.user = self._create_superuser()
 
         with self.assertNoException():
             options = field.widget.delegate._get_options()
@@ -148,7 +160,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset_property02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=Position.objects.none())
-        field.user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        field.user = self._create_superuser()
 
         self.assertEqual([(u'', u'---------')], field.widget.delegate._get_options())
 

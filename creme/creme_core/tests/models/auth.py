@@ -661,14 +661,20 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm('foobar'))
         self.assertFalse(has_perm('quux'))
 
-    def test_app_creds02(self): #admin_4_apps
+    def test_app_creds02(self):
+        "Admin_4_apps"
         user = self.user
         role = self._create_role('CEO', users=[user])
 
+        has_perm_to_admin = user.has_perm_to_admin
         has_perm = user.has_perm
+        self.assertFalse(has_perm_to_admin('creme_core'))
+        self.assertFalse(has_perm_to_admin('foobar'))
         self.assertFalse(has_perm('creme_core.can_admin'))
         self.assertFalse(has_perm('foobar.can_admin'))
         self.assertFalse(role.admin_4_apps)
+
+        self.assertRaises(PermissionDenied, user.has_perm_to_admin_or_die, 'creme_core')
 
         role.admin_4_apps = ['creme_core', 'foobar']
         role.save()
@@ -680,17 +686,29 @@ class CredentialsTestCase(CremeTestCase):
         self.assertIn('foobar',     admin_4_apps)
 
         #user.role = role #refresh object
+        self.assertTrue(has_perm_to_admin('creme_core'))
+        self.assertTrue(has_perm_to_admin('foobar'))
+        self.assertFalse(has_perm_to_admin('quux'))
         self.assertTrue(has_perm('creme_core.can_admin'))
         self.assertTrue(has_perm('foobar.can_admin'))
         self.assertFalse(has_perm('quux.can_admin'))
+
+        with self.assertNoException():
+             user.has_perm_to_admin_or_die('creme_core')
+             user.has_perm_to_admin_or_die('foobar')
+
+        self.assertRaises(PermissionDenied, user.has_perm_to_admin_or_die, 'quux')
 
         self.assertTrue(has_perm('creme_core'))
         self.assertTrue(has_perm('foobar'))
         self.assertFalse(has_perm('quux'))
 
     def test_app_creds03(self):
+        "Super user"
         user = self.user
         user.is_superuser = True
+
+        self.assertTrue(user.has_perm_to_admin('creme_core'))
 
         has_perm = user.has_perm
         self.assertTrue(has_perm('creme_core'))
