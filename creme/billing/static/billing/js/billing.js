@@ -624,6 +624,10 @@ creme.billing.initBlockLines = function (currency) {
     $('select[name*="vat_value"]').each(function(index) {
         $(this).addClass('bound line-vat');
     });
+
+    $('textarea.line-comment').each(function() {
+        new creme.layout.TextAreaAutoSize().bind($(this));
+    });
 }
 
 creme.billing.serializeForm = function(form) {
@@ -654,12 +658,7 @@ creme.billing.multi_save_lines = function (document_id) {
         return $(this).attr('reload_url') + creme.utils.getBlocksDeps($(this).attr('block_name'));
     }).get();
 
-    creme.utils.ajaxQuery(url, {action: 'post'}, forms_data)
-               .onFail(function(event, error, status) {
-                    if (status.status === 409) {
-                        creme.dialogs.warning(unescape(error), {title: gettext('Errors report')}).open();
-                    }
-                })
+    creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, warnOnFailTitle: gettext('Errors report')}, forms_data)
                .onDone(function() {
                     blocks_to_reload.forEach(function(block_url) {
                         creme.blocks.reload(block_url);
