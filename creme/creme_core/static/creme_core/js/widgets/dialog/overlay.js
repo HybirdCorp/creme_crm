@@ -42,7 +42,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
 
         if (delay > 0) {
             this._timeout.start({delay:delay, visible:visible, status:status});
-            return;
+            return this;
         }
 
         this.visible(visible || false);
@@ -52,6 +52,8 @@ creme.dialog.Overlay = creme.component.Component.sub({
         } else {
             this._overlay.attr('status', status);
         }
+
+        return this;
     },
 
     addClass: function() {

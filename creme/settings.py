@@ -136,6 +136,11 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'creme.creme_core.middleware.exceptions.Ajax500Middleware', #it must be last middleware that catch all exceptions 
+    'creme.creme_core.middleware.exceptions.Ajax404Middleware',
+    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
+
     'mediagenerator.middleware.MediaMiddleware', #Media middleware has to come first
 
     'django.middleware.common.CommonMiddleware',
@@ -147,8 +152,7 @@ MIDDLEWARE_CLASSES = (
 
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
-    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
-    'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
+
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import render
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -56,14 +56,36 @@ class Beautiful403Middleware(object):
                                         )
 
 
-class Beautiful409Middleware(object):
+class _AlternativeErrorMiddleware(object):
+    error = None
+    template = None
+
     def process_exception(self, request, exception):
-        if isinstance(exception, ConflictError):
+        if self.error is None or isinstance(exception, self.error):
             msg = smart_unicode(exception)
 
             if request.is_ajax():
-                return HttpResponse(msg, mimetype='text/javascript', status=409)
+                return HttpResponse(msg, mimetype='text/javascript', status=self.status)
 
-            return render(request, 'creme_core/conflict_error.html',
-                          {'error_message': msg}, status=409,
+            if self.template is None:
+                return
+
+            return render(request, self.template,
+                          {'error_message': msg}, status=self.status,
                          )
+
+
+class Ajax404Middleware(_AlternativeErrorMiddleware):
+    error = Http404
+    status = 404
+
+
+class Beautiful409Middleware(_AlternativeErrorMiddleware):
+    error = ConflictError
+    status = 409
+    template = 'creme_core/conflict_error.html'
+
+
+class Ajax500Middleware(_AlternativeErrorMiddleware):
+    status = 500
+

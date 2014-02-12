@@ -102,6 +102,22 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     background: transparent;
 }
 
+.ui-creme-overlay .overlay-content .subtitle {
+    font-size: 13px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.ui-creme-overlay .overlay-content .message {
+    margin-left: 10px;
+}
+
+.ui-creme-overlay .overlay-content .redirect {
+    position: absolute;
+    bottom: 5px;
+    margin-left: 5px;
+}
+
 .ui-creme-overlay.frame-loading {
     background-color: white;
     opacity: .80;
@@ -132,11 +148,13 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     vertical-align: middle;
 }
 
-
 .ui-creme-overlay.overlay-active[status="wait"] { background-image: url("chantilly/images/wait.gif"); }
+/*
+.ui-creme-overlay.overlay-active[status="403"] { background-image: url("chantilly/images/403_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
 .ui-creme-overlay.overlay-active[status="404"] { background-image: url("chantilly/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
+.ui-creme-overlay.overlay-active[status="409"] { background-image: url("chantilly/images/409_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
 .ui-creme-overlay.overlay-active[status="500"] { background-image: url("chantilly/images/500_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
-.ui-creme-overlay.overlay-active[status="403"] { background-image: url("chantilly/images/404_256.png"); opacity: 1; filter: Alpha(Opacity=100); }
+*/
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {
