@@ -19,7 +19,11 @@
 creme.layout = creme.layout || {}
 
 creme.layout.TextAreaAutoSize = creme.component.Component.sub({
-    _init_: function() {
+    _init_: function(options) {
+        var options = $.extend({min: 2}, options || {});
+
+        this._min = options.min;
+        this._max = options.max;
         this._listeners = $.proxy(this._onResize, this);
     },
 
@@ -27,13 +31,17 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
     {
         var element = this._delegate;
         var previous = this._count !== undefined ? this._count : this._initial;
-        var count = this._count = element.val() ? element.val().split('\n').length: this._initial;
+        var count = this._count = element.val() !== null ? element.val().split('\n').length: this._min;
 
         if (e.keyCode === 13)
             ++count;
 
+        count = Math.max(this._min, count);
+        count = !isNaN(this._max) ? Math.min(this._max, count) : count;
+
         if (previous !== count)
         {
+            count = $.browser.mozilla ? count - 1 : count;
             element.get().scrollTop = 0;
             element.attr('rows', count);
         }
@@ -50,6 +58,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         element.css({'overflow-y':'hidden', 'resize': 'none'})
 
         this._initial = parseInt(element.attr('rows')) || 1;
+        this._initial = $.browser.mozilla ? this._initial - 1 : this._initial;
         this._onResize(element);
 
         element.bind('propertychange keydown paste input', this._listeners);
@@ -61,7 +70,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         if (this._delegate === undefined)
             throw new Error('not bound');
 
-        this._delegate.unbind('propertychange keyup paste', this._listeners);
+        this._delegate.unbind('propertychange keydown paste input', this._listeners);
         this._delegate = undefined;
 
         return this;
