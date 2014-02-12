@@ -213,16 +213,16 @@ class _HistoryLineType(object):
                 vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_name}
             else:
                 field_vname = field.verbose_name
-                lenght = len(modif)
+                length = len(modif)
 
-                if lenght == 1:
+                if length == 1:
                     vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_vname}
-                elif lenght == 2:
+                elif length == 2:
                     vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
                                         'field': field_vname,
                                         'value': self._get_printer(field)(field, modif[1]),
                                        }
-                else: #lenght == 3
+                else: #length == 3
                     printer = self._get_printer(field)
                     vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
                                             'field':    field_vname,
