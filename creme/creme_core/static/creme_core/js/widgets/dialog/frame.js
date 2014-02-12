@@ -126,6 +126,21 @@ creme.dialog.Frame = creme.component.Component.sub({
         this._delegate.trigger('resize', args);
     },
 
+    _formatOverlayContent: function(url, response, error)
+    {
+        var error_status = error ? error.status : 404;
+        var error_message = '<h2>%s&nbsp;(%s)<div class="subtitle">%s</div></h2>' +
+                            '<p class="message">%s</p>' + 
+                            '<a class="redirect" onclick="creme.utils.reload();">' +
+                                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+                            '</a>';
+
+        return error_message.format(creme.ajax.localizedErrorMessage(error),
+                                    error_status,
+                                    url,
+                                    response)
+    },
+
     fetch: function(url, options, data, listeners)
     {
         var self = this;
@@ -136,7 +151,8 @@ creme.dialog.Frame = creme.component.Component.sub({
         var url = url || this.lastFetchUrl();
 
         events.trigger('before-fetch', [url, options], this);
-        overlay.update(true, 'wait', this._overlayDelay);
+        overlay.content('')
+               .update(true, 'wait', this._overlayDelay);
 
         query.onDone(function(event, response) {
                   self._lastFetchUrl = url;
@@ -144,7 +160,8 @@ creme.dialog.Frame = creme.component.Component.sub({
                   events.trigger('fetch-done', [response], this);
               })
              .on('cancel fail', function(event, response, error) {
-                  overlay.update(true, error ? error.status : 404, 0);
+                  overlay.update(true, error ? error.status : 404, 0)
+                         .content(self._formatOverlayContent(url, response, error));
                   events.trigger('fetch-fail', [response, error], this);
               });
 
@@ -169,7 +186,8 @@ creme.dialog.Frame = creme.component.Component.sub({
             events.trigger('submit-fail', ['', new creme.ajax.XHR({responseText: '', status: 404})], this);
         }
 
-        this._overlay.update(true, 'wait', this._overlayDelay);
+        this._overlay.content('')
+                     .update(true, 'wait', this._overlayDelay);
 
         // TODO : change api in order to force url on submit
         this._backend.submit(form,
@@ -181,7 +199,8 @@ creme.dialog.Frame = creme.component.Component.sub({
                                  creme.object.invoke(listeners.done, 'done', cleaned.content, statusText, cleaned.type);
                              },
                              function(response, error) {
-                                 overlay.update(true, error.status, 0);
+                                 overlay.update(true, error ? error.status : 500, 0)
+                                        .content(self._formatOverlayContent(url, response, error));
                                  events.trigger('submit-fail', [response, error], this);
                                  creme.object.invoke(listeners.fail, 'fail', response, error);
                              },

@@ -189,6 +189,14 @@
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
+        
+        $('#popup button.popup-error-url').click(function() {
+            var confirm = $('#popup input.popup-confirm').val();
+            var url = '/test_http_response?status=' + ($('#popup .popup-error-status').val() || '');
+            var dialog = creme.dialogs.url(url, {title:url});
+
+            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+        });
 });
     </script>
 {% endblock %}
@@ -221,6 +229,16 @@
             <div>
                 <button class="popup-url">Dynamic</button>
                 Url:&nbsp;mock/<input type="text" class="popup-url"></input>
+            </div>
+            <div>
+                <button class="popup-error-url">Error</button>
+                Url:&nbsp;test_http_response?status=<select class="popup-error-status">
+                    <option value="400">400</option>
+                    <option value="403">403</option>
+                    <option value="404">404</option>
+                    <option value="409">409</option>
+                    <option value="500">500</option>
+                </select>
             </div>
         </li>
         <li id="dynamic-frame">

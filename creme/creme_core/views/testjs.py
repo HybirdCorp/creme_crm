@@ -25,12 +25,16 @@ from os import listdir
 from re import compile as re_compile
 from random import randint
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
+from django.core.exceptions import PermissionDenied
+
+from ..core.exceptions import ConflictError
 
 from ..gui import block_registry
 from ..gui.block import PaginatedBlock
@@ -45,7 +49,6 @@ from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 from ..global_info import set_global_info
 
 from creme.persons.models.contact import Contact
-from django.contrib.contenttypes.models import ContentType
 
 
 logger = logging.getLogger(__name__)
@@ -151,6 +154,31 @@ def js_testview_context(request, viewname):
         'TEST_HEADLESS':     get('headless', False),
         'TEST_CONTENTTYPES': dict(ContentType.objects.values_list('model', 'id'))
     }
+
+def test_http_response(request):
+    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+        raise Http404('This is view is only reachable during javascript or server unittests')
+
+    logger.warn("Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.")
+
+    status = int(request.GET.get('status', 200))
+
+    if status == 403:
+        raise PermissionDenied('Operation is not allowed')
+
+    if status == 404:
+        raise Http404('No such result or unknown url')
+
+    if status == 409:
+        raise ConflictError('Conflicting operation')
+
+    if status == 500:
+        raise Exception('Server internal error')
+
+    if request.is_ajax():
+        return HttpResponse('XML Http Response %d' % status, mimetype='text/javascript', status=status)
+
+    return HttpResponse('<p>Http Response %d</p>' % status, mimetype='text/html', status=status)
 
 @login_required
 def test_js(request):

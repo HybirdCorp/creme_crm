@@ -4,6 +4,7 @@ try:
     from django.conf import settings
 
     from django.http import Http404
+    from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
 
     from ..base import CremeTestCase
@@ -119,6 +120,41 @@ class MiscViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             js_testview_or_404(request, '', '')
+
+    def test_400_middleware(self):
+        response = self.assertGET(400, '/test_http_response?status=400')
+        self.assertEqual(response.content, u'<p>Http Response 400</p>')
+
+        response = self.assertGET(400, '/test_http_response?status=400', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.content, u'XML Http Response 400')
+
+    def test_403_middleware(self):
+        response = self.assertGET403('/test_http_response?status=403')
+        self.assertContains(response, 'Operation is not allowed', status_code=403)
+
+        response = self.assertGET403('/test_http_response?status=403', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertContains(response, 'Operation is not allowed', status_code=403)
+
+    def test_404_middleware(self):
+        response = self.assertGET404('/test_http_response?status=404')
+        self.assertContains(response, _('The page you have requested is unfoundable.'), status_code=404)
+
+        response = self.assertGET404('/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertContains(response, 'No such result or unknown url', status_code=404)
+
+    def test_409_middleware(self):
+        response = self.assertGET409('/test_http_response?status=409')
+        self.assertContains(response, 'Conflicting operation', status_code=409)
+
+        response = self.assertGET(409, '/test_http_response?status=409', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.content, 'Conflicting operation')
+
+    def test_500_middleware(self):
+        with self.assertRaises(Exception):
+            self.client.get('/test_http_response?status=500')
+
+        response = self.assertGET(500, '/test_http_response?status=500', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.content, 'Server internal error')
 
 
 class LanguageTestCase(ViewsTestCase):
@@ -236,3 +272,12 @@ class CurrencyTestCase(ViewsTestCase):
                            data={'id': currency.id}
                           )
         self.assertFalse(Currency.objects.filter(pk=currency.pk).exists())
+
+
+class ExceptionMiddlewareTestCase(ViewsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
+    def setUp(self):
+        self.login()
