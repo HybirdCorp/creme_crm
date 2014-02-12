@@ -23,11 +23,14 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         this._listeners = $.proxy(this._onResize, this);
     },
 
-    _onResize: function()
+    _onResize: function(e)
     {
         var element = this._delegate;
-        var previous = this._count || this._initial;
-        var count = this._count = element.val() ? element.val().split('\n').length + 1: this._initial;
+        var previous = this._count !== undefined ? this._count : this._initial;
+        var count = this._count = element.val() ? element.val().split('\n').length: this._initial;
+
+        if (e.keyCode === 13)
+            ++count;
 
         if (previous !== count)
         {
@@ -49,7 +52,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         this._initial = parseInt(element.attr('rows')) || 1;
         this._onResize(element);
 
-        element.bind('propertychange keyup paste', this._listeners);
+        element.bind('propertychange keydown paste input', this._listeners);
         return this;
     },
 
