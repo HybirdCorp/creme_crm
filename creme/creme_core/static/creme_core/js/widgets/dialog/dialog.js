@@ -77,6 +77,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
     {
         if (this._dialog)
         {
+            this._dialogBackground().toggleClass('ui-dialog-scrollbackground', false);
+
             this._dialog.dialog('destroy');
             this._dialog.remove();
             this._dialog = undefined;
@@ -305,6 +307,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     close: function()
     {
         this._destroyDialog();
+        this._events.trigger('close', [], this);
         return this;
     },
 
