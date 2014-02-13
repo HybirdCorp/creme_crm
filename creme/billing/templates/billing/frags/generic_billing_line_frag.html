@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as edit_perm %}
 {% with line=form.instance currency_id=object.currency.pk %}
-<table class="table_detail_view linetable linetable_{{ct_id}}" style="border:0px;margin:0px;padding:0px;">
+<table class="linetable linetable_{{ct_id}}">
     <tr class="content">
         <td align="center" class="block_header_line_dark" width="5%">{% trans "Quantity" %}</td>
         <td align="center" class="block_header_line_dark" width="9%">{% trans "Unit price" %}</td>
@@ -15,7 +15,7 @@
     </tr>
 
     {% if edit_perm %}
-        <tr class="content">
+        <tr class="content block_line_dark">
             <td class="line-background-color" align="center">{{form.quantity}}</td>
             <td class="line-background-color" align="center">{{form.unit_price}} {{object.currency.local_symbol}}</td>
             <td class="line-background-color" align="center">/ {{form.unit}}</td>
@@ -36,7 +36,7 @@
             <td align="left" class="block_header_line_dark" colspan="5">{% trans "Comment" %}</td>
         </tr>
 
-        <tr class="content">
+        <tr class="content block_line_dark">
             <td class="line-background-color" align="center" colspan="3">
                 {% if line.pk %}
                     {% with line.related_item as related_item %}

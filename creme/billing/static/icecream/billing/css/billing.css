@@ -52,3 +52,27 @@ select.line-vat {
 line-background-color {
     background-color: #ffffff;
 }
+
+.linetable-container, .linetable {
+    width: 100%;
+    
+    margin: 0;
+    padding: 0;
+    
+    border: 0;
+    border-spacing: 0;
+}
+
+.linetable-container .linetable-header {
+    border-right: 1px solid #ddd;
+}
+
+.linetable-separator {
+    height: 13px;
+}
+
+.linetable-separator td {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #f0f0f0;
+}
