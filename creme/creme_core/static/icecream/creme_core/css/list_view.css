@@ -1,8 +1,9 @@
 .list_view {
     width: 100%;
-    border-top: 1px solid rgba(0, 0, 0, 0.3);
+/*    border-top: 1px solid rgba(0, 0, 0, 0.3);*/
+    border-top: 1px solid #ccc;
     padding: 0px 4px 4px 4px;
-    margin: 5px;
+    margin: 15px 5px;
     /*-moz-border-radius: 4px;
     -webkit-border-radius: 4px;*/
 }
@@ -89,9 +90,12 @@
     border-right: #548295 1px solid;
 }*/
 
+/* dark blue color when hovering over the views and filters fieldsets */
+/*
 .list_view fieldset:hover {
-   background-color:#95B6DB;
+    background-color: #95B6DB;
 }
+*/
 
 .list_view tr#list_thead_toolbar {
     text-align: left;
@@ -136,13 +140,18 @@
     -webkit-border-radius: 4px;*/
 
     cursor: pointer;
-    border: 1px solid #d5e0e5;
-    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x;
+/*    border: 1px solid #d5e0e5;*/
+    border: 1px solid #ccc;
+/*    background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x;*/
+    background-color: #fafafa;
     font-weight: normal;
     color: #22439f;
+    
     outline: none;
-    -moz-border-radius: 4px;
+    
+/*    -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+*/
 
 }
 
@@ -154,13 +163,17 @@
     cursor:pointer;*/
 
     cursor: pointer;
-    border: 1px solid #f7b5ad;
-    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x;
+/*    border: 1px solid #f7b5ad;*/
+/*    background: #fdd5d1 url(../css/jquery-css/creme-theme/images/ui-bg_inset-soft_75_fdd5d1_1x100.png) 50% 50% repeat-x;*/
+    background-color: #e6e6e6;
     font-weight: normal;
-    color: #f46758;
+/*    color: #f46758;*/
+
     outline: none;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
+/*
+     -moz-border-radius: 4px;
+     -webkit-border-radius: 4px;
+*/
     text-decoration: none;
 }
 
@@ -170,6 +183,15 @@
     border-right: 1px solid #548295;
 }*/
 
+/* ListView results header - column titles and filters rows */
+.list_view thead .columns_top, .list_view thead .columns_bottom {
+    background-color: #F2F2F2;
+}
+
+/* ListView results body - content rows */
+.list_view > tbody {
+    background: white;
+}
 
 .list_view .columns_top th {
     border-top: 1px solid rgba(84,130,149,0.3);
@@ -181,7 +203,8 @@
 .list_view .columns_bottom th.search select,
 .list_view .columns_top th.search input,
 .list_view .columns_top th.search select {
-    background-color: #FCD3CF;
+/*    background-color: #FCD3CF;*/
+    background-color: #e6e6e6;
     /*background: #fdd5d1 url(jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
 }
 
@@ -195,7 +218,8 @@
 
 /*.list_view tbody tr:nth-of-type(odd) { CSS3*/
 .list_view tbody tr.odd {
-    background-color: #E6F2F7;
+/*    background-color: #E6F2F7;*/
+    background-color: hsl(198, 0%, 94%);
 }
 
 .list_view tbody tr {
@@ -238,10 +262,13 @@
     border: #548295 1px outset;
     color: #2C596C;
 }*/
+
 .list_view button[disabled="true"], .list_view button[disabled="true"]:hover, .list_view button[disabled="true"]:active{
-    background-color: #CCCCCC;
-    color: #919191;
+    background-color: #ddd;
+/*    color: #919191;*/
+    color: black;
     cursor: auto;
+    opacity: 0.8;
 }
 
 /*.list_view button:hover{
@@ -263,7 +290,8 @@
 }
 
 .list_view th.actions {
-    padding-left: 6px;
+/*    padding-left: 6px;*/
+    padding-left: 9px;
 }
 
 .list_view_actions {
@@ -278,6 +306,16 @@
     -webkit-border-radius: 4px;
 }
 */
+
+/* right border fix for header rows, and body rows */
+.list_view thead .columns_top th:last-child, .list_view thead .columns_bottom th:last-child, .list_view > tbody > tr > td:last-child {
+    border-right: 1px solid rgba(84,130,149,0.3);
+}
+
+/* add a bit of space to the input search fields, as navIt now has zero margin */
+.list_view thead .columns_bottom th:not(.actions) {
+    padding: 2px 0;
+}
 
 .list_view .cl_lv {
     word-wrap: break-word;
