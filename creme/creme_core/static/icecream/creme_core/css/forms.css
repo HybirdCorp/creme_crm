@@ -45,6 +45,7 @@ form .table_detail_view .td_info > textarea {
     width: 45%;
 }
 
+/* TODO: this shouldn't be done to all inputs, it creates problems with checkboxes or radiobuttons (centering them in wide cells in FF, Chrome, IE), see next todo. Needs to be applied to specific form widgets only */
 form .table_detail_view.dual_column .td_info > input,
 form .table_detail_view.dual_column .td_info > select,
 form .table_detail_view.dual_column .td_info > textarea,
@@ -59,8 +60,11 @@ form .table_detail_view .td_info > textarea {
     height: 12em; /* See Activity popup form (Calendar) if you change this */
 }
 
+/* TODO: this looks more like it's fixing a bug in the previous rules setting the input width to 100% than anything specific to Chrome & Opera.
+The forms templates need to be cleaned up, in addition to the previous rules about input widths.
+*/
 .table_detail_view .td_info > input[type="checkbox"],
-.table_detail_view.dual_column .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
+.table_detail_view.dual_column .td_info > input[type="checkbox"], .in-popup form .table_detail_view .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
     width: auto;
     margin-left: 0;
 }
