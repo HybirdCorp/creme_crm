@@ -16,9 +16,11 @@
             </td>
             <td class="actions">
                 <span>
-                    <a href="{{object.report.get_absolute_url}}">
-                        <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
-                    </a>&nbsp;
+                    {% with report=object.report %}
+                        <a href="{{report.get_absolute_url}}">
+                            <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the detailview: '{{report}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        </a>&nbsp;
+                    {% endwith %}
                 </span>
             </td>
         </tr>
