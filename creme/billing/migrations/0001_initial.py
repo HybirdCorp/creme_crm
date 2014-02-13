@@ -10,6 +10,9 @@ class Migration(SchemaMigration):
     depends_on = (
         ("creme_core", "0001_initial"),
     )
+    needed_by = (
+        ('creme_core', '0014_v1_4__add_vat'),
+    )
 
     def forwards(self, orm):
         # Adding model 'SettlementTerms'

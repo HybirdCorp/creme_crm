@@ -71,7 +71,7 @@ try:
         app_labels = list(ContentType.objects.order_by('app_label')
                                                 .distinct()
                                                 .values_list('app_label', flat=True)
-                            )
+                         )
 except DatabaseError: #happens during syncdb (ContentType table does not exist yet)
     pass
 else:
@@ -80,8 +80,8 @@ else:
     for app_label in app_labels:
         if app_label not in _INSTALLED_APPS:
             logger.warning("""The app "%s" seems not been correctly uninstalled. """
-                        """If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                        """(you must enable this app in your settings before).""" % app_label
-                        )
+                           """If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                           """(you must enable this app in your settings before).""" % app_label
+                          )
 
     del _INSTALLED_APPS

@@ -3,71 +3,39 @@
 from south.db import db
 from south.v2 import SchemaMigration
 
-from django.db import models
+from django.conf import settings
 
 
 class Migration(SchemaMigration):
-    needed_by = (
-        ('creme_core', '0014_v1_4__add_vat'),
-    )
-
     def forwards(self, orm):
-        # Changing field 'Base.currency'
-        db.alter_column('billing_base', 'currency_id', self.gf('django.db.models.fields.related.ForeignKey')(on_delete=models.PROTECT, to=orm['creme_core.Currency']))
+        db_settings = settings.DATABASES[db.db_alias]
+        table_engine = db_settings['ENGINE']
+        table_name = db_settings['NAME']
 
-        # Changing field 'Base.additional_info'
-        db.alter_column('billing_base', 'additional_info_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['billing.AdditionalInformation']))
+        if 'mysql' in table_engine:
+            execute_result = db.execute("SHOW CREATE TABLE billing_line")
 
-        # Changing field 'Base.payment_terms'
-        db.alter_column('billing_base', 'payment_terms_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, on_delete=models.SET_NULL, to=orm['billing.PaymentTerms']))
+            if not db.dry_run:
+                creation_cmd = execute_result[0][1]
+                start_idx = creation_cmd.find('vat_value_id_refs_id_')
+                end_idx   = creation_cmd.find('`', start_idx)
+                constraint_name = creation_cmd[start_idx: end_idx]
+            else:
+                constraint_name = 'vat_value_id_refs_id_FOOBAR'
 
-        # Changing field 'Quote.status'
-        db.alter_column('billing_quote', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.QuoteStatus'], on_delete=models.PROTECT))
-
-        # Changing field 'SalesOrder.status'
-        db.alter_column('billing_salesorder', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.SalesOrderStatus'], on_delete=models.PROTECT))
-
-        # Changing field 'Line.vat_value'
-        db.alter_column('billing_line', 'vat_value_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.Vat'], null=True, on_delete=models.PROTECT))
-        # Adding field 'QuoteStatus.won'
-        db.add_column('billing_quotestatus', 'won',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-
-        # Changing field 'CreditNote.status'
-        db.alter_column('billing_creditnote', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.CreditNoteStatus'], on_delete=models.PROTECT))
-
-        # Changing field 'Invoice.status'
-        db.alter_column('billing_invoice', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.InvoiceStatus'], on_delete=models.PROTECT))
+            #XXX: execute_many() ??
+            db.execute("ALTER TABLE `billing_line` DROP FOREIGN KEY `%s`" % constraint_name)
+            #db.execute("ALTER TABLE `billing_line` ADD FOREIGN KEY ( `vat_value_id` ) REFERENCES `%s`.`creme_core_vat` ( `id` ) ON DELETE RESTRICT ON UPDATE RESTRICT" % table_name)
+            db.execute("ALTER TABLE `billing_line` ADD CONSTRAINT `%s` FOREIGN KEY ( `vat_value_id` ) "
+                    "REFERENCES `%s`.`creme_core_vat` ( `id` ) ON DELETE RESTRICT ON UPDATE RESTRICT" % (
+                                constraint_name, table_name
+                        )
+                    )
+        #elif 'postgresql' in table_engine: #it seems PG fixes smartly the constraints as we expect
+            #pass
 
     def backwards(self, orm):
-        # Changing field 'Base.currency'
-        db.alter_column('billing_base', 'currency_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['creme_core.Currency']))
-
-        # Changing field 'Base.additional_info'
-        db.alter_column('billing_base', 'additional_info_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['billing.AdditionalInformation']))
-
-        # Changing field 'Base.payment_terms'
-        db.alter_column('billing_base', 'payment_terms_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['billing.PaymentTerms']))
-
-        # Changing field 'Quote.status'
-        db.alter_column('billing_quote', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.QuoteStatus']))
-
-        # Changing field 'SalesOrder.status'
-        db.alter_column('billing_salesorder', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.SalesOrderStatus']))
-
-        # Changing field 'Line.vat_value'
-        db.alter_column('billing_line', 'vat_value_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.Vat'], null=True))
-        # Deleting field 'QuoteStatus.won'
-        db.delete_column('billing_quotestatus', 'won')
-
-
-        # Changing field 'CreditNote.status'
-        db.alter_column('billing_creditnote', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.CreditNoteStatus']))
-
-        # Changing field 'Invoice.status'
-        db.alter_column('billing_invoice', 'status_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['billing.InvoiceStatus']))
+        pass
 
     models = {
         'auth.group': {
@@ -84,7 +52,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
         'auth.user': {
-            'Meta': {'object_name': 'User'},
+            'Meta': {'ordering': "('username',)", 'object_name': 'User'},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
@@ -156,7 +124,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
+            'pending_payment': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         'billing.line': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Line', '_ormbases': ['creme_core.CremeEntity']},
@@ -170,7 +139,7 @@ class Migration(SchemaMigration):
             'type': ('django.db.models.fields.IntegerField', [], {}),
             'unit': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'unit_price': ('django.db.models.fields.DecimalField', [], {'default': "'0'", 'max_digits': '10', 'decimal_places': '2'}),
-            'vat_value': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.Vat']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'})
+            'vat_value': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.Vat']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'})
         },
         'billing.paymentinformation': {
             'Meta': {'object_name': 'PaymentInformation'},
@@ -199,6 +168,7 @@ class Migration(SchemaMigration):
         },
         'billing.quote': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Quote', '_ormbases': ['billing.Base']},
+            'acceptation_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'base_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['billing.Base']", 'unique': 'True', 'primary_key': 'True'}),
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.QuoteStatus']", 'on_delete': 'models.PROTECT'})
         },
@@ -245,13 +215,6 @@ class Migration(SchemaMigration):
             'ct': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'status_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
-        'billing.vat': {
-            'Meta': {'object_name': 'Vat'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_default': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'value': ('django.db.models.fields.DecimalField', [], {'default': "'19.6'", 'max_digits': '4', 'decimal_places': '2'})
-        },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -286,6 +249,13 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
             'raw_allowed_apps': ('django.db.models.fields.TextField', [], {'default': "''"})
+        },
+        'creme_core.vat': {
+            'Meta': {'ordering': "('value',)", 'object_name': 'Vat'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_default': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'value': ('django.db.models.fields.DecimalField', [], {'default': "'20.0'", 'max_digits': '4', 'decimal_places': '2'})
         },
         'media_managers.image': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Image', '_ormbases': ['creme_core.CremeEntity']},
