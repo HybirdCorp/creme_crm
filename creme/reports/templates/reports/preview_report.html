@@ -10,13 +10,13 @@
             <td class="logo"><img src="{% creme_media_url 'images/report_64.png' %}" alt="{% trans "Report" %}"/></td>
             <td class="title">
                 <h1>
-                    {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|capfirst title=object|capfirst %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
+                    {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|capfirst title=object|capfirst %}Preview {{verbose_name}}: {{title}}{% endblocktrans %}
                 </h1>
             </td>
             <td class="actions">
                 <span>
                     <a href="{{object.get_absolute_url}}">
-                        <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans with report=object %}Back to the detailview: '{{report}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
 
                     {% get_export_backends as export_backends %}
