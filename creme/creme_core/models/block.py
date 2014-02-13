@@ -149,13 +149,17 @@ class BlockMypageLocation(CremeModel):
     @staticmethod
     def _copy_default_config(sender, instance, created, **kwargs):
         if created:
+            from django.db.transaction import commit_on_success
+
             create = BlockMypageLocation.objects.create
 
-            try:
-                for loc in BlockMypageLocation.objects.filter(user=None):
-                    create(user=instance, block_id=loc.block_id, order=loc.order)
-            except Exception:
-                logger.warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
+            with commit_on_success():
+                try:
+                    for loc in BlockMypageLocation.objects.filter(user=None):
+                        create(user=instance, block_id=loc.block_id, order=loc.order)
+                except Exception:
+                    #TODO: if should not be true anymore when south is built-in django (BlockMypageLocation table exists when the first User is created)
+                    logger.warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
 
     @staticmethod
     def create(block_id, order, user=None):

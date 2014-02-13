@@ -64,11 +64,14 @@ def new_fk_formfield(self, **kwargs):
 ForeignKey.formfield = new_fk_formfield
 
 #-----------------------------------------------------------------------------
+from django.db.transaction import commit_on_success
+
 try:
-    app_labels = list(ContentType.objects.order_by('app_label')
-                                         .distinct()
-                                         .values_list('app_label', flat=True)
-                     )
+    with commit_on_success():
+        app_labels = list(ContentType.objects.order_by('app_label')
+                                                .distinct()
+                                                .values_list('app_label', flat=True)
+                            )
 except DatabaseError: #happens during syncdb (ContentType table does not exist yet)
     pass
 else:
