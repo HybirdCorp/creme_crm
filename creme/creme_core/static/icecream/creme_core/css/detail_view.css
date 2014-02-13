@@ -1,17 +1,19 @@
-.detailview {}
+.detailview {
+    padding-left: 5px;
+}
 
 .detailview .column {
-    float:left;
-    margin-left:0px;
+    float: left;
+    margin-left: 0px;
 }
 
 .detailview .column.last {
     float: right;
-    margin-right:0px;
+    margin-right: 0px;
 }
 
 .detailview .east, .detailview .west {
-    width:49.9%;
+    width: 49.9%;
 }
 
 .detailview .clear {
@@ -19,11 +21,23 @@
 }
 
 .detailview .north, .detailview .south {
-    width:99.9%;
+    width: 99.9%;
 }
 
-.detailview .model_buttons{}/* Buttons related to the model and not specifically the file */
-.detailview .file_buttons{}/* Buttons related specifically to the current file */
+/* Buttons for models and file */
+.detailview .model_buttons, .detailview .file_buttons {
+    padding-left: 0; /* align the buttons to the rest of the page, reversing the spacer padding - TODO: clean up the templates and remove the spacer */
+}
+
+/* Buttons related to the model and not specifically the file */
+.detailview .model_buttons {
+    margin-left: -1px; /* Counter the box-sizing about border and padding */
+}
+
+/* Buttons related specifically to the current file */
+.detailview .file_buttons {
+    margin-left: -2px; /* Counter the box-sizing about border and padding, and existing 2px left-spacing added to separate the buttons */
+}
 
 
 /*.detailview .column.last:before,*/

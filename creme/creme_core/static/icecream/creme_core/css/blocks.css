@@ -1,17 +1,28 @@
+/* Blocks */
 .table_detail_view {
     width: 100%;
 
-    /*border-bottom: 1px solid rgba(0, 0, 0, 0.4);*/
-    border: 1px solid #548295;
+/*    padding: 2px; */ /* no padding removes the white border inside blocks */
+    padding: 0;
 
-    /*padding-bottom: 10px;*/
-    padding: 2px;
-
-    /*margin-left: 5px; problem with address blocks in contact form */
-    margin-bottom: 5px;
     border-spacing: 0px;
+    
+    /*margin-left: 5px; problem with address blocks in contact form */
+    margin-bottom: 10px;
+
+/*    border: 1px solid #548295;*/
+    border: 1px solid #ccc;
+    border-radius: 0; /* disable rounded corners forced by .ui-corner-all hardcoded in the html templates */
+    
+    background: white;
+    
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+       -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
+/* Rounded corners inside blocks, on everything */
+/*
 .table_detail_view th,
 .table_detail_view td,
 .table_detail_view tr,
@@ -19,13 +30,14 @@
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
+*/
 
+/* field headers, column titles */
 .table_detail_view > tbody > tr > th {
-    color:#376e86;
-    padding-left:5px;
-    padding-right:5px;
+/*    color: #376e86;*/
+    color: #4b6671; /* desaturate */
     /*white-space:nowrap;*/
-    padding:2px 6px;
+    padding: 2px 6px;
 }
 
 /*.table_detail_view tbody th{
@@ -40,15 +52,26 @@
     border-color: #548295;
 }*/
 
+/* pink background on hover */
+/*
 .table_detail_view tbody td:hover {
-    background-color: #f7d6d2;
+    background-color: #f7d6d2; 
+}
+*/
+
+/* white background in inner tables td:hover */
+/* -> switch to a hover specific for header_dark and header_light */
+.table_detail_view tbody td table tbody td:hover {
+    background-color: #ffffff;
 }
 
+/* Block titles */
 .table_detail_view thead {
     font-size: 1em;
     font-weight: bolder;
     color: #376e86;
-    background-color: #dcedf4;
+/*    background-color: #dcedf4;*/
+    background: #f0f0f0;
 }
 
 .table_detail_view thead .title {
@@ -60,12 +83,15 @@
     text-align: right;
 }
 
-.table_detail_view tbody td table tbody td:hover {
-    background-color: #ffffff;
-}
-
 .table_detail_view .block_header {
     width: 100%;
+    border-bottom: 1px solid #d9d9d9;
+}
+
+/* hover bg in ??? */
+.block_header tbody tr td:hover {
+    background-color: transparent;
+/*    background-color: blue;*/ /* uncomment to try and locate what this rule means */
 }
 
 .table_detail_view .block_header .label {
@@ -109,7 +135,6 @@
 .table_detail_view tbody.collapsable tr th {
     max-width: 30%;
     width: 30%;
-
 }
 
 .table_detail_view tbody.collapsable tr td {
@@ -152,24 +177,47 @@
     top: 2px;
 }
 
+/**/
+.table_detail_view .content td:first-child {
+    padding-left: 5px;
+}
+
+.table_detail_view tfoot td:first-child {
+    padding-left: 5px;
+}
+/**/
+
+/* zebra striping on block withs multiple lines */
+
+.block_header_line_light {
+/*    background-color: #dcedf4;*/
+    background-color: #f0f0f0; /* desaturate */
+}
+
 .block_line_light {
-    background-color: #f4fafd;
-    padding: 2px 4px 2px 4px;
+    padding: 2px 4px;
+/*    background-color: #f2f9fd;*/
+    background-color: #f7f7f7; /* desaturate */
+}
+
+.block_header_line_dark  {
+/*    background-color: #cde5ef;*/
+    background-color: #e3e3e3; /* desaturate */
 }
 
 .block_line_dark {
-    background-color: #e6f2f7;
-    padding: 2px 4px 2px 4px;
+    padding: 2px 4px;
+/*    background-color: #e8f3f8;*/
+    background-color: #e8e8e8; /* desaturate */
 }
+
+/* zebra striping on blocks with multiple lines - end */
 
 .block_line_light > p, .block_line_dark > p {
     margin: 0;
 }
 
-.block_header_line_light {background-color: #dcedf4;}
-.block_header_line_dark  {background-color: #cde5ef;}
-
-.th_info {
+th_info {
     max-width: 30%;
     width: 30%;
     text-align: left;
@@ -222,10 +270,6 @@
     padding: 2px;
     text-align: right;
     white-space: nowrap;
-}
-
-.block_header tbody tr td:hover {
-    background-color: transparent;
 }
 
 table.collapsed .block_icon {

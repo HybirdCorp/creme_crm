@@ -240,22 +240,27 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton {
     padding: 1px 6px 1px 6px;
     cursor: pointer;
     margin: 0px;
+/*
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+*/
     background-repeat: no-repeat;
     background-position: 2px 50%;
     border: 1px solid #6E9EB2;
-    background-color: #D9E5EA;
-    color:#22439f;
+/*    background-color: #D9E5EA;*/
+    background-color: #ebebeb; /* desaturate and lighten */
+    color: #22439f;
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton:hover {
+/*
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+*/
     text-decoration: none;
-    color:#22439f;
+    color: #22439f;
     /*
     border: 1px solid #6E9EB2;
     background-color: #D9E5EA;
@@ -270,7 +275,8 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[disa
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[disabled]:hover {
-    background-color: #D9E5EA;
+/*    background-color: #D9E5EA;*/
+    background-color: #ebebeb; /* desaturate and lighten */
 }
 
 ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=create] {
@@ -530,6 +536,51 @@ span.ui-creme-datepicker-trigger {
     font-weight: bold;
 }
 
+/* Dialog overrides - could be moved in a CSS file dedicated to the Dialogs widgets */
+/* HACK: the dialog title uses the same structure as the page title, creating side effects modifying both; Override those values here, until both templates are cleaned up */
+.ui-dialog-content .table_header {
+    margin-top: 0;
+    padding-top: 5px; 
+    border: 0;
+}
+
+/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms. Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs */
+.ui-dialog .table_detail_view {
+    margin: 0;
+}
+
+/* Left-side menu overrides - until its removal */
+.fg-menu-container, .fg-menu, .fg-menu a {
+    border-radius: 0;
+}
+
+.fg-menu-container {
+    border-color: #ccc;
+}
+
+.fg-menu-container > img.pinmenu {
+    height: 26px;
+    margin-left: 5px;
+}
+
+.fg-menu-breadcrumb {
+    border: 0;
+    background: none;
+    color: #777;
+}
+
+.fg-menu-content .ui-icon-triangle-1-e {
+    opacity: 0.5;
+}
+
+.fg-menu-content .ui-state-hover .ui-icon-triangle-1-e {
+    opacity: 1;
+}
+
+.fg-menu-content > .li-hover > a, .fg-menu-content .fg-menu-current > .li-hover > a {
+    background: #ebebeb;
+    border-color: #ccc;
+}
 .ui-creme-dialog-warn .message {
     font-size: 12px;
     margin-left: 10px;

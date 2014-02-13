@@ -1,9 +1,26 @@
-.forbidden, .faded {
-    opacity: 0.5;
+/* base */
+html {
+    color: black;
+/*    background-color: #f6fcff;*/
+    background-color: #ebebeb;
+    margin: 0;
+    padding: 0;
 }
 
 html.central_panel {
     background-color: #e6f2f7;
+}
+
+body {
+    color: black;
+/*    background-color: #f6fcff;*/
+    background-color: #ebebeb;
+    /* margin-left: auto ; margin-right: auto ;*/
+    padding: 0;
+    margin: 0;
+    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+    /*font-size: 14px;*/
+    font-size: 0.8em;
 }
 
 body.central_panel {
@@ -13,6 +30,304 @@ body.central_panel {
     font-family: "Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
     font-size: 0.9em;
 }
+
+body.is_deleted {
+    background-color: #775555;
+}
+
+/* base - end */
+
+/* default styling overrides */
+
+h2 {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+a {
+    color: #22439f;
+    text-decoration: none;
+/*    background-color: transparent;*/
+    
+    /* animated color transition */
+/*
+    -webkit-transition: color .4s linear;
+       -moz-transition: color .4s linear;
+        -ms-transition: color .4s linear;
+         -o-transition: color .4s linear;
+            transition: color .4s linear;
+*/
+}
+
+a:hover {
+/*    color: #df8177;*/ /* pink color on hover */
+    text-decoration: underline;
+/*    background-color: transparent;*/
+/*    text-shadow: 1px 1px 3px #cccccc;*/ /* bloom shadow-y effect */
+}
+
+a.is_deleted {
+    text-decoration: line-through;
+}
+
+td p {
+    padding: 0px;
+    margin: 3px 0px;
+    /*margin: 5px;*/
+}
+
+img {
+    border: 0;
+}
+
+a img {
+    -webkit-transition: opacity 400ms ease-in;
+       -moz-transition: opacity 400ms ease-in;
+            transition: opacity 400ms ease-in;
+}
+
+a img:hover {
+    opacity: 0.8;
+    /* Less pretty but IE doesn't handle correctly opacity so...*/
+    /*-ms-filter: "alpha(opacity=80)";*/ /* IE 8 */
+    /*filter : alpha(opacity=80);*/ /* IE < 8 */
+    /*zoom: 1;*/
+}
+
+/* default styling overrides end */
+
+/* page structure - header and footer */
+
+.header {
+    margin-left: 1.2%;
+    width: 98%;
+}
+
+/*.header .widget {
+    float: left;
+    text-align: center;
+    width: 25%;
+}*/
+
+.header .widget.major {
+    float: left;
+    margin-top: 5px;
+}
+
+.header .widget.last {
+    float: right;
+    margin-top: -15px;
+    padding-bottom: 5px;
+    padding-right: 20px;
+}
+
+#top {
+    margin-top: 10px;
+    padding-left: 5px;
+}
+
+#footer {
+  clear: both;
+  display: block;
+  text-align: center ;
+  position: relative;
+  width: 98%;
+  /*padding : 5px 0px 0px 0px ;*/
+  /*border: 1px solid #f7b5ad;
+  background: #f7cbc6;*/
+  border-top: 1px solid #ccc;
+  margin-left: 1.2%;
+  padding: 10px 0px;
+}
+
+/* page structure - header and footer - end */
+
+/* page structure - left navigation menu */
+
+.menu_expanded {
+    /*background-color: #b7d8e7;*/
+    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
+    /*border: 1px solid #375f37;*/
+    display: block;
+    height: 100%;
+    position: absolute;
+    z-index: 50;
+    /*display: none;*/
+/*    font-size: 11px;*/
+    font-size: 0.8em;
+    margin-left: 0px;
+}
+
+.menu_collapse {
+/*    -moz-outline: #000000 solid 3px;
+    -moz-outline-radius:10px 200px 200px 10px;*/
+    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
+    position: absolute;
+    background-color: #E4EAEC;
+    /*background-color: #F6FCFF;*/
+    border: 1px solid #6EAAC4;
+    display: block;
+    height: 100%;
+    /*margin-left : 0px;*/
+    margin : 0;
+    /*top:32px;
+    left:5px;*/
+    width: 1%;
+    z-index: 1;
+    color: #539fc6;
+    /*color: #5A90A7;*/
+    margin-left: 0px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* logo on top of the menu */
+#logo_container {
+    padding-left: 0%;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+/* page structure - left navigation menu - end */
+
+/* page header - search and "quick create" */
+.research_box {
+/*    padding: 7px;*/
+    margin-top: 7px;
+    display: inline-block;
+}
+
+.quickform_box {
+    padding: 4px;
+    display: inline-block;
+}
+
+.research_box span, .quickform_box span {
+    padding: 7px;
+
+    color: #2c596c;
+/*    background: #E6F2F7;*/
+    background: #f5f5f5;
+    border: 1px solid #d7e2e7;
+
+/*
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+*/
+}
+
+/* page header - search and "quick create" - end */
+
+/* page header - "last pages viewed" and "quick access pages" */
+
+#last_viewed, #preferred_menu {
+    padding: 6px 0 6px 6px;
+    margin: 4px 0 4px 5px;
+
+    color: #2c596c;
+/*    background: #E6F2F7;*/
+    background: #f5f5f5;
+    border: 1px solid #d7e2e7;
+
+    /*-moz-border-radius: 4px;
+    -webkit-border-radius: 4px;*/
+}
+
+/* page header - "last pages viewed" and "quick access pages" - end */
+
+/* page header - type, title, actions bar */
+.table_header {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.table_header td:first-child img { /* type icon */
+    height: 50px;
+}
+
+.table_header h1 { /* page title */
+    font-size: 1.8em;
+}
+
+.table_header td:last-child img { /* page actions buttons */
+    position: relative;
+    height: 50px;
+}
+
+/* page header - type, title, actions bar - end */
+
+/* page header and top areas - list of buttons: "model_buttons" and "file_buttons" */
+
+ul.button_list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.button_list li {
+    margin: 0 2px;
+    padding: 0;
+    list-style: none;
+}
+
+ul.button_list.hbox {
+    display: inline-table;
+    line-height: 34px;
+}
+
+ul.button_list.hbox li {
+    position: relative;
+    display:inline-table;
+}
+
+ul.button_list.vbox li {
+    position: relative;
+    display: block;
+}
+
+.menu_button {
+    white-space: nowrap;
+    cursor: pointer;
+
+    color:  #22439f;
+/*    background-color: #E6F2F7;*/
+    background-color: #fafafa;
+    
+    margin-left: 0.1em;
+    padding: 5px;
+
+/*    border: 1px solid #D7E2E7;*/
+    border: 1px solid #ccc;
+    
+    /*-moz-border-radius: 4px;
+    -webkit-border-radius: 4px;*/
+}
+
+.menu_button:first-child {
+    margin-left: 0em;
+}
+
+.menu_button:hover {
+/*
+    color: #f46758;
+    border: 1px solid #f46758;
+    background-color: #fdd5d1;
+*/
+    background-color: #e6e6e6;
+    text-decoration: none;
+}
+
+.menu_button img {
+    height: 22px;
+    position: relative;
+    top: 6px;
+}
+
+/* page header and top areas - list of buttons: "model_buttons" and "file_buttons" */
 
 .central_panel #branding h1 {
     padding: 0 10px;
@@ -76,98 +391,12 @@ body.central_panel {
     padding: 1em 0 1em 0;
 }
 
-
-html {
-    color: black;
-    background-color: #f6fcff;
-    margin:0;
-    padding:0;
-}
-
-h2 {
-    padding-left : 5px;
-    padding-right : 5px;
-}
-
-a {
-    color: #22439f;
-    text-decoration: none;
-    background-color: transparent;
-    -webkit-transition: color .4s linear;
-    -moz-transition: color .4s linear;
-    -o-transition: color .4s linear;
-    -ms-transition: color .4s linear;
-    transition: color .4s linear;
-}
-
-a:hover {
-    color: #df8177;
-    text-decoration: underline;
-    background-color: transparent;
-    text-shadow:1px 1px 3px #cccccc;
-}
-
-a.is_deleted {
-    text-decoration: line-through;
-}
-
-body {
-    color: black;
-    background-color: #f6fcff;
-    /* margin-left: auto ; margin-right: auto ;*/
-    padding: 0px;
-    margin: 0;
-    font-family:  Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    /*font-size: 14px;*/
-    font-size: 0.8em;
-}
-
-body.is_deleted {
-    background-color: #775555;
-}
-
 #div {
     background: white;
 }
 
-td p {
-    padding: 0px;
-    margin: 3px 0px;
-    /*margin: 5px;*/
-}
-
-#last_viewed {
-    padding-top : 6px;
-    padding-left : 6px;
-    padding-bottom : 6px;
-
-    margin-top : 4px;
-    margin-bottom : 4px;
-    margin-left:5px;
-
-    color : #2c596c;
-    background : #E6F2F7 none repeat scroll 0 0;
-    border : 1px solid #d7e2e7;
-
-    /*-moz-border-radius: 4px;
-    -webkit-border-radius: 4px;*/
-}
-
-#preferred_menu {
-    padding-top : 6px;
-    padding-left : 6px;
-    padding-bottom : 6px;
-
-    margin-top : 4px;
-    margin-bottom : 4px;
-    margin-left:5px;
-
-    color : #2c596c;
-    background : #E6F2F7 none repeat scroll 0 0;
-    border : 1px solid #d7e2e7;
-
-    /*-moz-border-radius: 4px;
-    -webkit-border-radius: 4px;*/
+.forbidden, .faded {
+    opacity: 0.5;
 }
 
 /* .table_button {
@@ -184,51 +413,6 @@ td p {
      padding-bottom: 11px;
     text-align: center;
 }*/
-
-.menu_button {
-    white-space: nowrap;
-    padding: 5px ;
-    border: 1px solid #D7E2E7;
-    background-color: #E6F2F7;
-    color:  #22439f;
-    /*-moz-border-radius: 4px;
-    -webkit-border-radius: 4px;*/
-    margin-left: 0.1em;
-    cursor: pointer;
-}
-
-.menu_button:first-child {
-    margin-left: 0em;
-}
-
-.menu_button:hover {
-    color: #f46758;
-    border: 1px solid #f46758;
-    background-color: #fdd5d1;
-    text-decoration: none;
-}
-ul.button_list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-ul.button_list li {
-    margin: 0px 2px;
-    padding: 0;
-    list-style: none;
-}
-ul.button_list.hbox {
-    display: inline-table;
-    line-height: 34px;
-}
-ul.button_list.hbox li {
-    position: relative;
-    display:inline-table;
-}
-ul.button_list.vbox li {
-    position: relative;
-    display: block;
-}
 
 /*.table_view {
     padding: 0px;
@@ -422,82 +606,12 @@ ul.button_list.vbox li {
     list-style-image : url(icecream/images/doc.gif);
 }*/
 
-.menu_expanded {
-    /*background-color: #b7d8e7;*/
-    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
-    /*border: 1px solid #375f37;*/
-    display: block;
-    height: 100%;
-    position: absolute;
-    z-index: 50;
-    /*display: none;*/
-/*    font-size: 11px;*/
-    font-size: 0.8em;
-    margin-left: 0px;
-}
-
-.menu_collapse {
-/*    -moz-outline: #000000 solid 3px;
-    -moz-outline-radius:10px 200px 200px 10px;*/
-    /*background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;*/
-    position: absolute;
-    background-color: #E4EAEC;
-    /*background-color: #F6FCFF;*/
-    border: 1px solid #6EAAC4;
-    display: block;
-    height: 100%;
-    /*margin-left : 0px;*/
-    margin : 0;
-    /*top:32px;
-    left:5px;*/
-    width: 1%;
-    z-index: 1;
-    color: #539fc6;
-    /*color: #5A90A7;*/
-    margin-left: 0px;
-    font-weight: bold;
-    text-align: center;
-}
-
 .main_content {
     height: 80%;
     margin-left: 1.2%;
     width: 98%;
     clear: both;
     padding-top: 3px;
-}
-
-.header {
-    margin-left: 1.2%;
-    width: 98%;
-}
-
-/*.header .widget {
-    float: left;
-    text-align: center;
-    width: 25%;
-}*/
-
-.header .widget.major {
-    float: left;
-}
-
-.header .widget.last {
-    float: right;
-}
-
-#footer {
-  clear: both;
-  display:block;
-  text-align : center ;
-  position:relative;
-  width:98%;
-  /*padding : 5px 0px 0px 0px ;*/
-  /*border: 1px solid #f7b5ad;
-  background: #f7cbc6;*/
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  margin-left: 1.2%;
-  padding: 10px 0px;
 }
 
 .errorlist {
@@ -558,27 +672,18 @@ div#sub_content > div:nth-child(5) {
     width: 49%;
 } */
 
-.menu_button img {
-    height: 22px;
-    position: relative;
-    top: 6px;
-}
-
+/* this seems to be block-related and could be movoed to blocks.css */
 /* Buttons (for example: 'validate') in ths blocks */
 .table_detail_view td button {
     padding: 0px;
 }
-
 
 /* alignments of inputs in the forms */
 /*.table_detail_view input, .table_detail_view textarea, .table_detail_view select {
     width: 25%;
 }*/
 
-a {
-    cursor: pointer;
-}
-
+/* this seems duplicated/overriden in blocks.css */
 .th_info {
     max-width: 30%;
     width: 30%;
@@ -605,6 +710,8 @@ a {
     text-align: left;
 }
 
+/* this seems duplicated/overriden in blocks.css - end */
+
 .block_header tbody tr td:hover {
     background-color: transparent;
 }
@@ -619,58 +726,22 @@ a {
     border: 0;
 }
 
-.table_header {
-    width: 100%;
-    border-top: 1px solid rgba(0, 0, 0, 0.2);
-    margin-top: 5px;
-    padding-left: 5px;
-}
-
-.table_header td:last-child img {
-    position: relative;
-    height: 50px;
-}
-
+/* 3rd child div of sub content ? - possibly editforms ? */
+/*
 div#sub_content > div:nth-child(3) {
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
+*/
 
-img {
-    border: 0;
-}
-
-a img {
-    -webkit-transition: opacity 400ms ease-in;
-    -moz-transition: opacity 400ms ease-in;
-    transition: opacity 400ms ease-in;
-}
-
-a img:hover {
-    opacity: 0.8;
-    /* Less pretty but IE doesn't handle correctly opacity so...*/
-    /*-ms-filter: "alpha(opacity=80)";*/ /* IE 8 */
-    /*filter : alpha(opacity=80);*/ /* IE < 8 */
-    /*zoom: 1;*/
-}
-
-#top {
-    padding-left: 5px;
+/* remove visual borders until it's clear if it's #editforms only or more */
+div#sub_content > div:nth-child(3) {
+    padding-bottom: 10px;
 }
 
 #tree_menu {
     height: 100%;
 }
-
-.ui-state-default, .ui-widget-content .ui-state-default {
-    font-size:1.1em;/* Old 1.2em*/
-}
-
-.ui-paging-info, ui-icon ui-icon-newwin {
-    font-weight: bold;
-}
-
-.ui-pg-selbox { height:20px !important;}
 
 .help_box {
     -moz-border-radius: 10px;
@@ -695,11 +766,25 @@ a img:hover {
 }
 
 .selected {
-    background-color: #f7cbc6 !important;
+/*    background-color: #f7cbc6 !important;*/
+    background-color: #b5d6e3 !important;
 }
 
 .list td {
     text-align: center;
+}
+
+/* should ui-* classes probably go into creme-ui ? */
+.ui-state-default, .ui-widget-content .ui-state-default {
+    font-size: 1.1em;/* Old 1.2em*/
+}
+
+.ui-paging-info, ui-icon ui-icon-newwin {
+    font-weight: bold;
+}
+
+.ui-pg-selbox { 
+    height: 20px !important;
 }
 
 .ui-datepicker {
@@ -776,38 +861,6 @@ a img:hover {
 .dcms_button {
     display: block;
     width: auto !important;
-}
-
-.research_box {
-    padding: 7px;
-    display: inline-block;
-}
-
-.research_box span {
-    padding : 7px;
-
-    color : #2c596c;
-    background : #E6F2F7 none repeat scroll 0 0;
-    border : 2px solid #d7e2e7;
-
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-
-.quickform_box {
-    padding: 4px;
-    display: inline-block;
-}
-
-.quickform_box span {
-    padding : 7px;
-
-    color: #2c596c;
-    background: #E6F2F7 none repeat scroll 0 0;
-    border: 2px solid #d7e2e7;
-
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
 }
 
 .pointer {
@@ -991,10 +1044,4 @@ a img:hover {
     z-index: 1000;
     left: 0;
     position: fixed;
-}
-
-#logo_container {
-    padding-left: 0%;
-    padding-bottom: 10px;
-    padding-top: 10px;
 }
