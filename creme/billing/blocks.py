@@ -171,14 +171,15 @@ class ReceivedInvoicesBlock(QuerysetBlock):
     verbose_name  = _(u"Received invoices")
     template_name = 'billing/templatetags/block_received_invoices.html'
     target_ctypes = (Contact, Organisation)
+    order_by      = '-expiration_date'
 
     def detailview_display(self, context):
-        person = context['object']
+        person_id = context['object'].id
         btc = self.get_block_template_context(context,
-                                              Invoice.objects.filter(relations__object_entity=person.id,
-                                                                     relations__type=REL_SUB_BILL_RECEIVED)\
-                                                     .order_by('expiration_date'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                              Invoice.objects.filter(relations__object_entity=person_id,
+                                                                     relations__type=REL_SUB_BILL_RECEIVED,
+                                                                    ),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
                                              )
 
         #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
@@ -193,7 +194,7 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
     target_ctypes = (Contact, Organisation)
-    order_by      = 'expiration_date'
+    order_by      = '-expiration_date'
 
     def detailview_display(self, context):
         person_id = context['object'].id

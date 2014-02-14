@@ -1,32 +1,34 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=4 %}
+    {% get_block_header colspan=5 %}
         <th class="label">{% get_block_title _('%s Received invoice') _('%s Received invoices') 'invoice_48.png' _('Invoice') %}</th>
         <th class="actions">
-            <div class="buttons">
-                {% has_perm_to change object as has_perm %}
-                {% get_line_adder at_url '/billing/invoice/add/{{ object.id }}' with_label _("Add an invoice") with_perms has_perm %}
+            <div class="buttons">{% has_perm_to change object as has_perm %}
+                {% get_line_adder at_url '/billing/invoice/add/{{object.id}}' with_label _("Add an invoice") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr class="header">
-                <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Expiration date" %}</th>
+                {% get_column_header _('Name') 'name' %}
+                {% get_column_header _('Number') 'number' %}
+                {% get_column_header _('Expiration date') 'expiration_date' %}
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
-                <th class="block_header_line_dark">{% trans "Total without VAT" %}</th>
+                {% get_column_header _('Total without VAT') 'total_no_vat' %}
             </tr>
             {% for invoice in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink invoice user %}</td>
                     {% has_perm_to view invoice as invoice_view_perm %}
                     {% if invoice_view_perm %}
+                        <td class="{{row_color}}">{{invoice.number}}</td>
                         <td class="{{row_color}}">{{invoice.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{invoice.status}}</td>
-                        <td class="{{row_color}}">{{invoice.total_no_vat}}</td>
+                        <td class="{{row_color}}">{{invoice.total_no_vat|format_amount:invoice.currency_id}}</td>
                     {% else %}
+                        <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
@@ -39,5 +41,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 4 %}
+    {% get_block_footer 5 %}
 </table>
