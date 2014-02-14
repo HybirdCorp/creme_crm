@@ -170,7 +170,6 @@ class ReceivedInvoicesBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received invoices")
     template_name = 'billing/templatetags/block_received_invoices.html'
-    #configurable  = True
     target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
@@ -187,29 +186,31 @@ class ReceivedInvoicesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude TemplateBase if needed
+class ReceivedBillingDocumentBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
     dependencies  = (Relation, CreditNote, Quote, SalesOrder)
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
-    #configurable  = True
     target_ctypes = (Contact, Organisation)
-    order_by      = 'name'
+    order_by      = 'expiration_date'
 
     def detailview_display(self, context):
-        person = context['object']
+        person_id = context['object'].id
         get_ct = ContentType.objects.get_for_model
-        qs = Base.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED)\
-                         .exclude(entity_type__in=[get_ct(TemplateBase), get_ct(Invoice)])\
-                         .order_by('expiration_date')
+        btc = self.get_block_template_context(
+                    context,
+                    Base.objects.filter(relations__object_entity=person_id,
+                                        relations__type=REL_SUB_BILL_RECEIVED,
+                                       )
+                                .exclude(entity_type__in=[get_ct(TemplateBase),
+                                                          get_ct(Invoice),
+                                                         ]
+                                        ),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                )
 
-        CremeEntity.populate_real_entities(qs)
-
-        btc = self.get_block_template_context(context, qs,
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                             )
-
+        CremeEntity.populate_real_entities(btc['page'].object_list)
         #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
