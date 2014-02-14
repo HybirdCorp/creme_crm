@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-22 15:03+0100\n"
+"POT-Creation-Date: 2014-02-14 11:27+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -456,7 +456,12 @@ msgstr "Contacts"
 msgid "%(civility)s %(first_name)s %(last_name)s"
 msgstr "%(civility)s %(first_name)s %(last_name)s"
 
-#: models/contact.py:95
+#: models/contact.py:92
+#, python-format
+msgid "%(first_name)s %(last_name)s"
+msgstr "%(first_name)s %(last_name)s"
+
+#: models/contact.py:99
 msgid "A user is associated with this contact."
 msgstr "Un utilisateur est relié à ce contact."
 
@@ -595,8 +600,8 @@ msgstr "Modifier %(object)s"
 
 #: templates/persons/edit_contact_form.html:8
 #: templates/persons/edit_organisation_form.html:8
-#, fuzzy, python-format
-msgid "Edit «%%s»"
+#, python-format
+msgid "Edit «%s»"
 msgstr "Modifier «%s»"
 
 #: templates/persons/portal.html:6
@@ -836,10 +841,6 @@ msgstr "Nombre de société(s)"
 msgid "Number of customers of %s"
 msgstr "Nombre de client(s) de %s"
 
-#, fuzzy
-#~ msgid "Select the concerned organisation."
-#~ msgstr "Société concernée"
-
 #~ msgid "Ok"
 #~ msgstr "Ok"
 
@@ -855,14 +856,8 @@ msgstr "Nombre de client(s) de %s"
 #~ msgid "New organisation"
 #~ msgstr "Nouvelle société"
 
-#~ msgid "User - Username"
-#~ msgstr "Utilisateur - Nom d'utilisateur"
-
 #~ msgid "Employed by"
 #~ msgstr "Est salarié chez"
-
-#~ msgid "Sector - Sector name"
-#~ msgstr "Secteur - Nom"
 
 #~ msgid "Customer of"
 #~ msgstr "Est client de"
