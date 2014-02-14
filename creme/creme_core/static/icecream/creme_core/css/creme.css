@@ -735,7 +735,14 @@ div#sub_content > div:nth-child(3) {
 */
 
 /* remove visual borders until it's clear if it's #editforms only or more */
+/*
 div#sub_content > div:nth-child(3) {
+    padding-bottom: 10px;
+}
+*/
+
+/* retarget to editforms as it was mistakenly applied to some detailviews */
+#editforms {
     padding-bottom: 10px;
 }
 

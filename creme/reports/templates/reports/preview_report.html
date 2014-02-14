@@ -32,12 +32,12 @@
 {% endblock %}
 
 {% block content %}
-    <div style="position:relative; width:100%; overflow-x: scroll;">
+    <div class='scrollable-block-container'>
         {% include "reports/frags/date_filter_form.html" %}
     </div>
 
     {% with object.get_children_fields_flat as flat_columns %}
-        <div style="position:relative; width:100%; overflow-x: scroll;">
+        <div class='scrollable-block-container'>
             <table class="table_detail_view ui-corner-all with-header" >
                 <thead>
                     <tr>

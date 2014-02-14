@@ -287,3 +287,16 @@ table.hide_empty_fields tr.content.collapsable-field {
 table.collapsed {
     opacity: 0.5;
 }
+
+/* Block containers */
+/* Only seems to be used in Reports' preview report page. Blocks inside need to be flush with the scrollbar.
+   The block template also needs to be cleaned up so we can target the different types of blocks and add decorations, margins, etc only where they're needed */
+.scrollable-block-container {
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+
+.scrollable-block-container .table_detail_view {
+    margin: 0;
+    box-shadow: none;
+}
