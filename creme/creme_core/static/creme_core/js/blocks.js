@@ -160,9 +160,7 @@ creme.blocks.toggleEmptyFields = function(button) {
     $block.trigger('creme-blocks-field-display-changed', {action : previous_state ? 'show' : 'hide'});
 };
 
-creme.blocks.initPager = function(block) {
-    var pager = $('.creme-block-pager', block);
-
+creme.blocks.initPager = function(pager) {
     // TODO : remove this hack when smartlinks will be available.
     $('a.pager-link', pager).bind('click', function(e) {
         e.preventDefault();
@@ -243,7 +241,10 @@ creme.blocks.initialize = function(block) {
         creme.blocks.saveState($(this));
     });
 
-    creme.blocks.initPager(block);
+    $('.creme-block-pager', block).each(function() {
+        creme.blocks.initPager($(this));
+    });
+
     creme.blocks.initEmptyFields(block);
     creme.widget.ready(block);
 };
