@@ -288,6 +288,58 @@ table.collapsed {
     opacity: 0.5;
 }
 
+.creme-block-pager {
+    margin: 3px;
+}
+
+.creme-block-pager li {
+    display: inline-block;
+    list-style: none;
+}
+
+.creme-block-pager .pager-link:not([disabled]):hover {
+    background-color: #79A2B4;
+}
+
+.creme-block-pager .pager-link {
+    display: inline;
+    border: 1px solid #79A2B4;
+    padding: 1px 5px;
+}
+
+.creme-block-pager .pager-link[disabled] {
+	border: 0;
+    text-decoration: none;
+    color: black;
+    cursor: default;
+}
+
+.creme-block-pager .pager-input span {
+    border: 0;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.creme-block-pager .pager-input input {
+    display: none;
+}
+
+.creme-block-pager .pager-input.active span {
+    display: none;
+}
+
+.creme-block-pager .pager-input.active input {
+    padding: 0px 5px;
+    width: 40px;
+    color: black;
+    text-align: center;
+    border: none;
+    background-color: transparent;
+    display: inline-block;
+    margin: 0;
+}
+
 /* Block containers */
 /* Only seems to be used in Reports' preview report page. Blocks inside need to be flush with the scrollbar.
    The block template also needs to be cleaned up so we can target the different types of blocks and add decorations, margins, etc only where they're needed */

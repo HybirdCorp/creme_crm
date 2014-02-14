@@ -160,6 +160,74 @@ creme.blocks.toggleEmptyFields = function(button) {
     $block.trigger('creme-blocks-field-display-changed', {action : previous_state ? 'show' : 'hide'});
 };
 
+creme.blocks.initPager = function(block) {
+    var pager = $('.creme-block-pager', block);
+
+    // TODO : remove this hack when smartlinks will be available.
+    $('a.pager-link', pager).bind('click', function(e) {
+        e.preventDefault();
+
+        if ($(this).is('[disabled]'))
+            return;
+
+        var url = creme.utils.lambda($(this).attr('data-page-uri'))();
+        creme.blocks.reload(url);
+    });
+
+    var gotoPage = function(input) {
+        var page = parseInt(input.val());
+        var max = parseInt(input.attr('max'))
+
+        if (isNaN(page) || page < 1 || (!isNaN(max) && page > max))
+            return;
+
+        creme.blocks.reload(creme.utils.lambda(input.attr('data-page-uri'), 'page')(page));
+    }
+
+    var canvas2d = document.createElement('canvas').getContext("2d");
+    var resizeInput = function(element) {
+        var value = element.val() !== null ? element.val() : '';
+        canvas2d.font = element.css('font-size') + ' ' + element.css('font-family');
+        var width = canvas2d.measureText(value).width;
+
+        element.css('width', width + 20);
+    }
+
+    $('.pager-input', pager).each(function() {
+        var input = $(this);
+        var selector = $('input', input);
+
+        input.click(function(e) {
+            e.stopPropagation();
+            $(this).addClass('active')
+            selector.select().focus();
+        });
+
+        resizeInput(selector);
+
+        selector.bind('propertychange input change paste', function(e) {
+            creme.object.deferred_start(pager, 'creme-block-pager-change', function() {
+                gotoPage(selector);
+            }, 1000);
+        }).bind('propertychange input change paste keydown', function() {
+            resizeInput(selector);
+        }).bind('keyup', function(e) {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                creme.object.deferred_cancel(pager, 'creme-block-pager-change');
+                gotoPage($(this));
+            } else if (e.keyCode === 27) {
+                e.preventDefault();
+                creme.object.deferred_cancel(pager, 'creme-block-pager-change');
+                selector.focusout();
+            }
+        }).bind('focusout', function() {
+            creme.object.deferred_cancel(pager, 'creme-block-pager-change');
+            input.removeClass('active');
+        });
+    });
+}
+
 creme.blocks.initialize = function(block) {
     block.bind('creme-table-collapse', function(e, params) {
         creme.blocks.saveState($(this));
@@ -169,6 +237,7 @@ creme.blocks.initialize = function(block) {
         creme.blocks.saveState($(this));
     });
 
+    creme.blocks.initPager(block);
     creme.blocks.initEmptyFields(block);
     creme.widget.ready(block);
 };
