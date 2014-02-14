@@ -184,8 +184,14 @@ creme.blocks.initPager = function(block) {
         creme.blocks.reload(creme.utils.lambda(input.attr('data-page-uri'), 'page')(page));
     }
 
-    var canvas2d = document.createElement('canvas').getContext("2d");
     var resizeInput = function(element) {
+        var canvas2d = element.data('creme-block-pager-canvas');
+
+        if (canvas2d === undefined) {
+            canvas2d = document.createElement('canvas').getContext("2d");
+            element.data('creme-block-pager-canvas', canvas2d);
+        }
+
         var value = element.val() !== null ? element.val() : '';
         canvas2d.font = element.css('font-size') + ' ' + element.css('font-family');
         var width = canvas2d.measureText(value).width;
@@ -200,10 +206,10 @@ creme.blocks.initPager = function(block) {
         input.click(function(e) {
             e.stopPropagation();
             $(this).addClass('active')
+
+            resizeInput(selector);
             selector.select().focus();
         });
-
-        resizeInput(selector);
 
         selector.bind('propertychange input change paste', function(e) {
             creme.object.deferred_start(pager, 'creme-block-pager-change', function() {
