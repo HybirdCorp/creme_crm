@@ -109,11 +109,17 @@ class DummyListBlock(PaginatedBlock):
     data          = None
 
     def detailview_display(self, context):
-        user = context['request'].user
-        refresh = context['request'].GET.get('refresh', False)
+        request = context['request']
+        user = request.user
+        refresh = request.GET.get('refresh', False)
+
+        min_count = request.GET.get('min', '0')
+        min_count = int(min_count) if min_count.isdigit() else 0
 
         if refresh or self.data is None:
-            self.data = [Dummy(id, user) for id in xrange(randint(0, 100))]
+            self.data = [Dummy(id, user) for id in xrange(max(min_count, randint(0, 100)))]
+
+        context['min_block_count'] = min_count
 
         return self._render(self.get_block_template_context(context, self.data,
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_

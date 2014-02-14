@@ -2,6 +2,7 @@
 {% load creme_block creme_core_tags %}
 {% if page.paginator.num_pages != 1 %}
     <tfoot class="collapsable">
+        {% comment %}
         <tr>
             <td colspan="{{colspan}}" class="block_header_line_dark">
                 {% if page.has_previous %}
@@ -21,6 +22,77 @@
                         <option value="{{p}}" {% if page.number == p %}selected{% endif %}>{{p}}</option>
                     {% endfor %}
                 </select>
+            </td>
+        </tr>
+        {% endcomment %}
+        <tr>
+            <td colspan="{{colspan}}" class="block_header_line_dark">
+                {% comment %}{% trans "Pages:" %}&nbsp;{% endcomment %}{% comment %} TODO: ??{% endcomment %}
+                <center>
+                <ul class="creme-block-pager">
+                    {% if page.has_previous %}
+                    <li>
+                        <a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}'">
+                            {% trans "Previous page" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% with num_pages=page.paginator.num_pages page_number=page.number %}
+                        {% if num_pages < 7 %}
+                            {% for p in num_pages|xrange:1 %}
+                                <li>
+                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'">{{p}}</a>
+                                </li>
+                            {% endfor %}
+                        {% elif page_number <= 4 %}
+                            {% for p in page_number|add:1|xrange:1 %}
+                                <li>
+                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'">{{p}}</a>
+                                </li>
+                            {% endfor %}
+                            <li class="pager-input">
+                                <span>…</span>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                            </li>
+                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'">{{num_pages}}</a></li>
+                        {% elif page_number >= num_pages|sub:3 %}
+                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=1'">1</a></li>
+                            <li class="pager-input">
+                                <span>…</span>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                            </li>
+                            {% for p in num_pages|add:1|sub:page.previous_page_number|xrange:page.previous_page_number %}
+                                <li>
+                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'">{{p}}</a>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=1'">1</a></li>
+                            <li class="pager-input">
+                                <span>…</span>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                            </li>
+                            {% for p in 3|xrange:page.previous_page_number %}
+                                <li>
+                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'">{{p}}</a>
+                                </li>
+                            {% endfor %}
+                            <li class="pager-input">
+                                <span>…</span>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                            </li>
+                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'">{{num_pages}}</a></li>
+                        {% endif %}
+                    {% endwith %}
+                    {% if page.has_next %}
+                    <li>
+                        <a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}'">
+                            {% trans "Next page" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                </center>
             </td>
         </tr>
     </tfoot>
