@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-11 17:08+0100\n"
+"POT-Creation-Date: 2014-02-17 11:29+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -964,7 +964,7 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
-#: models/auth.py:45 models/block.py:333 models/entity_filter.py:110
+#: models/auth.py:45 models/block.py:337 models/entity_filter.py:110
 #: models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:51
 #: templates/creme_core/templatetags/block_trash.html:22
@@ -1108,24 +1108,24 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:51 models/block.py:332 models/button_menu.py:31
+#: models/block.py:51 models/block.py:336 models/button_menu.py:31
 #: models/custom_field.py:55
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:188 models/block.py:287 models/block.py:400
+#: models/block.py:192 models/block.py:291 models/block.py:404
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:189
+#: models/block.py:193
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
-#: models/block.py:288
+#: models/block.py:292
 msgid "Block related entity"
 msgstr "Fiche associée au bloc"
 
-#: models/block.py:290
+#: models/block.py:294
 msgid "Verbose"
 msgstr "Verbeux"
 
@@ -2207,22 +2207,13 @@ msgstr "Montrer/Cacher les champs vides"
 msgid "Can't edit"
 msgstr "Modification interdite"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:9
+#: templates/creme_core/templatetags/widgets/block_footer.html:39
 msgid "Previous page"
 msgstr "Page précédente"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:12
-#, python-format
-msgid "Page %(page_number)s / %(num_pages)s"
-msgstr "Page %(page_number)s / %(num_pages)s"
-
-#: templates/creme_core/templatetags/widgets/block_footer.html:15
+#: templates/creme_core/templatetags/widgets/block_footer.html:93
 msgid "Next page"
 msgstr "Page suivante"
-
-#: templates/creme_core/templatetags/widgets/block_footer.html:18
-msgid "Go to page"
-msgstr "Aller à la page"
 
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:8
 #: templates/creme_core/templatetags/widgets/delete_button.html:18
@@ -2431,6 +2422,10 @@ msgstr "\"%s\" ne peut être effacé à cause de ses dépendances."
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
+#: views/entity.py:453
+msgid "The following entities cannot be deleted"
+msgstr "Les entités suivantes ne peuvent être effacées"
+
 #: views/entity.py:464
 msgid "This model does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
@@ -2557,6 +2552,12 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Page %(page_number)s / %(num_pages)s"
+#~ msgstr "Page %(page_number)s / %(num_pages)s"
+
+#~ msgid "Go to page"
+#~ msgstr "Aller à la page"
 
 #~ msgid "Filters"
 #~ msgstr "Filtres"

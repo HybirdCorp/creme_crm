@@ -449,8 +449,8 @@ def empty_trash(request):
         status = 200
         message = _('Operation successfully completed')
     else:
-        status = 400
-        message = ",".join(msg for msg in errors)
+        status = 409
+        message = _('The following entities cannot be deleted') + '<ul>' + '\n'.join('<li>' + msg + '</li>' for msg in errors) + '</ul>'
 
     return HttpResponse(message, mimetype='text/javascript', status=status)
 
