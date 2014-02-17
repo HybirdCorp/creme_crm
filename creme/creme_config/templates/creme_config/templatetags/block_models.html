@@ -15,7 +15,7 @@
     </thead>
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
+            <th class="block_header_line_dark" colspan="{{colspan}}">
                 {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms 1 %}
             </th>
         </tr>

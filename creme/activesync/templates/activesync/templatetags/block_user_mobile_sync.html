@@ -6,7 +6,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
-            <th class="block_header_line_dark" style="font-size:14px;" align="left" colspan="2">
+            <th class="block_header_line_dark" colspan="2">
                 <a class="button_link" onclick="creme.blocks.form('/activesync/user_settings', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "Edit" as label %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{label}}"/>{{label}}
                 </a>
