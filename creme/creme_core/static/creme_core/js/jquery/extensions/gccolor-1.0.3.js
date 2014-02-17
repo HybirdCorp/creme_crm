@@ -10,8 +10,10 @@
 			onOpen: function () {},
 			onClose: function () {},
 			onChange: function ($input, selectedValue) {
-                $input.css('background-color', '#'+selectedValue);
-                changeTextColor($input, selectedValue);
+			    $input.val(selectedValue);
+			    updateTargetColor($input);
+                //$input.css('background-color', '#'+selectedValue);
+                //changeTextColor($input, selectedValue);
             },
 			useButton: true,
 			defaultColor: '#FF0000'
@@ -296,7 +298,7 @@
 		    var is_inside = $(e.target).is("#gccolor-dialog") || $(e.target).parents('#gccolor-dialog').length > 0;
 
 		    if (!is_target && !is_togglebutton && !is_inside) {
-		        closeDialog(data.target, data.options, true);
+		        closeDialog(data.target, data.options, false);
 		    }
 		},
 		toggleDialog = function(target, options) {
@@ -321,7 +323,13 @@
 				hexColor = options.defaultColor;
 			}
 			_setFromHEX(hexColor);
-			$('#gccolor-current-color').css('background-color', '#' + hexColor);
+
+			$('#gccolor-current-color').css('background-color', '#' + hexColor)
+			                           .attr('data-current-color', hexColor)
+			                           .click(function() {
+			                               _setFromHEX($(this).attr('data-current-color'));
+			                               changeColor();
+			                           });
 
 			$('#gccolor-submit').click(function(){
 			    closeDialog($(document).data('gccolor').target, options, false);
@@ -347,23 +355,32 @@
 		closeDialog = function(target, options, cancel){
 			$(document).unbind('keyup', closeOnEsc);
 			$(document).unbind('mousedown', closeOnOutsideClick);
+			$('#gccolor-dialog #gccolor-color').unbind('dblclick');
+			$('#gccolor-current-color').unbind('click');
 
 			if (typeof options.onClose == 'function'){
 				options.onClose(target, $('#gccolor-hex input').val(), cancel);
 			}
-			if (!cancel){
-				$(target).val($('#gccolor-hex input').val());
-			}
+
+			var color_hex_value = cancel ? $('#gccolor-current-color').attr('data-current-color') : $('#gccolor-hex input').val();
+
+			$(target).val(color_hex_value);
+			updateTargetColor($(target));
+
 			$('#gccolor-dialog').hide();
 			$('#gccolor-dialog').dialog('destroy');
 		},
-        changeTextColor = function(target, value){
-
-            if (_RGBtoHSB(_HEXtoRGB(value)).b > 60)
-            {
+		
+		updateTargetColor = function(target) {
+		    var value = $(target).val()
+		    $(target).css('background-color', '#' + value);
+            changeTextColor(target, value);
+		},
+		
+        changeTextColor = function(target, value) {
+            if (_RGBtoHSB(_HEXtoRGB(value)).b > 60) {
                 target.css('color', 'black');
-            }
-            else{
+            } else {
                 target.css('color', 'white');
             }
         };
@@ -400,12 +417,10 @@
 						button.click(function(){
 						    toggleDialog($(this).prev(), options);
 						});
-                        $(this).css('background-color', '#'+$(this).val());
-                        changeTextColor($(this), $(this).val());
+						updateTargetColor($(this));
 
                         $(this).bind('gccolor-input-change', function(){
-                            changeTextColor($(this), $(this).val());
-                            $(this).css('background-color', '#'+$(this).val());
+                            updateTargetColor($(this));
                         }).bind('change', function(){
                             $(this).trigger('gccolor-input-change');
                         });
