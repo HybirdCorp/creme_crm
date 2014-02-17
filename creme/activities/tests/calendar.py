@@ -10,7 +10,8 @@ try:
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Relation
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Relation, SetCredentials
 
     #from creme.persons.models import Contact
 
@@ -59,7 +60,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(3):
             def_cal = Calendar.get_user_default_calendar(user)
 
-        self.assertEqual(_(u"Default %(user)s's calendar") % {'user': user},
+        #self.assertEqual(_(u"Default %(user)s's calendar") % {'user': user},
+        self.assertEqual(_(u"%s's calendar") % user,
                          def_cal.name,
                         )
 
@@ -363,8 +365,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         act = self.refresh(act)
         self.assertEqual([default_calendar], list(act.calendars.all()))
 
-    def test_change_activity_calendar(self):
-        "reassign activity calendar"
+    def test_change_activity_calendar01(self):
+        "Reassign activity calendar"
         self.login()
         user = self.user
         default_calendar = Calendar.get_user_default_calendar(user)
@@ -388,6 +390,50 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual([cal], list(act.calendars.all()))
         response = self.assertGET200(activity_url)
         self.assertContains(response, cal.name)
+
+    def test_change_activity_calendar02(self):
+        "Multiple calendars => error (waiting the rigth solution)"
+        self.login()
+        user = self.user
+        default_calendar = Calendar.get_user_default_calendar(user)
+
+        create_cal = partial(Calendar.objects.create, user=user, is_custom=True)
+        cal1 = create_cal(name='Cal #1')
+        cal2 = create_cal(name='Cal #2')
+
+        act = Activity.objects.create(user=user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        act.calendars = (default_calendar, cal1)
+
+        url = self.build_link_url(act.id)
+        self.assertGET409(url)
+        self.assertPOST409(url, data={'calendar': cal2.id})
+
+    def test_change_activity_calendar03(self):
+        "Credentials: user can always change its calendars"
+        self.login(is_superuser=False)
+        user = self.user
+        default_calendar = Calendar.get_user_default_calendar(user)
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.LINK   | EntityCredentials.UNLINK,
+                  set_type=SetCredentials.ESET_OWN,
+                 )
+        create_sc( value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+
+        cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
+
+        act = Activity.objects.create(user=self.other_user, title='Act#1', type_id=ACTIVITYTYPE_TASK)
+        self.assertFalse(user.has_perm_to_change(act))
+        self.assertFalse(user.has_perm_to_link(act))
+
+        act.calendars.add(default_calendar)
+
+
+        url = self.build_link_url(act.id)
+        self.assertGET200(url)
+        self.assertNoFormError(self.assertPOST200(url, data={'calendar': cal.id}))
+        self.assertEqual([cal], list(act.calendars.all()))
 
     def test_get_users_activities01(self):
         "One user, no Activity"

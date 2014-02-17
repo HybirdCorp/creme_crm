@@ -1,19 +1,24 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 
-{% if page.paginator.count %}
-    <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-        {% get_block_header colspan=3 %}
-            <th class="label">
-                {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
-            </th>
-            <th class="actions">
-                <div class="buttons">
-                    {% get_line_linker at_url '/activities/calendar/link/{{object.id}}' with_label _("Change calendar") with_perms page.paginator.count %}
-                </div>
-            </th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
+{% comment %}{% if page.paginator.count %}{% endcomment %}
+{% with calendar_count=page.paginator.count %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=3 %}
+        <th class="label">
+            {% comment %}{% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}{% endcomment %}
+            {% get_block_title _('Present in %s of my Calendars') _('Present in %s of my Calendars') 'calendar_48.png' _('Calendars') %}
+        </th>
+        <th class="actions">
+            <div class="buttons">
+                {% if calendar_count == 1 %}{% comment %}TODO: solve the problem of multi-calendar (which calendar changes ?){% endcomment %}
+                    {% get_line_linker at_url '/activities/calendar/link/{{object.id}}' with_label _("Change calendar") with_perms 1 %}
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if calendar_count == 1 %}
             <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 {% get_column_header _('Is default?') 'is_default' %}
@@ -29,7 +34,13 @@
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                 </tr>
             {% endfor %}
-        </tbody>
-        {% get_block_footer 3 %}
-    </table>
-{% endif %}
+        {% else %}
+            <tr class="content empty">
+                <td class="block_line_dark">{% trans "The activity is not present in any of your calendars, you don't participate to it" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% get_block_footer 3 %}
+</table>
+{% endwith %}
+{% comment %}{% endif %}{% endcomment %}

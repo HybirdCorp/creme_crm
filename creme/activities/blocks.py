@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from .constants import *
 
 class ParticipantsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'participants')
-    dependencies  = (Relation, Contact)
+    dependencies  = (Relation, Contact, Calendar)
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
@@ -40,21 +40,29 @@ class ParticipantsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         activity = context['object']
-        btc = self.get_block_template_context(context,
-                                              activity.relations.filter(type=REL_OBJ_PART_2_ACTIVITY).select_related('type', 'object_entity'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                             )
+        btc = self.get_block_template_context(
+                        context,
+                        activity.relations.filter(type=REL_OBJ_PART_2_ACTIVITY)
+                                          .select_related('type', 'object_entity'),
+                        update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    )
         relations = btc['page'].object_list
         #TODO: select_related(depth=1) ?? remove civility with better entity repr system ??
         #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
-        contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user', 'is_user', 'civility'))
+        contacts = dict((c.id, c)
+                            for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
+                                                    .select_related('user', 'is_user', 'civility')
+                       )
 
         #CremeEntity.populate_credentials(contacts.values(), context['user'])
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
 
-        users_contacts = dict((contact.is_user_id, contact) for contact in contacts.itervalues() if contact.is_user_id)
+        users_contacts = dict((contact.is_user_id, contact)
+                                for contact in contacts.itervalues()
+                                    if contact.is_user_id
+                             )
 
         for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), activity=activity.id):
             users_contacts[calendar.user_id].calendar_cache = calendar
@@ -114,20 +122,22 @@ class FutureActivitiesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
-                                                            predicate_id=REL_SUB_LINKED_2_ACTIVITY,
-                                                            ct_id=ContentType.objects.get_for_model(Activity).id,
-                                                            display_review=Activity.display_review(),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    self._get_queryset_for_entity(entity, context).select_related('status'),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
+                    predicate_id=REL_SUB_LINKED_2_ACTIVITY,
+                    ct_id=ContentType.objects.get_for_model(Activity).id,
+                    display_review=Activity.display_review(),
+                ))
 
     def portal_display(self, context, ct_ids):
-        return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
-                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                                            display_review=Activity.display_review(),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
+                    update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                    display_review=Activity.display_review(),
+                ))
 
     def home_display(self, context):
         user = context['request'].user
@@ -136,12 +146,13 @@ class FutureActivitiesBlock(QuerysetBlock):
         if entity is None:
             context['user_contact'] = entity = Contact.get_user_contact_or_mock(user)
 
-        return self._render(self.get_block_template_context(context,
-                                                            self._get_queryset_for_entity(entity, context).select_related('status'),
-                                                            update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            is_home=True,
-                                                            display_review=Activity.display_review(),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    self._get_queryset_for_entity(entity, context).select_related('status'),
+                    update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                    is_home=True,
+                    display_review=Activity.display_review(),
+                ))
 
 
 class PastActivitiesBlock(FutureActivitiesBlock):
@@ -173,11 +184,13 @@ class UserCalendars(QuerysetBlock):
         user = context['user']
         #in case the user has just been created, creates his default calendar
         Calendar.get_user_default_calendar(user)
-        return self._render(self.get_block_template_context(context,
-                                                            Calendar.objects.filter(user=user),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            has_app_perm=user.has_perm('activities'),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                    context,
+                    Calendar.objects.filter(user=user),
+                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                    has_app_perm=user.has_perm('activities'),
+                ))
+
 
 class RelatedCalendar(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'related_calendar')
@@ -190,12 +203,12 @@ class RelatedCalendar(QuerysetBlock):
     def detailview_display(self, context):
         user = context['user']
         activity = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            activity.calendars.filter(user=user),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                                                            has_app_perm=user.has_perm('activities'),
-                                                           )
-                           )
+        return self._render(self.get_block_template_context(
+                    context,
+                    activity.calendars.filter(user=user),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
+                    has_app_perm=user.has_perm('activities'),
+                ))
 
 
 participants_block           = ParticipantsBlock()

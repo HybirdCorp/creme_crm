@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import copy
 from datetime import datetime, timedelta
-from collections import defaultdict
 import logging
 
 from django.core.exceptions import PermissionDenied
@@ -36,10 +36,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
-from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup #inner_popup
 
 from creme.persons.models import Contact
 
@@ -47,7 +47,7 @@ from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
-                         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
+        REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 
 
 logger = logging.getLogger(__name__)
@@ -282,28 +282,36 @@ def delete_user_calendar(request):
 @login_required
 @permission_required('activities')
 def link_user_calendar(request, activity_id):
-    #We cannot use the generic view add_to_entity because we need to reload after posting.
-    user = request.user
-    activity = get_object_or_404(Activity, pk=activity_id)
+    return edit_model_with_popup(request, query_dict={'pk': activity_id},
+                                 model=Activity, form_class=ActivityCalendarLinkerForm,
+                                 title_format=_(u"Change calendar of <%s>"),
+                                 #can_change=lambda activity, user: user.has_perm_to_link(activity),
+                                 can_change=lambda activity, user: True,
+                                )
 
-    user.has_perm_to_link_or_die(activity)
+    ##We cannot use the generic view add_to_entity because we need to reload after posting.
+    #user = request.user
+    #activity = get_object_or_404(Activity, pk=activity_id)
 
-    if request.method == 'POST':
-        form = ActivityCalendarLinkerForm(activity,
-                                          user=user,
-                                          data=request.POST,
-                                          files=request.FILES or None)
+    #user.has_perm_to_link_or_die(activity)
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = ActivityCalendarLinkerForm(activity, user=user)
+    #if request.method == 'POST':
+        #form = ActivityCalendarLinkerForm(activity,
+                                          #user=user,
+                                          #data=request.POST,
+                                          #files=request.FILES or None)
 
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {'form':  form,
-                        'title': _(u"Add on a calendar"),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=True,
-                       delegate_reload=True,
-                      )
+        #if form.is_valid():
+            #form.save()
+    #else:
+        #form = ActivityCalendarLinkerForm(activity, user=user)
+
+    #return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       #{'form':  form,
+                        ##'title': _(u"Add on a calendar"),
+                        #'title': _(u"Change calendar"),
+                       #},
+                       #is_valid=form.is_valid(),
+                       #reload=True,
+                       #delegate_reload=True,
+                      #)
