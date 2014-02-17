@@ -9,7 +9,7 @@
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th colspan="5" class="block_header_line_dark">
                 <a class="button_link" onclick="creme.blocks.form('/activities/calendar/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
                     {% trans "New calendar" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" alt="{{label}}" title="{{label}}"/>
