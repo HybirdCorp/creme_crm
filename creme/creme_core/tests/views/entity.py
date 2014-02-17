@@ -427,7 +427,7 @@ class EntityViewsTestCase(ViewsTestCase):
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        self.assertPOST(400, self.EMPTY_TRASH_URL)
+        self.assertPOST(409, self.EMPTY_TRASH_URL)
         self.assertEqual(2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
         self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
