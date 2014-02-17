@@ -371,22 +371,6 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             };
 
             creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess:true}, data).open({width:'80%'});
-            /*
-            creme.utils.showInnerPopup('/activities/activity/add_popup',
-                                       {beforeClose: function (){
-                                           location.reload();
-                                        }
-                                       },
-                                       null,
-                                       {data: {'year':   date.getFullYear(),
-                                               'month':  date.getMonth()+1,
-                                               'day':    date.getDate(),
-                                               'hour':   date.getHours(),
-                                               'minute': date.getMinutes()
-                                               }
-                                       }
-            );
-            */
         },
         eventRender: function (event, element, view) {
             var container = element.find('a');
@@ -414,8 +398,7 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
         eventClick: function (event) {
-            creme.dialogs.url(event.url, {reloadOnClose:true}).open({width:'80%'});
-            //creme.utils.showInnerPopup(event.url, {}, null, {}, true);
+            creme.dialogs.url(event.url).open({width:'80%'});
             return false;
         },
         eventResize: function (event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
