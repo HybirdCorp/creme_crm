@@ -544,8 +544,9 @@ span.ui-creme-datepicker-trigger {
     border: 0;
 }
 
-/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms. Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs */
-.ui-dialog .table_detail_view {
+/* The block margins are useful only when there's more than one block on the page, which is almost never the case in dialog forms. Maybe the 'block' abstraction shouldn't be used here. In any case the templates need to be cleaned up to remove the override, to differentiate between blocks in pages vs. blocks in dialogs.
+(The thinking in this rule is if there's only one block in a container, it'll pick up the margin 0. If there are more than one block, only the last one will have its margin overriden, the others would still be visually separated) */
+.ui-dialog .table_detail_view:last-child {
     margin: 0;
 }
 
