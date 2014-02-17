@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,9 +66,7 @@ class Calendar(CremeModel):
 
     @staticmethod
     def _create_default_calendar(user):
-        cal = Calendar(name=ugettext(u"Default %(user)s's calendar") % {
-                                            'user': user
-                                        },
+        cal = Calendar(name=ugettext(u"%s's calendar") % user,
                        user=user, is_default=True, is_custom=False,
                        color=Calendar.new_color(),
                       )
