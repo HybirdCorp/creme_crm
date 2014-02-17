@@ -26,7 +26,7 @@
                         <td class="{{row_color}}">{{invoice.number}}</td>
                         <td class="{{row_color}}">{{invoice.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{invoice.status}}</td>
-                        <td class="{{row_color}}">{{invoice.total_no_vat|format_amount:invoice.currency_id}}</td>
+                        <td class="{{row_color}}">{{invoice.total_no_vat|format_amount:invoice.currency}}</td>
                     {% else %}
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>

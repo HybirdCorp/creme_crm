@@ -226,8 +226,8 @@ def allowed_unicode(entity, user):
     return entity.allowed_unicode(user)
 
 @register.filter
-def format_amount(amount, currency_id):
-    return currency(amount, currency_id)
+def format_amount(amount, currency_or_id=None):
+    return currency(amount, currency_or_id)
 
 @register.filter
 def optionize_model_iterable(iterable, type='tuple'):

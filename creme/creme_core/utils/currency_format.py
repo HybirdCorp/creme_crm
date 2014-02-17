@@ -7,7 +7,7 @@
 #    Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011
 #    Python Software Foundation.  All rights reserved.
 #
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
@@ -39,9 +39,12 @@ else:
     def standardized_locale_code(django_code):
         return translation.to_locale(django_code)
 
-#TODO: use an object Formatter in order to avoid multiple queries
-#TODO: take a Currency instance instead of an ID...
-def currency(val, currency_id):
+#TODO: use an object Formatter in order to avoid multiple queries of SettingKey/SettingValue
+def currency(val, currency_or_id=None):
+    """Replace a formatted string for an amount.
+    @param val Amount as a numeric value.
+    @param currency_or_id Instance of creme_core.models.Currency, or an ID of Currency instance.
+    """
     LC_MONETARY = locale.LC_MONETARY
     lang = standardized_locale_code(settings.LANGUAGE_CODE)
 
@@ -59,9 +62,11 @@ def currency(val, currency_id):
     sk = SettingKey.objects.get(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
     is_local_symbol = SettingValue.objects.get(key=sk).value
 
-    if currency_id:
-        currency = Currency.objects.get(pk=currency_id)
-        smb = currency.local_symbol if is_local_symbol else currency.international_symbol
+    if currency_or_id:
+        currency_obj = currency_or_id if isinstance(currency_or_id, Currency) else \
+                       Currency.objects.get(pk=currency_id)
+
+        smb = currency_obj.local_symbol if is_local_symbol else currency_obj.international_symbol
     else:
         smb = ''
 
@@ -73,7 +78,6 @@ def currency(val, currency_id):
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'
-
 
     precedes = conv[val<0 and 'n_cs_precedes' or 'p_cs_precedes']
     separated = conv[val<0 and 'n_sep_by_space' or 'p_sep_by_space']
