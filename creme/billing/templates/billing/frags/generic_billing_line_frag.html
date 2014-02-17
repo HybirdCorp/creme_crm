@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as edit_perm %}
-{% with line=form.instance currency_id=object.currency.pk %}
+{% with line=form.instance currency=object.currency %}
 <table class="linetable linetable_{{ct_id}}">
     <tr class="content">
         <td align="center" class="block_header_line_dark" width="5%">{% trans "Quantity" %}</td>
@@ -24,10 +24,10 @@
                 {{form.discount}} {{form.discount_unit}}{% comment %} {{form.total_discount}}{% endcomment %}
             </td>
             <td class="line-background-color" align="center">{{form.vat_value}}</td>
-            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
+            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
             {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency_id}}</td>
-                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency_id}}</td>
+                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
             {% endwith %}
         </tr>
 
@@ -67,10 +67,10 @@
                 {{line.discount}} {% with sel_dunit=form.fields.discount_unit.initial %}{% for dunit, label in form.fields.discount_unit.choices %}{% if dunit == sel_dunit %}{{label}}{% endif %}{% endfor %}{% endwith %}
             </td>
             <td class="line-background-color" align="center">{{line.vat_value}}</td>
-            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency_id}}</td>
+            <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
             {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency_id}}</td>
-                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency_id}}</td>
+                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
             {% endwith %}
         </tr>
 

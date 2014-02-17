@@ -48,18 +48,20 @@
                         <td class="{{row_color}}" align="center">{% print_field object=credit_note field='issuing_date' %}</td>
                         <td class="{{row_color}}" align="center">{% print_field object=credit_note field='expiration_date' %}</td>
                         <td class="{{row_color}}" align="center">
-                            {% if credit_note.currency %}
+                            {% comment %}{% if credit_note.currency %}
                                 -{{credit_note.total_no_vat|format_amount:credit_note.currency.pk}}
                             {% else %}
                                 -{{credit_note.total_no_vat|format_amount:''}}
-                            {% endif %}
+                            {% endif %}{% endcomment %}
+                            -{{credit_note.total_no_vat|format_amount:credit_note.currency}}
                         </td>
                         <td class="{{row_color}}" align="center">
-                            {% if credit_note.currency %}
+                            {% comment %}{% if credit_note.currency %}
                                 -{{credit_note.total_vat|format_amount:credit_note.currency.pk}}
                             {% else %}
                                 -{{credit_note.total_vat|format_amount:''}}
-                            {% endif %}
+                            {% endif %}{% endcomment %}
+                            -{{credit_note.total_vat|format_amount:credit_note.currency}}
                         </td>
                     {% else %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink credit_note user %}</td>

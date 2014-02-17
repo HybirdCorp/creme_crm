@@ -25,7 +25,7 @@
                     {% if invoice_view_perm %}
                         <td class="{{row_color}}">{{billing_document.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{billing_document.status}}</td>
-                        <td class="{{row_color}}">{{billing_document.total_no_vat|format_amount:billing_document.currency_id}}</td>
+                        <td class="{{row_color}}">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
                         <td class="{{row_color}}">{{billing_document.entity_type}}</td>
                     {% else %}
                         <td class="{{row_color}}">??</td>

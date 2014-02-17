@@ -11,7 +11,7 @@
         <th class="block_header_line_dark th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Total (exclusive of tax)" %}</h1></th>
         <td class="block_line_dark td_info" align="center" valign="center" style="width: 40%;">
             <h1>
-                {{object.get_total|format_amount:object.currency.pk}}
+                {{object.get_total|format_amount:object.currency}}
             </h1>
         </td>
     </tr>
@@ -19,7 +19,7 @@
         <th class="block_header_line_light th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Total (inclusive of tax)" %}</h1></th>
         <td class="block_line_light td_info" align="center" valign="center" style="width: 40%;">
             <h1>
-                {{object.get_total_with_tax|format_amount:object.currency.pk}}
+                {{object.get_total_with_tax|format_amount:object.currency}}
             </h1>
         </td>
     </tr>
