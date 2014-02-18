@@ -333,7 +333,8 @@ creme.billing.validateInput = function(input) {
 
     input.attr('isvalid', isvalid);
 
-    isvalid ? input.removeClass('td_error') : input.addClass('td_error');
+//     isvalid ? input.removeClass('td_error') : input.addClass('td_error');
+    input.toggleClass('td_error', !isvalid);
 
     return isvalid;
 }
@@ -523,7 +524,7 @@ creme.billing.initBoundedFields = function (element, currency) {
         var unit_price = $('td input[name*="unit_price"]', element);
         var discount = $('input[name*="discount"]', element);
         var vat_value_widget = $('select[name*="vat_value"]', element);
-        var vat_value = $("option[value='"+ vat_value_widget.val() +"']", vat_value_widget).text();
+        var vat_value = $("option[value='" + vat_value_widget.val() + "']", vat_value_widget).text();
 //         var discount_unit = $('[name*="discount_unit"]', element);
         var discount_unit = $('[name*="discount_unit"]', element).val();
 //         var total_discount = $('[name*="total_discount"]', element);
@@ -564,12 +565,15 @@ creme.billing.initBoundedFields = function (element, currency) {
 
         var exclusive_of_tax_discounted = Math.ceil(discounted_value * 100) / 100;
 
-        var is_discount_valid = creme.billing.checkDiscount(discount);
+//         var is_discount_valid = creme.billing.checkDiscount(discount);
+        var is_discount_invalid = !creme.billing.checkDiscount(discount);
 
-        var discount_closest_td = discount.closest('td');
-        is_discount_valid ? discount_closest_td.removeClass('td_error') : discount_closest_td.addClass('td_error'); //TODO: toggleClass ??
+//         var discount_closest_td = discount.closest('td');
+//         is_discount_valid ? discount_closest_td.removeClass('td_error') : discount_closest_td.addClass('td_error');
+        discount.toggleClass('td_error', is_discount_invalid); //TODO: rename the CSS class
 
-        if (isNaN(exclusive_of_tax_discounted) || !is_discount_valid || !creme.billing.checkPositiveDecimal(quantity)) {
+//         if (isNaN(exclusive_of_tax_discounted) || !is_discount_valid || !creme.billing.checkPositiveDecimal(quantity)) {
+        if (isNaN(exclusive_of_tax_discounted) || is_discount_invalid || !creme.billing.checkPositiveDecimal(quantity)) {
             discounted.text('###');
             inclusive_of_tax.text('###');
             exclusive_of_tax.text('###');
@@ -577,9 +581,9 @@ creme.billing.initBoundedFields = function (element, currency) {
             var ht_value = Math.ceil(quantity.val() * unit_price.val() * 100) / 100;
             var ttc_value = Math.ceil((parseFloat(exclusive_of_tax_discounted) + parseFloat(exclusive_of_tax_discounted) * vat_value / 100) * 100) / 100;
 
-            exclusive_of_tax.text(ht_value.toFixed(2).replace(".",",") + " " + currency);
-            discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".",",") + " " + currency);
-            inclusive_of_tax.text(ttc_value.toFixed(2).replace(".",",") + " " + currency);
+            exclusive_of_tax.text(ht_value.toFixed(2).replace(".", ",") + " " + currency);
+            discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".", ",") + " " + currency);
+            inclusive_of_tax.text(ttc_value.toFixed(2).replace(".", ",") + " " + currency);
 
             discounted.attr('value', exclusive_of_tax_discounted);
             inclusive_of_tax.attr('value', ttc_value);
