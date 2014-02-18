@@ -403,15 +403,15 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', None,
-                             [_(u"You can't set the end of your activity without setting its start")]
+                             _(u"You can't set the end of your activity without setting its start")
                             )
 
         response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-30'))
-        self.assertFormError(response, 'form', None, [_(u'End time is before start time')])
+        self.assertFormError(response, 'form', None, _(u'End time is before start time'))
 
         response = self.assertPOST200(url, follow=True, data=dict(data, start='2013-3-29', busy=True))
         self.assertFormError(response, 'form', None,
-                             [_(u"A floating on the day activity can't busy its participants")]
+                             _(u"A floating on the day activity can't busy its participants")
                             )
 
     def test_createview_errors02(self):
@@ -430,7 +430,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                         }
                                      )
         self.assertFormError(response, 'form', 'subjects',
-                             [_(u"This content type is not allowed.")]
+                             _(u"This content type is not allowed.")
                             )
 
     def test_createview_errors03(self):
@@ -453,7 +453,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                         }
                                      )
         self.assertFormError(response, 'form', 'other_participants',
-                             [_(u"This entity doesn't exist.")]
+                             _(u"This entity doesn't exist.")
                             )
 
     def test_createview_alert01(self):
@@ -949,13 +949,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                      }
             )
         self.assertFormError(response, 'form', None,
-                             [_(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
+                             _(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
                                     'participant': contact,
                                     'activity':    task02,
                                     'start':       '14:30:00',
                                     'end':         '15:00:00',
                                 }
-                             ]
                             )
 
     def test_editview04(self):
@@ -1272,7 +1271,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'participants': '[%d]' % contact.id})
         self.assertFormError(response, 'form', 'participants',
-                             [_(u'Some entities are not linkable: %s') % contact]
+                             _(u'Some entities are not linkable: %s') % contact
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=REL_OBJ_PART_2_ACTIVITY,
@@ -1326,12 +1325,37 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(phone_call.calendars.all())
 
     def test_participants05(self):
+        "'My participation' field is removed when it is useless."
+        activity = self._create_activity_by_view()
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
+               create_contact(first_name='Kojiro',  last_name='Sasaki').id,
+              )
+
+        uri = self._buid_add_participants_url(activity)
+        response = self.assertGET200(uri)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('my_participation', fields)
+        self.assertNotIn('my_calendar',      fields)
+
+        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(3, len(relations))
+        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
+                         set(r.object_entity_id for r in relations)
+                        )
+
+    def test_participants06(self):
         "Fix a bug when checking for collision for a floating activities"
         activity = self._create_activity_by_view()
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
         self.assertEqual(FLOATING, activity.floating_type)
-
 
         create_contact = partial(Contact.objects.create, user=self.user)
         ids = (create_contact(first_name='Musashi', last_name='Miyamoto').id,
@@ -1344,7 +1368,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))
-        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)), set(r.object_entity_id for r in relations))
+        self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
+                         set(r.object_entity_id for r in relations)
+                        )
 
     def test_add_subjects01(self):
         self.login()
@@ -1394,7 +1420,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response = self.assertPOST200(uri, data={'subjects': self._relation_field_value(orga)})
         self.assertFormError(response, 'form', 'subjects',
-                             [_(u'Some entities are not linkable: %s') % orga]
+                             _(u'Some entities are not linkable: %s') % orga
                             )
         self.assertFalse(Relation.objects.filter(subject_entity=activity.id,
                                                  type=REL_OBJ_ACTIVITY_SUBJECT,
@@ -1413,7 +1439,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       data={'subjects': self._relation_field_value(bad_subject)}
                                      )
         self.assertFormError(response, 'form', 'subjects',
-                             [_(u"This content type is not allowed.")]
+                             _(u"This content type is not allowed.")
                             )
 
     def test_indisponibility_createview01(self):
@@ -1590,9 +1616,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                'end_time':      '15:00:00',
                                               }
                                    )
-        self.assertFormError(response, 'form', None,
-                             _(u'No participant')
-                            )
+        self.assertFormError(response, 'form', None, _(u'No participant'))
 
         response = self.client.post(url, data={'user':          user.pk,
                                                'title':         title,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,16 +27,16 @@ from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import RelationType, Relation
 
 from creme.persons.models import Contact
 
-from ..models import Calendar
 from ..constants import *
+from ..models import Calendar
 from ..utils import check_activity_collisions
 
 
@@ -44,11 +44,15 @@ logger = logging.getLogger(__name__)
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this activity?"), initial=False)
-    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, empty_label=None,
+    my_participation    = BooleanField(required=False, initial=False,
+                                       label=_(u"Do I participate to this activity?"),
+                                      )
+    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(),
+                                           required=False, empty_label=None,
                                            label=_(u"On which of my calendar this activity will appear?"),
                                           )
-    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.filter(is_staff=False),
+    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
+                                                   queryset=User.objects.filter(is_staff=False),
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
     participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
@@ -71,24 +75,31 @@ class ParticipantCreateForm(CremeForm):
                                           }
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
-        user_qs = User.objects.filter(is_staff=False).exclude(pk__in=existing_users).exclude(pk=user_pk)
+        user_qs = User.objects.filter(is_staff=False) \
+                              .exclude(pk__in=existing_users) \
+                              .exclude(pk=user_pk)
 
         fields['participating_users'].queryset = user_qs
         if not user_qs:
             fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
-        #TODO: refactor this with a smart widget that manages dependencies
-        #TODO: hide my participation and my calendar field if logged user already linked ??
-        my_participation_field = fields['my_participation']
-        my_participation_field.widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        ##todo: refactor this with a smart widget that manages dependencies
+        #my_participation_field = fields['my_participation']
+        #my_participation_field.widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
         if user_pk in existing_users:
-            my_participation_field.initial = True
-            my_participation_field.widget.attrs['disabled'] = True
+            #my_participation_field.initial = True
+            #my_participation_field.widget.attrs['disabled'] = True
+            del fields['my_participation']
+            del fields['my_calendar']
+        else:
+            #TODO: refactor this with a smart widget that manages dependencies
+            fields['my_participation'].widget.attrs['onclick'] = \
+                "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
-        my_calendar_field = fields['my_calendar']
-        my_calendar_field.queryset = Calendar.objects.filter(user=user)
-        my_calendar_field.widget.attrs['disabled'] = True
+            my_calendar_field = fields['my_calendar']
+            my_calendar_field.queryset = Calendar.objects.filter(user=user)
+            my_calendar_field.widget.attrs['disabled'] = True #TODO: remove when dependencies system is OK
 
     def clean_participants(self):
         return validate_linkable_entities(self.cleaned_data['participants'], self.user)
@@ -100,9 +111,10 @@ class ParticipantCreateForm(CremeForm):
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
-        user = self.user
 
         if my_participation:
+            user = self.user
+
             try:
                 user_contact = Contact.objects.get(is_user=user)
             except Contact.DoesNotExist:
@@ -121,7 +133,8 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 
-            if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
+            #if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
+            if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([ugettext(u"If you participe, you have to choose one of your calendars.")])
 
             collisions = check_activity_collisions(activity.start, activity.end,
