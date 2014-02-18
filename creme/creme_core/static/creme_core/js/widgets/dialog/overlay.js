@@ -101,13 +101,13 @@ creme.dialog.Overlay = creme.component.Component.sub({
             this._targetOverflowY = this._target.css('overflow-y');
             this._targetPosition = this._target.css('position');
 
-            this.resize();
-
             this._target.css({
                              'overflow-x': 'hidden',
                              'overflow-y': 'hidden',
-                             'position':   'relative'
+                             'position':   'relative',
                          });
+
+            this.resize();
 
             this._target.append(this._overlay);
         } else {
@@ -126,7 +126,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
     {
         if (!this.isBound() || !this.visible())
             return this;
-        
+
         var padding = $.browser.mozilla ? 1 : 0;
 
         this._overlay.css('width', this._target.outerWidth() + padding)  // fix an outerWidth issue in firefox.

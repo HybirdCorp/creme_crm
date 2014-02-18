@@ -22,7 +22,7 @@ creme.dialog.ConfirmDialog = creme.dialog.Dialog.sub({
     _init_: function(message, options) {
         var options = $.extend({
             title:    gettext('Confirm'),
-            fitFrame: false,
+            fitFrame: true,
             height:   200
         }, options || {});
 

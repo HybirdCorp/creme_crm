@@ -535,3 +535,10 @@ span.ui-creme-datepicker-trigger {
     margin-left: 10px;
 }
 
+.ui-dialog-content .ui-creme-dialog-frame {
+    margin: 0;
+    padding: 0;
+    display: block;
+    height: 100%;
+}
+
