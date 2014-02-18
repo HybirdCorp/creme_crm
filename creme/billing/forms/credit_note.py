@@ -43,7 +43,6 @@ class CreditNoteEditForm(BaseEditForm):
 
 
 class CreditNotePopupEditForm(CremeModelForm):
-
     class Meta:
         model = CreditNote
         fields = ('comment',)
