@@ -231,6 +231,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this._frame.delegate();
     },
 
+    buttons: function() {
+        return $('.ui-dialog-buttonset', $(this._dialog).parent('.ui-dialog:first'));
+    },
+
+    button: function(name) {
+        return $('button[name="' + name + '"]', this.buttons());
+    },
+
     resize: function(width, height) {
         this._resizeDialog(width, height);
     },

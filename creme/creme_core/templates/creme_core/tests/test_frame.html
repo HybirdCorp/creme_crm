@@ -25,26 +25,30 @@
             vertical-align: middle;
         }
 
-        form.popup-form div {
+        form.popup-form {
             min-width: 25em;
             clear:both;
         }
 
         form.popup-form label {
             font-weight: bold;
+            clear: both;
+            float: left;
+            min-width: 5em;
+            vertical-align: middle;
         }
 
-        form.popup-form input {
+        form.popup-form input, form.popup-form textarea {
             min-width: 10em;
-            position:relative;
-            left:10em;
             text-align: left;
+            float: left;
+            margin-left: 5em;
         }
 
         form.popup-form select {
             min-width: 10em;
-            position:relative;
-            left:10em;
+            float: left;
+            margin-left: 5em;
         }
     </style>
 
@@ -93,22 +97,10 @@
     $(document).ready(function() {
         var mockbackend = new creme.ajax.MockAjaxBackend({sync:false, delay: 500});
 
-        mockbackend.GET = {'mock/notfound':     mockbackend.response(404, 'HTTP - Not Found'),
-                           'mock/forbidden':    mockbackend.response(403, 'HTTP - Forbidden'),
-                           'mock/error':        mockbackend.response(500, 'HTTP - Internal Error'),
-                           'mock/form':         mockbackend.response(200, '<form class="popup-form" action="mock/form">' + 
-                                                                               '<div><label>Value</label><input type="text" name="value"></input></div>' +
-                                                                               '<div><label>Response</label>' +
-                                                                               '<select name="response" widget="ui-creme-dselect"' +
-                                                                                       'class="ui-creme-widget ui-creme-dselect widget-auto">' +
-                                                                                    '<options>' +
-                                                                                         '<option value="200">Ok</option>' +
-                                                                                         '<option value="404">Not Found</option>' +
-                                                                                         '<option value="500">Internal Error</option>' +
-                                                                                         '<option value="403">Forbidden</option>' +
-                                                                                    '</options>' +
-                                                                               '</select></div>' + 
-                                                                          '</form>')
+        mockbackend.GET = {'mock/notfound':         mockbackend.response(404, 'HTTP - Not Found'),
+                           'mock/forbidden':        mockbackend.response(403, 'HTTP - Forbidden'),
+                           'mock/error':            mockbackend.response(500, 'HTTP - Internal Error'),
+                           'mock/form':             mockbackend.response(200, $('#mock-form').text().format('mock/form'))
                           };
 
         for(var index = 1; index <= 12; ++index) {
@@ -173,18 +165,24 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup .popup-form').click(function() {
+        $('#popup .popup-form button').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
-            var dialog = creme.dialogs.form('mock/form', {backend: mockbackend, title:'Form', compatible:false})
-                                             .onFormSuccess(function(event, data) {console.log('submitted >', data);})
-                                             .onClose(function() {console.log('canceled');});
+            var dialog = creme.dialogs.form('mock/form', {
+                                           backend: mockbackend, 
+                                           title:'Form', 
+                                           compatible:false,
+                                           autoFocus: $('#popup .popup-form [name="autofocus"]').is(':checked'),
+                                           submitOnKey: $('#popup .popup-form [name="submitkey"]').is(':checked') ? 13 : false
+                                       })
+                                      .onFormSuccess(function(event, data) {console.log('submitted >', data);})
+                                      .onClose(function() {console.log('canceled');});
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
-        $('#popup button.popup-url').click(function() {
+        $('#popup .popup-fetch button').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
-            var url = 'mock/' + ($('#popup input.popup-url').val() || '');
+            var url = 'mock/' + ($('#popup .popup-fetch .popup-url').val() || '');
             var dialog = creme.dialogs.url(url, {backend: mockbackend, title:url});
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
@@ -201,10 +199,32 @@
     </script>
 {% endblock %}
 {% block test_content %}
+    <script type="text/html" id="mock-form">
+        <form class="popup-form" action="%s">
+            <label for="value">Value</label>
+            <input type="text" name="value"></input>
+            <label for="name">Name</label>
+            <input type="text" name="name"></input>
+            <label for="comment">Comment</label>
+            <textarea name="comment" autofocus rows="4"></textarea>
+            <label for="response">Response</label>
+            <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto">
+                <options>
+                     <option value="200">Ok</option>
+                     <option value="404">Not Found</option>
+                     <option value="500">Internal Error</option>
+                     <option value="403">Forbidden</option>
+                </options>
+            </select> 
+        </form>
+    </script>
     <ul>
         <li id="static-frame">
             <h4>Static frame</h4>
-            <div><button class="fill-frame">Fill</button><button class="reset-frame">Reset</button></div>
+            <div>
+                <button class="fill-frame"  type="button">Fill</button>
+                <button class="reset-frame" type="button">Reset</button>
+            </div>
             <div class="ui-creme-widget ui-creme-frame" widget="ui-creme-frame"></div>
         </li>
         <li id="popup">
@@ -214,7 +234,7 @@
                 &nbsp;<input type="checkbox" value="1" class="popup-scroll-background">Scroll background</input>
             </div>
             <div>
-                <button class="popup-html">Static</button>
+                <button type="button" class="popup-html">Static</button>
                 <select class="popup-html-paragraph">
                     <options>
                         <option value="1">1 paragraphe</option>
@@ -225,13 +245,17 @@
                     </options>
                 </select>
             </div>
-            <div><button class="popup-form">Form</button></div>
-            <div>
-                <button class="popup-url">Dynamic</button>
-                Url:&nbsp;mock/<input type="text" class="popup-url"></input>
+            <div class="popup-form">
+                <button type="button">Form</button>
+                <input type="checkbox" value="1" name="autofocus" checked>Auto focus</input>&nbsp;
+                <input type="checkbox" value="1" name="submitkey" checked>Submit on enter</input>
+            </div>
+            <div class="popup-fetch">
+                <button>Dynamic</button>
+                Url:&nbsp;mock/<input type="text" class="popup-url" value="content/1"></input>
             </div>
             <div>
-                <button class="popup-error-url">Error</button>
+                <button type="button" class="popup-error-url">Error</button>
                 Url:&nbsp;test_http_response?status=<select class="popup-error-status">
                     <option value="400">400</option>
                     <option value="403">403</option>
@@ -244,8 +268,8 @@
         <li id="dynamic-frame">
             <h4>Dynamic frame</h4>
             <div>
-                <button class="reload-frame">Reload</button>
-                <button class="reset-frame">Reset</button>
+                <button type="button" class="reload-frame">Reload</button>
+                <button type="button" class="reset-frame">Reset</button>
                 Url:&nbsp;mock/<input type="text" class="redirect-frame"></input>
             </div>
             <div class="ui-creme-widget ui-creme-frame" widget="ui-creme-frame" url="mock/content/1"></div>

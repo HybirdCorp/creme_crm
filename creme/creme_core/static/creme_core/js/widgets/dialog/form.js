@@ -22,7 +22,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _init_: function(options)
     {
         var self = this;
-        var options = options || {};
+        var options = $.extend({
+                autoFocus: true,
+                submitOnKey: 13
+            }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
 
@@ -33,7 +36,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this.validator(validator);
 
         var update_buttons = function() {
-            self._updateButtons("send", self.dialog(), false);
+            self._updateButtonState("send", false);
+            self._updateButtonState("cancel", true, false);
         };
 
         this.frame().on('before-submit before-fetch', update_buttons);
@@ -42,6 +46,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             done: $.proxy(this._onSubmitDone, this),
             fail: $.proxy(this._onSubmitFail, this)
         };
+
+        this._submitKeyCb = $.proxy(this._onSubmitKey, this);
     },
 
     validator: function(validator)
@@ -76,6 +82,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     {
         if (action !== 'submit')
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
+
+        if (this.options.autoFocus) {
+            var autofocus = $('[autofocus]:tabbable:first', this._frame.delegate());
+
+            if (autofocus.length > 0) {
+                autofocus.focus();
+            } else {
+                $(':tabbable:first', this._frame.delegate()).focus();
+            }
+        } else {
+            $(':tabbable', this._frame.delegate()).blur();
+        }
     },
 
     _onSubmitDone: function(event, data, statusText, dataType)
@@ -87,12 +105,31 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         }
 
         this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, 'submit');
-        this._updateButtons("send", this.dialog(), true);
+        this._updateButtonState("send", true, 'auto');
+        this._updateButtonState("cancel", true);
+
         this._events.trigger('form-error', [data, statusText, dataType], this);
     },
 
     _onSubmitFail: function(event, data, statusText) {
-        this._updateButtons("send", this.dialog(), false);
+        this._updateButtonState("send", false);
+        this._updateButtonState("cancel", true, true);
+    },
+
+    _onSubmitKey: function(e) {
+        if (e.keyCode === this.options.submitOnKey && $(e.target).is(':not(textarea)')) {
+            e.preventDefault();
+            this.submit();
+        }
+    },
+
+    _onClose: function(dialog, frame, options)
+    {
+        if (options.submitOnKey) {
+            frame.delegate().unbind('keypress', this._submitKeyCb);
+        }
+
+        this._super_(creme.dialog.Dialog, '_onClose', dialog, frame, options);
     },
 
     _onOpen: function(dialog, frame, options)
@@ -100,21 +137,33 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         var self = this;
 
         frame.onFetchFail(function(data, status) {
-                  self._updateButtons("send", dialog, false);
+                  self._updateButtonState("send", false);
+                  self._updateButtonState("cancel", true, true);
               })
               .onFetchDone(function(data, status) {
-                  self._updateButtons("send", dialog, true);
+                  self._updateButtonState("send", true, 'auto');
+                  self._updateButtonState("cancel", true);
               });
+
+        if (options.submitOnKey) {
+            frame.delegate().bind('keypress', this._submitKeyCb);
+        }
 
         this._super_(creme.dialog.Dialog, '_onOpen', dialog, frame, options);
     },
 
-    _updateButtons: function(name, dialog, enabled)
+    _updateButtonState: function(name, enabled, focus)
     {
-        var button = dialog ? $('.ui-dialog-buttonset button[name="' + name + '"]', dialog.parent()) : $([]);
+        var button = this.button(name);
+
+        // HACK : fix jquery ui < 1.8.1 bug that not reset ui-button state.
+        button.removeClass('ui-state-focus ui-state-hover ui-state-active');
 
         button.toggleClass('ui-state-disabled', !enabled);
         button.toggleAttr('disabled', !enabled);
+
+        if ((!this.options.autoFocus && focus === 'auto') || focus === true)
+            button.focus();
     },
 
     _populateButtons: function(buttons, options)
