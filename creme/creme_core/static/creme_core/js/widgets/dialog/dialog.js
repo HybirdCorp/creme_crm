@@ -54,7 +54,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                   });
         }
 
-        frame.bind($('<div>').css('margin', 0).css('padding', 0));
+        frame.bind($('<div>').addClass('ui-creme-dialog-frame'));
     },
     
     _onFrameCleanup: function() {
@@ -110,19 +110,16 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         this._events.trigger('open', [options], this);
-
-        this._onResize(dialog, frame)
     },
 
     _onResize: function(dialog, frame)
     {
-        var container = dialog.parent('.ui-dialog:first');
+        var container = $(this._dialog).parent('.ui-dialog:first');
         var body = $('> .ui-dialog-content', container);
+        var delegate = frame.delegate();
 
-        this._resizeFrame(body.width() - 5,
-                          body.height() - (body.outerHeight() - body.height()))
-
-        this._events.trigger('resize', [frame.delegate().width(), frame.delegate().height()], this);
+        delegate.width(body.width() - (delegate.position().left + (body.outerWidth() - body.width())));
+        this._events.trigger('resize', [delegate.width(), delegate.height()], this);
     },
 
     _appendButton: function(buttons, name, label, action)
@@ -146,14 +143,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return buttons;
     },
 
-    _resizeFrame: function(width, height)
-    {
-        this._frame.delegate().css('width', width - 5)
-                              .css('height', height - 5);
-
-        this._frame.resize();
-    },
-
     _resizeDialog: function(width, height)
     {
         if (this._dialog === undefined)
@@ -162,39 +151,63 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var maxWidth = this._dialog.dialog('option', 'maxWidth');
         var maxHeight = this._dialog.dialog('option', 'maxHeight');
 
-        this._dialog.dialog('option', 'width', maxWidth !== false ? Math.min(width, maxWidth) : width);
-        this._dialog.dialog('option', 'height', maxHeight !== false ? Math.min(height, maxHeight) : height);
+        var width = maxWidth !== false ? Math.min(width, maxWidth) : width;
+        var height = maxHeight !== false ? Math.min(height, maxHeight) : height;
+
+        if (this._dialog.dialog('option', 'width') !== width)
+            this._dialog.dialog('option', 'width', width) 
+
+        if (this._dialog.dialog('option', 'height') !== height)
+            this._dialog.dialog('option', 'height', height);
+
+        this._frame.delegate().css('min-height', this._frame.preferredSize()[1])
+                              .css('width', 'auto');
+
+        this._frame.overlay().resize();
     },
 
     fitToFrameSize: function()
     {
         var container = $(this._dialog).parent('.ui-dialog:first');
         var body = $('> .ui-dialog-content', container);
+        var frame = this._frame.delegate();
+
+        var previousWidth = container.outerWidth();
+        var previousHeight = container.outerHeight();
 
         // set frame to default size
-        this._frame.delegate().css('width', this.options.width - (container.outerWidth() - body.outerWidth()))
-                              .css('height', this.options.height - (container.outerHeight() - body.outerHeight()));
+        frame.css('width', (Math.round(this.options.width - (container.outerWidth() - body.width()))))
+
+        frame_width_padding = frame.position().left + (frame.outerWidth() - frame.width());
+        frame_height_padding = frame.position().top + (frame.outerHeight() - frame.height());
 
         // eval preferred size of frame elements
         var size = this._frame.preferredSize();
-        var preferredWidth = size[0] + (body.outerWidth() - body.width());
-        var preferredHeight = size[1] + (body.outerHeight() - body.height());
+        var preferredWidth = Math.round(size[0] + frame_width_padding + (body.outerWidth() - body.width()));
+        var preferredHeight = Math.round(size[1] + frame_height_padding + (body.outerHeight() - body.height()));
 
         // apply this to dialog body
-        body.css('width', preferredWidth)
-            .css('height', preferredHeight);
+        body.width(preferredWidth)
+            .height(preferredHeight);
 
         // eval preferred size of dialog with resized body
-        var width = body.width();
+        var width = container.outerWidth();
         var height = container.outerHeight();
 
         // add a threshold to prevent instability.
-        width = Math.abs(width - preferredWidth) < 2 ? preferredWidth : width;
-        height = Math.abs(height - preferredHeight) < 2 ? preferredHeight : height;
+        width = Math.abs(width - previousWidth) < 5 ? previousWidth - 2 : width;
+        height = Math.abs(height - previousHeight) < 5 ? previousHeight : height;
 
-        this._resizeFrame(size[0], size[1]);
         this._resizeDialog(width, height);
         this.position(this.position());
+
+        var maxHeight = this._dialog.dialog('option', 'maxHeight');
+
+        if (height < maxHeight || maxHeight === false) {
+            body.height('auto');
+        }
+
+        body.css('width', 'auto');
     },
 
     center: function() {
@@ -218,10 +231,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this._frame.delegate();
     },
 
-    resize: function(width, height)
-    {
+    resize: function(width, height) {
         this._resizeDialog(width, height);
-        this._onResize(this._dialog, this._frame.delegate());
     },
 
     resizeToDefault: function() {
@@ -233,8 +244,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
-    fill: function(data, cb) {
-        this._frame.fill(data, cb);
+    fill: function(data) {
+        this._frame.fill(data);
         return this;
     },
 
