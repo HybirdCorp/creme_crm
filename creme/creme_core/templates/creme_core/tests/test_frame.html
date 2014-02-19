@@ -1,7 +1,7 @@
 {% extends "creme_core/tests/testbase.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}
+{% load creme_core_tags creme_block creme_widgets %}
 
 {% block test_title %}Creme Frame Widget{% endblock %}
 {% block test_header %}
@@ -165,6 +165,27 @@
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
 
+        $('#popup .popup-block').click(function() {
+            var dialog = creme.dialogs.html($('#mock-blocklist').text(), {
+                width: '80%',
+                title: 'Static',
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
+            });
+
+            dialog.onOpen(function() {
+                $('.block-refresh', this.content()).click(function() {
+                    options = creme.tests.context;
+                    window.location = options.view +
+                                      '?theme=' + options.theme +
+                                      '&screen=' + options.screen.join('x') +
+                                      '&refresh=1' +
+                                      '&min=' + $('#test-blocklist-min').val();
+                });
+            })
+
+            openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
+        });
+
         $('#popup .popup-form button').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
             var dialog = creme.dialogs.form('mock/form', {
@@ -218,6 +239,13 @@
             </select> 
         </form>
     </script>
+    <script type="text/html" id="mock-blocklist">
+        <button class="block-refresh">Refresh</button>
+        <input type="number" id="test-blocklist-min" value="1" min="1" max="100"></input>
+        {% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
+        {% display_block_detailview 'test_dummy_list_block' %}
+        {% get_blocks_dependencies %}
+    </script>
     <ul>
         <li id="static-frame">
             <h4>Static frame</h4>
@@ -244,6 +272,9 @@
                         <option value="15">15 paragraphes</option>
                     </options>
                 </select>
+            </div>
+            <div>
+                <button type="button" class="popup-block">Static - Blocks</button>
             </div>
             <div class="popup-form">
                 <button type="button">Form</button>
