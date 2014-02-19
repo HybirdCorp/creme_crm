@@ -2223,8 +2223,8 @@ msgstr "Aller à la page %(p)s"
 #: templates/creme_core/templatetags/widgets/block_footer.html:64
 #: templates/creme_core/templatetags/widgets/block_footer.html:75
 #: templates/creme_core/templatetags/widgets/block_footer.html:84
-msgid "Select page number"
-msgstr "Entrez un numéro de page"
+msgid "To another page"
+msgstr "Aller à une autre page"
 
 #: templates/creme_core/templatetags/widgets/block_footer.html:60
 #: templates/creme_core/templatetags/widgets/block_footer.html:87
