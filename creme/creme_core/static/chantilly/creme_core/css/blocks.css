@@ -190,7 +190,7 @@ table.collapsed {
     margin: 0;
 }
 
-.creme-block-pager .pager-link:not([disabled]):hover {
+.creme-block-pager a:not([disabled]):hover {
     color: #22439f;
     background-color: #e6f2f7;
     text-decoration: none;
@@ -198,39 +198,32 @@ table.collapsed {
     cursor: pointer;
 }
 
-.creme-block-pager .pager-link.pager-prev {
-    margin-right: 8px;
-}
-
-.creme-block-pager .pager-link.pager-next {
-    margin-left: 8px;
-}
-
-.creme-block-pager .pager-link {
-    display: inline;
-    border: 1px solid #79A2B4;
-    padding: 1px 5px;
-}
-
-.creme-block-pager .pager-link[disabled] {
+.creme-block-pager a[disabled] {
     border: 0;
     text-decoration: none;
     color: black;
     cursor: default;
 }
 
-.creme-block-pager .pager-input span {
-    border: 0;
-    text-decoration: none;
-    color: black;
-    cursor: pointer;
+.creme-block-pager a {
+    display: inline;
+    border: 1px solid #79A2B4;
+    padding: 1px 5px;
+}
+
+.creme-block-pager .pager-prev {
+    margin-right: 8px;
+}
+
+.creme-block-pager .pager-next {
+    margin-left: 8px;
 }
 
 .creme-block-pager .pager-input input {
     display: none;
 }
 
-.creme-block-pager .pager-input.active span {
+.creme-block-pager .pager-input.active a {
     display: none;
 }
 
@@ -239,10 +232,14 @@ table.collapsed {
     width: 40px;
     color: black;
     text-align: center;
-    border: none;
+    border: 1px solid #79A2B4;
     background-color: transparent;
     display: inline-block;
-    margin: 0;
+    margin: 0px;
+
+    -webkit-border-radius: 0;
+       -moz-border-radius: 0;
+            border-radius: 0;
 }
 
 .creme-block-pager .pager-input.active input.invalid-page {

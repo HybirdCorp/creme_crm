@@ -162,7 +162,7 @@ creme.blocks.toggleEmptyFields = function(button) {
 
 creme.blocks.initPager = function(pager) {
     // TODO : remove this hack when smartlinks will be available.
-    $('a.pager-link', pager).bind('click', function(e) {
+    $('.pager-link a', pager).bind('click', function(e) {
         e.preventDefault();
 
         if ($(this).is('[disabled]'))

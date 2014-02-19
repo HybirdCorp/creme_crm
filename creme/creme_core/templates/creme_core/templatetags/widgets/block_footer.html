@@ -30,63 +30,65 @@
                 {% comment %}{% trans "Pages:" %}&nbsp;{% endcomment %}{% comment %} TODO: ??{% endcomment %}
                 <ul class="creme-block-pager">
                     {% if page.has_previous %}
-                    <li>
-                        <a class="pager-link pager-prev" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}'" title="{% trans "Previous page" %}">
-                            «
+                    <li class="pager-link pager-prev">
+                        <a class="ui-icon-carat-1-w ui-icon" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}'" title="{% trans "Previous page" %}">
+                            &nbsp;&nbsp;
                         </a>
                     </li>
                     {% endif %}
                     {% with num_pages=page.paginator.num_pages page_number=page.number %}
                         {% if num_pages < 7 %}
                             {% for p in num_pages|xrange:1 %}
-                                <li>
-                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
+                                <li class="pager-link">
+                                    <a {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
                                 </li>
                             {% endfor %}
                         {% elif page_number <= 4 %}
                             {% for p in page_number|add:1|xrange:1 %}
-                                <li>
-                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
+                                <li class="pager-link">
+                                    <a {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
                                 </li>
                             {% endfor %}
                             <li class="pager-input">
-                                <span title="{% trans "Select page number" %}">…</span>
+                                <a title="{% trans "To another page" %}">…</a>
                                 <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
                             </li>
-                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a></li>
+                            <li class="class="pager-link">
+                                <a data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a>
+                            </li>
                         {% elif page_number >= num_pages|sub:3 %}
                             <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=1'" title="{% blocktrans %}To page 1{% endblocktrans %}">1</a></li>
                             <li class="pager-input">
-                                <span title="{% trans "Select page number" %}">…</span>
+                                <a title="{% trans "To another page" %}">…</a>
                                 <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
                             </li>
                             {% for p in num_pages|add:1|sub:page.previous_page_number|xrange:page.previous_page_number %}
-                                <li>
-                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
+                                <li class="pager-link">
+                                    <a {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
                                 </li>
                             {% endfor %}
                         {% else %}
                             <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=1'" title="{% blocktrans %}To page 1{% endblocktrans %}">1</a></li>
                             <li class="pager-input">
-                                <span title="{% trans "Select page number" %}">…</span>
+                                <a title="{% trans "To another page" %}">…</a>
                                 <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
                             </li>
                             {% for p in 3|xrange:page.previous_page_number %}
-                                <li>
-                                    <a class="pager-link" {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
+                                <li class="pager-link">
+                                    <a {% if page_number == p %}disabled{% endif %} data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{p}}'" {% if page_number != p %}title="{% blocktrans %}To page {{p}}{% endblocktrans %}"{% endif %}>{{p}}</a>
                                 </li>
                             {% endfor %}
                             <li class="pager-input">
-                                <span title="{% trans "Select page number" %}">…</span>
+                                <a title="{% trans "To another page" %}">…</a>
                                 <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
                             </li>
-                            <li><a class="pager-link" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a></li>
+                            <li class="pager-link"><a data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a></li>
                         {% endif %}
                     {% endwith %}
                     {% if page.has_next %}
-                    <li>
-                        <a class="pager-link pager-next" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}'" title="{% trans "Next page" %}">
-                            »
+                    <li class="pager-link pager-next">
+                        <a class="ui-icon-carat-1-e ui-icon" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}'" title="{% trans "Next page" %}">
+                            &nbsp;&nbsp;
                         </a>
                     </li>
                     {% endif %}
