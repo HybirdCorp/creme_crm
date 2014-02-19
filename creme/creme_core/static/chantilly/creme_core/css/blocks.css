@@ -175,6 +175,10 @@ table.collapsed {
     opacity: 0.5;
 }
 
+.creme-block-pager-container {
+    text-align: center;
+}
+
 .creme-block-pager {
     margin: 3px;
     padding: 0px;
