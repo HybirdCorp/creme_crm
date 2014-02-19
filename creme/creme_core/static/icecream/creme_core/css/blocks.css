@@ -290,15 +290,29 @@ table.collapsed {
 
 .creme-block-pager {
     margin: 3px;
+    padding: 0px;
 }
 
 .creme-block-pager li {
     display: inline-block;
     list-style: none;
+    margin: 0;
 }
 
 .creme-block-pager .pager-link:not([disabled]):hover {
     background-color: #79A2B4;
+    text-decoration: none;
+    text-shadow: none;
+    cursor: pointer;
+    color: white;
+}
+
+.creme-block-pager .pager-link.pager-prev {
+    margin-right: 8px;
+}
+
+.creme-block-pager .pager-link.pager-next {
+    margin-left: 8px;
 }
 
 .creme-block-pager .pager-link {
@@ -308,7 +322,7 @@ table.collapsed {
 }
 
 .creme-block-pager .pager-link[disabled] {
-	border: 0;
+    border: 0;
     text-decoration: none;
     color: black;
     cursor: default;
@@ -338,6 +352,10 @@ table.collapsed {
     background-color: transparent;
     display: inline-block;
     margin: 0;
+}
+
+.creme-block-pager .pager-input.active input.invalid-page {
+    background-color: orange;
 }
 
 /* Block containers */
