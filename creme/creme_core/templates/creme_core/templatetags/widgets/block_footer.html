@@ -26,9 +26,8 @@
         </tr>
         {% endcomment %}
         <tr>
-            <td colspan="{{colspan}}" class="block_header_line_dark">
+            <td colspan="{{colspan}}" class="block_header_line_dark creme-block-pager-container">
                 {% comment %}{% trans "Pages:" %}&nbsp;{% endcomment %}{% comment %} TODO: ??{% endcomment %}
-                <center>
                 <ul class="creme-block-pager">
                     {% if page.has_previous %}
                     <li>
@@ -92,7 +91,6 @@
                     </li>
                     {% endif %}
                 </ul>
-                </center>
             </td>
         </tr>
     </tfoot>
