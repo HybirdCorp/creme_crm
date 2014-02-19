@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-17 11:29+0100\n"
+"POT-Creation-Date: 2014-02-19 13:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -49,11 +49,11 @@ msgstr "Fusionner deux fiches"
 msgid "Core"
 msgstr "Cœur"
 
-#: creme_core_register.py:31 templates/creme_core/home.html:17
+#: creme_core_register.py:31 templates/creme_core/home.html:18
 msgid "Home"
 msgstr "Accueil"
 
-#: creme_core_register.py:32 templates/creme_core/my_page.html:17
+#: creme_core_register.py:32 templates/creme_core/my_page.html:18
 msgid "My page"
 msgstr "Ma page"
 
@@ -1674,7 +1674,7 @@ msgid "No error when processing."
 msgstr "Aucune erreur lors du traitement."
 
 #: templates/creme_core/batch_process_report.html:71
-#: templates/creme_core/detailview.html:22
+#: templates/creme_core/detailview.html:23
 #: templates/creme_core/importing_report.html:76
 msgid "Back to the list"
 msgstr "Retour à la liste"
@@ -1693,7 +1693,7 @@ msgid "You can not perform this action because of business constraints."
 msgstr ""
 "Vous ne pouvez pas effectuer cette action à cause de contraintes métier."
 
-#: templates/creme_core/detailview.html:53
+#: templates/creme_core/detailview.html:54
 msgid "deleted"
 msgstr "supprimé"
 
@@ -1903,25 +1903,25 @@ msgstr "Nb / Page"
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
 
-#: templates/creme_core/generics/portal.html:24
+#: templates/creme_core/generics/portal.html:25
 msgid "Go to the list"
 msgstr "Aller à la liste"
 
-#: templates/creme_core/generics/portal.html:34
+#: templates/creme_core/generics/portal.html:35
 msgid "Configure"
 msgstr "Configurer"
 
-#: templates/creme_core/generics/portal.html:40
+#: templates/creme_core/generics/portal.html:41
 #: templates/creme_core/templatetags/button_merge_entities.html:10
 #: templates/creme_core/templatetags/widgets/entity_actions.html:35
 msgid "forbidden"
 msgstr "interdit"
 
-#: templates/creme_core/generics/portal.html:58
+#: templates/creme_core/generics/portal.html:59
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/creme_core/generics/portal.html:58
+#: templates/creme_core/generics/portal.html:59
 #: templates/creme_core/templatetags/block_customfields.html:7
 #: templates/creme_core/templatetags/block_object.html:6
 msgid "Information"
@@ -2207,11 +2207,37 @@ msgstr "Montrer/Cacher les champs vides"
 msgid "Can't edit"
 msgstr "Modification interdite"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:39
+#: templates/creme_core/templatetags/widgets/block_footer.html:38
 msgid "Previous page"
 msgstr "Page précédente"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:93
+#: templates/creme_core/templatetags/widgets/block_footer.html:47
+#: templates/creme_core/templatetags/widgets/block_footer.html:53
+#: templates/creme_core/templatetags/widgets/block_footer.html:69
+#: templates/creme_core/templatetags/widgets/block_footer.html:80
+#, python-format
+msgid "To page %(p)s"
+msgstr "Aller à la page %(p)s"
+
+#: templates/creme_core/templatetags/widgets/block_footer.html:57
+#: templates/creme_core/templatetags/widgets/block_footer.html:64
+#: templates/creme_core/templatetags/widgets/block_footer.html:75
+#: templates/creme_core/templatetags/widgets/block_footer.html:84
+msgid "Select page number"
+msgstr "Entrez un numéro de page"
+
+#: templates/creme_core/templatetags/widgets/block_footer.html:60
+#: templates/creme_core/templatetags/widgets/block_footer.html:87
+#, python-format
+msgid "To page %(num_pages)s"
+msgstr "Aller à la page %(num_pages)s"
+
+#: templates/creme_core/templatetags/widgets/block_footer.html:62
+#: templates/creme_core/templatetags/widgets/block_footer.html:73
+msgid "To page 1"
+msgstr "Aller à la page 1"
+
+#: templates/creme_core/templatetags/widgets/block_footer.html:92
 msgid "Next page"
 msgstr "Page suivante"
 
@@ -2552,12 +2578,6 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
-
-#~ msgid "Page %(page_number)s / %(num_pages)s"
-#~ msgstr "Page %(page_number)s / %(num_pages)s"
-
-#~ msgid "Go to page"
-#~ msgstr "Aller à la page"
 
 #~ msgid "Filters"
 #~ msgstr "Filtres"

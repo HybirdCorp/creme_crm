@@ -172,14 +172,22 @@ creme.blocks.initPager = function(pager) {
         creme.blocks.reload(url);
     });
 
-    var gotoPage = function(input) {
+    var cleanPage = function(input) {
         var page = parseInt(input.val());
         var max = parseInt(input.attr('max'))
 
         if (isNaN(page) || page < 1 || (!isNaN(max) && page > max))
-            return;
+            return false;
 
-        creme.blocks.reload(creme.utils.lambda(input.attr('data-page-uri'), 'page')(page));
+        return page;
+    }
+
+    var gotoPage = function(input) {
+        var page = cleanPage(input);
+
+        if (page !== false) {
+            creme.blocks.reload(creme.utils.lambda(input.attr('data-page-uri'), 'page')(page));
+        }
     }
 
     var resizeInput = function(element) {
@@ -206,13 +214,16 @@ creme.blocks.initPager = function(pager) {
             $(this).addClass('active')
 
             resizeInput(selector);
-            selector.select().focus();
+
+            selector.toggleClass('invalid-page', cleanPage(selector) === false)
+                    .select().focus();
         });
 
         selector.bind('propertychange input change paste', function(e) {
             creme.object.deferred_start(pager, 'creme-block-pager-change', function() {
-                gotoPage(selector);
-            }, 1000);
+                //gotoPage(selector);
+                selector.toggleClass('invalid-page', cleanPage(selector) === false);
+            }, 300);
         }).bind('propertychange input change paste keydown', function() {
             resizeInput(selector);
         }).bind('keyup', function(e) {
