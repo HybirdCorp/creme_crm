@@ -80,7 +80,7 @@ test('creme.dialog.SelectionDialog (default)', function() {
     dialog.close();
 
     deepEqual([], this.mockListenerCalls('ok'));
-    deepEqual([['close']], this.mockListenerCalls('close'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
 test('creme.dialog.SelectionDialog (selector)', function() {
@@ -108,7 +108,7 @@ test('creme.dialog.SelectionDialog (selector)', function() {
     dialog.close();
 
     deepEqual([], this.mockListenerCalls('ok'));
-    deepEqual([['close']], this.mockListenerCalls('close'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });
 
 test('creme.dialog.SelectionDialog (validator)', function() {
@@ -147,5 +147,5 @@ test('creme.dialog.SelectionDialog (validator)', function() {
     dialog.close();
 
     deepEqual([], this.mockListenerCalls('ok'));
-    deepEqual([['close']], this.mockListenerCalls('close'));
+    deepEqual([['close', dialog.options]], this.mockListenerCalls('close'));
 });

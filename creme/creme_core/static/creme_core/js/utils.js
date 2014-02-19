@@ -196,9 +196,9 @@ creme.utils.bindTableToggle = function($self) {
     });
 }
 
-creme.utils.bindShowHideTbody = function() {
+creme.utils.bindShowHideTbody = function(root) {
 //    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
-    $('.table_detail_view').find('.collapser').each(function() {
+    $('.table_detail_view', root).find('.collapser').each(function() {
         creme.utils.bindTableToggle($(this));
     });
 }

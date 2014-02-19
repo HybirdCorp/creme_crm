@@ -67,6 +67,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         if (this.options.fitFrame)
             this.fitToFrameSize();
+
+        this._events.trigger('frame-update', [this.frame()], this);
     },
 
     _dialogBackground: function() {
@@ -87,8 +89,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     _onClose: function(dialog, frame, options)
     {
-        this._dialogBackground().toggleClass('ui-dialog-scrollbackground', false);
-        this._events.trigger('close', [], this);
+        this._destroyDialog();
+        this._events.trigger('close', [options], this);
     },
 
     _onOpen: function(dialog, frame, options)
@@ -325,8 +327,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     close: function()
     {
-        this._destroyDialog();
-        this._events.trigger('close', [], this);
+        this._onClose(this._dialog, this._frame, this.options);
         return this;
     },
 
@@ -355,13 +356,26 @@ creme.dialogs = $.extend(creme.dialogs, {
         return this.html(source, options);
     },
 
+    _initBlockCompatibility: function(dialog, options)
+    {
+        dialog.on('frame-update', function(frame) {
+            creme.blocks.bindEvents(this.content());
+            // TODO : move this in creme.blocks and initialize with bindEvents method
+            creme.utils.bindShowHideTbody(this.content());
+        });
+    },
+
     url: function(url, options, data)
     {
-        var options = options || {};
+        var options = $.extend({compatible: true}, options || {});
         var dialog = new creme.dialog.Dialog(options).fetch(url, {}, data);
 
         if (options.reloadOnClose) {
             dialog.onClose(function() {creme.utils.reload();});
+        }
+
+        if (options.compatible === true) {
+            this._initBlockCompatibility(dialog, options);
         }
 
         return dialog;
@@ -381,6 +395,8 @@ creme.dialogs = $.extend(creme.dialogs, {
             }
 
             dialog.validator(compatibility);
+
+            this._initBlockCompatibility(dialog, options);
         }
 
         dialog.fetch(url, {}, data);
@@ -394,11 +410,15 @@ creme.dialogs = $.extend(creme.dialogs, {
 
     html: function(html, options)
     {
-        var options = options || {};
+        var options = $.extend({compatible: true}, options || {});
         var dialog = new creme.dialog.Dialog($.extend({}, options, {html: html}));
 
         if (options.reloadOnClose) {
             dialog.onClose(function() {creme.utils.reload();});
+        }
+
+        if (options.compatible === true) {
+            this._initBlockCompatibility(dialog, options);
         }
 
         return dialog;

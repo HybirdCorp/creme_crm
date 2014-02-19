@@ -110,8 +110,8 @@ creme.blocks.initEmptyFields = function(block) {
     // if there are no buttons toggling the 'empty field hiding', we should do nothing with the block lines
     if (block.find ('.block_header .buttons').find ('a.view_less, a.view_more').length == 0)
         return;
-    
-    $('tbody > tr.content').not(':has(> td:not(.edit_inner):not(:empty))', block).addClass('collapsable-field');
+
+    $('tbody > tr.content', block).not(':has(> td:not(.edit_inner):not(:empty))').addClass('collapsable-field');
     creme.blocks.updateFieldsColors(block);
     creme.blocks.updateToggleButton(block);
 };
