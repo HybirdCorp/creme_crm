@@ -205,6 +205,10 @@ form .table_detail_view .merge_result {
             transition: opacity 0.3s ease-in-out;
 }
 
+.hfilter_widget .selector_list > .selector:hover label {
+    cursor: pointer;
+}
+
 .hfilter_widget .selector_list > .selector:last-child {
     margin-right: 0px;
 }
@@ -286,6 +290,10 @@ form .table_detail_view .merge_result {
        -moz-transition: opacity 0.3s ease-in-out;
          -o-transition: opacity 0.3s ease-in-out;
             transition: opacity 0.3s ease-in-out;
+}
+
+.hfilter_widget .underlay_selector_list > .selector:hover label {
+    cursor: pointer;
 }
 
 .hfilter_widget .underlay-container {

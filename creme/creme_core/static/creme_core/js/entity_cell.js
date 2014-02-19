@@ -244,6 +244,14 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                 text = column_titles[el.parents('.selector').attr('data-column')] + ' — ' + text;
 
             column_titles[el.attr('data-column')] = text.trim();
+
+            var input = el.find('> input[type=checkbox]');
+
+            el.find('> label').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                input.prop('checked', !input.prop('checked')).change();
+            })
         });
 
         div.find('.selector_list input[type=checkbox]').bind('change', function (event) {
