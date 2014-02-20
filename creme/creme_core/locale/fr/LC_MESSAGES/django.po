@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-19 13:11+0100\n"
+"POT-Creation-Date: 2014-02-20 15:05+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1705,6 +1705,10 @@ msgstr "Champs"
 msgid "SEARCH"
 msgstr "RECHERCHE"
 
+#: templates/creme_core/entity_cells_widget.html:21
+msgid "Click to select the sub-fields"
+msgstr "Cliquez pour sélectionner les sous-champs"
+
 #: templates/creme_core/entity_cells_widget.html:29
 #, python-format
 msgid "%(field)s: %(subfields_count)s sub-field"
@@ -2207,37 +2211,37 @@ msgstr "Montrer/Cacher les champs vides"
 msgid "Can't edit"
 msgstr "Modification interdite"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:38
+#: templates/creme_core/templatetags/widgets/block_footer.html:37
 msgid "Previous page"
 msgstr "Page précédente"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:47
-#: templates/creme_core/templatetags/widgets/block_footer.html:53
-#: templates/creme_core/templatetags/widgets/block_footer.html:69
-#: templates/creme_core/templatetags/widgets/block_footer.html:80
+#: templates/creme_core/templatetags/widgets/block_footer.html:46
+#: templates/creme_core/templatetags/widgets/block_footer.html:52
+#: templates/creme_core/templatetags/widgets/block_footer.html:70
+#: templates/creme_core/templatetags/widgets/block_footer.html:81
 #, python-format
 msgid "To page %(p)s"
 msgstr "Aller à la page %(p)s"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:57
-#: templates/creme_core/templatetags/widgets/block_footer.html:64
-#: templates/creme_core/templatetags/widgets/block_footer.html:75
-#: templates/creme_core/templatetags/widgets/block_footer.html:84
+#: templates/creme_core/templatetags/widgets/block_footer.html:56
+#: templates/creme_core/templatetags/widgets/block_footer.html:65
+#: templates/creme_core/templatetags/widgets/block_footer.html:76
+#: templates/creme_core/templatetags/widgets/block_footer.html:85
 msgid "To another page"
 msgstr "Aller à une autre page"
 
 #: templates/creme_core/templatetags/widgets/block_footer.html:60
-#: templates/creme_core/templatetags/widgets/block_footer.html:87
+#: templates/creme_core/templatetags/widgets/block_footer.html:88
 #, python-format
 msgid "To page %(num_pages)s"
 msgstr "Aller à la page %(num_pages)s"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:62
-#: templates/creme_core/templatetags/widgets/block_footer.html:73
+#: templates/creme_core/templatetags/widgets/block_footer.html:63
+#: templates/creme_core/templatetags/widgets/block_footer.html:74
 msgid "To page 1"
 msgstr "Aller à la page 1"
 
-#: templates/creme_core/templatetags/widgets/block_footer.html:92
+#: templates/creme_core/templatetags/widgets/block_footer.html:93
 msgid "Next page"
 msgstr "Page suivante"
 
