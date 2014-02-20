@@ -17,7 +17,7 @@
                         <li class="selector" data-column="{{field_name}}">
                             {% with subfields=model_subfields|get_value:field_name %}
                                 {% if subfields and subfields|length > 1 %}
-                                    <input type="checkbox"><a href="" class="sub_selector_toggle">{{field_vname}}</a>
+                                    <input type="checkbox"><a href="" class="sub_selector_toggle" title="{% trans "Click to select the sub-fields" %}">{{field_vname}}</a>
                                     <div class="underlay-container">
                                         <div class="underlay_wrapper">
                                             <div class="arrow">
