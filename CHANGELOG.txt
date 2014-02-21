@@ -1,3 +1,175 @@
+== Version 1.4 ==
+
+  Users side :
+  ------------
+    # The HeaderFilter (listviews Views) form has a new UI :
+        - You can now choose the order for all columns.
+        - The UI is more compact and friendly (filter, search, drag n' drop).
+    # Customisable object & relation blocks. You can choose the same fields as in HeaderFilter form (& the UI is very close too).
+    # EntityFilter :
+        - A new condition is available for ForeignKeys to User : current user.
+        - The operators are now filtered according to the selected field's type (regular & custom fields).
+        - Enumerable field choices are now displayed in a combobox (instead of a simple text field).
+    # CSV import can now update existing entities instead of always creating them ; you can select several fields that act as a key.
+    # The 'Ice cream' theme has been improved again : better contrast, separation lines, drop shadows...
+    # There are some User management enhancements :
+        - The super users can now deactivate common users from creme_config (ie: in a graphical manner).
+        - The field User.is_staff is now used by Creme : the staff users are hidden from other users, and they cannot be selected to own entities for example.
+          The staff users are used to help the other users, but they should not participate in the business.
+          Staff users are created by the django command 'createsuperuser' (but the first super user created after the syncdb command is not a staff user).
+    # Minor UI improvements in forms :
+        - Labels for submit buttons are now better ; for example 'Save the contact' instead of 'Submit' in the Contact creation form.
+        - A 'Cancel' button is available in lots of forms.
+        - A new JavaScript widget (CheckListSelect) is now used for multi-selecting without ordering : it uses check boxes and allows filtering/searching.
+        - The order of the buttons in popups is now : OK/Cancel.
+        - A new field to select several entities MultiCreatorEntityField replaces MultiCremeEntityField (but it does not allow inline creation yet).
+    # Improved CSS for list views (fields are aligned differently according to their type).
+    # A new pager for blocks has been added ; it manages large numbers of pages better.
+    # A new command, called 'creme_uninstall', has been added : it can uninstall a Creme app in the good way.
+    # A Unicode Collation Algorithm (derived from pyuca) is used to sort :
+        - The apps in the menu, the creme_config portal, the UserRoles configuration.
+        - The fields in the HeaderFilter form & in the search configuration.
+        - The ContentTypes in <select>.
+        - ...
+    # JavaScript : some fallbacks for IE8 & 9 have been added. The support of IE 7 has been dropped.
+    # The column titles in the list views are always up-to-date (before, they were computed during columns edition).
+    # The error handling in inner popups has been improved.
+    # A view for 409 errors has been created.
+    # Apps :
+        * Polls, a new app :
+            - You can create a PollForm, which contains questions organised in sections, sub-sections etc...
+            - Questions have a type (string, integer, boolean, enumeration...).
+            - Questions can have conditions on previous questions : a question is activated only if its conditions are filled.
+            - You can create several PollReplies from a PollForm, which snapshot the questions of the form.
+            - A PollReply can be filled with a wizard, and answers can be edited later.
+            - The PollReplies can be grouped by PollCampaigns.
+        * Reports :
+            * When you create a new Report, you can only select the columns from an existing HeaderFilter.
+            * A new UI for the columns edition has been added, and it uses the work on the new HeaderFilter form.
+            * ReportGraphs :
+                - The form has been improved. Example : the field 'Is count' is already checked if there is no available aggregable field.
+                - Only the ForeignKeys related to enumerable models are available (see the notes on 'enumerable' tag below) for the abcissa.
+                - CustomFields are now available for abcissa & ordinate.
+                - The graph design has been heavily enhanced. The data is emphasized by a clearer display :
+                  many useless/annoying visual elements were removed, legends are better, many glitches were fixed...
+            * Several behaviours have been fixed :
+                - The column titles are now always up-to-date (before, they were computed during columns edition).
+                - The 1st level entities are filtered by credentials ('view' permission).
+                - When a FK field is linked to a sub-report, if a related entity does not pass the subfilter, the line is not dropped any more (related values are just empty).
+                - The flattened sub-reports (ie not expanded, see 'selected' attribute) in columns associated to ManyToManyField/ForeignKey/related fields are now used.
+                - The flattened sub-reports manage now all types of columns.
+                - The aggregates are computed in a scope (so result may be different with an aggregate in a sub-report). 
+            * Invalid columns are automatically removed (eg: removed CustomField).
+        * Activities, the calendar has been heavily improved :
+            * The version of fullcalendar.js has been updated from 1.4.5 to 1.4.7.
+            * A new menu has been created, with :
+                - Floating activities ; they can be drag n' dropped on the calendar, and filtered by their name.
+                - All your calendars & the public calendars of all the other users.
+                  Several calendars can be shown together (they have different colors) and they can be filtered by their name, or the first name and last name of their owner.
+        * Billing :
+            - The creation and the edition of billing lines have been redesigned, in order to use more client side computation.
+            - A new field 'acceptation_date' (DateField) has been added to the Quote model.
+            - A new field 'pending_payment' (BooleanField) has been added to the InvoiceStatus model.
+            - 3 function fields are dynamically added by the 'billing' app to the models Organisation and Contact :
+                - Total of pending payment.
+                - Total number of won quotes this year.
+                - Total number of won quotes last year.
+        * Opportunities :
+            - Opportunity.target field is now editable.
+        * Products:
+            - 'images' are now displayed in a true block (Products & Services).
+        * Projects :
+            - The Project.name field is not nullable anymore.
+
+  Developpers side :
+  ------------------
+    Non breaking changes :
+    ------------------
+        # A new field tag has been created : 'enumerable'. When a ForeignKey is tagged as enumerable, it means that the related model
+          can be enumerated, ie there are a limited number of instances. Eg : persons.models.Position are enumerable, but not persons.models.Address.
+        # JavaScript :
+            * A basic object derivation support (see creme.component.Component) has been added.
+            * A simple event handling tool (creme.component.EventHandler) has been added.
+            * The 'disabled' attribute now works with widgets.
+            * The following widgets use collection models and new rendering tools :
+                - CheckListSelect.
+                - PolymorphicSelect.
+                - DynamicSelect.
+            * The popup system has been refactored :
+                - creme.utils.simpleConfirm() is deprecated ; use creme.dialogs.confirm() instead.
+                - You should use creme.utils.showInnerPopup() only for compatibility with actual popup templates (see creme_core/templates/creme_core/inner_popup.html)
+                - creme.dialog.Dialog is the new base dialog object.
+                - creme.dialog.ConfirmDialog shows a message and has OK/Cancel buttons.
+                - creme.dialog.FormDialog has Save/Cancel buttons and handles form errors.
+                - creme.dialog.SelectDialog has OK/Cancel buttons and an API to return a value when it is closed.
+                - Many helper functions were added in creme.dialogs.
+            * The AJAX actions have been improved :
+                - creme.utils.postNReload() is deprecated ; use creme.blocks.ajaxPOSTQuery() instead.
+                - A new API for requests has been added : creme.ajax.Query.
+                - Many helper functions were added in creme.utils and creme.blocks for AJAX actions with confirmation, reloading and error dialogs.
+        # New form fields were added : MultiCTypeChoiceField & MultiEntityCTypeChoiceField. They use the cache of ContentType.
+        # CremeEntityField & MultiCremeEntityField form fields are now deprecated ; ListViewWidget too.
+          use CreatorEntityField & MultiCreatorEntityField instead.
+        # The function creme_core.utils.Q_creme_entity_content_types() is now deprecated.
+        # The old migration scripts have been folded.
+        # Apps :
+            * Activities :
+                - Calendar now has a field 'color'.
+            * Billing:
+                - The following constants are deprecated : PERCENT_PK, AMOUNT_PK & DISCOUNT_UNIT.
+            * Opportunities:
+                - The methods Opportunity.get_target() & Opportunity.get_source() are now deprecated.
+            * Reports :
+                - The code has been heavily refactored, and a lot of work is now done in the new reports.core module.
+
+    Breaking changes :
+    ------------------
+        # The model HeaderFilterItem has been removed, & HeaderFilter now stores the columns in a new field called 'json_cells'.
+          It contains a JSON serialisation of instances of the new class EntityCell (which is used by new configurable blocks too).
+          So the HeaderFilter.create() static method has changed : it takes EntityCells instances now.
+        # The global_info 'username' (string) has been replaced by 'user' (User instance).
+        # The JavaScript function creme.utils.loadBlock() has been removed ; use creme.blocks.reload() instead.
+        # 3 useless views in creme_core have been removed :
+            - /creme_core/entity/get_fields
+            - /creme_core/entity/get_function_fields
+            - /creme_core/entity/get_custom_fields
+        # The method Relation.update_links() has been removed (it was deprecated).
+        # 2 Relation URLs have been modified :
+            - /creme_core/relation/entity/.../predicates/json       ==> /creme_core/relation/entity/.../rtypes/json
+            - /creme_core/relation/predicate/.../content_types/json ==> /creme_core/relation/type/.../content_types/json
+        # The function creme_core.utils.currency_format.currency() can now take a Currency instance instead of a Currency ID ;
+          idem with the templatetag 'format_amount'.
+          API breaking : 'currency_id' argument changed to 'currency_or_id'. 
+        # The unused form field _CommaMultiValueField has been removed.
+        # Several elements in creme_core.utils.meta have been deleted :
+            * The exception class NotDjangoModel.
+            * The functions :
+                - get_function_field_verbose_name.
+                - get_related_field_verbose_name.
+                - filter_entities_on_ct.
+                - get_fk_entity.
+                - get_m2m_entities.
+                - _get_entity_column.
+        # Apps :
+            * Activities :
+                - The field ActivityType.color has been removed.
+            * Media_managers :
+                - ImageM2MWidget has been removed.
+            * Billing :
+                - The Vat model has been moved to creme_core.
+            * Reports :
+                * About the reports.Field model :
+                    - The field 'report' has been renamed to 'sub_report'.
+                    - The field 'title' has been removed.
+                    - A new ForeignKey field 'report' has been added in order to replace the field Report.columns (ManyToManyField).
+                * Several useless templatetags were removed :
+                    - get_report_chart.
+                    - get_report_chart_selectors.
+                    - verbose_abscissa.
+                    - verbose_ordinate.
+
+
+
 == Version 1.3 ==
 
   Users side :
@@ -56,46 +228,46 @@
 
   Developpers side :
   ------------------
-      # The project layout has changed with Django 1.4 :
+    # The project layout has changed with Django 1.4 :
         - Apps are imported with namespace 'creme' (eg: 'creme.persons' instead of 'persons').
         - The script 'manage.py' is now at the root of the project.
-      # Root 'urls.py' generates now automatically urls of all Creme apps : so you don't have to modify this file when you add an app anymore.
-      # Credentials changes:
+    # Root 'urls.py' generates now automatically urls of all Creme apps : so you don't have to modify this file when you add an app anymore.
+    # Credentials changes:
         * Permissions method in CremeEntity are now deprecated, and replaced by new methods in User.
             - CremeEntity.can_*{_or_die} methods are deprecated : use User.has_perm_to_*{_or_die} methods instead.
             - CremeEntity.populate_credentials is deprecated (delete the uses, because they are now useless).
         * The view creme_core.views.generic.edit.edit_model_with_popup() checks now the CremeEntity edition credentials (when the given model is a CremeEntity of course).
         * The credentials on models are now possible (eg: you can know if the user could link a Contact that is not created yet).
-      # Lots of changes in creme_core.utils.meta :
+    # Lots of changes in creme_core.utils.meta :
         - New system of tags for models fields. Right now, 2 tags are available : 'viewable' & 'clonable'.
         - The following functions have been removed : get_flds_with_fk_flds(), get_flds_with_fk_flds_str().
         - The following functions have been renamed : 
             get_field_infos() became get_instance_field_info()
             get_model_field_infos() became get_model_field_info()
-      # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
-      # New attribute in CremeModel (so, in CremeEntity), 'creation_label', that contains the (localized) string used by forms, buttons etc... that create instances.
-      # The code manages better the invalidation of model fields. 
-        HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modificate themselves to ignore them).
-      # New model field : 'CTypeForeignKey'. It uses the cache of ContentType manager, when ForeignKey(ContentType, ...) does not.
-      # Unit tests for JavaScript code.
-      # Blocks system :
+    # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
+    # New attribute in CremeModel (so, in CremeEntity), 'creation_label', that contains the (localized) string used by forms, buttons etc... that create instances.
+    # The code manages better the invalidation of model fields.
+      HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modificate themselves to ignore them).
+    # New model field : 'CTypeForeignKey'. It uses the cache of ContentType manager, when ForeignKey(ContentType, ...) does not.
+    # Unit tests for JavaScript code.
+    # Blocks system :
         - Dependencies can be '*' (that means: "all models").
         - New attribute 'read_only' (boolean) ; if it is set to True, reloading this block will not force the blocks which share its dependencies to be reloaded too.
         - The 2 previous features are used by creme_core.blocks.HistoryBlock.
         - New templatetag 'get_block_footer'.
-      # Relation model:
+    # Relation model:
         - The method update_links() is now deprecated.
         - The unused method getCreateLang() has been removed.
         - __unicode__() no more returns an HTML string.
-      # The arguments of the command 'creme_populate' have changed, in order to be like other django commands.
-      # New command : 'i18n_overload'. It can generate a .po file with all MSGIDs that contain a given word (in order to overload a term).
+    # The arguments of the command 'creme_populate' have changed, in order to be like other django commands.
+    # New command : 'i18n_overload'. It can generate a .po file with all MSGIDs that contain a given word (in order to overload a term).
         - 'verbosity' is now an integer, given with 'verbosity=VERBOSITY' (no more '-v' argument).
         - App names are simply the final arguments (no more '-a' argument).
-      # FormBlock has been improved : you can now iterate on blocks that have not been retrieved 'manually'.
-      # The unused view '/creme_core/entity/json' has been removed.
-      # The form widget 'UploadedFileWidget' has been removed.
-      # The setting DEFAULT_EMAIL_FOR_REMIND has been deleted ; DEFAULT_USER_EMAIL is used instead.
-      # Apps :
+    # FormBlock has been improved : you can now iterate on blocks that have not been retrieved 'manually'.
+    # The unused view '/creme_core/entity/json' has been removed.
+    # The form widget 'UploadedFileWidget' has been removed.
+    # The setting DEFAULT_EMAIL_FOR_REMIND has been deleted ; DEFAULT_USER_EMAIL is used instead.
+    # Apps :
         * Opportunities :
             - Opportunit.emitter & Opportunit.target properties added.
         * Emails : settings have changed.
@@ -106,9 +278,9 @@
             - EMAILCAMPAIGN_USE_TLS => added
             - SENDING_SIZE => EMAILCAMPAIGN_SIZE
             - SENDING_SLEEP_TIME => EMAILCAMPAIGN_SLEEP_TIME
-      # Reports :
-        - The templatetags files 'report_tags.py' and 'graph_tags.py' have been merged in 'reports_tags.py'
-        - Several templatetags have been removed: get_column_header, get_html_column_value, get_value_at.
+        * Reports :
+            - The templatetags files 'report_tags.py' and 'graph_tags.py' have been merged in 'reports_tags.py'
+            - Several templatetags have been removed: get_column_header, get_html_column_value, get_value_at.
 
 
 
