@@ -718,7 +718,9 @@ class UserTestCase(CremeTestCase):
         self.assertGET200(url)
         self.assertPOST(400, url, {'to_user': user.id})
 
-        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        if 'postgresql' not in settings.DATABASES['default']['ENGINE']:
+            #NB: Postgresql cancels all remaining queries after the error...
+            self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
     #def test_user_delete_last_basic_user(self):
         #"Delete view can delete any normal user"
