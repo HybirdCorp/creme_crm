@@ -759,8 +759,8 @@ class PollFormsTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_section = partial(PollFormSection.objects.create, pform=pform)
-        section1 = create_section(name='Section I')
-        section2 = create_section(name='Section II')
+        section1 = create_section(name='Section I',  order=1)
+        section2 = create_section(name='Section II', order=2)
 
         create_line = self._get_formline_creator(pform)
         line1 = create_line('Question 0',   section=None)
@@ -1191,9 +1191,9 @@ class PollFormsTestCase(_PollsTestCase):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
 
         create_section = partial(PollFormSection.objects.create, pform=pform)
-        section1  = create_section(name='1')
-        section11 = create_section(name='11', parent=section1)
-        section2  = create_section(name='2')
+        section1  = create_section(name='1',  order=1)
+        section11 = create_section(name='11', order=1, parent=section1)
+        section2  = create_section(name='2',  order=2)
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.STRING)
         line0    = create_line(question='What is the difference between a swallow ?', order=1)

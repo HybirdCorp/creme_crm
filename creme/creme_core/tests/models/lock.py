@@ -1,8 +1,10 @@
  # -*- coding: utf-8 -*-
 
 try:
+    from django.db.transaction import commit_on_success
+
+    from ..base import CremeTransactionTestCase #CremeTestCase
     from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
-    from ..base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -10,7 +12,8 @@ except Exception as e:
 __all__ = ('MutexTestCase',)
 
 
-class MutexTestCase(CremeTestCase):
+#class MutexTestCase(CremeTestCase):
+class MutexTestCase(CremeTransactionTestCase):
     def _get_ids(self):
         return list(Mutex.objects.order_by('id').values_list('id', flat=True))
 
@@ -43,7 +46,10 @@ class MutexTestCase(CremeTestCase):
         mutex2 = Mutex(name1)
 
         mutex1.lock()
-        self.assertRaises(MutexLockedException, mutex2.lock)
+
+        with commit_on_success():
+            self.assertRaises(MutexLockedException, mutex2.lock)
+
         self.assertEqual(1, Mutex.objects.count())
 
         with self.assertNoException():
@@ -60,7 +66,9 @@ class MutexTestCase(CremeTestCase):
         name = 'mutex-stuff'
         mutex = Mutex.get_n_lock(name)
         self.assertEqual(1, Mutex.objects.count())
-        self.assertRaises(MutexLockedException, Mutex.get_n_lock, name)
+
+        with commit_on_success():
+            self.assertRaises(MutexLockedException, Mutex.get_n_lock, name)
 
         mutex.release()
         self.assertEqual(0, Mutex.objects.count())

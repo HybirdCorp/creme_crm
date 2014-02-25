@@ -153,16 +153,20 @@ class ListViewTestCase(ViewsTestCase):
         post(bebop, swordfish, '*') #invalid value
         post(bebop, swordfish, sort_field='unknown') #invalid value
 
-    def test_order02(self):
+    def test_order02_prelude(self):
         "Sort by ForeignKey"
-        self.login()
-
+        #NB: the DatabaseError cannot be rollbacked here in the test context,
+        #    so we cannot do this test in test_order02, because it cause an error.
         try:
             bool(Contact.objects.order_by('image'))
         except:
             pass
         else:
             self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
+
+    def test_order02(self):
+        "Sort by ForeignKey"
+        self.login()
 
         create_civ = Civility.objects.create
         mister = create_civ(title='Mister')
@@ -221,10 +225,19 @@ class ListViewTestCase(ViewsTestCase):
                       ]
             self.assertEqual(indices, sorted(indices))
 
-        post('civility', False, ed, spike, faye) #Beware: sorting is done by id
-        post('civility', True, faye, spike, ed)
-        post('civility__title', False, ed, faye, spike)
-        post('civility__title', True, spike, faye, ed)
+            return content
+
+        #NB: it seems that NULL are not ordered in the same way on different DB engines
+        #post('civility', False, ed, spike, faye) #Beware: sorting is done by id
+        content = post('civility', False, spike, faye) #Beware: sorting is done by id
+        self.assertFound(ed.last_name, content)
+
+        #post('civility', True, faye, spike, ed)
+        post('civility', True, faye, spike)
+        #post('civility__title', False, ed, faye, spike)
+        post('civility__title', False, faye, spike)
+        #post('civility__title', True, spike, faye, ed)
+        post('civility__title', True, spike, faye)
 
     @skipIfNotInstalled('creme.emails')
     def test_order03(self):
