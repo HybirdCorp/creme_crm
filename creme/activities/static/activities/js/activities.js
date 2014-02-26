@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2014  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ creme.activities.exportAsICal = function(list) {
 
 creme.activities.calendar = {};
 
-// creme.activities.calendar.loading = function (bool) {
+// creme.activities.calendar.loading = function(bool) {
 //     if (bool) {
 //         $('#loading_col').remove();
 //     } else {
@@ -42,7 +42,7 @@ creme.activities.calendar = {};
 // }
 
 /*
-creme.activities.calendar.loading = function (bool) {
+creme.activities.calendar.loading = function(bool) {
     if (bool) {
         $('#loading_col').remove();
     } else {
@@ -53,16 +53,16 @@ creme.activities.calendar.loading = function (bool) {
 }
 */
 
-creme.activities.calendar.loading = function (doneLoading) {
-  $('.calendar .loading-indicator').css ('visibility', doneLoading ? 'hidden' : 'visible');
+creme.activities.calendar.loading = function(loading_done) {
+  $('.calendar .loading-indicator').css('visibility', loading_done ? 'hidden' : 'visible');
 }
 
-creme.activities.calendar.filter_events = function (widget, calendar, events) {
-    widget.fullCalendar('removeEvents', function (event) {return calendar == event.calendar;});
+creme.activities.calendar.filterEvents = function(widget, calendar, events) {
+    widget.fullCalendar('removeEvents', function(event) {return calendar == event.calendar;});
 
     if (events) {
-        $.each(events, function (index, event) {
-            if (calendar == event.calendar){
+        $.each(events, function(index, event) {
+            if (calendar == event.calendar) {
                 widget.fullCalendar('renderEvent', event);
             }
         })
@@ -71,13 +71,12 @@ creme.activities.calendar.filter_events = function (widget, calendar, events) {
     creme.activities.calendar.resizeSidebar();
 }
 
-creme.activities.calendar.add_filtering_input = function (input, filter_callable) {
-    input.data ('oldVal', input.val());
-    input.bind ('propertychange input paste', function () {
-
+creme.activities.calendar.addFilteringInput = function(input, filter_callable) {
+    input.data('oldVal', input.val());
+    input.bind('propertychange input paste', function() {
         var val = input.val();
 
-        if (input.data ('oldVal') == val) {
+        if (input.data('oldVal') == val) {
             return;
         }
 
@@ -87,44 +86,42 @@ creme.activities.calendar.add_filtering_input = function (input, filter_callable
     });
 }
 
-creme.activities.calendar.load_calendar_event_listeners = function (user, creme_calendars_by_user) {
-    creme.activities.calendar.floating_event_filter = function (input_value){
-        $('.floating_event').each (function (index, element) {
-
+creme.activities.calendar.loadCalendarEventListeners = function(user, creme_calendars_by_user) {
+    creme.activities.calendar.floatingEventFilter = function(input_value) {
+        $('.floating_event').each(function(index, element) {
             var event = $(element);
             event.toggleClass('hidden', event.text().toUpperCase().indexOf (input_value) == -1);
-
         });
 
     }
 
-    creme.activities.calendar.others_calendars_filter = function (input_value){
+    creme.activities.calendar.othersCalendarsFilter = function(input_value){
         for (var calendar_user in creme_calendars_by_user) {
             var calendars = creme_calendars_by_user [calendar_user];
-            var username_match = calendar_user.toUpperCase().indexOf (input_value) != -1;
+            var username_match = calendar_user.toUpperCase().indexOf(input_value) != -1;
             var match_count = 0;
 
             for (var i = 0, size = calendars.length; i < size; ++i) {
                 var calendar = calendars[i];
                 var calendar_name = calendar.name.toUpperCase();
-                var match = (calendar_name.indexOf (input_value) != -1) || username_match;
+                var match = (calendar_name.indexOf(input_value) != -1) || username_match;
 
                 if (match) {match_count++;}
-                $('.calendar_label_container[data-calendar=' + calendar.id + ']').toggleClass ('hidden', !match);
+                $('.calendar_label_container[data-calendar=' + calendar.id + ']').toggleClass('hidden', !match);
             }
 
             $('.calendar_label_owner[data-user="' + calendar_user + '"]').toggleClass ('hidden', match_count == 0);
-
         }
     }
 
-    $('input[type="checkbox"]').change(function (event) {
+    $('input[type="checkbox"]').change(function(event) {
         var widget = $('.calendar');
         var chk_box = $(this);
-        var calendar_id = chk_box.val()
-        var events_url = '/activities/calendar/users_activities/'
-        var calendar_view = widget.fullCalendar('getView')
-        if(chk_box.is(':checked')) {
+        var calendar_id = chk_box.val();
+        var events_url = '/activities/calendar/users_activities/';
+        var calendar_view = widget.fullCalendar('getView');
+
+        if (chk_box.is(':checked')) {
             $.ajax({
                 type: "GET",
                 dataType:'json',
@@ -133,42 +130,41 @@ creme.activities.calendar.load_calendar_event_listeners = function (user, creme_
                     end: Math.round(calendar_view.visEnd.getTime() / 1000)
                 },
                 url: events_url + calendar_id,
-                error: function (request, textStatus, errorThrown) {
+                error: function(request, textStatus, errorThrown) {
                     chk_box.attr('checked', false);
                 },
-                beforeSend: function (request) {
+                beforeSend: function(request) {
                     creme.activities.calendar.loading(false);
                 },
-                complete: function (request, txtStatus) {
+                complete: function(request, txtStatus) {
                     creme.activities.calendar.loading(true);
                 },
-                success: function (returnedData, status) {
-                    creme.activities.calendar.filter_events (widget, calendar_id, returnedData);
+                success: function(returnedData, status) {
+                    creme.activities.calendar.filterEvents(widget, calendar_id, returnedData);
                 }
             });
-
         } else {
-            creme.activities.calendar.filter_events (widget, calendar_id);
+            creme.activities.calendar.filterEvents(widget, calendar_id);
         }
     });
 
-    $('.floating_event_filter input').each (function () {
-        creme.activities.calendar.add_filtering_input ($(this), creme.activities.calendar.floating_event_filter);
+    $('.floating_event_filter input').each(function() {
+        creme.activities.calendar.addFilteringInput($(this), creme.activities.calendar.floatingEventFilter);
     });
 
-    $('.calendar_filter input').each (function () {
-        creme.activities.calendar.add_filtering_input ($(this), creme.activities.calendar.others_calendars_filter);
+    $('.calendar_filter input').each(function() {
+        creme.activities.calendar.addFilteringInput($(this), creme.activities.calendar.othersCalendarsFilter);
     });
 
-    $('.floating_event').each (function () {
+    $('.floating_event').each(function () {
         var element = $(this);
-        var calendar = element.attr ('data-calendar');
-        var type = element.attr ('data-type');
-        var event_id = element.attr ('data-id');
-        var color = element.attr ('data-color');
+        var calendar = element.attr('data-calendar');
+        var type = element.attr('data-type');
+        var event_id = element.attr('data-id');
+        var color = element.attr('data-color');
         var event = {
             id: event_id,
-            title: $.trim (element.text()),
+            title: $.trim(element.text()),
             type: type,
             user: user,
             calendar: calendar,
@@ -177,8 +173,8 @@ creme.activities.calendar.load_calendar_event_listeners = function (user, creme_
             calendar_color: color
         };
 
-        element.data ('eventObject', event);
-        element.draggable ({
+        element.data('eventObject', event);
+        element.draggable({
             zIndex: 999,
             revert: true,
             revertDuration: 0,
@@ -191,12 +187,12 @@ creme.activities.calendar.load_calendar_event_listeners = function (user, creme_
 
 }
 
-creme.activities.calendar.chooseForeground = function (target, bgColor) {
+creme.activities.calendar.chooseForeground = function(target, bgColor) {
     var rgb = creme.color.HEXtoRGB(bgColor);
-    target.css('color', creme.color.maxContrastingColor (rgb.r, rgb.g, rgb.b));
+    target.css('color', creme.color.maxContrastingColor(rgb.r, rgb.g, rgb.b));
 }
 
-creme.activities.calendar.updater = function (event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
     $.ajax({
         type: "POST",
         url: "/activities/calendar/activity/update",
@@ -206,34 +202,34 @@ creme.activities.calendar.updater = function (event, dayDelta, minuteDelta, allD
             end: event.end.getTime(),
             allDay: allDay
         },
-        error: function (request, textStatus, errorThrown) {
-            if(request.status == 403) {
+        error: function(request, textStatus, errorThrown) {
+            if (request.status == 403) {
                 creme.dialogs.warning(gettext("You do not have permission, the change will not be saved."));
-            } else if(request.status == 409) {
+            } else if (request.status == 409) {
                 creme.dialogs.warning(unescape(request.responseText));
-            } else if(request.status >= 300 || request.status == 0) {
+            } else if (request.status >= 300 || request.status == 0) {
                 creme.dialogs.warning(gettext("Error, please reload the page."));
             }
             revertFunc();
         },
-        beforeSend: function (request) {
+        beforeSend: function(request) {
             creme.activities.calendar.loading(false);
         },
-        complete: function (request, txtStatus) {
+        complete: function(request, txtStatus) {
             creme.activities.calendar.loading(true);
             creme.activities.calendar.resizeSidebar();
         },
     });
 }
 
-creme.activities.calendar.resizeSidebar = function () {
+creme.activities.calendar.resizeSidebar = function() {
     var calendar = $('.calendar');
     var calendarHeight = calendar.height();
 
     var sidebar = $('.menu_calendar');
-    var sidebarMargin = parseInt (sidebar.css ('margin-top'));
+    var sidebarMargin = parseInt(sidebar.css('margin-top'));
 
-    sidebar.css ('height', (calendarHeight - sidebarMargin) + 'px');
+    sidebar.css('height', (calendarHeight - sidebarMargin) + 'px');
 }
 
 creme.activities.calendar.positionNavigationWidget = function() {
@@ -241,8 +237,7 @@ creme.activities.calendar.positionNavigationWidget = function() {
     $('.fc-header-center table').css ('left', '-' + titleWidth + 'px');
 }
 
-creme.activities.calendar.fullCalendar = function (events_url) {
-
+creme.activities.calendar.fullCalendar = function(events_url) {
     $('.calendar').fullCalendar({
         weekends: true,
         header: {
@@ -307,8 +302,8 @@ creme.activities.calendar.fullCalendar = function (events_url) {
             gettext("Friday"),
             gettext("Saturday")
         ],
-        events: function (start, end, callback) {
-            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function () {
+        events: function(start, end, callback) {
+            var cal_ids = $('input[type="checkbox"][name="selected_calendars"]:checked').map(function() {
                 return $(this).val();
             });
 
@@ -319,8 +314,8 @@ creme.activities.calendar.fullCalendar = function (events_url) {
                     start: Math.round(start.getTime() / 1000),
                     end: Math.round(end.getTime() / 1000)
                 },
-                success: function (events) {
-                    callback (events);
+                success: function(events) {
+                    callback(events);
                     creme.activities.calendar.resizeSidebar();
                     creme.activities.calendar.positionNavigationWidget();
                 }
@@ -328,12 +323,10 @@ creme.activities.calendar.fullCalendar = function (events_url) {
         },
         editable: true,
         droppable: true,
-        drop: function (date, allDay) {
+        drop: function(date, allDay) {
             var elem = $(this);
-
-            var eventPrototype = elem.data ('eventObject');
-
-            var event = $.extend ({}, eventPrototype);
+            var eventPrototype = elem.data('eventObject');
+            var event = $.extend({}, eventPrototype);
 
             event.start = date;
             event.allDay = allDay;
@@ -347,32 +340,31 @@ creme.activities.calendar.fullCalendar = function (events_url) {
 
             event.end = end_date;
 
-            $('.calendar').fullCalendar ('renderEvent', event);
+            $('.calendar').fullCalendar('renderEvent', event);
             elem.hide();
 
-            cancel_drop = function () {
+            cancel_drop = function() {
                 elem.show();
-                $('.calendar').fullCalendar ('removeEvents', event.id);
+                $('.calendar').fullCalendar('removeEvents', event.id);
             }
 
             creme.activities.calendar.updater(event, null, null, allDay, cancel_drop);
-
         },
-        loading: function (isLoading, view) {
+        loading: function(isLoading, view) {
             creme.activities.calendar.loading(!isLoading);
         },
-        dayClick: function (date, allDay, jsEvent, view) {
+        dayClick: function(date, allDay, jsEvent, view) {
             var data = {
                 'year':   date.getFullYear(),
-                'month':  date.getMonth()+1,
+                'month':  date.getMonth() + 1,
                 'day':    date.getDate(),
                 'hour':   date.getHours(),
                 'minute': date.getMinutes()
             };
 
-            creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess:true}, data).open({width:'80%'});
+            creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess: true}, data).open({width: '80%'});
         },
-        eventRender: function (event, element, view) {
+        eventRender: function(event, element, view) {
             var container = element.find('a');
 
             if (event.type) {
@@ -380,36 +372,35 @@ creme.activities.calendar.fullCalendar = function (events_url) {
                 var eventTime = element.find ('.fc-event-time');
 
                 if (eventTime.length != 0) {
-                    if (view.name == 'month'){
+                    if (view.name == 'month') {
                         eventType.text (' – ' + eventType.text());
                     }
 
-                    eventType.insertAfter (eventTime);
+                    eventType.insertAfter(eventTime);
                 } else {
-                    container.prepend (eventType);
+                    container.prepend(eventType);
                 }
             }
 
             container.css('background-color', event.calendar_color);
             creme.activities.calendar.chooseForeground(container, event.calendar_color);
         },
-        eventDragStart: function (calEvent, domEvent, ui, view) {},
-        eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+        eventDragStart: function(calEvent, domEvent, ui, view) {},
+        eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
             creme.activities.calendar.updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
         },
-        eventClick: function (event) {
-            creme.dialogs.url(event.url)
-                         .open({width:'80%'});
+        eventClick: function(event) {
+            creme.dialogs.url(event.url).open({width:'80%'});
 
             return false;
         },
-        eventResize: function (event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
+        eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
             creme.activities.calendar.updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
         }
     });
 
     // insert 'loading...' indicator
-    var loadingImage = $('<img>').attr ('src', creme_media_url ('images/wait.gif'));
-    $('<div class="loading-indicator">').append (loadingImage, '<div class="loading-label">' + gettext ("Loading...") + '</div>')
-                                        .insertBefore ('.fc-content');
+    var loadingImage = $('<img>').attr ('src', creme_media_url('images/wait.gif'));
+    $('<div class="loading-indicator">').append(loadingImage, '<div class="loading-label">' + gettext("Loading...") + '</div>')
+                                        .insertBefore('.fc-content');
 }
