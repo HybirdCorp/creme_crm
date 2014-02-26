@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,13 @@
 from collections import deque
 import logging
 
+from django.conf import settings
+
 from ..models import CremeEntity
 
 
 logger = logging.getLogger(__name__)
-MAX_LAST_ITEMS = 9 #TODO: in settings ???
+MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
 
 
 class LastViewedItem(object):
