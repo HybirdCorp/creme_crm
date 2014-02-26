@@ -6,7 +6,7 @@
     <script type='text/javascript'>
         $(document).ready(function() {
             creme.activities.calendar.fullCalendar('{{events_url}}');
-            creme.activities.calendar.load_calendar_event_listeners('{{user_username}}', {{creme_calendars_by_user|safe}});
+            creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
         });
     </script>
 {% endblock %}

@@ -153,6 +153,7 @@
         # Apps :
             * Activities :
                 - The field ActivityType.color has been removed.
+                - The JS function creme.activities.calendar.setReadableColor() has been removed.
             * Media_managers :
                 - ImageM2MWidget has been removed.
             * Billing :
