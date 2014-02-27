@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block %}
 {% load creme_config_tags %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    <thead>
+{% comment %}    <thead>
         <tr>
             <th colspan="{{colspan}}">
                 {% if page.paginator.count == 1 %}
@@ -12,7 +12,24 @@
                 {% endif %}
             </th>
         </tr>
-    </thead>
+    </thead>{% endcomment %}
+    {% get_block_header colspan=colspan %}
+{% comment %}TODO: improve i18n:
+   1. "{{count}} {{vname}}" should be translated, but templatize does not manage _(...)
+   2. Does not check == 1, but should extract the plural rule from the current language
+{% endcomment %}
+        {% with count=page.paginator.count %}
+            {% if count == 1 %}
+                {% with vname=model|get_meta_value:'verbose_name' %}
+                    {% templatize "{{count}} {{vname}}" as title %}<th class="label">{% get_basic_block_header title %}</th>
+                {% endwith %}
+            {% else %}
+                {% with vname=model|get_meta_value:'verbose_name_plural' %}
+                    {% templatize "{{count}} {{vname}}" as title %}<th class="label">{% get_basic_block_header title %}</th>
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_dark" colspan="{{colspan}}">
