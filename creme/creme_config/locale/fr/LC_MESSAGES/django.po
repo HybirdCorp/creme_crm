@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-11 17:03+0100\n"
+"POT-Creation-Date: 2014-02-27 11:22+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -335,7 +335,7 @@ msgid "Concerned fields"
 msgstr "Champs concernés"
 
 #: forms/setting.py:38 forms/setting.py:51
-#: templates/creme_config/templatetags/block_settings.html:19
+#: templates/creme_config/templatetags/block_settings.html:12
 msgid "Value"
 msgstr "Valeur"
 
@@ -512,7 +512,7 @@ msgstr "Choisissez votre fuseau horaire"
 #: templates/creme_config/search_portal.html:6
 #: templates/creme_config/user_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
-#: templates/creme_config/user_settings.html:18
+#: templates/creme_config/user_settings.html:19
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:6
 #: templates/creme_config/generics/app_portal.html:6
@@ -602,7 +602,7 @@ msgstr "Rôles"
 msgid "View your settings"
 msgstr "Voir vos réglages"
 
-#: templates/creme_config/user_settings.html:20
+#: templates/creme_config/user_settings.html:21
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
@@ -616,14 +616,17 @@ msgstr "Champs personnalisés"
 msgid "Application"
 msgstr "Application"
 
-#: templates/creme_config/generics/app_portal.html:19
+#: templates/creme_config/generics/app_portal.html:25
 #, python-format
-msgid "%(app_count)s Configurable type"
-msgid_plural "%(app_count)s Configurable types"
-msgstr[0] "%(app_count)s Type configurable"
-msgstr[1] "%(app_count)s Types configurables"
+msgid "%s Configurable type"
+msgstr "%s Type configurable"
 
-#: templates/creme_config/generics/app_portal.html:32
+#: templates/creme_config/generics/app_portal.html:25
+#, python-format
+msgid "%s Configurable types"
+msgstr "%s Types configurables"
+
+#: templates/creme_config/generics/app_portal.html:36
 msgid "No type requires configuration"
 msgstr "Aucun type ne nécessite de configuration"
 
@@ -722,7 +725,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_models.html:36
 #: templates/creme_config/templatetags/block_property_types.html:23
 #: templates/creme_config/templatetags/block_searchconfig.html:22
-#: templates/creme_config/templatetags/block_settings.html:20
+#: templates/creme_config/templatetags/block_settings.html:13
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1050,11 +1053,11 @@ msgstr "%s Valeur de réglage"
 msgid "%s Setting values"
 msgstr "%s Valeurs de réglage"
 
-#: templates/creme_config/templatetags/block_settings.html:18
+#: templates/creme_config/templatetags/block_settings.html:11
 msgid "Description"
 msgstr "Description"
 
-#: templates/creme_config/templatetags/block_settings.html:33
+#: templates/creme_config/templatetags/block_settings.html:26
 msgid "No setting value for this app"
 msgstr "Aucune valeur de réglage pour cette application"
 
@@ -1507,3 +1510,8 @@ msgstr "Supprimer le rôle <%s>"
 
 #~ msgid "Contacts"
 #~ msgstr "Contacts"
+
+#~ msgid "%(app_count)s Configurable type"
+#~ msgid_plural "%(app_count)s Configurable types"
+#~ msgstr[0] "%(app_count)s Type configurable"
+#~ msgstr[1] "%(app_count)s Types configurables"
