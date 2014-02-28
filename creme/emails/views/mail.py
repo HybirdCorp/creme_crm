@@ -118,11 +118,10 @@ def waiting(request):
 @jsonify
 @permission_required('emails')
 def reload_sync_blocks(request):
-    waiting_block = mail_waiting_sync_block
-    spam_block    = mail_spam_sync_block
     ctx = RequestContext(request)
-    return [(waiting_block.id_, waiting_block.detailview_display(ctx)),
-            (spam_block.id_,    spam_block.detailview_display(ctx))
+
+    return [(mail_waiting_sync_block.id_, mail_waiting_sync_block.detailview_display(ctx)),
+            (mail_spam_sync_block.id_,    mail_spam_sync_block.detailview_display(ctx))
            ]
 
 ## END SYNCHRO PART ##

@@ -10,7 +10,7 @@
                     {% trans "Edit your mobile configuration" as img_title %}<img src="{% creme_media_url 'images/config_64.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                 </a>
                 &nbsp;
-                <a class="pointer" onclick="creme.reload_synchronisation($('#sub_content'), '/activesync/sync');">
+                <a class="pointer" onclick="creme.ajax.reloadContent($('#sub_content'), '/activesync/sync');">
                     {% trans "Refresh" as img_title %}<img src="{% creme_media_url 'images/refresh_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
                 </a>
             </span>

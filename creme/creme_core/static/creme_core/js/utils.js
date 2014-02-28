@@ -785,8 +785,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
     return query;
 };
 
-creme.utils.innerPopupFormAction = function(url, options, data)
-{
+creme.utils.innerPopupFormAction = function(url, options, data) {
     var options = $.extend({
                       submit_label: gettext("Save"),
                       submit: function(dialog) {

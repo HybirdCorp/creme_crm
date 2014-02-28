@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-10 11:08+0100\n"
+"POT-Creation-Date: 2014-02-28 14:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,13 +17,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/creme_core/js/blocks.js:136
+#: static/creme_core/js/blocks.js:140
 msgid "Show empty fields"
 msgstr "Montrer les champs vides"
 
-#: static/creme_core/js/blocks.js:136
+#: static/creme_core/js/blocks.js:140
 msgid "Hide empty fields"
 msgstr "Cacher les champs vides"
+
+#: static/creme_core/js/blocks.js:342
+msgid "Nothing is selected."
+msgstr "Rien n'est sélectionné."
+
+#: static/creme_core/js/blocks.js:348
+msgid "Process done"
+msgstr "Opération effectuée"
+
+#: static/creme_core/js/blocks.js:356
+#: static/creme_core/js/list_view.core.js:163
+#: static/creme_core/js/lv_widget.js:201 static/creme_core/js/lv_widget.js:216
+#: static/creme_core/js/lv_widget.js:313
+msgid "Please select at least one entity."
+msgstr "Veuillez sélectionner au moins une fiche."
 
 #: static/creme_core/js/entity_cell.js:53
 msgid "Preview"
@@ -55,18 +70,18 @@ msgstr "Glissez-déposez les colonnes pour les ordonner."
 msgid "Remove the column '%s'"
 msgstr "Enlever la colonne '%s'"
 
-#: static/creme_core/js/entity_cell.js:359
+#: static/creme_core/js/entity_cell.js:367
 #, c-format
 msgid "%s result(s) on %s"
 msgstr "%s résultat(s) sur %s"
 
 #: static/creme_core/js/export.js:24
 msgid "Select the export format"
-msgstr ""
+msgstr "Sélectionnez le format d'export"
 
 #: static/creme_core/js/export.js:25
 msgid "Export"
-msgstr ""
+msgstr "Export"
 
 #: static/creme_core/js/forms.js:182
 #: static/creme_core/js/widgets/daterangeselector.js:43
@@ -111,12 +126,6 @@ msgstr "Choisi(s)"
 msgid "Select"
 msgstr "Sélectionnez"
 
-#: static/creme_core/js/list_view.core.js:163
-#: static/creme_core/js/lv_widget.js:201 static/creme_core/js/lv_widget.js:216
-#: static/creme_core/js/lv_widget.js:313
-msgid "Please select at least one entity."
-msgstr "Veuillez sélectionner au moins un enregistrement."
-
 #: static/creme_core/js/lv_widget.js:131 static/creme_core/js/lv_widget.js:132
 #: static/creme_core/js/widgets/selectorlist.js:130
 #: static/creme_core/js/widgets/selectorlist.js:131
@@ -125,9 +134,16 @@ msgstr "Supprimer"
 
 #: static/creme_core/js/lv_widget.js:313 static/creme_core/js/lv_widget.js:318
 #: static/creme_core/js/menu.js:76 static/creme_core/js/utils.js:241
-#: static/creme_core/js/utils.js.c:743 static/creme_core/js/utils.js:773
-#: static/creme_core/js/widgets/dialog/dialog.js:430
-#: static/creme_core/js/widgets/dialog/dialog.js:431
+#: static/creme_core/js/utils.js.c:743 static/creme_core/js/utils.js:774
+#: static/creme_core/js/tests/ajax/localize.js:10
+#: static/creme_core/js/tests/ajax/localize.js:11
+#: static/creme_core/js/tests/ajax/localize.js:12
+#: static/creme_core/js/tests/ajax/localize.js:13
+#: static/creme_core/js/tests/ajax/localize.js:15
+#: static/creme_core/js/tests/ajax/localize.js:16
+#: static/creme_core/js/tests/ajax/localize.js:17
+#: static/creme_core/js/widgets/ajax/backend.js:77
+#: static/creme_core/js/widgets/dialog/dialog.js:474
 msgid "Error"
 msgstr "Erreur"
 
@@ -151,7 +167,7 @@ msgstr "Ok"
 
 #: static/creme_core/js/utils.js:217 static/creme_core/js/utils.js.c:349
 #: static/creme_core/js/widgets/dialog/confirm.js:49
-#: static/creme_core/js/widgets/dialog/form.js:123
+#: static/creme_core/js/widgets/dialog/form.js:172
 #: static/creme_core/js/widgets/dialog/select.js:59
 msgid "Cancel"
 msgstr "Annuler"
@@ -161,12 +177,12 @@ msgstr "Annuler"
 msgid "Are you sure ?"
 msgstr "Êtes-vous sûr ?"
 
-#: static/creme_core/js/utils.js:383 static/creme_core/js/utils.js.c:787
-#: static/creme_core/js/widgets/dialog/form.js:122
+#: static/creme_core/js/utils.js:383 static/creme_core/js/utils.js.c:791
+#: static/creme_core/js/widgets/dialog/form.js:171
 msgid "Save"
 msgstr "Enregistrer"
 
-#: static/creme_core/js/utils.js:401 static/creme_core/js/utils.js.c:825
+#: static/creme_core/js/utils.js:401 static/creme_core/js/utils.js.c:829
 msgid "Error during loading the page."
 msgstr "Le chargement de la page a échoué"
 
@@ -181,6 +197,56 @@ msgstr "Erreur !"
 #: static/creme_core/js/utils.js:723
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
+
+#: static/creme_core/js/tests/ajax/localize.js:21
+#: static/creme_core/js/tests/ajax/localize.js:22
+#: static/creme_core/js/tests/ajax/localize.js:23
+#: static/creme_core/js/widgets/ajax/backend.js:64
+msgid "Bad Request"
+msgstr "Requête invalide"
+
+#: static/creme_core/js/tests/ajax/localize.js:27
+#: static/creme_core/js/tests/ajax/localize.js:28
+#: static/creme_core/js/tests/ajax/localize.js:29
+#: static/creme_core/js/widgets/ajax/backend.js:65
+msgid "Unauthorized"
+msgstr "Non authentifié"
+
+#: static/creme_core/js/tests/ajax/localize.js:33
+#: static/creme_core/js/tests/ajax/localize.js:34
+#: static/creme_core/js/tests/ajax/localize.js:35
+#: static/creme_core/js/widgets/ajax/backend.js:66
+msgid "Forbidden Access"
+msgstr "Interdit"
+
+#: static/creme_core/js/tests/ajax/localize.js:39
+#: static/creme_core/js/tests/ajax/localize.js:40
+#: static/creme_core/js/tests/ajax/localize.js:41
+#: static/creme_core/js/widgets/ajax/backend.js:67
+msgid "Not Found"
+msgstr "Non trouvé"
+
+#: static/creme_core/js/tests/ajax/localize.js:45
+#: static/creme_core/js/tests/ajax/localize.js:46
+#: static/creme_core/js/tests/ajax/localize.js:47
+#: static/creme_core/js/widgets/ajax/backend.js:68
+msgid "Not Acceptable"
+msgstr "Invalide"
+
+#
+#: static/creme_core/js/tests/ajax/localize.js:51
+#: static/creme_core/js/tests/ajax/localize.js:52
+#: static/creme_core/js/tests/ajax/localize.js:53
+#: static/creme_core/js/widgets/ajax/backend.js:69
+msgid "Conflict"
+msgstr "Conflit"
+
+#: static/creme_core/js/tests/ajax/localize.js:57
+#: static/creme_core/js/tests/ajax/localize.js:58
+#: static/creme_core/js/tests/ajax/localize.js:59
+#: static/creme_core/js/widgets/ajax/backend.js:70
+msgid "Internal Error"
+msgstr "Erreur interne"
 
 #: static/creme_core/js/widgets/checklistselect.js:74
 #, c-format
@@ -202,35 +268,6 @@ msgstr "Capture du graphique"
 msgid "View as image"
 msgstr "Capturer une image du graphique"
 
-#: static/creme_core/js/widgets/ajax/backend.js:64
-msgid "Bad Request"
-msgstr "Requête invalide"
-
-#: static/creme_core/js/widgets/ajax/backend.js:65
-msgid "Unauthorized"
-msgstr "Non authentifié"
-
-#: static/creme_core/js/widgets/ajax/backend.js:66
-msgid "Forbidden Access"
-msgstr "Interdit"
-
-#: static/creme_core/js/widgets/ajax/backend.js:67
-msgid "Not Found"
-msgstr "Non trouvé"
-
-#: static/creme_core/js/widgets/ajax/backend.js:68
-msgid "Not Acceptable"
-msgstr "Invalide"
-
-#: static/creme_core/js/widgets/ajax/backend.js:69
-#
-msgid "Conflict"
-msgstr "Conflit"
-
-#: static/creme_core/js/widgets/ajax/backend.js:70
-msgid "Internal Error"
-msgstr "Erreur interne"
-
 #: static/creme_core/js/widgets/component/chosen.js:25
 msgid "No result"
 msgstr "Aucun résultat"
@@ -239,19 +276,26 @@ msgstr "Aucun résultat"
 msgid "Confirm"
 msgstr "Confirmation"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:143
+#: static/creme_core/js/widgets/dialog/dialog.js:144
 msgid "Close"
 msgstr "Fermer"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:408
+#: static/creme_core/js/widgets/dialog/dialog.js:450
 msgid "Alert"
 msgstr "Message"
 
-#: static/creme_core/js/widgets/dialog/dialog.js:424
+#: static/creme_core/js/widgets/dialog/dialog.js:466
 msgid "Warning"
 msgstr "Attention"
 
-#
+#: static/creme_core/js/widgets/dialog/frame.js:135
+msgid ""
+"Reload the page or click here. If the problem persists, please contact your "
+"administrator."
+msgstr ""
+"Rechargez la page ou cliquez ici. Si le problème persiste, veuillez "
+"contacter votre administrateur."
+
 #: static/creme_core/js/widgets/dialog/select.js:22
 msgid "Selection"
 msgstr "Sélection"
@@ -273,16 +317,6 @@ msgstr "Sélection"
 
 #~ msgid "Suppression done"
 #~ msgstr "Suppression effectuée"
-
-#~ msgid ""
-#~ "Server unavailable: please reload the page. If the problem persists, "
-#~ "please contact your administrator."
-#~ msgstr ""
-#~ "Serveur inaccessible : veuillez recharger la page. Si le problème "
-#~ "persiste, veuillez contacter votre administrateur."
-
-#~ msgid "Process done"
-#~ msgstr "Opération effectuée"
 
 #~ msgid "Paste your text"
 #~ msgstr "Collez votre texte"

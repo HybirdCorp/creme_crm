@@ -1,26 +1,27 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load i18n %}
-{% load creme_block creme_core_tags %}
+{% load creme_core_tags creme_block %}
 
 {% block top_header %}
     {% get_block_header colspan=7 %}
         <th class="label">{% get_block_title  _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}</th>
         <th style="width: 10%;" align="right">
             <div class="buttons">{% trans "Link to" as linkto_label %}{% trans "Mark as treated" as treated_label %}{% trans "Mark as spam" as spam_label %}
-                <a class="link" onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                {% comment %}<a class="link" onclick="creme.blocks.massRelation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', '[name=select_one]:checked', {% get_block_reload_uri %});">{% endcomment %}
+                <a class="link" onclick="creme.blocks.massRelation({{entityemail_ct_id}}, {{rtypes|jsonify}}, '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{linkto_label}}" alt="{{linkto_label}}" />{{linkto_label}}
                 </a>
-                <a class="add" onclick="creme.emails.mass_action('/emails/mail/validated', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="add" onclick="creme.blocks.massAction('/emails/mail/validated', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{treated_label}}" alt="{{treated_label}}" />{{treated_label}}
                 </a>
             </div>
         </th>
         <th style="width: 10%;" align="right">
             <div class="buttons">
-                <a class="negative" onclick="creme.emails.mass_action('/creme_core/entity/delete/multi', '[name=select_one]:checked', {% get_block_reload_uri %}, null, function(v){return v.join(',')});">
+                <a class="negative" onclick="creme.blocks.massAction('/creme_core/entity/delete/multi', '[name=select_one]:checked', {% get_block_reload_uri %}, function(v){return v.join(',')});">
                     {% trans "Delete" as label %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                 </a>
-                <a class="negative" onclick="creme.emails.mass_action('/emails/mail/spam', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.blocks.massAction('/emails/mail/spam', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% creme_media_url 'images/spam_22.png' %}" border="0" title="{{spam_label}}" alt="{{spam_label}}" />{{spam_label}}
                 </a>
             </div>
@@ -30,13 +31,14 @@
 
 {% block mail_action %}
     {% trans "Link to" as linkto_label %}{% trans "Mark as treated" as treated_label %}{% trans "Mark as spam" as spam_label %}
-    <a class="negative" onclick="creme.emails.mass_action('/emails/mail/spam', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+    <a class="negative" onclick="creme.blocks.massAction('/emails/mail/spam', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
         <img src="{% creme_media_url 'images/spam_22.png' %}" border="0" title="{{spam_label}}" alt="{{spam_label}}" />
     </a>
-    <a onclick="creme.emails.mass_action('/emails/mail/validated', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+    <a onclick="creme.blocks.massAction('/emails/mail/validated', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
         <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{treated_label}}" alt="{{treated_label}}" />
     </a>
-    <a onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+    {% comment %}<a onclick="creme.blocks.massRelation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">{% endcomment %}
+    <a onclick="creme.blocks.massRelation({{entityemail_ct_id}}, {{rtypes|jsonify}}, 'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{linkto_label}}" alt="{{linkto_label}}" />
     </a>
 {% endblock %}

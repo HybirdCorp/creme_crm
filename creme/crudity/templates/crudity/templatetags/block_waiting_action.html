@@ -7,7 +7,7 @@
         .type_header_block {
             background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;
             width: 48px;
-            height:48px;
+            height: 48px;
         }
     </style>
     <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
@@ -31,11 +31,11 @@
         {% endfor %}
         <th align="right">
             <div class="buttons">
-                <a class="add" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="add" onclick="creme.blocks.massAction('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     {% trans "Validate" as img_title %}<img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                     {% trans "Validate the selection" %}
                 </a>
-                <a class="negative" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.blocks.massAction('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                     {% trans "Delete the selection" %}
                 </a>

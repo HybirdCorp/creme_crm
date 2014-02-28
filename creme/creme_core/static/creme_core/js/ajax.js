@@ -5,7 +5,7 @@
 
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2014  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -54,19 +54,19 @@ creme.ajax.submit = function(form, data, options) {//Tip: If data === true => da
         var $form = $(form);
 
         var defaults = {
-            method : $form.attr('method'),
-            action : ($form.attr('action') == "") ? window.location.href : $form.attr('action'),
-            async  : true,
-            cache  : true,
-            beforeSend : null,
-            success : null,
-            beforeError : null,
-            beforeComplete : null,
-            error : function() {
+            method: $form.attr('method'),
+            action: ($form.attr('action') == "") ? window.location.href : $form.attr('action'),
+            async: true,
+            cache: true,
+            beforeSend: null,
+            success: null,
+            beforeError: null,
+            beforeComplete: null,
+            error: function() {
                 creme.utils.showErrorNReload();
             },
-            afterError : null,
-            complete : null
+            afterError: null,
+            complete: null
         };
 
         var opts = $.extend(defaults, options);
@@ -79,7 +79,7 @@ creme.ajax.submit = function(form, data, options) {//Tip: If data === true => da
               type: opts.method,
               data: data,
               async: opts.async,
-              beforeSend : function(request){
+              beforeSend: function(request){
                   creme.utils.loading('loading', false, {});
                   if(opts.beforeSend) opts.beforeSend(request);
               },
@@ -110,7 +110,7 @@ creme.ajax.ajax = function(options) {
             beforeSend: null,
             success: null,
             beforeError: null,
-            beforeComplete : null,
+            beforeComplete: null,
             error: function() {
                 creme.utils.showErrorNReload();
             },
@@ -150,6 +150,15 @@ creme.ajax.get = function(options) {
 
 creme.ajax.post = function(options) {
     creme.ajax.ajax($.extend({type:"POST"}, options));
+};
+
+creme.ajax.reloadContent = function($target, target_url) {
+    creme.ajax.get({
+        url: target_url,
+        success: function(data) {
+            $target.empty().html(data);
+        }
+    });
 };
 
 /*
@@ -199,7 +208,6 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
 };
 */
 
-// TODO : not used, remove it
 /*
 creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
     var delay = 100;

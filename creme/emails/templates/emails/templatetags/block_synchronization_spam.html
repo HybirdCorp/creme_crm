@@ -7,11 +7,11 @@
         <th class="label">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>
         <th class="actions">
             <div class="buttons">{% trans "Marked as 'to be treated'" as tobetreated_tabel %}{% trans "Delete" as del_label %}
-                <a class="add" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="add" onclick="creme.blocks.massAction('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{{tobetreated_tabel}}" alt="{{tobetreated_tabel}}" />
                     {{tobetreated_tabel}}
                 </a>
-                <a class="negative" onclick="creme.emails.mass_action('/creme_core/entity/delete/multi', '[name=select_one]:checked', {% get_block_reload_uri %}, null, function(v){return v.join(',')});">
+                <a class="negative" onclick="creme.blocks.massAction('/creme_core/entity/delete/multi', '[name=select_one]:checked', {% get_block_reload_uri %}, function(v){return v.join(',')});">
                     <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{del_label}}" alt="{{del_label}}" />{{del_label}}
                 </a>
             </div>
@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block mail_action %}
-    <a onclick="creme.emails.mass_action('/emails/mail/waiting',  'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+    <a onclick="creme.blocks.massAction('/emails/mail/waiting',  'input[name=select_one][value={{mail.id}}]', {% get_block_reload_uri %});" style="cursor: pointer;">
         {% trans "Marked as 'to be treated'" as tobetreated_tabel %}<img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{{tobetreated_tabel}}" alt="{{tobetreated_tabel}}" />
     </a>
 {% endblock %}

@@ -41,7 +41,7 @@ from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
     blocks          = (WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock)
-    attachment_path = ['upload','emails','attachments']
+    attachment_path = ['upload', 'emails', 'attachments']
 
     def fetcher_fallback(self, email, current_user, *args, **kwargs):
         if not CrudityInput().authorize_senders(self, email.senders):
