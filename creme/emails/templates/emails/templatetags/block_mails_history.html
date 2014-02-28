@@ -39,9 +39,11 @@
                             <a class="button_link" onclick="
                                 {% if mail.status in sync_statuses %}
                                     {% trans "This mail was synchronized. Are you sure you want to send it ?" as confirm_msg %}
-                                    creme.emails.confirmResend('{{confirm_msg|escapejs}}', '/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});
+                                    {% comment %}creme.emails.confirmResend('{{confirm_msg|escapejs}}', '/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});{% endcomment %}
+                                    creme.emails.confirmResend('{{confirm_msg|escapejs}}', ['{{mail.pk}}'], {% get_block_reload_uri %});
                                 {% else %}
-                                    creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});
+                                    {% comment %}creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});{% endcomment %}
+                                    creme.emails.resend(['{{mail.pk}}'], {% get_block_reload_uri %});
                                 {% endif %}
                                 ">{% trans "Re-send" as img_title %}<img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>

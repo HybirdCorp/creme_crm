@@ -118,7 +118,9 @@ def _fetch(user):
 
 @login_required
 @permission_required('crudity')
-def fetch(request, template="crudity/waiting_actions.html", ajax_template="crudity/frags/ajax/waiting_actions.html", extra_tpl_ctx=None, extra_req_ctx=None):
+def fetch(request, template="crudity/waiting_actions.html",
+          ajax_template="crudity/frags/ajax/waiting_actions.html",
+          extra_tpl_ctx=None, extra_req_ctx=None):
     context = RequestContext(request)
 
     if extra_req_ctx:
@@ -126,7 +128,13 @@ def fetch(request, template="crudity/waiting_actions.html", ajax_template="crudi
 
     _fetch(request.user)
 
-    tpl_dict = {'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks) or WaitingActionBlock(backend).detailview_display(context) for backend in crudity_registry.get_configured_backends() if backend.in_sandbox]}
+    tpl_dict = {
+            'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks)
+                       or WaitingActionBlock(backend).detailview_display(context)
+                            for backend in crudity_registry.get_configured_backends()
+                                if backend.in_sandbox
+                      ],
+        }
 
     if extra_tpl_ctx:
         tpl_dict.update(extra_tpl_ctx)

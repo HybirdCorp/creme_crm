@@ -168,7 +168,13 @@
                     - get_report_chart_selectors.
                     - verbose_abscissa.
                     - verbose_ordinate.
-
+            * Emails :
+                * Lots of changes in its JS file :
+                    - creme.reload_synchronisation() has moved to creme.ajax.reloadContent().
+                    - creme.emails.mass_action() was replaced by creme.blocks.massAction() (arguments are different).
+                    - creme.emails.mass_relation() was replaced by creme.blocks.massRelation() (arguments are different).
+                    - creme.emails._processDone() has been removed.
+                    - creme.emails.resend() & creme.emails.confirmResend() have no 'url' & 'complete_cb' arguments anymore.
 
 
 == Version 1.3 ==

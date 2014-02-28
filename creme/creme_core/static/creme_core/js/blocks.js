@@ -299,7 +299,7 @@ creme.blocks.form = function(url, options, data) {
 };
 
 creme.blocks.confirmPOSTQuery = function(url, options, data) {
-    return creme.blocks.confirmAjaxQuery(url, $.extend({action:'post'}, options), data);
+    return creme.blocks.confirmAjaxQuery(url, $.extend({action: 'post'}, options), data);
 }
 
 creme.blocks.confirmAjaxQuery = function(url, options, data) {
@@ -315,7 +315,7 @@ creme.blocks.confirmAjaxQuery = function(url, options, data) {
 };
 
 creme.blocks.ajaxPOSTQuery = function(url, options, data) {
-    return creme.blocks.ajaxQuery(url, $.extend({action:'post'}, options), data);
+    return creme.blocks.ajaxQuery(url, $.extend({action: 'post'}, options), data);
 }
 
 creme.blocks.ajaxQuery = function(url, options, data) {
@@ -328,6 +328,38 @@ creme.blocks.ajaxQuery = function(url, options, data) {
     }
 
     return query;
+};
+
+creme.blocks.massAction = function(url, selector, block_url, values_post_process_cb) {
+    var values = $(selector).getValues();
+
+    if ($.isFunction(values_post_process_cb)) {
+        values = values_post_process_cb(values);
+    }
+
+    if (values.length == 0) {
+        creme.dialogs.warning(gettext("Nothing is selected.")).open();
+        return;
+    }
+
+    creme.blocks.confirmPOSTQuery(url, {blockReloadUrl: block_url}, {ids: values})
+                .onDone(function(event, data) {
+                    creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
+                }) //TODO: remove with 'messageOnSuccess' option
+                .start();
+};
+
+creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_url) {
+    var values = $(selector).getValues();
+    if (values.length == 0) {
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+        return false;
+    }
+
+    url = '/creme_core/relation/add_to_entities/%s/%s/'.format(subject_ct_id, rtype_ids.join(','));
+    url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
+
+    creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
 
 // creme.utils.loadBlock = creme.blocks.reload;

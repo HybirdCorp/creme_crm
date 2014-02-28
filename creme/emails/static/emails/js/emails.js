@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2014  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,84 +22,91 @@
 
 creme.emails = {};
 
-creme.emails._processDone = function(cb) {
-    creme.dialogs.html(gettext('Process done'));
-    if ($.isFunction(cb)) cb();
+// creme.emails._processDone = function(cb) {
+//     creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
+//     if ($.isFunction(cb)) cb();
+// }
+
+// creme.emails.mass_action = function(url, selector, block_url, complete_cb, values_post_process_cb) {
+//     var values = $(selector).getValues();
+// 
+// //     if(values_post_process_cb && $.isFunction(values_post_process_cb)){
+//     if ($.isFunction(values_post_process_cb)) {
+//         values = values_post_process_cb(values);
+//     }
+// 
+//     if (values.length == 0) {
+//         //creme.utils.showDialog(gettext("Nothing is selected."));
+//         creme.dialogs.warning(gettext("Nothing is selected.")).open();
+//         return;
+//     }
+// 
+//     creme.blocks.confirmPOSTQuery(url, {blockReloadUrl: block_url}, {ids: values})
+//                 .onDone(creme.emails._processDone)
+//                 .start();
+// /*
+//     creme.utils.ajaxDelete(url,
+//                            {ids: values},
+//                            {
+//                                 success: function(data, status, req) {
+//                                     creme.utils.showDialog(gettext("Process done"));
+//                                 },
+//                                 complete: function(req, st) {
+// //                                    if(block_url && typeof(block_url) != "undefined") {
+//                                     if (block_url) {
+//                                         creme.blocks.reload(block_url);
+//                                     }
+// 
+//                                     if (st != 'error') {
+// //                                        if (complete_cb && $.isFunction(complete_cb)) {
+//                                         if ($.isFunction(complete_cb)) {
+//                                            complete_cb();
+//                                         }
+// 
+//                                    }
+//                                    creme.utils.loading('loading', true);
+//                                }
+//                            });
+// */
+// };
+
+// creme.emails.mass_relation = function(url, selector, block_url) {
+//     var values = $(selector).getValues();
+//     if (values.length == 0) {
+//         creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+//         return false;
+//     }
+// 
+//     url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
+// 
+//     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
+// };
+
+// creme.emails.confirmResend = function(message, url, ids, block_url, complete_cb) {
+creme.emails.confirmResend = function(message, ids, block_url) {
+//     return creme.blocks.confirmAjaxQuery('/emails/mail/resend',
+    return creme.blocks.confirmPOSTQuery('/emails/mail/resend',
+                                         {blockReloadUrl: block_url,
+                                          confirm: message
+                                         },
+                                         {ids: ids}
+                                        )
+//                        .onDone(creme.emails._processDone);
+                       .onDone(function(event, data) {
+                            creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
+                       })  //TODO: remove with 'messageOnSuccess' option
+                       .start();
 }
 
-creme.emails.mass_action = function(url, selector, block_url, complete_cb, values_post_process_cb) {
-    var values = $(selector).getValues();
-
-//     if(values_post_process_cb && $.isFunction(values_post_process_cb)){
-    if ($.isFunction(values_post_process_cb)) {
-        values = values_post_process_cb(values);
-    }
-
-    if (values.length == 0) {
-        //creme.utils.showDialog(gettext("Nothing is selected."));
-        creme.dialogs.warning(gettext("Nothing is selected.")).open();
-        return;
-    }
-
-    creme.blocks.confirmPOSTQuery(url, {blockReloadUrl: block_url}, {ids: values})
-                .onDone(creme.emails._processDone)
-                .start();
-/*
-    creme.utils.ajaxDelete(url,
-                           {ids: values},
-                           {
-                                success: function(data, status, req) {
-                                    creme.utils.showDialog(gettext("Process done"));
-                                },
-                                complete: function(req, st) {
-//                                    if(block_url && typeof(block_url) != "undefined") {
-                                    if (block_url) {
-                                        creme.blocks.reload(block_url);
-                                    }
-
-                                    if (st != 'error') {
-//                                        if (complete_cb && $.isFunction(complete_cb)) {
-                                        if ($.isFunction(complete_cb)) {
-                                           complete_cb();
-                                        }
-
-                                   }
-                                   creme.utils.loading('loading', true);
-                               }
-                           });
-*/
-};
-
-creme.emails.mass_relation = function(url, selector, block_url) { //TODO: rename
-    var values = $(selector).getValues();
-    if (values.length == 0) {
-        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
-        return false;
-    }
-
-    url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
-
-    creme.blocks.form(url, {blockReloadUrl:block_url}).open();
-};
-
-creme.reload_synchronisation = function($target, target_url) {
-    creme.ajax.get({
-        url: target_url,
-        success: function(data) {
-            $target.empty().html(data);
-        }
-    });
-};
-
-creme.emails.confirmResend = function(message, url, ids, block_url, complete_cb) {
-    return creme.blocks.confirmAjaxQuery(url, {blockReloadUrl: block_url}, {ids: ids})
-                       .onDone(creme.emails._processDone);
-}
-
-creme.emails.resend = function(url, ids, block_url, complete_cb) {
-    return creme.blocks.ajaxQuery(url, {blockReloadUrl: block_url})
+// creme.emails.resend = function(url, ids, block_url, complete_cb) {
+creme.emails.resend = function(ids, block_url) {
+//     return creme.blocks.ajaxQuery(url, {blockReloadUrl: block_url})
+    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend', {blockReloadUrl: block_url})
                        .data({ids: ids})
-                       .onDone(creme.emails._processDone)
+//                        .onDone(creme.emails._processDone)
+                       .onDone(function(event, data) {
+                            creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
+                       }) //TODO: remove with 'messageOnSuccess' option
                        .start();
 /*
     creme.ajax.post({
