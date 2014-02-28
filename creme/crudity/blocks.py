@@ -26,7 +26,7 @@ from creme.creme_core.gui.block import QuerysetBlock
 
 from creme.creme_config.models import SettingValue
 
-from creme.emails.models import EntityEmail
+#from creme.emails.models import EntityEmail
 
 from .backends.models import CrudityBackend
 from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
@@ -34,7 +34,7 @@ from .models import WaitingAction, History
 
 
 class CrudityQuerysetBlock(QuerysetBlock):
-    def __init__(self, *args, **kwargs): #TODO: useless
+    def __init__(self, *args, **kwargs):
         super(CrudityQuerysetBlock, self).__init__()
 
     def detailview_display(self, context):
@@ -47,7 +47,7 @@ class CrudityQuerysetBlock(QuerysetBlock):
 
 
 class WaitingActionBlock(CrudityQuerysetBlock):
-    dependencies  = () #TODO: useless
+    #dependencies  = ()
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/templatetags/block_waiting_action.html'
 
@@ -75,7 +75,7 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             waiting_actions,
                                                             waiting_ct=ct,
-                                                            email_ct=ContentType.objects.get_for_model(EntityEmail),#TODO: For now email, but generify this!
+                                                            #email_ct=ContentType.objects.get_for_model(EntityEmail),#todo: For now email, but generify this!
                                                             buttons=self.buttons,
                                                             backend=backend,
                                                             update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
@@ -83,7 +83,7 @@ class WaitingActionBlock(CrudityQuerysetBlock):
 
 
 class HistoryBlock(CrudityQuerysetBlock):
-    dependencies  = ()
+    #dependencies  = ()
     verbose_name  = _(u'History')
     template_name = 'crudity/templatetags/block_history.html'
 
@@ -109,7 +109,7 @@ class HistoryBlock(CrudityQuerysetBlock):
                                                             histories,
                                                             ct=ct,
                                                             buttons=self.buttons,
-                                                            email_ct=ContentType.objects.get_for_model(EntityEmail),
+                                                            #email_ct=ContentType.objects.get_for_model(EntityEmail),
                                                             update_url='/crudity/history_block/%s/reload' % (self.id_,),
                                                            ))
 

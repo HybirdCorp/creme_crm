@@ -5,7 +5,8 @@
     <style type="text/css">
         {% comment %}Generify this{% endcomment %}
         .type_header_block {
-            background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;
+            {% comment %}background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;{% endcomment %}
+            background: url({% creme_media_url 'images/email_48.png' %}) no-repeat;
             width: 48px;
             height: 48px;
         }

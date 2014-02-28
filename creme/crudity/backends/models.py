@@ -55,7 +55,7 @@ class CrudityBackend(object):
     limit_froms  = ()   #If "recipient" doesn't the backend policy
     subject      = u""  #Matched subject
     blocks       = ()   #Blocks classes
-    buttons      = None #An (mutable) iterable of buttons
+    #buttons      = None #An (mutable) iterable of buttons
 
     def __init__(self, config, *args, **kwargs):
         config_get = config.get
@@ -73,6 +73,7 @@ class CrudityBackend(object):
         self._sandbox_by_user = None
         self._check_configuration()
 #        self.body_map.update({'password': self.password})
+        self.buttons = []
 
     @property
     def is_configured(self):
@@ -227,8 +228,8 @@ class CrudityBackend(object):
         return is_created, instance
 
     def add_buttons(self, *buttons):
-        if self.buttons is None:
-            self.buttons = []
+        #if self.buttons is None:
+            #self.buttons = []
         self.buttons.extend(buttons)
 
     def get_rendered_buttons(self):
