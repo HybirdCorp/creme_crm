@@ -1,0 +1,93 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags creme_block creme_widgets %}
+
+{% block test_title %}Creme Ajax Actions{% endblock %}
+{% block test_header %}
+<style type="text/css">
+    .action-options input {
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    .action-options input[type="radio"] {
+        margin: 0px 3px;
+        padding: 0px;
+    }
+
+</style>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.action-start').click(function() {
+            var action = $('input[type="radio"][name="action"]').val();
+            var confirm = $('input[type="checkbox"][name="confirm"]:checked').val() === '1';
+            var waitingOverlay = $('input[type="checkbox"][name="waitingOverlay"]:checked').val() === '1';
+            var reloadOnSuccess = $('input[type="checkbox"][name="reloadOnSuccess"]:checked').val() === '1';
+
+            var messageOnSuccess = $('input[type="checkbox"][name="messageOnSuccess"]:checked').val();
+            var warnOnFail = $('input[type="checkbox"][name="warnOnFail"]:checked').val() === '1';
+
+            var url = '/test_http_response?status=%s&delay=%s'.format($('select.action-response').val(),
+                                                                      $('select.action-delay').val());
+
+            if (confirm) {
+                creme.utils.confirmAjaxQuery(url, {
+                                action: action,
+                                overlay: waitingOverlay,
+                                messageOnSuccess: messageOnSuccess,
+                                warnOnFail: warnOnFail,
+                                reloadOnSuccess: reloadOnSuccess,
+                                confirm: confirm === true ? null : confirm,
+                            }).start();
+            } else {
+                creme.utils.ajaxQuery(url, {
+                                action: action,
+                                waitingOverlay: waitingOverlay,
+                                messageOnSuccess: messageOnSuccess,
+                                warnOnFail: warnOnFail,
+                                reloadOnSuccess: reloadOnSuccess,
+                            }).start();
+            }
+        })
+    })
+</script>
+{% endblock %}
+{% block test_content %}
+<ul>
+    <li>
+        <h4>Action</h4>
+        <div class="action-options">
+            <input type="radio" value="post" name="action">POST</input>
+            <input type="radio" value="get" name="action" checked>GET</input>
+            &nbsp;|&nbsp;
+            <input type="checkbox" value="1" name="waitingOverlay">Loading overlay</input>
+            &nbsp;|&nbsp;
+            <input type="checkbox" value="1" name="confirm">Confirm</input>
+            &nbsp;|&nbsp;
+            <input type="checkbox" value="All done !" name="messageOnSuccess">Message on success</input>&nbsp;
+            <input type="checkbox" value="1" name="warnOnFail">Message on error</input>
+            &nbsp;|&nbsp;
+            <input type="checkbox" value="1" name="reloadOnSuccess">Reload on success</input>
+            &nbsp;|&nbsp;
+            <select class="action-delay">
+                <option value="0">---</option>
+                <option value="500">500ms</option>
+                <option value="1000">1000ms</option>
+                <option value="2000">2000ms</option>
+                <option value="5000">5000ms</option>
+            </select>
+            <select class="action-response">
+                <option value="200">200</option>
+                <option value="400">400</option>
+                <option value="403">403</option>
+                <option value="404">404</option>
+                <option value="409">409</option>
+                <option value="500">500</option>
+            </select>
+            &nbsp;|&nbsp;
+            <button type="button" class="action-start">Start !</button>
+        </div>
+    </li>
+</ul>
+{% endblock %}

@@ -87,26 +87,24 @@ creme.emails.confirmResend = function(message, ids, block_url) {
 //     return creme.blocks.confirmAjaxQuery('/emails/mail/resend',
     return creme.blocks.confirmPOSTQuery('/emails/mail/resend',
                                          {blockReloadUrl: block_url,
+                                          messageOnSuccess: gettext('Process done'),
                                           confirm: message
                                          },
                                          {ids: ids}
                                         )
 //                        .onDone(creme.emails._processDone);
-                       .onDone(function(event, data) {
-                            creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
-                       })  //TODO: remove with 'messageOnSuccess' option
                        .start();
 }
 
 // creme.emails.resend = function(url, ids, block_url, complete_cb) {
 creme.emails.resend = function(ids, block_url) {
 //     return creme.blocks.ajaxQuery(url, {blockReloadUrl: block_url})
-    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend', {blockReloadUrl: block_url})
+    return creme.blocks.ajaxPOSTQuery('/emails/mail/resend',
+                                      {blockReloadUrl: block_url,
+                                       messageOnSuccess: gettext('Process done')
+                                      })
                        .data({ids: ids})
 //                        .onDone(creme.emails._processDone)
-                       .onDone(function(event, data) {
-                            creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
-                       }) //TODO: remove with 'messageOnSuccess' option
                        .start();
 /*
     creme.ajax.post({
