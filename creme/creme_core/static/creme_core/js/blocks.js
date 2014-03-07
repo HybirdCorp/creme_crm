@@ -319,7 +319,7 @@ creme.blocks.ajaxPOSTQuery = function(url, options, data) {
 }
 
 creme.blocks.ajaxQuery = function(url, options, data) {
-    var query = creme.ajax.query(url, options, data);
+    var query = creme.utils.ajaxQuery(url, options, data);
 
     if (options.blockReloadUrl) {
         query.onComplete(function(event, data) {
@@ -342,10 +342,11 @@ creme.blocks.massAction = function(url, selector, block_url, values_post_process
         return;
     }
 
-    creme.blocks.confirmPOSTQuery(url, {blockReloadUrl: block_url}, {ids: values})
-                .onDone(function(event, data) {
-                    creme.dialogs.html('<p>%s</p>'.format(gettext('Process done'))).open();
-                }) //TODO: remove with 'messageOnSuccess' option
+    creme.blocks.confirmPOSTQuery(url,
+                                  {blockReloadUrl: block_url,
+                                   messageOnSuccess: gettext('Process done')
+                                  },
+                                  {ids: values})
                 .start();
 };
 

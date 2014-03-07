@@ -204,11 +204,11 @@ creme.activities.calendar.updater = function(event, dayDelta, minuteDelta, allDa
         },
         error: function(request, textStatus, errorThrown) {
             if (request.status == 403) {
-                creme.dialogs.warning(gettext("You do not have permission, the change will not be saved."));
+                creme.dialogs.warning(gettext("You do not have permission, the change will not be saved.")).open();
             } else if (request.status == 409) {
-                creme.dialogs.warning(unescape(request.responseText));
+                creme.dialogs.warning(unescape(request.responseText)).open();
             } else if (request.status >= 300 || request.status == 0) {
-                creme.dialogs.warning(gettext("Error, please reload the page."));
+                creme.dialogs.warning(gettext("Error, please reload the page.")).open();
             }
             revertFunc();
         },

@@ -19,6 +19,8 @@
 ################################################################################
 
 from datetime import date #datetime
+from time import sleep
+
 import logging
 from os.path import join
 from os import listdir
@@ -168,6 +170,10 @@ def test_http_response(request):
     logger.warn("Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.")
 
     status = int(request.GET.get('status', 200))
+    delay = int(request.GET.get('delay', 0))
+
+    if delay > 0:
+        sleep(delay / 1000.0)
 
     if status == 403:
         raise PermissionDenied('Operation is not allowed')

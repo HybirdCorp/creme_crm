@@ -22,7 +22,8 @@
 
 if(!creme.reports) creme.reports = {};
 
-//TODO: in creme_core ??
+//TODO: in creme_core ?? No longer used
+/*
 creme.reports.loading_options = {
     beforeSend : function(request) {
           creme.utils.loading('loading', false, {});
@@ -31,6 +32,7 @@ creme.reports.loading_options = {
           creme.utils.loading('loading', true, {});
       }
 };
+*/
 
 creme.reports.load = function(options) {
     if(!options || options == undefined) return;
