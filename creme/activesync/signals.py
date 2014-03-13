@@ -34,7 +34,8 @@ def _get_mapping_from_creme_entity_id(id_):
     try:
         return CremeExchangeMapping.objects.get(creme_entity_id=id_)
     except CremeExchangeMapping.DoesNotExist as e:
-        logger.error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
+        #logger.error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
+        logger.debug(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
 
 
 def post_save_activesync_handler(sender, instance, created, **kwargs):
