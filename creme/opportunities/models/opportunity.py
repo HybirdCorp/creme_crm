@@ -20,7 +20,7 @@
 
 import logging
 from functools import partial
-import warnings
+#import warnings
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -173,18 +173,18 @@ class Opportunity(CremeEntity):
         else:
             return (self.estimated_sales or 0) * tax
 
-    def get_target(self):
-        #NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
-        warnings.warn("Opportunity.get_target() method is deprecated; use Opportunity.target instead",
-                      DeprecationWarning
-                     )
-        return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
+    #def get_target(self):
+        ##NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
+        #warnings.warn("Opportunity.get_target() method is deprecated; use Opportunity.target instead",
+                      #DeprecationWarning
+                     #)
+        #return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
 
-    def get_source(self):
-        warnings.warn("Opportunity.get_source() method is deprecated; use Opportunity.emitter instead",
-                      DeprecationWarning
-                     )
-        return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
+    #def get_source(self):
+        #warnings.warn("Opportunity.get_source() method is deprecated; use Opportunity.emitter instead",
+                      #DeprecationWarning
+                     #)
+        #return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
 
     #TODO: test
     def get_products(self):
