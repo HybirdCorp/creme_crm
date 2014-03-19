@@ -20,16 +20,11 @@
 
 from functools import partial
 from itertools import chain
+import warnings
 
-from django.db import models
-from django.db.models import ManyToManyField, FieldDoesNotExist #Field ForeignKey
-#from django.conf import settings
+#from django.db import models
+from django.db.models import ManyToManyField, FieldDoesNotExist, DateField #Field ForeignKey
 
-#from ..models import CremeEntity
-
-
-#class NotDjangoModel(Exception):
-    #pass
 
 #TODO; used only in activesync
 #TODO: manage better M2M values
@@ -93,127 +88,20 @@ def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
     fields = get_model_field_info(model, field_name, silent)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
-#def get_function_field_verbose_name(model, function_name):
-    #"""
-        #@Returns : function field's verbose name if found else None
-        #/!\ Model has to be a subclass of CremeAbstractEntity
-    #"""
-    #f_field = model.function_fields.get(function_name)
-
-    #if f_field:
-        #return unicode(f_field.verbose_name)
-
-#def get_related_field_verbose_name(model, related_field_name):
-    #"""@returns the verbose name of the model of the related field or None"""
-    #for related_field in model._meta.get_all_related_objects():
-        #if related_field.var_name == related_field_name:
-            #return unicode(related_field.model._meta.verbose_name)
-
 def get_related_field(model, related_field_name):
     #TODO: use find_first
     for related_field in model._meta.get_all_related_objects():
         if related_field.var_name == related_field_name:
             return related_field
 
-#def _get_entity_column(entity, column_name, field_class):
-    #fields_names = [] #TODO: slice once at the end instead of several append()...
-    #cols = column_name.split('__')
-
-    #for i, f_info in enumerate(get_model_field_info(entity.__class__, column_name)):
-        #fields_names.append(cols[i])
-
-        #if issubclass(f_info['field'].__class__, field_class):
-            #break
-
-    #return ('__'.join(fields_names), cols[len(cols)-i-1:])
-
-#def get_fk_entity(entity, column_name, get_value=False, user=None):
-    #"""Get the first foreign key entity found in the column_name path
-        #entity=Contact(), column_name='photo__name' returns entity.photo
-        #if get_value returns the value i.e : entity.photo.name
-        #if get_value and user returns the value if the user can read it else settings.HIDDEN_VALUE
-            #NB: If not get_value the fk is returned no matter what
-    #"""
-    #fk_column, rest = _get_entity_column(entity, column_name, ForeignKey)
-    #if get_value:
-        #fk = getattr(entity, fk_column)
-
-        #if isinstance(fk, CremeEntity) and user is not None and not user.has_perm_to_view(fk):
-            #return settings.HIDDEN_VALUE
-
-        ##return getattr(fk, '__'.join(rest))
-        #return getattr(fk, '__'.join(rest)) if fk else fk #TODO: split, join again == ugly
-
-    #return getattr(entity, fk_column)
-
-##todo: rename
-##todo: get_value + get_value_func args ??
-##todo: compose 2 functions to 'stringyfy' instances insted of give get_value_func ??
-#def get_m2m_entities(entity, column_name, get_value=False, q_filter=None,
-                     #get_value_func=lambda values: u', '.join(values), user=None):
-    #"""Get the first many to many entity found in the column_name path
-        #entity=Contact(), column_name='photos__name' returns entity.photos.all()
-        #if get_value returns the values i.e : [e.name for e in entity.photos.all()]
-
-        #if get_value and user returns the values and replaces values that the user can't view by settings.HIDDEN_VALUE
-            #NB: If not get_value, entities are NOT filtered by credentials => todo/Usefull?
-    #"""
-    #m2m_column, rest = _get_entity_column(entity, column_name, ManyToManyField)
-    #m2m_field = getattr(entity, m2m_column)
-    ##todo: m2m_field = getattr(entity, m2m_column, None) to not raise exception when m2m is empty ??
-
-    #if q_filter is not None:
-        #m2m_instances = m2m_field.filter(q_filter)
-    #else:
-        #m2m_instances = m2m_field.all()
-
-    #if get_value:
-        ##has_to_check_view_perms = issubclass(m2m_field.model, CremeEntity) and user is not None
-        ##rest = u'__'.join(rest)
-        ##values = []
-
-        ##if has_to_check_view_perms:
-            ##HIDDEN_VALUE = settings.HIDDEN_VALUE
-
-            ##for m in m2m_instances:
-                ##if user.has_perm_to_view(m):
-                    ##attr = getattr(m, rest, None) or u''
-                ##else:
-                    ##attr = HIDDEN_VALUE
-
-                ##values.append(unicode(attr))
-        ##else:
-            ##for m in m2m_instances:
-                ##attr = getattr(m, rest, None) or u''
-                ##values.append(unicode(attr))
-
-        ##return get_value_func(values)
-
-        #rest = u'__'.join(rest)
-
-        ##todo: assert that user is not None when CremeEntity ???
-        #if issubclass(m2m_field.model, CremeEntity) and user is not None: #has to check 'view' perms
-            #HIDDEN_VALUE = settings.HIDDEN_VALUE
-            #has_perm = user.has_perm_to_view
-            #extract_value = lambda m: (getattr(m, rest, None) or u'') if has_perm(m) else HIDDEN_VALUE
-        #else:
-            #extract_value = lambda m: getattr(m, rest, None) or u''
-
-        #return get_value_func(unicode(extract_value(m)) for m in m2m_instances)
-
-    #return m2m_instances
-
-#def filter_entities_on_ct(entities, ct):
-    #ct_model_class = ct.model_class()
-    #return [entity for entity in entities if isinstance(entity, ct_model_class)]
-
-#TODO: remove & replace by: isinstance(field, DateField)
 def is_date_field(field):
-    return isinstance(field, (models.DateTimeField, models.DateField))
+    #return isinstance(field, (models.DateTimeField, models.DateField))
+    return isinstance(field, DateField)
 
-#TODO: remove (used once) ?
 def get_date_fields(model, exclude_func=lambda f: False):
-    #TODO: generator ?
+    warnings.warn("get_date_fields() function is deprecated (because it is probably useless).",
+                  DeprecationWarning
+                 )
     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
 
 
