@@ -42,13 +42,11 @@ class _RelatedEntitesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        btc = self.get_block_template_context(context, self._get_queryset(entity),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context, self._get_queryset(entity),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                           )
+                           )
 
 
 class MessagingListsBlock(_RelatedEntitesBlock):

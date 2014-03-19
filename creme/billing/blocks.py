@@ -134,17 +134,15 @@ class CreditNoteBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         billing_document = context['object']
-        btc = self.get_block_template_context(context,
-                                              billing_document.get_credit_notes(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing_document.pk),
-                                              rtype_id=self.relation_type_deps[0],
-                                              ct=ContentType.objects.get_for_model(CreditNote),
-                                              add_title=_(u'Add a credit note'),
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context,
+                                                            billing_document.get_credit_notes(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing_document.pk),
+                                                            rtype_id=self.relation_type_deps[0],
+                                                            ct=ContentType.objects.get_for_model(CreditNote),
+                                                            add_title=_(u'Add a credit note'),
+                                                           )
+                           )
 
 
 class TotalBlock(SimpleBlock):
@@ -175,16 +173,14 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person_id = context['object'].id
-        btc = self.get_block_template_context(context,
-                                              Invoice.objects.filter(relations__object_entity=person_id,
-                                                                     relations__type=REL_SUB_BILL_RECEIVED,
-                                                                    ),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                    context,
+                    Invoice.objects.filter(relations__object_entity=person_id,
+                                           relations__type=REL_SUB_BILL_RECEIVED,
+                                          ),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+                ))
 
 
 class ReceivedBillingDocumentBlock(QuerysetBlock):
@@ -212,7 +208,6 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):
                 )
 
         CremeEntity.populate_real_entities(btc['page'].object_list)
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 

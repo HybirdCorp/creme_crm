@@ -54,8 +54,6 @@ class ParticipantsBlock(QuerysetBlock):
                                                     .select_related('user', 'is_user', 'civility')
                        )
 
-        #CremeEntity.populate_credentials(contacts.values(), context['user'])
-
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
 
@@ -85,9 +83,7 @@ class SubjectsBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                                              )
 
-        relations = btc['page'].object_list
-        Relation.populate_real_object_entities(relations)
-        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
+        Relation.populate_real_object_entities(btc['page'].object_list)
 
         return self._render(btc)
 
@@ -112,11 +108,10 @@ class FutureActivitiesBlock(QuerysetBlock):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
     def _render(self, template_context):
-        #optimisations
-        activities = template_context['page'].object_list
-        user       = template_context['user']
-        CremeEntity.populate_relations(activities, self._RTYPES_2_POP, user)
-        #CremeEntity.populate_credentials(activities, user)
+        #optimisation
+        CremeEntity.populate_relations(template_context['page'].object_list,
+                                       self._RTYPES_2_POP, template_context['user'],
+                                      )
 
         return super(FutureActivitiesBlock, self)._render(template_context)
 

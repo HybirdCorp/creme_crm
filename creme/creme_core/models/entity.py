@@ -97,71 +97,72 @@ class CremeEntity(CremeAbstractEntity):
     def allowed_unicode(self, user):
         return unicode(self) if user.has_perm_to_view(self) else ugettext(u'Entity #%s (not viewable)') % self.id
 
-    def can_change(self, user):
-        warnings.warn("CremeEntity.can_change() method is deprecated; use User.has_perm_to_change() instead",
-                      DeprecationWarning
-                     )
-        return user.has_perm_to_change(self)
+    #XXX: all deprecated methods commented on 23/01/2014
+    #def can_change(self, user):
+        #warnings.warn("CremeEntity.can_change() method is deprecated; use User.has_perm_to_change() instead",
+                      #DeprecationWarning
+                     #)
+        #return user.has_perm_to_change(self)
 
-    def can_change_or_die(self, user):
-        warnings.warn("CremeEntity.can_change_or_die() method is deprecated; use User.has_perm_to_change_or_die() instead",
-                      DeprecationWarning
-                     )
-        user.has_perm_to_change_or_die(self)
+    #def can_change_or_die(self, user):
+        #warnings.warn("CremeEntity.can_change_or_die() method is deprecated; use User.has_perm_to_change_or_die() instead",
+                      #DeprecationWarning
+                     #)
+        #user.has_perm_to_change_or_die(self)
 
-    def can_delete(self, user):
-        warnings.warn("CremeEntity.can_delete() method is deprecated; use User.has_perm_to_delete() instead",
-                      DeprecationWarning
-                     )
-        return user.has_perm_to_delete(self)
+    #def can_delete(self, user):
+        #warnings.warn("CremeEntity.can_delete() method is deprecated; use User.has_perm_to_delete() instead",
+                      #DeprecationWarning
+                     #)
+        #return user.has_perm_to_delete(self)
 
-    def can_delete_or_die(self, user):
-        warnings.warn("CremeEntity.can_delete_or_die() method is deprecated; use User.has_perm_to_delete_or_die() instead",
-                      DeprecationWarning
-                     )
-        user.has_perm_to_delete_or_die(self)
+    #def can_delete_or_die(self, user):
+        #warnings.warn("CremeEntity.can_delete_or_die() method is deprecated; use User.has_perm_to_delete_or_die() instead",
+                      #DeprecationWarning
+                     #)
+        #user.has_perm_to_delete_or_die(self)
 
-    def can_link(self, user):
-        warnings.warn("CremeEntity.can_link() method is deprecated; use User.has_perm_to_link() instead",
-                      DeprecationWarning
-                     )
-        return user.has_perm_to_link(self)
+    #def can_link(self, user):
+        #warnings.warn("CremeEntity.can_link() method is deprecated; use User.has_perm_to_link() instead",
+                      #DeprecationWarning
+                     #)
+        #return user.has_perm_to_link(self)
 
-    def can_link_or_die(self, user):
-        warnings.warn("CremeEntity.can_link_or_die() method is deprecated; use User.has_perm_to_link_or_die() instead",
-                      DeprecationWarning
-                     )
-        user.has_perm_to_link_or_die(self)
+    #def can_link_or_die(self, user):
+        #warnings.warn("CremeEntity.can_link_or_die() method is deprecated; use User.has_perm_to_link_or_die() instead",
+                      #DeprecationWarning
+                     #)
+        #user.has_perm_to_link_or_die(self)
 
-    def can_unlink(self, user):
-        warnings.warn("CremeEntity.can_unlink() method is deprecated; use User.has_perm_to_unlink() instead",
-                      DeprecationWarning
-                     )
-        return user.has_perm_to_unlink(self)
+    #def can_unlink(self, user):
+        #warnings.warn("CremeEntity.can_unlink() method is deprecated; use User.has_perm_to_unlink() instead",
+                      #DeprecationWarning
+                     #)
+        #return user.has_perm_to_unlink(self)
 
-    def can_unlink_or_die(self, user):
-        warnings.warn("CremeEntity.can_unlink_or_die() method is deprecated; use User.has_perm_to_unlink_or_die() instead",
-                      DeprecationWarning
-                     )
-        user.has_perm_to_unlink_or_die(self)
+    #def can_unlink_or_die(self, user):
+        #warnings.warn("CremeEntity.can_unlink_or_die() method is deprecated; use User.has_perm_to_unlink_or_die() instead",
+                      #DeprecationWarning
+                     #)
+        #user.has_perm_to_unlink_or_die(self)
 
-    def can_view(self, user):
-        warnings.warn("CremeEntity.can_view() method is deprecated; use User.has_perm_to_view() instead",
-                      DeprecationWarning
-                     )
-        return user.has_perm_to_view(self)
+    #def can_view(self, user):
+        #warnings.warn("CremeEntity.can_view() method is deprecated; use User.has_perm_to_view() instead",
+                      #DeprecationWarning
+                     #)
+        #return user.has_perm_to_view(self)
 
-    def can_view_or_die(self, user):
-        warnings.warn("CremeEntity.can_view_or_die() method is deprecated; use User.has_perm_to_view_or_die() instead",
-                      DeprecationWarning
-                     )
-        user.has_perm_to_view_or_die(self)
+    #def can_view_or_die(self, user):
+        #warnings.warn("CremeEntity.can_view_or_die() method is deprecated; use User.has_perm_to_view_or_die() instead",
+                      #DeprecationWarning
+                     #)
+        #user.has_perm_to_view_or_die(self)
 
-    @staticmethod
-    def populate_credentials(entities, user):
-        warnings.warn("CremeEntity.populate_credentials() method is deprecated & useless.",
-                      DeprecationWarning
-                     )
+    #@staticmethod
+    #def populate_credentials(entities, user):
+        #warnings.warn("CremeEntity.populate_credentials() method is deprecated & useless.",
+                      #DeprecationWarning
+                     #)
 
     @staticmethod
     def get_real_entity_by_id(pk):

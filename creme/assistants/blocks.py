@@ -49,8 +49,6 @@ class _AssistantsBlock(QuerysetBlock):
         for assistant in assistants:
             assistant.creme_entity = entities_map[assistant.entity_id]
 
-        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
-
     def _get_queryset_for_detailview(self, entity, context):
         """OVERLOAD ME"""
         pass
