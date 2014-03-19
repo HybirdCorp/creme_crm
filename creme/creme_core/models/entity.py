@@ -166,6 +166,9 @@ class CremeEntity(CremeAbstractEntity):
 
     @staticmethod
     def get_real_entity_by_id(pk):
+        warnings.warn("CremeEntity.get_real_entity_by_id() method is deprecated (because it is probably useless).",
+                      DeprecationWarning
+                     )
         return CremeEntity.objects.get(pk=pk).get_real_entity()
 
     def get_real_entity(self):
