@@ -160,12 +160,11 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_change(contact2))
 
         #helpers (exception version) -------------------------------------------
-        #TODO: deprecated
-        self.assertNoException(contact1.can_view_or_die, user)
-        self.assertRaises(PermissionDenied, contact1.can_change_or_die, user)
-        self.assertRaises(PermissionDenied, contact1.can_delete_or_die, user)
-        self.assertRaises(PermissionDenied, contact1.can_link_or_die, user)
-        self.assertRaises(PermissionDenied, contact1.can_unlink_or_die, user)
+        #self.assertNoException(contact1.can_view_or_die, user)
+        #self.assertRaises(PermissionDenied, contact1.can_change_or_die, user)
+        #self.assertRaises(PermissionDenied, contact1.can_delete_or_die, user)
+        #self.assertRaises(PermissionDenied, contact1.can_link_or_die, user)
+        #self.assertRaises(PermissionDenied, contact1.can_unlink_or_die, user)
 
         self.assertNoException(user.has_perm_to_view_or_die, contact1)
         self.assertRaises(PermissionDenied, user.has_perm_to_change_or_die, contact1)
@@ -209,9 +208,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm('creme_core.view_entity',   self.contact2))
 
         #helpers ---------------------------------------------------------------
-        self.assertFalse(contact1.can_view(user)) #TODO: deprecated
+        #self.assertFalse(contact1.can_view(user))
         self.assertFalse(user.has_perm_to_view(contact1))
-        self.assertRaises(PermissionDenied, contact1.can_view_or_die, user)  #TODO: deprecated
+        #self.assertRaises(PermissionDenied, contact1.can_view_or_die, user)
         self.assertRaises(PermissionDenied, user.has_perm_to_view_or_die, contact1)
 
         #filtering --------------------------------------------------------------
@@ -419,12 +418,12 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         contact1 = self.contact1
-        #TODO: deprecated
-        self.assertFalse(contact1.can_view(user))
-        self.assertFalse(contact1.can_change(user))
-        self.assertTrue(contact1.can_delete(user))
-        self.assertFalse(contact1.can_link(user))
-        self.assertFalse(contact1.can_unlink(user))
+
+        #self.assertFalse(contact1.can_view(user))
+        #self.assertFalse(contact1.can_change(user))
+        #self.assertTrue(contact1.can_delete(user))
+        #self.assertFalse(contact1.can_link(user))
+        #self.assertFalse(contact1.can_unlink(user))
 
         self.assertFalse(user.has_perm_to_view(contact1))
         self.assertFalse(user.has_perm_to_change(contact1))
@@ -977,15 +976,21 @@ class CredentialsTestCase(CremeTestCase):
                          )
 
         contact = self.contact1
-        self.assertTrue(contact.can_change(user))
-        self.assertTrue(contact.can_link(user))
-        self.assertTrue(contact.can_unlink(user))
+        #self.assertTrue(contact.can_change(user))
+        #self.assertTrue(contact.can_link(user))
+        #self.assertTrue(contact.can_unlink(user))
+        self.assertTrue(user.has_perm_to_change(contact))
+        self.assertTrue(user.has_perm_to_link(contact))
+        self.assertTrue(user.has_perm_to_unlink(contact))
 
         contact.trash()
 
-        with self.assertNoException(): #refresh cache
-            contact = self.refresh(contact)
+        #with self.assertNoException(): #refresh cache
+            #contact = self.refresh(contact)
 
-        self.assertFalse(contact.can_change(user))
-        self.assertFalse(contact.can_link(user))
-        self.assertTrue(contact.can_unlink(user))
+        #self.assertFalse(contact.can_change(user))
+        #self.assertFalse(contact.can_link(user))
+        #self.assertTrue(contact.can_unlink(user))
+        self.assertFalse(user.has_perm_to_change(contact))
+        self.assertFalse(user.has_perm_to_link(contact))
+        self.assertTrue(user.has_perm_to_unlink(contact))

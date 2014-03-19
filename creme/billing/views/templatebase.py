@@ -60,10 +60,10 @@ def listview(request):
     #user = request.user
 
     #template = get_object_or_404(TemplateBase, pk=template_id)
-    #template.can_delete_or_die(user)
+    #user.has_perm_to_delete_or_die(template)
 
     #generator = template.get_generator()
-    #generator.can_delete_or_die(user)
+    #user.has_perm_to_delete_or_die(generator)
 
     #if generator: # WTF ??
         #generator.delete()

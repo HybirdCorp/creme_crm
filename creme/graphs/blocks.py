@@ -39,9 +39,7 @@ class RootNodesBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, graph.pk),
                                              )
 
-        entities = [node.entity for node in btc['page'].object_list]
-        CremeEntity.populate_real_entities(entities)
-        #CremeEntity.populate_credentials(entities, context['user'])
+        CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
 
         return self._render(btc)
 

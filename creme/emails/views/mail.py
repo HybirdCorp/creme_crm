@@ -81,11 +81,10 @@ def synchronisation(request):
 def set_emails_status(request, status):
     user = request.user
     errors = []
-    emails = EntityEmail.objects.filter(id__in=request.POST.getlist('ids'))
-    #CremeEntity.populate_credentials(emails, user)
+    has_perm = user.has_perm_to_change
 
-    for email in emails:
-        if not user.has_perm_to_change(email):
+    for email in EntityEmail.objects.filter(id__in=request.POST.getlist('ids')):
+        if not has_perm(email):
             errors.append(ugettext(u'You are not allowed to edit this entity: %s') % email.allowed_unicode(user))
         else:
             email.status = status

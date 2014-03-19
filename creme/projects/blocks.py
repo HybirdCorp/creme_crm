@@ -54,14 +54,12 @@ class ParentTasksBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         task = context['object']
-        btc = self.get_block_template_context(context,
-                                              task.parent_tasks.all(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context,
+                                                            task.parent_tasks.all(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                                           )
+                           )
 
 
 class ProjectTasksBlock(QuerysetBlock):
@@ -75,14 +73,12 @@ class ProjectTasksBlock(QuerysetBlock):
         project = context['object']
         user    = context['user']
         creation_perm = user.has_perm('projects.add_projecttask') and user.has_perm_to_change(project)
-        btc = self.get_block_template_context(context, project.get_tasks(),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
-                                              creation_perm=creation_perm, #TODO: use a tempatetag instead ??
-                                             )
 
-        #CremeEntity.populate_credentials(btc['page'].object_list, user)
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context, project.get_tasks(),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, project.pk),
+                                                            creation_perm=creation_perm, #TODO: use a tempatetag instead ??
+                                                           )
+                           )
 
 
 class TaskResourcesBlock(QuerysetBlock):
@@ -94,16 +90,12 @@ class TaskResourcesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         task = context['object']
-        btc = self.get_block_template_context(context,
-                                              task.get_resources().select_related('linked_contact'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
-                                             )
 
-        #CremeEntity.populate_credentials([r.linked_contact for r in  btc['page'].object_list],
-                                         #context['user']
-                                        #)
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context,
+                                                            task.get_resources().select_related('linked_contact'),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
+                                                           )
+                           )
 
 
 class TaskWorkingPeriodsBlock(QuerysetBlock):

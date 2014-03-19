@@ -69,7 +69,6 @@ def add_multiple_service_line(request, document_id):
 # def edit_line(request, line_id):
 #     return edit_model_with_popup(request, {'pk': line_id},
 #                                  Line, LineEditForm,
-#                                  #can_change=Line.can_change
 #                                 ) #todo check line or billing document credentials ??
 #
 # @jsonify

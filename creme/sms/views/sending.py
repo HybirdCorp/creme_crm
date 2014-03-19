@@ -60,7 +60,6 @@ def delete(request):
 @permission_required('sms')
 def sync_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
-    #sending.campaign.can_view_or_die(request.user)
     request.user.has_perm_to_change_or_die(sending.campaign)
 
     Message.sync(sending)
@@ -71,7 +70,6 @@ def sync_messages(request, id):
 @permission_required('sms')
 def send_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
-    #sending.campaign.can_view_or_die(request.user)
     request.user.has_perm_to_change_or_die(sending.campaign)
 
     Message.send(sending)

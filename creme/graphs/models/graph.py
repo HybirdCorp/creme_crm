@@ -68,7 +68,6 @@ class Graph(CremeEntity):
         graph = pgv.AGraph(directed=True)
 
         #NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
-        #roots = RootNode.objects.filter(graph=self.id).select_related('entity')
         has_perm_to_view = user.has_perm_to_view
         roots = [root for root in RootNode.objects.filter(graph=self.id).select_related('entity')
                     if not root.entity.is_deleted and has_perm_to_view(root.entity)
@@ -79,13 +78,9 @@ class Graph(CremeEntity):
 
         #TODO: entity cache ? regroups relations by type ? ...
 
-        #CremeEntity.populate_credentials([root.entity for root in roots], user)
-        #CremeEntity.populate_real_entities([root.entity for root in roots if root.entity.can_view(user)]) #small optimisation
         CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
 
         for root in roots:
-            #if root.entity.can_view(user):
-                #add_node(unicode(root.entity), shape='box')
             add_node(unicode(root.entity), shape='box')
             #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
             #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
@@ -94,15 +89,11 @@ class Graph(CremeEntity):
 
         for root in roots:
             subject = root.entity
-            #if not subject.can_view(user):
-                #continue
-
             str_subject = unicode(subject)
             relations   = subject.relations.filter(type__in=root.relation_types.all())\
                                            .select_related('object_entity', 'type')
 
             Relation.populate_real_object_entities(relations) #small optimisation
-            #CremeEntity.populate_credentials([r.object_entity for r in relations], user)
 
             for relation in relations:
                 object_ = relation.object_entity

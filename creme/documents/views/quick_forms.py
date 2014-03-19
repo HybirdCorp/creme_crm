@@ -37,7 +37,6 @@ def add_csv_from_widget(request, count):
         raise PermissionDenied('You are not allowed to create a document')
 
     #TODO : see for permission issues
-    #folder.can_change_or_die(user)
 
     if request.method == 'POST':
         form = CSVDocumentWidgetQuickForm(user=user, data=request.POST, files=request.FILES or None, initial=None)
