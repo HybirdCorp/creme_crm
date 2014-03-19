@@ -348,7 +348,6 @@ class RegularFieldEditorNode(TemplateNode):
     template_name = 'creme_core/templatetags/widgets/block_field_editor.html'
 
     def __init__(self, field_var, object_var):
-        #self.template   = get_template('creme_core/templatetags/widgets/block_field_editor.html')
         self.field_var  = field_var
         self.object_var = object_var
 
@@ -373,7 +372,6 @@ class RegularFieldEditorNode(TemplateNode):
 
         self._update_context(context, field, instance)
 
-        #return self.template.render(context)
         return get_template(self.template_name).render(context)
 
 class CustomFieldEditorNode(RegularFieldEditorNode):
@@ -382,15 +380,7 @@ class CustomFieldEditorNode(RegularFieldEditorNode):
         context['updatable'] = True
 
 class EntityCellEditorNode(RegularFieldEditorNode):
-    #template_name = 'creme_core/templatetags/widgets/block_listview_field_editor.html' #TODO: delete file
-
-    #def __init__(self, field_var, object_var):
-        #super(EntityCellEditorNode, self).__init__(field_var, object_var)
-        #self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
-
     def _update_context(self, context, cell, instance):
-        #context['is_header_filter_item_valid'] = True
-
         if isinstance(cell, EntityCellRegularField):
             model = instance.entity_type.model_class()
             field_name = cell.value.partition('__')[0] #TODO: cell.field_info ?
@@ -400,7 +390,6 @@ class EntityCellEditorNode(RegularFieldEditorNode):
             context['field'] = cell.value
             context['updatable'] = True
         else:
-            #context['is_header_filter_item_valid'] = False
             context['updatable'] = False
 
 _FIELD_EDITOR_NODES = {'regular':       RegularFieldEditorNode,
