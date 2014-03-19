@@ -127,14 +127,15 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual('properties',  rf.get_accessor_name())
 
     def test_get_date_fields(self):
+        datefields = meta.get_date_fields(CremeEntity())
+        self.assertEqual(2, len(datefields))
+        self.assertEqual(set(('created', 'modified')), set(f.name for f in datefields))
+
+    def test_is_date_field(self):
         entity = CremeEntity()
         get_field = entity._meta.get_field
         self.assertTrue(meta.is_date_field(get_field('created')))
         self.assertFalse(meta.is_date_field(get_field('user')))
-
-        datefields = meta.get_date_fields(entity)
-        self.assertEqual(2, len(datefields))
-        self.assertEqual(set(('created', 'modified')), set(f.name for f in datefields))
 
     def test_field_enumerator01(self):
         expected = [('id',                         'ID'),

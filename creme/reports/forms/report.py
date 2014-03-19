@@ -37,7 +37,7 @@ from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWi
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
 from creme.creme_core.models import HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
-from creme.creme_core.utils.meta import get_date_fields, ModelFieldEnumerator
+from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
 
 from ..constants import RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION, RFT_AGGREGATE, RFT_RELATED
 from ..utils import encode_datetime
@@ -309,9 +309,13 @@ class DateReportFilterForm(CremeForm):
         fields = self.fields
 
         date_field_choices = [("", _(u"None"))]
-        date_field_choices.extend([(field.name, field.verbose_name)
-                                            for field in get_date_fields(report.ct.model_class())
-                                       ])
+        #date_field_choices.extend([(field.name, field.verbose_name)
+                                            #for field in get_date_fields(report.ct.model_class())
+                                       #])
+        date_field_choices.extend((field.name, field.verbose_name)
+                                        for field in report.ct.model_class()._meta.fields
+                                            if is_date_field(field)
+                                 )
         fields['date_field'].choices = date_field_choices
 
         choices = [(backend.id, backend.verbose_name)
