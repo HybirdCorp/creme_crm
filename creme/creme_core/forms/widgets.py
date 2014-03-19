@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 #from datetime import datetime
 from itertools import chain
-import warnings
+#import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
@@ -682,73 +682,73 @@ class ColorPickerWidget(TextInput):
 #                })
 
 
-class ListViewWidget(TextInput):
-    """A list view many-to-many widget
-    Examples of usage in a form definition :
-        mailing_list = fields.CremeEntityField(required=False, model=MailingList, q_filter=None)
-        mailing_list = fields.MultiCremeEntityField(required=False, model=MailingList, q_filter=None)
-    @param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
-    """
-    def __init__(self, attrs=None, q_filter=None, model=None, separator=','):
-        warnings.warn("ListViewWidget class is deprecated.", DeprecationWarning)
-        super(ListViewWidget, self).__init__(attrs)
-        self.q_filter  = q_filter
-        self._o2m      = 1
-        self._model    = model
-        self._ct_id    = None if model is None else ContentType.objects.get_for_model(model).id
-        self.separator = separator
+#class ListViewWidget(TextInput):
+    #"""A list view many-to-many widget
+    #Examples of usage in a form definition :
+        #mailing_list = fields.CremeEntityField(required=False, model=MailingList, q_filter=None)
+        #mailing_list = fields.MultiCremeEntityField(required=False, model=MailingList, q_filter=None)
+    #@param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
+    #"""
+    #def __init__(self, attrs=None, q_filter=None, model=None, separator=','):
+        #warnings.warn("ListViewWidget class is deprecated.", DeprecationWarning)
+        #super(ListViewWidget, self).__init__(attrs)
+        #self.q_filter  = q_filter
+        #self._o2m      = 1
+        #self._model    = model
+        #self._ct_id    = None if model is None else ContentType.objects.get_for_model(model).id
+        #self.separator = separator
 
-    @property
-    def o2m(self):
-        return self._o2m
+    #@property
+    #def o2m(self):
+        #return self._o2m
 
-    @o2m.setter
-    def o2m(self, o2m):
-        self._o2m = o2m
+    #@o2m.setter
+    #def o2m(self, o2m):
+        #self._o2m = o2m
 
-    @property
-    def model(self):
-        return self._model
+    #@property
+    #def model(self):
+        #return self._model
 
-    @model.setter
-    def model(self, model):
-        self._model = model
-        if model is not None:
-            self._ct_id = ContentType.objects.get_for_model(model).id
+    #@model.setter
+    #def model(self, model):
+        #self._model = model
+        #if model is not None:
+            #self._ct_id = ContentType.objects.get_for_model(model).id
 
-    def render(self, name, value, attrs=None):
-        attrs = self.build_attrs(attrs, name=name)
-        attrs['o2m']   = self.o2m
-        attrs['ct_id'] = self._ct_id
+    #def render(self, name, value, attrs=None):
+        #attrs = self.build_attrs(attrs, name=name)
+        #attrs['o2m']   = self.o2m
+        #attrs['ct_id'] = self._ct_id
 
-        id_input = attrs.get('id')
+        #id_input = attrs.get('id')
 
-        encode = JSONEncoder().encode
+        #encode = JSONEncoder().encode
 
-        return mark_safe("""%(input)s
-                <script type="text/javascript">
-                    $(document).ready(function() {
-                        creme.lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
-                        creme.lv_widget.handleSelection(%(value)s, '%(id)s');
-                    });
-                </script>""" % {
-                    'input':    super(ListViewWidget, self).render(name, "", attrs),
-                    'id':       id_input,
-                    'qfilter':  encode(self.q_filter),
-                    'js_attrs': encode([{'name': k, 'value': v} for k, v in self.attrs.iteritems()]),
-                    'value':    encode(value),
-                })
+        #return mark_safe("""%(input)s
+                #<script type="text/javascript">
+                    #$(document).ready(function() {
+                        #creme.lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
+                        #creme.lv_widget.handleSelection(%(value)s, '%(id)s');
+                    #});
+                #</script>""" % {
+                    #'input':    super(ListViewWidget, self).render(name, "", attrs),
+                    #'id':       id_input,
+                    #'qfilter':  encode(self.q_filter),
+                    #'js_attrs': encode([{'name': k, 'value': v} for k, v in self.attrs.iteritems()]),
+                    #'value':    encode(value),
+                #})
 
-    def value_from_datadict(self, data, files, name):
-        value = data.get(name, None)
+    #def value_from_datadict(self, data, files, name):
+        #value = data.get(name, None)
 
-        if value:
-            if self.separator in value:
-                return [v for v in data[name].split(self.separator) if v]
+        #if value:
+            #if self.separator in value:
+                #return [v for v in data[name].split(self.separator) if v]
 
-            return [value]
+            #return [value]
 
-        return None
+        #return None
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple):
