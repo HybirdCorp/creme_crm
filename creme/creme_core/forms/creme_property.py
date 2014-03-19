@@ -27,7 +27,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from ..models import CremePropertyType, CremeProperty
 from ..utils import entities2unicode
 from .base import CremeForm
-#from .fields import MultiCremeEntityField
 #from .validators import validate_editable_entities
 from .widgets import UnorderedMultipleChoiceWidget, Label
 
@@ -62,7 +61,6 @@ class AddPropertiesForm(_AddPropertiesForm):
 
 
 class AddPropertiesBulkForm(_AddPropertiesForm):
-    #entities     = MultiCremeEntityField(model=None, widget=HiddenInput)
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label(), required=False)
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
@@ -70,10 +68,6 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         self.entities = entities
         fields = self.fields
         ct = ContentType.objects.get_for_model(model)
-
-        #entities_field = fields['entities']
-        #entities_field.model   = model
-        #entities_field.initial = ','.join(str(e.id) for e in entities)
 
         fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)#TODO:Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')

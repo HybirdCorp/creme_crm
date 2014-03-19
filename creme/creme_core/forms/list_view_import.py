@@ -49,7 +49,7 @@ from creme.documents.models import Document
 
 from ..utils.meta import ModelFieldEnumerator
 from .base import CremeForm, CremeModelForm, FieldBlockManager
-from .fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
+from .fields import MultiRelationEntityField, CreatorEntityField
 from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from .validators import validate_linkable_entities
 
@@ -58,15 +58,10 @@ logger = logging.getLogger(__name__)
 
 
 class UploadForm(CremeForm):
-    step     = IntegerField(widget=HiddenInput)
-    document = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1')
-#    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
-#                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
-#                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
-#                                                   '(to protect a value containing a comma for example).'
-#                                                 )
-#                                     )
+    step       = IntegerField(widget=HiddenInput)
+    document   = CreatorEntityField(label=_(u'File to import'), model=Document,
+                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
+                                   )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
                               help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
                              )

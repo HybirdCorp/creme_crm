@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,13 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from re import compile as compile_re
-import warnings
+#import warnings
 
+from django.core.validators import validate_email
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
-                          ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
+        ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
 from django.forms.util import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
@@ -35,8 +37,6 @@ from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
-from django.contrib.contenttypes.models import ContentType
-from django.core.validators import validate_email
 
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
@@ -45,17 +45,16 @@ from ..utils.collections import OrderedSet
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
 from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
-                      SelectorList, RelationSelector, ActionButtonList,
-                      ListViewWidget, ListEditionWidget,
-                      UnorderedMultipleChoiceWidget,
-                      CalendarWidget, TimeWidget, DateRangeWidget,
-                      ColorPickerWidget, DurationWidget, ChoiceOrCharWidget)
+        SelectorList, RelationSelector, ActionButtonList,
+        ListEditionWidget, UnorderedMultipleChoiceWidget,
+        CalendarWidget, TimeWidget, DateRangeWidget,
+        ColorPickerWidget, DurationWidget, ChoiceOrCharWidget) #ListViewWidget
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CreatorEntityField', 'MultiCreatorEntityField',
-           'CremeEntityField', 'MultiCremeEntityField',
+           #'CremeEntityField', 'MultiCremeEntityField',
            'FilteredEntityTypeField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
@@ -759,145 +758,145 @@ class MultiCreatorEntityField(CreatorEntityField):
         return entities
 
 
-class _EntityField(Field):
-    """
-        Base class for CremeEntityField and MultiCremeEntityField,
-        not really usable elsewhere avoid using it
-    """
-    widget = ListViewWidget
-    default_error_messages = {
-        'invalid_choice': _(u"Select a valid choice. %(value)s is not an available choice."),
-    }
+#class _EntityField(Field):
+    #"""
+        #Base class for CremeEntityField and MultiCremeEntityField,
+        #not really usable elsewhere avoid using it
+    #"""
+    #widget = ListViewWidget
+    #default_error_messages = {
+        #'invalid_choice': _(u"Select a valid choice. %(value)s is not an available choice."),
+    #}
 
-    def __init__(self, model=None, q_filter=None, separator=',', *args, **kwargs):
-        super(_EntityField, self).__init__(*args, **kwargs)
-        self.model     = model
-        self.q_filter  = q_filter
-        self.o2m       = None
-        self.separator = separator
+    #def __init__(self, model=None, q_filter=None, separator=',', *args, **kwargs):
+        #super(_EntityField, self).__init__(*args, **kwargs)
+        #self.model     = model
+        #self.q_filter  = q_filter
+        #self.o2m       = None
+        #self.separator = separator
 
-    @property
-    def model(self):
-        return self._model
+    #@property
+    #def model(self):
+        #return self._model
 
-    @model.setter
-    def model(self, model):
-        self._model = self.widget.model = model
+    #@model.setter
+    #def model(self, model):
+        #self._model = self.widget.model = model
 
-    @property
-    def q_filter(self):
-        return self._q_filter
+    #@property
+    #def q_filter(self):
+        #return self._q_filter
 
-    @q_filter.setter
-    def q_filter(self, q_filter):
-        self._q_filter = self.widget.q_filter = q_filter
+    #@q_filter.setter
+    #def q_filter(self, q_filter):
+        #self._q_filter = self.widget.q_filter = q_filter
 
-    @property
-    def o2m(self):
-        return self._o2m
+    #@property
+    #def o2m(self):
+        #return self._o2m
 
-    @o2m.setter
-    def o2m(self, o2m):
-        self._o2m = self.widget.o2m = o2m
+    #@o2m.setter
+    #def o2m(self, o2m):
+        #self._o2m = self.widget.o2m = o2m
 
-    @property
-    def separator(self):
-        return self._separator
+    #@property
+    #def separator(self):
+        #return self._separator
 
-    @separator.setter
-    def separator(self, separator):
-        self._separator = self.widget.separator = separator
+    #@separator.setter
+    #def separator(self, separator):
+        #self._separator = self.widget.separator = separator
 
-    def clean(self, value):
-        value = super(_EntityField, self).clean(value)
+    #def clean(self, value):
+        #value = super(_EntityField, self).clean(value)
 
-        if not value:
-            return None
+        #if not value:
+            #return None
 
-        if isinstance(value, basestring):
-            if self.separator in value:#In case of the widget doesn't make a 'good clean'
-                value = [v for v in value.split(self.separator) if v]
-            else:
-                value = [value]
+        #if isinstance(value, basestring):
+            #if self.separator in value:#In case of the widget doesn't make a 'good clean'
+                #value = [v for v in value.split(self.separator) if v]
+            #else:
+                #value = [value]
 
-        try:
-            clean_ids = [int(v) for v in value]
-        except ValueError:
-            raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
+        #try:
+            #clean_ids = [int(v) for v in value]
+        #except ValueError:
+            #raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
 
-        return clean_ids
-
-
-class CremeEntityField(_EntityField):
-    """
-         An input with comma (or anything) separated primary keys
-         clean method return a model instance
-    """
-    default_error_messages = {
-        'doesnotexist': _(u"This entity doesn't exist."),
-    }
-
-    def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
-        super(CremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
-        self.o2m = 1
-
-        warnings.warn("CremeEntityField class is deprecated; use CreatorEntityField instead",
-                      DeprecationWarning
-                     )
-
-    def clean(self, value):
-        clean_id = super(CremeEntityField, self).clean(value)
-        if not clean_id:
-            return None
-
-        if len(clean_id) > 1:
-            raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
-
-        qs = self.model.objects.filter(is_deleted=False)
-
-        if self.q_filter is not None:
-            qs = qs.filter(get_q_from_dict(self.q_filter))
-
-        try:
-            return qs.get(pk=clean_id[0])
-        except self.model.DoesNotExist:
-            if self.required:
-                raise ValidationError(self.error_messages['doesnotexist'])
+        #return clean_ids
 
 
-class MultiCremeEntityField(_EntityField):
-    """
-         An input with comma (or anything) separated primary keys
-         clean method return a list of real model instances
-    """
-    def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
-        super(MultiCremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
-        self.o2m = 0
+#class CremeEntityField(_EntityField):
+    #"""
+         #An input with comma (or anything) separated primary keys
+         #clean method return a model instance
+    #"""
+    #default_error_messages = {
+        #'doesnotexist': _(u"This entity doesn't exist."),
+    #}
 
-        warnings.warn("MultiCremeEntityField class is deprecated; use MultiCreatorEntityField instead",
-                      DeprecationWarning
-                     )
+    #def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
+        #super(CremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
+        #self.o2m = 1
 
-    def clean(self, value):
-        cleaned_ids = super(MultiCremeEntityField, self).clean(value)
+        #warnings.warn("CremeEntityField class is deprecated; use CreatorEntityField instead",
+                      #DeprecationWarning
+                     #)
 
-        if not cleaned_ids:
-            return []
+    #def clean(self, value):
+        #clean_id = super(CremeEntityField, self).clean(value)
+        #if not clean_id:
+            #return None
 
-        qs = self.model.objects.filter(is_deleted=False, pk__in=cleaned_ids)
+        #if len(clean_id) > 1:
+            #raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
 
-        if self.q_filter is not None:
-            qs = qs.filter(get_q_from_dict(self.q_filter))
+        #qs = self.model.objects.filter(is_deleted=False)
 
-        entities = list(qs)
+        #if self.q_filter is not None:
+            #qs = qs.filter(get_q_from_dict(self.q_filter))
 
-        if len(entities) != len(cleaned_ids):
-            raise ValidationError(self.error_messages['invalid_choice'] % {
-                                        'value': ', '.join(str(val) for val in value),
-                                   }
-                                 )
+        #try:
+            #return qs.get(pk=clean_id[0])
+        #except self.model.DoesNotExist:
+            #if self.required:
+                #raise ValidationError(self.error_messages['doesnotexist'])
 
-        return entities
+
+#class MultiCremeEntityField(_EntityField):
+    #"""
+         #An input with comma (or anything) separated primary keys
+         #clean method return a list of real model instances
+    #"""
+    #def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):
+        #super(MultiCremeEntityField, self).__init__(model=model, q_filter=q_filter, *args, **kwargs)
+        #self.o2m = 0
+
+        #warnings.warn("MultiCremeEntityField class is deprecated; use MultiCreatorEntityField instead",
+                      #DeprecationWarning
+                     #)
+
+    #def clean(self, value):
+        #cleaned_ids = super(MultiCremeEntityField, self).clean(value)
+
+        #if not cleaned_ids:
+            #return []
+
+        #qs = self.model.objects.filter(is_deleted=False, pk__in=cleaned_ids)
+
+        #if self.q_filter is not None:
+            #qs = qs.filter(get_q_from_dict(self.q_filter))
+
+        #entities = list(qs)
+
+        #if len(entities) != len(cleaned_ids):
+            #raise ValidationError(self.error_messages['invalid_choice'] % {
+                                        #'value': ', '.join(str(val) for val in value),
+                                   #}
+                                 #)
+
+        #return entities
 
 
 class FilteredEntityTypeField(JSONField):
