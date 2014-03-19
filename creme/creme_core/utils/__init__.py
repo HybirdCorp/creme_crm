@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+#import warnings
 import traceback
 import sys
 
@@ -41,11 +41,11 @@ def creme_entity_content_types():
     get_for_model = ContentType.objects.get_for_model
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 
-def Q_creme_entity_content_types():
-    warnings.warn("Q_creme_entity_content_types() function is deprecated.",
-                  DeprecationWarning
-                 )
-    return ContentType.objects.filter(pk__in=[ct_model.pk for ct_model in creme_entity_content_types()])
+#def Q_creme_entity_content_types():
+    #warnings.warn("Q_creme_entity_content_types() function is deprecated.",
+                  #DeprecationWarning
+                 #)
+    #return ContentType.objects.filter(pk__in=[ct_model.pk for ct_model in creme_entity_content_types()])
 
 def get_ct_or_404(ct_id):
     try:
