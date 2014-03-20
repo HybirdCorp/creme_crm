@@ -139,7 +139,8 @@ class EntityCell(object):
         return self._get_listview_css_class('_header_listview_css_class')
 
     @staticmethod
-    def populate_entities(cells, entities, user):
+    #def populate_entities(cells, entities, user):
+    def populate_entities(cells, entities):
         pass
 
     #TODO: factorise render_* => like FunctionField, result that can be html, csv...
@@ -228,7 +229,8 @@ class EntityCellRegularField(EntityCell):
         return self._field_info[-1]['field'].__class__
 
     @staticmethod
-    def populate_entities(cells, entities, user):
+    #def populate_entities(cells, entities, user):
+    def populate_entities(cells, entities):
         #CremeEntity.populate_fk_fields(entities, [cell.value.partition('__')[0] for cell in cells])
         CremeEntity.populate_fk_fields(entities, [cell.field_info[0]['field'].name for cell in cells])
 
@@ -300,7 +302,8 @@ class EntityCellCustomField(EntityCell):
         return self._CF_CSS.get(self._customfield.field_type)
 
     @staticmethod
-    def populate_entities(cells, entities, user):
+    #def populate_entities(cells, entities, user):
+    def populate_entities(cells, entities):
         #TODO: can we reuse the same code to build EntityCell without too many queries ??
         #cfields = CustomField.objects.in_bulk([int(cell.value) for cell in cells])
 
@@ -347,7 +350,8 @@ class EntityCellFunctionField(EntityCell):
         return self._functionfield
 
     @staticmethod
-    def populate_entities(cells, entities, user):
+    #def populate_entities(cells, entities, user):
+    def populate_entities(cells, entities):
         for cell in cells:
             cell.function_field.populate_entities(entities)
 
@@ -386,8 +390,10 @@ class EntityCellRelation(EntityCell):
         return self._rtype
 
     @staticmethod
-    def populate_entities(cells, entities, user):
-        CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells], user)
+    #def populate_entities(cells, entities, user):
+    def populate_entities(cells, entities):
+        #CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells], user)
+        CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 
     def render_html(self, entity, user):
         relations_list = ['<ul>']

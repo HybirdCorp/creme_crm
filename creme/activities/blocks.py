@@ -110,7 +110,7 @@ class FutureActivitiesBlock(QuerysetBlock):
     def _render(self, template_context):
         #optimisation
         CremeEntity.populate_relations(template_context['page'].object_list,
-                                       self._RTYPES_2_POP, template_context['user'],
+                                       self._RTYPES_2_POP, #template_context['user'],
                                       )
 
         return super(FutureActivitiesBlock, self)._render(template_context)

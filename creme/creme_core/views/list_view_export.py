@@ -78,7 +78,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
         entities = current_lvs.sort_query(entities)
 
         for entities_slice in iter_as_slices(entities, 256):
-            hf.populate_entities(entities_slice, user)  # optimisation time !!!
+            #hf.populate_entities(entities_slice, user)  # optimisation time !!!
+            hf.populate_entities(entities_slice)  # optimisation time !!!
 
             for entity in entities_slice:
                 line = []

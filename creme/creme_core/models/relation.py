@@ -260,10 +260,11 @@ class Relation(CremeAbstractEntity):
         return self._get_real_entity(Relation)
 
     @staticmethod
-    def populate_real_object_entities(relations, user=None): #TODO: user is useless
+    #def populate_real_object_entities(relations, user=None):
+        #@param user If given, real entities are populated with credentials related to this user.
+    def populate_real_object_entities(relations):
         """Faster than call get_real_entity() on each relation.object_entity.
         @param relations Iterable of Relation objects.
-        @param user If given, real entities are populated with credentials related to this user.
         tips: better if object_entity attribute is already populated
         -> (eg: use select_related('object_entity') on the queryset)
         """
