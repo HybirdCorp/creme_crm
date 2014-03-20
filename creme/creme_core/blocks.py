@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,13 @@
 
 from collections import defaultdict
 
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
+from .gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 from .models import CremeEntity, Relation, CremeProperty
 from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
-from .gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
 class PropertiesBlock(QuerysetBlock):
@@ -78,7 +79,6 @@ class CustomFieldsBlock(SimpleBlock):
 
 class HistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'history')
-    #dependencies  = (HistoryLine, CremeProperty)
     dependencies  = '*'
     read_only     = True
     order_by      = '-date'
@@ -106,14 +106,32 @@ class HistoryBlock(QuerysetBlock):
         for hline in hlines:
             hline.entity = entities_map.get(hline.entity_id) #should not happen (means that entity does not exist anymore) but...
 
+    @staticmethod
+    def _populate_users(hlines, user):
+        # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
+        # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
+        usernames = set(hline.username for hline in hlines)
+        usernames.discard(user.username)
+
+        users = {user.username: user}
+
+        if usernames:
+            users.update((u.username, u) for u in User.objects.filter(username__in=usernames))
+
+        for hline in hlines:
+            hline.user = users.get(hline.username)
+
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(
-                                       context,
-                                       HistoryLine.objects.filter(entity=pk),
-                                       update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                   )
-                           )
+        btc = self.get_block_template_context(
+                    context,
+                    HistoryLine.objects.filter(entity=pk),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                   )
+
+        self._populate_users(btc['page'].object_list, context['request'].user)
+
+        return self._render(btc)
 
     def portal_display(self, context, ct_ids):
         btc = self.get_block_template_context(
@@ -121,7 +139,11 @@ class HistoryBlock(QuerysetBlock):
                     HistoryLine.objects.filter(entity_ctype__in=ct_ids),
                     update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                    )
-        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+        hlines = btc['page'].object_list
+        user = context['request'].user
+
+        self._populate_related_real_entities(hlines, user)
+        self._populate_users(hlines, user)
 
         return self._render(btc)
 
@@ -131,7 +153,11 @@ class HistoryBlock(QuerysetBlock):
                     HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
                     update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                    )
-        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+        hlines = btc['page'].object_list
+        user = context['request'].user
+
+        self._populate_related_real_entities(hlines, user)
+        self._populate_users(hlines, user)
 
         return self._render(btc)
 

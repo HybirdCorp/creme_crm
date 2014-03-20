@@ -475,11 +475,9 @@ class _HLTAuxDeletion(_HLTAuxCreation):
 #TODO: manage the related objects edition (Alerts, Lines...)
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
-    #entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
     entity_ctype = CTypeForeignKey()  #we do not use entity.entity_type because we keep history of the deleted entities
     entity_owner = CremeUserForeignKey()    #we do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30) #not a Fk to a User object because we want to keep the same line after the deletion of a User.
-    #date         = DateTimeField()
     date         = CreationDateTimeField()
     type         = PositiveSmallIntegerField() #see TYPE_*
     value        = TextField(null=True) #TODO: use a JSONField ? (see EntityFilter)
@@ -605,6 +603,11 @@ class HistoryLine(Model):
         user = get_global_info('user')
         self.username = user.username if user else ''
         super(HistoryLine, self).save(*args, **kwargs)
+
+    #TODO: ?? (see HistoryBlock)
+    #@property
+    #def user(self):
+        #[...]
 
 
 #TODO: method of CremeEntity ??
