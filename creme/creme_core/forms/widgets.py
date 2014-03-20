@@ -353,7 +353,8 @@ class SelectorList(TextInput):
 class EntitySelector(TextInput):
     def __init__(self, content_type=None, attrs=None):
         super(EntitySelector, self).__init__(attrs)
-        self.url = '/creme_core/lv_popup/' + content_type + '/${selection}?q_filter=${qfilter}' if content_type else '/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}'
+        self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}' if content_type else \
+                   '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
         self.text_url = '/creme_core/relation/entity/${id}/json'
 
     def render(self, name, value, attrs=None):

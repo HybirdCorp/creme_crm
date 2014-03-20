@@ -89,6 +89,7 @@ creme_core_patterns = patterns('creme.creme_core.views',
 
     #(r'^clean/$', 'clean.clean'), #TODO: remove code too
 
+    (r'^list_view/popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$',                     'generic.listview.list_view_popup_from_widget'),
     (r'^list_view/import/(?P<ct_id>\d+)$',                                 'list_view_import.import_listview'),
     (r'^list_view/download/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',          'list_view_export.dl_listview'),
     (r'^list_view/download_header/(?P<ct_id>\d+)/(?P<doc_type>[\w-]+)$',   'list_view_export.dl_listview_header'),
@@ -102,9 +103,9 @@ creme_core_patterns = patterns('creme.creme_core.views',
     (r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', 'quick_forms.add_from_widget'),
 )
 
-creme_core_patterns += patterns('creme.creme_core.views.generic',
-    (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'), #TODO: change url (list_view/...)
-)
+#creme_core_patterns += patterns('creme.creme_core.views.generic',
+    #(r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'), #TODO: change url (list_view/...)
+#)
 
 urlpatterns = patterns('creme.creme_core.views',
     (r'^$',        'index.home'),

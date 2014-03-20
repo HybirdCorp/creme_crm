@@ -69,7 +69,7 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
                             send_button_label: gettext("Validate the selection")
                         }
 //                        var params='menubar=no, status=no, scrollbars=yes, height=800';
-                        var dialog_id = creme.utils.showInnerPopup('/creme_core/lv_popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
+                        var dialog_id = creme.utils.showInnerPopup('/creme_core/list_view/popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
                         
                         var ct_id = e.data.input.attr('ct_id');
                         var multiple = e.data.input.attr('o2m')
@@ -82,7 +82,7 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
 }
 
 creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multiple) {
-    creme.lv_widget.listViewAction('/creme_core/lv_popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
+    creme.lv_widget.listViewAction('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
                    .onDone(function(event, data) {
                         creme.lv_widget.handleSelection(data, input_id);
                     })
