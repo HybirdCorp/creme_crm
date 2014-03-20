@@ -36,12 +36,12 @@
     {% for result in results %}
         {% with result.entities as entities %}
             {% if entities %}
-                {% with result.fields as fields %}
+                {% with result.sfields as sfields %}
                     <div class="result">
                         <table class="table_detail_view ui-corner-all with-header">
                             <thead>
                                 <tr>
-                                    <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
+                                    <th colspan="{{sfields|length|add:1}}" valign="middle" align="left">
                                         {{entities|length}}
                                         {% if entities|length == 1 %}{% comment %}TODO: improve plural management...{% endcomment %}
                                             {{result.model|get_meta_value:"verbose_name"}}
@@ -54,15 +54,15 @@
                             <tbody class="collapsable">
                                 <tr class="header">
                                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans 'Action' %}</th>
-                                    {% for field in fields %}
-                                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field}}</th>
+                                    {% for sfield in sfields %}
+                                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{sfield}}</th>
                                     {% endfor %}
                                 </tr>
                                 {% for entity in entities %}
                                     <tr class="{% cycle "block_line_dark" "block_line_light" %} content">
                                         <td class="action"><a href="{{entity.get_absolute_url}}" {% if entity.is_deleted %}class="is_deleted"{% endif %}>{% trans 'Go to the page' %}</a></td>
-                                        {% for field in fields %}
-                                            <td>{% print_field object=entity field=field.field %}</td>
+                                        {% for sfield in sfields %}
+                                            <td>{% print_field object=entity field=sfield.name %}</td>
                                         {% endfor %}
                                     </tr>
                                 {% endfor %}

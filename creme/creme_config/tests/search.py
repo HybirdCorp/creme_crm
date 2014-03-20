@@ -6,10 +6,10 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import SearchConfigItem, SearchField
+    from creme.creme_core.models import SearchConfigItem
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Contact #, Organisation
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -22,7 +22,6 @@ class SearchConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        SearchField.objects.all().delete()
         SearchConfigItem.objects.all().delete()
 
         cls.populate('creme_core', 'creme_config')
@@ -41,7 +40,6 @@ class SearchConfigTestCase(CremeTestCase):
 
         url = self.ADD_URL
         self.assertGET200(url)
-        #self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
         self.assertNoFormError(self.client.post(url, data={'content_type': ct.id}))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
@@ -49,8 +47,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_items[0].user)
 
     def test_add02(self):
-        post = partial(self.client.post, self.ADD_URL, data={#'ct_id': self.ct_contact.id,
-                                                             'content_type': self.ct_contact.id,
+        post = partial(self.client.post, self.ADD_URL, data={'content_type': self.ct_contact.id,
                                                              'user':         self.other_user.id,
                                                             }
                       )
@@ -101,20 +98,9 @@ class SearchConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
-        sf = SearchField.objects.filter(search_config_item=sci).order_by('order')
-        self.assertEqual(2, len(sf))
-        self.assertEqual('first_name', sf[0].field)
-        self.assertEqual('last_name',  sf[1].field)
+        self.assertEqual(['first_name', 'last_name'], [sf.name for sf in self.refresh(sci).searchfields])
 
     def test_delete(self):
-        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
-
-        create_sf = partial(SearchField.objects.create, search_config_item=sci)
-        sf1 = create_sf(field='first_name', order=1)
-        sf2 = create_sf(field='last_name',  order=2)
-
+        sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
         self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertDoesNotExist(sci)
-        self.assertDoesNotExist(sf1)
-        self.assertDoesNotExist(sf2)

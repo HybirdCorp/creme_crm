@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,9 +22,9 @@ from django.forms import ModelChoiceField, MultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme.creme_core.forms import CremeModelForm, CremeForm
+from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.models import SearchConfigItem, SearchField
+from creme.creme_core.models import SearchConfigItem
 
 
 class SearchAddForm(CremeModelForm):
@@ -34,6 +34,7 @@ class SearchAddForm(CremeModelForm):
 
     class Meta:
         model = SearchConfigItem
+        exclude = ('field_names',)
 
     def clean(self):
         cdata = super(SearchAddForm, self).clean()
@@ -47,42 +48,23 @@ class SearchAddForm(CremeModelForm):
         return cdata
 
 
-class SearchEditForm(CremeForm):
+class SearchEditForm(CremeModelForm):
     fields = MultipleChoiceField(label=_(u'Concerned fields'), required=False,
-                                 choices=(), widget=OrderedMultipleChoiceWidget)
+                                 choices=(), widget=OrderedMultipleChoiceWidget,
+                                )
+
+    class Meta:
+        model = SearchConfigItem
+        exclude = ('content_type', 'user', 'field_names')
 
     def __init__(self, *args, **kwargs):
-        self.search_cfg_itm = search_cfg_itm = kwargs.pop('instance')
         super(SearchEditForm, self).__init__(*args, **kwargs)
-
-        model_fields = search_cfg_itm.get_modelfields_choices()
-        self._model_fields = dict(model_fields)
+        instance = self.instance
 
         fields_f = self.fields['fields']
-        fields_f.choices = model_fields
-        fields_f.initial = [f.field for f in search_cfg_itm.searchfields]
+        fields_f.choices = instance.get_modelfields_choices()
+        fields_f.initial = [sf.name for sf in instance.searchfields]
 
-    def save(self):
-        search_cfg_itm = self.search_cfg_itm
-        model_fields = self._model_fields
-        fields = self.cleaned_data['fields']
-
-        if not fields:
-            SearchField.objects.filter(search_config_item=search_cfg_itm).delete()
-        else:
-            old_ids = set(sci.field for sci in search_cfg_itm.searchfields)
-            new_ids = set(fields)
-            fields_to_del = old_ids - new_ids
-            fields_to_add = new_ids - old_ids
-
-            SearchField.objects.filter(search_config_item=search_cfg_itm, field__in=fields_to_del).delete()
-
-            for i, field in enumerate(fields):
-                if field in fields_to_add:
-                    SearchField.objects.create(search_config_item=search_cfg_itm, field=field, order=i, field_verbose_name=model_fields[field])
-                else:
-                    sf = SearchField.objects.get(search_config_item=search_cfg_itm, field=field) #TODO: queries could be regrouped...
-
-                    if sf.order != i:
-                        sf.order = i
-                        sf.save()
+    def save(self, *args, **kwargs):
+        self.instance.searchfields = self.cleaned_data['fields']
+        return super(SearchEditForm, self).save(*args, **kwargs)

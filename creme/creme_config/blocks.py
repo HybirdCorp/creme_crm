@@ -402,14 +402,10 @@ class SearchConfigBlock(_ConfigAdminBlock):
     order_by      = 'content_type'
 
     def detailview_display(self, context):
-        btc = self.get_block_template_context(context, SearchConfigItem.objects.all(),
-                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                             )
-
-        #NB: DB optimisation
-        SearchConfigItem.populate_searchfields(btc['page'].object_list)
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context, SearchConfigItem.objects.all(),
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                           ))
 
 
 class HistoryConfigBlock(_ConfigAdminBlock):
