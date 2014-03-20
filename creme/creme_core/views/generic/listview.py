@@ -202,7 +202,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         post_process(template_dict, request)
 
     #optimisation time !!
-    hf.populate_entities(entities.object_list, request.user)
+    #hf.populate_entities(entities.object_list, request.user)
+    hf.populate_entities(entities.object_list)
 
     return template, template_dict
 
