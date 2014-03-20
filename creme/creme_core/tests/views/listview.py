@@ -338,29 +338,40 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellRegularField.build(model=Organisation, name='phone'))
 
         url = self.url
-        data = {'_search': 1}
-        response = self.assertPOST200(url, data=dict(data, name='Red', phone=''))
+        #data = {'_search': 1}
+
+        def build_data(name='', phone='', search=1):
+            return {'_search': 1,
+                    'regular_field-name': name,
+                    'regular_field-phone': phone,
+                   }
+
+        #response = self.assertPOST200(url, data=dict(data, name='Red', phone=''))
+        response = self.assertPOST200(url, data=build_data('Red'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertIn(dragons.name,      content)
 
-        response = self.assertPOST200(url, data=dict(data, name='', phone='88'))
+        #response = self.assertPOST200(url, data=dict(data, name='', phone='88'))
+        response = self.assertPOST200(url, data=build_data('', '88'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
-        response = self.assertPOST200(url, data=dict(data, name='Red', phone='88'))
+        #response = self.assertPOST200(url, data=dict(data, name='Red', phone='88'))
+        response = self.assertPOST200(url, data=build_data('Red', '88'))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,     content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        response = self.assertPOST200(url, data={'_search': 0, 'name': '', 'phone': ''})
+        #response = self.assertPOST200(url, data={'_search': 0, 'name': '', 'phone': ''})
+        response = self.assertPOST200(url, data=build_data(search=0))
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,     content)
         self.assertIn(swordfish.name, content)
@@ -379,13 +390,15 @@ class ListViewTestCase(ViewsTestCase):
 
         url = self.url
         data = {'_search': 1}
-        response = self.assertPOST200(url, data=dict(data, subject_to_vat='1'))
+        #response = self.assertPOST200(url, data=dict(data, subject_to_vat='1'))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '1'}))
         orgas_set = self._get_entities_set(response)
         self.assertNotIn(bebop, orgas_set)
         self.assertIn(nerv,     orgas_set)
         self.assertIn(seele,    orgas_set)
 
-        response = self.assertPOST200(url, data=dict(data, subject_to_vat='0'))
+        #response = self.assertPOST200(url, data=dict(data, subject_to_vat='0'))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '0'}))
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,    orgas_set)
         self.assertNotIn(nerv,  orgas_set)
@@ -403,22 +416,28 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
 
         url = self.url
-        data = {'_search': 1}
-        response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2075']))
+        #data = {'_search': 1}
+
+        build_data = lambda cdate: {'_search': 1, 'regular_field-creation_date': cdate}
+
+        #response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2075']))
+        response = self.assertPOST200(url, data=build_data(['1-1-2075']))
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        response = self.assertPOST200(url, data=dict(data, creation_date=['', '1-1-2075']))
+        #response = self.assertPOST200(url, data=dict(data, creation_date=['', '1-1-2075']))
+        response = self.assertPOST200(url, data=build_data(['', '1-1-2075']))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2074', '31-12-2074']))
+        #response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2074', '31-12-2074']))
+        response = self.assertPOST200(url, data=build_data(['1-1-2074', '31-12-2074']))
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
@@ -444,21 +463,31 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
 
         url = self.url
-        data = {'_search': 1}
-        response = self.assertPOST200(url, data=dict(data, created=['1-1-2075']))
-        content = self._get_lv_content(response)
+        #data = {'_search': 1}
+        def post(created):
+            response = self.assertPOST200(url, data={'_search': 1,
+                                                     'regular_field-created': created,
+                                                    }
+                                         )
+            return  self._get_lv_content(response)
+
+        #response = self.assertPOST200(url, data=dict(data, created=['1-1-2075']))
+        #content = self._get_lv_content(response)
+        content = post(['1-1-2075'])
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
 
-        response = self.assertPOST200(url, data=dict(data, created=['', '1-1-2075']))
-        content = self._get_lv_content(response)
+        #response = self.assertPOST200(url, data=dict(data, created=['', '1-1-2075']))
+        #content = self._get_lv_content(response)
+        content = post(['', '1-1-2075'])
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        response = self.assertPOST200(url, data=dict(data, created=['1-1-2074', '31-12-2074']))
-        content = self._get_lv_content(response)
+        #response = self.assertPOST200(url, data=dict(data, created=['1-1-2074', '31-12-2074']))
+        #content = self._get_lv_content(response)
+        content = post(['1-1-2074', '31-12-2074'])
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
@@ -513,28 +542,32 @@ class ListViewTestCase(ViewsTestCase):
 
         #---------------------------------------------------------------------
         data = {'_search': 1}
-        response = self.assertPOST200(url, data=dict(data, civility=mister.id))
+        #response = self.assertPOST200(url, data=dict(data, civility=mister.id))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility': mister.id}))
         content = self._get_lv_content(response)
         self.assertIn(spike.last_name,   content)
         self.assertNotIn(faye.last_name, content)
         self.assertNotIn(ed.last_name,   content)
 
         #---------------------------------------------------------------------
-        response = self.assertPOST200(url, data=dict(data, civility__title='iss'))
+        #response = self.assertPOST200(url, data=dict(data, civility__title='iss'))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-civility__title': 'iss'}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertIn(faye.last_name,     content)
         self.assertNotIn(ed.last_name,    content)
 
         #---------------------------------------------------------------------
-        response = self.assertPOST200(url, data=dict(data, image__name=img_ed.name))
+        #response = self.assertPOST200(url, data=dict(data, image__name=img_ed.name))*
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-image__name': img_ed.name}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
         self.assertIn(ed.last_name,       content)
 
         #---------------------------------------------------------------------
-        response = self.assertPOST200(url, data=dict(data, image=img_ed.name))
+        #response = self.assertPOST200(url, data=dict(data, image=img_ed.name))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-image': img_ed.name}))
         content = self._get_lv_content(response)
         self.assertNotIn(spike.last_name, content)
         self.assertNotIn(faye.last_name,  content)
@@ -560,7 +593,8 @@ class ListViewTestCase(ViewsTestCase):
         #we just check that it does not crash
         self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
                            data={'_search':       1,
-                                 'mailing_lists': 'MLname',
+                                 #'mailing_lists': 'MLname',
+                                 'regular_field-mailing_lists': 'MLname',
                                 }
                           )
 
@@ -590,7 +624,8 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellRelation(rtype=rtype))
 
         url = self.url
-        data = {'_search': 1, 'name': '', rtype.pk: 'Spiege'}
+        #data = {'_search': 1, 'name': '', rtype.pk: 'Spiege'}
+        data = {'_search': 1, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
         response = self.assertPOST200(url, data=data)
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
@@ -598,8 +633,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,    content)
         self.assertNotIn(dragons.name, content)
 
-        response = self.assertPOST200(url, data=dict(data, name='Swo'))
-        content = self._get_lv_content(response)
+        #response = self.assertPOST200(url, data=dict(data, name='Swo'))
+        #content = self._get_lv_content(response)
+        data['regular_field-name'] = 'Swo'
+        content = self._get_lv_content(self.assertPOST200(url, data=data))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
@@ -630,7 +667,12 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf(EntityCellCustomField(cfield))
 
-        response = self.assertPOST200(self.url, data={'_search': 1, 'name': '', cfield.pk: '4'})
+        #response = self.assertPOST200(self.url, data={'_search': 1, 'name': '', cfield.pk: '4'})
+        response = self.assertPOST200(self.url, data={'_search': 1,
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield.pk: '4',
+                                                     }
+                                     )
         content = self._get_lv_content(response)
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
@@ -664,9 +706,12 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellCustomField(cfield1), EntityCellCustomField(cfield2))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
-                                                      'name': '',
-                                                      cfield1.pk: '4',
-                                                      cfield2.pk: '#05',
+                                                      #'name': '',
+                                                      #cfield1.pk: '4',
+                                                      #cfield2.pk: '#05',
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield1.pk: '4',
+                                                      'custom_field-%s' % cfield2.pk: '#05',
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -706,9 +751,12 @@ class ListViewTestCase(ViewsTestCase):
                       )
 
         response = self.assertPOST200(self.url, data={'_search': 1,
-                                                      'name': '',
-                                                      cfield1.pk: '4',
-                                                      cfield2.pk: '2000',
+                                                      #'name': '',
+                                                      #cfield1.pk: '4',
+                                                      #cfield2.pk: '2000',
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield1.pk: '4',
+                                                      'custom_field-%s' % cfield2.pk: '2000',
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -747,8 +795,10 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellCustomField(cfield))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
-                                                      'name': '',
-                                                      cfield.pk: type1.id,
+                                                      #'name': '',
+                                                      #cfield.pk: type1.id,
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield.pk: type1.id,
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -788,8 +838,10 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellCustomField(cfield))
 
         response = self.assertPOST200(self.url, data={'_search': 1,
-                                                      'name':    '',
-                                                      cfield.pk: can_walk.id,
+                                                      #'name':    '',
+                                                      #cfield.pk: can_walk.id,
+                                                      'regular_field-name':    '',
+                                                      'custom_field-%s' % cfield.pk: can_walk.id,
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -838,9 +890,12 @@ class ListViewTestCase(ViewsTestCase):
                       )
 
         response = self.assertPOST200(self.url, data={'_search':       1,
-                                                      'name':          '',
-                                                      cfield_type.pk:  type1.id,
-                                                      cfield_color.pk: color2.id,
+                                                      #'name':          '',
+                                                      #cfield_type.pk:  type1.id,
+                                                      #cfield_color.pk: color2.id,
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield_type.pk:  type1.id,
+                                                      'custom_field-%s' % cfield_color.pk: color2.id,
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -892,9 +947,12 @@ class ListViewTestCase(ViewsTestCase):
                       )
 
         response = self.assertPOST200(self.url, data={'_search':       1,
-                                                      'name':          '',
-                                                      cfield_cap.pk:   can_walk.id,
-                                                      cfield_color.pk: red.id,
+                                                      #'name':          '',
+                                                      #cfield_cap.pk:   can_walk.id,
+                                                      #cfield_color.pk: red.id,
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield_cap.pk:   can_walk.id,
+                                                      'custom_field-%s' % cfield_color.pk: red.id,
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -926,7 +984,11 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellCustomField(cfield))
 
         def post(dates):
-            response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
+            #response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
+            response = self.assertPOST200(self.url, data={'_search': 1,
+                                                          'custom_field-%s' % cfield.pk: dates,
+                                                         }
+                                         )
             return self._get_lv_content(response)
 
         content = post(['2075-1-1'])
@@ -979,8 +1041,10 @@ class ListViewTestCase(ViewsTestCase):
                       )
 
         response = self.assertPOST200(self.url, data={'_search': 1,
-                                                      cfield_flight.pk: ['1-1-2074', '31-12-2074'],
-                                                      cfield_blood.pk:  ['',         '1-1-2075'],
+                                                      #cfield_flight.pk: ['1-1-2074', '31-12-2074'],
+                                                      #cfield_blood.pk:  ['',         '1-1-2075'],
+                                                      'custom_field-%s' % cfield_flight.pk: ['1-1-2074', '31-12-2074'],
+                                                      'custom_field-%s' % cfield_blood.pk:  ['',         '1-1-2075'],
                                                      })
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,      content)
@@ -1004,8 +1068,10 @@ class ListViewTestCase(ViewsTestCase):
         self._build_hf(EntityCellFunctionField(func_field))
 
         response = self.assertPOST200(self.url, data={'_search':       1,
-                                                      'name':          '',
-                                                      func_field.name: 'red',
+                                                      #'name':          '',
+                                                      #func_field.name: 'red',
+                                                      'regular_field-name': '',
+                                                      'function_field-%s' % func_field.name: 'red',
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
@@ -1047,8 +1113,10 @@ class ListViewTestCase(ViewsTestCase):
 
         def post(line_type):
             return self.assertPOST200(url, data={'_search':       1,
-                                                 'name':          '',
-                                                 func_field.name: line_type,
+                                                 #'name':          '',
+                                                 #func_field.name: line_type,
+                                                 'regular_field-name': '',
+                                                 'function_field-%s' % func_field.name: line_type,
                                                 }
                                      )
 

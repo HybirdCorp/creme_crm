@@ -4,17 +4,17 @@
     {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for cell in cells %}
         {% with cell.widget_ctx as widget_ctx %}{% with widget_ctx.type as widget_type %}
-            <th {% if cell.is_hidden %}style="display:none;"{% endif %} class="{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if cell.value in current_research_fields %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}">
+            <th {% if cell.is_hidden %}style="display:none;"{% endif %} class="{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if widget_ctx.value %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}">
                 {% if cell.has_a_filter %}
                     {% if widget_type == "select" %}
-                        <select name="{{cell.value}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
+                        <select name="{{cell.key}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                             <option value="">{% trans "Select" %}</option>
                             {% for options in widget_ctx.values %}
                                 <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>{{options.text}}</option>
                             {% endfor %}
                         </select>
                     {% elif widget_type == "checkbox" %}
-                        <select name="{{cell.value}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
+                        <select name="{{cell.key}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                             <option value="">{% trans "Select" %}</option>
                             {% for options in widget_ctx.values %}
                                 <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>{{options.text}}</option>
@@ -23,20 +23,20 @@
                     {% elif widget_type == "datefield" %}
                         <span>
                             <label for="id_{{cell.value}}{{whoami}}">{% trans "Between" %}</label>
-                            <input name="{{cell.value}}" id="id_{{cell.value}}{{whoami}}" title="{{cell.title}}" type="{{widget_type}}"
+                            <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}" title="{{cell.title}}" type="{{widget_type}}"
                                     style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"
                                     onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="first"/>
                             &nbsp;<label for="id_{{cell.value}}{{whoami}}_2">{% trans "and" %}</label>&nbsp;
-                            <input name="{{cell.value}}" id="id_{{cell.value}}{{whoami}}_2" title="{{cell.title}}" type="{{widget_type}}"
+                            <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}_2" title="{{cell.title}}" type="{{widget_type}}"
                                     style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"
                                     onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="second"/>
                         </span>
                         <script type="text/javascript">
-                            $("#id_{{cell.value}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
-                            $("#id_{{cell.value}}{{ whoami }}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
+                            $("#id_{{cell.key}}{{whoami}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
+                            $("#id_{{cell.key}}{{whoami}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                         </script>
                     {% elif widget_type == "text" %}
-                        <input name="{{cell.value}}" title="{{cell.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
+                        <input name="{{cell.key}}" title="{{cell.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                     {% endif %}
                 {% endif %}
                 {% if cell.type_id == 'actions' and show_actions %}
