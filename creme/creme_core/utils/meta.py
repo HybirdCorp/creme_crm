@@ -52,6 +52,36 @@ def get_instance_field_info(obj, field_name):
     except (AttributeError, FieldDoesNotExist):
         return None, ''
 
+
+class FieldInfo(object):
+    __slots__ = ('__fields', )
+
+    def __init__(self, model, field_name):
+        "@throws FieldDoesNotExist"
+        self.__fields = fields = []
+        subfield_names = field_name.split('__')
+
+        for subfield_name in subfield_names[:-1]:
+            field = model._meta.get_field(subfield_name)
+            model = field.rel.to
+            fields.append(field)
+
+        fields.append(model._meta.get_field(subfield_names[-1]))
+
+    def __getitem__(self, idx):
+        return self.__fields[idx]
+
+    def __len__(self):
+        return len(self.__fields)
+
+    def __iter__(self):
+        return iter(self.__fields)
+
+    @property
+    def verbose_name(self):
+        return u' - '.join(unicode(field.verbose_name) for field in self.__fields)
+
+
 def get_model_field_info(model, field_name, silent=True):
     """ For a field_name 'att1__att2__att3', it returns the list of dicts
         [
@@ -60,6 +90,9 @@ def get_model_field_info(model, field_name, silent=True):
          {'field': django.db.models.fields.FieldClass for model.att3,         'model': None},
         ]
     """
+    warnings.warn("get_model_field_info() method is deprecated; Use FieldInfo class instead",
+                  DeprecationWarning
+                 )
     subfield_names = field_name.split('__')
     info = []
 
@@ -85,6 +118,9 @@ def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
         att1_verbose_name - att2_verbose_name - att3_verbose_name
         - is the default separator
     """
+    warnings.warn("get_verbose_field_name() method is deprecated; Use FieldInfo class instead",
+                  DeprecationWarning
+                 )
     fields = get_model_field_info(model, field_name, silent)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 

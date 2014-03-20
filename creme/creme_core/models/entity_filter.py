@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.timezone import now
 
 from ..global_info import get_global_info
-from ..utils.meta import is_date_field, get_model_field_info
+from ..utils.meta import is_date_field, FieldInfo #get_model_field_info
 from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
 from .relation import RelationType, Relation
@@ -370,8 +370,10 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
         query = Q(**{'%s__isnull' % field_name: True})
 
         # add filter for text fields, "isEmpty" should mean null or empty string 
-        finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
-        if isinstance(finfo[-1]['field'], (CharField, TextField)):
+        #finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
+        finfo = FieldInfo(efcondition.filter.entity_type.model_class(), field_name)
+        #if isinstance(finfo[-1]['field'], (CharField, TextField)):
+        if isinstance(finfo[-1], (CharField, TextField)):
             query |= Q(**{field_name: ''})
 
         # negate filter on false value
@@ -563,12 +565,14 @@ class EntityFilterCondition(Model):
             raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
 
         try:
-            finfo = get_model_field_info(model, name, silent=False)
+            #finfo = get_model_field_info(model, name, silent=False)
+            finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             raise EntityFilterCondition.ValueError(str(e))
 
         try:
-            values = operator_obj.validate_field_values(finfo[-1]['field'], values)
+            #values = operator_obj.validate_field_values(finfo[-1]['field'], values)
+            values = operator_obj.validate_field_values(finfo[-1], values)
         except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
@@ -621,7 +625,8 @@ class EntityFilterCondition(Model):
         etype = self.type
         if etype == EntityFilterCondition.EFC_FIELD:
             try:
-                get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+                #get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+                FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
                 return str(e)
         elif etype == EntityFilterCondition.EFC_DATEFIELD:

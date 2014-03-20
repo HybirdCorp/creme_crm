@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, RelationType, CustomField
 from ..templatetags.creme_widgets import widget_entity_hyperlink
-from ..utils.meta import get_model_field_info
+from ..utils.meta import FieldInfo #get_model_field_info
 
 
 logger = logging.getLogger(__name__)
@@ -178,7 +178,8 @@ class EntityCellRegularField(EntityCell):
         self._model = model
         self._field_info = field_info
 
-        field = field_info[0]['field']
+        #field = field_info[0]['field']
+        field = field_info[0]
         has_a_filter = True
         sortable = True
         pattern = "%s__icontains"
@@ -190,7 +191,8 @@ class EntityCellRegularField(EntityCell):
                 if issubclass(field.rel.to, CremeEntity):
                     pattern = '%s__header_filter_search_field__icontains'
             else:
-                field = field_info[1]['field'] #The sub-field is considered as the main field
+                #field = field_info[1]['field'] #The sub-field is considered as the main field
+                field = field_info[1] #The sub-field is considered as the main field
 
         if isinstance(field, (DateField, DateTimeField)):
             pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
@@ -201,8 +203,8 @@ class EntityCellRegularField(EntityCell):
             sortable = False
 
         super(EntityCellRegularField, self).__init__(value=name,
-                                                     #TODO: add a FieldInfo class with a verbose_name() method -> remove utils.get_verbose_field_name() ??
-                                                     title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
+                                                     #title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
+                                                     title=field_info.verbose_name,
                                                      has_a_filter=has_a_filter,
                                                      editable=True,
                                                      sortable=sortable,
@@ -210,11 +212,11 @@ class EntityCellRegularField(EntityCell):
                                                      filter_string=pattern % name if has_a_filter else '',
                                                     )
 
-
     @staticmethod
     def build(model, name, is_hidden=False):
         try:
-            field_info = get_model_field_info(model, name, silent=False)
+            #field_info = get_model_field_info(model, name, silent=False)
+            field_info = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             logger.warn('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
             return None
@@ -226,13 +228,15 @@ class EntityCellRegularField(EntityCell):
         return self._field_info
 
     def _get_field_class(self):
-        return self._field_info[-1]['field'].__class__
+        #return self._field_info[-1]['field'].__class__
+        return self._field_info[-1].__class__
 
     @staticmethod
     #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
         #CremeEntity.populate_fk_fields(entities, [cell.value.partition('__')[0] for cell in cells])
-        CremeEntity.populate_fk_fields(entities, [cell.field_info[0]['field'].name for cell in cells])
+        #CremeEntity.populate_fk_fields(entities, [cell.field_info[0]['field'].name for cell in cells])
+        CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
 
     def render_html(self, entity, user):
         from ..gui.field_printers import field_printers_registry

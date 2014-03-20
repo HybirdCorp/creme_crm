@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from ..models import fields, EntityCredentials, CremeEntity
 from ..models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
 from ..gui.bulk_update import bulk_update_registry
 from ..utils import entities2unicode, related2unicode
-from ..utils.meta import get_verbose_field_name
+from ..utils.meta import FieldInfo #get_verbose_field_name
 from .base import CremeForm, _CUSTOM_NAME
 from .fields import AjaxMultipleChoiceField
 from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
@@ -233,7 +233,8 @@ class EntityInnerEditForm(_EntitiesEditForm):
             if not bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False):
                 raise self.InvalidField(u'The field %s.%s is not editable' % (model, field_name))
 
-            verbose_field_name = get_verbose_field_name(model, field_name)
+            #verbose_field_name = get_verbose_field_name(model, field_name)
+            verbose_field_name = FieldInfo(model, field_name).verbose_name
 
         fields = self.fields
 

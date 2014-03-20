@@ -122,7 +122,7 @@ def get_listview_columns_header(context):
                     #field = get_model_field(field_name)
             #except models.FieldDoesNotExist: #todo: useless (cell validity is checked before)
                 #continue
-            field = cell.field_info[-1]['field']
+            field = cell.field_info[-1]
 
             if isinstance(field, ForeignKey):
                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):

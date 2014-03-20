@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -289,13 +289,12 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
 
     def _is_valid_first_column(self, cell):
         if isinstance(cell, EntityCellRegularField):
-            field_info = cell.field_info[0]
-            field = field_info['field']
+            field = cell.field_info[0]
 
             #These fields are already rendered with <a> tag ; it would be better to
             #have a higher semantic (ask to the fields printer how it renders thme ???)
             if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
-               (isinstance(field, ForeignKey) and issubclass(field_info['model'], CremeEntity)):
+               (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
                 return False
         elif isinstance(cell, EntityCellRelation):
             return False

@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
-from creme.creme_core.utils.meta import get_model_field_info, get_related_field, get_verbose_field_name #get_instance_field_info
+from creme.creme_core.utils.meta import FieldInfo, get_related_field #get_instance_field_info get_model_field_info get_verbose_field_name
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
         RFT_AGGREGATE, RFT_RELATED)
@@ -203,14 +203,17 @@ class RHRegularField(ReportHand):
 
     def __new__(cls, report_field):
         try:
-            field_info = get_model_field_info(report_field.model, report_field.name, silent=False)
+            #field_info = get_model_field_info(report_field.model, report_field.name, silent=False)
+            field_info = FieldInfo(report_field.model, report_field.name)
         except FieldDoesNotExist:
             raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        if len(field_info) > 1 and isinstance(field_info[1]['field'], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
+        #if len(field_info) > 1 and isinstance(field_info[1]['field'], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
+        if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
             raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        first_part = field_info[0]['field']
+        #first_part = field_info[0]['field']
+        first_part = field_info[0]
 
         if isinstance(first_part, ForeignKey):
             return ReportHand.__new__(RHForeignKey)
@@ -224,10 +227,12 @@ class RHRegularField(ReportHand):
         model = report_field.model
         field_name = report_field.name
         super(RHRegularField, self).__init__(report_field,
-                                             title=title or get_verbose_field_name(model, field_name),
+                                             #title=title or get_verbose_field_name(model, field_name),
+                                             title=title or FieldInfo(model, field_name).verbose_name,
                                              support_subreport=support_subreport,
                                             )
-        #TODO: get_verbose_field_name & build_field_printer do the same work (get_model_field_info): can we factorise this ??
+        ##todo: get_verbose_field_name & build_field_printer do the same work (get_model_field_info): can we factorise this ??
+        #TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
         self._printer = field_printers_registry.build_field_printer(model, field_name, output='csv')
 
     def _get_value_single_on_allowed(self, entity, user, scope):
@@ -238,11 +243,14 @@ class RHRegularField(ReportHand):
 
 class RHForeignKey(RHRegularField):
     def __init__(self, report_field):
-        field_info = get_model_field_info(report_field.model, report_field.name) #TODO: factorise with __new__
-        fk_info = field_info[0]
-        fk_field = fk_info['field']
+        #field_info = get_model_field_info(report_field.model, report_field.name) #todo: factorise with __new__
+        field_info = FieldInfo(report_field.model, report_field.name) #TODO: factorise with __new__
+        #fk_info = field_info[0]
+        #fk_field = fk_info['field']
+        fk_field = field_info[0]
         self._fk_attr_name = fk_field.get_attname()
-        fk_model = fk_info['model']
+        #fk_model = fk_info['model']
+        fk_model = fk_field.rel.to
         self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
         sub_report = report_field.sub_report
@@ -255,7 +263,8 @@ class RHForeignKey(RHRegularField):
             #small optimization: only used by _get_value_no_subreport()
             #self._attr_name = field_info[1]['field'].name
             if len(field_info) > 1:
-                attr_name = field_info[1]['field'].name
+                #attr_name = field_info[1]['field'].name
+                attr_name = field_info[1].name
                 self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
             else:
                 self._value_extractor = unicode

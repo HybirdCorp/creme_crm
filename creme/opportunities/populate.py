@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -207,7 +207,7 @@ class Populator(BasePopulator):
         from django.contrib.auth.models import User
 
         from creme.creme_core.models import EntityFilter, EntityFilterCondition
-        from creme.creme_core.utils.meta import get_verbose_field_name
+        from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
         from creme.persons.constants import FILTER_MANAGED_ORGA
 
@@ -245,12 +245,16 @@ class Populator(BasePopulator):
 
         #Create 2 graphs -------------------------------------------------------
         graph_name1 = _(u"Sum %(estimated_sales)s / %(sales_phase)s") % {
-                            'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
-                            'sales_phase':     get_verbose_field_name(Opportunity, 'sales_phase'),
+                            #'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
+                            #'sales_phase':     get_verbose_field_name(Opportunity, 'sales_phase'),
+                            'estimated_sales': FieldInfo(Opportunity, 'estimated_sales').verbose_name,
+                            'sales_phase':     FieldInfo(Opportunity, 'sales_phase').verbose_name,
                         }
         graph_name2 = _(u"Sum %(estimated_sales)s / Quarter (90 days on %(closing_date)s)") % {
-                            'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
-                            'closing_date':    get_verbose_field_name(Opportunity, 'closing_date'),
+                            #'estimated_sales': get_verbose_field_name(Opportunity, 'estimated_sales'),
+                            #'closing_date':    get_verbose_field_name(Opportunity, 'closing_date'),
+                            'estimated_sales': FieldInfo(Opportunity, 'estimated_sales').verbose_name,
+                            'closing_date':    FieldInfo(Opportunity, 'closing_date').verbose_name,
                         }
         create_graph = ReportGraph.objects.create
         rgraph1 = create_graph(name=graph_name1, report=opp_report, abscissa='sales_phase',  ordinate='estimated_sales__sum', type=RGT_FK,    is_count=False, user=admin)

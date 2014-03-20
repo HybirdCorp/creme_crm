@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -382,10 +382,15 @@ class CustomFieldEditorNode(RegularFieldEditorNode):
 class EntityCellEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, cell, instance):
         if isinstance(cell, EntityCellRegularField):
-            model = instance.entity_type.model_class()
-            field_name = cell.value.partition('__')[0] #TODO: cell.field_info ?
+            #model = instance.entity_type.model_class()
+            #field_name = cell.value.partition('__')[0]
+            field_name = cell.field_info[0].name
             context['field'] = field_name
-            context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
+            #context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
+            context['updatable'] = bulk_update_registry.is_bulk_updatable(instance.__class__,
+                                                                          field_name,
+                                                                          exclude_unique=False,
+                                                                         )
         elif isinstance(cell, EntityCellCustomField):
             context['field'] = cell.value
             context['updatable'] = True

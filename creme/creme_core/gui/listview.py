@@ -160,7 +160,8 @@ class ListViewState(object):
                 continue
 
             if isinstance(cell, EntityCellRegularField):
-                field = cell.field_info[-1]['field']
+                #field = cell.field_info[-1]['field']
+                field = cell.field_info[-1]
                 #TODO: Hacks for dates => refactor
                 if isinstance(field, DateTimeField):
                     condition = self._build_datetime_range_dict(cell_value, value)
