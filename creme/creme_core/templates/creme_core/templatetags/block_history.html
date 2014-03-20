@@ -61,7 +61,7 @@
                             {% endwith %}
                         {% endif %}{% endwith %}
                     </td>
-                    <td class="{{row_color}}">{{line.username}}</td>
+                    <td class="{{row_color}}">{{line.user|default:line.username}}</td>
                 </tr>
             {% endfor %}
         {% else %}
