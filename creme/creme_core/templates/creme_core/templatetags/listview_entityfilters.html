@@ -6,8 +6,8 @@
     </div>
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
         <option value="">{% trans "All" %}</option>
-        {% for efilter in select_values %}
-            <option value="{{efilter.value}}" {% if efilter_id == efilter.value %}selected{% endif %}>{{efilter.text}}</option>
+        {% for efilter in entity_filters %}
+            <option value="{{efilter.id}}" {% if efilter_id == efilter.id %}selected{% endif %}>{{efilter.name}}</option>
         {% endfor %}
     </select>
     {% if not is_popup_view %}

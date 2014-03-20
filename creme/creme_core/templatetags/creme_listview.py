@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 import logging
 
-from django.db import models
+#from django.db import models
+from django.db.models import ForeignKey, BooleanField, DateField
 from django.template import Library
 from django.utils.translation import ugettext as _
 
@@ -30,7 +31,7 @@ from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
 from ..gui.list_view_import import import_form_registry
 from ..utils import creme_entity_content_types, build_ct_choices
-from ..utils.meta import get_model_field_info
+#from ..utils.meta import get_model_field_info
 
 
 logger = logging.getLogger(__name__)
@@ -39,14 +40,10 @@ register = Library()
 
 @register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
 def get_listview_entity_filters(context):
-    efilters = context['entity_filters']
-    efilter  = efilters.selected
-
-    context['efilter'] = efilter
+    efilter = context['entity_filters'].selected
 
     if efilter:
         efilter_id = efilter.id
-        #permission = efilter.can_edit_or_delete(context['request'].user)[0]
         permission = efilter.can_edit_or_delete(context['user'])[0]
     else:
         efilter_id = 0
@@ -54,19 +51,15 @@ def get_listview_entity_filters(context):
 
     context['efilter_id'] = efilter_id
     context['can_edit_or_delete'] = permission
-    context['select_values'] = [{'value': ef.id, 'text': ef.name} for ef in efilters]
 
     return context
 
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
-    hfilters = context['header_filters']
-    hfilter  = hfilters.selected
+    hfilter = context['header_filters'].selected
 
-    context['hfilter'] = hfilter
-    #context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
+    context['hfilter_id'] = hfilter.id
     context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['user'])[0]
-    context['select_values'] = [{'value': hf.id, 'text': hf.name} for hf in hfilters]
 
     return context
 
@@ -95,20 +88,20 @@ def _build_date_search_widget(widget_ctx, search_value):
 def _build_select_search_widget(widget_ctx, search_value, choices):
     selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
     widget_ctx['type'] = 'select'
-    widget_ctx['values'] = [{'value':    id_,
+    widget_ctx['values'] = [{'value':    key,
                              'text':     unicode(val),
-                             'selected': 'selected' if selected_value == unicode(id_) else ''
-                            } for id_, val in choices
+                             'selected': 'selected' if selected_value == unicode(key) else ''
+                            } for key, val in choices
                            ]
 
 #TODO: add methods to EntityCells ? -> map of behaviours instead
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
-    model           = context['model']
+    #model           = context['model']
     header_searches = dict((cell_value, value)
                                 for (cell_type, cell_value, value) in context['list_view_state'].research
                           ) #TODO: (type, name as key)
-    get_model_field = model._meta.get_field
+    #get_model_field = model._meta.get_field
 
     for cell in context['cells']:
         if not cell.has_a_filter:
@@ -118,20 +111,20 @@ def get_listview_columns_header(context):
         widget_ctx = {'value': search_value, 'type': 'text'}
 
         if isinstance(cell, EntityCellRegularField):
-            #TODO: field = cell.field_info[-1]['field']
-            try:
-                field_name = cell.value
-                if field_name.find('__') > -1:
-                    field = None
-                    sub_field_obj = get_model_field_info(model, field_name)[1]['field']
-                    if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)): #TODO: DateTimeField useful ??
-                        field = sub_field_obj
-                else:
-                    field = get_model_field(field_name)
-            except models.FieldDoesNotExist: #TODO: useless (cell validity is checked before)
-                continue
+            #try:
+                #field_name = cell.value
+                #if field_name.find('__') > -1:
+                    #field = None
+                    #sub_field_obj = get_model_field_info(model, field_name)[1]['field']
+                    #if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)): #todo: DateTimeField useful ??
+                        #field = sub_field_obj
+                #else:
+                    #field = get_model_field(field_name)
+            #except models.FieldDoesNotExist: #todo: useless (cell validity is checked before)
+                #continue
+            field = cell.field_info[-1]['field']
 
-            if isinstance(field, models.ForeignKey):
+            if isinstance(field, ForeignKey):
                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                     if search_value:
                         widget_ctx['value'] = search_value[0]
@@ -144,12 +137,13 @@ def get_listview_columns_header(context):
                     else:
                         choices = ((o.id, o)
                                         for o in field.rel.to.objects.distinct()
-                                            if unicode(o) != ""
+                                            #if unicode(o) != "" #Commented on 20 march 2014
                                   )
                     _build_select_search_widget(widget_ctx, search_value, choices)
-            elif isinstance(field, models.BooleanField):
+            elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
-            elif isinstance(field, (models.DateField, models.DateTimeField)): #TODO: DateTimeField useful ??
+            #elif isinstance(field, (models.DateField, models.DateTimeField)):
+            elif isinstance(field, DateField):
                 _build_date_search_widget(widget_ctx, search_value)
             elif search_value:
                 widget_ctx['value'] = search_value[0]
