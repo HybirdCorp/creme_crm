@@ -30,7 +30,7 @@ from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
 
 from ..models import CremeEntity, fields
-from ..utils.meta import get_model_field_info
+from ..utils.meta import FieldInfo #get_model_field_info
 from ..templatetags.creme_widgets import widget_entity_hyperlink
 
 
@@ -284,15 +284,19 @@ class _FieldPrintersRegistry(object):
         return self._header_listview_css_printers.get(field_class, self.css_default_header_listview)
 
     def build_field_printer(self, model, field_name, output='html'):
-        field_info = get_model_field_info(model, field_name)
-        base_info = field_info[0]
-        base_field = base_info['field']
+        #field_info = get_model_field_info(model, field_name)
+        field_info = FieldInfo(model, field_name)
+        #base_info = field_info[0]
+        #base_field = base_info['field']
+        base_field = field_info[0]
         base_name = base_field.name
         HIDDEN_VALUE = settings.HIDDEN_VALUE
 
         if len(field_info) > 1:
-            base_model = base_info['model']
-            sub_printer = self.build_field_printer(base_model, field_info[1]['field'].name, output)
+            #base_model = base_info['model']
+            base_model = base_field.rel.to
+            #sub_printer = self.build_field_printer(base_model, field_info[1]['field'].name, output)
+            sub_printer = self.build_field_printer(base_model, field_info[1].name, output)
 
             if isinstance(base_field, models.ForeignKey):
                 if issubclass(base_model, CremeEntity):

@@ -10,6 +10,8 @@ try:
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from creme.creme_core.utils import meta
 
+    from creme.media_managers.models import Image
+
     from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -118,6 +120,59 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(_('Photograph'), gvfn(Contact, 'image__stuff')) #'silent=True' is legacy mode but should be removed...
         with self.assertRaises(FieldDoesNotExist):
             gvfn(Contact, 'image__stuff', silent=False)
+
+    def test_field_info01(self):
+        "Simple field"
+        fi = meta.FieldInfo(Contact, 'first_name')
+
+        self.assertEqual(1, len(fi))
+
+        with self.assertNoException():
+            base_field = fi[0]
+
+        #self.assertIsInstance(base_field, fields.CharField)
+        #self.assertEqual('first_name', base_field.name)
+        self.assertEqual(Contact._meta.get_field('first_name'), base_field)
+
+        self.assertEqual(Organisation._meta.get_field('name'),
+                         meta.FieldInfo(Organisation, 'name')[0]
+                        )
+
+        #FK
+        self.assertEqual(Contact._meta.get_field('image'),
+                         meta.FieldInfo(Contact, 'image')[0]
+                        )
+
+    def test_field_info02(self):
+        "depth > 1"
+        fi = meta.FieldInfo(Contact, 'image__name')
+
+        self.assertEqual(2, len(fi))
+        self.assertEqual(Contact._meta.get_field('image'), fi[0])
+        self.assertEqual(Image._meta.get_field('name'),    fi[1])
+
+        self.assertEqual(_('Photograph') + ' - ' + _('Name'), fi.verbose_name)
+
+        with self.assertNoException():
+            fi_as_list = list(meta.FieldInfo(Contact, 'image__user__username'))
+
+        self.assertEqual([Contact._meta.get_field('image'),
+                          Image._meta.get_field('user'),
+                          User._meta.get_field('username'),
+                         ],
+                         fi_as_list
+                        )
+
+    def test_field_info03(self):
+        "Invalid fields"
+        with self.assertRaises(FieldDoesNotExist):
+            meta.FieldInfo(Contact, 'invalid')
+
+        with self.assertRaises(FieldDoesNotExist):
+            meta.FieldInfo(Contact, 'image__invalid')
+
+        with self.assertRaises(FieldDoesNotExist):
+            meta.FieldInfo(Contact, 'invalid__invalidtoo')
 
     def test_get_related_field(self):
         self.assertIsNone(meta.get_related_field(Contact, 'stuffes'))

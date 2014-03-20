@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
-from creme.creme_core.utils.meta import get_verbose_field_name
+from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
 from ..constants import RFT_RELATION, RFT_FIELD
 from .report import Report
@@ -96,7 +96,8 @@ class ReportGraph(CremeEntity):
 
         if volatile_field: #TODO: unit test
             assert volatile_rtype is None
-            verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
+            #verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
+            verbose = FieldInfo(self.report.ct.model_class(), volatile_field).verbose_name #TODO: manage invalid field ???
             key = u"%s|%s" % (volatile_field, RFT_FIELD)
         elif volatile_rtype:
             verbose = unicode(volatile_rtype)

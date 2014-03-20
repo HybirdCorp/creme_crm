@@ -41,7 +41,7 @@ from ..models import CremeEntity, Relation
 from ..utils import safe_unicode
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
-from ..utils.meta import get_verbose_field_name
+from ..utils.meta import FieldInfo #get_verbose_field_name
 from ..utils.unicode_collation import collator
 from ..registry import export_backend_registry, import_backend_registry
 
@@ -103,7 +103,12 @@ def get_fieldtag(field, tag):
 
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
-    return get_verbose_field_name(model_or_entity, field_name) or field_name
+    #return get_verbose_field_name(model_or_entity, field_name) or field_name
+    try:
+        return FieldInfo(model_or_entity, field_name).verbose_name
+    except FieldDoesNotExist as e:
+        logger.debug('Exception in get_field_verbose_name(): %s', e)
+        return 'INVALID FIELD'
 
 #@register.filter
 #def is_date_gte(date1, date2):

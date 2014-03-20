@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from ..utils.meta import get_verbose_field_name, ModelFieldEnumerator
+from ..utils.meta import FieldInfo, ModelFieldEnumerator #get_verbose_field_name
 from .base import CremeModel
 from .fields import EntityCTypeForeignKey
 
@@ -92,11 +92,13 @@ class SearchConfigItem(CremeModel):
 
         for field_name in fields:
             try:
-                verbose_name = get_verbose_field_name(model, field_name, silent=False)
+                #verbose_name = get_verbose_field_name(model, field_name, silent=False)
+                field_info = FieldInfo(model, field_name)
             except FieldDoesNotExist as e:
                 logger.warn('%s => SearchField removed', e)
             else:
-                sfields.append(SearchField(field_name=field_name, field_verbose_name=verbose_name))
+                #sfields.append(SearchField(field_name=field_name, field_verbose_name=verbose_name))
+                sfields.append(SearchField(field_name=field_name, field_verbose_name=field_info.verbose_name))
 
         self.field_names = ','.join(sf.name for sf in sfields) or None
 
