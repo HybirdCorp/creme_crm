@@ -23,7 +23,7 @@ from .button_menu import ButtonMenuItem
 from .reminder import DateReminder
 
 from .history import HistoryLine, HistoryConfigItem
-from .search import SearchField, SearchConfigItem
+from .search import SearchConfigItem
 
 from .auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
 

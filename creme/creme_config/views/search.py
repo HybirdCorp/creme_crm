@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
-from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
 
+from creme.creme_core.models import SearchConfigItem
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme.creme_core.models import SearchConfigItem, SearchField
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..forms.search import SearchEditForm, SearchAddForm
@@ -54,6 +54,5 @@ def delete(request):
     search_cfg_id = get_from_POST_or_404(request.POST, 'id')
 
     SearchConfigItem.objects.filter(id=search_cfg_id).delete()
-    SearchField.objects.filter(search_config_item=search_cfg_id).delete()
 
     return HttpResponse()

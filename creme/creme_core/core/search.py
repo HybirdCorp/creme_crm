@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,17 @@
 ################################################################################
 
 from django.db.models.query import Q
-#from django.contrib.contenttypes.models import ContentType
 
-from ..models import SearchConfigItem # SearchField
+from ..models import SearchConfigItem
 
 
 class Searcher(object):
     def __init__(self, models, user):
         #TODO: regroup queries
-        get_sfields = SearchConfigItem.get_searchfields_4_model
-        self._search_map = dict((model, get_sfields(model, user)) for model in models)
+        get_search_conf = SearchConfigItem.get_4_model
+        self._search_map = dict((model, get_search_conf(model, user).searchfields)
+                                    for model in models
+                               )
 
     #def _build_query(self, research, fields, is_or=True):
     def _build_query(self, research, fields): #TODO: inline ??
@@ -36,13 +37,11 @@ class Searcher(object):
         result_q = Q()
 
         for f in fields:
-            #q = Q(**{'%s__icontains' % f.field: research})
-
             #if is_or:
                 #result_q |= q
             #else:
                 #result_q &= q
-            result_q |= Q(**{'%s__icontains' % f.field: research})
+            result_q |= Q(**{'%s__icontains' % f.name: research})
 
         return result_q
 
