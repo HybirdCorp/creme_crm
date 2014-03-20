@@ -97,31 +97,16 @@ def _build_select_search_widget(widget_ctx, search_value, choices):
 #TODO: add methods to EntityCells ? -> map of behaviours instead
 @register.inclusion_tag('creme_core/templatetags/listview_columns_header.html', takes_context=True)
 def get_listview_columns_header(context):
-    #model           = context['model']
-    header_searches = dict((cell_value, value)
-                                for (cell_type, cell_value, value) in context['list_view_state'].research
-                          ) #TODO: (type, name as key)
-    #get_model_field = model._meta.get_field
+    header_searches = dict(context['list_view_state'].research)
 
     for cell in context['cells']:
         if not cell.has_a_filter:
             continue
 
-        search_value = header_searches.get(cell.value, '')
+        search_value = header_searches.get(cell.key, '')
         widget_ctx = {'value': search_value, 'type': 'text'}
 
         if isinstance(cell, EntityCellRegularField):
-            #try:
-                #field_name = cell.value
-                #if field_name.find('__') > -1:
-                    #field = None
-                    #sub_field_obj = get_model_field_info(model, field_name)[1]['field']
-                    #if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)): #todo: DateTimeField useful ??
-                        #field = sub_field_obj
-                #else:
-                    #field = get_model_field(field_name)
-            #except models.FieldDoesNotExist: #todo: useless (cell validity is checked before)
-                #continue
             field = cell.field_info[-1]
 
             if isinstance(field, ForeignKey):

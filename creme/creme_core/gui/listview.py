@@ -29,6 +29,7 @@ from django.utils.timezone import now
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
 from ..models import RelationType, Relation, CustomField
+from ..utils import find_first
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
 
@@ -92,23 +93,21 @@ class ListViewState(object):
             if not request.POST and self.research:
                 return
 
-            REQUEST = request.REQUEST
+            getlist = request.REQUEST.getlist
             list_session = []
 
             for cell in cells:
                 if not cell.has_a_filter:
                     continue
 
-                cell_value = cell.value
+                cell_key = cell.key
+                values = getlist(cell_key)
 
-                if not REQUEST.has_key(cell_value): #TODO: key with type + value
-                    continue
+                if values:
+                    filtered_attr = [smart_str(value.strip()) for value in values]
 
-                filtered_attr = [smart_str(value.strip()) for value in REQUEST.getlist(cell_value)]
-
-                if filtered_attr and any(filtered_attr):
-                    #list_session.append((cell.type, cell_value, filtered_attr))
-                    list_session.append((cell.type_id, cell_value, filtered_attr))
+                    if filtered_attr and any(filtered_attr):
+                        list_session.append((cell_key, filtered_attr))
 
             self.research = list_session
         else:
@@ -137,15 +136,6 @@ class ListViewState(object):
         don = partial(self._datetime_or_None, value=value)
         return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
-    def _get_cell(self, cells, cell_type_id, cell_value): #TODO: move in EntityCellsList ??
-        try:
-            return next(cell for cell in cells
-                            if cell.value == cell_value and
-                               cell.type_id == cell_type_id
-                       )
-        except StopIteration:
-            logger.warn('No EntityCell with type=%s name=%s', cell_type_id, cell_value)
-
     #TODO: move some parts of code to EntityCell (more object code) ?
     #TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
     def get_q_with_research(self, model, cells):
@@ -153,20 +143,19 @@ class ListViewState(object):
         cf_searches = defaultdict(list)
 
         for item in self.research:
-            cell_type_id, cell_value, value = item
-            cell = self._get_cell(cells, cell_type_id, cell_value)
+            cell_key, value = item
+            cell = find_first(cells, (lambda cell: cell.key == cell_key), None) #TODO: move in EntityCellsList ??
 
             if cell is None:
                 continue
 
             if isinstance(cell, EntityCellRegularField):
-                #field = cell.field_info[-1]['field']
                 field = cell.field_info[-1]
                 #TODO: Hacks for dates => refactor
                 if isinstance(field, DateTimeField):
-                    condition = self._build_datetime_range_dict(cell_value, value)
+                    condition = self._build_datetime_range_dict(cell.value, value)
                 elif isinstance(field, DateField):
-                    condition = self._build_date_range_dict(cell_value, value)
+                    condition = self._build_date_range_dict(cell.value, value)
                 else:
                     condition = self._build_condition(cell.filter_string, value)
 
@@ -233,7 +222,7 @@ class ListViewState(object):
         if field_name:
             if field_name != 'id': #avoids annoying log ('id' can not be related to a column)
                 for cell in cells:
-                    if cell.value == field_name: #TODO: use type/value as id instead
+                    if cell.value == field_name:
                         if cell.sortable:
                             sort_field = field_name
 

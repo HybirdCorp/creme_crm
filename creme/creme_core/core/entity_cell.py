@@ -131,6 +131,11 @@ class EntityCell(object):
         return listview_css_class
 
     @property
+    def key(self):
+        "Return an ID that should be unique in a EntityCell set"
+        return '%s-%s' % (self.type_id, self.value)
+
+    @property
     def listview_css_class(self):
         return self._get_listview_css_class('_listview_css_class')
 
