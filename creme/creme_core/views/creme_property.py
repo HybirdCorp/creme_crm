@@ -22,8 +22,8 @@
 #from django.http import HttpResponse
 from django.shortcuts import get_list_or_404 #get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
+from ..auth.decorators import login_required
 from ..models import CremeEntity #CremePropertyType
 from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
 from ..utils import get_ct_or_404 #, get_from_POST_or_404

@@ -21,8 +21,8 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
+from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.forms.list_view_import import UploadForm, form_factory
 from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404

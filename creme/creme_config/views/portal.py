@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils.unicode_collation import collator
 
 from ..registry import config_registry

@@ -18,15 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.views.generic import (add_entity, add_to_entity, edit_entity,
-                                            view_entity, list_view)
+from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.views.generic import (add_entity, add_to_entity,
+        edit_entity, view_entity, list_view)
 
-from ..models import Service
 from ..forms.base import AddImagesForm
 from ..forms.service import ServiceCreateForm, ServiceEditForm
+from ..models import Service
 
 
 @login_required

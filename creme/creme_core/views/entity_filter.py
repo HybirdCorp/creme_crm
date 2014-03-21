@@ -24,8 +24,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
+from ..auth.decorators import login_required
 from ..models import EntityFilter, RelationType
 from ..gui.listview import ListViewState
 from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm

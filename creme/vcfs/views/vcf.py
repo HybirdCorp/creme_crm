@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.decorators import permission_required, login_required
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.utils import get_from_POST_or_404
 
 from creme.persons.models import Contact

@@ -3,15 +3,16 @@
 try:
     from functools import partial
 
-    from django.db.models.deletion import ProtectedError
-    from django.core.exceptions import PermissionDenied
     from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import PermissionDenied
+    from django.db.models.deletion import ProtectedError
+    from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import(CremeEntity, CremePropertyType, CremeProperty,
-                                        Relation, UserRole, SetCredentials)
+    from creme.creme_core.models import(CremeEntity, CremePropertyType,
+            CremeProperty, Relation, UserRole, SetCredentials)
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -23,6 +24,10 @@ __all__ = ('CredentialsTestCase',)
 
 class CredentialsTestCase(CremeTestCase):
     password = 'password'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.autodiscover()
 
     def setUp(self):
         create_user = User.objects.create_user
@@ -673,7 +678,11 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm('foobar.can_admin'))
         self.assertFalse(role.admin_4_apps)
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_admin_or_die, 'creme_core')
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_admin_or_die('creme_core')
+
+        fmt = _('You are not allowed to configure this app: %s')
+        self.assertEqual(fmt % _('Core'), unicode(cm.exception))
 
         role.admin_4_apps = ['creme_core', 'foobar']
         role.save()
@@ -696,7 +705,13 @@ class CredentialsTestCase(CremeTestCase):
              user.has_perm_to_admin_or_die('creme_core')
              user.has_perm_to_admin_or_die('foobar')
 
-        self.assertRaises(PermissionDenied, user.has_perm_to_admin_or_die, 'quux')
+        invalid_app = 'quux'
+        with self.assertRaises(PermissionDenied) as cm:
+            user.has_perm_to_admin_or_die(invalid_app)
+
+        self.assertEqual(fmt % (_('Invalid app "%s"') % invalid_app),
+                         unicode(cm.exception)
+                        )
 
         self.assertTrue(has_perm('creme_core'))
         self.assertTrue(has_perm('foobar'))

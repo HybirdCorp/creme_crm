@@ -19,14 +19,14 @@
 ################################################################################
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import SearchConfigItem
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from ..forms.search import SearchEditForm, SearchAddForm
 

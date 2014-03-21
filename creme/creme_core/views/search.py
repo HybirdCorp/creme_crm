@@ -24,8 +24,8 @@ from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
+from ..auth.decorators import login_required
 from ..models import EntityCredentials
 from ..core.search import Searcher
 from ..registry import creme_registry

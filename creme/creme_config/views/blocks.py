@@ -21,9 +21,9 @@
 from django.http import Http404, HttpResponse # HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.models.block import (BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem)
