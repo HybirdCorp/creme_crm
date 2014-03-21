@@ -20,8 +20,8 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-        EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
-        CremePropertyType, CremeProperty, HeaderFilter)
+            EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
+            CremePropertyType, CremeProperty, HeaderFilter)
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.documents.models import Folder, Document
@@ -29,7 +29,8 @@ try:
     from creme.media_managers.models import Image, MediaCategory
 
     from creme.persons.models import Contact, Organisation, LegalForm
-    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
+    from creme.persons.constants import (REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY,
+            REL_OBJ_CUSTOMER_SUPPLIER)
 
     if 'creme.billing' in settings.INSTALLED_APPS:
         from creme.billing.constants import REL_OBJ_BILL_ISSUED
@@ -39,7 +40,7 @@ try:
         from creme.emails.models import EmailCampaign, MailingList
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
-            RFT_AGGREGATE, RFT_RELATED)
+            RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED) #RFT_AGGREGATE
     from ..models import Field, Report
     from .base import BaseReportsTestCase
 except Exception as e:
@@ -536,7 +537,8 @@ class ReportTestCase(BaseReportsTestCase):
         f_name = 'last_name'
         fk_name = 'image'
         cf_id = str(cf.id)
-        aggr_id = 'cf__%s__%s__max' % (cf.field_type, cf_id)
+        #aggr_id = 'cf__%s__%s__max' % (cf.field_type, cf_id)
+        aggr_id = '%s__max' % cf_id
         response = self.client.post(self._build_editfields_url(report),
                                     data={'columns': 'regular_field-%(rfield)s,custom_field-%(cfield)s,custom_aggregate-%(agg)s,regular_field-%(fkfield)s' % {
                                                             'rfield':  f_name,
@@ -566,7 +568,8 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[2]
         self.assertEqual(aggr_id,                             column.name)
         self.assertEqual('%s - %s' % (_('Maximum'), cf.name), column.title)
-        self.assertEqual(RFT_AGGREGATE,                      column.type)
+        #self.assertEqual(RFT_AGGREGATE,                      column.type)
+        self.assertEqual(RFT_AGG_CUSTOM,                      column.type)
         self.assertEqual(old_rfields[2].id, column.id)
 
         column = columns[3]
@@ -649,7 +652,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(aggr_id,                              column.name)
         self.assertEqual(_('Minimum') + ' - ' +  _('Capital'), column.title)
         self.assertEqual(2,                                    column.order)
-        self.assertEqual(RFT_AGGREGATE,                       column.type)
+        #self.assertEqual(RFT_AGGREGATE,                       column.type)
+        self.assertEqual(RFT_AGG_FIELD,                        column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
 
@@ -1857,20 +1861,24 @@ class ReportTestCase(BaseReportsTestCase):
         self.cf = cf = create_cf(name='Gold', field_type=CustomField.INT)
         str_cf = create_cf(name='Motto', field_type=CustomField.STR)
 
-        fmt = ('cf__%s' % cf.field_type) + '__%s__max'
+        #fmt = ('cf__%s' % cf.field_type) + '__%s__max'
+        fmt = '%s__max'
         create_field = partial(Field.objects.create, report=self.report_orga, selected=False,
-                               sub_report=None, type=RFT_AGGREGATE,
+                               sub_report=None, #type=RFT_AGGREGATE,
                               )
-        create_field(name='capital__sum', order=2)
-        create_field(name=fmt % cf.id,    order=3)
+        create_field(name='capital__sum', order=2, type=RFT_AGG_FIELD)
+        create_field(name=fmt % cf.id,    order=3, type=RFT_AGG_CUSTOM)
 
         if invalid_ones:
-            create_field(name=fmt % 1000,         order=4) #invalid CustomField id
-            create_field(name='capital__invalid', order=5) #invalid aggregation
-            create_field(name='invalid__sum',     order=6) #invalid field (unknown)
-            create_field(name='name__sum',        order=7) #invalid field (bad type)
-            create_field(name=fmt % str_cf.id,    order=8) #invalid CustomField (bad type)
-            create_field(name='cf__%s__%s__additionalarg__max' % (cf.field_type, cf.id), order=9) #invalid string
+            create_field(name=fmt % 1000,         order=4, type=RFT_AGG_CUSTOM) #invalid CustomField id
+            create_field(name='capital__invalid', order=5, type=RFT_AGG_FIELD) #invalid aggregation
+            create_field(name='invalid__sum',     order=6, type=RFT_AGG_FIELD) #invalid field (unknown)
+            create_field(name='name__sum',        order=7, type=RFT_AGG_FIELD) #invalid field (bad type)
+            create_field(name=fmt % str_cf.id,    order=8, type=RFT_AGG_CUSTOM) #invalid CustomField (bad type)
+            #create_field(name='cf__%s__%s__additionalarg__max' % (cf.field_type, cf.id),
+            create_field(name='%s__additionalarg__max' % cf.id,
+                         order=9, type=RFT_AGG_CUSTOM,
+                        ) #invalid string
 
     def test_fetch_aggregate_01(self):
         "Regular field, Custom field (valid & invalid ones)"
@@ -1913,8 +1921,9 @@ class ReportTestCase(BaseReportsTestCase):
                                               )
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
-        create_field(report=report_invoice, name='name',           type=RFT_FIELD,      order=1)
-        create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGGREGATE, order=2)
+        create_field(report=report_invoice, name='name',           type=RFT_FIELD,     order=1)
+        #create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGGREGATE, order=2)
+        create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGG_FIELD, order=2)
 
         report = self.report_orga
         create_field(report=report, name=REL_OBJ_BILL_ISSUED, order=2,

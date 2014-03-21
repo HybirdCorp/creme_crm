@@ -32,7 +32,7 @@ from creme.creme_core.models import CremeEntity, RelationType, CustomField
 from creme.creme_core.utils.meta import FieldInfo, get_related_field #get_instance_field_info get_model_field_info get_verbose_field_name
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
-        RFT_AGGREGATE, RFT_RELATED)
+        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)  #RFT_AGGREGATE
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -394,46 +394,25 @@ class RHFunctionField(ReportHand):
         return self._funcfield(entity).for_csv()
 
 
-#TODO: separate RFT_REGULAR_AGGREGATE & RFT_CUSTOM_AGGREGATE cases
-@REPORT_HANDS_MAP(RFT_AGGREGATE)
 class RHAggregate(ReportHand):
-    #verbose_name = _(u'Calculated value')
     verbose_name = _(u'Aggregated value')
 
     def __init__(self, report_field):
-        field_name, sep, aggregation_id = report_field.name.rpartition('__')
-        aggregation = field_aggregation_registry.get(aggregation_id)
         self._cache_key   = None
         self._cache_value = None
+        #field_name, sep, aggregation_id = report_field.name.rpartition('__')
+        field_name, aggregation_id = report_field.name.split('__', 1)
+        aggregation = field_aggregation_registry.get(aggregation_id)
 
         if aggregation is None:
             raise ReportHand.ValueError('Invalid aggregation: "%s"' % aggregation_id)
 
-        if field_name.startswith('cf__'): #custom field
-            try:
-                prefix, cf_type, cf_id = field_name.split('__') #TODO: the type is not useful anymore (datamigration...)
-                cfield = CustomField.objects.get(id=cf_id)
-            except (ValueError, CustomField.DoesNotExist):
-                raise ReportHand.ValueError('Invalid custom field aggregation: "%s"' % field_name)
-
-            if cfield.field_type not in field_aggregation_registry.authorized_customfields:
-                raise ReportHand.ValueError('This type of custom field can not be aggregated: "%s"' % field_name)
-
-            self._aggregation_q = aggregation.func('%s__value' % cfield.get_value_class().get_related_name())
-            verbose_name = cfield.name
-        else: #regular field
-            try:
-                field = report_field.model._meta.get_field(field_name)
-            except FieldDoesNotExist:
-                raise ReportHand.ValueError('Unknown field: "%s"' % field_name)
-
-            if not isinstance(field, field_aggregation_registry.authorized_fields):
-                raise ReportHand.ValueError('This type of field can not be aggregated: "%s"' % field_name)
-
-            self._aggregation_q = aggregation.func(field_name)
-            verbose_name = field.verbose_name
+        self._aggregation_q, verbose_name = self._build_query_n_vname(report_field, field_name, aggregation)
 
         super(RHAggregate, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
+
+    def _build_query_n_vname(self, report_field, field_name, aggregation):
+        raise NotImplementedError
 
     def _get_value_single(self, entity, user, scope):
         if self._cache_key is scope:
@@ -444,6 +423,38 @@ class RHAggregate(ReportHand):
                                           .get('rh_calculated_agg') or 0
 
         return result
+
+
+@REPORT_HANDS_MAP(RFT_AGG_FIELD)
+class RHAggregateRegularField(RHAggregate):
+    def _build_query_n_vname(self, report_field, field_name, aggregation):
+        try:
+            field = report_field.model._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            raise ReportHand.ValueError('Unknown field: "%s"' % field_name)
+
+        if not isinstance(field, field_aggregation_registry.authorized_fields):
+            raise ReportHand.ValueError('This type of field can not be aggregated: "%s"' % field_name)
+
+        return (aggregation.func(field_name), field.verbose_name)
+
+
+@REPORT_HANDS_MAP(RFT_AGG_CUSTOM)
+class RHAggregateCustomField(RHAggregate):
+    verbose_name = _(u'Aggregated value (custom field)')
+
+    def _build_query_n_vname(self, report_field, field_name, aggregation):
+        try:
+            cfield = CustomField.objects.get(id=field_name)
+        except (ValueError, CustomField.DoesNotExist):
+            raise ReportHand.ValueError('Invalid custom field aggregation: "%s"' % field_name)
+
+        if cfield.field_type not in field_aggregation_registry.authorized_customfields:
+            raise ReportHand.ValueError('This type of custom field can not be aggregated: "%s"' % field_name)
+
+        return (aggregation.func('%s__value' % cfield.get_value_class().get_related_name()),
+                cfield.name,
+               )
 
 
 @REPORT_HANDS_MAP(RFT_RELATED)

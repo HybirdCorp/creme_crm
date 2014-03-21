@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 1.4\n"
+"Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-13 17:32+0100\n"
+"POT-Creation-Date: 2014-03-21 16:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -109,23 +109,27 @@ msgstr "Par valeurs (de choix personnalisé)"
 msgid "Regular field"
 msgstr "Champ normal"
 
-#: core/report.py:325
+#: core/report.py:334
 msgid "Custom field"
 msgstr "Champ personnalisé"
 
-#: core/report.py:341
+#: core/report.py:350
 msgid "Relationship"
 msgstr "Relation"
 
-#: core/report.py:373
+#: core/report.py:382
 msgid "Computed field"
 msgstr "Champ calculé"
 
-#: core/report.py:392
+#: core/report.py:398
 msgid "Aggregated value"
 msgstr "Valeur agrégée"
 
-#: core/report.py:442
+#: core/report.py:444
+msgid "Aggregated value (custom field)"
+msgstr "Valeur agrégée (champ personnalisé)"
+
+#: core/report.py:462
 msgid "Related field"
 msgstr "Champ relatif"
 
@@ -141,7 +145,7 @@ msgstr "Colonne volatile"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:85 forms/report.py:311 models/graph.py:105
+#: forms/blocks.py:85 forms/report.py:315 models/graph.py:106
 #: templates/reports/templatetags/block_report_graph.html:19
 msgid "None"
 msgstr "Aucun"
@@ -228,48 +232,48 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:88
+#: forms/report.py:91
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:89
+#: forms/report.py:92
 msgid "The columns of the report will be copied from the list view."
 msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
 
-#: forms/report.py:91 models/report.py:40
+#: forms/report.py:94 models/report.py:40
 msgid "Filter"
 msgstr "Filtre"
 
 # from creme_core
-#: forms/report.py:105 forms/report.py:109
+#: forms/report.py:108 forms/report.py:112
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:135
+#: forms/report.py:138
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:140
+#: forms/report.py:143
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:250
+#: forms/report.py:254
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:303 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:307 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:304
+#: forms/report.py:308
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:305
+#: forms/report.py:309
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:350
+#: forms/report.py:358
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -312,7 +316,7 @@ msgstr "Ajouter un graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:112
+#: models/graph.py:113
 #, python-format
 msgid "The instance block for %(graph)s with %(column)s already exists !"
 msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
