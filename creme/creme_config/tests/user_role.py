@@ -86,14 +86,16 @@ class UserRoleTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         url = self.ADD_URL
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'name':              'CEO',
-                                                   'creatable_ctypes':  [],
-                                                   'exportable_ctypes': [],
-                                                   'allowed_apps':      [],
-                                                   'admin_4_apps':      [],
-                                                  }
-                                       )
+        #self.assertGETRedirectsToLogin(url)
+        self.assertGET403(url)
+        #self.assertPOSTRedirectsToLogin(url, data={'name':              'CEO',
+        self.assertPOST403(url, data={'name':              'CEO',
+                                      'creatable_ctypes':  [],
+                                      'exportable_ctypes': [],
+                                      'allowed_apps':      [],
+                                      'admin_4_apps':      [],
+                                     }
+                          )
 
     def test_add_credentials01(self):
         self.login()
@@ -172,16 +174,16 @@ class UserRoleTestCase(CremeTestCase):
         role.save()
 
         url = self._build_add_creds_url(role)
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'can_view':   True,
-                                                   'can_change': False,
-                                                   'can_delete': False,
-                                                   'can_link':   False,
-                                                   'can_unlink': False,
-                                                   'set_type':   SetCredentials.ESET_ALL,
-                                                   'ctype':      0,
-                                                   }
-                                       )
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'can_view':   True,
+                                      'can_change': False,
+                                      'can_delete': False,
+                                      'can_link':   False,
+                                      'can_unlink': False,
+                                      'set_type':   SetCredentials.ESET_ALL,
+                                      'ctype':      0,
+                                     }
+                          )
 
     def test_delete_credentials01(self):
         self.login()
@@ -211,7 +213,8 @@ class UserRoleTestCase(CremeTestCase):
                                            set_type=SetCredentials.ESET_ALL,
                                            value=EntityCredentials.VIEW,
                                           )
-        self.assertPOSTRedirectsToLogin(self.DEL_CREDS_URL, data={'id': sc.id})
+        #self.assertPOSTRedirectsToLogin(self.DEL_CREDS_URL, data={'id': sc.id})
+        self.assertPOST403(self.DEL_CREDS_URL, data={'id': sc.id})
 
     def test_edit01(self):
         self.login()
@@ -308,22 +311,22 @@ class UserRoleTestCase(CremeTestCase):
 
         role = UserRole.objects.create(name='CEO')
         url = '/creme_config/role/edit/%s' % role.id
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'name':              role.name,
-                                                   'creatable_ctypes':  [],
-                                                   'exportable_ctypes': [],
-                                                   'allowed_apps':      [],
-                                                   'admin_4_apps':      [],
-                                                  }
-                                       )
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'name':              role.name,
+                                      'creatable_ctypes':  [],
+                                      'exportable_ctypes': [],
+                                      'allowed_apps':      [],
+                                      'admin_4_apps':      [],
+                                     }
+                          )
 
     def test_delete01(self):
         "Not superuser -> error"
         self.login_not_as_superuser()
 
         url = self._build_del_role_url(self.role)
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url)
+        self.assertGET403(url)
+        self.assertPOST403(url)
 
     def test_delete02(self):
         "Role is not used"

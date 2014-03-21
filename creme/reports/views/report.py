@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,20 +21,20 @@
 from django.http import Http404, HttpResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from django.utils.encoding import smart_str
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
-from django.utils.encoding import smart_str
-from django.contrib.auth.decorators import login_required, permission_required
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils import get_from_POST_or_404 #jsonify
 from creme.creme_core.utils.date_range import date_range_registry
-from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
-                                            list_view, inner_popup, add_to_entity)
-from creme.creme_core.registry import export_backend_registry
+from creme.creme_core.views.generic import (add_entity, edit_entity,
+        view_entity, list_view, inner_popup, add_to_entity)
 
-from ..forms.report import (ReportCreateForm, ReportEditForm, LinkFieldToReportForm,
-                            ReportFieldsForm, DateReportFilterForm)
+from ..forms.report import (ReportCreateForm, ReportEditForm,
+        LinkFieldToReportForm, ReportFieldsForm, DateReportFilterForm)
 from ..models import Report, Field
 from ..utils import decode_datetime
 

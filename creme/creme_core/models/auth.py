@@ -31,7 +31,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from ..auth.entity_credentials import EntityCredentials
-from ..registry import creme_registry
+from ..registry import creme_registry, NotRegistered
 from ..utils.contribute_to_model import contribute_to_model
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
@@ -395,7 +395,14 @@ class UserProfile(Model):
 
     def has_perm_to_admin_or_die(self, app_name):
         if not self.has_perm_to_admin(app_name):
-            raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') % app_name)
+            try:
+                verbose_name = creme_registry.get_app(app_name).verbose_name
+            except NotRegistered:
+                verbose_name = ugettext('Invalid app "%s"') % app_name
+
+            raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') %
+                                        verbose_name
+                                  )
 
     def has_perm_to_change(self, entity):
         if entity.is_deleted:

@@ -34,17 +34,17 @@ from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.decorators import login_required
 
-from ..models import CremeEntity, EntityCredentials #CustomField
-from ..gui.bulk_update import bulk_update_registry
+from ..auth.decorators import login_required
 from ..forms import CremeEntityForm
 from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-from ..views.generic import inner_popup, list_view_popup_from_widget
-from ..views.decorators import POST_only
+from ..gui.bulk_update import bulk_update_registry
+from ..models import CremeEntity, EntityCredentials #CustomField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.meta import ModelFieldEnumerator
+from ..views.generic import inner_popup, list_view_popup_from_widget
+from ..views.decorators import POST_only
 
 
 logger = logging.getLogger(__name__)

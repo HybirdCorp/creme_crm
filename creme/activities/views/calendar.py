@@ -31,9 +31,9 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required, permission_required
 # from django.contrib.auth.models import User
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.utils import get_from_POST_or_404, jsonify

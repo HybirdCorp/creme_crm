@@ -19,13 +19,13 @@
 ################################################################################
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
 #from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, Template
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity) #list_view_popup_from_widget
 from creme.creme_core.utils import jsonify

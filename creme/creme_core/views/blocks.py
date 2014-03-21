@@ -24,10 +24,10 @@ import logging
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
 
-from ..models import CremeEntity
+from ..auth.decorators import login_required
 from ..gui.block import block_registry, str2list, BlocksManager
+from ..models import CremeEntity
 from ..models.block import BlockState
 from ..utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
 from ..blocks import relations_block

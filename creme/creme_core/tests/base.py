@@ -172,11 +172,11 @@ class _CremeTestCase(object):
     def assertRedirectsToLogin(self, response, url):
         self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
 
-    def assertGETRedirectsToLogin(self, url):
-        self.assertRedirectsToLogin(self.client.get(url), url)
+    #def assertGETRedirectsToLogin(self, url):
+        #self.assertRedirectsToLogin(self.client.get(url), url)
 
-    def assertPOSTRedirectsToLogin(self, url, data=None):
-        self.assertRedirectsToLogin(self.client.post(url, data=data or {}), url)
+    #def assertPOSTRedirectsToLogin(self, url, data=None):
+        #self.assertRedirectsToLogin(self.client.post(url, data=data or {}), url)
 
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:

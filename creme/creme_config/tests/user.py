@@ -189,23 +189,25 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         url = self.ADD_URL
-        self.assertGETRedirectsToLogin(url)
+        #self.assertGETRedirectsToLogin(url)
+        self.assertGET403(url)
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
         password = 'password'
-        self.assertPOSTRedirectsToLogin(url, data={'username':     'deunan',
-                                                   'password_1':   password,
-                                                   'password_2':   password,
-                                                   'first_name':   'Deunan',
-                                                   'last_name':    'Knut',
-                                                   'email':        'd.knut@eswat.ol',
-                                                   'is_superuser': False,
-                                                   'organisation': orga.id,
-                                                   'relation':     REL_SUB_EMPLOYED_BY,
-                                                  }
-                                       )
+        #self.assertPOSTRedirectsToLogin(url, data={'username':     'deunan',
+        self.assertPOST403(url, data={'username':     'deunan',
+                                      'password_1':   password,
+                                      'password_2':   password,
+                                      'first_name':   'Deunan',
+                                      'last_name':    'Knut',
+                                      'email':        'd.knut@eswat.ol',
+                                      'is_superuser': False,
+                                      'organisation': orga.id,
+                                      'relation':     REL_SUB_EMPLOYED_BY,
+                                     }
+                          )
 
     def test_create05(self):
         "Linked contact can not be already linked to another user"
@@ -367,15 +369,17 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
-        self.assertGETRedirectsToLogin(url)
+        #self.assertGETRedirectsToLogin(url)
+        self.assertGET403(url)
 
         role2 = UserRole.objects.create(name='Slave')
-        self.assertPOSTRedirectsToLogin(url,data={'first_name': 'Deunan',
-                                                  'last_name':  'Knut',
-                                                  'email':      'd.knut@eswat.ol',
-                                                  'role':       role2.id,
-                                                 }
-                                       )
+        #self.assertPOSTRedirectsToLogin(url,data={'first_name': 'Deunan',
+        self.assertPOST403(url, data={'first_name': 'Deunan',
+                                      'last_name':  'Knut',
+                                      'email':      'd.knut@eswat.ol',
+                                      'role':       role2.id,
+                                     }
+                          )
 
     def test_edit04(self):
         "Common user without role"
@@ -412,13 +416,13 @@ class UserTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
-        self.assertGETRedirectsToLogin(url)
+        self.assertGET403(url)
 
         password = 'password'
-        self.assertPOSTRedirectsToLogin(url, data={'password_1': password,
-                                                   'password_2': password,
-                                                  }
-                                       )
+        self.assertPOST403(url, data={'password_1': password,
+                                      'password_2': password,
+                                     }
+                          )
 
     def test_change_password03(self):
         self.login()
@@ -440,8 +444,8 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
         other_user = User.objects.create(username='deunan')
         url = partial(self._build_activation_url, other_user.id)
-        self.assertGETRedirectsToLogin(url('deactivate'))
-        self.assertGETRedirectsToLogin(url('activate'))
+        self.assertGET403(url('deactivate'))
+        self.assertGET403(url('activate'))
 
     def test_user_activation02(self):
         "Post only & Current user"
@@ -513,13 +517,13 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         url = self.ADD_TEAM_URL
-        self.assertGETRedirectsToLogin(url)
+        self.assertGET403(url)
 
         user01 = User.objects.create_user('Shogun', 'shogun@century.jp', 'uselesspw')
-        self.assertPOSTRedirectsToLogin(url, data={'username':  'Team-A',
-                                                   'teammates': [user01.id],
-                                                  }
-                                       )
+        self.assertPOST403(url, data={'username':  'Team-A',
+                                      'teammates': [user01.id],
+                                     }
+                          )
 
     def _create_team(self, name, teammates):
         team = User.objects.create(username=name, is_team=True, role=None)
@@ -595,11 +599,11 @@ class UserTestCase(CremeTestCase):
         team = self._create_team(teamname, [user01, user02])
 
         url = '/creme_config/team/edit/%s' % team.id
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'username':  teamname,
-                                                   'teammates': [user02.id],
-                                                  }
-                                       )
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'username':  teamname,
+                                      'teammates': [user02.id],
+                                     }
+                          )
 
     def test_team_delete01(self):
         self.login()
@@ -645,8 +649,8 @@ class UserTestCase(CremeTestCase):
         team = self._create_team('Teamee', [])
 
         url = self._build_delete_url(team)
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'to_user': user.id})
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'to_user': user.id})
 
     def test_user_delete01(self):
         "Delete view can delete a superuser if at least one remains"
@@ -834,8 +838,8 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
 
         url = self._build_delete_url(self.other_user)
-        self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={'to_user': self.user.id})
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'to_user': self.user.id})
 
 
 class UserSettingsTestCase(CremeTestCase):

@@ -24,9 +24,9 @@ from functools import partial
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity

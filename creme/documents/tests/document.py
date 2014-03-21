@@ -234,7 +234,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
 
         entity = CremeEntity.objects.create(user=self.user)
-        self.assertGET(302, self._buid_addrelated_url(entity))
+        #self.assertGET(302, self._buid_addrelated_url(entity))
+        self.assertGET403(self._buid_addrelated_url(entity))
 
     def test_add_related_document03(self):
         "Link credentials"

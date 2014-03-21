@@ -20,11 +20,11 @@
 
 from django.core.exceptions import PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
-from django.http import Http404, HttpResponse
 from django.forms.formsets import formset_factory
+from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
+from ..auth.decorators import login_required
 from ..gui.quick_forms import quickforms_registry
 from ..utils import get_ct_or_404
 from .generic import inner_popup
