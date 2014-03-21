@@ -30,7 +30,7 @@ try:
         from creme.opportunities.models import Opportunity, SalesPhase
         from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
-    from ..constants import RFT_FIELD, RFT_RELATION, RFT_AGGREGATE
+    from ..constants import RFT_FIELD, RFT_RELATION, RFT_AGG_FIELD #RFT_AGGREGATE
     from ..models import Field, Report
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -121,15 +121,17 @@ class BaseReportsTestCase(CremeTestCase):
         create_field(report=report_opp, name='reference', order=2)
 
         report_invoice = self.report_invoice = create_report(name="Report on invoices", ct=get_ct(Invoice))
-        create_field(report=report_invoice, name='name',                                order=1)
-        create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGGREGATE, order=2)
+        create_field(report=report_invoice, name='name',                               order=1)
+        #create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGGREGATE, order=2)
+        create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGG_FIELD, order=2)
 
         report_orga = self.report_orga = create_report(name="Organisations report", ct=get_ct(Organisation))
         create_field(report=report_orga, name='name',                                                                                   order=1)
         create_field(report=report_orga, name=REL_OBJ_BILL_ISSUED,       type=RFT_RELATION,   sub_report=report_invoice, selected=True, order=2)
         create_field(report=report_orga, name=REL_OBJ_CUSTOMER_SUPPLIER, type=RFT_RELATION,                                             order=3)
         create_field(report=report_orga, name=REL_SUB_EMIT_ORGA,         type=RFT_RELATION,   sub_report=report_opp,                    order=4)
-        create_field(report=report_orga, name='capital__min',            type=RFT_AGGREGATE,                                           order=5)
+        #create_field(report=report_orga, name='capital__min',            type=RFT_AGGREGATE,                                           order=5)
+        create_field(report=report_orga, name='capital__min',            type=RFT_AGG_FIELD,                                            order=5)
 
         report_contact = self.report_contact = create_report(name="Report on contacts", ct=get_ct(Contact))
         create_field(report=report_contact, name='last_name',                                                                   order=1)

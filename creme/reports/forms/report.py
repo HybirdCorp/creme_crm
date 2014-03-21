@@ -39,7 +39,8 @@ from creme.creme_core.models import HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
 
-from ..constants import RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION, RFT_AGGREGATE, RFT_RELATED
+from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
+        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED) #RFT_AGGREGATE
 from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
@@ -74,8 +75,10 @@ _CELL_2_HAND_MAP = {
     EntityCellFunctionField.type_id:    RFT_FUNCTION,
     EntityCellRelation.type_id:         RFT_RELATION,
     _EntityCellRelated.type_id:         RFT_RELATED,
-    _EntityCellAggregate.type_id:       RFT_AGGREGATE,
-    _EntityCellCustomAggregate.type_id: RFT_AGGREGATE,
+    #_EntityCellAggregate.type_id:       RFT_AGGREGATE,
+    #_EntityCellCustomAggregate.type_id: RFT_AGGREGATE,
+    _EntityCellAggregate.type_id:       RFT_AGG_FIELD,
+    _EntityCellCustomAggregate.type_id: RFT_AGG_CUSTOM,
 }
 _HAND_2_CELL_MAP = dict((v,k) for k, v in _CELL_2_HAND_MAP.iteritems())
 
@@ -241,7 +244,8 @@ class ReportHandsField(EntityCellsField):
 
                 for cf in self._custom_fields:
                     if cf.field_type in authorized_customfields:
-                        agg_id = '%scf__%s__%s' % (_CUSTOM_AGG_PREFIX, cf.field_type, pattern % cf.id)
+                        #agg_id = '%scf__%s__%s' % (_CUSTOM_AGG_PREFIX, cf.field_type, pattern % cf.id)
+                        agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
                         cust_agg_choices.append((agg_id, u'%s - %s' % (title, cf.name)))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
 

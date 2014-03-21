@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,13 @@
 DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
 
 #ReportField types
-#RFT_ACTIONS    = 0
 RFT_FIELD      = 1
 RFT_RELATION   = 2
 RFT_FUNCTION   = 3
 RFT_CUSTOM     = 4
-RFT_AGGREGATE = 5 #TODO: separate regular & custom cases
-#RFT_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see EntityCell.volatile_render
+#RFT_AGGREGATE  = 5
+RFT_AGG_FIELD  = 5
+RFT_AGG_CUSTOM = 6
 RFT_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 
 
