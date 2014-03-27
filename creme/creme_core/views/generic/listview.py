@@ -29,8 +29,8 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
 from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.models.entity_filter import EntityFilterList
+from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 from .popup import inner_popup

@@ -96,16 +96,25 @@ class ListViewTestCase(ViewsTestCase):
         cfield_value = 42
         cfield.get_value_class()(custom_field=cfield, entity=bebop).set_value_n_save(cfield_value)
 
-        self._build_hf(EntityCellRelation(rtype=rtype),
-                       #EntityCellFunctionField(func_field=Organisation.function_fields.get('get_pretty_properties')),
-                       EntityCellFunctionField.build(Organisation, 'get_pretty_properties'),
-                       EntityCellCustomField(cfield),
-                      )
+        hf = self._build_hf(EntityCellRelation(rtype=rtype),
+                            #EntityCellFunctionField(func_field=Organisation.function_fields.get('get_pretty_properties')),
+                            EntityCellFunctionField.build(Organisation, 'get_pretty_properties'),
+                            EntityCellCustomField(cfield),
+                           )
 
-        response = self.assertGET200(self.url)
+        #response = self.assertGET200(self.url)
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
         with self.assertNoException():
-            orgas_page = response.context['entities']
+            ctxt = response.context
+            hfilters = ctxt['header_filters']
+            orgas_page = ctxt['entities']
+
+        with self.assertNoException():
+            sel_hf = hfilters.selected
+
+        self.assertIsInstance(sel_hf, HeaderFilter)
+        self.assertEqual(sel_hf.id, hf.id)
 
         orgas_set = set(orgas_page.object_list)
         self.assertIn(bebop,     orgas_set)
@@ -386,10 +395,9 @@ class ListViewTestCase(ViewsTestCase):
         nerv  = create_orga(name='NERV',      subject_to_vat=True)
         seele = create_orga(name='Seele',     subject_to_vat=True)
 
-        self._build_hf(EntityCellRegularField.build(model=Organisation, name='subject_to_vat'))
-
+        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='subject_to_vat'))
         url = self.url
-        data = {'_search': 1}
+        data = {'hfilter': hf.id, '_search': 1}
         #response = self.assertPOST200(url, data=dict(data, subject_to_vat='1'))
         response = self.assertPOST200(url, data=dict(data, **{'regular_field-subject_to_vat': '1'}))
         orgas_set = self._get_entities_set(response)
@@ -413,12 +421,12 @@ class ListViewTestCase(ViewsTestCase):
         redtail   = create_orga(name='Redtail',   creation_date=date(year=2076, month=7, day=25))
         dragons   = create_orga(name='Red Dragons')
 
-        self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
+        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='creation_date'))
 
         url = self.url
         #data = {'_search': 1}
 
-        build_data = lambda cdate: {'_search': 1, 'regular_field-creation_date': cdate}
+        build_data = lambda cdate: {'hfilter': hf.id, '_search': 1, 'regular_field-creation_date': cdate}
 
         #response = self.assertPOST200(url, data=dict(data, creation_date=['1-1-2075']))
         response = self.assertPOST200(url, data=build_data(['1-1-2075']))
@@ -460,12 +468,13 @@ class ListViewTestCase(ViewsTestCase):
         set_created(swordfish, create_dt(year=2074, month=6, day=5))
         set_created(redtail,   create_dt(year=2076, month=7, day=25))
 
-        self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
+        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
 
         url = self.url
         #data = {'_search': 1}
         def post(created):
-            response = self.assertPOST200(url, data={'_search': 1,
+            response = self.assertPOST200(url, data={'hfilter': hf.id,
+                                                     '_search': 1,
                                                      'regular_field-created': created,
                                                     }
                                          )
@@ -621,11 +630,11 @@ class ListViewTestCase(ViewsTestCase):
         create_rel(subject_entity=redtail,   object_entity=faye)
         create_rel(subject_entity=bebop,     object_entity=jet)
 
-        self._build_hf(EntityCellRelation(rtype=rtype))
+        hf = self._build_hf(EntityCellRelation(rtype=rtype))
 
         url = self.url
         #data = {'_search': 1, 'name': '', rtype.pk: 'Spiege'}
-        data = {'_search': 1, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
+        data = {'hfilter': hf.id, '_search': 1, 'name': '', 'relation-%s' % rtype.pk: 'Spiege'}
         response = self.assertPOST200(url, data=data)
         content = self._get_lv_content(response)
         self.assertNotIn(bebop.name,   content)
@@ -665,10 +674,11 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(swordfish, 12)
         set_cfvalue(redtail,   4)
 
-        self._build_hf(EntityCellCustomField(cfield))
+        hf = self._build_hf(EntityCellCustomField(cfield))
 
         #response = self.assertPOST200(self.url, data={'_search': 1, 'name': '', cfield.pk: '4'})
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       'regular_field-name': '',
                                                       'custom_field-%s' % cfield.pk: '4',
                                                      }
@@ -703,9 +713,10 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield2, swordfish, '#ff0000')
         set_cfvalue(cfield2, redtail,   '#050508')
 
-        self._build_hf(EntityCellCustomField(cfield1), EntityCellCustomField(cfield2))
+        hf = self._build_hf(EntityCellCustomField(cfield1), EntityCellCustomField(cfield2))
 
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       #'name': '',
                                                       #cfield1.pk: '4',
                                                       #cfield2.pk: '#05',
@@ -746,11 +757,11 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield2, swordfish, 1000)
         set_cfvalue(cfield2, redtail,   2000)
 
-        self._build_hf(EntityCellCustomField(cfield1),
-                       EntityCellCustomField(cfield2),
-                      )
-
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        hf = self._build_hf(EntityCellCustomField(cfield1),
+                            EntityCellCustomField(cfield2),
+                           )
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       #'name': '',
                                                       #cfield1.pk: '4',
                                                       #cfield2.pk: '2000',
@@ -792,9 +803,9 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(swordfish, type1.id)
         set_cfvalue(redtail,   type1.id)
 
-        self._build_hf(EntityCellCustomField(cfield))
-
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        hf = self._build_hf(EntityCellCustomField(cfield))
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       #'name': '',
                                                       #cfield.pk: type1.id,
                                                       'regular_field-name': '',
@@ -835,9 +846,9 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(eva01,     [can_walk.id])
         set_cfvalue(valkyrie,  [can_fly.id, can_walk.id])
 
-        self._build_hf(EntityCellCustomField(cfield))
-
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        hf = self._build_hf(EntityCellCustomField(cfield))
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       #'name':    '',
                                                       #cfield.pk: can_walk.id,
                                                       'regular_field-name':    '',
@@ -885,11 +896,11 @@ class ListViewTestCase(ViewsTestCase):
         set_cfvalue(cfield_type,  redtail,   type1.id)
         set_cfvalue(cfield_color, redtail,   color2.id)
 
-        self._build_hf(EntityCellCustomField(cfield_type),
-                       EntityCellCustomField(cfield_color),
-                      )
-
-        response = self.assertPOST200(self.url, data={'_search':       1,
+        hf = self._build_hf(EntityCellCustomField(cfield_type),
+                            EntityCellCustomField(cfield_color),
+                           )
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search':       1,
                                                       #'name':          '',
                                                       #cfield_type.pk:  type1.id,
                                                       #cfield_color.pk: color2.id,
@@ -942,11 +953,11 @@ class ListViewTestCase(ViewsTestCase):
 
         set_cfvalue(cfield_cap,   valkyrie,  [can_fly.id, can_walk.id])
 
-        self._build_hf(EntityCellCustomField(cfield_cap),
-                       EntityCellCustomField(cfield_color),
-                      )
-
-        response = self.assertPOST200(self.url, data={'_search':       1,
+        hf = self._build_hf(EntityCellCustomField(cfield_cap),
+                            EntityCellCustomField(cfield_color),
+                           )
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search':       1,
                                                       #'name':          '',
                                                       #cfield_cap.pk:   can_walk.id,
                                                       #cfield_color.pk: red.id,
@@ -981,11 +992,12 @@ class ListViewTestCase(ViewsTestCase):
         create_cf_value(entity=swordfish, value=create_dt(year=2074, month=6, day=5))
         create_cf_value(entity=redtail,   value=create_dt(year=2076, month=7, day=25))
 
-        self._build_hf(EntityCellCustomField(cfield))
+        hf = self._build_hf(EntityCellCustomField(cfield))
 
         def post(dates):
             #response = self.assertPOST200(self.url, data={'_search': 1, cfield.pk: dates})
-            response = self.assertPOST200(self.url, data={'_search': 1,
+            response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                          '_search': 1,
                                                           'custom_field-%s' % cfield.pk: dates,
                                                          }
                                          )
@@ -1036,11 +1048,11 @@ class ListViewTestCase(ViewsTestCase):
         create_cf_value(entity=swordfish,  custom_field=cfield_blood, value=create_dt(year=2074, month=6, day=8))
         create_cf_value(entity=hammerhead, custom_field=cfield_blood, value=create_dt(year=2075, month=7, day=6))
 
-        self._build_hf(EntityCellCustomField(cfield_flight),
-                       EntityCellCustomField(cfield_blood),
-                      )
-
-        response = self.assertPOST200(self.url, data={'_search': 1,
+        hf = self._build_hf(EntityCellCustomField(cfield_flight),
+                            EntityCellCustomField(cfield_blood),
+                           )
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
                                                       #cfield_flight.pk: ['1-1-2074', '31-12-2074'],
                                                       #cfield_blood.pk:  ['',         '1-1-2075'],
                                                       'custom_field-%s' % cfield_flight.pk: ['1-1-2074', '31-12-2074'],
