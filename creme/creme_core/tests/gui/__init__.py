@@ -118,8 +118,10 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(casca.position.title, get_html_val(casca, 'position__title', user))
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
 
-        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (casca.image.get_image_url(), 
-                                                                                       casca.image.get_entity_summary(user)),
+        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
+                                casca.image.get_image_url(),
+                                casca.image.get_entity_summary(user),
+                            ),
                          get_html_val(casca, 'image', user)
                         )
         self.assertEqual(unicode(casca.image),
@@ -152,10 +154,15 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        #depth = 3
-        self.assertEqual(casca.user.username,
-                         get_html_val(casca, 'image__user__username', user)
-                        )
+        #TODO: move this in login()
+        user.username = 'kirika'
+        user.first_name = 'Kirika'
+        user.last_name = 'Yumura'
+        #user.save()
+        self.assertNotEqual(unicode(user), user.username)
+
+        self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))           #depth = 2
+        self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user)) #depth = 3
 
     def test_field_printers02(self):
         "ManyToMany (simple model)"

@@ -69,6 +69,13 @@ class FieldInfo(object):
         fields.append(model._meta.get_field(subfield_names[-1]))
 
     def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            #We avoid the call to __init__ and its introspection work
+            fi = FieldInfo.__new__(FieldInfo)
+            fi.__fields = self.__fields[idx]
+
+            return fi
+
         return self.__fields[idx]
 
     def __len__(self):

@@ -283,20 +283,14 @@ class _FieldPrintersRegistry(object):
     def get_header_listview_css_class_for_field(self, field_class):
         return self._header_listview_css_printers.get(field_class, self.css_default_header_listview)
 
-    def build_field_printer(self, model, field_name, output='html'):
-        #field_info = get_model_field_info(model, field_name)
-        field_info = FieldInfo(model, field_name)
-        #base_info = field_info[0]
-        #base_field = base_info['field']
+    def _build_field_printer(self, field_info, output='html'):
         base_field = field_info[0]
         base_name = base_field.name
         HIDDEN_VALUE = settings.HIDDEN_VALUE
 
         if len(field_info) > 1:
-            #base_model = base_info['model']
             base_model = base_field.rel.to
-            #sub_printer = self.build_field_printer(base_model, field_info[1]['field'].name, output)
-            sub_printer = self.build_field_printer(base_model, field_info[1].name, output)
+            sub_printer = self._build_field_printer(field_info[1:], output)
 
             if isinstance(base_field, models.ForeignKey):
                 if issubclass(base_model, CremeEntity):
@@ -367,6 +361,9 @@ class _FieldPrintersRegistry(object):
                 return print_func(obj, getattr(obj, base_name), user)
 
         return printer
+
+    def build_field_printer(self, model, field_name, output='html'):
+        return self._build_field_printer(FieldInfo(model, field_name), output=output)
 
     def get_html_field_value(self, obj, field_name, user):
         return self.build_field_printer(obj.__class__, field_name)(obj, user)

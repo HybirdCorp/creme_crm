@@ -174,6 +174,18 @@ class MetaTestCase(CremeTestCase):
         with self.assertRaises(FieldDoesNotExist):
             meta.FieldInfo(Contact, 'invalid__invalidtoo')
 
+    def test_field_info04(self):
+        "Slice"
+        fi = meta.FieldInfo(Contact, 'image__user__username')
+
+        with self.assertNoException():
+            sub_fi = fi[1:]
+
+        self.assertIsInstance(sub_fi, meta.FieldInfo)
+        self.assertEqual(2, len(sub_fi))
+        self.assertEqual(Image._meta.get_field('user'),    sub_fi[0])
+        self.assertEqual(User._meta.get_field('username'), sub_fi[1])
+
     def test_get_related_field(self):
         self.assertIsNone(meta.get_related_field(Contact, 'stuffes'))
 
