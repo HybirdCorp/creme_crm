@@ -149,7 +149,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview01(self):
         self.login()
 
-        me = self.contact
+        #me = self.contact
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -195,22 +195,30 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, act)
+        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo,                REL_SUB_LINKED_2_ACTIVITY, act)
 
     def test_createview02(self):
         "Credentials errors"
-        self.login(is_superuser=False, other_is_owner=True)
+        #self.login(is_superuser=False, other_is_owner=True)
+        self.login(is_superuser=False)
         self._build_nolink_setcreds()
         self.role.creatable_ctypes = [ContentType.objects.get_for_model(Activity)]
 
         user = self.user
         other_user = self.other_user
 
-        kirika   = self.contact
-        mireille = self.other_contact
+        #kirika   = self.other_contact
+
+        #mireille = self.contact
+        mireille = user.linked_contact
+        mireille.user = other_user
+        mireille.save()
+
+        self.assertFalse(user.has_perm_to_link(mireille))
 
         create_contact = partial(Contact.objects.create, user=other_user)
         genma = create_contact(first_name='Genma', last_name='Saotome')
@@ -235,11 +243,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
-                             _(u'You are not allowed to link this entity: %s') % kirika
+                             #_(u'You are not allowed to link this entity: %s') % kirika
+                             _(u'You are not allowed to link this entity: %s') % mireille
                             )
 
         msg = _(u'Some entities are not linkable: %s')
-        self.assertFormError(response, 'form', 'participating_users', msg % mireille)
+        #self.assertFormError(response, 'form', 'participating_users', msg % mireille)
+        #self.assertFormError(response, 'form', 'participating_users', msg % kirika)
+        self.assertFormError(response, 'form', 'participating_users', msg % other_user.linked_contact)
         self.assertFormError(response, 'form', 'other_participants',  msg % genma)
         self.assertFormError(response, 'form', 'subjects',            msg % akane)
         self.assertFormError(response, 'form', 'linked_entities',     msg % dojo)
@@ -247,7 +258,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview03(self):
         self.login()
 
-        me   = self.contact
+        #me   = self.contact
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -287,10 +298,11 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, act)
+        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo,                REL_SUB_LINKED_2_ACTIVITY, act)
 
     def _create_activity_by_view(self, title='My task',
                                  atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
@@ -438,10 +450,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         user = self.user
-        
-        create_contact = partial(Contact.objects.create, user=user)
-        ranma = create_contact(first_name='Ranma', last_name='Saotome')
-        
+
+        #create_contact = partial(Contact.objects.create, user=user)
+        #ranma = create_contact(first_name='Ranma', last_name='Saotome')
+        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
+
         response = self.assertPOST200(self.ADD_URL, follow=True,
                                       data={'user':             user.pk,
                                             'title':            'My task',
@@ -449,7 +462,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation': True,
                                             'my_calendar':      Calendar.get_user_default_calendar(user).pk,
                                             'subjects':         self._relation_field_value(ranma),
-                                            'other_participants': '[%d]' % self.other_contact.id,
+                                            #'other_participants': '[%d]' % self.other_contact.id,
+                                            'other_participants': '[%d]' % self.other_user.linked_contact.id,
                                         }
                                      )
         self.assertFormError(response, 'form', 'other_participants',
@@ -535,7 +549,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         subtype = self.get_object_or_fail(ActivitySubType, pk=ACTIVITYSUBTYPE_MEETING_NETWORK)
 
-        me   = self.contact
+        #me   = self.contact
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -579,10 +593,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                          meeting.end,
                         )
 
-        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   meeting)
-        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,   meeting)
-        self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  meeting)
-        self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, meeting)
+        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   meeting)
+        self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   meeting)
+        self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   meeting)
+        self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  meeting)
+        self.assertRelationCount(1, dojo,                REL_SUB_LINKED_2_ACTIVITY, meeting)
 
     def test_create_view_phonecall01(self):
         self.login()
@@ -658,9 +673,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         user = self.user
+        other_user = self.other_user
 
         contact01 = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
-        contact02 = self.other_contact
+        #contact02 = self.other_contact
+        contact02 = other_user.linked_contact
 
         uri = self._build_add_related_uri(contact01)
         response = self.assertGET200(uri)
@@ -679,7 +696,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                           ),
                                           'start':               '2010-1-10',
                                           'start_time':          '17:30:00',
-                                          'participating_users': self.other_user.pk,
+                                          'participating_users': other_user.pk,
                                          }
                                     )
         self.assertNoFormError(response)
@@ -704,7 +721,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_related02(self):
         self.login()
 
-        response = self.assertGET200(self._build_add_related_uri(self.other_contact,
+        #response = self.assertGET200(self._build_add_related_uri(self.other_contact,
+        response = self.assertGET200(self._build_add_related_uri(self.other_user.linked_contact,
                                                                  ACTIVITYTYPE_MEETING,
                                                                 )
                                     )
@@ -807,6 +825,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview01(self):
         self.login()
+        user = self.user
 
         title = 'meet01'
         create_dt = partial(self.create_datetime, year=2013, month=10, day=1)
@@ -818,10 +837,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            type_id=type_id, sub_type_id=sub_type_id,
                                            start=start, end=end,
                                           )
-        rel = Relation.objects.create(subject_entity=self.contact, user=self.user,
-                                type_id=REL_SUB_PART_2_ACTIVITY,
-                                object_entity=activity,
-                               )
+        #rel = Relation.objects.create(subject_entity=self.contact, user=self.user,
+        rel = Relation.objects.create(subject_entity=user.linked_contact, user=user,
+                                      type_id=REL_SUB_PART_2_ACTIVITY,
+                                      object_entity=activity,
+                                     )
 
         url = self._buid_edit_url(activity)
         response = self.assertGET200(url)
@@ -913,7 +933,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Collision"
         self.login()
         user = self.user
-        contact = self.contact
+        #contact = self.contact
+        contact = user.linked_contact
 
         def create_task(**kwargs):
             task = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_TASK, **kwargs)
@@ -1282,8 +1303,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Remove participants (relationships deleted)"
         self.login()
         user = self.user
-        logged   = self.contact
-        other    = self.other_contact
+        #logged   = self.contact
+        logged   = user.linked_contact
+        #other    = self.other_contact
+        other    = self.other_user.linked_contact
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
         dt_now = now()
         phone_call = Activity.objects.create(title='a random activity',
@@ -1471,10 +1494,11 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_indisponibility_createview02(self):
         self.login()
-        contact1 = self.contact
-        contact2 = self.other_contact
-
+        #contact1 = self.contact
+        #contact2 = self.other_contact
         user = self.user
+        other_user = self.other_user
+
         title = 'Away'
         #my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_INDISPO_URL, follow=True,
@@ -1484,7 +1508,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'end':                '2010-1-12',
                                           'start_time':         '09:08:07',
                                           'end_time':           '06:05:04',
-                                          'participating_users': [user.id, self.other_user.id],
+                                          'participating_users': [user.id, other_user.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -1499,8 +1523,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)
         self.assertEqual(create_dt(year=2010, month=1, day=12, hour=6, minute=5, second=4), act.end)
 
-        self.assertRelationCount(1, contact1, REL_SUB_PART_2_ACTIVITY, act)
-        self.assertRelationCount(1, contact2, REL_SUB_PART_2_ACTIVITY, act)
+        #self.assertRelationCount(1, contact1, REL_SUB_PART_2_ACTIVITY, act)
+        #self.assertRelationCount(1, contact2, REL_SUB_PART_2_ACTIVITY, act)
+        self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
+        self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
 
     def test_indisponibility_createview03(self):
         "Is all day"

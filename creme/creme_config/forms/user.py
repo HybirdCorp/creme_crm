@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,31 +25,33 @@ from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, 
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import Relation, RelationType, UserRole, Mutex
+from creme.creme_core.models import UserRole, Mutex #Relation, RelationType
 from creme.creme_core.models.fields import CremeUserForeignKey
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.forms.fields import CreatorEntityField
+#from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from creme.persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
+from creme.persons.models import Contact # Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
 
-_get_ct = ContentType.objects.get_for_model
+#_get_ct = ContentType.objects.get_for_model
 
 #TODO: see django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
-    password_1   = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput(), required=True)
-    password_2   = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput(), required=True)
-    role         = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False,
-                                    help_text=_(u"You must choose a role for a non-super user."))
-    contact      = CreatorEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
-                                      help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
-    organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme(), empty_label=None)
-    relation     = ModelChoiceField(label=_(u"Position in the organisation"), empty_label=None,
-                                    queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
+    password_1   = CharField(label=_('Password'), min_length=6, widget=PasswordInput())
+    password_2   = CharField(label=_('Confirm password'), min_length=6, widget=PasswordInput())
+    role         = ModelChoiceField(label=_('Role'), required=False,
+                                    queryset=UserRole.objects.all(),
+                                    help_text=_('You must choose a role for a non-super user.'),
                                    )
+    #contact      = CreatorEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
+                                      #help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
+    #organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme(), empty_label=None)
+    #relation     = ModelChoiceField(label=_(u"Position in the organisation"), empty_label=None,
+                                    #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
+                                   #)
 
     class Meta:
         model = User
@@ -92,23 +94,23 @@ class UserAddForm(CremeModelForm):
         user.set_password(cleaned['password_1'])
         super(UserAddForm, self).save(*args, **kwargs)
 
-        contact = cleaned.get('contact', None)
+        #contact = cleaned.get('contact', None)
 
-        if not contact:
-            contact = Contact(last_name=(user.last_name or user.username),
-                              first_name=(user.first_name or user.username),
-                              user=user
-                             )
+        #if not contact:
+            #contact = Contact(last_name=(user.last_name or user.username),
+                              #first_name=(user.first_name or user.username),
+                              #user=user
+                             #)
 
-        contact.is_user = user
-        contact.save()
+        #contact.is_user = user
+        #contact.save()
 
-        relation_desc = {'subject_entity': contact,
-                         'type':           cleaned['relation'],
-                         'object_entity':  cleaned['organisation'],
-                        }
-        if not Relation.objects.filter(**relation_desc).exists():
-            Relation.objects.create(user=user, **relation_desc)
+        #relation_desc = {'subject_entity': contact,
+                         #'type':           cleaned['relation'],
+                         #'object_entity':  cleaned['organisation'],
+                        #}
+        #if not Relation.objects.filter(**relation_desc).exists():
+            #Relation.objects.create(user=user, **relation_desc)
 
         return user
 

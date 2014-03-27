@@ -33,8 +33,10 @@ class CTITestCase(CremeTestCase):
         user = self.user
         other_user = self.other_user
         create_contact = partial(Contact.objects.create, user=user)
-        self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
-        self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
+        #self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
+        #self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
+        self.contact = user.linked_contact
+        self.contact_other_user = other_user.linked_contact
 
     def test_add_phonecall01(self):
         self.login()

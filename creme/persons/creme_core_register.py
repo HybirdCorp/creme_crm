@@ -83,3 +83,43 @@ smart_columns_registry.register_model(Contact).register_field('first_name') \
 smart_columns_registry.register_model(Organisation).register_field('name') \
                                                    .register_field('billing_address__city') \
                                                    .register_relationtype(REL_OBJ_EMPLOYED_BY)
+
+
+#Hooking the User creation form ------------------------------------------------
+from creme.creme_config.forms.user import UserAddForm
+
+def _add_related_orga_fields(form):
+    from django.contrib.contenttypes.models import ContentType
+    from django.forms import ModelChoiceField
+
+    from creme.creme_core.models import RelationType
+
+    fields = form.fields
+    get_ct = ContentType.objects.get_for_model
+    fields['organisation'] = ModelChoiceField(label=_('User organisation'),
+                                              queryset=Organisation.get_all_managed_by_creme(),
+                                              empty_label=None,
+                                             )
+    fields['relation'] = ModelChoiceField(label=_('Position in the organisation'),
+                                          queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
+                                                                               object_ctypes=get_ct(Organisation),
+                                                                              ),
+                                          empty_label=None,
+                                         )
+    fields['first_name'].required = True
+    fields['last_name'].required = True
+    fields['email'].required = True
+
+def _save_related_orga_fields(form):
+    from creme.creme_core.models import Relation
+
+    cdata = form.cleaned_data
+    user = form.instance
+
+    Relation.objects.create(user=user, subject_entity=user.linked_contact,
+                            type=cdata['relation'],
+                            object_entity=cdata['organisation'],
+                           )
+
+UserAddForm.add_post_init_callback(_add_related_orga_fields)
+UserAddForm.add_post_save_callback(_save_related_orga_fields)

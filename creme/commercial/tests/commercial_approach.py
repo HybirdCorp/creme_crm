@@ -105,7 +105,7 @@ class CommercialApproachTestCase(CremeTestCase):
         url = '/activities/activity/add'
         self.assertGET200(url)
 
-        Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user) #me
+        #Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user) #me
 
         title = 'Meeting #01'
         my_calendar = Calendar.get_user_default_calendar(user)
@@ -128,12 +128,12 @@ class CommercialApproachTestCase(CremeTestCase):
         self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
-    def test_create_from_activity02(self): #OK
+    def test_create_from_activity02(self):
         self.login()
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
-        create_contact(first_name='Ryoga', last_name='Hibiki', is_user=user) #me
+        #create_contact(first_name='Ryoga', last_name='Hibiki', is_user=user) #me
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
 
@@ -191,9 +191,12 @@ class CommercialApproachTestCase(CremeTestCase):
                                           start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
                                           end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0)
                                          )
-        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
+        #ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
+        #contact = self.get_object_or_fail(Contact, is_user=user)
+        contact = user.linked_contact
 
-        Relation.objects.create(subject_entity=ryoga, type_id=REL_SUB_PART_2_ACTIVITY,
+        #Relation.objects.create(subject_entity=ryoga, type_id=REL_SUB_PART_2_ACTIVITY,
+        Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
                                 object_entity=meeting, user=user
                                )
 
@@ -201,7 +204,8 @@ class CommercialApproachTestCase(CremeTestCase):
                                                    description=description,
                                                    #creation_date=datetime.now(),
                                                    related_activity_id=meeting.id, #TODO: related_activity=instance after activities refactoring ?
-                                                   creme_entity=ryoga,
+                                                   #creme_entity=ryoga,
+                                                   creme_entity=contact,
                                                   )
 
         title = title.upper()

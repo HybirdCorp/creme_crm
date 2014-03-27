@@ -434,23 +434,27 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         self._create_persons()
-        self.assertEqual(4, Contact.objects.count()) #create_persons + Fulbert
+        self.assertEqual(6, Contact.objects.count()) #create_persons + users' Contacts
 
         report   = self._create_report('trinita')
         response = self.assertGET200('/reports/report/export/%s/csv' % report.id)
 
-        content = [s for s in response.content.split('\r\n') if s]
-        self.assertEqual(5, len(content)) #4 contacts + header
+        content = (s for s in response.content.split('\r\n') if s)
         self.assertEqual(smart_str('"%s","%s","%s","%s"' % (
                                       _(u'Last name'), _(u'Owner user'), _(u'owns'), _(u'Properties')
                                     )
                                   ),
-                         content[0]
+                         content.next()
                         )
-        self.assertEqual('"Ayanami","Kirika","","Kawaii"', content[1]) #alphabetical ordering ??
-        self.assertEqual('"Creme","root","",""',           content[2])
-        self.assertEqual('"Katsuragi","Kirika","Nerv",""', content[3])
-        self.assertEqual('"Langley","Kirika","",""',       content[4])
+
+        user_str = unicode(self.user)
+        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str,  content.next()) #alphabetical ordering ??
+        self.assertEqual('"Bouquet","%s","",""' % self.other_user, content.next())
+        self.assertEqual('"Creme","Fulbert C.","",""',             content.next())
+        self.assertEqual('"Katsuragi","%s","Nerv",""' % user_str,  content.next())
+        self.assertEqual('"Langley","%s","",""' % user_str,        content.next())
+        self.assertEqual('"Yumura","%s","",""' % user_str,         content.next())
+        self.assertRaises(StopIteration, content.next)
 
     def test_report_csv03(self):
         "With date filter"
@@ -467,8 +471,10 @@ class ReportTestCase(BaseReportsTestCase):
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(3, len(content))
-        self.assertEqual('"Ayanami","Kirika","","Kawaii"', content[1])
-        self.assertEqual('"Langley","Kirika","",""',       content[2])
+
+        user_str = unicode(self.user)
+        self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str, content[1])
+        self.assertEqual('"Langley","%s","",""' % user_str,       content[2])
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
@@ -487,8 +493,10 @@ class ReportTestCase(BaseReportsTestCase):
         result = list(XlrdReader(None, file_contents=response.content))
 
         self.assertEqual(3, len(result))
-        self.assertEqual(["Ayanami", "Kirika", "", "Kawaii"], result[1])
-        self.assertEqual(["Langley", "Kirika", "", ""],       result[2])
+
+        user_str = unicode(self.user)
+        self.assertEqual(['Ayanami', user_str, '', 'Kawaii'], result[1])
+        self.assertEqual(['Langley', user_str, '', ''],       result[2])
 
     def _build_editfields_url(self, report):
         return '/reports/report/%s/edit_fields' % report.id
@@ -1259,9 +1267,9 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(_('Legal form'), lf_field.title)
         self.assertEqual(_('Owner user'), user_field.title)
 
-        username = self.user.username
-        self.assertEqual([[self.lannisters.name, '',          username],
-                          [starks.name,          lform.title, username],
+        user_str = unicode(self.user)
+        self.assertEqual([[self.lannisters.name, '',          user_str],
+                          [starks.name,          lform.title, user_str],
                          ],
                          report.fetch_all_lines()
                         )

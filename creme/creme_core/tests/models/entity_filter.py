@@ -58,6 +58,9 @@ class EntityFiltersTestCase(CremeTestCase):
             'gendou': create(first_name=u'Gendô',  last_name=u'IKARI'),
             'genji':  create(first_name=u'Genji',  last_name=u'Ikaru'),
             'risato': create(first_name=u'Risato', last_name=u'Katsuragu'),
+
+            'kirika':   self.user.linked_contact,
+            'mireille': self.other_user.linked_contact,
         }
 
         self.contact_ct = ContentType.objects.get_for_model(Contact)
@@ -144,22 +147,28 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), Contact, 
-                                    self._list_contact_ids(*self.contacts.keys())
+                                    #self._list_contact_ids(*self.contacts.keys())
+                                    self._list_contact_ids('mireille', exclude=True)
                                    )
 
-        self.contacts.get('spike').user = self.other_user
-        self.contacts.get('spike').save()
+        #self.contacts.get('spike').user = self.other_user
+        #self.contacts.get('spike').save()
 
-        self.contacts.get('rei').user = self.other_user
-        self.contacts.get('rei').save()
+        #self.contacts.get('rei').user = self.other_user
+        #self.contacts.get('rei').save()
 
-        self.assertExpectedFiltered(self.refresh(efilter), Contact,
-                                    self._list_contact_ids('jet', 'faye', 'ed', 'misato', 'asuka', 'shinji', 'yui', 'gendou', 'genji', 'risato')
-                                   )
+        rei = self.contacts.get('rei')
+        rei.user = self.other_user
+        rei.save()
+
+        #self.assertExpectedFiltered(self.refresh(efilter), Contact,
+                                    #self._list_contact_ids('jet', 'faye', 'ed', 'misato', 'asuka', 'shinji', 'yui', 'gendou', 'genji', 'risato')
+                                   #)
 
         set_global_info(user=self.other_user)
         self.assertExpectedFiltered(self.refresh(efilter), Contact,
-                                    self._list_contact_ids('spike', 'rei')
+                                    #self._list_contact_ids('spike', 'rei')
+                                    self._list_contact_ids('mireille', 'rei')
                                    )
 
     def test_filter_field_iequals(self):

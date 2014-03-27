@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,7 +84,8 @@ class EntityEmailForm(CremeEntityForm):
             else:
                 field.help_text = msg % entity
 
-        self.user_contact = contact = Contact.objects.get(is_user=self.user)
+        #self.user_contact = contact = Contact.objects.get(is_user=self.user)
+        self.user_contact = contact = self.user.linked_contact
 
         if contact.email:
             self.fields['sender'].initial = contact.email

@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -114,6 +115,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     def test_editview02(self):
+        "Edit addresses"
         self.login()
         user = self.user
         first_name = 'Faye'
@@ -149,8 +151,107 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(state,   contact.billing_address.state)
         self.assertEqual(country, contact.shipping_address.country)
 
+    def test_editview03(self):
+        "Contact is a user => sync"
+        self.login()
+        user = self.user
+        contact = self.get_object_or_fail(Contact, is_user=user)
+
+        url = self._build_edit_url(contact)
+        response = self.assertPOST200(url, follow=True,
+                                      data={'user':      user.id,
+                                            'last_name': contact.last_name,
+                                           }
+                                     )
+        msg = _('This field is required.')
+        self.assertFormError(response, 'form', 'first_name', msg)
+        self.assertFormError(response, 'form', 'email',      msg)
+
+        first_name = contact.first_name.lower(); self.assertNotEqual(first_name, user.first_name)
+        last_name  = contact.last_name.upper();  self.assertNotEqual(last_name,  user.last_name)
+        email      = '%s.%s@noir.org' % (user.first_name, user.last_name)
+        self.assertNotEqual(email, user.email)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user':       user.id,
+                                          'last_name':  last_name,
+                                          'first_name': first_name,
+                                          'email':      email,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        contact = self.refresh(contact)
+        self.assertEqual(first_name, contact.first_name)
+        self.assertEqual(last_name,  contact.last_name)
+        self.assertEqual(email,      contact.email)
+
+        user = self.refresh(user)
+        self.assertEqual(first_name, user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual(email,      user.email)
+
+    def test_is_user01(self):
+        "Property 'linked_contact'"
+        self.login()
+        user = self.user
+
+        with self.assertNumQueries(0):
+            rel_contact = user.linked_contact
+
+        contact = self.get_object_or_fail(Contact, is_user=user)
+        self.assertEqual(contact, rel_contact)
+
+        user = self.refresh(user) #clean cache
+
+        with self.assertNumQueries(1):
+            rel_contact1 = user.linked_contact
+
+        with self.assertNumQueries(0):
+            rel_contact2 = user.linked_contact
+
+    def test_is_user02(self):
+        """Contact.clean() + integrity of User.
+        first_name = NULL (not nullable in User)
+        email = NULL (not nullable in User)
+        """
+        self.login()
+        user = self.user
+        contact = user.linked_contact
+        last_name = contact.last_name
+        first_name = contact.first_name
+
+        contact.email = None
+        contact.first_name = None
+        contact.save()
+
+        user = self.refresh(user)
+        self.assertEqual('',         user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual('',         user.email)
+
+        with self.assertRaises(ValidationError) as cm:
+            contact.full_clean()
+
+        self.assertIsInstance(cm.exception, ValidationError)
+        self.assertEqual([_('This Contact is related to a user and must have a fisrt name.')],
+                         cm.exception.messages
+                        )
+
+        contact.first_name = first_name
+
+        with self.assertRaises(ValidationError) as cm:
+            contact.full_clean()
+
+        self.assertIsInstance(cm.exception, ValidationError)
+        self.assertEqual([_('This Contact is related to a user and must have an e-mail address.')],
+                         cm.exception.messages
+                        )
+
     def test_listview(self):
         self.login()
+
+        count = Contact.objects.filter(is_deleted=False).count()
 
         create_contact = partial(Contact.objects.create, user=self.user)
         faye    = create_contact(first_name='Faye',    last_name='Valentine')
@@ -162,7 +263,8 @@ class ContactTestCase(_BaseTestCase):
         with self.assertNoException():
             contacts_page = response.context['entities']
 
-        self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
+        #self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
+        self.assertEqual(count + 2, contacts_page.paginator.count)
 
         contacts_set = set(contacts_page.object_list)
         self.assertIn(faye,  contacts_set)
@@ -263,15 +365,16 @@ class ContactTestCase(_BaseTestCase):
         self.login()
 
         user = self.user
-        naruto = Contact.objects.create(user=user, is_user=user,
-                                        first_name='Naruto', last_name='Uzumaki'
-                                       )
+        #naruto = Contact.objects.create(user=user, is_user=user,
+                                        #first_name='Naruto', last_name='Uzumaki'
+                                       #)
+        naruto = self.get_object_or_fail(Contact, is_user=user)
 
         create_address = partial(Address.objects.create,
                                  city='Konoha', state='Konoha', zipcode='111',
                                  country='The land of fire', department="Ninjas' homes",
                                  content_type=ContentType.objects.get_for_model(Contact),
-                                 object_id=naruto.id
+                                 object_id=naruto.id,
                                 )
         naruto.billing_address  = create_address(name="Naruto's", address='Home', po_box='000')
         naruto.shipping_address = create_address(name="Naruto's", address='Home (second entry)', po_box='001')
@@ -325,19 +428,25 @@ class ContactTestCase(_BaseTestCase):
         "Can not delete if the Contact corresponds to an user"
         self.login()
         user = self.user
-        naruto = Contact.objects.create(user=user, is_user=user, is_deleted=True,
-                                        first_name='Naruto', last_name='Uzumaki'
-                                       )
-        self.assertPOST403(self._build_delete_url(naruto), follow=True)
+        #naruto = Contact.objects.create(user=user, is_user=user, is_deleted=True,
+                                        #first_name='Naruto', last_name='Uzumaki'
+                                       #)
+        #self.assertPOST403(self._build_delete_url(naruto), follow=True)
+        #contact = self.get_object_or_fail(Contact, is_user=user)
+        contact = user.linked_contact
+        self.assertPOST403(self._build_delete_url(contact), follow=True)
 
     def test_delete03(self):
         "Can not trash if the Contact corresponds to an user"
         self.login()
         user = self.user
-        naruto = Contact.objects.create(user=user, is_user=user,
-                                        first_name='Naruto', last_name='Uzumaki'
-                                       )
-        self.assertPOST403(self._build_delete_url(naruto), follow=True)
+        #naruto = Contact.objects.create(user=user, is_user=user,
+                                        #first_name='Naruto', last_name='Uzumaki'
+                                       #)
+        #self.assertPOST403(self._build_delete_url(naruto), follow=True)
+        #contact = self.get_object_or_fail(Contact, is_user=user)
+        contact = user.linked_contact
+        self.assertPOST403(self._build_delete_url(contact), follow=True)
 
     def _build_quickform_url(self, count):
         ct = ContentType.objects.get_for_model(Contact)
@@ -347,6 +456,7 @@ class ContactTestCase(_BaseTestCase):
         "2 Contacts created"
         self.login()
 
+        contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
 
         models = set(quickforms_registry.iter_models())
@@ -381,7 +491,8 @@ class ContactTestCase(_BaseTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual(3, Contact.objects.count())
+        #self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(contact_count + 2, Contact.objects.count())
         self.assertEqual(orga_count, Organisation.objects.count())
 
         for first_name, last_name in data:
@@ -390,6 +501,7 @@ class ContactTestCase(_BaseTestCase):
     def test_quickform02(self):
         "2 Contacts & 1 Organisation created"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        count = Contact.objects.count()
 
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
@@ -418,7 +530,8 @@ class ContactTestCase(_BaseTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertEqual(3, Contact.objects.count())
+        #self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(count + 2, Contact.objects.count())
 
         orgas = Organisation.objects.filter(name=orga_name)
         self.assertEqual(2, len(orgas))
@@ -432,6 +545,7 @@ class ContactTestCase(_BaseTestCase):
     def test_quickform03(self):
         "2 Contacts created and link with an existing Organisation"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        count = Contact.objects.count()
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -462,7 +576,8 @@ class ContactTestCase(_BaseTestCase):
                                     )
         self.assertNoFormError(response)
 
-        self.assertEqual(3, Contact.objects.count())
+        #self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(count + 2, Contact.objects.count())
         self.assertEqual(2, Organisation.objects.filter(name=orga_name).count())
 
         for first_name, last_name, orga_name in data:
@@ -1013,9 +1128,11 @@ class ContactTestCase(_BaseTestCase):
         self.login()
         user = self.user
 
-        create_contact = partial(Contact.objects.create, user=user)
-        contact01 = create_contact(first_name='Faye', last_name='Valentine', is_user=user)
-        contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
+        #create_contact = partial(Contact.objects.create, user=user)
+        #contact01 = create_contact(first_name='Faye', last_name='Valentine', is_user=user)
+        #contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
+        contact01 = self.get_object_or_fail(Contact, is_user=user)
+        contact02 = Contact.objects.create(user=user, first_name='FAYE', last_name='VALENTINE')
 
         url = '/creme_core/entity/merge/%s,%s'
         self.assertGET404(url % (contact01.id, contact02.id))

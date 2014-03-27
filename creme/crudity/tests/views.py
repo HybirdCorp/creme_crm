@@ -76,12 +76,12 @@ class CrudityViewsTestCase(CrudityTestCase):
         crudity_registry.register_inputs("email", [crudity_input])
         crudity_registry.register_backends([backend])
 
-        self.assertGET404(url) #no contact related to user
+        #self.assertGET404(url) #no contact related to user
 
-        user = self.user
-        Contact.objects.create(user=user, is_user=user, first_name='Haruhi',
-                               last_name ='Suzumiya',
-                              )
+        #user = self.user
+        #Contact.objects.create(user=user, is_user=user, first_name='Haruhi',
+                               #last_name ='Suzumiya',
+                              #)
 
         response = self.assertGET200(url)
         self.assertEqual('attachment; filename=CREATE_CONTACT.eml',

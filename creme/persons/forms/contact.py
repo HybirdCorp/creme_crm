@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,45 +23,33 @@ from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CreatorEntityField, CremeDateTimeField
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
-
-#from creme.creme_config.forms.fields import CreatorModelChoiceField
+from creme.creme_core.models import RelationType, Relation
 
 from creme.media_managers.models import Image
-#from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from ..models import Organisation, Contact #Position, Sector, Civility
+from ..models import Organisation, Contact
 from .base import _BasePersonForm
 
 
 class ContactForm(_BasePersonForm):
-    birthday = CremeDateTimeField(label=_('Birthday'), required=False)
+    birthday = CremeDateTimeField(label=_('Birthday'), required=False) #TODO: hook django to use our widget directly...
     image    = CreatorEntityField(label=_('Image'), required=False, model=Image)
-#    position = ModelChoiceField(label=_('Position'), 
-#                                queryset=Position.objects.all(), 
-#                                required=False, 
-#                                widget=ActionButtonList(delegate=DynamicSelect(options=lambda:((position.pk, unicode(position)) for position in Position.objects.all())))
-#                                            .add_action('create', _(u'Add'), url='/creme_config/persons/position/add_widget/'))
-
-    #civility = CreatorModelChoiceField(label=_('Civility'), queryset=Civility.objects.all(), required=False, initial=None)
-    #position = CreatorModelChoiceField(label=_('Position'), queryset=Position.objects.all(), required=False, initial=None)
-    #sector = CreatorModelChoiceField(label=_('Sector'), queryset=Sector.objects.all(), required=False, initial=None)
 
     blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
 
-    #class Meta:
     class Meta(_BasePersonForm.Meta):
         model = Contact
-        #exclude = _BasePersonForm.Meta.exclude + ('language',)
 
-    #def __init__(self, *args, **kwargs):
-        #super(ContactForm, self).__init__(*args, **kwargs)
-        #self.fields['position'].user = self.user
-        #self.fields['civility'].user = self.user
-        #self.fields['sector'].user = self.user
+    def __init__(self, *args, **kwargs):
+        super(ContactForm, self).__init__(*args, **kwargs)
+
+        if self.instance.is_user_id:
+            fields = self.fields
+            fields['first_name'].required = True
+            fields['email'].required = True
 
 
 class RelatedContactForm(ContactForm):
@@ -86,6 +74,7 @@ class RelatedContactForm(ContactForm):
         else:
             get_ct = ContentType.objects.get_for_model
             relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
+                                              #TODO: factorise (see User form hooking)
                                               queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
                                                                                    object_ctypes=get_ct(Organisation),
                                                                                   ),

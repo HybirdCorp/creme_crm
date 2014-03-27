@@ -80,12 +80,15 @@ class _CremeTestCase(object):
               creatable_models=None, admin_4_apps=()):
         password = 'test'
 
-        superuser = User.objects.create(username='Kirika')
+        superuser = User(username='kirika', email='kirika@noir.jp',
+                         first_name='Kirika', last_name='Yumura',
+                         is_superuser=True,
+                        )
         superuser.set_password(password)
-        superuser.is_superuser = True
         superuser.save()
 
-        role = UserRole.objects.create(name='Basic')
+        #role = UserRole.objects.create(name='Basic')
+        role = UserRole(name='Basic')
         role.allowed_apps = allowed_apps
         role.admin_4_apps = admin_4_apps
         role.save()
@@ -94,7 +97,10 @@ class _CremeTestCase(object):
             role.creatable_ctypes = [ContentType.objects.get_for_model(model) for model in creatable_models]
 
         self.role = role
-        basic_user = User.objects.create(username='Mireille', role=role)
+
+        basic_user = User(username='mireille', email='mireille@noir.jp', role=role,
+                          first_name='Mireille', last_name='Bouquet',
+                         )
         basic_user.set_password(password)
         basic_user.save()
 

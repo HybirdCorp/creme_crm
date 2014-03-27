@@ -109,18 +109,20 @@ class ParticipantCreateForm(CremeForm):
                                           self.user,
                                          )
 
+    #TODO: factorise with ActivityCreateForm
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
 
         if my_participation:
             user = self.user
 
-            try:
-                user_contact = Contact.objects.get(is_user=user)
-            except Contact.DoesNotExist:
-                logger.warn('No Contact linked to this user: %s', user)
-            else:
-                self.participants.append(validate_linkable_entity(user_contact, user))
+            #try:
+                #user_contact = Contact.objects.get(is_user=user)
+            #except Contact.DoesNotExist:
+                #logger.warn('No Contact linked to this user: %s', user)
+            #else:
+                #self.participants.append(validate_linkable_entity(user_contact, user))
+            self.participants.append(validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 

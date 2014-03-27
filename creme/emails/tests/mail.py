@@ -33,11 +33,13 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               )
 
         user = self.user
-        self.user_contact = Contact.objects.create(user=user, is_user=user,
-                                                   first_name='Re-l',
-                                                   last_name='Mayer',
-                                                   email='re-l.mayer@rpd.rmd',
-                                                  )
+        ###self.user_contact = Contact.objects.create(user=user, is_user=user,
+                                                   ###first_name='Re-l',
+                                                   ###last_name='Mayer',
+                                                   ###email='re-l.mayer@rpd.rmd',
+                                                  ###)
+        ##self.user_contact = self.get_object_or_fail(Contact, is_user=user)
+        #self.user_contact = user.linked_contact
 
         return user
 
@@ -56,7 +58,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertEqual([contact.id], c_recipients.initial)
 
-        sender = self.user_contact.email
+        #sender = self.user_contact.email
+        sender = user.linked_contact.email
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
         subject = 'Under arrest'
@@ -77,7 +80,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(body_html,        email.body_html)
         self.assertEqual(MAIL_STATUS_SENT, email.status)
 
-        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=self.user_contact)
+        #self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=self.user_contact)
+        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=user.linked_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
         self.assertGET200('/emails/mail/%s' % email.id)
@@ -146,7 +150,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         response = self.assertPOST200('/emails/mail/add/%s' % contact01.id,
                                       data={'user':         user.id,
-                                            'sender':       self.user_contact.email,
+                                            #'sender':       self.user_contact.email,
+                                            'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
                                             'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
                                             'subject':      'Under arrest',
@@ -224,7 +229,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         def post(contact):
             return self.client.post('/emails/mail/add/%s' % contact.id,
                                     data={'user':         user.id,
-                                          'sender':       self.user_contact.email,
+                                          #'sender':       self.user_contact.email,
+                                          'sender':       user.linked_contact.email,
                                           'c_recipients': '[%d,%d]' % (contact01.id, contact02.id),
                                           'o_recipients': '[%d,%d]' % (orga01.id, orga02.id),
                                           'subject':      'Under arrest',
@@ -295,7 +301,8 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         response = self.client.post(url, data={'step':         2,
                                                'user':         user.id,
-                                               'sender':       self.user_contact.email,
+                                               #'sender':       self.user_contact.email,
+                                               'sender':       user.linked_contact.email,
                                                'c_recipients': '[%d]' % contact.id,
                                                'subject':      subject,
                                                'body':         ini_get('body'),
@@ -328,7 +335,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         response = self.assertPOST200('/emails/mail/add_from_template/%s' % contact.id,
                                       data={'step':         2,
                                             'user':         user.id,
-                                            'sender':       self.user_contact.email,
+                                            #'sender':       self.user_contact.email,
+                                            'sender':       user.linked_contact.email,
                                             'c_recipients': '[%d]' % contact.id,
                                             'subject':      template.subject,
                                             'body':         template.body,

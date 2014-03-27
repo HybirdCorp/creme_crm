@@ -139,7 +139,8 @@ class FutureActivitiesBlock(QuerysetBlock):
         #cache the Contact related to the current user (used by PastActivitiesBlock too)
         entity = context.get('user_contact')
         if entity is None:
-            context['user_contact'] = entity = Contact.get_user_contact_or_mock(user)
+            #context['user_contact'] = entity = Contact.get_user_contact_or_mock(user)
+            context['user_contact'] = entity = user.linked_contact
 
         return self._render(self.get_block_template_context(
                     context,
