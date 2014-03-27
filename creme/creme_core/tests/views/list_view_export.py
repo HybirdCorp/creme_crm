@@ -143,18 +143,21 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
 
         #TODO: sort the relations/properties by they verbose_name ??
-        result = [force_unicode(line) for line in response.content.splitlines()]
-        self.assertEqual(6, len(result))
-        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in cells))
-        self.assertEqual(result[1], u'"","Black","Jet","Bebop",""')
-        self.assertEqual(result[2], u'"%s","Creme","Fulbert","",""' % _(u'Mister'))
-        self.assertIn(result[3], (u'"","Spiegel","Spike","Bebop/Swordfish",""',
+        it = (force_unicode(line) for line in response.content.splitlines())
+        self.assertEqual(it.next(), u','.join(u'"%s"' % hfi.title for hfi in cells))
+        self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
+        self.assertEqual(it.next(), u'"","Bouquet","Mireille","",""')
+        #self.assertEqual(it.next(), u'"%s","Creme","Fulbert","",""' % _(u'Mister'))
+        self.assertEqual(it.next(), u'"","Creme","Fulbert","",""')
+        self.assertIn(it.next(), (u'"","Spiegel","Spike","Bebop/Swordfish",""',
                                   u'"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
-        self.assertIn(result[4], (u'"","Valentine","Faye","","is a girl/is beautiful"',
+        self.assertIn(it.next(), (u'"","Valentine","Faye","","is a girl/is beautiful"',
                                   u'"","Valentine","Faye","","is beautiful/is a girl"')
                      )
-        self.assertEqual(result[5], u'"","Wong","Edward","","is a girl"')
+        self.assertEqual(it.next(), u'"","Wong","Edward","","is a girl"')
+        self.assertEqual(it.next(), u'"","Yumura","Kirika","",""')
+        self.assertRaises(StopIteration, it.next)
 
     def test_list_view_export02(self):
         "scsv"
@@ -165,18 +168,21 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
 
         #TODO: sort the relations/properties by they verbose_name ??
-        result = map(force_unicode, response.content.splitlines())
-        self.assertEqual(6, len(result))
-        self.assertEqual(result[0], u';'.join(u'"%s"' % hfi.title for hfi in cells))
-        self.assertEqual(result[1], u'"";"Black";"Jet";"Bebop";""')
-        self.assertEqual(result[2], u'"%s";"Creme";"Fulbert";"";""' % _('Mister'))
-        self.assertIn(result[3], (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
+        it = (force_unicode(line) for line in response.content.splitlines())
+        self.assertEqual(it.next(), u';'.join(u'"%s"' % hfi.title for hfi in cells))
+        self.assertEqual(it.next(), u'"";"Black";"Jet";"Bebop";""')
+        self.assertEqual(it.next(), u'"";"Bouquet";"Mireille";"";""')
+        #self.assertEqual(it.next(), u'"%s";"Creme";"Fulbert";"";""' % _('Mister'))
+        self.assertEqual(it.next(), u'"";"Creme";"Fulbert";"";""')
+        self.assertIn(it.next(), (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
                                   u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
                      )
-        self.assertIn(result[4], (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
+        self.assertIn(it.next(), (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
                                   u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
                      )
-        self.assertEqual(result[5], u'"";"Wong";"Edward";"";"is a girl"')
+        self.assertEqual(it.next(), u'"";"Wong";"Edward";"";"is a girl"')
+        self.assertEqual(it.next(), u'"";"Yumura";"Kirika";"";""')
+        self.assertRaises(StopIteration, it.next)
 
     def test_list_view_export03(self):
         "'export' credential"
@@ -207,9 +213,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                      data={'list_url': self._set_listview_state()}
                                     )
         result = map(force_unicode, response.content.splitlines())
-        self.assertEqual(5, len(result)) #Fulbert is not viewable
+        self.assertEqual(6, len(result)) #Fulbert & Kirika are not viewable
         self.assertEqual(result[1], '"","Black","Jet","",""')
-        self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
+        self.assertEqual(result[2], '"","Bouquet","Mireille","",""')
+        self.assertEqual(result[3], '"","Spiegel","Spike","Swordfish",""')
 
     def test_list_view_export05(self):
         "Datetime field"
@@ -223,13 +230,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         lv_url = self._set_listview_state()
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+        #result = [force_unicode(line) for line in response.content.splitlines()]
         result = [force_unicode(line) for line in response.content.splitlines()]
-        self.assertEqual(2, len(result))
+        self.assertEqual(4, len(result))
 
-        fulbert = Contact.objects.get(last_name='Creme')
+        #fulbert = Contact.objects.get(last_name='Creme')
 
+        #self.assertEqual(result[1],
+                         #u'"Creme","%s"' % date_format(localtime(fulbert.created), 'DATETIME_FORMAT')
+                        #)
         self.assertEqual(result[1],
-                         u'"Creme","%s"' % date_format(localtime(fulbert.created), 'DATETIME_FORMAT')
+                         u'"Bouquet","%s"' % date_format(localtime(self.user.linked_contact.created), 'DATETIME_FORMAT')
                         )
 
     def test_list_view_export06(self):
@@ -259,14 +270,14 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         lv_url = self._set_listview_state()
         response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
-        result = [force_unicode(line) for line in response.content.splitlines()]
-        self.assertEqual(4, len(result))
+        it = (force_unicode(line) for line in response.content.splitlines()); it.next()
 
-        self.assertEqual(result[1], '"Black","Jet face","Jet\'s selfie"')
-        #self.assertEqual(result[2], '"Spiegel","%s"' % spike_face.allowed_unicode(user))
+        self.assertEqual(it.next(), '"Black","Jet face","Jet\'s selfie"')
+        self.assertEqual(it.next(), '"Bouquet","",""')
+
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(result[2], '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
-        self.assertEqual(result[3], '"Valentine","",""')
+        self.assertEqual(it.next(), '"Spiegel","%s","%s"' % (HIDDEN_VALUE, HIDDEN_VALUE))
+        self.assertEqual(it.next(), '"Valentine","",""')
 
     @skipIfNotInstalled('creme.emails')
     def test_list_view_export07(self):
@@ -306,16 +317,20 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.login()
         cells = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
+        response = self.assertGET200(self._build_url(self.ct, doc_type='xls'),
+                                     data={'list_url': lv_url}, follow=True,
+                                    )
 
-        response = self.assertGET200(self._build_url(self.ct, doc_type='xls'), data={'list_url': lv_url}, follow=True)
-
-        result = list(XlrdReader(None, file_contents=response.content))
-        self.assertEqual(6, len(result))
-        self.assertEqual(result[0], [hfi.title for hfi in cells])
-        self.assertEqual(result[1], ["", "Black", "Jet", "Bebop", ""])
-        self.assertEqual(result[2], [_('Mister'), "Creme", "Fulbert", "", ""])
-        self.assertIn(result[3], (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
+        it = iter(XlrdReader(None, file_contents=response.content))
+        self.assertEqual(it.next(), [hfi.title for hfi in cells])
+        self.assertEqual(it.next(), ["", "Black", "Jet", "Bebop", ""])
+        self.assertEqual(it.next(), ["", "Bouquet", "Mireille", "", ""])
+        #self.assertEqual(it.next(), [_('Mister'), "Creme", "Fulbert", "", ""])
+        self.assertEqual(it.next(), ["", "Creme", "Fulbert", "", ""])
+        self.assertIn(it.next(), (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
                                   ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
-        self.assertIn(result[4], (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
+        self.assertIn(it.next(), (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
                                   ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
-        self.assertEqual(result[5], ["", "Wong", "Edward", "", "is a girl"])
+        self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
+        self.assertEqual(it.next(), ["", "Yumura", "Kirika", "", ""])
+        self.assertRaises(StopIteration, it.next)

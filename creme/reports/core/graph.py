@@ -389,6 +389,7 @@ class RGHRelation(ReportGraphHand):
 
     def _fetch(self, entities, order):
         #TODO: Optimize ! (populate real entities)
+        #TODO: sort alpbabetically (with header_filter_search_field ? Queryset is not paginated so we can sort the "list") ?
         #TODO: make listview url for this case
         relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
         rel_filter = relations.filter

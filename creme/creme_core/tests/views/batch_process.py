@@ -116,22 +116,24 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), back_url)
 
         self.assertIs(Contact, form.entity_type)
+        self.assertFalse(form.process_errors)
         self.assertEqual(Contact.objects.count(), form.modified_objects_count)
 
     def test_validation_error01(self):
         "Invalid field"
         self.login()
 
-        response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': self.format_str1 % {
+        response = self.assertPOST200(self.build_url(Contact), follow=True,
+                                      data={'actions': self.format_str1 % {
                                                             'name':     'unknown_field', # <============= HERE
                                                             'operator': 'lower',
                                                             'value':    '',
                                                         },
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'actions', [_(u"This field is invalid with this model.")])
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'actions',
+                             _(u"This field is invalid with this model."),
+                            )
 
     def test_several_actions(self):
         "'upper' + 'title' operators"

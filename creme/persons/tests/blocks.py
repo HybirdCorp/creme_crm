@@ -79,7 +79,8 @@ class BlocksTestCase(CremeTestCase):
     def test_neglected_block02(self):
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        user_contact = user.linked_contact
 
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
@@ -103,7 +104,8 @@ class BlocksTestCase(CremeTestCase):
         "Past activity => orga is still neglected"
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        user_contact = user.linked_contact
 
         self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
@@ -123,7 +125,8 @@ class BlocksTestCase(CremeTestCase):
         "A people linked to customer is linked to a future activity"
         user = self.user
         mng_orga = Organisation.objects.all()[0]
-        user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        #user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
+        user_contact = user.linked_contact
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
@@ -156,7 +159,8 @@ class BlocksTestCase(CremeTestCase):
         mng_orga = Organisation.objects.all()[0]
 
         create_contact = partial(Contact.objects.create, user=user)
-        user_contact = create_contact(is_user=user, first_name='Naruto', last_name='Uzumaki')
+        #user_contact = create_contact(is_user=user, first_name='Naruto', last_name='Uzumaki')
+        user_contact = user.linked_contact
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 

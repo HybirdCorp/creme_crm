@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,20 +19,31 @@
 ################################################################################
 
 from future_builtins import filter
+import logging
+import warnings
 
-from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
-                              DateField, EmailField, ProtectedError, URLField, SET_NULL)
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
+        DateField, EmailField, ProtectedError, URLField, SET_NULL)
+from django.db.models.signals import post_save
+from django.db.transaction import commit_on_success
+from django.db.utils import DatabaseError
+from django.dispatch import receiver
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, Language #, CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.utils import update_model_instance
 
 from creme.media_managers.models import Image
 
 from ..constants import REL_OBJ_EMPLOYED_BY
 from .address import Address
 from .other_models import Civility, Position, Sector
+
+
+logger = logging.getLogger(__name__)
 
 
 class Contact(CremeEntity):
@@ -98,6 +109,14 @@ class Contact(CremeEntity):
         if self.is_user is not None:
             raise ProtectedError(ugettext(u'A user is associated with this contact.'), [self])
 
+    def clean(self):
+        if self.is_user_id:
+            if not self.first_name:
+                raise ValidationError(ugettext('This Contact is related to a user and must have a fisrt name.'))
+
+            if not self.email:
+                raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
+
     def get_employers(self):
         from organisation import Organisation
         return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
@@ -115,6 +134,10 @@ class Contact(CremeEntity):
 
     @staticmethod
     def get_user_contact_or_mock(user):
+        warnings.warn("Contact.get_user_contact_or_mock() is deprecated ; use User.linked_contact instead.",
+                      DeprecationWarning
+                     )
+
         try:
             contact = Contact.objects.get(is_user=user)
         except Contact.DoesNotExist:
@@ -144,6 +167,69 @@ class Contact(CremeEntity):
         for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
             address.clone(self)
 
+    def save(self, *args, **kwargs):
+        super(Contact, self).save(*args, **kwargs)
+
+        if self.is_user:
+            update_model_instance(self.is_user,
+                                  last_name=self.last_name,
+                                  first_name=self.first_name or '',
+                                  email=self.email or '',
+                                 )
+
     def trash(self):
         self._check_deletion()
         super(Contact, self).trash()
+
+
+# Manage the related User ------------------------------------------------------
+
+def _create_linked_contact(user):
+    return Contact.objects.create(user=user, is_user=user,
+                                  last_name=user.last_name or user.username.title(), #TODO: contribute to User to have null=False, blank=False
+                                  first_name=user.first_name or _('N/A'), #TODO: idem
+                                  email=user.email or _('replaceMe@byYourAddress.com'), #TODO: idem
+                                 )
+
+def _get_linked_contact(self):
+    contact = getattr(self, '_linked_contact_cache', None)
+
+    if contact is None:
+        contacts = Contact.objects.filter(is_user=self)[:2]
+
+        if not contacts:
+            logger.critical('User "%s" has no related Contact => we create it', self.username)
+            contact = _create_linked_contact(self)
+        else:
+            if len(contacts) > 1:
+                #TODO: repair ? (beware to race condition)
+                logger.critical('User "%s" has several related Contacts !', self.username)
+
+            contact = contacts[0]
+
+    self._linked_contact_cache = contact
+
+    return contact
+
+User.linked_contact = property(_get_linked_contact)
+
+@receiver(post_save, sender=User)
+def _sync_with_user(sender, instance, created, **kwargs):
+    if instance.is_team:
+        return
+
+    #when received during 'syncdb' it fails because the Contact table does not exist
+    with commit_on_success():
+        try:
+            if created:
+                instance._linked_contact_cache = _create_linked_contact(instance)
+            else:
+                update_model_instance(instance.linked_contact,
+                                      last_name=instance.last_name,
+                                      first_name=instance.first_name,
+                                      email=instance.email,
+                                     )
+        except DatabaseError as e:
+            logger.warn('Can not create linked contact for this user: %s (if it is the first user,'
+                        ' do not worry because it is normal) (%s)', instance, e
+                       )

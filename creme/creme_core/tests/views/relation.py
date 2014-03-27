@@ -3,19 +3,19 @@
 try:
     from functools import partial
 
-    from django.http import Http404
     from django.core.serializers.json import simplejson
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.http import Http404
+    from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
     from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
-                                         CremePropertyType, CremeProperty)
+    from creme.creme_core.models import (RelationType, SemiFixedRelationType,
+            Relation, CremeEntity, CremePropertyType, CremeProperty)
 
-    from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+    from creme.persons.models import Contact, Organisation
 
     #from creme.documents.models import Document
 except Exception as e:
@@ -616,13 +616,16 @@ class RelationViewsTestCase(ViewsTestCase):
     def _aux_relation_objects_to_link_selection(self):
         self.login()
 
-        self.assertEqual(1, Contact.objects.count())
-        self.contact01 = Contact.objects.all()[0] #NB: Fulbert Creme
+        self.assertEqual(3, Contact.objects.count())
+        #self.contact01 = Contact.objects.all()[0] #NB: Fulbert Creme
+        self.contact01 = Contact.objects.get(is_user=1)
 
         user = self.user
         self.subject   = CremeEntity.objects.create(user=user)
-        self.contact02 = Contact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
-        self.contact03 = Contact.objects.create(user=user, first_name='Etna',   last_name='Devil')
+        #self.contact02 = Contact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
+        #self.contact03 = Contact.objects.create(user=user, first_name='Etna',   last_name='Devil')
+        self.contact02 = self.user.linked_contact
+        self.contact03 = self.other_user.linked_contact
         self.orga01    = Organisation.objects.create(user=user, name='Earth Defense Force')
 
         self.ct_contact = ContentType.objects.get_for_model(Contact)

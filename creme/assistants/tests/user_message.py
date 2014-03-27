@@ -171,9 +171,12 @@ class UserMessageTestCase(AssistantsTestCase):
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
 
+        me    = user.linked_contact
+        ranma = other_user.linked_contact
+
         create_contact = partial(Contact.objects.create, user=user)
-        me    = create_contact(is_user=user,       first_name='Ryoga', last_name='Hibiki')
-        ranma = create_contact(is_user=other_user, first_name='Ranma', last_name='Saotome')
+        #me    = create_contact(is_user=user,       first_name='Ryoga', last_name='Hibiki')
+        #ranma = create_contact(is_user=other_user, first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
         akane = create_contact(first_name='Akane', last_name='Tendo')
 

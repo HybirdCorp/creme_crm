@@ -142,7 +142,8 @@ def user_calendar(request):
 
     floating_activities = Activity.objects.filter(floating_type=FLOATING,
                                                   relations__type=REL_OBJ_PART_2_ACTIVITY,
-                                                  relations__object_entity=Contact.get_user_contact_or_mock(user).id,
+                                                  #relations__object_entity=Contact.get_user_contact_or_mock(user).id,
+                                                  relations__object_entity=user.linked_contact.id,
                                                   is_deleted=False,
                                                   )
 

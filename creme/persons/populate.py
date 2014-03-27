@@ -161,9 +161,9 @@ class Populator(BasePopulator):
         admin = User.objects.get(pk=1)
 
         if not Contact.objects.filter(is_user=admin).exists():
-            Contact.objects.create(first_name='Fulbert', last_name='Creme',
+            Contact.objects.create(user=admin, is_user=admin,
+                                   first_name='Fulbert', last_name='Creme', email=admin.email,
                                    civility_id=mister.pk, description="Creme master",
-                                   user=admin, is_user=admin
                                   )
 
         #TODO: add relation to admin ????

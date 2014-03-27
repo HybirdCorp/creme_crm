@@ -37,10 +37,9 @@ from creme.persons.forms.organisation import OrganisationForm
 
 from creme.activities.models import Activity, Calendar
 from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
-                                        ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                        ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                        STATUS_IN_PROGRESS, REL_SUB_PART_2_ACTIVITY,
-                                        REL_SUB_LINKED_2_ACTIVITY)
+        ACTIVITYSUBTYPE_PHONECALL_INCOMING, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+        STATUS_IN_PROGRESS,
+        REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY)
 
 
 def _build_phonecall(user, entity_id, calltype_id, title_format):
@@ -50,7 +49,7 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 
     user.has_perm_to_create_or_die(Activity)
 
-    user_contact = get_object_or_404(Contact, is_user=user)
+    #user_contact = get_object_or_404(Contact, is_user=user)
     entity = entity.get_real_entity()
     now_value = now()
     pcall = Activity.objects.create(user=user,
@@ -78,6 +77,7 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
     if len(rtypes_map) != len(rtypes_ids):
         raise Http404('An activities RelationType does not exists !!')
 
+    user_contact = user.linked_contact
     rel_create = Relation.objects.create
 
     if entity.pk != user_contact.pk:

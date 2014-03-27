@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 1.4\n"
+"Project-Id-Version: Creme Creme-Config 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-27 11:22+0100\n"
+"POT-Creation-Date: 2014-03-24 12:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,7 +93,7 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: forms/blocks.py:105 forms/blocks.py:320 forms/button_menu.py:37
+#: forms/blocks.py:105 forms/blocks.py:319 forms/button_menu.py:37
 #: forms/custom_fields.py:67
 msgid "Related resource"
 msgstr "Ressource associée"
@@ -143,11 +143,11 @@ msgstr "Ressource personnalisée"
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/blocks.py:309
+#: forms/blocks.py:308
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/blocks.py:339
+#: forms/blocks.py:338
 msgid "Lines"
 msgstr "Lignes"
 
@@ -325,11 +325,11 @@ msgstr "Utilisateur"
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
-#: forms/search.py:45
+#: forms/search.py:46
 msgid "The pair search configuration/user(s) already exists !"
 msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
 
-#: forms/search.py:51
+#: forms/search.py:52
 #: templates/creme_config/templatetags/block_searchconfig.html:18
 msgid "Concerned fields"
 msgstr "Champs concernés"
@@ -339,45 +339,25 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/user.py:43 forms/user.py:139
+#: forms/user.py:43 forms/user.py:141
 #: templates/creme_config/templatetags/block_users.html:26
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:44 forms/user.py:140
+#: forms/user.py:44 forms/user.py:142
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
-#: forms/user.py:45 forms/user.py:118
+#: forms/user.py:45 forms/user.py:120
 #: templates/creme_config/templatetags/block_users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/user.py:46 forms/user.py:119
+#: forms/user.py:47 forms/user.py:121
 msgid "You must choose a role for a non-super user."
 msgstr "Vous devez choisir un rôle pour un utilisateur non super-utilisateur."
 
-#: forms/user.py:47
-msgid "Related contact"
-msgstr "Contact associé"
-
-#: forms/user.py:48
-msgid ""
-"Select the related contact if he already exists (if you don't, a contact "
-"will be automatically created)."
-msgstr ""
-"Sélectionnez le contact associé si il existe déjà (sinon, un contact sera "
-"automatiquement créé)."
-
-#: forms/user.py:49
-msgid "User organisation"
-msgstr "Société de l'utilisateur"
-
-#: forms/user.py:50
-msgid "Position in the organisation"
-msgstr "Statut dans la société"
-
-#: forms/user.py:62
+#: forms/user.py:64
 msgid ""
 "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
 "underscores are allowed (but not as first character)."
@@ -386,31 +366,31 @@ msgstr ""
 "alphanumériques (a-z, A-Z, 0-9), les tirets et les underscore ( _ ) sont "
 "admis (sauf comme premier caractère)."
 
-#: forms/user.py:74 forms/user.py:151
+#: forms/user.py:76 forms/user.py:153
 msgid "Passwords are different"
 msgstr "Les mots de passe sont différents"
 
-#: forms/user.py:84 forms/user.py:132
+#: forms/user.py:86 forms/user.py:134
 msgid "Choose a role or set superuser status to 'True'."
 msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'"
 
-#: forms/user.py:164 templates/creme_config/templatetags/block_teams.html:18
+#: forms/user.py:166 templates/creme_config/templatetags/block_teams.html:18
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:173
+#: forms/user.py:175
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:193
+#: forms/user.py:195
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:208 templates/creme_config/user_portal.html:6
+#: forms/user.py:210 templates/creme_config/user_portal.html:6
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/user.py:209
+#: forms/user.py:211
 msgid "Teams"
 msgstr "Équipes"
 
@@ -668,7 +648,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:19
 #: templates/creme_config/templatetags/block_historyconfig.html:18
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:13
-#: templates/creme_config/templatetags/block_models.html:37
+#: templates/creme_config/templatetags/block_models.html:55
 #: templates/creme_config/templatetags/block_property_types.html:24
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:19
 #: templates/creme_config/templatetags/block_searchconfig.html:23
@@ -722,7 +702,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_button_menu.html:20
 #: templates/creme_config/templatetags/block_custom_fields.html:19
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:26
-#: templates/creme_config/templatetags/block_models.html:36
+#: templates/creme_config/templatetags/block_models.html:54
 #: templates/creme_config/templatetags/block_property_types.html:23
 #: templates/creme_config/templatetags/block_searchconfig.html:22
 #: templates/creme_config/templatetags/block_settings.html:13
@@ -858,23 +838,23 @@ msgstr "Fiche concernée"
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
-#: templates/creme_config/templatetags/block_models.html:19
+#: templates/creme_config/templatetags/block_models.html:37
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/templatetags/block_models.html:49
+#: templates/creme_config/templatetags/block_models.html:67
 msgid "Move up"
 msgstr "Monter"
 
-#: templates/creme_config/templatetags/block_models.html:54
+#: templates/creme_config/templatetags/block_models.html:72
 msgid "Move down"
 msgstr "Descendre"
 
-#: templates/creme_config/templatetags/block_models.html:75
+#: templates/creme_config/templatetags/block_models.html:93
 msgid "(no deletable)"
 msgstr "(non supprimable)"
 
-#: templates/creme_config/templatetags/block_models.html:84
+#: templates/creme_config/templatetags/block_models.html:102
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
@@ -1271,12 +1251,12 @@ msgstr "Modifier le bloc <%s>"
 msgid "Edit the type \"%s\""
 msgstr "Modifier le type \"%s\""
 
-#: views/generics_views.py:58
+#: views/generics_views.py:57
 #, python-format
 msgid "New value: %s"
 msgstr "Nouvelle valeur : %s"
 
-#: views/generics_views.py:121
+#: views/generics_views.py:120
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
@@ -1333,6 +1313,22 @@ msgstr "Ajouter des droits à <%s>"
 #, python-format
 msgid "Delete role <%s>"
 msgstr "Supprimer le rôle <%s>"
+
+#~ msgid "Related contact"
+#~ msgstr "Contact associé"
+
+#~ msgid ""
+#~ "Select the related contact if he already exists (if you don't, a contact "
+#~ "will be automatically created)."
+#~ msgstr ""
+#~ "Sélectionnez le contact associé si il existe déjà (sinon, un contact sera "
+#~ "automatiquement créé)."
+
+#~ msgid "User organisation"
+#~ msgstr "Société de l'utilisateur"
+
+#~ msgid "Position in the organisation"
+#~ msgstr "Statut dans la société"
 
 #~ msgid "Save the custom block"
 #~ msgstr "Enregistrer le bloc personnalisé"

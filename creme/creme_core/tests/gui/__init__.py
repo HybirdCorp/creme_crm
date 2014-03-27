@@ -154,12 +154,12 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('', get_html_val(judo, 'image__description', user))
         self.assertEqual('', get_html_val(judo, 'image__categories',  user))
 
-        #TODO: move this in login()
-        user.username = 'kirika'
-        user.first_name = 'Kirika'
-        user.last_name = 'Yumura'
-        #user.save()
-        self.assertNotEqual(unicode(user), user.username)
+        ##todo: move this in login()
+        #user.username = 'kirika'
+        #user.first_name = 'Kirika'
+        #user.last_name = 'Yumura'
+        ##user.save()
+        #self.assertNotEqual(unicode(user), user.username)
 
         self.assertEqual(unicode(user), get_html_val(casca, 'image__user', user))           #depth = 2
         self.assertEqual(user.username, get_html_val(casca, 'image__user__username', user)) #depth = 3

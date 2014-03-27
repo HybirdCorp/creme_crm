@@ -206,7 +206,9 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+        #contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+        #contact = self.get_object_or_fail(Contact, is_user=user)
+        contact = user.linked_contact
 
         project = self.create_project('Eva01')[0]
 
@@ -292,7 +294,9 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+        #contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+        #contact = self.get_object_or_fail(Contact, is_user=user)
+        contact = user.linked_contact
 
         project = self.create_project('Eva01')[0]
 

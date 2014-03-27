@@ -162,7 +162,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_user_calendar02(self):
         self.login()
-        # user = self.user
+        user = self.user
         other_user = self.other_user
 
         cal1 = Calendar.objects.create(user=self.user, is_default=True, name='Cal #1')
@@ -180,16 +180,30 @@ class CalendarTestCase(_ActivitiesTestCase):
         act4 = create_act(title='Act#4', user=other_user)
         act5 = create_act(title='Act#5', floating_type=NARROW)
 
-        create_rel = partial(Relation.objects.create, user=self.user, type_id=REL_SUB_PART_2_ACTIVITY)
-        create_rel(subject_entity=self.contact, object_entity=act1)
+        #create_rel = partial(Relation.objects.create, user=self.user, type_id=REL_SUB_PART_2_ACTIVITY)
+        #create_rel(subject_entity=self.contact, object_entity=act1)
+        #act1.calendars.add(cal1)
+        #create_rel(subject_entity=self.contact, object_entity=act2)
+        #act2.calendars.add(cal1)
+        #create_rel(subject_entity=self.contact, object_entity=act3)
+        #act3.calendars.add(cal1)
+        #create_rel(subject_entity=self.contact, object_entity=act4)
+        #act4.calendars.add(cal1)
+        #create_rel(subject_entity=self.contact, object_entity=act5)
+        #act5.calendars.add(cal1)
+        create_rel = partial(Relation.objects.create, user=user,
+                             subject_entity=user.linked_contact,
+                             type_id=REL_SUB_PART_2_ACTIVITY,
+                            )
+        create_rel(object_entity=act1)
         act1.calendars.add(cal1)
-        create_rel(subject_entity=self.contact, object_entity=act2)
+        create_rel(object_entity=act2)
         act2.calendars.add(cal1)
-        create_rel(subject_entity=self.contact, object_entity=act3)
+        create_rel(object_entity=act3)
         act3.calendars.add(cal1)
-        create_rel(subject_entity=self.contact, object_entity=act4)
+        create_rel(object_entity=act4)
         act4.calendars.add(cal1)
-        create_rel(subject_entity=self.contact, object_entity=act5)
+        create_rel(object_entity=act5)
         act5.calendars.add(cal1)
 
         response = self.assertPOST200(self.CALENDAR_URL,
@@ -478,8 +492,10 @@ class CalendarTestCase(_ActivitiesTestCase):
             act.calendars = [cal]
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
-        create_rel(subject_entity=self.contact, object_entity=act3)
-        create_rel(subject_entity=self.other_contact, object_entity=act3)
+        #create_rel(subject_entity=self.contact, object_entity=act3)
+        #create_rel(subject_entity=self.other_contact, object_entity=act3)
+        create_rel(subject_entity=user.linked_contact,            object_entity=act3)
+        create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
 
         response = self._get_cal_activities([cal,],
                                             start=start.strftime('%s'),
@@ -555,8 +571,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.user
         other_user = self.other_user
 
-        contact1 = self.contact
-        contact2 = self.other_contact
+        #contact1 = self.contact
+        #contact2 = self.other_contact
 
         cal1 = Calendar.get_user_default_calendar(user)
         cal2 = Calendar.get_user_default_calendar(other_user)
@@ -586,8 +602,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         act8 = create_ind(title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10))
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
-        create_rel(subject_entity=contact2, object_entity=act6)
-        create_rel(subject_entity=contact1, object_entity=act8)
+        #create_rel(subject_entity=contact2, object_entity=act6)
+        #create_rel(subject_entity=contact1, object_entity=act8)
+        create_rel(subject_entity=other_user.linked_contact, object_entity=act6)
+        create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
         response = self._get_cal_activities([cal1, cal2], #cal2 should not be used, it does not belong to user (so, no 'act2')
                                             start=start.strftime('%s'),
@@ -637,7 +655,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         "Collision"
         self.login()
         user = self.user
-        contact = self.contact
+        #contact = self.contact
+        contact = user.linked_contact
 
         create_act = partial(Activity.objects.create, user=user,
                              type_id=ACTIVITYTYPE_TASK, busy=True,

@@ -106,11 +106,13 @@ class UserTestCase(CremeTestCase):
 
         contact = self.get_object_or_fail(Contact, is_user=user,
                                           first_name=first_name,
-                                          last_name=last_name
+                                          last_name=last_name,
+                                          email=email,
                                          )
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     def test_create02(self):
+        "Not superuser"
         self.login()
 
         role = UserRole(name='Mangaka')
@@ -121,7 +123,7 @@ class UserTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
+        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
@@ -130,60 +132,86 @@ class UserTestCase(CremeTestCase):
 
         username = 'deunan'
         password = 'password'
+        first_name = 'Deunan'
+        last_name = u'Knut'
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
+                                          'first_name':   first_name,
+                                          'last_name':    last_name,
+                                          'email':        'dknut@eswat.ol',
                                           'role':         role.id,
-                                          'contact':      contact.id,
+                                          #'contact':      contact.id,
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_MANAGES,
                                          }
                                    )
         self.assertNoFormError(response)
 
-        users = User.objects.filter(username=username)
-        self.assertEqual(1, len(users))
+        #users = User.objects.filter(username=username)
+        #self.assertEqual(1, len(users))
 
-        user = users[0]
+        #user = users[0]
+        user = self.get_object_or_fail(User, username=username)
         self.assertEqual(role,     user.role)
-        self.assertEqual(ce_count, CremeEntity.objects.count())
+        #self.assertEqual(ce_count, CremeEntity.objects.count())
 
         self.assertTrue(user.has_perm_to_view(orga))
 
-        contact = self.refresh(contact)
+        #contact = self.refresh(contact)
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(user, contact.is_user)
         self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga)
 
+    #def test_create03(self):
+        #"Relation is not recreate if it already exists"
+        #self.login()
+
+        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
+
+        #orga = Organisation.objects.create(user=self.user, name='Olympus')
+        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        #Relation.objects.create(user=self.user, subject_entity=contact, type_id=REL_SUB_MANAGES, object_entity=orga)
+
+        #username = 'deunan'
+        #password = 'password'
+        #response = self.client.post(self.ADD_URL, follow=True,
+                                    #data={'username':     username,
+                                          #'password_1':   password,
+                                          #'password_2':   password,
+                                          #'is_superuser': True,
+                                          #'contact':      contact.id,
+                                          #'organisation': orga.id,
+                                          #'relation':     REL_SUB_MANAGES,
+                                         #}
+                                   #)
+        #self.assertNoFormError(response)
+
+        #user = self.get_object_or_fail(User, username=username)
+        #contact = self.refresh(contact)
+        #self.assertEqual(user, contact.is_user)
+        #self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga) #not 2 !!
     def test_create03(self):
-        "Relation is not recreate if it already exists"
+        "First name, last name, email, orga, rtypes are required"
         self.login()
 
-        contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
-
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        Relation.objects.create(user=self.user, subject_entity=contact, type_id=REL_SUB_MANAGES, object_entity=orga)
-
-        username = 'deunan'
         password = 'password'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'username':     username,
-                                          'password_1':   password,
-                                          'password_2':   password,
-                                          'is_superuser': True,
-                                          'contact':      contact.id,
-                                          'organisation': orga.id,
-                                          'relation':     REL_SUB_MANAGES,
-                                         }
-                                   )
-        self.assertNoFormError(response)
+        response = self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'username':     'deunan',
+                                            'password_1':   password,
+                                            'password_2':   password,
+                                            'is_superuser': True,
+                                           }
+                                      )
 
-        user = self.get_object_or_fail(User, username=username)
-        contact = self.refresh(contact)
-        self.assertEqual(user, contact.is_user)
-        self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga) #not 2 !!
+        msg = _('This field is required.')
+        self.assertFormError(response, 'form', 'first_name',   msg)
+        self.assertFormError(response, 'form', 'last_name',    msg)
+        self.assertFormError(response, 'form', 'email',        msg)
+        self.assertFormError(response, 'form', 'organisation', msg)
+        self.assertFormError(response, 'form', 'relation',     msg)
 
     def test_create04(self):
         self.login_not_as_superuser()
@@ -209,38 +237,39 @@ class UserTestCase(CremeTestCase):
                                      }
                           )
 
+    #def test_create05(self):
+        #"Linked contact can not be already linked to another user"
+        #self.login()
+
+        #user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut', is_user=user)
+
+        #orga = Organisation.objects.create(user=self.user, name='Olympus')
+        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        #username = 'deunan'
+        #password = 'password'
+        #response = self.client.post(self.ADD_URL, follow=True,
+                                    #data={'username':     username,
+                                          #'password_1':   password,
+                                          #'password_2':   password,
+                                          #'is_superuser': True,
+                                          #'contact':      contact.id,
+                                          #'organisation': orga.id,
+                                          #'relation':     REL_SUB_MANAGES,
+                                         #}
+                                   #)
+        #self.assertNoFormError(response)
+        #self.assertEqual(user, self.refresh(contact).is_user)
+
+        #new_user = self.get_object_or_fail(User, username=username)
+        #self.get_object_or_fail(Contact, is_user=new_user,
+                                #first_name=username, last_name=username
+                               #)
+
+    #def test_create06(self):
     def test_create05(self):
-        "Linked contact can not be already linked to another user"
-        self.login()
-
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
-        contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut', is_user=user)
-
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        username = 'deunan'
-        password = 'password'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'username':     username,
-                                          'password_1':   password,
-                                          'password_2':   password,
-                                          'is_superuser': True,
-                                          'contact':      contact.id,
-                                          'organisation': orga.id,
-                                          'relation':     REL_SUB_MANAGES,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(user, self.refresh(contact).is_user)
-
-        new_user = self.get_object_or_fail(User, username=username)
-        self.get_object_or_fail(Contact, is_user=new_user,
-                                first_name=username, last_name=username
-                               )
-
-    def test_create06(self):
-        "wrong username"
+        "Wrong username"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -263,7 +292,7 @@ class UserTestCase(CremeTestCase):
                                            ))
 
     def test_create07(self):
-        "wrong password"
+        "Wrong password"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -284,7 +313,7 @@ class UserTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
 
     def test_create08(self):
-        "common user without role"
+        "Common user without role"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -313,7 +342,17 @@ class UserTestCase(CremeTestCase):
         SetCredentials.objects.create(role=role1, value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
-        other_user = User.objects.create(username='deunan', role=role1)
+        other_user = User.objects.create(username='deunan', first_name='??', last_name='??',
+                                         email='??', role=role1,
+                                        )
+        #description = 'Pilot & warrior'
+        #deunan = Contact.objects.create(user=other_user, first_name=other_user.first_name,
+                                        #last_name=other_user.last_name, email=other_user.email,
+                                        #description=description,
+                                       #)
+        #deunan = self.get_object_or_fail(Contact, is_user=other_user)
+        deunan = other_user.linked_contact
+        #deunan.description = description
 
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
         self.assertTrue(other_user.has_perm_to_view(briareos))
@@ -322,7 +361,7 @@ class UserTestCase(CremeTestCase):
         self.assertGET200(url)
 
         first_name = 'Deunan'
-        last_name  = u'Knut'
+        last_name  = 'Knut'
         email      = 'd.knut@eswat.ol'
         role2 = UserRole.objects.create(name='Slave')
         response = self.client.post(url, follow=True,
@@ -342,6 +381,13 @@ class UserTestCase(CremeTestCase):
 
         briareos = self.refresh(briareos) #refresh cache
         self.assertFalse(other_user.has_perm_to_view(briareos))
+
+        #contact is synced
+        deunan = self.refresh(deunan)
+        self.assertEqual(first_name,  deunan.first_name)
+        self.assertEqual(last_name,   deunan.last_name)
+        self.assertEqual(email,       deunan.email)
+        #self.assertEqual(description, deunan.description)
 
     def test_edit02(self):
         "Can not edit a team with the user edit view"
@@ -512,6 +558,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(2, len(teammates))
         self.assertIn(user01.id, teammates)
         self.assertIn(user02.id, teammates)
+
+        self.assertFalse(Contact.objects.filter(is_user=team))
 
     def test_team_create02(self):
         self.login_not_as_superuser()
@@ -799,9 +847,11 @@ class UserTestCase(CremeTestCase):
         user       = self.user
         other_user = self.other_user
 
+        self.get_object_or_fail(Contact, user=other_user)
+
         create_contact = Contact.objects.create
-        create_contact(user=user,       is_user=user)
-        create_contact(user=other_user, is_user=other_user)
+        #create_contact(user=user,       is_user=user)
+        #create_contact(user=other_user, is_user=other_user)
         create_contact(user=user,       is_user=None)
         create_contact(user=other_user, is_user=None)
 
