@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,3 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,    order=100)
         BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
         BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=400)
-
-        BlockPortalLocation.create(block_id=memos_block.id_,    order=100)
-        BlockPortalLocation.create(block_id=alerts_block.id_,   order=200)
-        BlockPortalLocation.create(block_id=messages_block.id_, order=400)
