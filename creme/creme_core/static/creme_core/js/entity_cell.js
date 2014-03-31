@@ -80,9 +80,11 @@ creme.entity_cell.EntityCellsWidget.prototype = {
                 selector = underlay.data('underlay_selector');
             }
 
-            underlay_info = {'selector': selector,
-                             'content':  underlay.find('.underlay-content')
-                            };
+            if (underlay.length !== 0) { // 0 means 'no underlay' (ex report aggregate fields which contain '__' but have no sub-field)
+                underlay_info = {'selector': selector,
+                                 'content':  underlay.find('.underlay-content')
+                                };
+            }
         }
 
         return underlay_info;
@@ -93,7 +95,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var div = this.div;
         var columns = this.columns;
 //         var header_filters = this.header_filters;
-        var column = checkbox.parentNode.getAttribute ('data-column');
+        var column = checkbox.parentNode.getAttribute('data-column');
 
         if (checkbox.checked) { // add the column
             var column_titles = this.column_titles;
@@ -390,8 +392,7 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 //         });
     },
 
-    _toggleSelectorUnderlay: function(target)
-    {
+    _toggleSelectorUnderlay: function(target) {
         var self = this;
         var underlays = this.underlays;
         var selector = target.parent('.selector');
@@ -466,18 +467,17 @@ creme.entity_cell.EntityCellsWidget.prototype = {
 
         // TODO: uncomment after updating to an horizontal menu, to support full-width underlays
         // underlay.find('.arrow').css('left', 20 + target.position().left + 'px');
-        
+
         var arrow = underlay.find('.arrow');
         // TODO: find a way to get the width from the arrow itself, right now, when it's showing, the width it returns is 0 instead of 17; possibly need to check with the latest jQuery
         var arrowWidth = 17; // arrow width + its left and right borders -> arrow.outerWidth()
-        
+
         var toggleOffset = target.offset().left - target.parents('.field_selectors').offset().left;
         var arrowOffset = toggleOffset + (target.width() - arrowWidth) / 2;
         arrow.css('left', arrowOffset + 'px');
     },
 
-    _initSelectorUnderlays: function()
-    {
+    _initSelectorUnderlays: function() {
         var self = this;
         var div = this.div;
 
