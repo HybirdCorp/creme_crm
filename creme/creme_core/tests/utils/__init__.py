@@ -448,6 +448,57 @@ class UnicodeCollationTestCase(CremeTestCase):
         ##from time import sleep
         ##sleep(10)
 
+
+class CurrencyFormatTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core')
+
+    def test_currency(self):
+        from decimal import Decimal
+
+        from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
+        from creme.creme_core.models import Currency
+        from creme.creme_core.utils.currency_format import currency
+
+        from creme.creme_config.models import SettingKey, SettingValue
+
+
+        sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
+        sv = self.get_object_or_fail(SettingValue, key=sk)
+        self.assertTrue(sv.value)
+
+        result1 = currency(3)
+        self.assertIsInstance(result1, basestring)
+        self.assertIn('3', result1)
+
+        result2 = currency(3, currency_or_id=None)
+        self.assertEqual(result1, result2)
+
+        result3 = currency(Decimal('3.52'))
+        self.assertIn('3',  result3)
+        self.assertIn('52', result3)
+
+        my_currency = Currency.objects.all()[0]
+        result4 = currency(5, currency_or_id=my_currency)
+        self.assertIn('5', result4)
+        self.assertIn(my_currency.local_symbol, result4)
+        self.assertNotIn(my_currency.international_symbol, result4)
+
+        sv.value = False
+        sv.save()
+        result5 = currency(5, currency_or_id=my_currency)
+        self.assertIn('5', result5)
+        self.assertIn(my_currency.international_symbol, result5)
+        self.assertNotIn(my_currency.local_symbol, result5)
+
+        result6 = currency(5, currency_or_id=my_currency.id)
+        self.assertEqual(result5, result6)
+
+        result7 = currency(-5, currency_or_id=my_currency)
+        self.assertNotEqual(result6, result7)
+
+
 from .meta import *
 from .chunktools import *
 from .date_range import *
