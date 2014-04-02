@@ -13,7 +13,7 @@ try:
     from ..wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
     from ..wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE

@@ -8,7 +8,7 @@ try:
     from ..models import EntityEmail
     from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('EmailsTestCase',)

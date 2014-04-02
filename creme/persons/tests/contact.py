@@ -20,7 +20,7 @@ try:
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
     from .base import _BaseTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ContactTestCase',)

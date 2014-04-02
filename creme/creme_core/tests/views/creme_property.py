@@ -8,7 +8,7 @@ try:
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from .base import ViewsTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PropertyViewsTestCase', )

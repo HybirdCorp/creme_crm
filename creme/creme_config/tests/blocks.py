@@ -22,7 +22,7 @@ try:
 
     from creme.emails.models import EmailCampaign
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('BlocksConfigTestCase',)

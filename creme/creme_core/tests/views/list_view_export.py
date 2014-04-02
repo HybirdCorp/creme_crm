@@ -22,7 +22,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 try:
     from creme.creme_core.utils.xlrd_utils import XlrdReader

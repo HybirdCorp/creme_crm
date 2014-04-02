@@ -19,7 +19,7 @@ try:
                              MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
                              REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('EntityEmailTestCase',)

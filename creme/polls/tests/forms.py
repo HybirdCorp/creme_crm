@@ -9,7 +9,7 @@ try:
     from ..forms.fields import PollFormLineConditionsField
     from ..core import PollLineType
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PollFormLineConditionsFieldTestCase',)

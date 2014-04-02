@@ -20,7 +20,7 @@ try:
     from ..vcf_lib import readOne as read_vcf
     from ..vcf_lib.base import ContentLine
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class VcfImportTestCase(CremeTestCase):

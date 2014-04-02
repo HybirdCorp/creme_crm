@@ -13,7 +13,7 @@ try:
     from ..models import WaitingAction
     from .base import CrudityTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('WaitingActionTestCase',)

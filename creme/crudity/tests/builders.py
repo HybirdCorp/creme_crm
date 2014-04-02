@@ -26,7 +26,7 @@ try:
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
                        FakeFetcher, FakeInput)
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 lcabMissing = False

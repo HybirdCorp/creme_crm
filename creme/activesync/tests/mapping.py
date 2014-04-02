@@ -22,7 +22,7 @@ try:
     #from ..mappings.utils import serialize_entity
     #from ..mappings.contact import CREME_CONTACT_MAPPING
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 #TODO: where are the asserttions ???
 

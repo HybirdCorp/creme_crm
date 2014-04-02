@@ -24,7 +24,7 @@ try:
 
     from creme.persons.models import Civility, Contact
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class MiscTestCase(CremeTestCase):

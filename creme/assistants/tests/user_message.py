@@ -16,7 +16,7 @@ try:
     from ..constants import PRIO_NOT_IMP_PK
     from .base import AssistantsTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('UserMessageTestCase',)

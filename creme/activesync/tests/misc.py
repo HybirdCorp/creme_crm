@@ -8,7 +8,7 @@ try:
     from ..utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
     from ..constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class MiscTestCase(CremeTestCase):

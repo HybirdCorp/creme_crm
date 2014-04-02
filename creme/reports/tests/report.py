@@ -44,7 +44,7 @@ try:
     from ..models import Field, Report
     from .base import BaseReportsTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 try:

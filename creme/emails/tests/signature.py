@@ -4,7 +4,7 @@ try:
     from .base import _EmailsTestCase
     from ..models import EmailSignature, EmailTemplate
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('SignaturesTestCase',)

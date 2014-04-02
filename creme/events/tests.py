@@ -21,7 +21,7 @@ try:
     from .models import Event, EventType
     from .constants import *
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class EventsTestCase(CremeTestCase):

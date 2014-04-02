@@ -9,7 +9,7 @@ try:
 
     from ..cipher import Cipher
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class CipherTestCase(CremeTestCase):

@@ -17,7 +17,7 @@ try:
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
     from creme.persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('HeaderFilterViewsTestCase', )

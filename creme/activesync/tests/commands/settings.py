@@ -7,7 +7,7 @@ try:
     #from creme.activesync.connection import Connection
     from .base import BaseASTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class SettingsASTestCase(BaseASTestCase):

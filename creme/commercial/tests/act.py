@@ -20,7 +20,7 @@ try:
     from ..constants import REL_SUB_COMPLETE_GOAL
     from .base import CommercialBaseTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ActTestCase',)

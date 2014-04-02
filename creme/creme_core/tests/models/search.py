@@ -8,7 +8,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('SearchConfigTestCase', )

@@ -12,7 +12,7 @@ try:
 
     from creme.activities.models import Activity
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('BlockRegistryTestCase', 'BlocksManagerTestCase')
