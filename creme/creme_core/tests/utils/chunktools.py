@@ -4,7 +4,7 @@ try:
     from creme.creme_core.utils import chunktools
     from ..base import CremeTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ChunkToolsTestCase',)

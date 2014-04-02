@@ -18,7 +18,7 @@ try:
     from ..constants import REL_SUB_RELATED_2_DOC
     from ..utils import get_csv_folder_or_create
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('DocumentTestCase', 'DocumentQuickFormTestCase', 'CSVDocumentQuickWidgetTestCase')

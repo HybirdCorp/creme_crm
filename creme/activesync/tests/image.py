@@ -11,7 +11,7 @@ try:
 
     from ..utils import get_b64encoded_img_of_max_weight
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class ActiveSyncImageTestCase(CremeTestCase):

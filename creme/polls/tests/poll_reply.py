@@ -24,7 +24,7 @@ try:
     from ..blocks import preply_lines_block
     from ..utils import SectionTree, StatsTree
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PollRepliesTestCase', )

@@ -7,7 +7,7 @@ try:
     from creme.creme_core.gui.menu import creme_menu
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PreferedMenuTestCase',)

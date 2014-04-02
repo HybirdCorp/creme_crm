@@ -12,7 +12,7 @@ try:
 
     from .models import *
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 skip_graphviz_test = False
 

@@ -13,7 +13,7 @@ try:
     from creme.activities.models import Activity, Calendar, ActivityType, ActivitySubType
     from creme.activities.constants import *
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class CTITestCase(CremeTestCase):

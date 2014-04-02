@@ -22,7 +22,7 @@ try:
     from ..constants import *
     from .base import _BillingTestCase, _BillingTestCaseMixin
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')

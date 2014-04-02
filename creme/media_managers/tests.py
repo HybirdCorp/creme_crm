@@ -13,7 +13,7 @@ try:
 
     from .models import *
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class MediaManagersTestCase(CremeTestCase):

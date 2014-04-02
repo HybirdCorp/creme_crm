@@ -17,7 +17,7 @@ try:
     from .models import *
     from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):

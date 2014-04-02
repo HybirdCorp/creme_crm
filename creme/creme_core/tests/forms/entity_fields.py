@@ -11,7 +11,7 @@
 
     #from creme.persons.models import Contact
 #except Exception as e:
-    #print 'Error in <%s>: %s' % (__name__, e)
+    #print('Error in <%s>: %s' % (__name__, e))
 
 
 #class EntityFieldTestCase(FieldTestCase):

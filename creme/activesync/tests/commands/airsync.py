@@ -6,7 +6,7 @@ try:
     #from creme.activesync.commands.airsync import AirSync
     from .base import BaseASTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 #TODO: tests!!

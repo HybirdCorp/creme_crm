@@ -16,7 +16,7 @@ try:
                                    get_total_won_quote_this_year)
     from .base import _BillingTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('FunctionFieldTestCase',)

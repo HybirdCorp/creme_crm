@@ -20,7 +20,7 @@ try:
 
     from creme.activities.models import Activity, ActivityType
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ListViewTestCase', )

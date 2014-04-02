@@ -18,7 +18,7 @@ try:
     from ..blocks import todos_block
     from .base import AssistantsTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('TodoTestCase',)

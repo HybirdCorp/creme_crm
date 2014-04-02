@@ -9,7 +9,7 @@ try:
 
     from creme.billing.models import InvoiceStatus
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('GenericModelConfigTestCase',)

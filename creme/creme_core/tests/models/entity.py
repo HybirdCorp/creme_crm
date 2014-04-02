@@ -23,7 +23,7 @@ try:
     from creme.activities.models import Activity, ActivityType, Status
     from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('EntityTestCase',)

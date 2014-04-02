@@ -8,7 +8,7 @@ try:
     from ..models import Address, Organisation, Contact
     from ..blocks import other_address_block
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('AddressTestCase',)

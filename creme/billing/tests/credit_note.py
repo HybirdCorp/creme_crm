@@ -13,7 +13,7 @@ try:
     from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
     from .base import _BillingTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('CreditNoteTestCase',)

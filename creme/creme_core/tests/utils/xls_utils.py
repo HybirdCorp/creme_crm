@@ -8,7 +8,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 try:
     from creme.creme_core.utils.xlwt_utils import XlwtWriter

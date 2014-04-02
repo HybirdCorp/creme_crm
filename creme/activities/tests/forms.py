@@ -10,7 +10,7 @@ try:
     from ..models import ActivityType, ActivitySubType
     from ..forms.activity_type import ActivityTypeField
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ActivityTypeFieldTestCase',)

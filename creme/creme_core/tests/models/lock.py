@@ -6,7 +6,7 @@ try:
     from ..base import CremeTransactionTestCase #CremeTestCase
     from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('MutexTestCase',)

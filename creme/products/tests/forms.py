@@ -9,7 +9,7 @@ try:
     from ..models import Category, SubCategory
     from ..forms.fields import CategoryField
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('CategoryFieldTestCase',)

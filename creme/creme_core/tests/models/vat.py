@@ -8,7 +8,7 @@ try:
 
     from creme.creme_core.models import Vat
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('VatTestCase',)

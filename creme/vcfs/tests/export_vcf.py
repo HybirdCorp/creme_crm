@@ -12,7 +12,7 @@ try:
 
     from creme.vcfs.buttons import generate_vcf_button
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class VcfExportTestCase(CremeTestCase):

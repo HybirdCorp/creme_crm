@@ -12,7 +12,7 @@ try:
     from ..blocks import pcampaign_replies_block
     from ..models import PollCampaign, PollForm, PollReply
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PollCampaignsTestCase', )

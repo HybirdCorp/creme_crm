@@ -26,7 +26,7 @@ try:
     from ..constants import *
     from ..utils import check_activity_collisions
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('ActivityTestCase',)

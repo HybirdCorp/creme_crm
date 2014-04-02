@@ -9,7 +9,7 @@ try:
     from ..registry import FetcherInterface, crudity_registry
     from .base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('CrudityViewsTestCase',)

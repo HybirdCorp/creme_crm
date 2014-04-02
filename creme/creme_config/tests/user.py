@@ -25,7 +25,7 @@ try:
     from ..utils import get_user_theme
     from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('UserTestCase', 'UserSettingsTestCase')

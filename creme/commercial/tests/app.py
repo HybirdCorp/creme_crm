@@ -8,7 +8,7 @@ try:
     from ..models import Act, ActType
     from ..constants import *
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('CommercialTestCase',)

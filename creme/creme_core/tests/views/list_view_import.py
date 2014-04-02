@@ -15,7 +15,7 @@ try:
 
     from creme.documents.models import Document, Folder, FolderCategory
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 try:

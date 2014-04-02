@@ -24,7 +24,7 @@ try:
     from ..utils import decode_b64binary
     from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('InputsTestCase', 'InfopathInputEmailTestCase')

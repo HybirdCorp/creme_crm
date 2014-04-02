@@ -12,7 +12,7 @@ try:
     from ..core import PollLineType
     from ..models import PollType, PollForm, PollReply, PollFormLine, PollCampaign
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PollsAppTestCase', )

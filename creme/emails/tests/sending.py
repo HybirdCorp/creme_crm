@@ -16,7 +16,7 @@ try:
                           EmailTemplate, MailingList, LightWeightEmail)
     from ..models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('SendingsTestCase',)

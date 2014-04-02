@@ -12,7 +12,7 @@ try:
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('QuoteTestCase',)

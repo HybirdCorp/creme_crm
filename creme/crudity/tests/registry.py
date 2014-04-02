@@ -9,7 +9,7 @@ try:
     from .base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
                        OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ =  ('CrudityRegistryTestCase',)

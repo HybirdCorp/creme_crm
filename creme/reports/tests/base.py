@@ -33,7 +33,7 @@ try:
     from ..constants import RFT_FIELD, RFT_RELATION, RFT_AGG_FIELD #RFT_AGGREGATE
     from ..models import Field, Report
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 class BaseReportsTestCase(CremeTestCase):

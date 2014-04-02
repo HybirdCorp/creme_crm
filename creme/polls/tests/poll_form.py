@@ -16,7 +16,7 @@ try:
     from ..utils import SectionTree, NodeStyle
     from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
 except Exception as e:
-    print 'Error in <%s>: %s' % (__name__, e)
+    print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('PollFormsTestCase', )
