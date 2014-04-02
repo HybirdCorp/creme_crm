@@ -900,7 +900,7 @@ class ContactTestCase(_BaseTestCase):
         contact02.shipping_address = ship_addr02
         contact02.save()
 
-        url = '/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id)
+        url = self.build_merge_url(contact01, contact02)
         context = self.client.get(url).context
 
         with self.assertNoException():
@@ -1032,7 +1032,7 @@ class ContactTestCase(_BaseTestCase):
         contact02.shipping_address = ship_addr02
         contact02.save()
 
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id),
+        response = self.client.post(self.build_merge_url(contact01, contact02),
                                     follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,
@@ -1128,15 +1128,11 @@ class ContactTestCase(_BaseTestCase):
         self.login()
         user = self.user
 
-        #create_contact = partial(Contact.objects.create, user=user)
-        #contact01 = create_contact(first_name='Faye', last_name='Valentine', is_user=user)
-        #contact02 = create_contact(first_name='FAYE', last_name='VALENTINE')
-        contact01 = self.get_object_or_fail(Contact, is_user=user)
+        contact01 = user.linked_contact
         contact02 = Contact.objects.create(user=user, first_name='FAYE', last_name='VALENTINE')
 
-        url = '/creme_core/entity/merge/%s,%s'
-        self.assertGET404(url % (contact01.id, contact02.id))
-        self.assertGET404(url % (contact02.id, contact01.id))
+        self.assertGET404(self.build_merge_url(contact01, contact02))
+        self.assertGET404(self.build_merge_url(contact02, contact01))
 
     def test_delete_civility(self):
         "Set to null"

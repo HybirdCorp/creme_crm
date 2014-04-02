@@ -328,7 +328,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga02.shipping_address = ship_addr02
         orga02.save()
 
-        url = '/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id)
+        url = self.build_merge_url(orga01, orga02)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -448,7 +448,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga01 = create_orga(name='NERV')
         orga02 = create_orga(name='Nerv')
 
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+        response = self.client.post(self.build_merge_url(orga01, orga02),
                                     follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,
@@ -534,7 +534,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         orga01.billing_address = bill_addr01
         orga01.save()
 
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+        response = self.client.post(self.build_merge_url(orga01, orga02),
                                     follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,

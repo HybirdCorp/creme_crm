@@ -73,7 +73,7 @@ class CommercialApproachTestCase(CremeTestCase):
         create_commapp(title='Commapp02', creme_entity=orga02)
         self.assertEqual(2, CommercialApproach.objects.count())
 
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+        response = self.client.post(self.build_merge_url(orga01, orga02),
                                     follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,

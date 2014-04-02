@@ -302,6 +302,9 @@ class _CremeTestCase(object):
 
             raise self.failureException('XML are not equal\n%s' % msg)
 
+    def build_merge_url(self, entity1, entity2):
+        return '/creme_core/entity/merge/%s,%s' % (entity1.id, entity2.id)
+
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)

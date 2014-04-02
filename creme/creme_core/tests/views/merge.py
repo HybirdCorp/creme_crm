@@ -3,19 +3,16 @@
 try:
     from datetime import timedelta
     from functools import partial
-    #from tempfile import NamedTemporaryFile
 
     from django.utils.translation import ugettext as _
 
+    from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-                                   CremePropertyType, CremeProperty) #Language
+            CremePropertyType, CremeProperty) #Language
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
-                            TYPE_RELATION, TYPE_RELATION_DEL,
-                            TYPE_SYM_REL_DEL, TYPE_PROP_ADD, TYPE_PROP_DEL)
-    from .base import ViewsTestCase
-
-    #from creme.media_managers.models import Image
+            TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
+            TYPE_PROP_ADD, TYPE_PROP_DEL)
 
     from creme.persons.models import Organisation, Contact
 except Exception as e:
@@ -33,23 +30,9 @@ class MergeViewsTestCase(ViewsTestCase):
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id
 
-    def _build_merge_url(self, e1, e2):
-        return '/creme_core/entity/merge/%s,%s' % (e1.id, e2.id)
-
     def _oldify(self, entity, hours_delta=1):
         mdate = entity.modified - timedelta(hours=hours_delta)
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
-
-    #def create_image(self, ident=1):
-        #tmpfile = NamedTemporaryFile()
-        #tmpfile.width = tmpfile.height = 0
-        #tmpfile._committed = True
-        #tmpfile.path = 'upload/file_%s.jpg' % ident
-
-        #return Image.objects.create(user=self.user, image=tmpfile,
-                                    #name=u'Image #%s' % ident,
-                                    #description=u"Desc"
-                                   #)
 
     def test_select_entity_for_merge01(self):
         self.login()
@@ -135,7 +118,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self._oldify(orga01)
         assert old_modified > self.refresh(orga01).modified
 
-        url = self._build_merge_url(orga01, orga02)
+        url = self.build_merge_url(orga01, orga02)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -237,7 +220,7 @@ class MergeViewsTestCase(ViewsTestCase):
         #contact01.language = [language1]
         #contact02.language = [language1, language2]
 
-        url = self._build_merge_url(contact01, contact02)
+        url = self.build_merge_url(contact01, contact02)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -294,7 +277,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self._oldify(orga02)
         assert old_modified > self.refresh(orga02).modified
 
-        response = self.assertGET200(self._build_merge_url(orga01, orga02))
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
 
         with self.assertNoException():
             f_name = response.context['form'].fields['name']
@@ -311,7 +294,7 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
-        response = self.assertGET200(self._build_merge_url(contact01, contact02))
+        response = self.assertGET200(self.build_merge_url(contact01, contact02))
 
         with self.assertNoException():
             f_image = response.context['form'].fields['image']
@@ -329,7 +312,7 @@ class MergeViewsTestCase(ViewsTestCase):
         orga = Organisation.objects.create(user=user, name='Genshiken')
         contact = Contact.objects.create(user=user, first_name='Chika', last_name='Ogiue')
 
-        self.assertGET404(self._build_merge_url(orga, contact))
+        self.assertGET404(self.build_merge_url(orga, contact))
 
     def test_error02(self):
         self.login()
@@ -339,7 +322,7 @@ class MergeViewsTestCase(ViewsTestCase):
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
-        response = self.assertPOST200(self._build_merge_url(orga01, orga02),
+        response = self.assertPOST200(self.build_merge_url(orga01, orga02),
                                       follow=True,
                                       data={'user_1':      user.id,
                                             'user_2':      user.id,
@@ -371,6 +354,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertTrue(can_view(orga01));  self.assertTrue(user.has_perm_to_change(orga01))
         self.assertFalse(can_view(orga02)); self.assertFalse(user.has_perm_to_delete(orga02))
 
-        self.assertGET403(self._build_merge_url(orga01, orga02))
-        self.assertGET403(self._build_merge_url(orga02, orga01))
+        self.assertGET403(self.build_merge_url(orga01, orga02))
+        self.assertGET403(self.build_merge_url(orga02, orga01))
 
