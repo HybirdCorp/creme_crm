@@ -40,7 +40,7 @@ class AssistantsTestCase(CremeTestCase):
 
         creator(contact01, contact02)
 
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id),
+        response = self.client.post(self.build_merge_url(contact01, contact02),
                                     follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,
