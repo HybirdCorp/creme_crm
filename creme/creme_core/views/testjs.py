@@ -90,7 +90,7 @@ class Dummy(object):
         self.datetime = mark_safe(print_datetime(self, now(), user))
         self.date = mark_safe(print_date(self, date.today(), user))
         self.duration = mark_safe(print_duration(self, '%d:%d:%d' % (randint(0, 23), randint(0, 59), randint(0, 59)), user))
-        self.foreignkey = mark_safe(print_foreignkey(self, Contact.objects.filter(is_user=True, last_name='Creme').get(), user))
+        self.foreignkey = mark_safe(print_foreignkey(self, Contact.objects.filter(is_user=True)[0], user))
         self.manytomany = mark_safe(print_many2many(self, MockManyToMany(Contact), user))
 
     def __unicode__(self):
