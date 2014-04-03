@@ -239,8 +239,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         #self.assertEqual(result[1],
                          #u'"Creme","%s"' % date_format(localtime(fulbert.created), 'DATETIME_FORMAT')
                         #)
+        mireille = self.other_user.linked_contact
         self.assertEqual(result[1],
-                         u'"Bouquet","%s"' % date_format(localtime(self.user.linked_contact.created), 'DATETIME_FORMAT')
+                         u'"%s","%s"' % (mireille.last_name,
+                                         date_format(localtime(mireille.created), 'DATETIME_FORMAT'),
+                                        )
                         )
 
     def test_list_view_export06(self):
