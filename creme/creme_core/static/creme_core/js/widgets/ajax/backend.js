@@ -135,6 +135,10 @@ creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 
                 if (error_cb !== undefined)
                     error_cb(responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
+            },
+            error: function(xhr) {
+                if (error_cb !== undefined)
+                    error_cb(xhr.responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
             }
     };
 
