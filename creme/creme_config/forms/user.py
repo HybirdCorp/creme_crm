@@ -21,7 +21,8 @@
 import re
 from collections import defaultdict
 
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
+from django.forms.util import ValidationError, ErrorList
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
@@ -68,14 +69,14 @@ class UserAddForm(CremeModelForm):
 
         return username
 
-    def clean_password_2(self):
-        cleaned_data = self.cleaned_data
-        pw2  = cleaned_data['password_2']
+    #def clean_password_2(self):
+        #cleaned_data = self.cleaned_data
+        #pw2  = cleaned_data['password_2']
 
-        if cleaned_data['password_1'] != pw2:
-            raise ValidationError(ugettext(u"Passwords are different"))
+        #if cleaned_data['password_1'] != pw2:
+            #raise ValidationError(ugettext(u"Passwords are different"))
 
-        return pw2
+        #return pw2
 
     def clean_role(self):
         cleaned_data = self.cleaned_data
@@ -86,6 +87,14 @@ class UserAddForm(CremeModelForm):
             raise ValidationError(ugettext(u"Choose a role or set superuser status to 'True'."))
 
         return role
+
+    def clean(self):
+        cleaned = self.cleaned_data
+
+        if not self._errors and cleaned['password_1'] != cleaned['password_2']:
+            self.errors['password_2'] = ErrorList([ugettext(u'Passwords are different')])
+
+        return cleaned
 
     def save(self, *args, **kwargs):
         cleaned = self.cleaned_data

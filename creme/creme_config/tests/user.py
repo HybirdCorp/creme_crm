@@ -291,28 +291,29 @@ class UserTestCase(CremeTestCase):
                                             "hyphen and underscores are allowed (but not as first character)."
                                            ))
 
-    def test_create07(self):
-        "Wrong password"
-        self.login()
+    #def test_create07(self):
+        #"Wrong password"
+        #self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Olympus')
-        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+        #orga = Organisation.objects.create(user=self.user, name='Olympus')
+        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
-        username = 'deunan'
-        password = 'password'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'username':     username,
-                                          'password_1':   password,
-                                          'password_2':   password + "5",
-                                          'is_superuser': True,
-                                          'organisation': orga.id,
-                                          'relation':     REL_SUB_MANAGES,
-                                         }
-                                   )
+        #username = 'deunan'
+        #password = 'password'
+        #response = self.client.post(self.ADD_URL, follow=True,
+                                    #data={'username':     username,
+                                          #'password_1':   password,
+                                          #'password_2':   password + "5",
+                                          #'is_superuser': True,
+                                          #'organisation': orga.id,
+                                          #'relation':     REL_SUB_MANAGES,
+                                         #}
+                                   #)
 
-        self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
+        #self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
 
-    def test_create08(self):
+    #def test_create08(self):
+    def test_create06(self):
         "Common user without role"
         self.login()
 
@@ -324,14 +325,57 @@ class UserTestCase(CremeTestCase):
         response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
-                                          'password_2':   password + "5",
+                                          'password_2':   password,
                                           'is_superuser': False,
                                           'organisation': orga.id,
                                           'relation':     REL_SUB_MANAGES,
                                          }
                                    )
 
-        self.assertFormError(response, 'form', 'role', _(u"Choose a role or set superuser status to 'True'."))
+        self.assertFormError(response, 'form', 'role', 
+                             _(u"Choose a role or set superuser status to 'True'.")
+                            )
+
+    #def test_create09(self):
+    def test_create07(self):
+        "Password errors"
+        self.login()
+
+        url = self.ADD_URL
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        data = {'username':     'deunan',
+                'first_name':   'Deunan',
+                'last_name':    'Knut',
+                'email':        'd.knut@eswat.ol',
+                'is_superuser': True,
+                'organisation': orga.id,
+                'relation':     REL_SUB_EMPLOYED_BY,
+               }
+        response = self.assertPOST200(url, follow=True, data=data)
+        msg = _('This field is required.')
+        self.assertFormError(response, 'form', 'password_1', msg)
+        self.assertFormError(response, 'form', 'password_2', msg)
+
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data, password_1='passwd'),
+                                     )
+        self.assertFormError(response, 'form', 'password_2', msg)
+
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data, password_2='passwd'),
+                                     )
+        self.assertFormError(response, 'form', 'password_1', msg)
+
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data,
+                                                password_1='password',
+                                                password_2='passwd',
+                                               ),
+                                     )
+        self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
 
     def test_edit01(self):
         self.login()
