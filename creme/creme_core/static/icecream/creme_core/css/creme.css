@@ -751,13 +751,10 @@ div#sub_content > div:nth-child(3) {
 }
 
 .help_box {
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
     background-color: #fff7a1;
-    padding:5px;
-    border: 1px solid #f0f0f0;
-    border-bottom: 2px solid #ccc;
-    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
 }
 
 .help_box.with-table table {
