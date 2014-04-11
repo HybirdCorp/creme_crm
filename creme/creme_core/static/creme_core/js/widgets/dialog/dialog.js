@@ -390,7 +390,7 @@ creme.dialogs = $.extend(creme.dialogs, {
         {
             var compatibility = function(data, statusText, dataType) {
                 return dataType !== 'text/html' ||
-                       data.startsWith('<div class="in-popup" closing="true">') ||
+                       data.startsWith('<div class="in-popup" closing="true"') ||
                        (data.startsWith('<div class="in-popup"') && data.match(/<form[^>]*>/) === null);
             }
 

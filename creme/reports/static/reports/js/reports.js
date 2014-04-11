@@ -430,9 +430,22 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 });
 
 
-creme.reports.exportReport = function(link, backends, filterurl) {
+creme.reports.exportReport = function(link, backends, report_id) {
+    var filterform_url = '/reports/date_filter_form/%d'.format(report_id)
+
     if (backends.length) {
-        creme.dialogs.form(filterurl).open({width:800});
+        // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
+        // Emulate it for this case.
+        // TODO : filterform should be used as select and redirection url build in js.
+        creme.dialogs.form(filterform_url)
+                     .onFormSuccess(function(event, data, statusText, dataType) {
+                           var matches = data.match(/^<div class="in-popup" closing="true" redirect="(.*)">/)
+
+                           if (matches && matches.length > 1) {
+                               creme.utils.goTo(matches[1]);
+                           }
+                      })
+                     .open({width:800});
     } else {
         creme.dialogs.warning(gettext('No backend found')).open({maxWidth:300, resizable:false});
     }
