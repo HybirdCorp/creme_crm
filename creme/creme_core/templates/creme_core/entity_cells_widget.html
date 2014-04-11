@@ -60,7 +60,7 @@
                 {% if custom_fields %}
                     <ul class="selector_list">
                         {% for cfield_id, cfield_name in custom_fields %}
-                            <li class="selector" data-column="{{cfield_id}}"><input type="checkbox"><label>{{cfield_vname}}</label></input></li>
+                            <li class="selector" data-column="{{cfield_id}}"><input type="checkbox"><label>{{cfield_name}}</label></input></li>
                         {% endfor %}
                     </ul>
                 {% else %}
