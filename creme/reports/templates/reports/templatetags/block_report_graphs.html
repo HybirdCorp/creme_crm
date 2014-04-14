@@ -60,13 +60,15 @@
                                     {% include 'reports/templatetags/report_chart_selectors.html' %}
                                     <li class="ui-creme-chainedselect-item" style="float:right;">
                                         {% if user_can_admin_report %}
-                                            <button onclick="creme.blocks.form('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();"
-                                                    style="padding: 1px 1px;vertical-align:middle;">
-                                                <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" title="{{addblock_label}}"
-                                                    style="border:0; vertical-align:middle;"/>
+                                            <button onclick="creme.blocks.form('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                                                <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" style="vertical-align:middle;"/>
+                                                {{addblock_label}}
                                             </button>
                                         {% else %}
-                                            <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{{noaddblock_label}}" title="{{noaddblock_label}}" />
+                                            <button class="forbidden" disabled="true" >
+                                                <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{noaddblock_label}}" style="vertical-align:middle;"/>
+                                                {{noaddblock_label}}
+                                            </button>
                                         {% endif %}
                                     </li>
                                 </ul>

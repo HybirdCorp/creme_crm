@@ -574,7 +574,7 @@ msgstr "Réduire"
 
 #: templates/reports/templatetags/block_report_graphs.html:26
 msgid "Create a block with this graph"
-msgstr "Créer un bloc à partir de ce graph"
+msgstr "Créer un bloc à partir de ce graphe"
 
 #: templates/reports/templatetags/block_report_graphs.html:26
 msgid "Can't create block"
