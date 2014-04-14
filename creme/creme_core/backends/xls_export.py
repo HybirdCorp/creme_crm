@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from os import makedirs
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
+from django.template.defaultfilters import slugify
 
 from ..utils.xlwt_utils import XlwtWriter
 
@@ -42,6 +43,6 @@ class XLSExportBackend(XlwtWriter, ExportBackend):
         super(XLSExportBackend, self).__init__(encoding="utf-8")
 
     def save(self, filename):
-        filename = '%s.%s' % (filename, self.id)
+        filename = '%s.%s' % (slugify(filename), self.id)
         self.response = HttpResponseRedirect('/download_file/upload/xls/%s' % filename)
         super(XLSExportBackend, self).save(join(self.dir_path, filename))
