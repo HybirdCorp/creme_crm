@@ -150,6 +150,7 @@
                 - get_fk_entity.
                 - get_m2m_entities.
                 - _get_entity_column.
+        # In titles of blocks (inside {%get_block_header%}) the "collapser" css class is no longer needed and will cause issues.
         # Apps :
             * Activities :
                 - The field ActivityType.color has been removed.
