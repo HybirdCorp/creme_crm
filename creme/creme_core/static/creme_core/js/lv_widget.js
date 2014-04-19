@@ -249,7 +249,7 @@ creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, in
 creme.lv_widget.initialize = function(options, dialog) {
     var id = dialog ? dialog.attr('id') : undefined;
     var listview = $('form[name="list_view_form"]', dialog);
-    var submit_url = dialog ? $('[name="inner_header_from_url"]', dialog).val() : '?ajax=true';
+    var submit_url = (dialog ? $('[name="inner_header_from_url"]', dialog).val() : '') + '?ajax=true';
     var submit_handler;
 
     if (id) {
