@@ -8,7 +8,7 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-        EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+            EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
             CustomField, CustomFieldEnumValue)
@@ -456,17 +456,22 @@ class ListViewTestCase(ViewsTestCase):
         self.login()
 
         create_orga = partial(Organisation.objects.create, user=self.user)
-        bebop     = create_orga(name='Bebop')
-        swordfish = create_orga(name='Swordfish')
-        redtail   = create_orga(name='Redtail')
+        bebop      = create_orga(name='Bebop')
+        swordfish  = create_orga(name='Swordfish')
+        swordfish2 = create_orga(name='Swordfish II')
+        sf_alpha   = create_orga(name='Swordfish Alpha')
+        redtail    = create_orga(name='Redtail')
 
         def set_created(orga, dt):
             Organisation.objects.filter(pk=orga.id).update(created=dt)
 
-        create_dt = partial(self.create_datetime, utc=True)
-        set_created(bebop,     create_dt(year=2075, month=3, day=26))
-        set_created(swordfish, create_dt(year=2074, month=6, day=5))
-        set_created(redtail,   create_dt(year=2076, month=7, day=25))
+        #create_dt = partial(self.create_datetime, utc=True)
+        create_dt = self.create_datetime
+        set_created(bebop,      create_dt(year=2075, month=3, day=26))
+        set_created(swordfish,  create_dt(year=2074, month=6, day=5, hour=12))
+        set_created(swordfish2, create_dt(year=2074, month=6, day=6, hour=0))  #next day
+        set_created(sf_alpha,   create_dt(year=2074, month=6, day=4, hour=23, minute=59)) #previous day
+        set_created(redtail,    create_dt(year=2076, month=7, day=25))
 
         hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='created'))
 
@@ -500,6 +505,15 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
+
+        #response = self.assertPOST200(url, data=dict(data, created=['5-6-2074', '5-6-2074']))
+        #content = self._get_lv_content(response)
+        content = post(['5-6-2074', '5-6-2074'])
+        self.assertNotIn(bebop.name,      content)
+        self.assertIn(swordfish.name,     content)
+        self.assertNotIn(swordfish2.name, content)
+        self.assertNotIn(sf_alpha.name,   content)
+        self.assertNotIn(redtail.name,    content)
 
     def test_search_fk(self):
         self.login()
@@ -1016,6 +1030,12 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(dragons.name, content)
 
         content = post(['1-1-2074', '31-12-2074'])
+        self.assertNotIn(bebop.name,   content)
+        self.assertIn(swordfish.name,  content)
+        self.assertNotIn(redtail.name, content)
+        self.assertNotIn(dragons.name, content)
+
+        content = post(['5-6-2074', '5-6-2074'])
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
