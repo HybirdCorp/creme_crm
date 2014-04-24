@@ -122,19 +122,19 @@ class ListViewState(object):
         except (IndexError, AttributeError):
             pass
 
-    def _datetime_or_None(self, value, index):
-        try:
-            return get_dt_from_str(value[index])
-        except (IndexError, AttributeError):
-            pass
+    #def _datetime_or_None(self, value, index):
+        #try:
+            #return get_dt_from_str(value[index]).date()
+        #except (IndexError, AttributeError):
+            #pass
 
     def _build_date_range_dict(self, name, value):
         don = partial(self._date_or_None, value=value)
         return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
-    def _build_datetime_range_dict(self, name, value):
-        don = partial(self._datetime_or_None, value=value)
-        return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
+    #def _build_datetime_range_dict(self, name, value):
+        #don = partial(self._datetime_or_None, value=value)
+        #return CustomRange(don(index=0), don(index=1)).get_q_dict(name, now())
 
     #TODO: move some parts of code to EntityCell (more object code) ?
     #TODO: 'filter_string' -> remove from Cell, or put all the research logic in Cells...
@@ -152,9 +152,10 @@ class ListViewState(object):
             if isinstance(cell, EntityCellRegularField):
                 field = cell.field_info[-1]
                 #TODO: Hacks for dates => refactor
-                if isinstance(field, DateTimeField):
-                    condition = self._build_datetime_range_dict(cell.value, value)
-                elif isinstance(field, DateField):
+                #if isinstance(field, DateTimeField):
+                    #condition = self._build_datetime_range_dict(cell.value, value)
+                #elif isinstance(field, DateField):
+                if isinstance(field, DateField):
                     condition = self._build_date_range_dict(cell.value, value)
                 else:
                     condition = self._build_condition(cell.filter_string, value)
@@ -175,7 +176,8 @@ class ListViewState(object):
                 related_name = cf.get_value_class().get_related_name()
 
                 if field_type == CustomField.DATETIME:
-                    condition = self._build_datetime_range_dict('%s__value' % related_name, value)
+                    #condition = self._build_datetime_range_dict('%s__value' % related_name, value)
+                    condition = self._build_date_range_dict('%s__value' % related_name, value)
                 else:
                     if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                         value = value[0]
@@ -190,7 +192,8 @@ class ListViewState(object):
                     pattern = pattern.partition('__')[2] #remove 'tableprefix__'
 
                     if field_type == CustomField.DATETIME:
-                        condition = self._build_datetime_range_dict('value', value)
+                        #condition = self._build_datetime_range_dict('value', value)
+                        condition = self._build_date_range_dict('value', value)
                     else:
                         if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                             value = value[0]
