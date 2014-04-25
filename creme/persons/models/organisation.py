@@ -70,8 +70,6 @@ class Organisation(CremeEntity):
     #TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
-    #research_fields = CremeEntity.research_fields + ['name']
-    #_clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['billing_address', 'shipping_address'])
     creation_label = _('Add an organisation')
 
     class Meta:

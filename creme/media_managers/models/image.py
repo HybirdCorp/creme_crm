@@ -47,7 +47,6 @@ class Image(CremeEntity):
     categories = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),
                                  related_name="Image_media_category_set", blank=True, null=True)
 
-    #research_fields = CremeEntity.research_fields + ['description', 'name', 'image']
     creation_label = _('Add an image')
 
     encodings = {

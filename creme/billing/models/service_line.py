@@ -25,8 +25,6 @@ from .line import Line
 
 
 class ServiceLine(Line):
-    #excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
-    #header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #todo: use a set() ??
     creation_label = _('Add a service line')
 
     def __init__(self, *args, **kwargs):

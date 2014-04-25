@@ -44,7 +44,6 @@ class Service(CremeEntity):
     web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ServiceImages_set' )
 
-    #research_fields = CremeEntity.research_fields + ['name', 'reference', 'description', 'sub_category__name', 'category__name']
     creation_label = _('Add a service')
 
     def __unicode__(self):

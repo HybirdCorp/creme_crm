@@ -66,8 +66,6 @@ class Base(CremeEntity):
     payment_terms    = ForeignKey(PaymentTerms,          verbose_name=_(u'Payment Terms'),          related_name='PaymentTerms_set',          blank=True, null=True, on_delete=SET_NULL)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
 
-    #research_fields = CremeEntity.research_fields + ['name']
-    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['total_vat', 'total_no_vat', 'payment_info']
     creation_label = _('Add an accounting document')
 
     generate_number_in_create = True #TODO: use settings instead ???
