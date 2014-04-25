@@ -36,7 +36,6 @@ class EmailTemplate(CremeEntity):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
-    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???
     creation_label = _('Add an email template')
 
     class Meta:

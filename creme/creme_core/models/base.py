@@ -37,7 +37,6 @@ logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
-    #header_filter_exclude_fields = ['id', 'pk']
     _delete_files = True #Delegate the deletion of the file on system when a model has one or more FileField subclasses
     creation_label = _('Add')
 
@@ -117,13 +116,7 @@ class CremeAbstractEntity(CremeModel):
 
     _real_entity = None
 
-    #research_fields = []
     function_fields = FunctionFieldsManager()
-
-    #excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
-    #header_filter_exclude_fields = CremeModel.header_filter_exclude_fields + ['password', 'is_superuser', 'is_active', 'is_staff']
-    #extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
-    #extra_filter_exclude_fields = ['id']
 
     class Meta:
         app_label = 'creme_core'

@@ -86,8 +86,6 @@ class BatchActionsField(JSONField):
         self._fields = fields = {}
         managed_fields = tuple(batch_operator_manager.managed_fields)
 
-        #excluded = model.header_filter_exclude_fields
-
         for field in model._meta.fields:
             if field.editable and isinstance(field, managed_fields):
                 fields[field.name] = field

@@ -35,9 +35,6 @@ class TemplateBase(Base):
     ct        = CTypeForeignKey().set_tags(viewable=False)
     status_id = PositiveIntegerField().set_tags(viewable=False) #TODO: avoid deletion of status
 
-    #research_fields = Base.research_fields + ['name']
-    #TODO: what about number (now it is viewable) ??
-    #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']
     creation_label = pgettext_lazy('billing', 'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
 
     class Meta:

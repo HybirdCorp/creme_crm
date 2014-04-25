@@ -28,8 +28,6 @@ class FolderCategory(CremeModel):
     """Category for the folders"""
     name = CharField(_(u'Category name'), max_length=100, unique=True)
 
-    #research_fields = CremeEntity.research_fields + ['name']
-
     def __unicode__(self):
         return self.name
 
