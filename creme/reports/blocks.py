@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,12 +36,13 @@ class ReportFieldsBlock(Block):
 
     def detailview_display(self, context):
         report = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                                            columns=report.columns,
-                                                            expand=any(field.sub_report_id for field in report.columns),
-                                                           )
-                            )
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                columns=report.columns,
+                                expand=any(field.sub_report_id for field in report.columns),
+                               )
+                           )
 
 
 class ReportGraphsBlock(QuerysetBlock):
@@ -55,11 +56,12 @@ class ReportGraphsBlock(QuerysetBlock):
     def detailview_display(self, context):
         report = context['object']
 
-        return self._render(self.get_block_template_context(context,
+        return self._render(self.get_block_template_context(
+                                context,
                                 ReportGraph.objects.filter(report=report),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                 #is_ajax=context['request'].is_ajax(),
-                                user_can_admin_report=context['user'].has_perm('reports.can_admin'),
+                                #user_can_admin_report=context['user'].has_perm('reports.can_admin'),
                                )
                            )
 

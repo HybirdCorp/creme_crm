@@ -56,8 +56,8 @@ def edit(request, graph_id):
 @permission_required('reports')
 def detailview(request, graph_id):
     return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
-                       extra_template_dict={'user_can_admin_report': request.user.has_perm('reports.can_admin'), #TODO: template tag instead ??
-                                           }
+                       #extra_template_dict={'user_can_admin_report': request.user.has_perm('reports.can_admin'),
+                                           #}
                       )
 
 #TODO: use prefix ?? (rfield-, ctield-, rtype-)
