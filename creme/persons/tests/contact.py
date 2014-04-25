@@ -1131,8 +1131,8 @@ class ContactTestCase(_BaseTestCase):
         contact01 = user.linked_contact
         contact02 = Contact.objects.create(user=user, first_name='FAYE', last_name='VALENTINE')
 
-        self.assertGET404(self.build_merge_url(contact01, contact02))
-        self.assertGET404(self.build_merge_url(contact02, contact01))
+        self.assertGET409(self.build_merge_url(contact01, contact02))
+        self.assertGET409(self.build_merge_url(contact02, contact01))
 
     def test_delete_civility(self):
         "Set to null"
