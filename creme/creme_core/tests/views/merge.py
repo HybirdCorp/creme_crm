@@ -312,7 +312,7 @@ class MergeViewsTestCase(ViewsTestCase):
         orga = Organisation.objects.create(user=user, name='Genshiken')
         contact = Contact.objects.create(user=user, first_name='Chika', last_name='Ogiue')
 
-        self.assertGET404(self.build_merge_url(orga, contact))
+        self.assertGET409(self.build_merge_url(orga, contact))
 
     def test_error02(self):
         self.login()

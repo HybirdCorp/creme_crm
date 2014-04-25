@@ -36,6 +36,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from ..auth.decorators import login_required
+from ..core.exceptions import ConflictError
 from ..forms import CremeEntityForm
 from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
@@ -369,7 +370,8 @@ def merge(request, entity1_id, entity2_id):
     entity2 = get_object_or_404(CremeEntity, pk=entity2_id)
 
     if entity1.entity_type_id != entity2.entity_type_id:
-        raise Http404('You can not merge entities of different types.')
+        #raise Http404('You can not merge entities of different types.')
+        raise ConflictError('You can not merge entities of different types.')
 
     user = request.user
     can_view = user.has_perm_to_view_or_die
@@ -396,7 +398,8 @@ def merge(request, entity1_id, entity2_id):
         try:
             merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
         except MergeEntitiesBaseForm.CanNotMergeError as e:
-            raise Http404(e)
+            #raise Http404(e)
+            raise ConflictError(e)
 
     return render(request, 'creme_core/merge.html',
                   {'form':   merge_form,
