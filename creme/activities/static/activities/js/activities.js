@@ -61,11 +61,12 @@ creme.activities.calendar.filterEvents = function(widget, calendar, events) {
     widget.fullCalendar('removeEvents', function(event) {return calendar == event.calendar;});
 
     if (events) {
-        $.each(events, function(index, event) {
-            if (calendar == event.calendar) {
-                widget.fullCalendar('renderEvent', event);
-            }
-        })
+        // TODO: test server behavior - is this test still needed ?
+        var calendarEvents = events.filter (function (event) {
+          return calendar == event.calendar;
+        });
+      
+        widget.fullCalendar ('addEventSource', calendarEvents);
     }
 
     creme.activities.calendar.resizeSidebar();
