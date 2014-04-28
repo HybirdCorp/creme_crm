@@ -5,10 +5,10 @@
 
 <script type='text/javascript'>
     // init block after a json reload
-    creme.billing.initBlockLines('{{object.currency.local_symbol}}');
+    creme.billing.initBlockLines('{{object.currency.local_symbol}}', {{object.discount}});
 </script>
 
-<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
         <th class="label">{% block block_title %}HEADER{% endblock %}</th>{# TODO more than one on the fly line at the same time ?? #}
         <th class="actions" style="width:75%">{% comment %}TODO: remove this inline style when block header is fixed with log titles & lots of buttons{% endcomment %}

@@ -514,7 +514,7 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
 //}
 
 //TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
-creme.billing.initBoundedFields = function (element, currency) {
+creme.billing.initBoundedFields = function (element, currency, global_discount) {
     var discounted = $('[name="discounted"]', element);
     var inclusive_of_tax = $('[name="inclusive_of_tax"]', element);
     var exclusive_of_tax = $('[name="exclusive_of_tax"]', element);
@@ -555,13 +555,14 @@ creme.billing.initBoundedFields = function (element, currency) {
                 break;
             default:
                 console.log("Bad discount value ?!", discount_unit);
-        } 
-
-        var global_discount_value = $('[name="overall_discount_document"]').attr('value');
-
-        if (global_discount_value != "") {
-            discounted_value = discounted_value - (discounted_value * parseInt(global_discount_value) / 100);
         }
+
+//         var global_discount_value = $('[name="overall_discount_document"]').attr('value');
+// 
+//         if (global_discount_value != "") {
+//             discounted_value = discounted_value - (discounted_value * parseFloat(global_discount_value) / 100);
+//         }
+        discounted_value = discounted_value - (discounted_value * global_discount / 100);
 
         var exclusive_of_tax_discounted = Math.ceil(discounted_value * 100) / 100;
 
@@ -615,13 +616,13 @@ creme.billing.redirect = function(url, checkmodified) {
     window.location = url;
 }
 
-creme.billing.initBlockLines = function (currency) {
+creme.billing.initBlockLines = function(currency, global_discount) {
     creme.billing.initializeForms();
 
     $('a[class^="add_on_the_fly_"]').removeAttr('disabled');
 
     $('.linetable').each(function(index) {
-        creme.billing.initBoundedFields($(this), currency);
+        creme.billing.initBoundedFields($(this), currency, global_discount);
     });
 
     // TODO hack because css class bound is not added to joe's widget

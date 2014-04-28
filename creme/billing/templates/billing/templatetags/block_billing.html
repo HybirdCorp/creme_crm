@@ -47,7 +47,7 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Overall discount" %}</th>
-            <td class="{% cycle row_color %} td_info" name="overall_discount_document" value="{% if object.discount %}{{ object.discount }}{% endif %}">
+            <td class="{% cycle row_color %} td_info" {% comment %}name="overall_discount_document" value="{% if object.discount %}{{ object.discount }}{% endif %}"{% endcomment %}>
                 {% if object.discount %}
                     {% print_field object=object field='discount' %} %
                 {% else %}
