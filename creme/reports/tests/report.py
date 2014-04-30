@@ -12,6 +12,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
+    from django.utils.timezone import now
     from django.utils.unittest.case import skipIf
     #from django.core.serializers.json import simplejson
 
@@ -475,6 +476,52 @@ class ReportTestCase(BaseReportsTestCase):
         user_str = unicode(self.user)
         self.assertEqual('"Ayanami","%s","","Kawaii"' % user_str, content[1])
         self.assertEqual('"Langley","%s","",""' % user_str,       content[2])
+
+    def test_report_csv04(self):
+        "With date filter and registered range"
+        self.login()
+        user = self.user
+
+        self._create_persons()
+        baby_joe = Contact.objects.create(user=user, last_name='Baby', first_name='Joe',
+                                          birthday=datetime(year=now().year, month=1, day=1)
+                                         )
+        report   = self._create_report('trinita')
+        response = self.assertGET200('/reports/report/export/%s/csv' % report.id,
+                                     data={'field': 'birthday',
+                                           'range_name': 'current_year',
+                                           'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                                           'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                                          }
+                                    )
+
+        content = [s for s in response.content.split('\r\n') if s]
+        self.assertEqual(2, len(content))
+        self.assertEqual('"Baby","%s","",""' % user, content[1])
+
+    def test_report_csv05(self):
+        "Errors: invalid GET param"
+        self.login()
+
+        self._create_persons()
+        report = self._create_report('trinita')
+        url = '/reports/report/export/%s/csv' % report.id #TODO: factorise
+        data = {'field': 'birthday',
+                'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+               }
+        count = Contact.objects.count()
+
+        def post(**kwargs):
+            response = self.assertGET200(url, data=dict(data, **kwargs))
+            self.assertEqual(count + 1, # "+1" for header
+                             sum(1 if s else 0 for s in response.content.split('\r\n'))
+                            )
+
+        post(field='invalidfield')
+        post(field='first_name') #not a date field
+        post(start='1980-01-01') #invalid format
+        post(end='2000-01-01')   #invalid format
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
