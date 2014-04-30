@@ -57,6 +57,12 @@
 				var $handle = $(this),
 					elementOffsetTop = self.element.position().top;
 
+				// Hybird FIX - need to account for the scrollTop of the append target: if the target is not the page body,
+				// and it is scrolled down to show the overflow (if the widget is used a popup window for example) 
+				if (o.appendTarget[0] != document.body) {
+					elementOffsetTop += o.appendTarget[0].scrollTop;
+				}
+
 				//make sure we are working with a th instead of a handle
 				if( $handle.hasClass( o.handle ) ){
 
