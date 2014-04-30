@@ -15,7 +15,8 @@ TODO: this is a hack to disable the Download <a> when datefilter is edited (beca
             var form = $('form.date-filter-form');
 
             function disableDownload() {
-                $('.report-dl').addClass("forbidden").removeAttr('href').removeAttr('onclick');
+                // The ugly 'cursor: default;' is here to fix the chantilly theme...
+                $('.report-dl').addClass("forbidden").removeAttr('href').removeAttr('onclick').attr('style', 'cursor: default;');
             }
 
             form.find('select').change(function() {disableDownload();});
