@@ -4,6 +4,26 @@
 
 {% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
 
+{% comment %}
+TODO: this is a hack to disable the Download <a> when datefilter is edited (because href becomes deprecated)
+      so we have to rework this form in order to 'Download' to be integrated in the form & become a submit button too.
+{% endcomment %}
+{% block extrahead %}
+    {{block.super}}
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            var form = $('form.date-filter-form');
+
+            function disableDownload() {
+                $('.report-dl').addClass("forbidden").removeAttr('href').removeAttr('onclick');
+            }
+
+            form.find('select').change(function() {disableDownload();});
+            form.find('input').bind('propertychange change keyup input paste', function() {disableDownload();});
+        });
+    </script>
+{% endblock %}
+
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
@@ -20,7 +40,7 @@
                     </a>&nbsp;
                     {% get_export_backends as export_backends %}
                     {% comment %}{% if export_backends|length > 2 %}{% endcomment %}
-                    <a href="/reports/report/export/{{object.id}}/%s{{form.forge_url_data}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});">
+                    <a class="report-dl" href="/reports/report/export/{{object.id}}/%s{{form.forge_url_data}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});">
                         <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
                     {% comment %}{% endif %}{% endcomment %}
