@@ -671,7 +671,7 @@ def _log_deletion(sender, instance, **kwargs):
     if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
         return
 
-    # when we are dealing whith CremeEntities, we check that we are dealing
+    # when we are dealing with CremeEntities, we check that we are dealing
     # with the final class, because the signal is send several times, with
     # several 'level' of class. We don't want to create several HistoryLines
     # (and some things are deleted by higher levels that make objects
