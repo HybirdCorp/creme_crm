@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
+from django.db.models import DateField, Q, FieldDoesNotExist
 from django.http import Http404, HttpResponse
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
@@ -37,6 +39,9 @@ from ..forms.report import (ReportCreateForm, ReportEditForm,
         LinkFieldToReportForm, ReportFieldsForm, DateReportFilterForm)
 from ..models import Report, Field
 from ..utils import decode_datetime
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -238,15 +243,28 @@ def export(request, report_id, doc_type):
     user.has_perm_to_view_or_die(report)
 
     field_name = GET_get('field')
-    if field_name is not None:
-        dt_range_name = GET_get('range_name')  # Empty str should get CustomRange
-        dt_range = date_range_registry.get_range(dt_range_name,
-                                                 decode_datetime(GET_get('start')),
-                                                 decode_datetime(GET_get('end')),
-                                                )
 
-        if dt_range is not None:
-            extra_q_filter = Q(**dt_range.get_q_dict(field_name, now()))
+    if field_name is not None:
+        try:
+            field = report.ct.model_class()._meta.get_field(field_name)
+        except FieldDoesNotExist as e:
+            logger.warn('Error in reports.export(): %s', e)
+        else:
+            if not isinstance(field, DateField):
+                logger.warn('Error in reports.export(): field "%s" is not a DateField', field)
+            else:
+                try:
+                    start = decode_datetime(GET_get('start'))
+                    end   = decode_datetime(GET_get('end'))
+                except ValueError as e:
+                    logger.warn('Error in reports.export(): invalid date (%s)', e)
+                else:
+                    dt_range = date_range_registry.get_range(GET_get('range_name'), # Empty str should get CustomRange
+                                                             start, end,
+                                                            )
+
+                    if dt_range is not None:
+                        extra_q_filter = Q(**dt_range.get_q_dict(field_name, now()))
 
     writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
 
