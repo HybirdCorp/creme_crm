@@ -115,17 +115,19 @@ class GuiTestCase(CremeTestCase):
 
         create_contact = partial(Contact.objects.create, user=user)
         casca = create_contact(first_name='Casca', last_name='Mylove',
-                               position=Position.objects.create(title='Warrior'),
+                               position=Position.objects.create(title='Warrior<script>'),
                                image=img,
                               )
+
+        escaped_title = 'Warrior&lt;script&gt;'
 
         self.assertEqual(casca.last_name,      get_html_val(casca, 'last_name',       user))
         self.assertEqual(casca.last_name,      get_csv_val(casca,  'last_name',       user))
 
         self.assertEqual(casca.first_name,     get_html_val(casca, 'first_name',      user))
-        self.assertEqual(casca.position.title, get_html_val(casca, 'position',        user))
+        self.assertEqual(escaped_title,        get_html_val(casca, 'position',        user))
 
-        self.assertEqual(casca.position.title, get_html_val(casca, 'position__title', user))
+        self.assertEqual(escaped_title,        get_html_val(casca, 'position__title', user))
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
 
         self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
