@@ -27,7 +27,6 @@ from ..models import CremeEntity
 
 
 logger = logging.getLogger(__name__)
-MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
 
 
 class LastViewedItem(object):
@@ -51,8 +50,9 @@ class LastViewedItem(object):
     def __add(self, request):
         logger.debug('LastViewedItem.add: %s', self)
         session = request.session
-        last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
+        #last_viewed_items = session.get('last_viewed_items', deque(maxlen=settings.MAX_LAST_ITEMS))
         #last_viewed_items = session.get('last_viewed_items', deque())
+        last_viewed_items = session.get('last_viewed_items') or deque(maxlen=settings.MAX_LAST_ITEMS)
 
         if last_viewed_items and last_viewed_items[0] == self:
             return
@@ -77,12 +77,21 @@ class LastViewedItem(object):
         if not old_items:
             return ()
 
+        MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
+        updated = False
+
+        if old_items.maxlen != MAX_LAST_ITEMS:
+            updated = True #the serialized maxlen is wrong
+
+            while len(old_items) > MAX_LAST_ITEMS:
+                old_items.pop()
+
         entities = dict((e.id, e) for e in CremeEntity.objects.filter(is_deleted=False, 
                                                                       pk__in=[item.pk for item in old_items],
                                                                      )
                        )
         items = []
-        updated = (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
+        updated |= (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
 
         for item in old_items:
             entity = entities.get(item.pk)
@@ -95,6 +104,6 @@ class LastViewedItem(object):
                 items.append(item)
 
         if updated:
-            session['last_viewed_items'] = deque(items)
+            session['last_viewed_items'] = deque(items, maxlen=MAX_LAST_ITEMS)
 
         return items
