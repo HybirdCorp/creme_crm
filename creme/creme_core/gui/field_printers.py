@@ -64,7 +64,7 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     return "height=%s width=%s" % (h, w)
 
 def simple_print(entity, fval, user):
-    return unicode(escape(fval)) if fval is not None else ""
+    return unicode(escape(fval)) if fval is not None else "" #TODO: remove 'unicode()'
 
 def simple_print_csv(entity, fval, user):
     return unicode(fval) if fval is not None else ""
@@ -115,7 +115,7 @@ def print_foreignkey(entity, fval, user):
     if isinstance(fval, CremeEntity):
         return widget_entity_hyperlink(fval, user)
 
-    return unicode(fval) if fval else u''
+    return escape(unicode(fval)) if fval else u''
 
 def print_foreignkey_csv(entity, fval, user):
     if isinstance(fval, CremeEntity):
