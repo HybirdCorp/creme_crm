@@ -30,6 +30,7 @@ class GuiTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def test_last_viewed_items(self):
+        settings.MAX_LAST_ITEMS = MAX_LAST_ITEMS = 5
         self.login()
 
         class FakeRequest(object):
@@ -51,9 +52,12 @@ class GuiTestCase(CremeTestCase):
         contact04 = create_contact(first_name='Griffith', last_name='Femto')
 
         self.assertGET200(contact01.get_absolute_url())
+        self.assertEqual(1, len(LastViewedItem.get_all(FakeRequest())))
+
         items = get_items()
         self.assertEqual(1, len(items))
         self.assertEqual(contact01.pk, items[0].pk)
+        self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertGET200(contact03.get_absolute_url())
@@ -80,15 +84,21 @@ class GuiTestCase(CremeTestCase):
         contact03.delete()
         self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
         self.assertGET200(Contact.get_lv_absolute_url())
+        items = get_items()
         self.assertEqual([contact02.pk, contact04.pk, contact01.pk],
-                         [i.pk for i in get_items()]
+                         [i.pk for i in items]
                         )
+        self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         contact04.trash()
         self.assertGET200(Contact.get_lv_absolute_url())
         self.assertEqual([contact02.pk, contact01.pk],
                          [i.pk for i in get_items()]
                         )
+
+        settings.MAX_LAST_ITEMS = 1
+        self.assertGET200(Contact.get_lv_absolute_url())
+        self.assertEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_field_printers01(self):
         self.login()
