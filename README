@@ -8,7 +8,7 @@ You can find more information on Creme on its official web site: http://cremecrm
 
 DEPENDENCIES:
     - Core
-        - Python 2.6
+        - Python 2.7
         - Django 1.4
         - Django-mediagenerator 1.10
         - South 0.7
@@ -51,6 +51,7 @@ run the following commands in the root directory:
 [if it is the initial installation, you are asked if you want to create a new user ; you should create one]
 
 >> python manage.py migrate
+[If you encounter some issues with ghost migrations, you can use '--ignore-ghost-migrations' or '--delete-ghost-migrations' option]
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate
