@@ -804,4 +804,98 @@ about this fantastic animation studio."""
 
         self.assertEqual([self.FSTRING_1_VALUE % {'field': fname}], vmodifs)
 
+    def test_disable01(self):
+        "CremeEntity creation, edition & deletion"
+        old_count = HistoryLine.objects.count()
+        nerv = Organisation(user=self.user, name='nerv')
+
+        HistoryLine.disable(nerv)
+        nerv.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        nerv = self.refresh(nerv)
+        HistoryLine.disable(nerv)
+
+        nerv.name = nerv.name.title()
+        nerv.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        nerv = self.refresh(nerv)
+        HistoryLine.disable(nerv)
+
+        nerv.delete()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+    def test_disable02(self):
+        "Relationship creation & deletion"
+        user = self.user
+        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+        ghibli = Organisation.objects.create(user=user, name='Ghibli')
+        rtype = RelationType.create(('test-subject_employed', 'is employed'),
+                                    ('test-object_employed', 'employs')
+                                   )[0]
+
+        old_count = HistoryLine.objects.count()
+        rel = Relation(user=user, subject_entity=hayao, object_entity=ghibli, type=rtype)
+        
+        HistoryLine.disable(rel)
+        rel.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        rel = self.refresh(rel)
+        HistoryLine.disable(rel)
+
+        rel.delete()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+    def test_disable03(self):
+        "Property creation & deletion"
+        user = self.user
+        hayao = Contact.objects.create(user=user, first_name='Hayao', last_name='Miyazaki')
+
+        ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='Make animes')
+        old_count = HistoryLine.objects.count()
+
+        prop = CremeProperty(type=ptype, creme_entity=hayao)
+        HistoryLine.disable(prop)
+        prop.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        prop = self.refresh(prop)
+        HistoryLine.disable(prop)
+
+        prop.delete()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+    def test_disable04(self):
+        "Auxiliary creation, edition & deletion"
+        user = self.user
+        nerv = Organisation.objects.create(user=user, name='Nerv')
+        old_count = HistoryLine.objects.count()
+
+        todo = ToDo(user=user, creme_entity=nerv, title='todo#1')
+
+        HistoryLine.disable(todo)
+        todo.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        todo = self.refresh(todo)
+        HistoryLine.disable(todo)
+
+        todo.title = todo.title.upper()
+        todo.save()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
+        #-----------------------
+        todo = self.refresh(todo)
+        HistoryLine.disable(todo)
+
+        todo.delete()
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
     #TODO: test populate related lines + query counter ??
