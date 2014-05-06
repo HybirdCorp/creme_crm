@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -635,9 +635,8 @@ def _prepare_log(sender, instance, **kwargs):
 
 @receiver(post_save)
 def _log_creation_edition(sender, instance, created, **kwargs):
-    #TODO ?
-    #if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
-        #return
+    if getattr(instance, '_hline_disabled', False): #see HistoryLine.disable
+        return
 
     try:
         if isinstance(instance, CremeProperty):
