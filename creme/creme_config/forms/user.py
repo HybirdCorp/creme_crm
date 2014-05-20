@@ -21,20 +21,20 @@
 import re
 from collections import defaultdict
 
+from django.contrib.auth.models import User
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.util import ValidationError, ErrorList
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
 #from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import UserRole, Mutex #Relation, RelationType
 from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.forms import CremeForm, CremeModelForm
 #from creme.creme_core.forms.fields import CreatorEntityField
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from creme.persons.models import Contact # Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
+#from creme.persons.models import Contact, Organisation #todo: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
 
 #_get_ct = ContentType.objects.get_for_model
@@ -223,7 +223,7 @@ class UserAssignationForm(CremeForm):
     def save(self, *args, **kwargs):
         user_2_delete = self.user_to_delete
 
-        Contact.objects.filter(is_user=user_2_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't work on Contact.is_user
+        #Contact.objects.filter(is_user=user_2_delete).update(is_user=None) #todo: Don't know why SET_NULL doesn't work on Contact.is_user
 
         mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']

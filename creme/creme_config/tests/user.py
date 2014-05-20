@@ -10,20 +10,20 @@ try:
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
                                    UserRole, SetCredentials, Mutex)
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.activities.models import Calendar
 
-    from creme.persons.models import Contact, Organisation #need CremeEntity
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+    from creme.persons.models import Contact, Organisation #need CremeEntity
 
+    from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
     from ..constants import USER_THEME_NAME, USER_TIMEZONE
     from ..models import SettingKey, SettingValue
     from ..utils import get_user_theme
-    from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -287,9 +287,11 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
 
-        self.assertFormError(response, 'form', 'username', _(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                            "hyphen and underscores are allowed (but not as first character)."
-                                           ))
+        self.assertFormError(response, 'form', 'username',
+                             _(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
+                                "hyphen and underscores are allowed (but not as first character)."
+                              )
+                            )
 
     #def test_create07(self):
         #"Wrong password"
@@ -483,7 +485,9 @@ class UserTestCase(CremeTestCase):
         response = self.client.post(url, follow=True,
                                     data={'is_superuser': False}
                                    )
-        self.assertFormError(response, 'form', 'role', _(u"Choose a role or set superuser status to 'True'."))
+        self.assertFormError(response, 'form', 'role', 
+                             _(u"Choose a role or set superuser status to 'True'.")
+                            )
 
     def test_change_password01(self):
         self.login()
@@ -542,7 +546,7 @@ class UserTestCase(CremeTestCase):
         self.login()
         url = self._build_activation_url(self.user.id, 'deactivate')
         self.assertGET404(url)
-        self.assertPOST(409, url)
+        self.assertPOST409(url)
 
     def test_user_activation03(self):
         "user is staff"
@@ -585,7 +589,7 @@ class UserTestCase(CremeTestCase):
         response = self.client.post(url, follow=True,
                                     data={'username':  username,
                                           'teammates': [user01.id, user02.id],
-                                        }
+                                         }
                                    )
         self.assertNoFormError(response)
 
@@ -722,7 +726,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST200(url, data={'to_user': team2.id})
         self.assertDoesNotExist(team)
 
-        ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
+        ce = self.assertStillExists(ce)
         self.assertEqual(team2, ce.user)
 
     def test_team_delete03(self):
@@ -748,7 +752,7 @@ class UserTestCase(CremeTestCase):
         "Delete view can delete a superuser if at least one remains"
         self.login()
         user = self.user
-        root = User.objects.get(username='root')
+        root = self.get_object_or_fail(User, username='root')
 
         self.assertEqual(2, User.objects.filter(is_superuser=True).count())
         self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
@@ -758,7 +762,7 @@ class UserTestCase(CremeTestCase):
 
         self.assertPOST200(url, {'to_user': user.id})
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(0, User.objects.filter(username='root').count())
+        self.assertDoesNotExist(root)
 
     def test_user_delete02(self):
         "Delete view can delete any normal user"
@@ -781,20 +785,22 @@ class UserTestCase(CremeTestCase):
         "Delete view can not delete the last superuser"
         self.client.login(username='root', password='root')
 
-        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        user = self.get_object_or_fail(User, username='root', is_superuser=True)
+        superusers = User.objects.filter(is_superuser=True)
+        self.assertEqual(1, len(superusers))
+
+        user = superusers[0]
 
         url = self._build_delete_url(user)
-        self.assertGET(409, url)
-        self.assertPOST(409, url, {'to_user': user.id})
+        self.assertGET409(url)
+        self.assertPOST409(url, {'to_user': user.id})
 
-        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertStillExists(user)
 
     def test_user_cannot_delete_staff_user(self):
         "Delete view can not delete the staff user"
         self.login()
         hybird = User.objects.create(username='hybird', is_staff=True)
-        
+
         url = self._build_delete_url(hybird)
         self.assertGET(400, url)
         self.assertPOST(400, url, {'to_user': hybird.id})
@@ -803,10 +809,13 @@ class UserTestCase(CremeTestCase):
         "Delete view is protected by a lock"
         self.login()
         user = self.user
-        root = User.objects.get(username='root')
+        root = self.get_object_or_fail(User, username='root')
 
-        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+        #self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        #self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+        superusers = list(User.objects.filter(is_superuser=True))
+        self.assertEqual(2, len(superusers))
+        self.assertIn(user, superusers)
 
         Mutex.get_n_lock('creme_config-forms-user-transfer_user')
 
@@ -858,12 +867,12 @@ class UserTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(url) #no data
-        self.assertFormError(response, 'form', 'to_user', [_(u'This field is required.')])
+        self.assertFormError(response, 'form', 'to_user', _(u'This field is required.'))
         self.assertEqual(count, User.objects.count())
 
         response = self.assertPOST200(url, {'to_user': root.id}) #cannot move entities to deleted user
         self.assertFormError(response, 'form', 'to_user',
-                             [_(u'Select a valid choice. That choice is not one of the available choices.')]
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
                             )
         self.assertStillExists(self.user)
 
@@ -887,28 +896,29 @@ class UserTestCase(CremeTestCase):
     def test_user_delete_is_user(self):
         "Manage Contact.is_user field : Contact is no more related to deleted user."
         self.login()
-
         user       = self.user
         other_user = self.other_user
 
-        self.get_object_or_fail(Contact, user=other_user)
+        contact = user.linked_contact
+        other_contact = other_user.linked_contact
 
         create_contact = Contact.objects.create
-        #create_contact(user=user,       is_user=user)
-        #create_contact(user=other_user, is_user=other_user)
-        create_contact(user=user,       is_user=None)
-        create_contact(user=other_user, is_user=None)
+        deunan   = create_contact(user=user,       first_name='Deunan',   last_name='Knut')
+        briareos = create_contact(user=other_user, first_name='Briareos', last_name='Hecatonchires')
 
         self.assertNoFormError(self.client.post(self._build_delete_url(other_user),
                                                 {'to_user': user.id}
                                                )
                               )
         self.assertDoesNotExist(other_user)
+        self.assertStillExists(contact)
 
-        self.assertFalse(Contact.objects.filter(user=other_user).exists())
-        self.assertFalse(Contact.objects.filter(is_user=other_user).exists())
+        other_contact = self.assertStillExists(other_contact)
+        self.assertIsNone(other_contact.is_user)
+        self.assertEqual(user, other_contact.user)
 
-        self.assertEqual(1, Contact.objects.filter(is_user=user).count())
+        self.assertStillExists(deunan)
+        self.assertEqual(user, self.assertStillExists(briareos).user)
 
     def test_user_delete_settingkey(self):
         "Related SettingValues are deleted."
@@ -916,16 +926,16 @@ class UserTestCase(CremeTestCase):
 
         setting_key = 'unit_test-test_userl_delete06'
         sk = SettingKey.create(pk=setting_key, description="",
-                               app_label='creme_config', type=SettingKey.BOOL
+                               app_label='creme_config', type=SettingKey.BOOL,
                               )
-        SettingValue.objects.create(key=sk, user=self.other_user, value=True)
+        sv = SettingValue.objects.create(key=sk, user=self.other_user, value=True)
 
         self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
                                                 {'to_user': self.user.id}
                                                )
                               )
         self.assertDoesNotExist(self.other_user)
-        self.assertFalse(SettingValue.objects.filter(key=setting_key).exists())
+        self.assertDoesNotExist(sv)
 
     def test_user_delete_credentials(self):
         "Only super user are allowed"
