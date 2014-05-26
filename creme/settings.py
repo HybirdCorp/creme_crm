@@ -665,7 +665,8 @@ _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 if exists(_LOCALE_OVERLOAD):
     LOCALE_PATHS.append(_LOCALE_OVERLOAD)
-LOCALE_PATHS.extend(join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS)
+#LOCALE_PATHS.extend(join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS)
+LOCALE_PATHS.extend(join(CREME_ROOT, app.rsplit('.')[-1], "locale") for app in INSTALLED_CREME_APPS)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
