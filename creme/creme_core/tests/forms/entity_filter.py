@@ -5,7 +5,6 @@ try:
 
     from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models.custom_field import CustomFieldEnumValue
-
     from .base import FieldTestCase
 
     from creme.persons.models import Organisation, Contact, Civility
@@ -52,8 +51,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_incomplete_data_required(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
         EQUALS = EntityFilterCondition.EQUALS
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidvalue', clean, '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield', clean, '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidvalue',    clean, '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidfield',    clean, '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS)
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidoperator', clean, '[{"field": {"name": "first_name"}, "value": "Rei"}]')
 
     def test_clean_invalid_field(self):
@@ -168,7 +167,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [True]}, condition.decoded_value)
 
-    def test_isnotempty_condition(self): #ISEMPTY -> boolean
+    def test_isnotempty_condition(self):
+        "ISEMPTY -> boolean"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.ISEMPTY
         name = 'description'
