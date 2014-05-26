@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,11 +30,23 @@ def generate_string_id_and_save(model, objects, prefix):
     if not objects:
         return
 
-    id_list = model.objects.filter(id__startswith=prefix).values_list('id', flat=True)
+    assert not prefix[-1].isdigit()
+
+    #id_list = model.objects.filter(id__startswith=prefix).values_list('id', flat=True)
     prefix_len = len(prefix)
+    #TODO: query with regex instead ?
+    id_list = [int(suffix)
+                    for suffix in (id_str[prefix_len:]
+                                        for id_str in model.objects
+                                                           .filter(id__startswith=prefix)
+                                                           .values_list('id', flat=True)
+                                  )
+                        if suffix.isdigit()
+              ]
     #TODO: do-able in SQL ????
     #TODO: would it be cool to fill the 'holes' in id ranges ???
-    index = max(int(string[prefix_len:]) for string in id_list) if id_list else 0
+    #index = max(int(string[prefix_len:]) for string in id_list) if id_list else 0
+    index = max(id_list) if id_list else 0
     last_exception = None
 
     #We use transaction because the IntegrityError aborts the current transaction on PGSQL
