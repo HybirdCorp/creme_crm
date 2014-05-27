@@ -62,7 +62,7 @@ _HAS_RELATION_OPTIONS = {
 _CONDITION_INPUT_TYPE_MAP = {
         _ConditionBooleanOperator: (DynamicSelect,
                                     {'auto': False},
-                                    {'options': ((TRUE, _("True")), (FALSE, _("False")))}),
+                                    {'options': ((TRUE, _("True")), (FALSE, _("False")))}), #TODO: factorise
         _IsEmptyOperator:          (DynamicSelect,
                                     {'auto': False},
                                     {'options': ((TRUE, _("True")), (FALSE, _("False")))}),
@@ -116,20 +116,17 @@ boolean_str = lambda val: TRUE if val else FALSE
 class FieldConditionWidget(ChainedInput):
     def __init__(self, fields, operators, attrs=None, autocomplete=False):
         super(FieldConditionWidget, self).__init__(attrs)
-
         field_attrs = {'auto': False, 'datatype': 'json'}
 
         if autocomplete:
             field_attrs['autocomplete'] = True
 
-        self.add_dselect('field',    options=self._build_fieldchoices(fields), attrs=field_attrs)
-
         operator_attrs = dict(field_attrs,
                               filter='context.field && item.value ? item.value.types.indexOf(context.field.type) !== -1 : true',
-                              dependencies='field')
-
+                              dependencies='field',
+                             )
+        self.add_dselect('field',    options=self._build_fieldchoices(fields), attrs=field_attrs)
         self.add_dselect('operator', options=self._build_operatorchoices(operators), attrs=operator_attrs)
-
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
     def _build_valueinput(self, field_attrs):
@@ -138,26 +135,28 @@ class FieldConditionWidget(ChainedInput):
                            '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
 
         pinput.add_dselect('^user.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                           '/creme_core/enumerable/userfilter/json', attrs=field_attrs)
-
+                           '/creme_core/enumerable/userfilter/json', attrs=field_attrs,
+                          )
         pinput.add_input('fk.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                         EntitySelector, content_type='${field.ctype}', attrs={'auto': False});
-
+                         EntitySelector, content_type='${field.ctype}', attrs={'auto': False},
+                        )
         pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
-                         DateRangeSelect, attrs={'auto': False})
-
+                         DateRangeSelect, attrs={'auto': False},
+                        )
         pinput.add_input('^boolean.*',
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
-
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                        )
         pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
-
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                        )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
         return pinput
 
     def _build_operatorchoices(self, operators):
-        return [(json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}), op.name) for id, op in operators.iteritems()]
+        return [(json.dumps({'id': id, 'types': ' '.join(op.allowed_fieldtypes)}), op.name)
+                    for id, op in operators.iteritems()
+               ]
 
     def _build_fieldchoice(self, name, data):
         field = data[0]
@@ -212,16 +211,50 @@ class FieldConditionWidget(ChainedInput):
         return 'string'
 
 
+#class DateFieldsConditionsWidget(SelectorList):
+#    def __init__(self, date_fields_options, attrs=None, enabled=True):
+#        chained_input = ChainedInput(attrs)
+#        attrs = {'auto': False}
+#
+#        chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
+#        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
+#
+#        super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 class DateFieldsConditionsWidget(SelectorList):
-    def __init__(self, date_fields_options, attrs=None, enabled=True):
+    def __init__(self, fields, attrs=None, enabled=True):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
+        chained_input.add_dselect('field', options=self._build_fieldchoices(fields), attrs=attrs)
         chained_input.add_input('range', DateRangeSelect, attrs=attrs)
 
         super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
+    def _build_fieldchoice(self, name, data):
+        field = data[0]
+        subfield = data[1] if len(data) > 1 else None
+
+        if subfield is not None:
+            category = field.verbose_name
+            choice_label = u'[%s] - %s' % (category, subfield.verbose_name) #TODO: factorise
+        else:
+            category = ''
+            choice_label = field.verbose_name
+
+        return category, (name, choice_label)
+
+    #TODO: factorise (see FieldConditionWidget)
+    def _build_fieldchoices(self, fields):
+        categories = defaultdict(list) #fields grouped by category (a category by FK)
+
+        for fieldname, fieldlist in fields.iteritems():
+            category, choice = self._build_fieldchoice(fieldname, fieldlist)
+            categories[category].append(choice)
+
+        # use collation sort
+        return [(cat, sorted(categories[cat], key=lambda item: collator.sort_key(item[1])))
+                    for cat in sorted(categories.keys(), key=collator.sort_key)
+               ]
 
 # class CustomFieldsConditionsWidget(SelectorList): #todo: factorise with RegularFieldsConditionsWidget ???
 #     def __init__(self, cfields, attrs=None, enabled=True):
@@ -233,35 +266,35 @@ class DateFieldsConditionsWidget(SelectorList):
 #         chained_input.add_input('value', DynamicInput, attrs=attrs)
 # 
 #         super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
-
-
 class CustomFieldConditionWidget(FieldConditionWidget):
     def _build_fieldchoice(self, name, customfield):
         choice_label = customfield.name
-        choice_value = {'id': customfield.id, 'type': CustomFieldConditionWidget.customfield_choicetype(customfield)}
+        choice_value = {'id':   customfield.id,
+                        'type': CustomFieldConditionWidget.customfield_choicetype(customfield),
+                       }
 
         return '', (json.dumps(choice_value), choice_label)
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
         pinput.add_dselect('^enum.*',
-                           '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs)
-
+                           '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
+                          )
         pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
-                         DateRangeSelect, attrs={'auto': False})
-
+                         DateRangeSelect, attrs={'auto': False},
+                        )
         pinput.add_input('^boolean.*',
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
-
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                        )
         pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
-                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs)
-
+                         DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
+                        )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
 
         return pinput
 
     @staticmethod
-    def customfield_choicetype(field):
+    def customfield_choicetype(field): #TODO: use a dict...
         type = field.field_type
 
         if type in (CustomField.INT, CustomField.FLOAT):
@@ -286,6 +319,17 @@ class CustomFieldConditionWidget(FieldConditionWidget):
             return 'number'
 
         return type
+
+
+class DateCustomFieldsConditionsWidget(SelectorList):
+    def __init__(self, date_fields_options, attrs=None, enabled=True):
+        chained_input = ChainedInput(attrs)
+        attrs = {'auto': False}
+
+        chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
+        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
+
+        super(DateCustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
 
 class RelationTargetWidget(PolymorphicInput):
@@ -375,7 +419,7 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _build_related_fields(self, field, fields):
         fname = field.name
-        related_model = field.rel.to
+        related_model = field.rel.to #TODO: inline
 
         if field.get_tag('enumerable'): #and not issubclass(related_model, CremeEntity):
             fields[field.name] = [field]
@@ -392,7 +436,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         #TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
         for field in model._meta.fields:
             if field.get_tag('viewable') and not is_date_field(field):
-                if field.get_internal_type() == 'ForeignKey':
+                if field.get_internal_type() == 'ForeignKey': #TODO: if isinstance(field, ModelForeignKey)
                     self._build_related_fields(field, fields)
                 else:
                     fields[field.name] = [field]
@@ -491,15 +535,40 @@ class DateFieldsConditionsField(_ConditionsField):
         'emptydates':       _(u"Please enter a start date and/or a end date."),
     }
 
+    def _build_related_fields(self, field, fields): #TODO: factorise with RegularFieldsConditionsField
+        fname = field.name
+
+        for subfield in field.rel.to._meta.fields:
+            if subfield.get_tag('viewable') and is_date_field(subfield):
+                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
+
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self._fields = dict((field.name, field) for field in model._meta.fields if is_date_field(field))
+        #self._fields = dict((field.name, field) for field in model._meta.fields if is_date_field(field))
+        self._fields = fields = {}
+
+        #TODO: factorise with RegularFieldsConditionsField
+        #TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
+        for field in model._meta.fields:
+            if field.get_tag('viewable'):
+                if isinstance(field, ModelForeignKey):
+                    self._build_related_fields(field, fields)
+                elif is_date_field(field):
+                    fields[field.name] = [field]
+
+        for field in model._meta.many_to_many:
+            self._build_related_fields(field, fields) #TODO: test
+
         self._build_widget()
 
     def _create_widget(self):
-        return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
-                                          enabled=len(self._fields) > 0)
+        #return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
+                                          #enabled=len(self._fields) > 0
+                                         #)
+        return DateFieldsConditionsWidget(self._fields,
+                                          #enabled=len(self._fields) > 0 TODO ?
+                                         )
 
     def _format_date(self, date_dict):
         """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
@@ -718,7 +787,8 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         if not self._cfields:
             return Label()
 
-        return DateFieldsConditionsWidget(self._cfields.iteritems())
+        #return DateFieldsConditionsWidget(self._cfields.iteritems())
+        return DateCustomFieldsConditionsWidget(self._cfields.iteritems())
 
     def _value_to_jsonifiable(self, value):
         return DateFieldsConditionsField._value_to_jsonifiable(self, value)

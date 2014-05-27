@@ -355,7 +355,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name02,                              condition.name)
         self.assertEqual({'name': type02},                    condition.decoded_value)
 
-    def test_ok02(self): #start/end
+    def test_ok02(self):
+        "Start/end"
         field = DateFieldsConditionsField(model=Contact)
         name01 = 'created'
         name02 = 'birthday'
@@ -377,7 +378,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name02,                                         condition.name)
         self.assertEqual({'end': {'year': 2012, 'month': 6, 'day': 13}}, condition.decoded_value)
 
-    def test_ok03(self): #start + end
+    def test_ok03(self):
+        "Start + end"
         clean = DateFieldsConditionsField(model=Contact).clean
         name = 'modified'
         conditions = clean('[{"field": "%s", "range": {"type": "", "start": "2010-3-24", "end": "2011-7-25"}}]' % name)

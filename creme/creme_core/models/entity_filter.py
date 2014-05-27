@@ -526,11 +526,15 @@ class EntityFilterCondition(Model):
     @staticmethod
     def build_4_date(model, name, date_range=None, start=None, end=None):
         try:
-            field = model._meta.get_field(name)
+            ##field = model._meta.get_field(name)
+            #finfo = get_model_field_info(model, name, silent=False)
+            finfo = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             raise EntityFilterCondition.ValueError(str(e))
 
-        if not is_date_field(field):
+        ##if not is_date_field(field):
+        #if not is_date_field(finfo[-1]['field']):
+        if not is_date_field(finfo[-1]):
             raise EntityFilterCondition.ValueError('build_4_date(): field must be a date field.')
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_DATEFIELD, name=name,
@@ -630,10 +634,16 @@ class EntityFilterCondition(Model):
             except FieldDoesNotExist as e:
                 return str(e)
         elif etype == EntityFilterCondition.EFC_DATEFIELD:
-            try:
-                self.filter.entity_type.model_class()._meta.get_field(self.name)
+            try: #TODO: factorise
+                ##self.filter.entity_type.model_class()._meta.get_field(self.name)
+                #finfo = get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+                finfo = FieldInfo(self.filter.entity_type.model_class(), self.name)
             except FieldDoesNotExist as e:
                 return str(e)
+
+            #if not is_date_field(finfo[-1]['field']):
+            if not is_date_field(finfo[-1]):
+                return '%s is not a date field' % self.name #TODO: test
 
     def _get_q_customfield(self, user):
         #NB: Sadly we retrieve the ids of the entity that match with this condition
