@@ -12,6 +12,8 @@ try:
     from creme.creme_core.models import *
     from ..base import CremeTestCase
 
+    from creme.documents.models import Document, Folder
+
     from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -1057,6 +1059,25 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                   )
                                ])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
+
+    def test_datetime06(self):
+        "Sub-field"
+        create_folder = partial(Folder.objects.create, user=self.user)
+        folder1 = create_folder(title='Old folder')
+        folder2 = create_folder(title='New folder')
+
+        create_doc = partial(Document.objects.create, user=self.user)
+        doc1 = create_doc(title='Doc#1', folder=folder1)
+        doc2 = create_doc(title='Doc#2', folder=folder2)
+
+        Folder.objects.filter(pk=folder1.id).update(created=folder1.created - timedelta(days=4*31))
+
+        efilter = EntityFilter.create('test-filter01', name='Recent folders content', model=Document)
+        efilter.set_conditions([EntityFilterCondition.build_4_date(model=Document, name='folder__created',
+                                                                   date_range='current_quarter',
+                                                                  )
+                               ])
+        self.assertExpectedFiltered(efilter, Document, [doc2.id])
 
     def test_build_date(self):
         "Errors"

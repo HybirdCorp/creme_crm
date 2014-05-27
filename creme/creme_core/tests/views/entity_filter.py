@@ -4,15 +4,16 @@ try:
     from datetime import date
     from functools import partial
 
-    from django.core.serializers.json import simplejson
-    from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-                                         EntityFilterVariable,
-                                         CustomField, RelationType, CremePropertyType)
+            EntityFilterVariable, CustomField, RelationType, CremePropertyType)
     from .base import ViewsTestCase
+
+    from creme.documents.models import Document
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -246,6 +247,37 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(subfilter.id,                        condition.name)
 
     def test_create03(self):
+        "Date sub-field"
+        self.login()
+
+        ct = ContentType.objects.get_for_model(Document)
+        name = 'Filter Doc'
+        field_name = 'folder__created'
+        daterange_type = 'previous_year'
+        response = self.client.post(self._build_add_url(ct), follow=True,
+                                    data={'name':                  name,
+                                          'use_or':                'False',
+                                          'datefields_conditions': self.DATE_FIELDS_CONDS_FMT % {
+                                                                        'type': daterange_type,
+                                                                        'name': field_name,
+                                                                        'start': '',
+                                                                        'end': '',
+                                                                    },
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        efilter = self.get_object_or_fail(EntityFilter, entity_type=ct, name=name)
+
+        conditions = efilter.conditions.all()
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(field_name,                          condition.name)
+        self.assertEqual({'name': daterange_type},            condition.decoded_value)
+
+    def test_create04(self):
         "Error: no conditions of any type"
         self.login()
 
