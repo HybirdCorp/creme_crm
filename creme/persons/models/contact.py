@@ -98,10 +98,13 @@ class Contact(CremeEntity):
                     }
 
         #return u'%s %s' % (self.first_name, self.last_name)
-        return ugettext('%(first_name)s %(last_name)s') % {
-                        'first_name': self.first_name,
-                        'last_name':  self.last_name,
-                    }
+        if self.first_name:
+            return ugettext('%(first_name)s %(last_name)s') % {
+                            'first_name': self.first_name,
+                            'last_name':  self.last_name,
+                        }
+
+        return self.last_name
 
     def _check_deletion(self):
         if self.is_user is not None:
