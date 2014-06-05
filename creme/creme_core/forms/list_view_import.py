@@ -503,8 +503,7 @@ class EntityExtractorField(Field):
         """@param model_info Sequence of tuple (Entity class, field name)
                              Field name if used to get or create class instances.
         """
-        super(EntityExtractorField, self).\
-            __init__(self, widget=EntityExtractorWidget, *args, **kwargs)
+        super(EntityExtractorField, self).__init__(widget=EntityExtractorWidget, *args, **kwargs)
         self.models_info = models_info
         self.allowed_indexes = set(c[0] for c in choices)
 

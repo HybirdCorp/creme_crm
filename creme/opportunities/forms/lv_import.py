@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -139,7 +139,7 @@ class SalesPhaseExtractorWidget(ExtractorWidget):
 
 class SalesPhaseExtractorField(Field):
     def __init__(self, choices, modelform_field, *args, **kwargs):
-        super(SalesPhaseExtractorField, self).__init__(self, widget=SalesPhaseExtractorWidget, *args, **kwargs)
+        super(SalesPhaseExtractorField, self).__init__(widget=SalesPhaseExtractorWidget, *args, **kwargs)
         self._user = None
         self._can_create = False
 
