@@ -28,7 +28,7 @@ from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
 
 
 class Calendar(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100, unique=True)
+    name        = CharField(_(u'Name'), max_length=100)
     is_default  = BooleanField(_(u'Is default?'), default=False)
     is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
