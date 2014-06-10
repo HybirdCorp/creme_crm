@@ -2,11 +2,20 @@
 {% load i18n %}
 
 {% block logo %}
+{% comment %}
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
     {% elif object.image.get_image_url %}
         <img src="{{object.image.get_image_url}}" alt="" title="{% trans "Please enter the web site address" %}" style="max-height:64px;max-width:200px;"/>
     {% else %}
-        {{block.super}}
+            {{block.super}}
     {% endif %}
+{% endcomment %}
+    {% with img_url=object.image.get_image_url %}
+        {% if img_url %}
+            {% trans "Logo" as img_label %}<img src="{{img_url}}" alt="{{img_label}}" title="{{img_label}}" style="max-height:64px;max-width:200px;"/>
+        {% else %}
+            {{block.super}}
+        {% endif %}
+    {% endwith %}
 {% endblock %}
