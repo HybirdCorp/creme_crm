@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#thanks to Olivier Meunier 
+#thanks to Olivier Meunier
 
 from django.db import models
 from django.utils.functional import curry
@@ -32,6 +32,14 @@ def contribute_to_model(contrib, destination, fields_2_delete=()):
     updated.
 
     Methods and properties of ``contrib`` will populate ``destination``.
+
+    Known issues:
+        - ManyToManyFields are not managed.
+        - Inherited classes are not well managed : if you contribute to a parent
+          model class (ie: as destination) _after_ a child class has been declared,
+          your new fields will not be in the child class, because the fields of the
+          parent class have already been copied by Django. So you should only use
+          contribute_to_model() with final model classes.
 
     Usage example:
 
