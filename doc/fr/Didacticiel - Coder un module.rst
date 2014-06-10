@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-12-2013 pour la version 1.4 de Creme
+:Version: 10-06-2014 pour la version 1.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -307,7 +307,7 @@ Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.conf.urls.defaults import patterns
+    from django.conf.urls import patterns
 
 
     urlpatterns = patterns('creme.beavers.views',
@@ -850,6 +850,64 @@ Si vous allez sur le portail de la 'Configuration générale', dans le
 est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
 
 
+Utilisation de South (migrations)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+South est l'app de référence dans le mode Django quand il s'agit de faire de
+gérer les migrations de Base de Données. En effet, avec les versions successives
+de code, on est souvent amené à créer de nouvelles tables (pour les nouveaux
+modèles), à supprimer des tables, ajouter/supprimer/renommer des champs…
+
+South permet de créer les scripts de migrations de manière automatique la plupart
+du temps, ainsi que d'exécuter ces mêmes scripts. La documentation officielle se
+trouve `ici <http://south.readthedocs.org/en/latest/>`_.
+
+En admettant que ``south`` soit bien activée dans vos INSTALLED_APPS, vous devriez
+avant de mettre votre module *beavers* en production créer son script de migration
+initiale : ::
+
+    > python manage.py schemamigration beavers --initial
+
+Un fichier ``beavers/migrations/0001_initial.py`` est alors créé.
+
+**Attention** : dans les faits vous devriez en fait avoir l'erreur suivante : ::
+
+    [...]
+    ValueError: South does not support on_delete with SET(function) as values.
+
+La solution consiste à commenter temporairement (le temps de générer la migration)
+la ligne suivante du fichier ``creme_core/models/fields.py`` (à la ligne 70
+actuellement) : ::
+
+    kwargs['on_delete'] = SET(_transfer_assignation)#[...]
+
+
+**Explication** : Django gère les suppressions des objets référencés par ForeignKey
+suivant 4 méthodes : CASCADE, PROTECT, SET_NULL et SET. Les 3 premières sont
+triviales à comprendre, la dernière prend une fonction qui permet de coder le
+comportement à utiliser lors de la suppression. Malheureusement South ne gère
+pas ce dernier cas, et refuse de générer les migrations quand on s'en sert. Or
+South n'évolue plus en ce moment, car son auteur est en train de l"intégrer
+directement dans Django, et va devenir à terme la façon standard de gérer les
+tables (la commande ``syncdb`` va plus ou moins disparaître).
+À terme le problème de SET devrait disparaître (ainsi que des tas de bugs de South
+venant de sa non intégration), mais pour le moment on n'a pas le choix que de
+contourner les problèmes. D'où le hack qui consiste à commenter la ligne susnommée,
+qui fait que South voit cette FK comme étant en mode CASCADE, la valeur par défaut.
+
+
+Le script de migration est joué lorsque la commande ``migrate`` est lancée, au
+déploiement de votre instance de Creme.
+
+Lorsque vous ferez évoluer votre app *beavers*, vous devrez potentiellement
+utiliser les commandes ``schemamigration`` et ``datamigration`` pour générer de
+nouveaux scripts de migrations.
+
+Facilitez vous la vie en désactivant ``south`` pendant la phase de développement,
+mais ne cédez pas à la tentation de vous en passer totalement, vous le regretteriez
+à moyen terme.
+
+
 Utilisation des blocs
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -985,9 +1043,8 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
         beaver = get_object_or_404(Beaver, pk=beaver_id)
 
         return add_entity(request, TicketCreateForm,
-                          extra_initial={
-                                          'title':       _(u'Need a veterinary'),
-                                          'description': _(u'%s is sick.') % beaver,
+                          extra_initial={'title':       _(u'Need a veterinary'),
+                                         'description': _(u'%s is sick.') % beaver,
                                         }
                          )
 
@@ -1067,6 +1124,60 @@ vu auparavant. En se plaçant dans le répertoire ``locale_overload/`` : ::
 
     > django-admin.py compilemessages
 
+
+Modification d'un modèle existant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Il arrive aussi régulièrement de vouloir modifier un modèle existant, fourni de
+base par Creme, par exemple ajouter des champs à Contact, ou bien en supprimer.
+
+Dans le cas où vous voulez ajouter des champs, la méthode la plus simple est
+d'utiliser des champs personnalisés (Custom fields), que vous pouvez ajouter
+depuis l'interface, dans la configuration générale. Le problème est qu'il n'est
+pas (encore) possible d'ajouter des règles métier à ces champs, comme calculer
+leur valeur automatiquement par exemple.
+
+En dernier recours, vous pouvez alors utiliser la fonction ``contribute_to_model()``
+qui permet d'ajouter et supprimer des champs à un modèle. Pour cela il suffit de
+créer un modèle abstrait, et ses champs seront ajoutés à la classe que l'on veut
+modifier ; on peut aussi passer la liste des champs que l'on veut supprimer.
+Par exemple dans votre module *models* : ::
+
+    from django.db.models import Model, CharField
+    from django.utils.translation import ugettext_lazy as _
+
+    from creme.creme_core.utils.contribute_to_model import contribute_to_model
+
+    from creme.persons.models import Contact
+
+
+    class _ContributingContact(Model):
+        nickname = CharField(_(u'Nickname'), max_length=75, null=True, blank=True)
+
+        class Meta:
+            abstract = True
+
+
+    contribute_to_model(_ContributingContact, Contact,
+                        fields_2_delete=('url_site', 'sector')
+                       )
+
+Ce code va ajouter un champ *nickname* et enlever 2 champs à ``Contact``. Il vous
+faut ensuite générer la migration South ; dans notre exemple nous avons modifié
+``Contact``, donc la migration concerne l'app *persons* (et non pas la vôtre).
+
+**Problèmes connus** de ``contribute_to_model()`` :
+
+ - Les champs ManyToManyField ne sont pas pris en compte.
+ - Si la fonction marche bien sur les classes terminales, elle est difficilement
+   compatible avec les classes mères (en tant que cible à modifier) à cause de
+   l'implémentation actuelle. Quand une classe mère est utilisée pour un modèle,
+   Django copie les champs dans la classe fille. Par conséquent, si
+   ``contribute_to_model()`` est appelée alors que la dérivation a déjà été faite,
+   les nouveaux champs ne sont pas accessible dans la classe fille comme on le
+   souhaiterait. Conclusion : vous pouvez vous en servir pour modifier ``Contact``
+   ou ``Organisation`` sans problème, en revanche évitez de modifier ``CremeEntity``
+   de cette manière.
 
 
 Liste des différents services
@@ -1154,7 +1265,6 @@ Remarques:
    exécutés. Y lancer les commandes *populate* utiles permet d'être bien plus
    rapide que si on les lance dans la méthode ``setUp()``, exécutée avant
    chaque test de la classe.
-
 
 Vous pouvez alors lancer vos tests : ::
 
