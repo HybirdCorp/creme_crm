@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,7 +57,7 @@ def serialize_entity(entity, mapping):
     xml = []
     xml_append = xml.append
 
-    reverse_ns   = dict((v, "A%s" % i) for i, v in enumerate(mapping.keys()))
+    reverse_ns   = {v: "A%s" % i for i, v in enumerate(mapping.keys())}
     namespaces = reverse_ns
 
     pre_serialization = CREME_AS_MAPPING[entity.__class__]['pre_serialization']
@@ -67,7 +67,7 @@ def serialize_entity(entity, mapping):
         for c_field, xml_field in values.iteritems():
             value   = None
             f_class = None
-            
+
             if callable(c_field):
                 value = c_field(entity)
             else:

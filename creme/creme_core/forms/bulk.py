@@ -72,7 +72,7 @@ class _EntitiesEditForm(CremeForm):
     field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False) #TODO:remove AjaxMultipleChoiceField class when no more used here...
 
     def get_cfields_cache(self):
-        return dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
+        return {cf.pk: cf for cf in CustomField.objects.filter(content_type=self.ct)}
 
     def __init__(self, model, subjects, forbidden_subjects, user, *args, **kwargs):
         super(_EntitiesEditForm, self).__init__(user, *args, **kwargs)

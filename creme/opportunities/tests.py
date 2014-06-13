@@ -113,7 +113,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_populate(self): #test get_compatible_ones() too
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Opportunity)
-        relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
+        relation_types = {rtype.id: rtype for rtype in RelationType.get_compatible_ones(ct)}
 
         self.assertNotIn(REL_SUB_TARGETS, relation_types)
         self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])

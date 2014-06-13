@@ -478,7 +478,7 @@ class BlocksManager(object):
 
     def get_dependencies_map(self):
         get_dep = self._get_dependencies_ids
-        return dict((block.id_, get_dep(block)) for block in self._blocks)
+        return {block.id_: get_dep(block) for block in self._blocks}
 
     def get_state(self, block_id, user):
         "Get the state for a block and fill a cache to avoid multiple requests"
@@ -588,15 +588,15 @@ class _BlockRegistry(object):
         instance_ids = list(filter(InstanceBlockConfigItem.id_is_specific, block_ids))
         custom_ids   = list(filter(None, map(CustomBlockConfigItem.id_from_block_id, block_ids)))
 
-        relation_blocks_items = dict((rbi.block_id, rbi)
-                                        for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
-                                    ) if specific_ids else {}
-        instance_blocks_items = dict((ibi.block_id, ibi)
-                                        for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
-                                    ) if instance_ids else {}
-        custom_blocks_items = dict((cbci.generate_id(), cbci)
-                                        for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
-                                  ) if custom_ids else {}
+        relation_blocks_items = {rbi.block_id: rbi
+                                    for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
+                                } if specific_ids else {}
+        instance_blocks_items = {ibi.block_id: ibi
+                                    for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
+                                } if instance_ids else {}
+        custom_blocks_items = {cbci.generate_id(): cbci
+                                    for cbci in CustomBlockConfigItem.objects.filter(id__in=custom_ids)
+                              } if custom_ids else {}
 
         blocks = []
 

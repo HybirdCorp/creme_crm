@@ -400,8 +400,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(7, len(addresses))
         self.assertEqual(7, len(c_addresses))
 
-        addresses_map   = dict((a.address, a) for a in addresses)
-        c_addresses_map = dict((a.address, a) for a in c_addresses)
+        addresses_map   = {a.address: a for a in addresses}
+        c_addresses_map = {a.address: a for a in c_addresses}
         self.assertEqual(7, len(addresses_map))
         self.assertEqual(7, len(c_addresses_map))
 

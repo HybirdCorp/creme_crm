@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ def print_line_condition(nodes, condition):
     lines_map = getattr(nodes, 'tags_lines_map', None) #cache to avoid additionnal queries (caused by 'condition.source').
 
     if lines_map is None:
-        nodes.tags_lines_map = lines_map = dict((node.id, node) for node in nodes if not node.is_section)
+        nodes.tags_lines_map = lines_map = {node.id: node for node in nodes if not node.is_section}
 
     source = lines_map[condition.source_id]
     answer = source.poll_line_type.decode_condition(condition.raw_answer)

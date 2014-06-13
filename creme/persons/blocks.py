@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -148,7 +148,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                                      object_entity__in=future_activities,
                                                     )
 
-            neglected_map = dict((orga.id, True) for orga in neglected_orgas) #True means 'neglected'
+            neglected_map = {orga.id: True for orga in neglected_orgas} #True means 'neglected'
             for rel in activity_links:
                 neglected_map[linked_people_map[rel.subject_entity_id]] = False
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class CSVImportCommand(BaseCommand):
                 raise
 
             for i, line in enumerate(it, start=1):
-                callback(i, line, dict((col, val) for col, val in zip(header, line) if col))
+                callback(i, line, {col: val for col, val in zip(header, line) if col})
 
     def _manage_line(self, idx, line, line_dict):
         """Overload this method."""

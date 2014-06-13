@@ -170,10 +170,9 @@ def create_from_template_n_send(request, entity_id):
 
             if form.is_valid():
                 email_template = form.cleaned_data['template']
-                ctx = dict((varname, getattr(entity, varname, '')) for varname in TEMPLATES_VARS)
+                ctx = {varname: getattr(entity, varname, '') for varname in TEMPLATES_VARS}
                 form = EntityEmailFromTemplateForm(user=user, entity=entity,
-                                                   initial={
-                                                            'subject':     email_template.subject,
+                                                   initial={'subject':     email_template.subject,
                                                             'body':        Template(email_template.body).render(Context(ctx)),
                                                             'body_html':   Template(email_template.body_html).render(Context(ctx)),
                                                             'signature':   email_template.signature_id,

@@ -236,9 +236,9 @@ class RelationBlockItem(CremeModel):
 
     def _dump_cells_map(self):
         self.json_cells_map = jsondumps(
-                dict((ct_id, [cell.to_dict() for cell in cells])
-                        for ct_id, cells in self._cells_map.iteritems()
-                    )
+                {ct_id: [cell.to_dict() for cell in cells]
+                    for ct_id, cells in self._cells_map.iteritems()
+                }
             )
 
     def _cells_by_ct(self):

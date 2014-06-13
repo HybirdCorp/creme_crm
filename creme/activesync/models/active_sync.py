@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -230,7 +230,7 @@ class UserSynchronizationHistory(CremeModel):
 #        entities = CremeEntity.objects.filter(pk__in=entities_pks)
         entities = CremeEntity.objects.filter(pk__in=set(entities_pks))#Forcing the retrieve for MySQL <= v5.1.49 which "doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery"
         CremeEntity.populate_real_entities(entities)
-        entities_map = dict((entity.pk, entity.get_real_entity()) for entity in entities)
+        entities_map = {entity.pk: entity.get_real_entity() for entity in entities}
 
         for hist in histories:
             hist._entity = entities_map.get(hist.entity_pk)
@@ -264,7 +264,9 @@ class UserSynchronizationHistory(CremeModel):
         for k_change, v_change in entity_changes:
             if v_change is not None:
                 if isinstance(v_change, django_model):
-                    v_change = {'ct_id': get_for_model(v_change).id, 'pk': v_change.pk}
+                    v_change = {'ct_id': get_for_model(v_change).id,
+                                'pk':    v_change.pk,
+                               }
                 changes[k_change] = v_change
 
             elif changes.has_key(k_change):

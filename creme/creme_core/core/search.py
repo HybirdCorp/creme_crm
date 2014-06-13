@@ -27,9 +27,9 @@ class Searcher(object):
     def __init__(self, models, user):
         #TODO: regroup queries
         get_search_conf = SearchConfigItem.get_4_model
-        self._search_map = dict((model, get_search_conf(model, user).searchfields)
-                                    for model in models
-                               )
+        self._search_map = {model: get_search_conf(model, user).searchfields
+                                for model in models
+                           }
 
     #def _build_query(self, research, fields, is_or=True):
     def _build_query(self, research, fields): #TODO: inline ??

@@ -346,7 +346,7 @@ class UserProfile(Model):
 
         if teammates is None:
             logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            self._teammates = teammates = dict((u.id, u) for u in User.objects.filter(team_m2m__team=self))
+            self._teammates = teammates = {u.id: u for u in User.objects.filter(team_m2m__team=self)}
         else:
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
 
@@ -358,7 +358,7 @@ class UserProfile(Model):
         assert not any(user.is_team for user in users)
 
         old_teammates = self.teammates
-        new_teammates = dict((u.id, u) for u in users)
+        new_teammates = {u.id: u for u in users}
 
         old_set = set(old_teammates.iterkeys())
         new_set = set(new_teammates.iterkeys())

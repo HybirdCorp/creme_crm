@@ -342,7 +342,7 @@ class CremeEntity(CremeAbstractEntity):
                     if attr_id:
                         ids.add(attr_id)
 
-                attr_values = dict((o.id, o) for o in field.rel.to.objects.filter(pk__in=ids))
+                attr_values = {o.id: o for o in field.rel.to.objects.filter(pk__in=ids)}
 
                 for entity in entities:
                     attr_id = getattr(entity, fname + '_id')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,8 @@ from random import choice
 from re import compile as re_compile, findall as re_findall
 from string import ascii_letters, digits
 
-from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import now
 
 from creme.media_managers.models import Image
@@ -87,12 +87,13 @@ def get_images_from_html(html):
         except ValueError:
             raise ImageFromHTMLError(filename)
 
-    images_map = dict((image.id, image) for image in Image.objects.filter(pk__in=images_info.iterkeys()))
+    images_map = {image.id: image
+                    for image in Image.objects.filter(pk__in=images_info.iterkeys())
+                 }
 
-    return dict((filename, (images_map.get(image_id), source))
-                    for image_id, (source, filename) in images_info.iteritems()
-               )
-
+    return {filename: (images_map.get(image_id), source)
+                for image_id, (source, filename) in images_info.iteritems()
+           }
 
 
 _MIME_IMG_CACHE = '_mime_image_cache'
