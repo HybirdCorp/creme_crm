@@ -54,4 +54,4 @@ class CrudityRegistryTestCase(CrudityTestCase):
         for value in crudity_registry.get_fetcher("test")._inputs.values():
             inputs.extend(value.values())
 
-        self.assertEqual(set(i.name for i in inputs), {i1.name, i2.name})
+        self.assertEqual({i.name for i in inputs}, {i1.name, i2.name})

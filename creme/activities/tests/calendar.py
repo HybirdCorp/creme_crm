@@ -615,8 +615,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             data = jsonloads(response.content)
 
         expected = [act1]
-        expected_ids = set(act.id for act in expected)
-        retrieved_ids = set(d['id'] for d in data)
+        expected_ids  = {act.id for act in expected}
+        retrieved_ids = {d['id'] for d in data}
         self.assertEqual(expected_ids, retrieved_ids,
                          '%s != %s (id map: %s)' % (expected_ids, retrieved_ids,
                                                     ['%s -> %s' % (act.id, act.title) for act in expected]

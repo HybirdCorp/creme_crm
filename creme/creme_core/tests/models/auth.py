@@ -785,7 +785,7 @@ class CredentialsTestCase(CremeTestCase):
 
         ids_set = {user.id, other.id}
         self.assertEqual(ids_set, set(teammates.iterkeys()))
-        self.assertEqual(ids_set, set(u.id for u in teammates.itervalues()))
+        self.assertEqual(ids_set, {u.id for u in teammates.itervalues()})
 
         user3 = User.objects.create_user('Kanna', 'kanna@century.jp', 'uselesspw')
         team.teammates = [user, other, user3]

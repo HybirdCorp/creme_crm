@@ -183,18 +183,18 @@ class BatchOperatorTestCase(CremeTestCase):
         self.assertEqual(2, op(9, op.cast('4')))
 
     def test_operators01(self):
-        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.CharField))
+        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.CharField)}
         self.assertIn(('upper', _('To upper case')), ops)
         self.assertIn(('lower', _('To lower case')), ops)
         self.assertNotIn('add_int', (e[0] for e in ops))
 
     def test_operators02(self):
-        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField))
+        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField)}
         self.assertIn(('add_int', _('Add')), ops)
         self.assertNotIn('prefix', (e[0] for e in ops))
 
     def test_operators03(self):
-        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators())
+        ops = {(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators()}
         self.assertIn(('mul_int', _('Multiply')), ops)
         self.assertIn(('suffix',  _('Suffix')), ops)
 

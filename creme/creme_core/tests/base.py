@@ -367,7 +367,7 @@ class _CremeTestCase(object):
             self.fail('Bad populate: unfoundable CremePropertyType with pk=%s' % pk)
 
         get_ct = ContentType.objects.get_for_model
-        self.assertEqual(set(get_ct(model).id for model in models),
+        self.assertEqual({get_ct(model).id for model in models},
                          set(pt.subject_ctypes.values_list('id', flat=True))
                         )
         return pt

@@ -41,7 +41,7 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual({'modelblock', customfields_block.id_, relations_block.id_,
                           properties_block.id_, history_block.id_,
                          },
-                         set(loc.block_id for loc in BlockDetailviewLocation.objects.all())
+                         {loc.block_id for loc in BlockDetailviewLocation.objects.all()}
                         )
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='creme_core')])
@@ -111,7 +111,7 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
-                         set(bl.zone for bl in locs)
+                         {bl.zone for bl in locs}
                         )
 
     def test_create_empty_detailview_config02(self):
@@ -132,7 +132,7 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual({BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
-                         set(bl.zone for bl in locs)
+                         {bl.zone for bl in locs}
                         )
         self.assertEqual(4, len(locs))
 

@@ -118,10 +118,10 @@ class SendingsTestCase(_EmailsTestCase):
         mails = sending.mails_set.all()
         self.assertEqual(len(addresses), len(mails))
 
-        addr_set = set(mail.recipient for mail in mails)
+        addr_set = {mail.recipient for mail in mails}
         self.assertTrue(all(address in addr_set for address in addresses))
 
-        related_set = set(mail.recipient_entity_id for mail in mails)
+        related_set = {mail.recipient_entity_id for mail in mails}
         self.assertTrue(all(c.id in related_set for c in contacts))
         self.assertTrue(all(o.id in related_set for o in orgas))
 

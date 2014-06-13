@@ -188,7 +188,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'extra_bt_templates': None, # () instead ???,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
-        'research_cellkeys':  set(cell_key for (cell_key, value) in current_lvs.research),
+        'research_cellkeys':  {cell_key for cell_key, value in current_lvs.research},
     }
 
     if extra_dict:

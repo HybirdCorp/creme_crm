@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -215,7 +215,7 @@ class RelationBlockItem(CremeModel):
     def all_ctypes_configured(self):
         #TODO: cache (object_ctypes) ??
         compat_ctype_ids = set(self.relation_type.object_ctypes.values_list('id', flat=True)) or \
-                           set(ct.id for ct in creme_entity_content_types())
+                           {ct.id for ct in creme_entity_content_types()}
 
         for ct_id in self._cells_by_ct().iterkeys():
             compat_ctype_ids.discard(ct_id)

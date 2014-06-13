@@ -40,7 +40,7 @@ class HistoryConfigTestCase(CremeTestCase):
 
         hc_items = HistoryConfigItem.objects.all()
         self.assertEqual(2, len(hc_items))
-        self.assertEqual(set(rtype_ids), set(hc_item.relation_type.id for hc_item in hc_items))
+        self.assertEqual(set(rtype_ids), {hc_item.relation_type.id for hc_item in hc_items})
 
     def test_add02(self):
         "No doublons"

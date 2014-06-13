@@ -170,7 +170,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         button_nodes = xml.findall('%(xsf)sviews/%(xsf)sview/%(xsf)smenuArea/%(xsf)sbutton' % d_ns)
         self.assertTrue(button_nodes)
-        self.assertEqual({'image'}, set(button_node.get('xmlToEdit') for button_node in button_nodes))
+        self.assertEqual({'image'}, {button_node.get('xmlToEdit') for button_node in button_nodes})
 
     def test_manifest_xsf_03(self):#Test m2m field
         body_map= {'user_id': 1, "language":""}
@@ -220,8 +220,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace, re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'])#Can't be got with ElementTree, because it's a namespace
 
-        ref_attrs = set(node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns))
-        expected_ref_attrs = set('my:%s' % key for key in chain(body_map.iterkeys(), ['language_value']))#chain because language_value is not declared in body_map, only language has to (m2m)
+        ref_attrs = {node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns)}
+        expected_ref_attrs = {'my:%s' % key for key in chain(body_map.iterkeys(), ['language_value'])} #chain because language_value is not declared in body_map, only language has to (m2m)
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
@@ -268,8 +268,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(builder.namespace, xml.get('targetNamespace'))
         self.assertEqual(builder.namespace, re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'])#Can't be got with ElementTree, because it's a namespace
 
-        ref_attrs = set(node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns))
-        expected_ref_attrs = set('my:%s' % key for key in body_map.iterkeys())
+        ref_attrs = {node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns)}
+        expected_ref_attrs = {'my:%s' % key for key in body_map.iterkeys()}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
@@ -346,13 +346,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          builder.namespace
                         )#Can't be got with ElementTree, because it's a namespace
 
-        self.assertEqual(set("my:%s" % field_name for field_name in body_map.iterkeys()),
-                         set(node.get('name') 
-                                for node in XML(content).findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement" % {
-                                                                    'xsl': "{http://www.w3.org/1999/XSL/Transform}"
-                                                                    }
-                                                                )
-                            )
+        self.assertEqual({"my:%s" % field_name for field_name in body_map.iterkeys()},
+                         {node.get('name')
+                            for node in XML(content).findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement" % {
+                                                                'xsl': "{http://www.w3.org/1999/XSL/Transform}"
+                                                               }
+                                                            )
+                         }
                         )
 
     def test_upgrade_xsl02(self):
@@ -535,12 +535,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                             for user in User.objects.all()
                         )
         self.assertEqual(users_set,
-                         set((option.find('%(xsl)sif' % d_ns).get('test'),
-                              re.search(r'if>(?P<username>.*)</option>',
-                                        tostring(option, encoding='utf8'
-                                       ).decode('utf8')).groupdict()['username']
-                             ) for option in options
-                            )
+                         {(option.find('%(xsl)sif' % d_ns).get('test'),
+                           re.search(r'if>(?P<username>.*)</option>',
+                                     tostring(option, encoding='utf8',
+                                    ).decode('utf8')).groupdict()['username']
+                          ) for option in options
+                         }
                         )
 
     def test_view_xsl04(self):
@@ -608,16 +608,16 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         input_nodes = target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input' % d_ns)
         self.assertTrue(input_nodes)
 
-        self.assertEqual(set(unicode(language) for language in languages),
-                         set(input_node.get('title') for input_node in input_nodes)
+        self.assertEqual({unicode(language) for language in languages},
+                         {input_node.get('title') for input_node in input_nodes}
                         )
-        self.assertEqual(set('my:language/my:language_value[.="%s"][1]' % l.id for l in languages),
-                         set(input_node.get('%(xd)sbinding' % d_ns) for input_node in input_nodes)
+        self.assertEqual({'my:language/my:language_value[.="%s"][1]' % l.id for l in languages},
+                         {input_node.get('%(xd)sbinding' % d_ns) for input_node in input_nodes}
                         )
-        self.assertEqual(set('my:language/my:language_value[.="%s"][1]' % l.id for l in languages),
-                         set(input_node.get("select") 
-                                for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sattribute/%(xsl)svalue-of' % d_ns)
-                            )
+        self.assertEqual({'my:language/my:language_value[.="%s"][1]' % l.id for l in languages},
+                         {input_node.get("select")
+                            for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sattribute/%(xsl)svalue-of' % d_ns)
+                         }
                         )
 
         self.assertEqual(set('my:language/my:language_value="%s"' % l.id for l in languages),
@@ -750,6 +750,6 @@ class InfopathFormFieldTestCase(CrudityTestCase):
                                     body_map={'user_id': 1},
                                    )
         urn = InfopathFormBuilder(request=request, backend=backend).urn
-        self.assertEqual(set((user.pk, unicode(user)) for user in User.objects.all()),
+        self.assertEqual({(user.pk, unicode(user)) for user in User.objects.all()},
                          set(InfopathFormField(urn, Contact, 'user_id', request)._get_choices())
                         )

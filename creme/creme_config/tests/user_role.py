@@ -75,8 +75,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         role = self.get_object_or_fail(UserRole, name=name)
-        self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
-        self.assertEqual(set(exportable_ctypes), set(ctype.id for ctype in role.exportable_ctypes.all()))
+        self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
+        self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
 
         app_set = set(apps)
         self.assertEqual(app_set, role.allowed_apps)
@@ -250,8 +250,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         role = self.refresh(role)
-        self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
-        self.assertEqual(set(exportable_ctypes), set(ctype.id for ctype in role.exportable_ctypes.all()))
+        self.assertEqual(set(creatable_ctypes),  {ctype.id for ctype in role.creatable_ctypes.all()})
+        self.assertEqual(set(exportable_ctypes), {ctype.id for ctype in role.exportable_ctypes.all()})
         self.assertEqual(set(apps),       role.allowed_apps)
         self.assertEqual(set(admin_apps), role.admin_4_apps)
 

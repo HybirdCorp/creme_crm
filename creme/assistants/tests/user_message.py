@@ -89,7 +89,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
-        self.assertEqual({user01, user02}, set(msg.recipient for msg in messages))
+        self.assertEqual({user01, user02}, {msg.recipient for msg in messages})
 
     def test_create03(self):
         "Without related entity"
@@ -121,7 +121,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
-        self.assertEqual(set(users), set(msg.recipient for msg in messages))
+        self.assertEqual(set(users), {msg.recipient for msg in messages})
 
     def test_create05(self):
         "Teams and isolated usres with non void intersections"
@@ -140,7 +140,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
-        self.assertEqual(set(users), set(msg.recipient for msg in messages))
+        self.assertEqual(set(users), {msg.recipient for msg in messages})
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
@@ -228,7 +228,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(meeting.id,             message.entity_id)
         self.assertEqual(meeting.entity_type_id, message.entity_content_type_id)
 
-        self.assertEqual({user, other_user}, set(msg.recipient for msg in messages))
+        self.assertEqual({user, other_user}, {msg.recipient for msg in messages})
 
         self.assertIn(unicode(meeting), message.title)
 

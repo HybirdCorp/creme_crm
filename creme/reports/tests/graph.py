@@ -134,7 +134,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         fields_choices = abscissa_choices[0]
         self.assertEqual(_('Fields'), fields_choices[0])
-        choices_set = set(c[0] for c in fields_choices[1])
+        choices_set = {c[0] for c in fields_choices[1]}
         self.assertIn('created', choices_set)
         self.assertIn('sector',  choices_set)
         self.assertNotIn('name', choices_set) #string can not be used to group
@@ -269,7 +269,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
             fields = response.context['form'].fields
             fields_choices = fields['abscissa_field'].choices[0][1]
 
-        choices_set = set(c[0] for c in fields_choices)
+        choices_set = {c[0] for c in fields_choices}
         self.assertIn('created', choices_set)
         self.assertIn('sector', choices_set)
         self.assertIn('civility', choices_set)
