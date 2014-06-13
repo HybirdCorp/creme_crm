@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,8 @@ def _element_iterator(tree):
 
             yield deep_change, element
 
-            children = list(element.getchildren())
+            #children = list(element.getchildren())
+            children = list(element)
             if children:
                 elements.append(children)
                 deep_change = 1

@@ -10,7 +10,7 @@
 #
 #    Copyright (c) 2006 Ole André Vadla Ravnås <oleavr@gmail.com>
 #    Copyright (c) 2007 Dr J A Gow <J.A.Gow@furrybubble.co.uk>
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -161,7 +161,8 @@ class WBXMLEncoder(object):
         return tag.replace('{%s}' % ns, '')
 
     def _encode_node(self, node):
-        children  = node.getchildren()
+        #children  = node.getchildren()
+        children  = list(node)
         node_text = node.text
 
         ns  = self.get_ns(node.tag)
