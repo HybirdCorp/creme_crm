@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta #datetime
+from datetime import timedelta
 import logging
 
 from django.conf import settings
@@ -51,7 +51,12 @@ class Command(BaseCommand):
                 - In the organisation opportunities
     """
 
-    list_target_orga = [(Q(relations__type=REL_SUB_CUSTOMER_SUPPLIER, relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME), 30),]
+    list_target_orga = [(Q(relations__type=REL_SUB_CUSTOMER_SUPPLIER,
+                           relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
+                          ),
+                         30 #delay in days #TODO: in settings/SettingKey ?
+                        ),
+                       ]
 
 
     def handle(self, *args, **options):
@@ -72,55 +77,68 @@ class Command(BaseCommand):
             print 'A process is already running'
         else:
             if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+                activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
+
+                emails = []
+
                 get_ct = ContentType.objects.get_for_model
-                ctypes = [get_ct(model) for model in (Organisation, Contact, Opportunity)]
+                ct_orga    = get_ct(Organisation)
+                ct_contact = get_ct(Contact)
+                ct_opp     = get_ct(Opportunity)
+
+                now_value = now()
+                unmanaged_orgas = Organisation.objects.exclude(properties__type=PROP_IS_MANAGED_BY_CREME)
+                opp_filter = Opportunity.objects.filter
+
+                EMAIL_SENDER = settings.EMAIL_SENDER
 
                 for extra_q, delay in self.list_target_orga:
-                    now_value       = now()
-                    thirty_days_ago = now_value - timedelta(days=delay)
+                    com_apps_filter = CommercialApproach.objects \
+                                                        .filter(creation_date__gt=now_value - timedelta(days=delay)) \
+                                                        .filter
 
-                    com_apps         = CommercialApproach.objects.filter(entity_content_type__in=ctypes,
-                                                                         creation_date__range=(thirty_days_ago, now_value),
-                                                                        )
-                    com_apps_filter  = com_apps.filter
+                    #TODO: are 'values_list' real optimizations here ?? ==> remove them when CommercialApproach use real ForeignKey
+                    for orga in unmanaged_orgas.filter(extra_q):
+                        if com_apps_filter(entity_content_type=ct_orga, entity_id=orga.id).exists():
+                            continue
 
-                    opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS)
+                        if com_apps_filter(entity_content_type=ct_contact,
+                                           entity_id__in=orga.get_managers().values_list('id', flat=True)
+                                          ).exists():
+                            continue
 
-                    emails_to_send = []
-                    emails_append  = emails_to_send.append
+                        if com_apps_filter(entity_content_type=ct_contact,
+                                           entity_id__in=orga.get_employees().values_list('id', flat=True)
+                                          ).exists():
+                            continue
 
-                    EMAIL_SENDER = settings.EMAIL_SENDER
+                        if com_apps_filter(entity_content_type=ct_opp,
+                                           entity_id__in=opp_filter(relations__type=REL_SUB_TARGETS,
+                                                                    relations__object_entity=orga,
+                                                                   ).values_list('id', flat=True)
+                                          ).exists():
+                            continue
 
-                    #TODO: are 'values_list' real optimizations here ??
-                    for organisation in Organisation.objects.filter(~Q(properties__type=PROP_IS_MANAGED_BY_CREME) & extra_q):
-                        have_to_send_mail = False
+                        emails.append(EmailMessage(_(u"[CremeCRM] The organisation <%s> seems neglected") % orga,
+                                                   _(u"It seems you haven't created a commercial approach for "
+                                                     u"the organisation «%(orga)s» since %(delay)s days.") % {
+                                                            'orga':  orga,
+                                                            'delay': delay,
+                                                        },
+                                                   EMAIL_SENDER, [orga.user.email],
+                                                  )
+                                     )
 
-                        is_any_com_app_in_orga = com_apps_filter(entity_id=organisation.id).exists()
-
-                        if not is_any_com_app_in_orga:
-                            is_any_com_app_in_managers = com_apps_filter(entity_id__in=organisation.get_managers().values_list('id', flat=True)).exists()
-
-                            if not is_any_com_app_in_managers:
-                                is_any_com_app_in_employees = com_apps_filter(entity_id__in=organisation.get_employees().values_list('id', flat=True)).exists()
-
-                                if not is_any_com_app_in_employees and \
-                                   not com_apps_filter(entity_id__in=opportunities_targets_orga.filter(relations__object_entity=organisation).values_list('id', flat=True)).exists():
-                                    have_to_send_mail = True
-
-                        if have_to_send_mail:
-                            activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
-                            emails_append(EmailMessage(_(u"[CremeCRM] The organisation <%s> seems neglected") % organisation,
-                                                       _(u"It seems you haven't created a commercial approach for the organisation <%s> since 30 days.") % organisation,
-                                                       EMAIL_SENDER, [organisation.user.email]))
-
+                #TODO: factorise commands which send emails
+                if emails:
                     try:
                         connection = get_connection()
                         connection.open()
-                        connection.send_messages(emails_to_send)
+                        connection.send_messages(emails)
                         connection.close()
 
                         logger.info(u"Emails sended")
                     except Exception as e:
                         logger.error(u"An error has occurred during sending mails (%s)" % e)
-        #finally:
+
             Mutex.graceful_release(LOCK_NAME)
