@@ -138,7 +138,7 @@ class SalesOrderTestCase(_BillingTestCase):
             orders_page = response.context['entities']
 
         self.assertEqual(2, orders_page.paginator.count)
-        self.assertEqual(set([order1, order2]), set(orders_page.paginator.object_list))
+        self.assertEqual({order1, order2}, set(orders_page.paginator.object_list))
 
     def test_delete_status01(self):
         status = SalesOrderStatus.objects.create(name='OK')

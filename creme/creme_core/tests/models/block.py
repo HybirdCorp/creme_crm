@@ -38,7 +38,9 @@ class BlockTestCase(CremeTestCase):
     def test_populate(self):
         self.populate('creme_core')
 
-        self.assertEqual(set(['modelblock', customfields_block.id_, relations_block.id_, properties_block.id_, history_block.id_]),
+        self.assertEqual({'modelblock', customfields_block.id_, relations_block.id_,
+                          properties_block.id_, history_block.id_,
+                         },
                          set(loc.block_id for loc in BlockDetailviewLocation.objects.all())
                         )
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
@@ -106,10 +108,9 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.create_empty_config()
         locs = BlockDetailviewLocation.objects.all()
         self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
-                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                             ]
-                            ),
+        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
+                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                         },
                          set(bl.zone for bl in locs)
                         )
 
@@ -128,10 +129,9 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.create_empty_config(model=model)
 
         locs = BlockDetailviewLocation.objects.filter(content_type=ContentType.objects.get_for_model(model))
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
-                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                             ]
-                            ),
+        self.assertEqual({BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                         },
                          set(bl.zone for bl in locs)
                         )
         self.assertEqual(4, len(locs))

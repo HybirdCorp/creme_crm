@@ -552,9 +552,9 @@ class BlocksManagerTestCase(CremeTestCase):
         self.assertRaises(KeyError, mngr.pop_group, 'gname1')
 
         self.assertDictEqual({block1.id_: set(),
-                              block2.id_: set([block4.id_]),
-                              block3.id_: set([block4.id_]),
-                              block4.id_: set([block2.id_, block3.id_]),
+                              block2.id_: {block4.id_},
+                              block3.id_: {block4.id_},
+                              block4.id_: {block2.id_, block3.id_},
                              },
                              mngr.get_dependencies_map()
                             )
@@ -608,14 +608,14 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr = BlocksManager()
         mngr.add_group('gname1', block1, block2, block3)
         mngr.add_group('gname2', block4, block5, block6)
-        self.assertEqual(set([rtype1_pk, rtype2_pk]), mngr.used_relationtypes_ids)
+        self.assertEqual({rtype1_pk, rtype2_pk}, mngr.used_relationtypes_ids)
 
         self.assertDictEqual({block1.id_: set(),
                               block2.id_: set(),
                               block3.id_: set(),
-                              block4.id_: set([block5.id_]),
-                              block5.id_: set([block4.id_, block6.id_]),
-                              block6.id_: set([block5.id_]),
+                              block4.id_: {block5.id_},
+                              block5.id_: {block4.id_, block6.id_},
+                              block6.id_: {block5.id_},
                              },
                              mngr.get_dependencies_map()
                             )
@@ -661,11 +661,11 @@ class BlocksManagerTestCase(CremeTestCase):
 
         self.maxDiff = None
         self.assertDictEqual({block1.id_: set(),
-                              block2.id_: set([block4.id_, block5.id_]),
-                              block3.id_: set([block4.id_, block5.id_]),
-                              block4.id_: set([block2.id_, block3.id_, block5.id_]),
-                              block5.id_: set([block2.id_, block3.id_, block4.id_]),
-                              block6.id_: set([block4.id_, block5.id_]),
+                              block2.id_: {block4.id_, block5.id_},
+                              block3.id_: {block4.id_, block5.id_},
+                              block4.id_: {block2.id_, block3.id_, block5.id_},
+                              block5.id_: {block2.id_, block3.id_, block4.id_},
+                              block6.id_: {block4.id_, block5.id_},
                              },
                              mngr.get_dependencies_map()
                             )
@@ -697,8 +697,8 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr.add_group('gname', block1, block2, block3, block4)
 
         self.assertDictEqual({block1.id_: set(),
-                              block2.id_: set([block4.id_]),
-                              block3.id_: set([block4.id_]),
+                              block2.id_: {block4.id_},
+                              block3.id_: {block4.id_},
                               block4.id_: set(), #<=====
                              },
                              mngr.get_dependencies_map()

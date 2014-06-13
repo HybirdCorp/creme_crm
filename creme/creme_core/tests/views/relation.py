@@ -266,7 +266,7 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             field_sfrt = context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual(set([sfrt1.id, sfrt2.id]),
+        self.assertEqual({sfrt1.id, sfrt2.id},
                          set(pk for pk, sfrt in field_sfrt.choices)
                         )
 
@@ -652,7 +652,7 @@ class RelationViewsTestCase(ViewsTestCase):
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))
         self.assertTrue(all(isinstance(c, Contact) for c in contacts))
-        self.assertEqual(set([self.contact01, self.contact02, self.contact03]), set(contacts))
+        self.assertEqual({self.contact01, self.contact02, self.contact03}, set(contacts))
 
     def test_objects_to_link_selection02(self):
         self._aux_relation_objects_to_link_selection()
@@ -664,7 +664,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         contacts = response.context['entities'].object_list
         self.assertEqual(2, len(contacts))
-        self.assertEqual(set([self.contact01, self.contact02]), set(contacts))
+        self.assertEqual({self.contact01, self.contact02}, set(contacts))
 
     def test_objects_to_link_selection03(self):
         self._aux_relation_objects_to_link_selection()
@@ -690,7 +690,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         contacts = response.context['entities'].object_list
         self.assertEqual(3, len(contacts))
-        self.assertEqual(set([self.contact01, self.contact03, contact04]), set(contacts))
+        self.assertEqual({self.contact01, self.contact03, contact04}, set(contacts))
 
     def test_objects_to_link_selection04(self):
         self.login()

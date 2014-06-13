@@ -258,7 +258,7 @@ class InvoiceTestCase(_BillingTestCase):
             invoices_page = response.context['entities']
 
         self.assertEqual(2, invoices_page.paginator.count)
-        self.assertEqual(set([invoice1, invoice2]), set(invoices_page.paginator.object_list))
+        self.assertEqual({invoice1, invoice2}, set(invoices_page.paginator.object_list))
 
     def test_editview01(self):
         self.login()
@@ -480,7 +480,7 @@ class InvoiceTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
         service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
-        self.assertEqual(set([product_line.id, service_line.id]),
+        self.assertEqual({product_line.id, service_line.id},
                          set(invoice.get_lines(Line).values_list('pk', flat=True))
                         )
 

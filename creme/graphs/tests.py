@@ -196,10 +196,10 @@ class GraphsTestCase(CremeTestCase):
         rnodes = RootNode.objects.filter(graph=graph).order_by('id')
         self.assertEqual(2, len(rnodes))
 
-        self.assertEqual(set([contact, orga]),
+        self.assertEqual({contact, orga},
                          set(rnode.entity.get_real_entity() for rnode in rnodes)
                         )
-        self.assertEqual(set([rtype01, rtype02]), set(rnodes[0].relation_types.all()))
+        self.assertEqual({rtype01, rtype02}, set(rnodes[0].relation_types.all()))
 
         #delete
         rnode = rnodes[1]
@@ -233,4 +233,4 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.pk, rtype02.pk]}))
-        self.assertEqual(set([rtype01, rtype02]), set(rnode.relation_types.all()))
+        self.assertEqual({rtype01, rtype02}, set(rnode.relation_types.all()))

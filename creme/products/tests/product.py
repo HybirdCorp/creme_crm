@@ -142,7 +142,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertNoFormError(response)
 
         product = self.get_object_or_fail(Product, name=name)
-        self.assertEqual(set([img_1, img_2]), set(product.images.all()))
+        self.assertEqual({img_1, img_2}, set(product.images.all()))
 
     def test_editview(self):
         self.login()
@@ -298,7 +298,7 @@ class ProductTestCase(_ProductsTestCase):
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
-        self.assertEqual(set([img_1, img_2, img_3]), set(product.images.all()))
+        self.assertEqual({img_1, img_2, img_3}, set(product.images.all()))
 
         #------------
         img_5 = self.create_image(ident=5, user=user)

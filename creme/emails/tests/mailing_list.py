@@ -77,7 +77,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         response = post(mlist01, mlist02)
         self.assertNoFormError(response)
-        self.assertEqual(set([mlist01, mlist02]), set(campaign.mailing_lists.all()))
+        self.assertEqual({mlist01, mlist02}, set(campaign.mailing_lists.all()))
 
         #doublon---------------------
         mlist03 = create_ml(name='Ml03')
@@ -179,7 +179,7 @@ class MailingListsTestCase(_EmailsTestCase):
                       create(first_name='Genma', last_name='Saotome'),
                       create(first_name='Akane', last_name=u'Tendô'),
                      ]
-        expected_ids = set([recipients[0].id, recipients[1].id])
+        expected_ids = {recipients[0].id, recipients[1].id}
 
         efilter = EntityFilter.create('test-filter01', 'Saotome', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
@@ -253,7 +253,7 @@ class MailingListsTestCase(_EmailsTestCase):
                       create(name='Seele', email='contact@seele.jp'),
                       create(name='Bebop'),
                      ]
-        expected_ids = set([recipients[0].id, recipients[1].id])
+        expected_ids = {recipients[0].id, recipients[1].id}
 
         efilter = EntityFilter.create('test-filter01', 'Has email', Organisation)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,

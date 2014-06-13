@@ -115,7 +115,7 @@ class QuoteTestCase(_BillingTestCase):
             quotes_page = response.context['entities']
 
         self.assertEqual(2, quotes_page.paginator.count)
-        self.assertEqual(set([quote1, quote2]), set(quotes_page.paginator.object_list))
+        self.assertEqual({quote1, quote2}, set(quotes_page.paginator.object_list))
 
     def test_delete_status01(self):
         status = QuoteStatus.objects.create(name='OK')

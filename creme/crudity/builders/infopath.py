@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -253,7 +253,7 @@ class InfopathFormBuilder(object):
                      "view1.xsl":    self._render_view_xsl(request),
                     }
 
-        media_files = set(["creme.png"])
+        media_files = {"creme.png"}
         backend_path = None
 
         try:

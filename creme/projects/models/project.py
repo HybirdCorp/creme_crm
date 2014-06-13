@@ -38,7 +38,7 @@ class Project(CremeEntity):
 
     tasks_list          = None
 
-    allowed_related = CremeEntity.allowed_related | set(['projecttask'])
+    allowed_related = CremeEntity.allowed_related | {'projecttask'}
     creation_label = _('Add a project')
 
     class Meta:

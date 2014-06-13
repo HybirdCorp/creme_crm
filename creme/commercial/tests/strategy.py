@@ -484,7 +484,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         strategy = self.refresh(strategy)
         self.assertEqual([], list(segment_ids(strategy, orga, 3)))
-        self.assertEqual(set([association.id, individual.id]),
+        self.assertEqual({association.id, individual.id},
                          set(segment_ids(strategy, orga, 4))
                         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
@@ -495,7 +495,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
         self.assertEqual([],               list(segment_ids(strategy, orga, 3)))
         self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
-        self.assertEqual(set([community.id, individual.id]),
+        self.assertEqual({community.id, individual.id},
                          set(segment_ids(strategy, orga, 2))
                         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
@@ -601,18 +601,18 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         asset_scores = CommercialAssetScore.objects.all()
         self.assertEqual(2, len(asset_scores))
-        self.assertEqual(set([individual.id]),
+        self.assertEqual({individual.id},
                          set(ascore.segment_desc_id for ascore in asset_scores)
                         )
 
         charm_scores = MarketSegmentCharmScore.objects.all()
         self.assertEqual(2, len(charm_scores))
-        self.assertEqual(set([individual.id]),
+        self.assertEqual({individual.id},
                          set(cscore.segment_desc_id for cscore in charm_scores)
                         )
 
         cats = MarketSegmentCategory.objects.all()
         self.assertEqual(1, len(cats))
-        self.assertEqual(set([individual.id]),
+        self.assertEqual({individual.id},
                          set(cat.segment_desc_id for cat in cats)
                         )

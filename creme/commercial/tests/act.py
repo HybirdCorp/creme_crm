@@ -518,7 +518,7 @@ class ActTestCase(CommercialBaseTestCase):
         act  = self.refresh(act) #refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
-        self.assertEqual(set([opp01, opp02]), set(opps))
+        self.assertEqual({opp01, opp02}, set(opps))
         self.assertEqual(2000, self.refresh(act).get_made_sales())
         self.assertEqual(5000, self.refresh(act).get_estimated_sales())
 

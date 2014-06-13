@@ -457,10 +457,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         #)
         cf_choice = abs_choices[2]
         self.assertEqual(_('Custom fields'), cf_choice[0])
-        self.assertEqual(set([(cf_enum.id, cf_enum.name),
-                              (cf_dt.id,   cf_dt.name),
-                             ]
-                            ),
+        self.assertEqual({(cf_enum.id, cf_enum.name),
+                          (cf_dt.id,   cf_dt.name),
+                         },
                          set(cf_choice[1])
                         )
 
@@ -1422,7 +1421,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                            )
 
         x_asc, y_asc = rgraph.fetch()
-        self.assertEqual(set([unicode(lannisters), unicode(starks)]), set(x_asc))
+        self.assertEqual({unicode(lannisters), unicode(starks)}, set(x_asc))
 
         index = x_asc.index
         self.assertEqual(600, y_asc[index(unicode(lannisters))])

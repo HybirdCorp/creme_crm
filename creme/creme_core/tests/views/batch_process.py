@@ -182,7 +182,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                                     name='name', values=['club']
                                                                    )
                                ])
-        self.assertEqual(set([orga02, orga03]), set(efilter.filter(Organisation.objects.all()))) # <== not 'orga01'
+        self.assertEqual({orga02, orga03}, set(efilter.filter(Organisation.objects.all()))) # <== not 'orga01'
 
         response = self.client.post(self.build_url(Organisation), follow=True,
                                     data={'filter':  efilter.id,

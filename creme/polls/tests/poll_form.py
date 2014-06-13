@@ -170,7 +170,7 @@ class PollFormsTestCase(_PollsTestCase):
             pform_page = response.context['entities']
 
         self.assertEqual(2, pform_page.paginator.count)
-        self.assertEqual(set([pform1, pform2]), set(pform_page.object_list))
+        self.assertEqual({pform1, pform2}, set(pform_page.object_list))
 
     def test_deleteview01(self):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
