@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import  timedelta #datetime
+from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
@@ -54,6 +54,5 @@ class Command(BaseCommand):
 
                     generator.last_generation = now_value
                     generator.save()
-        #finally:
-            Mutex.graceful_release(LOCK_NAME)
 
+            Mutex.graceful_release(LOCK_NAME)

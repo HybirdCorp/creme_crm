@@ -17,6 +17,6 @@
 {% block submit_buttons %}
     {% csrf_token %}
     <input type="hidden" name="{{step_field}}" value="{{step0}}" />
-    {{ previous_fields|safe }}
+    {{previous_fields|safe}}
     <input type="submit" value="{% trans "Validate" %}" />
 {% endblock %}
