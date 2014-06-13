@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
 from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import Field, IntegerField, CharField, TypedChoiceField, MultipleChoiceField
 from django.forms.widgets import RadioSelect, Textarea
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
+#from django.utils.datastructures import SortedDict as OrderedDict
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 
@@ -75,7 +76,8 @@ class PollLineType(object):
 
     @staticmethod
     def choices():
-        return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.items()]
+        #return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.items()]
+        return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.iteritems()]
 
     def _cleaned_args(self):
         return self._args

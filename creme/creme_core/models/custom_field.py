@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField, IntegerField,
                               DecimalField, DateTimeField, BooleanField, ManyToManyField)
@@ -26,7 +26,7 @@ from django import forms
 from django.utils.formats import date_format
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext, ugettext_lazy as _
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
+#from django.utils.datastructures import SortedDict as OrderedDict
 #from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
 

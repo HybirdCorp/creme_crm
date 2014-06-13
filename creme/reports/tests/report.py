@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from collections import OrderedDict
     from datetime import datetime, date
     from decimal import Decimal
     from functools import partial
@@ -8,7 +9,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.datastructures import SortedDict as OrderedDict
+    #from django.utils.datastructures import SortedDict as OrderedDict
     from django.utils.translation import ugettext as _
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
