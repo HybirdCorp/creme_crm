@@ -412,7 +412,7 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(RelationsBlock.id_, content[0])
 
         self.assertEqual(atom, response.context['object'])
-        self.assertEqual(set([rel1, rel2]), set(response.context['page'].object_list))
+        self.assertEqual({rel1, rel2}, set(response.context['page'].object_list))
 
     def test_reload_relations02(self):
         "With relationtype to exclude"

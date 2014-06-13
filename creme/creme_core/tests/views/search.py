@@ -91,9 +91,7 @@ class SearchViewTestCase(ViewsTestCase):
         #self.assertEqual(self.linus.id, entity.id)
         self.assertIsInstance(entities[0], Contact)
         self.assertIsInstance(entities[1], Contact)
-        self.assertEqual(set([self.linus.id, self.linus2.id]),
-                         set(e.id for e in entities)
-                        )
+        self.assertEqual({self.linus.id, self.linus2.id}, set(e.id for e in entities))
 
     def test_search03(self):
         self.login()

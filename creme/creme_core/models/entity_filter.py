@@ -210,7 +210,7 @@ class EntityFilter(Model): #CremeModel ???
         if self._connected_filter_cache:
             return self._connected_filter_cache
 
-        self._connected_filter_cache = connected = level_ids = set((self.id,))
+        self._connected_filter_cache = connected = level_ids = {self.id}
 
         #Sub-filters conditions
         sf_conds = [(cond, cond._get_subfilter_id())
@@ -295,7 +295,7 @@ class _ConditionOperator(object):
     __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
 
     #Fields for which the subpart of a valid value is not valid
-    _NO_SUBPART_VALIDATION_FIELDS = set([models.EmailField, models.IPAddressField])
+    _NO_SUBPART_VALIDATION_FIELDS = {models.EmailField, models.IPAddressField}
 
     def __init__(self, name, key_pattern, exclude=False, accept_subpart=True, allowed_fieldtypes=None):
         self._key_pattern        = key_pattern

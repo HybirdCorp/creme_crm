@@ -471,7 +471,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'parents': '[%d,%d]' % (task01.id, task02.id)}))
-        self.assertEqual(set([task01, task02]), set(task03.parent_tasks.all()))
+        self.assertEqual({task01, task02}, set(task03.parent_tasks.all()))
 
         self.assertPOST200('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual([task02], list(task03.parent_tasks.all()))
@@ -512,10 +512,10 @@ class ProjectsTestCase(CremeTestCase):
 
         url = self.ADD_TASK_PARENT_URL
         self.assertNoFormError(self.client.post(url % task02.id, data={'parents': '[%d]' % task01.id}))
-        self.assertEqual(set([task01, task02]), set(task01.get_subtasks()))
+        self.assertEqual({task01, task02}, set(task01.get_subtasks()))
 
         self.assertNoFormError(self.client.post(url % task03.id, data={'parents': '[%d]' % task02.id}))
-        self.assertEqual(set([task01, task02, task03]), set(task01.get_subtasks()))
+        self.assertEqual({task01, task02, task03}, set(task01.get_subtasks()))
 
         response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
         self.assertFormError(response, 'form', 'parents',
@@ -686,7 +686,7 @@ class ProjectsTestCase(CremeTestCase):
 
         titles_list = self._titles_list
         titles_set = self._titles_set
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2']),
+        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2'},
                          titles_set(cloned_project.get_tasks())
                         )
 
@@ -697,11 +697,11 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(['1'],     titles_list(get_task(title='1.1').get_parents()))
         self.assertEqual(['1.1'],   titles_list(get_task(title='1.1.1').get_parents()))
         self.assertEqual(['1.1.1'], titles_list(get_task(title='1.1.1.1').get_parents()))
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1']),
+        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1'},
                          titles_set(get_task(title='all 1').get_parents())
                         )
         self.assertFalse(get_task(title='2').get_parents())
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', '2']),
+        self.assertEqual({'1', '1.1', '1.1.1', '1.1.1.1', '2'},
                          titles_set(get_task(title='all 2').get_parents())
                         )
 
@@ -737,19 +737,19 @@ class ProjectsTestCase(CremeTestCase):
         c_task1 = get_task(title='1')
         c_task2 = get_task(title='2')
 
-        self.assertEqual(set(['1', '2', '3', '4']), self._titles_set(cloned_project.get_tasks()))
+        self.assertEqual({'1', '2', '3', '4'}, self._titles_set(cloned_project.get_tasks()))
         self.assertFalse(self._tasks_pk_set(project) & self._tasks_pk_set(cloned_project))
 
-        self.assertEqual(set(['1', '2']), self._titles_set(get_task(title='3').get_parents()))
+        self.assertEqual({'1', '2'}, self._titles_set(get_task(title='3').get_parents()))
         self.assertEqual(['3'],           self._titles_list(get_task(title='4').get_parents()))
 
         linked_contacts_set = lambda task: set(task.get_resources().values_list('linked_contact', flat=True))
-        self.assertEqual(set([contact1.pk, contact2.pk]), linked_contacts_set(c_task1))
-        self.assertEqual(set([contact1.pk, contact2.pk]), linked_contacts_set(c_task2))
+        self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
+        self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
 
         resource_set = lambda task: set(task.get_working_periods().values_list('resource', flat=True))
-        self.assertEqual(set([resource1.pk, resource2.pk]), resource_set(c_task1))
-        self.assertEqual(set([resource3.pk, resource4.pk]), resource_set(c_task2))
+        self.assertEqual({resource1.pk, resource2.pk}, resource_set(c_task1))
+        self.assertEqual({resource3.pk, resource4.pk}, resource_set(c_task2))
 
     def _delete_project_status(self, status):
         return self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})

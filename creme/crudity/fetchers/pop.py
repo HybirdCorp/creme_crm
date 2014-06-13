@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -131,7 +131,7 @@ class PopFetcher(CrudityFetcher):
             # CONTENT HTML / PLAIN
             if email_message.is_multipart():
                 for part in email_message.walk():
-                    encodings = set(part.get_charsets()) - set([None])
+                    encodings = set(part.get_charsets()) - {None} #TODO: use  discard() ?
                     payload   = part.get_payload(decode=True)
 
                     mct = part.get_content_maintype()
@@ -152,7 +152,7 @@ class PopFetcher(CrudityFetcher):
                         elif cst == 'plain':
                             body = content
             else:
-                encodings = set(email_message.get_charsets()) - set([None])
+                encodings = set(email_message.get_charsets()) - {None} #TODO: use  discard() ?
 
                 cst = email_message.get_content_subtype()
                 content = safe_unicode(email_message.get_payload(decode=True), encodings)

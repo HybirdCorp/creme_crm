@@ -203,7 +203,7 @@ class ServiceTestCase(_ProductsTestCase):
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
-        self.assertEqual(set([img_1, img_2, img_3]), set(service.images.all()))
+        self.assertEqual({img_1, img_2, img_3}, set(service.images.all()))
 
     def test_remove_image(self):
         self.login()

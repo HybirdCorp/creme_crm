@@ -788,7 +788,7 @@ class PollRepliesTestCase(_PollsTestCase):
             preply_page = response.context['entities']
 
         self.assertEqual(2, preply_page.paginator.count)
-        self.assertEqual(set([preply1, preply2]), set(preply_page.object_list))
+        self.assertEqual({preply1, preply2}, set(preply_page.object_list))
 
     def test_delete_type(self):
         "Set to null"
@@ -1640,26 +1640,26 @@ class PollRepliesTestCase(_PollsTestCase):
     def test_stats_rline_boolean(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.BOOL, 1)
-        self.assertEqual(set([(_('Yes'), 1), (_('No'), 0)]), set(rline.stats))
+        self.assertEqual({(_('Yes'), 1), (_('No'), 0)}, set(rline.stats))
 
     def test_stats_rline_boolean_false(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.BOOL, 0)
-        self.assertEqual(set([(_('Yes'), 0), (_('No'), 1)]), set(rline.stats))
+        self.assertEqual({(_('Yes'), 0), (_('No'), 1)}, set(rline.stats))
 
     def test_stats_rline_enum(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.ENUM, 1,
                                            [[1, 'European'], [2, 'African']]
                                           )
-        self.assertEqual(set([('European', 1), ('African', 0)]), set(rline.stats))
+        self.assertEqual({('European', 1), ('African', 0)}, set(rline.stats))
 
     def test_stats_rline_multi_enum(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.MULTI_ENUM, [2, 3],
                                            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
                                           )
-        self.assertEqual(set([('White', 0), ('Black', 1), ('Green', 1), ('Purple', 0)]),
+        self.assertEqual({('White', 0), ('Black', 1), ('Green', 1), ('Purple', 0)},
                          set(rline.stats)
                         )
 
@@ -1669,7 +1669,7 @@ class PollRepliesTestCase(_PollsTestCase):
                                            {'answer_0': 0, 'answer_1': 'doh ?'},
                                            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
                                           )
-        self.assertEqual(set([('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)]),
+        self.assertEqual({('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)},
                          set(rline.stats)
                         )
 
@@ -1679,7 +1679,7 @@ class PollRepliesTestCase(_PollsTestCase):
                                            {'answer_0': 2, 'answer_1': ''},
                                            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
                                           )
-        self.assertEqual(set([('White', 0), ('Black', 1), ('Green', 0), ('Purple', 0), (_('Other'), 0)]),
+        self.assertEqual({('White', 0), ('Black', 1), ('Green', 0), ('Purple', 0), (_('Other'), 0)},
                          set(rline.stats)
                         )
 
@@ -1739,29 +1739,29 @@ class PollRepliesTestCase(_PollsTestCase):
             stats5 = nodes[4].answer_stats
 
         self.assertFalse(stats1)
-        self.assertEqual(set([(answer_2_1, 2, round((2.0 * 100.0) / 3.0, 2)),
-                              (answer_2_4, 1, round((1.0 * 100.0) / 3.0, 2)),
-                             ]),
+        self.assertEqual({(answer_2_1, 2, round((2.0 * 100.0) / 3.0, 2)),
+                          (answer_2_4, 1, round((1.0 * 100.0) / 3.0, 2)),
+                         },
                          set(stats2)
                         )
-        self.assertEqual(set([(u'European', 1, round((1.0 * 100.0) / 3.0, 2)),
-                              (u'African',  2, round((2.0 * 100.0) / 3.0, 2)),
-                             ]),
+        self.assertEqual({(u'European', 1, round((1.0 * 100.0) / 3.0, 2)),
+                          (u'African',  2, round((2.0 * 100.0) / 3.0, 2)),
+                         },
                          set(stats3)
                         )
-        self.assertEqual(set([(u'White',  3, round((3.0 * 100.0) / 6.0, 2)),
-                              (u'Black',  2, round((2.0 * 100.0) / 6.0, 2)),
-                              (u'Green',  0, 0.0),
-                              (u'Purple', 1, round((1.0 * 100.0) / 6.0, 2)),
-                             ]),
+        self.assertEqual({(u'White',  3, round((3.0 * 100.0) / 6.0, 2)),
+                          (u'Black',  2, round((2.0 * 100.0) / 6.0, 2)),
+                          (u'Green',  0, 0.0),
+                          (u'Purple', 1, round((1.0 * 100.0) / 6.0, 2)),
+                         },
                          set(stats4)
                         )
-        self.assertEqual(set([(u'White',   1, round((1.0 * 100.0) / 3.0, 2)),
-                              (u'Black',   0, 0.0),
-                              (u'Green',   0, 0.0),
-                              (u'Purple',  0, 0.0),
-                              (_('Other'), 2, round((2.0 * 100.0) / 3.0, 2)),
-                             ]),
+        self.assertEqual({(u'White',   1, round((1.0 * 100.0) / 3.0, 2)),
+                          (u'Black',   0, 0.0),
+                          (u'Green',   0, 0.0),
+                          (u'Purple',  0, 0.0),
+                          (_('Other'), 2, round((2.0 * 100.0) / 3.0, 2)),
+                         },
                          set(stats5)
                         )
 

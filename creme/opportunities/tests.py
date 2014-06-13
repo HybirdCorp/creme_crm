@@ -593,7 +593,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             opps_page = response.context['entities']
 
         self.assertEqual(2, opps_page.paginator.count)
-        self.assertEqual(set([opp1, opp2]), set(opps_page.object_list))
+        self.assertEqual({opp1, opp2}, set(opps_page.object_list))
 
     def test_clone(self):
         self.login()

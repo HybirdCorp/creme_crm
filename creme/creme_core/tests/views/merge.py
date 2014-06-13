@@ -228,7 +228,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertFalse(f_image.required)
         self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
-        self.assertEqual(set([(image1.id, unicode(image1)), (image2.id, unicode(image2))]), #not image3 !
+        self.assertEqual({(image1.id, unicode(image1)), (image2.id, unicode(image2))}, #not image3 !
                          set(f_image._original_field.choices)
                         )
 
@@ -300,7 +300,7 @@ class MergeViewsTestCase(ViewsTestCase):
             f_image = response.context['form'].fields['image']
 
         self.assertEqual([image.id,  None,  image.id],  f_image.initial)
-        self.assertEqual(set([(image.id, unicode(image)), ('', '---------')]),
+        self.assertEqual({(image.id, unicode(image)), ('', '---------')},
                          set(f_image._original_field.choices)
                         )
 

@@ -49,7 +49,7 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         properties = entity.properties.all()
         self.assertEqual(2, len(properties))
-        self.assertEqual(set([ptype01, ptype02]), set(p.type for p in properties))
+        self.assertEqual({ptype01, ptype02}, set(p.type for p in properties))
 
         #-----------------------------------------------------------------------
         response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property

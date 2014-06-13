@@ -783,7 +783,7 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertTrue(all(isinstance(u, User) for u in teammates.itervalues()))
 
-        ids_set = set([user.id, other.id])
+        ids_set = {user.id, other.id}
         self.assertEqual(ids_set, set(teammates.iterkeys()))
         self.assertEqual(ids_set, set(u.id for u in teammates.itervalues()))
 
@@ -869,7 +869,7 @@ class CredentialsTestCase(CremeTestCase):
         #'teams' property-------------------------------------------------------
         teams = user.teams
         self.assertEqual(2, len(teams))
-        self.assertEqual(set([team1, team2]), set(teams))
+        self.assertEqual({team1, team2}, set(teams))
 
         with self.assertNumQueries(0): #teams are cached
             user.teams

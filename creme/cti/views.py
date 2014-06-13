@@ -71,7 +71,7 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
     #TODO: link credentials
     caller_rtype = REL_SUB_PART_2_ACTIVITY
     entity_rtype = REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else REL_SUB_LINKED_2_ACTIVITY
-    rtypes_ids   = set((caller_rtype, entity_rtype))
+    rtypes_ids   = {caller_rtype, entity_rtype}
 
     rtypes_map = RelationType.objects.in_bulk(rtypes_ids)
     if len(rtypes_map) != len(rtypes_ids):

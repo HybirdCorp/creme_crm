@@ -224,9 +224,9 @@ class CalendarTestCase(_ActivitiesTestCase):
             creation_perm = ctxt['creation_perm']
 
         self.assertEqual(self.user.username, user)
-        self.assertEqual(set([str(cal1.id), str(cal2.id)]), set(cal_ids))
-        self.assertEqual(set([act1, act2, act4]), set(floating_acts))
-        self.assertEqual(set([cal1]), set(my_cals))
+        self.assertEqual({str(cal1.id), str(cal2.id)}, set(cal_ids))
+        self.assertEqual({act1, act2, act4}, set(floating_acts))
+        self.assertEqual({cal1}, set(my_cals))
         self.assertEqual('/activities/calendar/users_activities/', event_url)
         self.assertEqual({other_user: [cal2]}, others_calendars)
         self.assertEqual(1, n_others_calendars)

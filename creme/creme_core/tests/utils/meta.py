@@ -196,7 +196,7 @@ class MetaTestCase(CremeTestCase):
     def test_get_date_fields(self):
         datefields = meta.get_date_fields(CremeEntity())
         self.assertEqual(2, len(datefields))
-        self.assertEqual(set(('created', 'modified')), set(f.name for f in datefields))
+        self.assertEqual({'created', 'modified'}, set(f.name for f in datefields))
 
     def test_is_date_field(self):
         entity = CremeEntity()

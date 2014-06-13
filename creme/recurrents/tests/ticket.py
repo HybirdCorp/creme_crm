@@ -194,7 +194,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
             gens_page = response.context['entities']
 
         self.assertEqual(2, gens_page.paginator.count)
-        self.assertEqual(set([gen1, gen2]), set(gens_page.object_list))
+        self.assertEqual({gen1, gen2}, set(gens_page.object_list))
 
     @skipIfNotInstalled('creme.tickets')
     def test_command01(self):

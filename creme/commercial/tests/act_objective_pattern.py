@@ -366,7 +366,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         remaining_ids = pattern.components.values_list('id', flat=True)
         self.assertEqual(3, len(remaining_ids))
-        self.assertEqual(set([comp00.id, comp05.id, comp06.id]), set(remaining_ids))
+        self.assertEqual({comp00.id, comp05.id, comp06.id}, set(remaining_ids))
 
     def assertCompNamesEqual(self, comp_qs, *names):
         self.assertEqual(set(names), set(comp_qs.values_list('name', flat=True)))

@@ -170,7 +170,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         button_nodes = xml.findall('%(xsf)sviews/%(xsf)sview/%(xsf)smenuArea/%(xsf)sbutton' % d_ns)
         self.assertTrue(button_nodes)
-        self.assertEqual(set(['image',]), set(button_node.get('xmlToEdit') for button_node in button_nodes))
+        self.assertEqual({'image'}, set(button_node.get('xmlToEdit') for button_node in button_nodes))
 
     def test_manifest_xsf_03(self):#Test m2m field
         body_map= {'user_id': 1, "language":""}
@@ -384,7 +384,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         when_node = template_nodes[0].find("%(xsl)scopy/%(xsl)schoose/%(xsl)swhen" % d_ns)
         self.assertEqual("my:language", when_node.get('test'))
 
-        expected_names = set(['my:language', 'my:language_value'])
+        expected_names = {'my:language', 'my:language_value'}
         self.assertEqual(expected_names,
                          set(match
                                 for match in (n.get('match') for n in findall('%(xsl)stemplate' % d_ns))
@@ -530,7 +530,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         options = target_node.findall('option')
         self.assertTrue(options)#At least, it must have empty choice
 
-        users_set = set([('my:%s=""' % field_name, _(u"Select..."))])
+        users_set = {('my:%s=""' % field_name, _('Select...'))}
         users_set.update(('my:%s="%s"' % (field_name, user.pk), unicode(user))
                             for user in User.objects.all()
                         )

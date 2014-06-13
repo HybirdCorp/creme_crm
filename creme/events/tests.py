@@ -121,7 +121,7 @@ class EventsTestCase(CremeTestCase):
             events_page = response.context['entities']
 
         self.assertEqual(2, events_page.paginator.count)
-        self.assertEqual(set((event1, event2)), set(events_page.object_list))
+        self.assertEqual({event1, event2}, set(events_page.object_list))
 
     def test_stats01(self):
         self.login()
@@ -445,7 +445,7 @@ class EventsTestCase(CremeTestCase):
             contacts_page = response.context['entities']
 
         self.assertEqual(3, contacts_page.paginator.count)
-        self.assertEqual(set((casca, judo, griffith)), set(contacts_page.object_list))
+        self.assertEqual({casca, judo, griffith}, set(contacts_page.object_list))
 
     @staticmethod
     def relations_types(contact, event):
@@ -520,7 +520,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([REL_SUB_IS_INVITED_TO],  self.relations_types(casca, event))
         self.assertEqual([REL_SUB_NOT_CAME_EVENT], self.relations_types(judo, event))
         self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(griffith, event))
-        self.assertEqual(set([REL_SUB_IS_INVITED_TO, REL_SUB_CAME_EVENT]),
+        self.assertEqual({REL_SUB_IS_INVITED_TO, REL_SUB_CAME_EVENT},
                          set(self.relations_types(rickert, event))
                         )
         self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))

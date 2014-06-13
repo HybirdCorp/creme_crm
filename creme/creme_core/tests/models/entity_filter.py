@@ -687,7 +687,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel'])])
 
         efilter02 = EntityFilter.create(pk='test-filter02', name='Filter02', model=Contact, use_or=False)
-        self.assertEqual(set([efilter02.id]), efilter02.get_connected_filter_ids())
+        self.assertEqual({efilter02.id}, efilter02.get_connected_filter_ids())
 
         efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
                                   build_sf(efilter01),
@@ -697,7 +697,7 @@ class EntityFiltersTestCase(CremeTestCase):
                  build_sf(efilter02),
                 ]
         efilter01 = self.refresh(efilter01)
-        self.assertEqual(set([efilter01.id, efilter02.id]), efilter01.get_connected_filter_ids())
+        self.assertEqual({efilter01.id, efilter02.id}, efilter01.get_connected_filter_ids())
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 

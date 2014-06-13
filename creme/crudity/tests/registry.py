@@ -35,7 +35,7 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry = self.crudity_registry
         crudity_registry.register_backends([ContactFakeBackend, OrganisationFakeBackend])
         crudity_registry.register_backends([DocumentFakeBackend])
-        self.assertEqual(set([Contact, Organisation, Document]), set(crudity_registry._backends))
+        self.assertEqual({Contact, Organisation, Document}, set(crudity_registry._backends))
 
     def test_register_input01(self):
         crudity_registry = self.crudity_registry
@@ -54,4 +54,4 @@ class CrudityRegistryTestCase(CrudityTestCase):
         for value in crudity_registry.get_fetcher("test")._inputs.values():
             inputs.extend(value.values())
 
-        self.assertEqual(set(i.name for i in inputs), set([i1.name, i2.name]))
+        self.assertEqual(set(i.name for i in inputs), {i1.name, i2.name})

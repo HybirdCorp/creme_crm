@@ -179,7 +179,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
         comapps = CommercialApproach.objects.filter(related_activity=meeting)
         self.assertEqual(3, len(comapps))
-        self.assertEqual(set([genma, ranma, dojo]), set(comapp.creme_entity for comapp in comapps))
+        self.assertEqual({genma, ranma, dojo}, set(comapp.creme_entity for comapp in comapps))
 
         now_value = now()
 

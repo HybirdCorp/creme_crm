@@ -78,10 +78,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
-                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                             ]
-                            ),
+        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
+                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                         },
                          set(bl.zone for bl in b_locs)
                         )
 
@@ -298,10 +297,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=None)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
-                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
-                             ]
-                            ),
+        self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
+                          BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                         },
                          set(bl.zone for bl in b_locs)
                         )
 
