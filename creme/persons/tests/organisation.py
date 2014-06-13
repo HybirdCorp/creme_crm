@@ -158,8 +158,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(4, len(addresses))
         self.assertEqual(4, len(c_addresses))
 
-        addresses_map   = dict((a.name, a) for a in addresses)
-        c_addresses_map = dict((a.name, a) for a in c_addresses)
+        addresses_map   = {a.name: a for a in addresses}
+        c_addresses_map = {a.name: a for a in c_addresses}
         self.assertEqual(4, len(addresses_map))
         self.assertEqual(4, len(c_addresses_map))
 

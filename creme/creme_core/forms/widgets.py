@@ -842,7 +842,7 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
 class OrderedMultipleChoiceWidget(SelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         if value is None: value = ()
-        value_dict = dict((opt_value, order + 1) for order, opt_value in enumerate(value))
+        value_dict = {opt_value: order + 1 for order, opt_value in enumerate(value)}
         attrs = self.build_attrs(attrs, name=name)
 
         reduced = attrs.get('reduced', 'false')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from itertools import chain
 from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models.relation import Relation
+from creme.creme_core.models import Relation
 
 from creme.activities.models import Activity
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, NARROW
@@ -159,10 +159,12 @@ class ProjectTask(Activity):
                                }
 #            context[new_task.id] = task.id
 
-        new_links = dict((values['new_pk'],
-                          [context[old_child_id]['new_pk'] for old_child_id in values['o_children']]
-                         ) for old_key, values in context.iteritems()
-                        )
+        new_links = {values['new_pk']: [context[old_child_id]['new_pk']
+                                            for old_child_id in values['o_children']
+                                       ]
+                        #for old_key, values in context.iteritems()
+                        for values in context.itervalues()
+                    }
 
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):

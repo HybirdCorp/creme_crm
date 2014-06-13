@@ -80,7 +80,7 @@ _CELL_2_HAND_MAP = {
     _EntityCellAggregate.type_id:       RFT_AGG_FIELD,
     _EntityCellCustomAggregate.type_id: RFT_AGG_CUSTOM,
 }
-_HAND_2_CELL_MAP = dict((v,k) for k, v in _CELL_2_HAND_MAP.iteritems())
+_HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.iteritems()}
 
 _RELATED_PREFIX     = _EntityCellRelated.type_id + '-'
 _REGULAR_AGG_PREFIX = _EntityCellAggregate.type_id + '-'

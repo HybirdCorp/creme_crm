@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -98,13 +98,13 @@ class ReportGraphForm(CremeEntityForm):
                             (_('Relationships'), abscissa_predicates),
                            ]
 
-        self.abs_cfields = cfields = \
-            dict((cf.id, cf) for cf in CustomField.objects.filter(field_type__in=(CustomField.ENUM,
-                                                                                  CustomField.DATETIME,
-                                                                                 ),
-                                                                  content_type=report_ct,
-                                                                 )
-                )
+        self.abs_cfields = cfields = {
+                cf.id: cf for cf in CustomField.objects.filter(field_type__in=(CustomField.ENUM,
+                                                                               CustomField.DATETIME,
+                                                                              ),
+                                                               content_type=report_ct,
+                                                              )
+            }
 
         if cfields:
             abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()])) #TODO: sort ?

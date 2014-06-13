@@ -49,18 +49,18 @@ class ParticipantsBlock(QuerysetBlock):
         relations = btc['page'].object_list
         #TODO: select_related(depth=1) ?? remove civility with better entity repr system ??
         #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
-        contacts = dict((c.id, c)
-                            for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
-                                                    .select_related('user', 'is_user', 'civility')
-                       )
+        contacts = {c.id: c
+                        for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])
+                                                .select_related('user', 'is_user', 'civility')
+                   }
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
 
-        users_contacts = dict((contact.is_user_id, contact)
-                                for contact in contacts.itervalues()
-                                    if contact.is_user_id
-                             )
+        users_contacts = {contact.is_user_id: contact
+                            for contact in contacts.itervalues()
+                                if contact.is_user_id
+                         }
 
         for calendar in Calendar.objects.filter(user__in=users_contacts.keys(), activity=activity.id):
             users_contacts[calendar.user_id].calendar_cache = calendar

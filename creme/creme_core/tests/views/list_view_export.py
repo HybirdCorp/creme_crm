@@ -45,7 +45,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
         user = self.user
 
         create_orga = partial(Organisation.objects.create, user=user)
-        self.organisations = organisations = dict((name, create_orga(name=name) )for name in ('Bebop', 'Swordfish'))
+        self.organisations = organisations = {
+                name: create_orga(name=name)
+                    for name in ('Bebop', 'Swordfish')
+            }
 
         rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
                                            ('test-object_pilots',  'is piloted by')
@@ -56,13 +59,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
         ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
 
         create_contact = partial(Contact.objects.create, user=user)
-        contacts = dict((first_name, create_contact(first_name=first_name, last_name=last_name))
-                            for first_name, last_name in [('Spike', 'Spiegel'),
-                                                          ('Jet', 'Black'),
-                                                          ('Faye', 'Valentine'),
-                                                          ('Edward', 'Wong')
-                                                         ]
-                        )
+        contacts = {first_name: create_contact(first_name=first_name, last_name=last_name)
+                        for first_name, last_name in [('Spike', 'Spiegel'),
+                                                      ('Jet', 'Black'),
+                                                      ('Faye', 'Valentine'),
+                                                      ('Edward', 'Wong')
+                                                     ]
+                   }
 
         #create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots)
         create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,

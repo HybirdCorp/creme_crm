@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -141,8 +141,8 @@ class AirSync(Base):
 
         #Gathering all required namespaces
         namespaces = mapping.keys()
-        extra_ns   = dict(("A%s" % i, v) for i, v in enumerate(namespaces))
-        reverse_ns = dict((v,k) for k, v in extra_ns.iteritems())
+        extra_ns   = {"A%s" % i: v for i, v in enumerate(namespaces)}
+        reverse_ns = {v: k for k, v in extra_ns.iteritems()}
 
         reverse_ns_get = reverse_ns.get
         folder_supported_append = folder.supported.append
@@ -531,7 +531,9 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
 #    modified_ids = CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user).values_list('creme_entity_id', flat=True)
 
     #modified_ids a dict with creme_entity_id value as key and corresponding exchange_entity_id as value
-    modified_ids = dict(CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user, was_deleted=False).values_list('creme_entity_id', 'exchange_entity_id'))
+    modified_ids = dict(CremeExchangeMapping.objects.filter(is_creme_modified=True, user=user, was_deleted=False)
+                                                    .values_list('creme_entity_id', 'exchange_entity_id')
+                       )
 
     objects = []
 

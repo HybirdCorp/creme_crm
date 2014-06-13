@@ -82,8 +82,8 @@ class ListViewState(object):
     @staticmethod
     def build_from_request(request):
         #TODO: use request.REQUEST ??
-        kwargs = dict((str(k), v) for k, v in request.GET.items())
-        kwargs.update(dict((str(k), v) for k, v in request.POST.items()))
+        kwargs = {str(k): v for k, v in request.GET.items()}
+        kwargs.update((str(k), v) for k, v in request.POST.items())
         kwargs['url'] = request.path
         return ListViewState(**kwargs)
 

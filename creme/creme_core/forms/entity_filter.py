@@ -663,12 +663,12 @@ class CustomFieldsConditionsField(_ConditionsField):
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self._cfields = cfields = \
-            dict((cf.id, cf)
+        self._cfields = cfields = {
+                cf.id: cf
                     for cf in CustomField.objects
                                          .filter(content_type=ContentType.objects.get_for_model(model))
                                          .exclude(field_type__in=self._NOT_ACCEPTED_TYPES)
-                )
+            }
 
         if not cfields:
             self._initial_help_text = self.help_text
@@ -766,13 +766,13 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
     @CustomFieldsConditionsField.model.setter
     def model(self, model): #TODO: factorise ??
         self._model = model
-        self._cfields = cfields = \
-            dict((cf.id, cf)
+        self._cfields = cfields = {
+                cf.id: cf
                     for cf in CustomField.objects
                                          .filter(content_type=ContentType.objects.get_for_model(model),
                                                  field_type=CustomField.DATETIME,
                                                 )
-                )
+            }
 
         if not cfields:
             self._initial_help_text = self.help_text
@@ -837,7 +837,11 @@ class RelationsConditionsField(_ConditionsField):
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self._rtypes = dict((rt.id, rt) for rt in RelationType.get_compatible_ones(ContentType.objects.get_for_model(model), include_internals=True))
+        self._rtypes = {rt.id: rt 
+                            for rt in RelationType.get_compatible_ones(ContentType.objects.get_for_model(model),
+                                                                       include_internals=True
+                                                                      )
+                       }
         self._build_widget()
 
     def _create_widget(self):
@@ -917,7 +921,7 @@ class RelationsConditionsField(_ConditionsField):
             all_kwargs.append(kwargs)
 
         if entity_ids:
-            entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=entity_ids))
+            entities = {e.id: e for e in CremeEntity.objects.filter(pk__in=entity_ids)}
 
             if len(entities) != len(entity_ids):
                 raise ValidationError(self.error_messages['invalidentity'])
@@ -975,7 +979,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            filters = dict((f.id, f) for f in EntityFilter.objects.filter(pk__in=filter_ids))
+            filters = {f.id: f for f in EntityFilter.objects.filter(pk__in=filter_ids)}
 
             if len(filters) != len(filter_ids):
                 raise ValidationError(self.error_messages['invalidfilter'])
@@ -1005,7 +1009,9 @@ class PropertiesConditionsField(_ConditionsField):
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self._ptypes = dict((pt.id, pt) for pt in CremePropertyType.get_compatible_ones(ContentType.objects.get_for_model(model)))
+        self._ptypes = {pt.id: pt
+                            for pt in CremePropertyType.get_compatible_ones(ContentType.objects.get_for_model(model))
+                       }
         self._build_widget()
 
     def _create_widget(self):

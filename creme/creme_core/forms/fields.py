@@ -551,11 +551,11 @@ class MultiRelationEntityField(RelationEntityField):
 
         #build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
-            ctype_entities = dict((entity.pk, entity)
-                                    for entity in ctype.model_class()
-                                                       .objects
-                                                       .filter(is_deleted=False, pk__in=entity_pks)
-                                 )
+            ctype_entities = {entity.pk: entity
+                                for entity in ctype.model_class()
+                                                   .objects
+                                                   .filter(is_deleted=False, pk__in=entity_pks)
+                             }
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
                 raise ValidationError(self.error_messages['doesnotexist'])

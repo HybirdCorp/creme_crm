@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ FOLDERS_TYPES_CREME_TYPES_MAPPING = {
     SYNC_FOLDER_TYPE_TASK: Activity,
 }
 
-CREME_TYPES_FOLDERS_TYPES_MAPPING = dict((v,k) for k, v in FOLDERS_TYPES_CREME_TYPES_MAPPING.iteritems())
+CREME_TYPES_FOLDERS_TYPES_MAPPING = {v: k for k, v in FOLDERS_TYPES_CREME_TYPES_MAPPING.iteritems()}
 
 ##Mapping between Creme types and AS Classes
 #AS_CLASSES = {

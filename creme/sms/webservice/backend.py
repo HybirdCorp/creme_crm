@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,8 +68,7 @@ class WSBackEnd(object):
             passwords.add_password(None, url, user, password)
 
             if user and password:
-                self.opener = build_opener(WSRedirectHandler(),
-                                           auth(passwords))
+                self.opener = build_opener(WSRedirectHandler(), auth(passwords))
             else:
                 self.opener = build_opener(WSRedirectHandler())
 
@@ -80,10 +79,10 @@ class WSBackEnd(object):
 
             self.connected = True
             self.url = url
-        except HTTPError, err:
-            raise WSException('Connection error to %s' % url, err)
-        except URLError, err:
-            raise WSException('Connection error to %s' % url, err)
+        except HTTPError as e:
+            raise WSException('Connection error to %s' % url, e)
+        except URLError as e:
+            raise WSException('Connection error to %s' % url, e)
 
         return self
 
@@ -115,7 +114,7 @@ class WSBackEnd(object):
             raise WSException('Request send error', err)
 
     def _encode(self, data):
-        return urlencode(dict((key, value) for key, value in data.iteritems() if value is not None), True)
+        return urlencode({key: value for key, value in data.iteritems() if value is not None}, True)
 
     def _new_request(self, url, get=None, post=None, method=None):
         url = self.url.rstrip('/') + '/' + url.lstrip('/') + (('?' + self._encode(get)) if get else '')

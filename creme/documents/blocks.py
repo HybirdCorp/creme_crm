@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ class FolderDocsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         folder_id = context['object'].id
-        q_dict = {'folder':  folder_id}
+        q_dict = {'folder': folder_id}
         return self._render(self.get_block_template_context(
                         context,
                         Document.objects.filter(**q_dict),
@@ -69,9 +69,10 @@ class LinkedDocsBlock(QuerysetBlock):
                                               ct_doc=_CT_DOC,
                                              )
         relations = btc['page'].object_list
-        docs = dict((c.id, c) for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
-                                                       .select_related('folder')
-                   )
+        docs = {c.id: c
+                    for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
+                                             .select_related('folder')
+               }
 
         for relation in relations:
             relation.object_entity = docs[relation.object_entity_id]

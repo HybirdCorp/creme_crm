@@ -86,10 +86,10 @@ class LastViewedItem(object):
             while len(old_items) > MAX_LAST_ITEMS:
                 old_items.pop()
 
-        entities = dict((e.id, e) for e in CremeEntity.objects.filter(is_deleted=False, 
-                                                                      pk__in=[item.pk for item in old_items],
-                                                                     )
-                       )
+        entities = {e.id: e for e in CremeEntity.objects.filter(is_deleted=False, 
+                                                                pk__in=[item.pk for item in old_items],
+                                                               )
+                   }
         items = []
         updated |= (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
 

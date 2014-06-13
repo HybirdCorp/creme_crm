@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -147,10 +147,11 @@ class Message(CremeModel):
                 Message.objects.filter(pk__in=pks).update(status_message=unicode(err))
 
             for phone, status, status_message in not_accepted:
-                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status,
-                                                                                   status_message=status_message)
+                Message.objects.filter(phone=phone, sending__id=sending_id) \
+                               .update(status=status, status_message=status_message)
 
-            Message.objects.filter(status=MESSAGE_STATUS_NOTSENT).update(status=MESSAGE_STATUS_ACCEPT, status_message='')
+            Message.objects.filter(status=MESSAGE_STATUS_NOTSENT) \
+                           .update(status=MESSAGE_STATUS_ACCEPT, status_message='')
 
         Message._do_action(sending, messages, action, 256)
 
@@ -164,15 +165,17 @@ class Message(CremeModel):
             res = []
 
             try:
-                res = ws.list_messages(phone=list(numbers), user_data=sending_id, aslist=True, fields=['phone', 'status', 'message'])
+                res = ws.list_messages(phone=list(numbers), user_data=sending_id,
+                                       aslist=True, fields=['phone', 'status', 'message'],
+                                      )
             except WSException:
                 pass
 
             print res
 
             for phone, status, status_message in res:
-                Message.objects.filter(phone=phone, sending__id=sending_id).update(status=status,
-                                                                                   status_message=status_message)
+                Message.objects.filter(phone=phone, sending__id=sending_id) \
+                               .update(status=status, status_message=status_message)
 
         Message._do_action(sending, messages, action, 256)
 
@@ -194,7 +197,9 @@ class Message(CremeModel):
 # TODO : enable this method when samoussa will be updated
 #    @staticmethod
 #    def syncs(request):
-#        messages = dict((str(message.pk) + '-' + str(message.sending_id), message) for message in request)
+#        messages = {str(message.pk) + '-' + str(message.sending_id): message 
+#                        for message in request
+#                   }
 #        samoussa = SamoussaBackEnd().connect()
 #
 #        for entry in samoussa.messages(user_data=messages.iterkeys()):

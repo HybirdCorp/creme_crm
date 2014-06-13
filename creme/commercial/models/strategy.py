@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -100,11 +100,14 @@ class Strategy(CremeEntity):
             segment_info = self.get_segment_descriptions_list()
 
             #build a 'matrix' with default score(=1) everywhere
-            scores = dict((segment_desc.id,
-                           dict((asset.id,
-                                 CommercialAssetScore(score=1, organisation=orga, asset=asset, segment_desc=segment_desc)
-                                ) for asset in assets)
-                          ) for segment_desc in segment_info)
+            scores = {segment_desc.id: {asset.id: CommercialAssetScore(score=1, organisation=orga,
+                                                                       asset=asset,
+                                                                       segment_desc=segment_desc,
+                                                                      )
+                                            for asset in assets
+                                       }
+                        for segment_desc in segment_info
+                     }
 
             #set the right scores in the matrix
             for score in CommercialAssetScore.objects.filter(organisation=orga, asset__in=assets, segment_desc__in=segment_info):
@@ -123,11 +126,14 @@ class Strategy(CremeEntity):
             segment_info = self.get_segment_descriptions_list()
 
             #build a 'matrix' with default score(=1) everywhere
-            scores = dict((segment_desc.id,
-                           dict((charm.id,
-                                 MarketSegmentCharmScore(score=1, organisation=orga, charm=charm, segment_desc=segment_desc)
-                                ) for charm in charms)
-                          ) for segment_desc in segment_info)
+            scores = {segment_desc.id: {charm.id: MarketSegmentCharmScore(score=1, organisation=orga,
+                                                                          charm=charm, 
+                                                                          segment_desc=segment_desc,
+                                                                         )
+                                            for charm in charms
+                                       }
+                          for segment_desc in segment_info
+                     }
 
             #set the right scores in the matrix
             for score in MarketSegmentCharmScore.objects.filter(organisation=orga, charm__in=charms, segment_desc__in=segment_info):
@@ -204,7 +210,7 @@ class Strategy(CremeEntity):
         categories = self._segments_categories.get(orga)
 
         if categories is None:
-            categories = dict((i, []) for i in xrange(1, 5))
+            categories = {i: [] for i in xrange(1, 5)}
             segment_info = self.get_segment_descriptions_list()
 
             if segment_info:
@@ -214,7 +220,7 @@ class Strategy(CremeEntity):
                 asset_threshold = (max(assets_totals) + min(assets_totals)) / 2.0
                 charm_threshold = (max(charms_totals) + min(charms_totals)) / 2.0
 
-                stored_categories = dict(MarketSegmentCategory.objects.filter(segment_desc__in=segment_info, organisation=orga) \
+                stored_categories = dict(MarketSegmentCategory.objects.filter(segment_desc__in=segment_info, organisation=orga)
                                                                       .values_list('segment_desc_id', 'category')
                                         )
 
