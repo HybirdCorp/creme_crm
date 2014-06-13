@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import count
 
 from creme.creme_core.utils import int_2_roman
@@ -186,7 +186,8 @@ class StatsTree(SectionTree):
             replies_map[rline.pform_line_id].append(rline)
 
         for fline in flines:
-            stats = defaultdict(int)
+            #stats = defaultdict(int)
+            stats = Counter()
             total = 0
 
             for rline in replies_map[fline.id]:
@@ -197,5 +198,6 @@ class StatsTree(SectionTree):
                     stats[label] += count
 
             fline.answer_stats = [(label, count, round(float(count * 100) / float(total), 2))
-                                    for label, count in stats.items()
+                                    #for label, count in stats.items()
+                                    for label, count in stats.iteritems()
                                  ] if total > 0 else []
