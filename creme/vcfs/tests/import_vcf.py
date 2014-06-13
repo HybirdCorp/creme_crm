@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.test.utils import override_settings
     from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _
 
@@ -1236,10 +1237,11 @@ END:VCARD"""
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Image.objects.count())
 
+    @override_settings(VCF_IMAGE_MAX_SIZE=10240) #(10 kB)
     def test_add_contact_vcf17(self):
         self.login()
 
-        settings.VCF_IMAGE_MAX_SIZE = 10240 #(10 kB)
+        #settings.VCF_IMAGE_MAX_SIZE = 10240 #(10 kB)
         vcf_forms.URL_START = vcf_forms.URL_START + ('file',)
 
         contact_count = Contact.objects.count()
