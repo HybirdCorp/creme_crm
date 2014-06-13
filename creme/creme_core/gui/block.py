@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -170,7 +170,8 @@ class Block(object):
         template_context = self._build_template_context(context, block_name, block_context,
                                                         base_url=base_url,
                                                         update_url=update_url,
-                                                        **extra_kwargs)
+                                                        **extra_kwargs
+                                                       )
 
         #assert BlocksManager.get(context).block_is_registered(self) #!! problem with blocks in inner popups
         if not BlocksManager.get(context).block_is_registered(self):
@@ -498,9 +499,9 @@ class BlocksManager(object):
     @property
     def used_relationtypes_ids(self):
         if self._used_relationtypes is None:
-            self._used_relationtypes = set(rt_id for block in self._build_dependencies_map()[Relation]
-                                                    for rt_id in block.relation_type_deps
-                                          )
+            self._used_relationtypes = {rt_id for block in self._build_dependencies_map()[Relation]
+                                            for rt_id in block.relation_type_deps
+                                       }
 
         return self._used_relationtypes
 

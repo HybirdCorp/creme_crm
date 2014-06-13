@@ -505,7 +505,7 @@ class EntityExtractorField(Field):
         """
         super(EntityExtractorField, self).__init__(widget=EntityExtractorWidget, *args, **kwargs)
         self.models_info = models_info
-        self.allowed_indexes = set(c[0] for c in choices)
+        self.allowed_indexes = {c[0] for c in choices}
 
         widget = self.widget
         widget.choices = choices

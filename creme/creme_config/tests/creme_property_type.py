@@ -66,7 +66,7 @@ class PropertyTypeTestCase(CremeTestCase):
         prop_type = self.get_object_or_fail(CremePropertyType, text=text)
         ctypes = prop_type.subject_ctypes.all()
         self.assertEqual(2,           len(ctypes))
-        self.assertEqual(set(ct_ids), set(ct.id for ct in ctypes))
+        self.assertEqual(set(ct_ids), {ct.id for ct in ctypes})
 
     def test_edit01(self):
         get_ct = ContentType.objects.get_for_model

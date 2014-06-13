@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from future_builtins import filter
+#from future_builtins import filter
 from datetime import datetime # date
 from itertools import izip_longest
 import logging
@@ -159,7 +159,8 @@ class EntityFilter(Model): #CremeModel ???
 
     def check_cycle(self, conditions):
         #Ids of EntityFilters that are referenced by these conditions
-        ref_filter_ids = set(filter(None, (cond._get_subfilter_id() for cond in conditions)))
+        #ref_filter_ids = set(filter(None, (cond._get_subfilter_id() for cond in conditions)))
+        ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
 
         if self.id in ref_filter_ids:
             raise EntityFilter.CycleError(ugettext(u'A condition can not reference its own filter.'))
@@ -221,7 +222,7 @@ class EntityFilter(Model): #CremeModel ???
                    ]
 
         while level_ids:
-            level_ids = set(cond.filter_id for cond, filter_id in sf_conds if filter_id in level_ids)
+            level_ids = {cond.filter_id for cond, filter_id in sf_conds if filter_id in level_ids}
             connected.update(level_ids)
 
         return connected
@@ -730,7 +731,7 @@ class EntityFilterCondition(Model):
         filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()).values_list('id', flat=True)
 
         #query = Q(relations__type=self.name, relations__object_entity__in=filtered)
-        query = Q(pk__in=Relation.objects.filter(type=self.name, object_entity__in=filtered) \
+        query = Q(pk__in=Relation.objects.filter(type=self.name, object_entity__in=filtered)
                                          .values_list('subject_entity_id', flat=True)
                  )
 

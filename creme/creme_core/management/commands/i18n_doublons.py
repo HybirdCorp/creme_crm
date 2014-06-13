@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,7 @@ class Command(BaseCommand):
                         problems_count += 1
                 else:
                     cxt_conflict = bool(reduce(lambda s1, s2: s1 & s2,
-                                               (set(entry.msgctxt for entry in msg_entries)
+                                               ({entry.msgctxt for entry in msg_entries}
                                                     for msg_entries in entries_per_msg.itervalues()
                                                )
                                               )

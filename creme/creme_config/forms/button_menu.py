@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import MultipleChoiceField
 from django.contrib.contenttypes.models import ContentType
+from django.forms import MultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm
@@ -72,7 +72,9 @@ class ButtonMenuEditForm(CremeForm):
         else:
             model_class = self.ct.model_class()
 
-            default_conf_ids = frozenset(ButtonMenuItem.objects.filter(content_type=None).values_list('button_id', flat=True))
+            default_conf_ids = frozenset(ButtonMenuItem.objects.filter(content_type=None)
+                                                               .values_list('button_id', flat=True)
+                                        )
 
             for id_, button in button_registry:
                 ctypes = button.get_ctypes()
@@ -98,7 +100,7 @@ class ButtonMenuEditForm(CremeForm):
             BMI_objects.filter(content_type=ct).delete()  #No pk to BMI objects --> can delete() on queryset directly
             items_2_save.append(ButtonMenuItem(content_type=ct, button_id='', order=1)) #No button for this content type -> fake button_id
         else:
-            old_ids = set(bmi.button_id for bmi in self.set_buttons)
+            old_ids = {bmi.button_id for bmi in self.set_buttons}
             new_ids = set(button_ids)
             buttons_2_del = old_ids - new_ids
             buttons_2_add = new_ids - old_ids

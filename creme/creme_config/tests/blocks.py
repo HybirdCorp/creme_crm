@@ -81,7 +81,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
-                         set(bl.zone for bl in b_locs)
+                         {bl.zone for bl in b_locs}
                         )
 
         response = self.client.get(url)
@@ -300,7 +300,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual({BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
                           BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
                          },
-                         set(bl.zone for bl in b_locs)
+                         {bl.zone for bl in b_locs}
                         )
 
     def test_edit_detailview05(self):
@@ -416,7 +416,7 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['app_name'].choices
 
-        names = set(name for name, vname in choices)
+        names = {name for name, vname in choices}
         self.assertNotIn(app_name,       names)
         self.assertNotIn('creme_core',   names)
         self.assertNotIn('creme_config', names)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,11 +47,11 @@ def _get_depblock_ids(request, block_id):
 
 def _build_blocks_render(request, block_id, blocks_manager, block_render_function, check_permission=False):
     block_renders = []
-
     blocks = block_registry.get_blocks(_get_depblock_ids(request, block_id))
 
     if check_permission:
         has_perm = request.user.has_perm
+
         for block in blocks:
             try:
                 permission = block.permission
@@ -116,7 +116,7 @@ def reload_home(request, block_id):
 def reload_portal(request, block_id, ct_ids):
     context = RequestContext(request)
     ct_ids = str2list(ct_ids)
-    app_labels = set(get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids)
+    app_labels = {get_ct_or_404(ct_id).model_class()._meta.app_label for ct_id in ct_ids}
 
     if len(app_labels) != 1:
         raise PermissionDenied('Error: all ContentTypes must be related to the same app')

@@ -110,7 +110,7 @@ class HistoryBlock(QuerysetBlock):
     def _populate_users(hlines, user):
         # We retrieve the User instances corresponding to the line usernames, in order to have a verbose display.
         # We avoid a useless query to User if the only used User is the current User (which is already retrieved).
-        usernames = set(hline.username for hline in hlines)
+        usernames = {hline.username for hline in hlines}
         usernames.discard(user.username)
 
         users = {user.username: user}

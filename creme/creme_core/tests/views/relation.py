@@ -267,7 +267,7 @@ class RelationViewsTestCase(ViewsTestCase):
             field_sfrt = context['form'].fields['semifixed_rtypes']
 
         self.assertEqual({sfrt1.id, sfrt2.id},
-                         set(pk for pk, sfrt in field_sfrt.choices)
+                         {pk for pk, sfrt in field_sfrt.choices}
                         )
 
         response = self.client.post(url, data={'relations': self.format_str % (
@@ -729,7 +729,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         relations = self.subject.relations.filter(type=self.rtype)
         self.assertEqual(2, len(relations))
-        self.assertEqual(set(object_ids), set(r.object_entity_id for r in relations))
+        self.assertEqual(set(object_ids), {r.object_entity_id for r in relations})
 
     def test_add_relations_with_same_type02(self):
         "An entity does not exist"

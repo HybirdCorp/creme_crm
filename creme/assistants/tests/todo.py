@@ -154,7 +154,10 @@ class TodoTestCase(AssistantsTestCase):
 
         todos = ToDo.get_todos(self.entity)
         self.assertEqual(3, len(todos))
-        self.assertEqual(set(t.id for t in ToDo.objects.all()), set(t.id for t in todos))
+        #self.assertEqual(set(t.id for t in ToDo.objects.all()), set(t.id for t in todos))
+        self.assertEqual(set(ToDo.objects.values_list('id', flat=True)),
+                         {t.id for t in todos}
+                        )
 
         self.assertGreaterEqual(todos_block.page_size, 2)
 

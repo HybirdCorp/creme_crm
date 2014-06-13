@@ -447,7 +447,7 @@ class EntityViewsTestCase(ViewsTestCase):
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
                  'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'birthday'
                 ]
-        diff = set(names) - set(name for name, vname in json_data)
+        diff = set(names) - {name for name, vname in json_data}
         self.assertFalse(diff, diff)
         self.assertEqual(len(names), len(json_data))
 
@@ -469,7 +469,7 @@ class EntityViewsTestCase(ViewsTestCase):
                  'url_site', 'fax', 'naf', 'siren', 'phone', 'siret', 'rcs', 'email',
                  'creation_date',  'tvaintra', 'subject_to_vat', 'capital'
                 ]
-        self.assertEqual(set(names), set(name for name, vname in json_data))
+        self.assertEqual(set(names), {name for name, vname in json_data})
         self.assertEqual(len(names), len(json_data))
 
         json_dict = dict(json_data)

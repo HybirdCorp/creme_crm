@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -134,8 +134,9 @@ class CustomFieldValue(CremeModel):
 
     @staticmethod
     def delete_all(entity):
-        cf_types = set(CustomField.objects.filter(content_type=entity.entity_type_id)\
-                                          .values_list('field_type', flat=True))
+        cf_types = set(CustomField.objects.filter(content_type=entity.entity_type_id)
+                                          .values_list('field_type', flat=True)
+                      )
 
         for cf_type in cf_types:
             for cvalue in _TABLES[cf_type].objects.filter(entity=entity):

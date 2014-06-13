@@ -1137,7 +1137,7 @@ class ListViewTestCase(ViewsTestCase):
 
         url = Line.get_lv_absolute_url()
         response = self.assertGET200(url)
-        ids = set(l.id for l in self._get_entities_set(response))
+        ids = {l.id for l in self._get_entities_set(response)}
         self.assertIn(pline1.id, ids)
         self.assertIn(pline2.id, ids)
         self.assertIn(sline1.id, ids)
@@ -1153,14 +1153,14 @@ class ListViewTestCase(ViewsTestCase):
                                      )
 
         response = post(PRODUCT_LINE_TYPE)
-        ids = set(l.id for l in self._get_entities_set(response))
+        ids = {l.id for l in self._get_entities_set(response)}
         self.assertIn(pline1.id,    ids)
         self.assertIn(pline2.id,    ids)
         self.assertNotIn(sline1.id, ids)
         self.assertNotIn(sline2.id, ids)
 
         response = post(SERVICE_LINE_TYPE)
-        ids = set(l.id for l in self._get_entities_set(response))
+        ids = {l.id for l in self._get_entities_set(response)}
         self.assertNotIn(pline1.id, ids)
         self.assertNotIn(pline2.id, ids)
         self.assertIn(sline1.id,    ids)

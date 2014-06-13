@@ -100,7 +100,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
-        self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
+        self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
 
         #################
         response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'}) #invalid address
@@ -111,7 +111,7 @@ class MailingListsTestCase(_EmailsTestCase):
         ct = ContentType.objects.get_for_model(EmailRecipient)
         self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id, follow=True, data={'id': recipient.id})
 
-        addresses = set(r.address for r in mlist.emailrecipient_set.all())
+        addresses = {r.address for r in mlist.emailrecipient_set.all()}
         self.assertEqual(len(recipients) - 1, len(addresses))
         self.assertNotIn(recipient.address, addresses)
 
@@ -127,7 +127,7 @@ class MailingListsTestCase(_EmailsTestCase):
         csvfile.name = 'recipients.csv' #Django uses this
 
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
-        self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
+        self.assertEqual(set(recipients), {r.address for r in mlist.emailrecipient_set.all()})
 
         csvfile.close()
 
@@ -144,7 +144,7 @@ class MailingListsTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
+        self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.contacts.all()})
 
         ################
         contact_to_del = recipients[0]
@@ -187,7 +187,7 @@ class MailingListsTestCase(_EmailsTestCase):
                                                                     name='last_name', values=['Saotome']
                                                                    )
                                ])
-        self.assertEqual(expected_ids, set(c.id for c in efilter.filter(Contact.objects.all())))
+        self.assertEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
 
         EntityFilter.create('test-filter02', 'Useless', Organisation) #should not be a valid choice
 
@@ -202,7 +202,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(['', efilter.id], choices)
 
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
-        self.assertEqual(expected_ids, set(c.id for c in mlist.contacts.all()))
+        self.assertEqual(expected_ids, {c.id for c in mlist.contacts.all()})
 
     def test_ml_orgas01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
@@ -217,7 +217,7 @@ class MailingListsTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
+        self.assertEqual({c.id for c in recipients}, {c.id for c in mlist.organisations.all()})
 
         ################
         orga_to_del = recipients[0]
@@ -261,13 +261,13 @@ class MailingListsTestCase(_EmailsTestCase):
                                                                     name='email', values=[False]
                                                                    )
                                ])
-        self.assertEqual(expected_ids, set(c.id for c in efilter.filter(Organisation.objects.all())))
+        self.assertEqual(expected_ids, {c.id for c in efilter.filter(Organisation.objects.all())})
 
         response = self.client.post('/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id,
                                     data={'filters': efilter.id}
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(expected_ids, set(c.id for c in mlist.organisations.all()))
+        self.assertEqual(expected_ids, {c.id for c in mlist.organisations.all()})
 
     def test_ml_tree01(self):
         create_ml = partial(MailingList.objects.create, user=self.user)

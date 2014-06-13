@@ -602,17 +602,17 @@ class StrategyTestCase(CommercialBaseTestCase):
         asset_scores = CommercialAssetScore.objects.all()
         self.assertEqual(2, len(asset_scores))
         self.assertEqual({individual.id},
-                         set(ascore.segment_desc_id for ascore in asset_scores)
+                         {ascore.segment_desc_id for ascore in asset_scores}
                         )
 
         charm_scores = MarketSegmentCharmScore.objects.all()
         self.assertEqual(2, len(charm_scores))
         self.assertEqual({individual.id},
-                         set(cscore.segment_desc_id for cscore in charm_scores)
+                         {cscore.segment_desc_id for cscore in charm_scores}
                         )
 
         cats = MarketSegmentCategory.objects.all()
         self.assertEqual(1, len(cats))
         self.assertEqual({individual.id},
-                         set(cat.segment_desc_id for cat in cats)
+                         {cat.segment_desc_id for cat in cats}
                         )

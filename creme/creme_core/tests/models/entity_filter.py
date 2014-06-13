@@ -72,7 +72,7 @@ class EntityFiltersTestCase(CremeTestCase):
         #filtered = list(efilter.filter(model.objects.all()))
         filtered = list(efilter.filter(model.objects.exclude(id__in=self._excluded_ids)))
         self.assertEqual(len(ids), len(filtered), str(filtered) + msg)
-        self.assertEqual(set(ids), set(c.id for c in filtered))
+        self.assertEqual(set(ids), {c.id for c in filtered})
 
     def _get_ikari_case_sensitive(self):
         ikaris = Contact.objects.filter(last_name__exact="Ikari")
@@ -1434,7 +1434,7 @@ class EntityFiltersTestCase(CremeTestCase):
             filtered = list(efilter.filter(Contact.objects.all()))
 
         self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
-        self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
+        self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
 
     def test_invalid_datefield(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact)
@@ -1454,7 +1454,7 @@ class EntityFiltersTestCase(CremeTestCase):
             filtered = list(efilter.filter(Contact.objects.all()))
 
         self.assertDoesNotExist(cond2)
-        self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
+        self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
 
     def test_invalid_currentuser(self):
         efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)

@@ -543,8 +543,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(2, len(cloned.service_lines))
         self.assertEqual(2, len(cloned.product_lines))
 
-        self.assertFalse(set(p.pk for p in invoice.service_lines) & set(p.pk for p in cloned.service_lines))
-        self.assertFalse(set(p.pk for p in invoice.product_lines) & set(p.pk for p in cloned.product_lines))
+        self.assertFalse({p.pk for p in invoice.service_lines} & {p.pk for p in cloned.service_lines})
+        self.assertFalse({p.pk for p in invoice.product_lines} & {p.pk for p in cloned.product_lines})
 
     def test_clone_source_n_target(self):
         "Internal relationtypes should not be cloned"

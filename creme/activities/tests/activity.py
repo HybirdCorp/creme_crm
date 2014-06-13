@@ -1257,7 +1257,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(2, len(relations))
-        self.assertEqual(set(ids), set(r.object_entity_id for r in relations))
+        self.assertEqual(set(ids), {r.object_entity_id for r in relations})
 
     def test_participants02(self):
         "Credentials error with the activity"
@@ -1370,7 +1370,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))
         self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
-                         set(r.object_entity_id for r in relations)
+                         {r.object_entity_id for r in relations}
                         )
 
     def test_participants06(self):
@@ -1392,7 +1392,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(3, len(relations))
         self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
-                         set(r.object_entity_id for r in relations)
+                         {r.object_entity_id for r in relations}
                         )
 
     def test_add_subjects01(self):

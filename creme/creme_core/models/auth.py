@@ -66,7 +66,7 @@ class UserRole(Model):
     @property
     def admin_4_apps(self):
         if self._admin_4_apps is None:
-            self._admin_4_apps = set(app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name)
+            self._admin_4_apps = {app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name}
 
         return self._admin_4_apps
 
@@ -79,7 +79,7 @@ class UserRole(Model):
     @property
     def allowed_apps(self):
         if self._allowed_apps is None:
-            self._allowed_apps = set(app_name for app_name in self.raw_allowed_apps.split('\n') if app_name)
+            self._allowed_apps = {app_name for app_name in self.raw_allowed_apps.split('\n') if app_name}
 
         return self._allowed_apps
 

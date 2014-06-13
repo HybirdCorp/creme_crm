@@ -366,13 +366,13 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         algoconfs = ConfigBillingAlgo.objects.filter(organisation=orga)
         self.assertEqual(['SIMPLE_ALGO'] * 3, [algoconf.name_algo for algoconf in algoconfs])
         self.assertEqual({Quote, Invoice, SalesOrder},
-                         set(algoconf.ct.model_class() for algoconf in algoconfs)
+                         {algoconf.ct.model_class() for algoconf in algoconfs}
                         )
 
         simpleconfs = SimpleBillingAlgo.objects.filter(organisation=orga)
         self.assertEqual([0] * 3, [simpleconf.last_number for simpleconf in simpleconfs])
         self.assertEqual({Quote, Invoice, SalesOrder},
-                         set(simpleconf.ct.model_class() for simpleconf in simpleconfs)
+                         {simpleconf.ct.model_class() for simpleconf in simpleconfs}
                         )
 
     def _get_setting_value(self):

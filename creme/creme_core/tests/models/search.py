@@ -74,7 +74,7 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item = SearchConfigItem.create_if_needed(Organisation, [])
         self.assertTrue(sc_item.all_fields)
 
-        sfields = set(sf.name for sf in sc_item.searchfields)
+        sfields = {sf.name for sf in sc_item.searchfields}
         self.assertIn('name', sfields)
         self.assertIn('shipping_address__city', sfields)
         self.assertNotIn('creation_date', sfields)
@@ -104,7 +104,7 @@ class SearchConfigTestCase(CremeTestCase):
 
         sc_item = self.refresh(sc_item) #no cache any more
 
-        sfields = set(sf.name for sf in sc_item.searchfields)
+        sfields = {sf.name for sf in sc_item.searchfields}
         self.assertIn('name', sfields)
         self.assertIn('capital', sfields)
         self.assertNotIn('created', sfields)

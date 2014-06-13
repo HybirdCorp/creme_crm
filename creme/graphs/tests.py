@@ -107,7 +107,7 @@ class GraphsTestCase(CremeTestCase):
 
         rtypes = graph.orbital_relation_types.all()
         self.assertEqual(2,               len(rtypes))
-        self.assertEqual(set(rtypes_ids), set(rt.id for rt in rtypes))
+        self.assertEqual(set(rtypes_ids), {rt.id for rt in rtypes})
 
         self.assertPOST200('/graphs/graph/%s/relation_type/delete' % graph.id,
                            data={'id': rtype01.id}
@@ -197,7 +197,7 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(2, len(rnodes))
 
         self.assertEqual({contact, orga},
-                         set(rnode.entity.get_real_entity() for rnode in rnodes)
+                         {rnode.entity.get_real_entity() for rnode in rnodes}
                         )
         self.assertEqual({rtype01, rtype02}, set(rnodes[0].relation_types.all()))
 
