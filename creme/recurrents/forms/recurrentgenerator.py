@@ -58,7 +58,7 @@ class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
 
     def save(self):
         instance = self.instance
-        instance.last_generation = instance.first_generation
+        instance.last_generation = instance.first_generation #TODO: in model.save() ??
 
         return super(RecurrentGeneratorCreateForm, self).save()
 
@@ -84,9 +84,6 @@ class RecurrentGeneratorWizard(FormWizard):
 
         return redirect(resource_form.instance)
 
-    #def process_step(self, request, form, step):
-        #if step == 0 and form.is_valid():
-            #self.form_list[1] = recurrent_registry.get_form_of_template(form.cleaned_data['ct'])
     def process_step(self, request, form, step):
         if step == 0 and form.is_valid():
             base_class = recurrent_registry.get_form_of_template(form.cleaned_data['ct'])
@@ -98,14 +95,6 @@ class RecurrentGeneratorWizard(FormWizard):
 
             self.form_list[1] = _TemplateClass
 
-    #def parse_params(self, request, *args, **kwargs):
-        #current_step = self.determine_step(request, *args, **kwargs)
-
-        #if request.method == 'POST':
-            #form = self.get_form(0, request.POST)
-
-            #if form.is_valid():
-                #self.initial[1] = {'ct': form.cleaned_data['ct'].id}
     def parse_params(self, request, *args, **kwargs):
         self.initial[0] = {'user': request.user}
         self.initial[1] = {'user': request.user}
