@@ -131,7 +131,7 @@ class CrudityBackend(object):
             except FieldDoesNotExist:
                 continue
 
-            if issubclass(field.__class__, ManyToManyField):
+            if issubclass(field.__class__, ManyToManyField): #TODO: isinstance(field, ManyToManyField) ...
                 setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
 
         return need_new_save
@@ -193,16 +193,18 @@ class CrudityBackend(object):
                 continue
 
             elif issubclass(field.__class__, FileField): #TODO: why not isinstance(field, FileField) ??
-                filename, blob = field_value#should be pre-processed by the input
+                filename, blob = field_value #should be pre-processed by the input
                 upload_path = field.upload_to.split('/')
                 setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
                 data.pop(field_name)
                 continue
 
             data[field_name] = field.to_python(field_value)
+            #setattr(instance, field_name, field.to_python(field_value)) TODO (instead of for ..: setattr()... ??
 
-        #TODO: why not setattr() ??
-        instance.__dict__.update(data)#TODO: Improve this when virtual fields will be added
+        instance.__dict__.update(data)
+        #for k, v in data.iteritems(): #TODO: (but fix bug with ManyToManyField)
+            #setattr(instance, k, v)
 
         is_created = True
         try:

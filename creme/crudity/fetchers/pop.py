@@ -94,7 +94,6 @@ class PopFetcher(CrudityFetcher):
         parsedate    = email.utils.parsedate
 
         for msg_infos in messages:
-
 #            attachment_paths = []
             attachments = []
 
@@ -121,6 +120,7 @@ class PopFetcher(CrudityFetcher):
 
             subject    = ''.join(decode_subject)
 
+            #TODO: list comprehension
             dates = []
             for d in get_all('date', []):
                 if d is not None:

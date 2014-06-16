@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,15 +29,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme.persons.models.contact import Contact
+from creme.persons.models import Contact
 
 from creme.media_managers.models import Image
 
 from ..backends.models import CrudityBackend
+from ..buttons import infopath_create_form_button, email_template_create_button
+from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..models import WaitingAction
 from ..utils import strip_html, strip_html_, decode_b64binary
-from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
-from ..buttons import infopath_create_form_button, email_template_create_button
 from .base import CrudityInput
 
 
@@ -76,13 +76,13 @@ class CreateEmailInput(EmailInput):
             while left_idx > -1:
                 right_idx = body.find(RIGHT_MULTILINE_SEP)
 
-                if right_idx < left_idx:#A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
-                    body = body[:right_idx]+body[right_idx+MULTILINE_SEP_LEN:]
+                if right_idx < left_idx: #A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
+                    body = body[:right_idx] + body[right_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
                 malformed_idx = (body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)#The body excepted current LEFT_MULTILINE_SEP
-                if malformed_idx > -1:#This means that a next occurrence of multiline is opened before closing current one
+                if malformed_idx > -1: #This means that a next occurrence of multiline is opened before closing current one
                     body = body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
@@ -138,7 +138,7 @@ class CreateEmailInput(EmailInput):
             action.ct      = ContentType.objects.get_for_model(backend.model)
             action.subject = backend.subject
             action.user    = owner
-            action.save()
+            action.save() #TODO: WaitingAction.objects.create()
         else:
             self._pre_create(backend, data)
             is_created, instance = backend._create_instance_n_history(data, user=owner, source="email - %s" % self.name)
@@ -153,6 +153,7 @@ class CreateEmailInput(EmailInput):
                 return Contact.objects.filter(email__iexact=sender, is_user__isnull=False)[0].is_user
             except IndexError:
                 return User.objects.filter(is_superuser=True).order_by('-pk')[0]#No need to catch IndexError
+
         return None
 
     def is_allowed_password(self, password, split_body):
@@ -165,6 +166,7 @@ class CreateEmailInput(EmailInput):
             if r and r.groupdict().get('password') == password:
                 allowed = True
                 break
+
         return allowed
 
 
@@ -175,7 +177,6 @@ class CreateInfopathInput(CreateEmailInput):
     verbose_name = _(u"Email - Infopath")
 
     MIME_TYPES = ['application/x-microsoft-infopathform']
-
 
     def _pre_process_data(self, backend, data):
         model_get_field = backend.model._meta.get_field
@@ -240,14 +241,17 @@ class CreateInfopathInput(CreateEmailInput):
                 continue
 
             if data.has_key(tag):
-                children = node.getchildren() #TODO: Deprecated since version 2.7 [Use list(elem) or iteration].
+                #children = node.getchildren()
+                children = list(node)
+
                 if children: #Multi-line
                     data[tag] = "\n".join(child.text or '' for child in children)
                 else:
                     data[tag] = node.text
         return data
 
-create_email_input    = CreateEmailInput()
+
+create_email_input = CreateEmailInput()
 create_email_input.register_buttons(email_template_create_button)
 
 create_infopath_input = CreateInfopathInput()

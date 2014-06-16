@@ -2,9 +2,14 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.test.utils import override_settings
 
     from creme.persons.models import Contact
 
+    from ..backends.models import CrudityBackend
+    from ..fetchers.base import CrudityFetcher
+    from ..inputs.base import CrudityInput
+    from ..management.commands.crudity_synchronize import Command as SyncCommand
     from ..models import WaitingAction, History
     from ..registry import FetcherInterface, crudity_registry
     from .base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput
@@ -13,6 +18,7 @@ except Exception as e:
 
 
 __all__ = ('CrudityViewsTestCase',)
+
 
 
 class CrudityViewsTestCase(CrudityTestCase):
@@ -98,10 +104,105 @@ class CrudityViewsTestCase(CrudityTestCase):
 
     #def test_history_reload(self): TODO
 
-    def test_actions_fetch(self): #TODO: test with data
+    @override_settings(CRUDITY_BACKENDS=[{'fetcher': 'email',
+                                          'input': 'raw',
+                                          'method': 'create',
+                                          'model': 'emails.entityemail',
+                                          'password': '',
+                                          'limit_froms': (),
+                                          'in_sandbox': True,
+                                          'body_map': {},
+                                          'subject': '*',
+                                         },
+                                        ])
+    def test_actions_fetch01(self):
         response = self.assertGET200('/crudity/waiting_actions')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
+
+    @override_settings(CRUDITY_BACKENDS=[{'fetcher':    'swallow',
+                                          "input":      'swallow',
+                                          "method":     'create',
+                                          "model":      'persons.contact',
+                                          "password":    '',
+                                          "limit_froms": (),
+                                          "in_sandbox":  True,
+                                          "body_map" :   {},
+                                          "subject":     'CREATECONTACT',
+                                         },
+                                        ],
+                      )
+    def _aux_test_actions_fetch(self, func):
+        original_fetchers = crudity_registry._fetchers
+        self.assertIsInstance(original_fetchers, dict)
+        self.assertTrue(original_fetchers)
+
+        original_backends = crudity_registry._backends
+        self.assertIsInstance(original_backends, dict)
+        self.assertTrue(original_backends)
+
+        last_name = 'Ayanami'
+
+        class Swallow(object):
+            def __init__(self, title, content):
+                self.title = title
+                self.content = content
+
+        class SwallowFetcher(CrudityFetcher):
+            def fetch(self, *args, **kwargs):
+                return [Swallow('create contact', 'last_name=%s' % last_name)]
+
+        mock_fetcher = SwallowFetcher()
+
+        class SwallowInput(CrudityInput):
+            name = 'swallow'
+            method = 'create'
+
+            def create(this, swallow):
+                self.assertEqual(1, len(this.get_backends()))
+
+                backend = this.get_backend(CrudityBackend.normalize_subject(swallow.title))
+                self.assertIsNotNone(backend)
+
+                data = {'user_id': self.user.id}
+                #data = {'user': self.user} TODO
+
+                for line in swallow.content.split('\n'):
+                    attr, value = line.split('=', 1)
+                    data[attr] = value
+
+                created, instance = backend._create_instance_n_history(data, source="Swallow mail")
+                self.assertTrue(created)
+                self.assertIsInstance(instance, Contact)
+                self.assertEqual(last_name, instance.last_name)
+                self.assertIsNotNone(instance.pk)
+
+                return True
+
+        mock_input = SwallowInput()
+
+        crudity_registry._fetchers = {}
+        crudity_registry.register_fetchers('swallow', [mock_fetcher])
+        crudity_registry.register_inputs('swallow', [mock_input])
+
+        crudity_registry.dispatch()
+
+        try:
+            result = func()
+        finally:
+            #TODO: crappy hack
+            crudity_registry._fetchers = original_fetchers
+            crudity_registry._backends = original_backends
+
+        return result
+
+    def test_actions_fetch02(self):
+        response = self._aux_test_actions_fetch(lambda: self.client.get('/crudity/waiting_actions'))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_actions_fetch03(self):
+        self._aux_test_actions_fetch(lambda: SyncCommand().handle(verbosity=0))
 
     #def test_actions_delete(self): TODO
     #def test_actions_reload(self): TODO

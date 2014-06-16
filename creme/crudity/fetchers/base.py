@@ -33,6 +33,4 @@ class CrudityFetcher(object):
         """Make the fetcher do his job.
             @returns: iterable of fetcher managed type (i.e: emails objects for email fetcher for example).
         """
-        pass
-
-
+        raise NotImplementedError

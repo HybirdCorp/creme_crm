@@ -28,9 +28,9 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_ct_or_404, jsonify
 
+from ..blocks import WaitingActionBlock
 from ..models import WaitingAction
 from ..registry import crudity_registry
-from ..blocks import WaitingActionBlock
 
 
 def _retrieve_actions_ids(request):
@@ -96,24 +96,32 @@ def reload(request, ct_id, backend_subject):
 
 def _fetch(user):
     count = 0
+
     for fetcher in crudity_registry.get_fetchers():
         all_data = fetcher.fetch()
-        inputs    = fetcher.get_inputs()
+        inputs = fetcher.get_inputs()
+
         for data in all_data:
             handled = False
+
             for crud_inputs in inputs:
                 for input_type, input in crud_inputs.iteritems():
                     handled = input.handle(data)
+
                     if handled:
                         break
+
                 if handled:
                     count += 1
                     break
+
             if not handled:
                 default_backend = fetcher.get_default_backend()
+
                 if default_backend is not None:
                     count += 1
                     default_backend.fetcher_fallback(data, user)
+
     return count
 
 @login_required
