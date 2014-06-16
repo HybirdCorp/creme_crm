@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 #from itertools import chain
 from collections import defaultdict
+from copy import deepcopy
 import logging
 
 from django.conf import settings
@@ -37,9 +38,9 @@ logger = logging.getLogger(__name__)
 
 
 class FetcherInterface(object):
-    """
-    Multiple fetchers of the same "type" (i.e: pop email, imap email...) could be registered with the same key in  CRUDityRegistry
-    FetcherInterface abstract those to act like one fetcher
+    """Multiple fetchers of the same "type" (i.e: pop email, imap email...) could
+    be registered with the same key in CRUDityRegistry.
+    FetcherInterface abstract those to act like one fetcher.
     """
     def __init__(self, fetchers):
         self.fetchers = fetchers
@@ -50,8 +51,8 @@ class FetcherInterface(object):
         self.fetchers.extend(fetcher)
 
     def add_inputs(self, *inputs):
-        for input in inputs:
-            self._inputs[input.name][input.method] = input
+        for crud_input in inputs:
+            self._inputs[crud_input.name][crud_input.method] = crud_input
 
     def get_input(self, name, method):
         input_name = self._inputs.get(name)
@@ -83,7 +84,7 @@ class FetcherInterface(object):
 class CRUDityRegistry(object):
     def __init__(self):
         self._fetchers = {}
-        self._backends   = {}
+        self._backends = {}
 
     def register_fetchers(self, source, fetchers):
         self._fetchers[source] = FetcherInterface(fetchers)
@@ -96,10 +97,13 @@ class CRUDityRegistry(object):
 
     def register_inputs(self, source, inputs):
         fetcher = self.get_fetcher(source)
+
         if fetcher is not None:
             fetcher.add_inputs(*inputs)
         else:
-            logger.warning(u"The fetcher '%s' does not exist, inputs : %s will not be registered" % (source, inputs))
+            logger.warning(u"The fetcher '%s' does not exist, inputs '%s' will not be registered",
+                            source, inputs,
+                          )
 
     def register_backends(self, backends):
         for backend in backends:
@@ -119,17 +123,22 @@ class CRUDityRegistry(object):
             raise NotRegistered("No backend is registered for this model '%s'" % model)
 
     def get_configured_backends(self):
-        """Get backends instances which are configured and associated to an input (which is itself linked to a fetcher)
+        """Get backends instances which are configured and associated to an input
+        (which is itself linked to a fetcher).
         @return: A list of configured backend instances
         """
         backends = []
+
         for fetcher in self.get_fetchers():
             for crud_inputs in fetcher.get_inputs():
                 for input_type, input in crud_inputs.iteritems():
                     backends.extend(input.get_backends())
+
             default_be = fetcher.get_default_backend()
+
             if default_be is not None:
                 backends.append(default_be)
+
         return backends
 
     def get_configured_backend(self, subject):
@@ -137,11 +146,14 @@ class CRUDityRegistry(object):
             for crud_inputs in fetcher.get_inputs():
                 for input_type, input in crud_inputs.iteritems():
                     backend = input.get_backend(CrudityBackend.normalize_subject(subject))
+
                     if backend is not None:
                         return backend
 
     def dispatch(self):
         for backend_cfg in settings.CRUDITY_BACKENDS:
+            backend_cfg = deepcopy(backend_cfg)
+
             try:
                 fetcher_source = backend_cfg.pop('fetcher')
                 input_name     = backend_cfg.pop('input')
@@ -157,17 +169,23 @@ class CRUDityRegistry(object):
                 raise ImproperlyConfigured(de)
             else:
                 fetcher = self.get_fetcher(fetcher_source)
-                input   = fetcher.get_input(input_name, method)
-                if (fetcher and input) is not None:
+                crud_input = fetcher.get_input(input_name, method)
+
+                if (fetcher and crud_input) is not None:
                     backend_cfg['source'] = u"%s - %s" % (fetcher_source, input_name)
-                    backend_cfg['verbose_source'] = input.verbose_name#for i18n
-                    backend_cfg['verbose_method'] = input.verbose_method#for i18n
+                    backend_cfg['verbose_source'] = crud_input.verbose_name #for i18n
+                    backend_cfg['verbose_method'] = crud_input.verbose_method #for i18n
+
                     if subject == "*":
                         if fetcher.get_default_backend() is not None:
-                            raise ImproperlyConfigured(u"Only one fallback backend is allowed for %s/%s" % (fetcher_source, input_name))
+                            raise ImproperlyConfigured(u"Only one fallback backend is allowed for %s/%s" % (
+                                                            fetcher_source, crud_input_name,
+                                                        )
+                                                      )
+
                         fetcher.register_default_backend(backend(backend_cfg))
                     else:
-                        input.add_backend(backend(backend_cfg))
+                        crud_input.add_backend(backend(backend_cfg))
 
 crudity_registry = CRUDityRegistry()
 

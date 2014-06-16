@@ -623,8 +623,8 @@ CRUDITY_BACKENDS = [
         "password": "",
         "limit_froms": (),
         "in_sandbox": True,
-        "body_map"   : {},
-        "subject": u"*"
+        "body_map": {},
+        "subject": u"*",
     },
 ]
 
