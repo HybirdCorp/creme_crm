@@ -262,7 +262,7 @@ class ExtractorField(Field):
     #}
 
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-        super(ExtractorField, self).__init__(self, widget=ExtractorWidget, *args, **kwargs)
+        super(ExtractorField, self).__init__(widget=ExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
         self._modelfield = modelfield
         self._user = None
