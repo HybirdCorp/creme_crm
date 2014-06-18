@@ -1,10 +1,13 @@
-{% if not whoami %}
+{% comment %}TODO : REMOVE IT !
 <script type="text/javascript">
     $(document).ready(function () {
-        creme.lv_widget.initialize({multiple: {{o2m|lower}}});
+        {% if whoami %}
+            creme.lv_widget.initialize({multiple: {{o2m|lower}}}, $('#{{whoami}}'));
+        {% else %}
+            creme.lv_widget.initialize({multiple: {{o2m|lower}}});
+        {% endif %}
     });
 </script>
-{% comment %}
 <script type="text/javascript">
     $(document).ready(function (){
         $('form[name="list_view_form"]').list_view({
@@ -33,8 +36,8 @@
     });
 </script>
 {% endcomment %}
-{% endif %}
 {% block extrahead %}{% endblock %}
-<form action="" method="POST" name="list_view_form">
+<form action="" method="POST" name="list_view_form" class="ui-creme-widget widget-auto" widget="ui-creme-listview"
+      {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}>
     {% include "creme_core/frags/list_view_content.html" %}
 </form>

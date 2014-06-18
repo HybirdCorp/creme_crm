@@ -23,7 +23,7 @@
     </style>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.listview-open').click(function() {
+            $('.listview-open.select').click(function() {
                 var multiple = $(this).is('[multiple]');
                 var ctype = $(this).attr('ctype');
                 var target = $(this).attr('target') || '';
@@ -31,7 +31,15 @@
 
                 creme.lv_widget.openFilterSelection(target, ctype, filter, multiple);
             });
-            
+
+            $('.listview-open.view').click(function() {
+                var ctype = $(this).attr('ctype');
+                var target = $(this).attr('target') || '';
+                var filter = $(this).attr('filter') || '';
+
+                creme.lv_widget.openFilterView(ctype, filter);
+            });
+
             $('.listview-test .ui-icon-close').click(function() {
                 $('#' + $(this).attr('target')).val('');
             })
@@ -42,14 +50,16 @@
     <ul>
         <li class="listview-test">
             <span class="title">Contacts&nbsp;</span>
-            <a class="listview-open" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">single</a>&nbsp;|
-            <a class="listview-open" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts" multiple>multiple</a>
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">single</a>&nbsp;|
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts" multiple>multiple&nbsp;|</a>
+            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts">view</a>
             <input id="contacts" type="text" disabled><span class="ui-icon ui-icon-close" target="contacts"></span>
         </li>
         <li class="listview-test">
             <span class="title">Contacts (filtered)&nbsp;</span>
-            <a class="listview-open" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}">single</a>&nbsp;|
-            <a class="listview-open" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}" multiple>multiple</a>
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}">single</a>&nbsp;|
+            <a class="listview-open select" ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}" multiple>multiple&nbsp;|</a>
+            <a class="listview-open view"   ctype="{{TEST_CONTENTTYPES.contact}}" target="contacts-filtered" filter="{&quot;first_name&quot;:&quot;Fulbert&quot;}">view</a>
             <input id="contacts-filtered" type="text" disabled><span class="ui-icon ui-icon-close" target="contacts-filtered"></span>
         </li>
     </ul>
