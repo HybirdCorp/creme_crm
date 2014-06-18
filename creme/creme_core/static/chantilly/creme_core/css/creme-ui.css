@@ -49,6 +49,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     background-repeat: no-repeat;
     background-image: url("chantilly/images/add_16.png");
     padding-left: 20px;
+    min-height: 16px;
     margin: 4px 0px 4px 0px;
 }
 
