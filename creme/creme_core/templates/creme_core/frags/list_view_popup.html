@@ -1,10 +1,10 @@
 {% extends "creme_core/frags/list_view.html" %}
 
+{% comment %}TODO : REMOVE IT !
 {% block extrahead %}
     <script type="text/javascript">
         creme.lv_widget.initialize({multiple: {{o2m|lower}}}, $('#{{whoami}}'));
     </script>
-    {% comment %}
     <script type="text/javascript">
     $('[name=inner_body] form', '#{{whoami}}').list_view('setSubmit', function(input, extra_data){
             var url = creme.utils.appendInUrl($('[name="inner_header_from_url"]', $('#{{whoami}}')).val(), '?ajax=true');
@@ -28,5 +28,5 @@
             );
         });
     </script>
-    {% endcomment %}
 {% endblock %}
+{% endcomment %}

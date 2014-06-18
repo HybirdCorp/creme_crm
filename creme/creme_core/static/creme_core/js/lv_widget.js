@@ -19,67 +19,68 @@
 // if(!creme.relations) creme.relations = {}  ???
 creme.lv_widget = {};
 
-creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
-    var input = $('#' + id);
-    input.hide();
-    var td = input.parent();
-    var $div = $('<div></div>');
-
-    for (var i in extra_attrs) {
-        var attr = extra_attrs[i];
-
-        if (attr.name && attr.value && attr.name!='id')
-            $div.attr(attr.name, attr.value);
-    }
-
-    td.append(
-        $div
-        .attr('id', id + '_div')
-        .text(gettext("Select") + ' : ' + $('label[for=' + id + ']').text())
-        .addClass('defaultcur')
-        .append(
-            $('<img />').attr('src', creme_media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
-            .bind('click',
-                  {input: input, input_id: id, lv_widget: creme.lv_widget},
-                  function(e) {
-                      var ct_id = e.data.input.attr('ct_id');
-                      var multiple = e.data.input.attr('o2m');
-                      var input_id = e.data.input_id;
-
-                      creme.lv_widget.openFilterSelection(input_id, ct_id, q_filter, multiple);
-                        /*
-                        var options = {
-                            send_button: function(dialog) {
-                                var lv = $('form[name="list_view_form"]');
-                                var ids = lv.list_view("getSelectedEntitiesAsArray");
-                                if (ids == "" || lv.list_view("countEntities") == 0) {
-                                    creme.utils.showDialog(gettext("Please select at least one entity."),
-                                                            {'title': gettext("Error")});
-                                    return;
-                                }
-
-                                if (lv.list_view('option', 'o2m') && lv.list_view("countEntities") > 1) {
-                                    creme.utils.showDialog(gettext("Please select only one entity."),
-                                                            {'title': gettext("Error")});
-                                    return;
-                                }
-                                creme.lv_widget.handleSelection(ids, e.data.input_id);
-                                creme.utils.closeDialog(dialog, false);
-                            },
-                            send_button_label: gettext("Validate the selection")
-                        }
-//                        var params='menubar=no, status=no, scrollbars=yes, height=800';
-                        var dialog_id = creme.utils.showInnerPopup('/creme_core/list_view/popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
-                        
-                        var ct_id = e.data.input.attr('ct_id');
-                        var multiple = e.data.input.attr('o2m')
-                        */
-                  }
-            )
-            .addClass('pointer')
-        )
-    );
-}
+// TODO : no longer used
+//creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
+//    var input = $('#' + id);
+//    input.hide();
+//    var td = input.parent();
+//    var $div = $('<div></div>');
+//
+//    for (var i in extra_attrs) {
+//        var attr = extra_attrs[i];
+//
+//        if (attr.name && attr.value && attr.name!='id')
+//            $div.attr(attr.name, attr.value);
+//    }
+//
+//    td.append(
+//        $div
+//        .attr('id', id + '_div')
+//        .text(gettext("Select") + ' : ' + $('label[for=' + id + ']').text())
+//        .addClass('defaultcur')
+//        .append(
+//            $('<img />').attr('src', creme_media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
+//            .bind('click',
+//                  {input: input, input_id: id, lv_widget: creme.lv_widget},
+//                  function(e) {
+//                      var ct_id = e.data.input.attr('ct_id');
+//                      var multiple = e.data.input.attr('o2m');
+//                      var input_id = e.data.input_id;
+//
+//                      creme.lv_widget.openFilterSelection(input_id, ct_id, q_filter, multiple);
+//                        /*
+//                        var options = {
+//                            send_button: function(dialog) {
+//                                var lv = $('form[name="list_view_form"]');
+//                                var ids = lv.list_view("getSelectedEntitiesAsArray");
+//                                if (ids == "" || lv.list_view("countEntities") == 0) {
+//                                    creme.utils.showDialog(gettext("Please select at least one entity."),
+//                                                            {'title': gettext("Error")});
+//                                    return;
+//                                }
+//
+//                                if (lv.list_view('option', 'o2m') && lv.list_view("countEntities") > 1) {
+//                                    creme.utils.showDialog(gettext("Please select only one entity."),
+//                                                            {'title': gettext("Error")});
+//                                    return;
+//                                }
+//                                creme.lv_widget.handleSelection(ids, e.data.input_id);
+//                                creme.utils.closeDialog(dialog, false);
+//                            },
+//                            send_button_label: gettext("Validate the selection")
+//                        }
+////                        var params='menubar=no, status=no, scrollbars=yes, height=800';
+//                        var dialog_id = creme.utils.showInnerPopup('/creme_core/list_view/popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
+//                        
+//                        var ct_id = e.data.input.attr('ct_id');
+//                        var multiple = e.data.input.attr('o2m')
+//                        */
+//                  }
+//            )
+//            .addClass('pointer')
+//        )
+//    );
+//}
 
 creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multiple) {
     creme.lv_widget.listViewAction('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
@@ -87,6 +88,18 @@ creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multip
                         creme.lv_widget.handleSelection(data, input_id);
                     })
                    .start();
+}
+
+creme.lv_widget.openFilterView = function(ct_id, q_filter) {
+    creme.utils.showInnerPopup('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, 1, q_filter), {
+                                   closeOnEscape: true,
+                                   open: function() {},
+                                   buttons: [{text: gettext("Ok"),
+                                              click: function() {
+                                                         $(this).dialog("close");
+                                                     }
+                                             }],
+                               });
 }
 
 creme.lv_widget.handleSelection = function(ids, targetInputId) {
@@ -278,7 +291,7 @@ creme.lv_widget.initialize = function(options, dialog) {
     }
 
     listview.list_view({
-        o2m:              options.multiple,
+        o2m:              options.multiple ? 0 : 1,
         submitHandler:    submit_handler,
         kd_submitHandler: function (e, input, extra_data)
         {
@@ -333,3 +346,26 @@ creme.lv_widget.listViewAction = function(url, options, data) {
                }
            }, data);
 }
+
+creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
+    options: {
+        multiple: false,
+        whoami:   '',
+    },
+
+    _create: function(element, options, cb, sync, arguments)
+    {
+        var dialog = options.whoami ? $('#' + options.whoami) : undefined;
+        var multiple = element.is('[multiple]') || options.multiple
+
+        creme.lv_widget.initialize({multiple: multiple}, dialog);
+
+        /* USEFULL ??? */
+        $('.list_view_actions .default-action', element).hover(
+             function() {$(this).addClass('ui-state-hover');},
+             function() {$(this).removeClass('ui-state-hover');}
+        );
+
+        element.addClass('widget-ready');
+    }
+});
