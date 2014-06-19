@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import datetime
+    from datetime import timedelta #datetime
+    from functools import partial
 
     from django.conf import settings
+    from django.core import mail
     from django.core.serializers.json import simplejson
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.management.commands.reminder import Command as ReminderCommand
+    from creme.creme_core.models import CremeEntity, DateReminder
 
     from creme.persons.models import Contact
 
@@ -296,3 +299,35 @@ class TodoTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, todo.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    def test_reminder(self):
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        now_value = now()
+
+        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=self.user)
+        todo1 = create_todo(title='Todo#1', deadline=now_value)
+        create_todo(title='Todo#2', deadline=now_value + timedelta(days=2))
+        create_todo(title='Todo#3')
+        todo4 = create_todo(title='Todo#4', deadline=now_value)
+        #TODO: default=false in field instead ?? (see models.todo.py)
+        todo4.is_ok = True
+        todo4.save()
+
+        ReminderCommand().handle(verbosity=0)
+
+        reminders = DateReminder.objects.exclude(id__in=reminder_ids)
+        self.assertEqual(1, len(reminders))
+
+        reminder = reminders[0]
+        self.assertEqual(todo1, reminder.object_of_reminder)
+        self.assertEqual(1,     reminder.ident)
+        self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+
+        messages = mail.outbox
+        self.assertEqual(1, len(messages))
+
+        message = messages[0]
+        self.assertEqual(_(u'Reminder concerning a Creme CRM todo related to %s') % self.entity,
+                         message.subject
+                        )
+        self.assertIn(todo1.title, message.body)

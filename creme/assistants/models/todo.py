@@ -54,7 +54,7 @@ class ToDo(CremeModel):
         super(ToDo, self).__init__(*args, **kwargs)
 
         if self.pk is None:
-            self.is_ok = False
+            self.is_ok = False #TODO: default=false in field instead ??
 
         if self.deadline is None:
             self.has_deadline = False

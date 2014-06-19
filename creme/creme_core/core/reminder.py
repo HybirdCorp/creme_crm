@@ -71,7 +71,7 @@ class Reminder(object):
             connection.send_messages(messages)
             connection.close()
         except Exception:
-            pass
+            logger.exception('Reminder.send_mails() failed')
 
     def execute(self):
         if not self.ok_for_continue():

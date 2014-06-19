@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,15 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.reminder import reminder_registry
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui.block import block_registry
 
 from .blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
-
+from .reminders import reminder_alert, reminder_todo
 
 creme_registry.register_app('assistants', _(u'Assistants (Todos, Memo, ...)'), '/')
 block_registry.register(todos_block, memos_block, alerts_block, actions_it_block, actions_nit_block, messages_block)
+
+reminder_registry.register(reminder_alert)
+reminder_registry.register(reminder_todo)
