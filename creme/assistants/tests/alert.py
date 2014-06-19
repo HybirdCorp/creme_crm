@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import datetime
+    from datetime import timedelta #datetime
+    from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core import mail
+    from django.test.utils import override_settings
+    from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.management.commands.reminder import Command as ReminderCommand
+    from creme.creme_core.models import CremeEntity, DateReminder
 
     from ..models import Alert
     from .base import AssistantsTestCase
@@ -181,3 +187,41 @@ class AlertTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, alert.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
+    def test_reminder(self):
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+        now_value = now()
+
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity, user=self.user,
+                               trigger_date=now_value - timedelta(minutes=70),
+                              )
+        alert1 = create_alert(title='Alert#1')
+        create_alert(title='Alert#2', trigger_date=now_value - timedelta(minutes=50))
+        create_alert(title='Alert#3', is_validated=True)
+
+        def remind():
+            ReminderCommand().handle(verbosity=0)
+
+        remind()
+        reminders = DateReminder.objects.exclude(id__in=reminder_ids)
+        self.assertEqual(1, len(reminders))
+
+        reminder = reminders[0]
+        self.assertEqual(alert1, reminder.object_of_reminder)
+        self.assertEqual(1,     reminder.ident)
+        self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+
+        messages = mail.outbox
+        self.assertEqual(1, len(messages))
+
+        message = messages[0]
+        self.assertEqual(_(u'Reminder concerning a Creme CRM alert related to %s') % self.entity,
+                         message.subject
+                        )
+        self.assertIn(alert1.title, message.body)
+
+        #Reminders are not recreated if they already exist
+        remind()
+        self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids + [reminder.id]))
+        self.assertEqual(1, len(mail.outbox))

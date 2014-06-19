@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,9 +73,8 @@ class ReminderTodo(Reminder):
                 }
 
     def get_Q_filter(self):
-        delta = timedelta(days=1)
         dt_now = now().replace(microsecond=0, second=0)
-        return Q(deadline__lte=dt_now + delta, is_ok=False)
+        return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
 
     def ok_for_continue(self):
         return now().hour > 8
