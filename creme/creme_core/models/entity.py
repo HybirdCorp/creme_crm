@@ -458,6 +458,6 @@ class CremeEntity(CremeAbstractEntity):
         self.save()
 
 
-from relation import Relation, RelationType
-from creme_property import CremeProperty
-from custom_field import CustomField, CustomFieldValue
+from .relation import Relation, RelationType
+from .creme_property import CremeProperty
+from .custom_field import CustomField, CustomFieldValue
