@@ -1264,6 +1264,87 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field01.delete()
         self.assertEqual([unicode(custom_field02.id)], [cond.name for cond in efilter.conditions.all()])
 
+    def test_customfield_number_isempty(self):
+        rei = self.contacts['rei']
+
+        custom_field = CustomField.objects.create(name='Weight (kg)', content_type=self.contact_ct, field_type=CustomField.FLOAT)
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=rei).set_value_n_save('40.00')
+        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save('40.5')
+
+        self.assertEqual(2, CustomFieldFloat.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                         operator=EntityFilterCondition.ISEMPTY,
+                                                         value=True
+                                                        )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'asuka', exclude=True))
+
+        efilter = EntityFilter.create('test-filter02', name='not empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                         operator=EntityFilterCondition.ISEMPTY,
+                                                         value=False
+                                                        )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'asuka'))
+
+    def test_customfield_enum_isempty(self):
+        rei = self.contacts['rei']
+
+        custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.ENUM)
+        create_evalue = CustomFieldEnumValue.objects.create
+        eva00 = create_evalue(custom_field=custom_field, value='Eva-00')
+
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
+        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva00.id)
+
+        self.assertEqual(2, CustomFieldEnum.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                         operator=EntityFilterCondition.ISEMPTY,
+                                                         value=True
+                                                        )
+                               ])
+
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'asuka', exclude=True))
+
+        efilter = EntityFilter.create('test-filter02', name='not empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                         operator=EntityFilterCondition.ISEMPTY,
+                                                         value=False
+                                                        )
+                               ])
+
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'asuka'))
+
+    def test_customfield_string_isempty(self):
+        custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.STR)
+        klass = custom_field.get_value_class()
+        klass(custom_field=custom_field, entity=self.contacts['rei']).set_value_n_save('Eva-00')
+        klass(custom_field=custom_field, entity=self.contacts['shinji']).set_value_n_save('Eva-01')
+
+        self.assertEqual(2, CustomFieldString.objects.count())
+
+        efilter = EntityFilter.create('test-filter01', name='empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                                          operator=EntityFilterCondition.ISEMPTY,
+                                                                          value=True
+                                                                         )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'shinji', exclude=True))
+
+        efilter = EntityFilter.create('test-filter01', name='not empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                                          operator=EntityFilterCondition.ISEMPTY,
+                                                                          value=False
+                                                                         )
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', 'shinji'))
+
     def test_build_customfield(self): #errors
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
         self.assertRaises(EntityFilterCondition.ValueError,

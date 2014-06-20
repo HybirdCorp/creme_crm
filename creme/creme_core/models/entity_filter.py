@@ -362,13 +362,13 @@ class _ConditionBooleanOperator(_ConditionOperator):
 
 class _IsEmptyOperator(_ConditionBooleanOperator):
     def __init__(self, name, exclude=False, **kwargs):
-        super(_IsEmptyOperator, self).__init__(name, '', exclude=exclude, accept_subpart=False, **kwargs)
+        super(_IsEmptyOperator, self).__init__(name, key_pattern='%s__isnull', exclude=exclude, accept_subpart=False, **kwargs)
 
     def get_q(self, efcondition, values):
         field_name = efcondition.name
 
         # as default, set isnull operator (allways true, negate is done later)
-        query = Q(**{'%s__isnull' % field_name: True})
+        query = Q(**{self.key_pattern % field_name: True})
 
         # add filter for text fields, "isEmpty" should mean null or empty string 
         #finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
@@ -460,7 +460,7 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk', 'user')),
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk', 'user', 'enum', 'number', 'boolean')), #TODO: all types should be allowed ('date' fields are annoying at the moment)
             RANGE:           _RangeOperator(_(u"Range")),
         }
 
@@ -492,8 +492,12 @@ class EntityFilterCondition(Model):
         cf_value_class = custom_field.get_value_class()
 
         try:
-            cf_value_class.get_formfield(custom_field, None).clean(value)
-        except ValidationError, e:
+            if operator == EntityFilterCondition.ISEMPTY:
+                operator_obj = EntityFilterCondition._OPERATOR_MAP.get(operator)
+                operator_obj.validate_field_values(None, [value])
+            else:
+                cf_value_class.get_formfield(custom_field, None).clean(value)
+        except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
         value = {'operator': operator,
@@ -654,10 +658,14 @@ class EntityFilterCondition(Model):
         operator = EntityFilterCondition._OPERATOR_MAP[search_info['operator']]
         related_name = search_info['rname']
         fname = '%s__value' % related_name
-        query = Q(**{'%s__custom_field' % related_name: int(self.name),
-                     operator.key_pattern % fname:      search_info['value'],
-                    }
-                 )
+
+        if isinstance(operator, _IsEmptyOperator):
+            query = Q(**{'%s__isnull' % related_name: search_info['value']})
+        else:
+            query = Q(**{'%s__custom_field' % related_name: int(self.name),
+                         operator.key_pattern % fname:      search_info['value'],
+                        }
+                     )
 
         if operator.exclude:
             query.negate()
