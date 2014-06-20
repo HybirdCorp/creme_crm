@@ -131,7 +131,8 @@ class FieldConditionWidget(ChainedInput):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_dselect('^enum.*',
+
+        pinput.add_dselect('^enum.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                            '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
 
         pinput.add_dselect('^user.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
@@ -164,7 +165,7 @@ class FieldConditionWidget(ChainedInput):
         category = ''
 
         if subfield is not None:
-            category = field.verbose_name 
+            category = field.verbose_name
             choice_label = u'[%s] - %s' % (category, subfield.verbose_name)
             choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(subfield)}
         else:
@@ -277,7 +278,7 @@ class CustomFieldConditionWidget(FieldConditionWidget):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_dselect('^enum.*',
+        pinput.add_dselect('^enum.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                            '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
                           )
         pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
