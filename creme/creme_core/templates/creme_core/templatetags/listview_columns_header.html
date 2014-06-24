@@ -10,7 +10,7 @@
                         <select name="{{cell.key}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                             <option value="">{% trans "Select" %}</option>
                             {% for options in widget_ctx.values %}
-                                <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>{{options.text}}</option>
+                                <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %} {% if options.value == NULL_FK %}class="search-nullfk"{% endif %}>{{options.text}}</option>
                             {% endfor %}
                         </select>
                     {% elif widget_type == "checkbox" %}

@@ -27,9 +27,10 @@ from django.utils.translation import ugettext as _
 
 from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
         EntityCellFunctionField, EntityCellRelation)
+from ..gui.listview import NULL_FK
+from ..gui.list_view_import import import_form_registry
 from ..models import CustomField
 from ..models.fields import EntityCTypeForeignKey
-from ..gui.list_view_import import import_form_registry
 from ..utils import creme_entity_content_types, build_ct_choices
 #from ..utils.meta import get_model_field_info
 
@@ -120,10 +121,20 @@ def get_listview_columns_header(context):
                         #TODO: generalise the system of 'header_filter_search_field' ??
                         continue
                     else:
-                        choices = ((o.id, o)
-                                        for o in field.rel.to.objects.distinct()
-                                            #if unicode(o) != "" #Commented on 20 march 2014
-                                  )
+                        #choices = ((o.id, o)
+                                        #for o in field.rel.to.objects.distinct()
+                                            ##if unicode(o) != "" #Commented on 20 march 2014
+                                  #)
+                        choices = []
+
+                        if field.null:
+                            choices.append((NULL_FK, _('* is empty *')))
+
+                        choices.extend((o.id, o)
+                                            for o in field.rel.to.objects.distinct()
+                                                #if unicode(o) != "" #Commented on 20 march 2014
+                                      )
+
                     _build_select_search_widget(widget_ctx, search_value, choices)
             elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
@@ -146,8 +157,12 @@ def get_listview_columns_header(context):
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
+                choices = [(NULL_FK, _('* is empty *'))]
+                choices.extend(cf.customfieldenumvalue_set.values_list('id', 'value'))
+
                 _build_select_search_widget(widget_ctx, search_value,
-                                            cf.customfieldenumvalue_set.values_list('id', 'value')
+                                            #cf.customfieldenumvalue_set.values_list('id', 'value')
+                                            choices,
                                            )
             elif field_type == CustomField.DATETIME:
                 _build_date_search_widget(widget_ctx, search_value)
@@ -157,6 +172,8 @@ def get_listview_columns_header(context):
                 widget_ctx['value'] = search_value[0]
 
         cell.widget_ctx = widget_ctx
+
+    context['NULL_FK'] = NULL_FK
 
     return context
 
