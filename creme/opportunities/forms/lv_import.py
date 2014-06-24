@@ -154,7 +154,7 @@ class SalesPhaseExtractorField(Field):
     @user.setter
     def user(self, user):
         self._user = user
-        self.widget.propose_creation = self._can_create = user.has_perm_to_admin('opportunity')
+        self.widget.propose_creation = self._can_create = user.has_perm_to_admin('opportunities')
 
     def clean(self, value):
         #TODO: factorise
@@ -170,7 +170,7 @@ class SalesPhaseExtractorField(Field):
             try:
                 def_value = SalesPhase.objects.get(pk=def_pk)
             except Exception:
-                pass
+                pass #TODO: ValidationError
 
         if self.required and not col_index:
             if not def_value:
