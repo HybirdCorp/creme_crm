@@ -407,6 +407,44 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                              ]
                             )
 
+    def test_import_error02(self):
+        "Validate default value"
+        self.login()
+
+        lines = [('Name', 'Capital'),
+                 ('Nerv', '1000'),
+                ]
+
+        doc = self._build_csv_doc(lines, separator=';')
+        url = self._build_import_url(Organisation)
+        response = self.client.post(url, data=dict(self.data, document=doc.id,
+                                                   has_header=True,
+                                                   user=self.user.id,
+                                                   name_colselect=1,
+
+                                                   capital_colselect=2,
+                                                   capital_defval='notint',
+                                                  ),
+                                   )
+        self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
+
+    def test_import_error03(self):
+        "Required field witout column or default value"
+        self.login()
+
+        lines = [('Capital',), ('1000',)] #No 'Name'
+
+        doc = self._build_csv_doc(lines, separator=';')
+        url = self._build_import_url(Organisation)
+        response = self.client.post(url, data=dict(self.data, document=doc.id,
+                                                   has_header=True,
+                                                   user=self.user.id,
+                                                   name_colselect=0,
+                                                   capital_colselect=1,
+                                                  ),
+                                   )
+        self.assertFormError(response, 'form', 'name', _('This field is required.'))
+
     def test_credentials01(self):
         "Creation credentials for imported model"
         self.login(is_superuser=False, allowed_apps=['persons'],
