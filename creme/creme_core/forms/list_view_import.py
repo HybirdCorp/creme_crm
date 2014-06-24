@@ -282,6 +282,7 @@ class ExtractorField(Field):
 
     @user.setter
     def user(self, user):
+        self._user = user
         rel = self._modelfield.rel
 
         if rel:
@@ -312,11 +313,10 @@ class ExtractorField(Field):
 
         def_value = value['default_value']
 
-        if self.required and not col_index:
-            if not def_value:
-                raise ValidationError(self.error_messages['required'])
-
+        if def_value:
             self._original_field.clean(def_value) #to raise ValidationError if needed
+        elif self.required and not col_index:
+            raise ValidationError(self.error_messages['required'])
 
         #TODO: check that col_index is in self._choices ???
 
