@@ -1164,12 +1164,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(Contact.objects.filter(last_name=contact_name))
 
     def test_csv_import05(self):
-        "No credentials to create Organisation or SalesPhase"
+        "Creation credentials for Organisation or SalesPhase"
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'documents', 'opportunities'],
                    creatable_models=[Opportunity, Document], #not Organisation
                   )
-        SetCredentials.objects.create(role=self.role,
+        role = self.role
+        SetCredentials.objects.create(role=role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
@@ -1180,31 +1181,41 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         #TODO: factorise
         emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
-        response = self.client.post(self._build_import_url(Opportunity),
-                                    data=dict(self.lvimport_data,
-                                              document=doc.id,
-                                              user=self.user.id,
-                                              emitter=emitter.id,
+        url = self._build_import_url(Opportunity)
+        data = dict(self.lvimport_data,
+                    document=doc.id,
+                    user=self.user.id,
+                    emitter=emitter.id,
 
-                                              name_colselect=1,
-                                              estimated_sales_colselect=2,
-                                              made_sales_colselect=3,
+                    name_colselect=1,
+                    estimated_sales_colselect=2,
+                    made_sales_colselect=3,
 
-                                              sales_phase_colselect=5,
-                                              sales_phase_create=True,
+                    sales_phase_colselect=5,
+                    sales_phase_create=True,
 
-                                              target_persons_organisation_colselect=4,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=0,
-                                              target_persons_contact_create='',
-                                             )
-                                     )
+                    target_persons_organisation_colselect=4,
+                    #target_persons_organisation_create=True,
+                    target_persons_contact_colselect=0,
+                    target_persons_contact_create='',
+                   )
+
+        response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
         self.assertFormError(response, 'form', 'target',
                              _(u'You are not allowed to create: %s') % _(u'Organisation')
                             )
         self.assertFormError(response, 'form', 'sales_phase',
                              u'You are not allowed to create "Sales phase"'
                             )
+
+        role.admin_4_apps = ['opportunities']
+        role.save()
+        response = self.client.post(url, data=data)
+        self.assertNoFormError(response)
+
+        role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
+        response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
+        self.assertNoFormError(response)
 
     def test_csv_import06(self):
         "Update"
