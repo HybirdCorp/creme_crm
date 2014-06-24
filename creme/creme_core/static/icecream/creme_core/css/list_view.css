@@ -307,6 +307,10 @@
 }
 */
 
+.list_view option.search-nullfk {
+    font-style: italic;
+}
+
 /* right border fix for header rows, and body rows */
 .list_view thead .columns_top th:last-child, .list_view thead .columns_bottom th:last-child, .list_view > tbody > tr > td:last-child {
     border-right: 1px solid rgba(84,130,149,0.3);

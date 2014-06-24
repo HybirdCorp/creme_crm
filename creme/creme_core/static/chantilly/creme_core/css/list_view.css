@@ -233,6 +233,10 @@
 }
 */
 
+.list_view option.search-nullfk {
+    font-style: italic;
+}
+
 .list_view .cl_lv {
     word-wrap: break-word;
     /*max-width: 120px;

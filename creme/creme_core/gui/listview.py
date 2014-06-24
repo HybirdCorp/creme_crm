@@ -22,7 +22,7 @@ from collections import defaultdict
 from functools import partial
 import logging
 
-from django.db.models import Q, DateField, DateTimeField
+from django.db.models import Q, DateField, DateTimeField, ForeignKey
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
@@ -32,6 +32,8 @@ from ..models import RelationType, Relation, CustomField
 from ..utils import find_first
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
+
+NULL_FK = 'NULL'
 
 
 logger = logging.getLogger(__name__)
@@ -157,6 +159,8 @@ class ListViewState(object):
                 #elif isinstance(field, DateField):
                 if isinstance(field, DateField):
                     condition = self._build_date_range_dict(cell.value, value)
+                elif isinstance(field, ForeignKey) and value[0] == NULL_FK:
+                    condition = {'%s__isnull' % cell.value: True}
                 else:
                     condition = self._build_condition(cell.filter_string, value)
 
@@ -182,6 +186,10 @@ class ListViewState(object):
                     if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                         value = value[0]
 
+                        if value == NULL_FK:
+                            query &= Q(**{'%s__isnull' % related_name: True})
+                            continue
+
                     condition = self._build_condition(pattern, value)
 
                 condition.update({'%s__custom_field' % related_name: cf})
@@ -197,6 +205,14 @@ class ListViewState(object):
                     else:
                         if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                             value = value[0]
+
+                            if value == NULL_FK:
+                                query &= ~Q(pk__in=cf.get_value_class()
+                                                     .objects
+                                                     .filter(custom_field=cf)
+                                                     .values_list('entity_id', flat=True)
+                                          )
+                                continue
 
                         condition = self._build_condition(pattern, value)
 

@@ -16,7 +16,7 @@ try:
     from creme.creme_core.tests.base import skipIfNotInstalled
     from .base import ViewsTestCase
 
-    from creme.persons.models import Organisation, Contact, Civility
+    from creme.persons.models import Organisation, Contact, Civility, Sector
 
     from creme.activities.models import Activity, ActivityType
 except Exception as e:
@@ -411,6 +411,37 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop,    orgas_set)
         self.assertNotIn(nerv,  orgas_set)
         self.assertNotIn(seele, orgas_set)
+
+    def test_search_regularfields03(self):
+        "ForeignKey (NULL or not)"
+        self.login()
+
+        create_sector = Sector.objects.create
+        mercenary = create_sector(title='Mercenary')
+        robotics  = create_sector(title='Robotics')
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop = create_orga(name='Bebop inc', sector=mercenary)
+        nerv  = create_orga(name='NERV',      sector=robotics)
+        seele = create_orga(name='Seele')
+
+        hf = self._build_hf(EntityCellRegularField.build(model=Organisation, name='sector'))
+
+        url = self.url
+        data = {'hfilter': hf.id, '_search': 1}
+        #response = self.assertPOST200(url, data=dict(data, sector=str(mercenary.id)))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-sector': str(mercenary.id)}))
+        orgas_set = self._get_entities_set(response)
+        self.assertIn(bebop,    orgas_set)
+        self.assertNotIn(nerv,  orgas_set)
+        self.assertNotIn(seele, orgas_set)
+
+        #response = self.assertPOST200(url, data=dict(data, sector='NULL'))
+        response = self.assertPOST200(url, data=dict(data, **{'regular_field-sector': 'NULL'}))
+        orgas_set = self._get_entities_set(response)
+        self.assertNotIn(bebop, orgas_set)
+        self.assertNotIn(nerv,  orgas_set)
+        self.assertIn(seele,    orgas_set)
 
     def test_search_datefields01(self):
         self.login()
@@ -832,6 +863,19 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail,    orgas_set)
         self.assertNotIn(dragons, orgas_set)
 
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
+                                                      'name': '',
+                                                      #cfield.pk: 'NULL',
+                                                      'custom_field-%s' % cfield.pk: 'NULL',
+                                                     }
+                                     )
+        orgas_set = self._get_entities_set(response)
+        self.assertNotIn(bebop,     orgas_set)
+        self.assertNotIn(swordfish, orgas_set)
+        self.assertNotIn(redtail,   orgas_set)
+        self.assertIn(dragons,      orgas_set)
+
     def test_search_customfield05(self):
         "MULTI_ENUM"
         self.login()
@@ -850,7 +894,7 @@ class ListViewTestCase(ViewsTestCase):
 
         create_evalue = CustomFieldEnumValue.objects.create
         can_walk = create_evalue(custom_field=cfield, value='Walk')
-        can_fly = create_evalue(custom_field=cfield, value='Fly')
+        can_fly  = create_evalue(custom_field=cfield, value='Fly')
 
         klass = cfield.get_value_class()
         def set_cfvalue(entity, value):
@@ -874,6 +918,20 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(dragons, orgas_set)
         self.assertIn(eva01,      orgas_set)
         self.assertIn(valkyrie,   orgas_set)
+
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search': 1,
+                                                      #'name':    '',
+                                                      #cfield.pk: 'NULL',
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield.pk: 'NULL',
+                                                     }
+                                     )
+        orgas_set = self._get_entities_set(response)
+        self.assertNotIn(bebop,    orgas_set)
+        self.assertNotIn(eva01,    orgas_set)
+        self.assertNotIn(valkyrie, orgas_set)
+        self.assertIn(dragons,     orgas_set)
 
     def test_search_customfield06(self):
         "2 x ENUM"
@@ -928,6 +986,24 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish, orgas_set)
         self.assertIn(redtail,      orgas_set)
         self.assertNotIn(dragons,   orgas_set)
+
+        set_cfvalue(cfield_color, dragons, color1.id) #type is NULL
+
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id,
+                                                      '_search':       1,
+                                                      #'name':          '',
+                                                      #cfield_type.pk:  'NULL',
+                                                      #cfield_color.pk: color1.id,
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield_type.pk:  'NULL',
+                                                      'custom_field-%s' % cfield_color.pk: color1.id,
+                                                     }
+                                     )
+        orgas_set = self._get_entities_set(response)
+        self.assertNotIn(bebop,     orgas_set)
+        self.assertNotIn(swordfish, orgas_set)
+        self.assertNotIn(redtail,   orgas_set)
+        self.assertIn(dragons,      orgas_set)
 
     def test_search_customfield07(self):
         "2 x MULTI_ENUM"
@@ -985,6 +1061,21 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(swordfish, orgas_set)
         self.assertIn(eva02,        orgas_set)
         self.assertNotIn(valkyrie,  orgas_set)
+
+        response = self.assertPOST200(self.url, data={'_search':       1,
+                                                      #'name':          '',
+                                                      #cfield_cap.pk:   can_walk.id,
+                                                      #cfield_color.pk: 'NULL',
+                                                      'regular_field-name': '',
+                                                      'custom_field-%s' % cfield_cap.pk:   can_walk.id,
+                                                      'custom_field-%s' % cfield_color.pk: 'NULL',
+                                                     }
+                                     )
+        orgas_set = self._get_entities_set(response)
+        self.assertNotIn(bebop,     orgas_set)
+        self.assertNotIn(swordfish, orgas_set)
+        self.assertNotIn(eva02,     orgas_set)
+        self.assertIn(valkyrie,     orgas_set)
 
     def test_search_customfield08(self):
         "DATETIME"
