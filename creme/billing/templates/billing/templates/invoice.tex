@@ -81,7 +81,7 @@
 {{object.billing_address.city|safe}} {{object.billing_address.po_box|safe}} \\
 }
 
-\cfoot{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - N° TVA : {{source.tvaintra}}}
+\cfoot{ \footnotesize{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - Numéro TVA : {{source.tvaintra}} } }
 
 
 \begin{document}
@@ -146,4 +146,9 @@ Banque & Guichet & Numéro de Compte & Clé RIB & Domiciliation \\
 \end{tabular}
 \end{center}
 {% endif %}
+
+\begin{center}
+En cas de retard de paiement, seront exigibles, conformément à l'article L 441-6 du code de commerce, une indemnité calculée sur la base de trois fois le taux de l'intérêt légal en vigueur ainsi qu'une indemnité forfaitaire pour frais de recouvrement de 40 euros.
+\end{center}
+
 \end{document}
