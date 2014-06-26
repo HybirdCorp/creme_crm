@@ -17,6 +17,7 @@ __all__ = ('EmailsTestCase',)
 class _EmailsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config', 'emails')
 
 

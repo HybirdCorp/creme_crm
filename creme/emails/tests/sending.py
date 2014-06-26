@@ -6,15 +6,19 @@ try:
     from pickle import loads
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core import mail as django_mail
+    from django.test.utils import override_settings
     from django.utils.timezone import now, make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 
     from creme.persons.models import Contact, Organisation
 
     from .base import _EmailsTestCase
+    from ..management.commands.emails_send import Command as EmailsSendCommand
     from ..models import (EmailSending, EmailCampaign, EmailRecipient,
-                          EmailTemplate, MailingList, LightWeightEmail)
-    from ..models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
+            EmailTemplate, MailingList, LightWeightEmail)
+    from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
+            SENDING_STATE_DONE, SENDING_STATE_PLANNED)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -111,6 +115,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         sending = sendings[0]
         self.assertEqual(SENDING_TYPE_IMMEDIATE, sending.type)
+        self.assertEqual(SENDING_STATE_PLANNED,  sending.state)
         self.assertEqual(subject,                sending.subject)
         self.assertEqual(body,                   sending.body)
         self.assertEqual('',                     sending.body_html)
@@ -134,8 +139,6 @@ class SendingsTestCase(_EmailsTestCase):
 
         response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
         self.assertEqual(u'', response.content)
-
-        #TODO: use the Django fake email framework to test even better
 
         #popup detail view -----------------------------------------------------
         response = self.assertPOST200('/emails/campaign/sending/%s' % sending.id)
@@ -198,7 +201,60 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(EmailSending.objects.filter(pk=sending.pk).exists())
         self.assertFalse(LightWeightEmail.objects.filter(pk=mail.pk).exists())
 
+    @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
+        "Command + outbox"
+        user = self.user
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
+        mlist    = MailingList.objects.create(user=user, name='ml01')
+        contact  = Contact.objects.create(user=user, email='spike.spiegel@bebop.com',
+                                          first_name='Spike', last_name='Spiegel',
+                                         )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV',  email='contact@nerv.jp')
+        orga2 = create_orga(name='Seele', email='contact@seele.jp')
+
+        camp.mailing_lists.add(mlist)
+        mlist.contacts.add(contact)
+        mlist.organisations.add(orga1, orga2)
+
+        sender = 'vicious@reddragons.mrs'
+        response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
+                                    data = {'sender':   sender,
+                                            'type':     SENDING_TYPE_IMMEDIATE,
+                                            'template': template.id,
+                                           }
+                                   )
+        self.assertNoFormError(response)
+        self.assertFalse(django_mail.outbox)
+
+        EmailsSendCommand().handle(verbosity=0)
+
+        with self.assertNoException():
+            sending = camp.sendings_set.all()[0]
+
+        self.assertEqual(SENDING_STATE_DONE, sending.state)
+
+        messages = django_mail.outbox
+        self.assertEqual(len(messages), 3)
+
+        message = messages[0]
+        self.assertEqual(template.subject, message.subject)
+        self.assertEqual(template.body,    message.body)
+        self.assertEqual(sender,           message.from_email)
+        self.assertEqual([('', 'text/html')], message.alternatives)
+        self.assertFalse(message.attachments)
+
+        self.assertEqual({contact.email, orga1.email, orga2.email},
+                         set(recipient
+                                for message in messages
+                                    for recipient in message.recipients()
+                            )
+                        )
+
+    def test_create04(self):
         "Test deferred"
         user = self.user
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
@@ -234,11 +290,11 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertLess(abs((sending_date - sending.sending_date).seconds), 60)
 
         self.assertFormError(post(data=data), 'form', 'sending_date',
-                             [_(u"Sending date required for a deferred sending")]
+                             _(u"Sending date required for a deferred sending")
                             )
         self.assertFormError(post(data=dict(data,
                                             sending_date=(now_dt - timedelta(days=1)).strftime('%Y-%m-%d')
                                            )
                                  ),
-                             'form', 'sending_date', [_(u"Sending date must be is the future")]
+                             'form', 'sending_date', _(u"Sending date must be is the future")
                             )
