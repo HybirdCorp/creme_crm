@@ -3,15 +3,19 @@
 try:
     from functools import partial
 
+    from django.conf import settings
     from django.contrib.auth.models import User
+    from django.core import mail
     from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
     from creme.persons.models import Contact
 
     from creme.activities.models import Activity, Calendar
     from creme.activities.constants import *
 
+    from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
     from ..models import UserMessage, UserMessagePriority
     from ..constants import PRIO_NOT_IMP_PK
     from .base import AssistantsTestCase
@@ -85,11 +89,30 @@ class UserMessageTestCase(AssistantsTestCase):
         user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
         user02   = User.objects.create_user('User02', 'user02@foobar.com', 'password')
 
-        self._create_usermessage('TITLE', 'BODY', priority, [user01, user02], self.entity)
+        title = 'TITLE'
+        body  = 'BODY'
+        self._create_usermessage(title, body, priority, [user01, user02], self.entity)
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
         self.assertEqual({user01, user02}, {msg.recipient for msg in messages})
+
+        UserMessagesSendCommand().handle(verbosity=0)
+
+        messages = mail.outbox
+        self.assertEqual(len(messages), 2)
+
+        message = messages[0]
+        self.assertEqual(_(u'User message from Creme: %s') % title, message.subject)
+        self.assertEqual(_(u'%(user)s send you the following message:\n%(body)s') % {
+                                'user': self.user,
+                                'body': body,
+                            },
+                        message.body
+                       )
+        self.assertEqual(settings.EMAIL_SENDER, message.from_email)
+        self.assertFalse(hasattr(message, 'alternatives'))
+        self.assertFalse(message.attachments)
 
     def test_create03(self):
         "Without related entity"

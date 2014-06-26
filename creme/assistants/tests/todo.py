@@ -82,7 +82,7 @@ class TodoTestCase(AssistantsTestCase):
                }
         response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'deadline_hour',
-                             [_(u'The hour is required if you set a date.')]
+                             _(u'The hour is required if you set a date.')
                             )
 
         self.assertNoFormError(self.client.post(url, data=dict(data, deadline_hour=9)))
