@@ -119,7 +119,7 @@ class Contact(CremeEntity):
                 raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
 
     def get_employers(self):
-        from organisation import Organisation
+        from .organisation import Organisation
         return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
 
     def get_absolute_url(self):
