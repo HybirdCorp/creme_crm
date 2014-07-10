@@ -63,7 +63,15 @@ class FieldInfo(object):
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
-            model = field.rel.to
+            #model = field.rel.to
+            rel = getattr(field, 'rel', None)
+
+            if rel is None:
+                raise FieldDoesNotExist('"%s" is not a ForeignKey/ManyToManyField,'
+                                        ' so it can have a sub-field' % subfield_name
+                                       )
+
+            model = rel.to
             fields.append(field)
 
         fields.append(model._meta.get_field(subfield_names[-1]))
