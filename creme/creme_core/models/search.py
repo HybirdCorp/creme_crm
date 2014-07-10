@@ -20,6 +20,7 @@
 
 import logging
 
+from django.db import models
 from django.db.models import TextField, ForeignKey, Q, FieldDoesNotExist #PositiveIntegerField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
@@ -59,7 +60,11 @@ class SearchConfigItem(CremeModel):
     field_names  = TextField(null=True) #Do not this field directly; use 'searchfields' property
 
     _searchfields = None
-    EXCLUDED_FIELDS_TYPES = frozenset(['DateTimeField', 'DateField', 'FileField', 'ImageField'])
+    #EXCLUDED_FIELDS_TYPES = frozenset(['DateTimeField', 'DateField', 'FileField', 'ImageField'])
+    EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
+                             models.FileField, models.ImageField,
+                             models.BooleanField, models.NullBooleanField,
+                            ]
 
     class Meta:
         app_label = 'creme_core'
@@ -80,10 +85,11 @@ class SearchConfigItem(CremeModel):
 
     @staticmethod
     def _get_modelfields_choices(model):
-        excluded = SearchConfigItem.EXCLUDED_FIELDS_TYPES
+        excluded = tuple(SearchConfigItem.EXCLUDED_FIELDS_TYPES)
+        #.exclude(lambda f, depth: f.get_internal_type() in excluded)
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
-                .exclude(lambda f, depth: f.get_internal_type() in excluded) \
+                .exclude(lambda f, depth: isinstance(f, excluded)) \
                 .choices()
 
     def _build_searchfields(self, model, fields, save=True):
