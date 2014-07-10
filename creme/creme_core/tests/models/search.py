@@ -69,6 +69,14 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(sfields))
         self.assertEqual('first_name', sfields[0].name)
 
+    def test_create_if_needed04(self):
+        "Invalid fields : no subfield"
+        sc_item = SearchConfigItem.create_if_needed(Contact, ['last_name__invalid', 'first_name'])
+
+        sfields = sc_item.searchfields
+        self.assertEqual(1, len(sfields))
+        self.assertEqual('first_name', sfields[0].name)
+
     def test_allfields01(self):
         "True"
         sc_item = SearchConfigItem.create_if_needed(Organisation, [])
