@@ -21,18 +21,21 @@
 from datetime import timedelta #datetime
 
 from django.db.models import Q
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme.creme_core.core.reminder import Reminder
 
+from creme.creme_config.models import SettingValue
+
+from .constants import MIN_HOUR_4_TODO_REMINDER
 from .models import Alert, ToDo
 
 
 class ReminderAlert(Reminder):
-    id_    = Reminder.generate_id('assistants', 'alert')
-    model_ = Alert
+    id    = Reminder.generate_id('assistants', 'alert')
+    model = Alert
 
     def generate_email_subject(self, object):
         return _(u'Reminder concerning a Creme CRM alert related to %s') % object.creme_entity
@@ -55,8 +58,8 @@ class ReminderAlert(Reminder):
 
 
 class ReminderTodo(Reminder):
-    id_    = Reminder.generate_id('assistants', 'todo')
-    model_ = ToDo
+    id    = Reminder.generate_id('assistants', 'todo')
+    model = ToDo
 
     def generate_email_subject(self, object):
         return _(u'Reminder concerning a Creme CRM todo related to %s') % object.creme_entity
@@ -77,7 +80,8 @@ class ReminderTodo(Reminder):
         return Q(deadline__lte=dt_now + timedelta(days=1), is_ok=False)
 
     def ok_for_continue(self):
-        return now().hour > 8
+        #return now().hour > 8
+        return localtime(now()).hour >= SettingValue.objects.get(key=MIN_HOUR_4_TODO_REMINDER).value
 
 
 reminder_alert = ReminderAlert()

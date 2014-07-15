@@ -18,13 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
+
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation
 from creme.creme_core.utils import create_if_needed
-from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from .constants import USERMESSAGE_PRIORITIES
-from .models import UserMessagePriority
+from creme.creme_config.models import SettingKey, SettingValue
+
 from .blocks import alerts_block, memos_block, todos_block, messages_block
+from .constants import USERMESSAGE_PRIORITIES, MIN_HOUR_4_TODO_REMINDER
+from .models import UserMessagePriority
 
 
 class Populator(BasePopulator):
@@ -46,3 +50,9 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,    order=100)
         BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
         BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=400)
+
+        sk = SettingKey.create(pk=MIN_HOUR_4_TODO_REMINDER,
+                               description=_('Minimum hour to send the mails related to Todos'),
+                               app_label='assistants', type=SettingKey.HOUR,
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value=9)

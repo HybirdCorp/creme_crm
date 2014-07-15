@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 import logging
 
 from django.core.mail import EmailMessage, get_connection
@@ -33,8 +34,8 @@ FIRST_REMINDER = 1
 
 
 class Reminder(object):
-    id_    = None   #overload with an unicode object ; use generate_id()
-    model_ = None   #overload with a CremeModel
+    id    = None   #overload with an unicode object ; use generate_id()
+    model = None   #overload with a CremeModel
 
     def __init__(self):
         pass
@@ -58,12 +59,14 @@ class Reminder(object):
     def ok_for_continue (self):
         return True
 
-    def send_mails(self, object):
-        body    = self.generate_email_body(object)
-        subject = self.generate_email_subject(object)
+    def send_mails(self, instance):
+        body    = self.generate_email_body(instance)
+        subject = self.generate_email_subject(instance)
 
         EMAIL_SENDER = settings.EMAIL_SENDER
-        messages = [EmailMessage(subject, body, EMAIL_SENDER, [email]) for email in self.get_emails(object)]
+        messages = [EmailMessage(subject, body, EMAIL_SENDER, [email])
+                        for email in self.get_emails(instance)
+                   ]
 
         try:
             connection = get_connection()
@@ -77,23 +80,19 @@ class Reminder(object):
         if not self.ok_for_continue():
             return
 
-        model_ = self.__class__.model_ #TODO: why not self.model_ ???
-        objects = model_.objects.filter(self.get_Q_filter())
-        object_ct = ContentType.objects.get_for_model(model_)
+        model = self.model
         dt_now = now().replace(microsecond=0, second=0)
-        reminder_filter = DateReminder.objects.filter
+        reminder_filter = partial(DateReminder.objects.filter,
+                                  model_content_type=ContentType.objects.get_for_model(model),
+                                 )
 
-        for object in objects:
-            #reminders = DateReminder.objects.filter(model_id=object.id, model_content_type=object_ct)
-            #reminders = reminder_filter(model_id=object.id, model_content_type=object_ct)[:1]
-            #if not reminders:
-            if not reminder_filter(model_id=object.id, model_content_type=object_ct).exists():
-                self.send_mails(object)
-                date_reminder = DateReminder()
-                date_reminder.date_of_remind = dt_now #factorise ??
-                date_reminder.ident = FIRST_REMINDER
-                date_reminder.object_of_reminder = object
-                date_reminder.save()
+        for instance in model.objects.filter(self.get_Q_filter()):
+            if not reminder_filter(model_id=instance.id).exists():
+                self.send_mails(instance)
+                DateReminder.objects.create(date_of_remind=dt_now,
+                                            ident=FIRST_REMINDER,
+                                            object_of_reminder=instance,
+                                           )
 
 
 class ReminderRegistry(object):
@@ -105,7 +104,7 @@ class ReminderRegistry(object):
         @type reminder creme_core.core.reminder.Reminder
         """
         reminders = self._reminders
-        reminder_id = reminder.id_
+        reminder_id = reminder.id
 
         if reminders.has_key(reminder_id):
             logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id) #exception instead ???

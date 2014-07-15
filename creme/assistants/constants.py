@@ -12,3 +12,5 @@ USERMESSAGE_PRIORITIES = {
         PRIO_VERY_IMP_PK: _(u'Very important'),
         PRIO_NOT_IMP_PK:  _(u'Not important'),
     }
+
+MIN_HOUR_4_TODO_REMINDER = 'assistants-min_hour_4_todo_reminder'

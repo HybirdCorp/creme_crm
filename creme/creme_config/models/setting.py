@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey
 from django.contrib.auth.models import User
+from django.db.models import (Model, CharField, TextField,
+        PositiveSmallIntegerField, BooleanField, ForeignKey)
 
 from creme.creme_core.utils import bool_from_str
 
@@ -34,11 +35,13 @@ class SettingKey(Model):
     STRING = 1
     INT    = 2
     BOOL   = 3
+    HOUR   = 10
 
     _CASTORS = {
             STRING: unicode,
             INT:    int,
             BOOL:   bool_from_str,
+            HOUR:   int, #TODO: validate 0 =< x =< 23  ??
         }
 
     class Meta:
@@ -51,7 +54,9 @@ class SettingKey(Model):
     def create(pk, description, app_label, type, hidden=False):
         from creme.creme_core.utils import create_or_update
 
-        sk = create_or_update(SettingKey, pk=pk, description=description, app_label=app_label, type=type, hidden=hidden)
+        sk = create_or_update(SettingKey, pk=pk, description=description,
+                              app_label=app_label, type=type, hidden=hidden,
+                             )
         #sk.settingvalue_set.all().delete()
 
         return sk
@@ -74,10 +79,13 @@ class SettingValue(Model):
         self.value_str = str(value)
 
     @staticmethod
-    def create_if_needed(key, user, value): #TODO: unit test
-        try:
-            sv = SettingValue.objects.get(key=key, user=user)
-        except SettingValue.DoesNotExist:
-            sv = SettingValue.objects.create(key=key, user=user, value=value)
+    def create_if_needed(key, user, value):
+        #try:
+            #sv = SettingValue.objects.get(key=key, user=user)
+        #except SettingValue.DoesNotExist:
+            #sv = SettingValue.objects.create(key=key, user=user, value=value)
 
-        return sv
+        #return sv
+        return SettingValue.objects.get_or_create(key=key, user=user,
+                                                  defaults={'value': value},
+                                                 )[0]
