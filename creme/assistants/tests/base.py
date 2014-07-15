@@ -6,8 +6,11 @@ try:
     #from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.creme_config.models import SettingKey, SettingValue
+
     from creme.persons.models import Contact
 
+    from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..models import UserMessagePriority
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -21,15 +24,21 @@ class AssistantsAppTestCase(CremeTestCase):
         self.populate('assistants')
         self.assertEqual(3, UserMessagePriority.objects.count())
 
+        sk = self.get_object_or_fail(SettingKey, pk=MIN_HOUR_4_TODO_REMINDER)
+        self.assertEqual('assistants',    sk.app_label)
+        self.assertEqual(SettingKey.HOUR, sk.type)
+
+        sv = self.get_object_or_fail(SettingValue, key=sk)
+        self.assertEqual(9, sv.value)
+
 
 class AssistantsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        cls.populate('creme_core', 'creme_config', 'assistants')
 
     def setUp(self):
         self.login()
-        #self.entity = CremeEntity.objects.create(user=self.user)
         self.entity = Contact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
 
     def aux_test_merge(self, creator, assertor):

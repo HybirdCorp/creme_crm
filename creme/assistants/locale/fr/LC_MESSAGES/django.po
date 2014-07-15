@@ -1,34 +1,30 @@
 # FR LOCALISATION OF 'ASSISTANTS' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Assistants 1.3\n"
+"Project-Id-Version: Creme Assistants 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-21 15:45+0100\n"
+"POT-Creation-Date: 2014-07-15 16:09+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: activities_register.py:39
-msgid "Users"
-msgstr "Utilisateurs"
-
-#: activities_register.py:42
+#: activities_register.py:43
 msgid "Users to keep informed"
 msgstr "Les utilisateurs à tenir informés"
 
-#: activities_register.py:55
+#: activities_register.py:60
 #, python-format
 msgid "[Creme] Activity created: %s"
 msgstr "[Creme] Activité créée: %s"
 
-#: activities_register.py:56
+#: activities_register.py:61
 #, python-format
 msgid ""
 "A new activity has been created: %(activity)s.\n"
@@ -45,27 +41,27 @@ msgstr ""
 "    Sujets: %(subjects)s.\n"
 "    Participants: %(participants)s."
 
-#: blocks.py:106 models/todo.py:51 models/todo.py:96
+#: blocks.py:104 models/todo.py:51 models/todo.py:96
 msgid "Todos"
 msgstr "Todos"
 
-#: blocks.py:123 models/memo.py:49 models/memo.py:86
+#: blocks.py:121 models/memo.py:49 models/memo.py:86
 msgid "Memos"
 msgstr "Mémos"
 
-#: blocks.py:140 models/alert.py:50 models/alert.py:86
+#: blocks.py:138 models/alert.py:50 models/alert.py:86
 msgid "Alerts"
 msgstr "Alertes"
 
-#: blocks.py:157
+#: blocks.py:155
 msgid "Actions in time"
 msgstr "Actions dans les délais"
 
-#: blocks.py:174
+#: blocks.py:172
 msgid "Reactions not in time"
 msgstr "Réactions hors délais"
 
-#: blocks.py:191 models/user_message.py:64
+#: blocks.py:189 models/user_message.py:64
 msgid "User messages"
 msgstr "Messages utilisateur"
 
@@ -81,16 +77,20 @@ msgstr "Très important"
 msgid "Not important"
 msgstr "Pas important"
 
-#: creme_core_register.py:29
+#: creme_core_register.py:30
 msgid "Assistants (Todos, Memo, ...)"
 msgstr "Assistants (Todos, Mémo, ...)"
 
-#: reminders.py:38
+#: populate.py:55
+msgid "Minimum hour to send the mails related to Todos"
+msgstr "Heure minimum pour envoyer les emails relatifs aux Todos"
+
+#: reminders.py:41
 #, python-format
 msgid "Reminder concerning a Creme CRM alert related to %s"
 msgstr "Rappel concernant une alerte Crème CRM à propos de %s"
 
-#: reminders.py:41
+#: reminders.py:44
 #, python-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that an alert "
@@ -107,12 +107,12 @@ msgstr ""
 "\n"
 "            qui est rattachée à la fiche : %(entity)s"
 
-#: reminders.py:62
+#: reminders.py:65
 #, python-format
 msgid "Reminder concerning a Creme CRM todo related to %s"
 msgstr "Rappel concernant une todo Crème CRM à propos de %s"
 
-#: reminders.py:65
+#: reminders.py:68
 #, python-format
 msgid ""
 "This mail is automatically sent by Crème CRM to remind you that a todo "
@@ -537,6 +537,9 @@ msgstr "Nouveau message à propos de <%s>"
 #, python-format
 msgid "You are not allowed to delete this message: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer ce message: %s"
+
+#~ msgid "Users"
+#~ msgstr "Utilisateurs"
 
 #~ msgid "Assigned to"
 #~ msgstr "Assigné à"

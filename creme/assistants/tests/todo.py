@@ -6,19 +6,23 @@ try:
 
     from django.conf import settings
     from django.core import mail
+    from django.core.mail.backends.locmem import EmailBackend
     from django.core.serializers.json import simplejson
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.timezone import now
+    from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.management.commands.reminder import Command as ReminderCommand
     from creme.creme_core.models import CremeEntity, DateReminder
 
+    from creme.creme_config.models import SettingValue
+
     from creme.persons.models import Contact
 
-    from ..models import ToDo
+    from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..blocks import todos_block
+    from ..models import ToDo
     from .base import AssistantsTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -300,9 +304,14 @@ class TodoTestCase(AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    def test_reminder(self):
-        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+    def test_reminder01(self):
         now_value = now()
+
+        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = localtime(now_value).hour
+        sv.save()
+
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
         create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=self.user)
         todo1 = create_todo(title='Todo#1', deadline=now_value)
@@ -331,3 +340,55 @@ class TodoTestCase(AssistantsTestCase):
                          message.subject
                         )
         self.assertIn(todo1.title, message.body)
+
+    def test_reminder02(self):
+        "Minimum hour (SettingValue) is not pasted"
+        now_value = now()
+
+        next_hour = localtime(now_value).hour + 1
+        if next_hour > 23:
+            print 'Skip the test TodoTestCase.test_reminder02 because it is too late.'
+
+        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = next_hour
+        sv.save()
+
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+
+        ToDo.objects.create(creme_entity=self.entity, user=self.user,
+                            title='Todo#1', deadline=now_value,
+                           )
+
+        ReminderCommand().handle(verbosity=0)
+        self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
+
+    def test_reminder03(self):
+        "Mails error"
+        now_value = now()
+
+        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = max(localtime(now_value).hour - 1, 0)
+        sv.save()
+
+        reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
+
+        ToDo.objects.create(title='Todo#1', deadline=now_value,
+                            creme_entity=self.entity, user=self.user
+                           )
+
+        self.send_messages_called = False
+
+        def send_messages(this, messages):
+            self.send_messages_called = True
+            raise Exception('Sent error')
+
+        original_send_messages = EmailBackend.send_messages
+        EmailBackend.send_messages = send_messages
+
+        ReminderCommand().handle(verbosity=0)
+
+        self.assertTrue(self.send_messages_called)
+        self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+
+        #TODO: in teardDown...
+        EmailBackend.send_messages = original_send_messages
