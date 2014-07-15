@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,11 +57,20 @@ class RecurrentRegistry:
 
             app_registry.add(model, template_model, template_form)
 
-    def get_all_templates(self):
-        get_ct = ContentType.objects.get_for_model
-        ct_pks = [get_ct(template_entry.model).id for app_registry in self._apps.itervalues() for template_entry in app_registry]
+    #Removed for version 1.5 (7 July 2014)
+    #def get_all_templates(self):
+        #get_ct = ContentType.objects.get_for_model
+        #ct_pks = [get_ct(template_entry.model).id for app_registry in self._apps.itervalues() for template_entry in app_registry]
 
-        return ContentType.objects.filter(pk__in=ct_pks)
+        #return ContentType.objects.filter(pk__in=ct_pks)
+
+    @property
+    def ctypes(self):
+        get_ct = ContentType.objects.get_for_model
+
+        for app_registry in self._apps.itervalues():
+            for template_entry in app_registry:
+                yield get_ct(template_entry.model)
 
     def get_form_of_template(self, ct_template):
         for app_registry in self._apps.itervalues():

@@ -34,10 +34,9 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
         if tickets_installed:
             apps.append('tickets')
+            cls.ct = ContentType.objects.get_for_model(Ticket)
 
         cls.populate(*apps)
-
-        cls.ct = ContentType.objects.get_for_model(Ticket)
 
     def setUp(self):
         self.login()
@@ -66,33 +65,28 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
         name = 'Recurrent tickets'
         periodicity = Periodicity.objects.all()[0]
-        step_0_data = {'wizard_step':        0,
-                       '0-user':             user.id,
-                       '0-name':             name,
-                       '0-ct':               self.ct.id,
-                       '0-first_generation': '11-06-2014 09:00',
-                       '0-periodicity':      periodicity.id,
-                      }
-        response = self.client.post(url, data=step_0_data)
-        self.assertNoFormError(response)
+        response = self.client.post(url,
+                                    data={'recurrent_generator_wizard-current_step': 0,
+
+                                          '0-user':             user.id,
+                                          '0-name':             name,
+                                          '0-ct':               self.ct.id,
+                                          '0-first_generation': '11-06-2014 09:00',
+                                          '0-periodicity':      periodicity.id,
+                                         }
+                                    )
+        self.assertNoWizardFormError(response)
 
         with self.assertNoException():
-            response.context['form']
-            previous_fields = response.context['previous_fields']
+            wizard = response.context['wizard']
+            steps = wizard['steps']
+            count = steps.count
+            current = steps.current
 
-        self.assertIn('<input type="hidden" name="0-user" value="%s" id="id_0-user" />' % user.id,
-                      previous_fields
-                     )
-        self.assertIn(u'<input type="hidden" name="0-name" value="%s" id="id_0-name" />' % name,
-                      previous_fields
-                     )
-
-        hash_input = '<input type="hidden" name="hash_0" value="'
-        hash_start = previous_fields.find(hash_input)
-        hash_start += len(hash_input)
-        self.assertNotEqual(-1, hash_start)
-        hash_end = previous_fields.find('"', hash_start)
-        self.assertNotEqual(-1, hash_end)
+        #self.assertTemplateUsed(response, 'recurrents/wizard_generator.html')
+        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add_wizard.html')
+        self.assertEqual(2, count)
+        self.assertEqual('1', current)
 
         title     = 'Support ticket'
         desc      = "blablabla"
@@ -100,26 +94,22 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         priority  = Priority.objects.all()[0]
         criticity = Criticity.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data=dict(step_0_data,
-                                              **{'wizard_step': 1,
-                                                 'hash_0':      previous_fields[hash_start:hash_end],
+                                    data={'recurrent_generator_wizard-current_step': 1,
 
-                                                 '1-user':        user.id,
-                                                 '1-title':       title,
-                                                 '1-description': desc,
-                                                 '1-status':      status.id,
-                                                 '1-priority':    priority.id,
-                                                 '1-criticity':   criticity.id,
-                                                }
-                                             ),
+                                          '1-user':        user.id,
+                                          '1-title':       title,
+                                          '1-description': desc,
+                                          '1-status':      status.id,
+                                          '1-priority':    priority.id,
+                                          '1-criticity':   criticity.id,
+                                         },
                                    )
-        self.assertNoFormError(response)
+        self.assertNoWizardFormError(response)
 
         gen = self.get_object_or_fail(RecurrentGenerator, name=name)
         tpl = self.get_object_or_fail(TicketTemplate, title=title)
 
         self.assertEqual(user,        gen.user)
-        self.assertEqual(name,        gen.name)
         self.assertEqual(self.ct,     gen.ct)
         self.assertEqual(periodicity, gen.periodicity)
         self.assertEqual(self.create_datetime(year=2014, month=6, day=11, hour=9),
@@ -130,7 +120,6 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertTrue(gen.is_working)
 
         self.assertEqual(user,      tpl.user)
-        self.assertEqual(title,     tpl.title)
         self.assertEqual(desc,      tpl.description)
         self.assertEqual(status,    tpl.status)
         self.assertEqual(priority,  tpl.priority)

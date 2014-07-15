@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-24 10:22+0200\n"
+"POT-Creation-Date: 2014-07-08 11:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1914,17 +1914,37 @@ msgstr "Statistiques"
 msgid "Information"
 msgstr "Informations"
 
+#: templates/creme_core/generics/blockform/add_wizard.html:14
+#, python-format
+msgid "%(title)s: step %(current_step)s of %(step_count)s"
+msgstr "%(title)s : étape %(current_step)s sur %(step_count)s"
+
+#: templates/creme_core/generics/blockform/add_wizard.html:32
 #: templates/creme_core/generics/blockform/base.html:18
 #: templates/creme_core/generics/blockformset/base.html:16
 msgid "Fields marked with * are required."
 msgstr "Les champs suivis d'un * sont obligatoires."
 
+#: templates/creme_core/generics/blockform/add_wizard.html:68
 #: templates/creme_core/generics/blockform/base.html:49
 #: templates/creme_core/generics/blockformset/base.html:43
 #: templates/creme_core/generics/form/base.html:51
 msgid "Global errors"
 msgstr "Erreurs globales"
 
+#: templates/creme_core/generics/blockform/add_wizard.html:93
+msgid "First step"
+msgstr "Première étape"
+
+#: templates/creme_core/generics/blockform/add_wizard.html:95
+msgid "Previous step"
+msgstr "Étape précédente"
+
+#: templates/creme_core/generics/blockform/add_wizard.html:98
+msgid "Next step"
+msgstr "Étape suivante"
+
+#: templates/creme_core/generics/blockform/add_wizard.html:98
 #: templates/creme_core/generics/blockform/base.html:70
 #: templates/creme_core/generics/blockformset/base.html:63
 #: templates/creme_core/generics/form/base.html:64

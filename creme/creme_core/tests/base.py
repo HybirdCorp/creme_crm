@@ -261,6 +261,17 @@ class _CremeTestCase(object):
             if errors:
                 self.fail(errors.as_text())
 
+    def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
+        self.assertEqual(200, response.status_code)
+
+        try:
+            errors = response.context[wizard]['form'].errors
+        except Exception:
+            pass
+        else:
+            if errors:
+                self.fail(errors.as_text())
+
     def assertListContainsSubset(self, expected, actual, msg=None):
         "Checks whether actual is a superset of expected."
         old_index = -1

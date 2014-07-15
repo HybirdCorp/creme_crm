@@ -1,0 +1,101 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+
+{% block page_title %} - {{title}}{% endblock %}
+
+{% block content %}
+    {% with form=wizard.form steps=wizard.steps %}
+        {% block title %}
+            <table class="table_header" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="5%"><img src="{% creme_media_url 'images/add_64.png' %}" alt=""/></td>
+                    <td width="95%">
+                        <h1>{% blocktrans with current_step=steps.step1 step_count=steps.count %}{{title}}: step {{current_step}} of {{step_count}}{% endblocktrans %}</h1>
+                    </td>
+                </tr>
+            </table>
+        {% endblock %}
+
+        {% if form.errors %}
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    creme.blocks.scrollToError();
+                });
+            </script>
+        {% endif %}
+
+        {% if help_message %}
+            <div class="help_box">{{help_message|linebreaksbr}}</div>
+        {% endif%}
+
+        <p>{% trans "Fields marked with * are required."%}</p>
+
+        <div id="wiward_form">
+            <form action="" method="POST">{% csrf_token %}
+                {{form.media}}
+                {{wizard.management_form}}
+
+                {% comment %} TODO
+                    {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
+                {% endcomment %}
+
+                {% for hidden in form.hidden_fields %}
+                    {% if hidden.errors %}
+                        <p>{{hidden.label}}&nbsp;:&nbsp;{{hidden.errors}}{{hidden}}</p>
+                    {% else %}
+                        {{hidden}}
+                    {% endif %}
+                {% endfor %}
+
+                {% comment %} TODO ??
+                    <div style="display: none; visibility: hidden;">
+                        {% for persist_key, persist_values in persisted.items %}
+                            {% for persist_value in persist_values %}
+                                <input type="hidden" name="{{persist_key}}" value="{{persist_value}}"/>
+                                <input type="hidden" name="persist" value="{{persist_key}}"/>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endcomment %}
+
+                {% if form.non_field_errors %}
+                    <table class="table_detail_view ui-corner-all">
+                        <thead>
+                            <tr>
+                                <th valign="middle">{% trans "Global errors"%}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="collapsable">
+                            <tr>
+                                <td class="non_field_errors">{{form.non_field_errors}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+
+                {% if form.forms %}{% comment %}TODO: improve this case{% endcomment %}
+                    {{form.management_form}}
+                    {% for subform in form.forms %}
+                        {{subform.as_p}}
+                    {% endfor %}
+                {% else %}
+                    {% for form_block in form.get_blocks %}
+                        {% include "creme_core/generics/blockform/content.html" %}
+                    {% endfor %}
+                {% endif %}
+
+                <div class="submit_buttons">
+                    {% if steps.prev %}
+                        <button name="wizard_goto_step" type="submit" value="{{steps.first}}">{% trans "First step" %}</button>
+                        {% if steps.count > 2 %}
+                            <button name="wizard_goto_step" type="submit" value="{{steps.prev}}">{% trans "Previous step" %}</button>
+                        {% endif %}
+                    {% endif %}
+                    <input type="submit" name="submit" value="{% if steps.current != steps.last %}{% trans "Next step" %}{% else %}{{submit_label|default:_("Save")}}{% endif %}" />
+                    {% comment %} TODO {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}{% endcomment %}
+                </div>
+            </form>
+        </div>
+    {% endwith %}
+{% endblock %}

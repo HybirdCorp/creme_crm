@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,8 @@ class RecurrentGenerator(CremeEntity):
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True) #TODO: null=False
     last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True, editable=False) #TODO: null=False
     periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
-    ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'))
-    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set')
+    ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'), editable=False)
+    template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set', editable=False)
     is_working       = BooleanField(_(u'Active ?'), editable=False, default=True) #TODO: useful ?
 
     creation_label = _('Add a generator')
