@@ -342,12 +342,13 @@ class TodoTestCase(AssistantsTestCase):
         self.assertIn(todo1.title, message.body)
 
     def test_reminder02(self):
-        "Minimum hour (SettingValue) is not pasted"
+        "Minimum hour (SettingValue) is in the future"
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
         if next_hour > 23:
             print 'Skip the test TodoTestCase.test_reminder02 because it is too late.'
+            return
 
         sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
         sv.value = next_hour
