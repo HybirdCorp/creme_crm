@@ -15,12 +15,12 @@
     <div class="help_box">{{help_message|linebreaksbr}}</div>
 {% endif%}
 
-<p>{% trans "Fields marked with * are required."%} </p>
+<p>{% trans "Fields marked with * are required."%}</p>
 
 <div id="editforms">
     {% if form.errors %}
         <script type="text/javascript">
-            $(document).ready(function(){
+            $(document).ready(function() {
                 creme.blocks.scrollToError();
             });
         </script>

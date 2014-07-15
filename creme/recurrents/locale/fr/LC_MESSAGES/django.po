@@ -1,13 +1,15 @@
 # FR LOCALISATION OF 'RECURRENTS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Recurrents 1.1\n"
+"Project-Id-Version: Creme Recurrents 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:06+0200\n"
+"POT-Creation-Date: 2014-07-08 11:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,67 +28,63 @@ msgstr "Portail des documents récurrents"
 msgid "All recurrent generators"
 msgstr "Lister les générateurs récurrents"
 
-#: creme_core_register.py:35
-msgid "Add a generator"
-msgstr "Ajouter un générateur"
-
-#: populate.py:34
+#: populate.py:35
 msgid "Daily"
 msgstr "Quotidienne"
 
-#: populate.py:34
+#: populate.py:35
 msgid "Every day"
 msgstr "Tous les jours"
 
-#: populate.py:35
+#: populate.py:36
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
-#: populate.py:35
+#: populate.py:36
 msgid "Every week"
 msgstr "Toutes les semaines"
 
-#: populate.py:36
+#: populate.py:37
 msgid "Monthly"
 msgstr "Mensuelle"
 
-#: populate.py:36
+#: populate.py:37
 msgid "Every month"
 msgstr "Tous les mois"
 
-#: populate.py:37
+#: populate.py:38
 msgid "Quarterly"
 msgstr "Trimestrielle"
 
-#: populate.py:37
+#: populate.py:38
 msgid "Every trimester"
 msgstr "Tous les trimestres"
 
-#: populate.py:38
+#: populate.py:39
 msgid "Biannual"
 msgstr "Semestrielle"
 
-#: populate.py:38
+#: populate.py:39
 msgid "Every semester"
 msgstr "Tous les semestres"
 
-#: populate.py:39
+#: populate.py:40
 msgid "Annual"
 msgstr "Annuelle"
 
-#: populate.py:39
+#: populate.py:40
 msgid "Every year"
 msgstr "Tous les ans"
 
-#: populate.py:41
+#: populate.py:42
 msgid "Generator view"
 msgstr "Vue des générateurs"
 
-#: forms/recurrentgenerator.py:36
+#: forms/recurrentgenerator.py:35
 msgid "Date of the first generation"
 msgstr "Date de la première récurrence"
 
-#: forms/recurrentgenerator.py:50
+#: forms/recurrentgenerator.py:44
 msgid "Type of resource used as template"
 msgstr "Type de ressource utilisé en tant que modèle"
 
@@ -142,11 +140,15 @@ msgstr "Modèle utilisé"
 msgid "Active ?"
 msgstr "Actif ?"
 
-#: models/recurrentgenerator.py:42
+#: models/recurrentgenerator.py:40
+msgid "Add a generator"
+msgstr "Ajouter un générateur"
+
+#: models/recurrentgenerator.py:44
 msgid "Recurrent generator"
 msgstr "Générateur récurrent"
 
-#: models/recurrentgenerator.py:43
+#: models/recurrentgenerator.py:45
 msgid "Recurrent generators"
 msgstr "Générateurs récurrents"
 
@@ -167,13 +169,17 @@ msgstr "Liste des générateurs récurrents"
 msgid "Preparation of a new generator : Step %(step)s / %(step_count)s"
 msgstr "Préparation d'un nouveau générateur : Étape %(step)s / %(step_count)s"
 
-#: templates/recurrents/frags/wizard_form_content.html:20
+#: templates/recurrents/frags/wizard_form_content.html:21
 msgid "Validate"
 msgstr "Valider"
 
-#: views/portal.py:33
+#: views/portal.py:29
 msgid "Number of generators"
 msgstr "Nombre de générateur(s)"
+
+#: views/recurrentgenerator.py:65
+msgid "Save the generator"
+msgstr "Enregistrer le générateur"
 
 #~ msgid "Name"
 #~ msgstr "Nom"

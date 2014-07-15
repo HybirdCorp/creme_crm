@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,8 @@
 
 from django.forms import ChoiceField, IntegerField
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
-from django.forms.widgets import HiddenInput
+#from django.contrib.contenttypes.models import ContentType
+#from django.forms.widgets import HiddenInput
 
 from ..models import TemplateBase
 from .base import BaseEditForm
@@ -38,7 +38,7 @@ class _TemplateBaseForm(BaseEditForm):
         meta = billing_ct.model_class()._meta
         status_field = self.fields['status']
 
-        status_field.label    = ugettext(u'Status of %s') % meta.verbose_name
+        status_field.label   = ugettext(u'Status of %s') % meta.verbose_name
         status_field.choices = [(status.id, unicode(status)) for status in meta.get_field('status').rel.to.objects.all()]
 
         return status_field
@@ -59,13 +59,16 @@ class TemplateBaseEditForm(_TemplateBaseForm):
 
 
 class TemplateBaseCreateForm(_TemplateBaseForm):
-    ct = IntegerField(widget=HiddenInput())
+    #ct = IntegerField(widget=HiddenInput())
 
-    def __init__(self, *args, **kwargs):
+    #def __init__(self, *args, **kwargs):
+    def __init__(self, ct, *args, **kwargs): #'ct' arg => see RecurrentGeneratorWizard
         super(TemplateBaseCreateForm, self).__init__(*args, **kwargs)
-        self._build_status_field(ContentType.objects.get_for_id(kwargs['initial']['ct']))
+        #self._build_status_field(ContentType.objects.get_for_id(kwargs['initial']['ct']))
+        self._build_status_field(ct)
+        self.instance.ct = ct
 
-    def save(self):
-        self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
+    #def save(self):
+        #self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
 
-        return super(TemplateBaseCreateForm, self).save()
+        #return super(TemplateBaseCreateForm, self).save()
