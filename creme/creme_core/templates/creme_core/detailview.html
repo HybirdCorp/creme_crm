@@ -26,18 +26,7 @@
                     </a>
                 </li>
             {% endif %}
-            {% block add_new_button %}
-                {% comment %} COMMENTED on 22-02-2013
-                {% if path %}
-                    <li>
-                        <a class="menu_button" href="{{path}}/add">
-                            <img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
-                            {% trans "New" %}
-                        </a>
-                    </li>
-                {% endif %}
-                {% endcomment %}
-            {% endblock %}
+            {% block add_new_button %}{% endblock %}
         </ul>
     </div>
 {% endblock %}

@@ -1,12 +1,14 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load creme_widgets %}
 
+{% comment %}
 {% block entity_buttons %}
     {% if path %}
         {% get_delete_button object request.user %}
     {% endif %}
 {% endblock %}
+{% endcomment %}
 
 {% block add_new_button %}
-    <li>{% get_clone_button object request.user %}</li>
+    <li>{% get_clone_button object user %}</li>
 {% endblock %}
