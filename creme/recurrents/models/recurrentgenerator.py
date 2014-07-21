@@ -18,21 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, ForeignKey, DateTimeField, BooleanField, PROTECT
+from django.db.models import (CharField, TextField, ForeignKey, DateTimeField,
+        BooleanField) #PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.fields import CTypeForeignKey
+from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 
-from .periodicity import Periodicity
+#from .periodicity import Periodicity
 
 
 class RecurrentGenerator(CremeEntity):
     name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
-    first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True) #TODO: null=False
-    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True, editable=False) #TODO: null=False
-    periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
+    first_generation = DateTimeField(_(u'Date of the first recurrent generation'))
+    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), editable=False)
+    #periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
+    periodicity      = DatePeriodField(_(u'Periodicity of the generation'))
     ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'), editable=False)
     template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set', editable=False)
     is_working       = BooleanField(_(u'Active ?'), editable=False, default=True) #TODO: useful ?

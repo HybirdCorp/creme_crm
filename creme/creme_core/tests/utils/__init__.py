@@ -501,6 +501,7 @@ class CurrencyFormatTestCase(CremeTestCase):
 
 from .meta import *
 from .chunktools import *
+from .date_period import *
 from .date_range import *
 from .xml_utils import *
 from .xls_utils import *

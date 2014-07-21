@@ -74,6 +74,10 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     width: 75%;
 }
 
+input.dperiod-value {
+    width: 40px;
+}
+
 /* MERGE TOOL */
 .li_merge_entity_header1 {
     display: inline;

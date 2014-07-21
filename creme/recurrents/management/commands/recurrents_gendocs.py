@@ -41,7 +41,8 @@ class Command(BaseCommand):
             print 'A process is already running'
         else:
             for generator in RecurrentGenerator.objects.filter(is_working=True):
-                recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
+                #recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
+                recurrent_date = generator.last_generation + generator.periodicity.as_timedelta()
 
                 last  = generator.last_generation
                 first = generator.first_generation

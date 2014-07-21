@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import SearchConfigItem
-    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -139,6 +139,21 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertNoChoice(fields, 'subject_to_vat')
 
         self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+
+    @skipIfNotInstalled('creme.recurrents')
+    def test_edit03(self):
+        "Exclude DateperiodField"
+        from creme.recurrents.models import RecurrentGenerator
+
+        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(RecurrentGenerator))
+        url = self._build_edit_url(sci)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields['fields']
+
+        self._find_field_index(fields, 'name')
+        self.assertNoChoice(fields, 'periodicity')
 
     def test_delete(self):
         sci = SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])

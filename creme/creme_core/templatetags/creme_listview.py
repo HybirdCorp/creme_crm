@@ -30,7 +30,7 @@ from ..core.entity_cell import (EntityCellRegularField, EntityCellCustomField,
 from ..gui.listview import NULL_FK
 from ..gui.list_view_import import import_form_registry
 from ..models import CustomField
-from ..models.fields import EntityCTypeForeignKey
+from ..models.fields import EntityCTypeForeignKey, DatePeriodField
 from ..utils import creme_entity_content_types, build_ct_choices
 #from ..utils.meta import get_model_field_info
 
@@ -138,6 +138,8 @@ def get_listview_columns_header(context):
                     _build_select_search_widget(widget_ctx, search_value, choices)
             elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
+            elif isinstance(field, DatePeriodField): #TODO: JSONField ? 'searchable' tag
+                continue
             #elif isinstance(field, (models.DateField, models.DateTimeField)):
             elif isinstance(field, DateField):
                 _build_date_search_widget(widget_ctx, search_value)

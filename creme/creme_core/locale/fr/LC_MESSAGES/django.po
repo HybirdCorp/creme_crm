@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-08 11:57+0200\n"
+"POT-Creation-Date: 2014-07-08 17:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -204,7 +204,7 @@ msgstr "Enlever le début (N caractères)"
 msgid "Remove the end (N characters)"
 msgstr "Enlever la fin (N caractères)"
 
-#: core/batch_process.py:94 forms/fields.py:681 forms/fields.py:682
+#: core/batch_process.py:94 forms/fields.py:682 forms/fields.py:683
 #: forms/widgets.py:337 models/base.py:41
 #: templates/creme_core/generics/blockform/add_popup.html:27
 #: templates/creme_core/generics/form/add.html:4
@@ -421,7 +421,7 @@ msgstr "Ce type de resource n'est pas autorisé."
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:951 forms/fields.py:906
+#: forms/entity_filter.py:951 forms/fields.py:907
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
@@ -499,46 +499,46 @@ msgstr ""
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/fields.py:70
+#: forms/fields.py:71
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:71
+#: forms/fields.py:72
 msgid "Invalid type"
 msgstr "Type invalide"
 
-#: forms/fields.py:72 forms/fields.py:222 forms/fields.py:368
-#: forms/fields.py:588
+#: forms/fields.py:73 forms/fields.py:223 forms/fields.py:369
+#: forms/fields.py:589
 msgid "This entity doesn't exist."
 msgstr "Cette fiche n'existe pas."
 
-#: forms/fields.py:220 forms/fields.py:905
+#: forms/fields.py:221 forms/fields.py:906
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:221 forms/fields.py:365 forms/fields.py:904
+#: forms/fields.py:222 forms/fields.py:366 forms/fields.py:905
 msgid "The content type is required."
 msgstr "Le type de resource est obligatoire."
 
-#: forms/fields.py:223 forms/fields.py:367 forms/fields.py:589
+#: forms/fields.py:224 forms/fields.py:368 forms/fields.py:590
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
 
-#: forms/fields.py:363
+#: forms/fields.py:364
 msgid "This type of relationship doesn't exist."
 msgstr "Ce type de relation n'existe pas."
 
-#: forms/fields.py:364
+#: forms/fields.py:365
 msgid "This type of relationship causes a constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
-#: forms/fields.py:366
+#: forms/fields.py:367
 msgid "This content type cause constraint error with the type of relationship."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
-#: forms/fields.py:369
+#: forms/fields.py:370
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -546,17 +546,17 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:658
+#: forms/fields.py:659
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/fields.py:682
+#: forms/fields.py:683
 #: templates/creme_core/templatetags/widgets/add_button.html:10
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
 msgid "Can't add"
 msgstr "Création interdite"
 
-#: forms/fields.py:1134
+#: forms/fields.py:1157
 msgid ""
 "If you select «customized» you have to specify a start date and/or an end "
 "date."
@@ -564,34 +564,34 @@ msgstr ""
 "Si vous sélectionnez «Personnalisé» vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:1135
+#: forms/fields.py:1158
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1139 forms/widgets.py:232 forms/widgets.py:986
+#: forms/fields.py:1162 forms/widgets.py:232 forms/widgets.py:1017
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1190
+#: forms/fields.py:1213
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1191
+#: forms/fields.py:1214
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
 
-#: forms/fields.py:1220
+#: forms/fields.py:1243
 msgid "Enter a value for \"Other\" choice."
 msgstr "Entrez une valeur pour le choix \"Autre\""
 
-#: forms/fields.py:1244
+#: forms/fields.py:1267
 msgid "Other"
 msgstr "Autre"
 
-#: forms/fields.py:1281
+#: forms/fields.py:1304
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
@@ -910,15 +910,20 @@ msgstr "Tout sélectionner"
 msgid "Check none"
 msgstr "Tout déselectionner"
 
-#: forms/widgets.py:1033
+#: forms/widgets.py:1006
+#, python-format
+msgid "%(dateperiod_value)s%(dateperiod_type)s"
+msgstr "%(dateperiod_value)s%(dateperiod_type)s"
+
+#: forms/widgets.py:1064 utils/date_period.py:84
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
-#: forms/widgets.py:1034
+#: forms/widgets.py:1065 utils/date_period.py:76
 msgid "Minute(s)"
 msgstr "Minute(s)"
 
-#: forms/widgets.py:1035
+#: forms/widgets.py:1066
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
@@ -2350,6 +2355,64 @@ msgstr "%s seconde(s)"
 #: templatetags/creme_listview.py:131 templatetags/creme_listview.py:160
 msgid "* is empty *"
 msgstr "* est vide *"
+
+#: utils/date_period.py:79
+#, python-format
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] "%s minute"
+msgstr[1] "%s minutes"
+
+#: utils/date_period.py:87
+#, python-format
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] "%s heure"
+msgstr[1] "%s heures"
+
+#: utils/date_period.py:92
+msgid "Day(s)"
+msgstr "Jour(s)"
+
+#: utils/date_period.py:95
+#, python-format
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] "%s jour"
+msgstr[1] "%s jours"
+
+#: utils/date_period.py:100
+msgid "Week(s)"
+msgstr "Semaine(s)"
+
+#: utils/date_period.py:103
+#, python-format
+msgid "%s week"
+msgid_plural "%s weeks"
+msgstr[0] "%s semaine"
+msgstr[1] "%s semaines"
+
+#: utils/date_period.py:108
+msgid "Month(s)"
+msgstr "Mois"
+
+#: utils/date_period.py:111
+#, python-format
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] "%s mois"
+msgstr[1] "%s mois"
+
+#: utils/date_period.py:116
+msgid "Year(s)"
+msgstr "Année(s)"
+
+#: utils/date_period.py:119
+#, python-format
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] "%s année"
+msgstr[1] "%s années"
 
 #: utils/date_range.py:92
 msgid "Previous year"

@@ -13,6 +13,7 @@ DEPENDENCIES:
         - Django-mediagenerator 1.10
         - South 0.7
         - pytz
+        - python-dateutil 1.5
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
     - Optional

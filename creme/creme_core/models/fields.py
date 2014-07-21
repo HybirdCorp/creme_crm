@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from django.db.models import DateTimeField, CharField, DecimalField, ForeignKey, SET
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
+        ForeignKey, SET, SubfieldBase)
+from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.timezone import now
 
+from ..utils.date_period import date_period_registry, DatePeriod
 
 #TODO: add a form field ?? (validation)
 #TODO: fix the max_lenght value ?,
@@ -43,6 +45,45 @@ class DurationField(CharField):
         """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
         from south.modelsinspector import introspector
         field_class = "django.db.models.fields.CharField"
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
+
+
+class DatePeriodField(TextField): #TODO: inherit from a JSONField
+    __metaclass__ = SubfieldBase
+
+    def to_python(self, value):
+        if not value:
+            return None
+
+        if isinstance(value, basestring):
+            return date_period_registry.deserialize(jsonloads(value))
+
+        return value
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return None
+
+        if not isinstance(value, DatePeriod):
+            raise ValueError('DatePeriodField: value must be a DatePeriod')
+
+        return jsondumps(value.as_dict())
+
+    def formfield(self, **kwargs):
+        from ..forms.fields import DatePeriodField as DatePeriodFormField #lazy loading
+
+        defaults = {'form_class': DatePeriodFormField}
+        defaults.update(kwargs)
+
+        #Beware we do not call TextField.formfield because it overload 'widget'
+        # (we could define the 'widget' key in 'defaults'...)
+        return super(TextField, self).formfield(**defaults)
+
+    def south_field_triple(self):
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.TextField"
         args, kwargs = introspector(self)
 
         return (field_class, args, kwargs)
@@ -139,6 +180,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
 
 ################################################################################
 #  Copyright (c) 2007 Michael Trier
+#  Copyright (C) 2009-2014  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
