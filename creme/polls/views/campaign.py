@@ -44,7 +44,7 @@ def edit(request, campaign_id):
 @permission_required('polls')
 def detailview(request, campaign_id):
     return view_entity(request, campaign_id, PollCampaign,
-                       '/polls/campaign', #'polls/view_campaign.html'
+                       '/polls/campaign', 'polls/view_campaign.html',
                       )
 
 @login_required
