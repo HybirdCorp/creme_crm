@@ -42,10 +42,9 @@ def detailview(request, template_id):
 
     return view_entity(request, template_id, TemplateBase, '/billing/template',
                        'billing/view_template.html',
-                       {
-                           'can_download':       False,
-                           'can_create_order':   has_perm('billing.add_salesorder') and isnt_staff,
-                           'can_create_invoice': has_perm('billing.add_invoice') and isnt_staff,
+                       {'can_download':       False,
+                        'can_create_order':   has_perm('billing.add_salesorder') and isnt_staff,
+                        'can_create_invoice': has_perm('billing.add_invoice') and isnt_staff,
                        }
                       )
 

@@ -1,6 +1,9 @@
 {% extends "billing/view_billing.html" %}
-{% load i18n %}
-{% load creme_block %}
+{% comment %}{% load i18n %}{% endcomment %}
+{% comment %}{% load creme_block %}{% endcomment %}
+
+{% block add_new_button %}{% endblock %}
+
 {% block extra_menu_buttons %}
     {{block.super}}
     {% if object.ct.model == 'quote' %}
