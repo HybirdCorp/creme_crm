@@ -42,12 +42,13 @@ from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
 from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
+from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
 from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
         SelectorList, RelationSelector, ActionButtonList,
         ListEditionWidget, UnorderedMultipleChoiceWidget,
-        CalendarWidget, TimeWidget, DateRangeWidget,
+        CalendarWidget, TimeWidget, DatePeriodWidget, DateRangeWidget,
         ColorPickerWidget, DurationWidget, ChoiceOrCharWidget) #ListViewWidget
 
 
@@ -59,7 +60,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
-           'DateRangeField', 'ColorField', 'DurationField',
+           'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
            'CTypeChoiceField', 'EntityCTypeChoiceField',
            'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
           )
@@ -1114,6 +1115,28 @@ class MultiEmailField(Field):
 
         for email in value:
             validate_email(email)
+
+
+class DatePeriodField(MultiValueField):
+    widget = DatePeriodWidget
+
+    def __init__(self, *args, **kwargs):
+        super(DatePeriodField, self).__init__((ChoiceField(), IntegerField(min_value=1)),
+                                              *args, **kwargs
+                                             )
+        #TODO: 'choices' property
+        self.fields[0].choices = self.widget.choices = list(date_period_registry.choices())
+
+    def compress(self, data_list):
+        if data_list:
+            return data_list[0], data_list[1]
+
+        return u'', u''
+
+    def clean(self, value):
+        period_name, period_value = super(DatePeriodField, self).clean(value)
+
+        return date_period_registry.get_period(period_name, period_value)
 
 
 class DateRangeField(MultiValueField):

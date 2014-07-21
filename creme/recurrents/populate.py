@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,25 +23,25 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter
-from creme.creme_core.utils import create_if_needed
+#from creme.creme_core.utils import create_if_needed
 
-from .models import RecurrentGenerator, Periodicity
+from .models import RecurrentGenerator # Periodicity
 
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        create_if_needed(Periodicity, {'pk': 1}, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
-        create_if_needed(Periodicity, {'pk': 2}, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
-        create_if_needed(Periodicity, {'pk': 3}, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
-        create_if_needed(Periodicity, {'pk': 4}, name=_(u'Quarterly'), value_in_days=90,  description=_(u'Every trimester'))
-        create_if_needed(Periodicity, {'pk': 5}, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
-        create_if_needed(Periodicity, {'pk': 6}, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
+        #create_if_needed(Periodicity, {'pk': 1}, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
+        #create_if_needed(Periodicity, {'pk': 2}, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
+        #create_if_needed(Periodicity, {'pk': 3}, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
+        #create_if_needed(Periodicity, {'pk': 4}, name=_(u'Quarterly'), value_in_days=90,  description=_(u'Every trimester'))
+        #create_if_needed(Periodicity, {'pk': 5}, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
+        #create_if_needed(Periodicity, {'pk': 6}, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
 
         HeaderFilter.create(pk='recurrents-hf', name=_(u'Generator view'), model=RecurrentGenerator,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 
-        SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
-
+        #SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
+        SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description'])

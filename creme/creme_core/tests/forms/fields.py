@@ -3,14 +3,16 @@
 try:
     from django.core.exceptions import ValidationError
     from django.contrib.contenttypes.models import ContentType
+    from django.forms import IntegerField, ChoiceField
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.forms.fields import (DateRangeField, ColorField,
-        DurationField, ChoiceOrCharField,
+    from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
+        DurationField, ColorField, ChoiceOrCharField,
         CTypeChoiceField, EntityCTypeChoiceField,
         MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
+    from creme.creme_core.utils.date_period import DatePeriod
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
     from .base import FieldTestCase
 
@@ -19,11 +21,58 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('DateRangeFieldTestCase', 'ColorFieldTestCase',
-           'DurationFieldTestCase', 'ChoiceOrCharFieldTestCase',
+__all__ = ('DatePeriodFieldTestCase', 'DateRangeFieldTestCase', 'DurationFieldTestCase',
+           'ColorFieldTestCase', 'ChoiceOrCharFieldTestCase',
            'CTypeChoiceFieldTestCase', 'EntityCTypeChoiceFieldTestCase',
            'MultiCTypeChoiceFieldTestCase', 'MultiEntityCTypeChoiceFieldTestCase',
           )
+
+
+class DatePeriodFieldTestCase(FieldTestCase):
+    def test_ok01(self):
+        "Days"
+        period = DatePeriodField().clean(['days', '3'])
+        self.assertIsInstance(period, DatePeriod)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2014, month=7, day=5, hour=22, minute=9),
+                         create_dt(year=2014, month=7, day=2, hour=22, minute=9)
+                         + period.as_timedelta()
+                        )
+
+    def test_ok02(self):
+        "Minutes"
+        period = DatePeriodField().clean(['minutes', '5'])
+        self.assertIsInstance(period, DatePeriod)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2014, month=7, day=2, hour=22, minute=14),
+                         create_dt(year=2014, month=7, day=2, hour=22, minute=9)
+                         + period.as_timedelta()
+                        )
+
+    def test_required(self):
+        clean = DatePeriodField().clean
+        self.assertFieldValidationError(DatePeriodField, 'required', clean, ['', ''])
+        self.assertFieldValidationError(DatePeriodField, 'required', clean, None)
+
+    def test_empty(self):
+        self.assertIsNone(DatePeriodField(required=False).clean(None))
+
+    def test_invalid(self):
+        clean = DatePeriodField().clean
+        self.assertFieldValidationError(IntegerField, 'invalid', clean, ['years', 'notint'])
+
+        name = 'unknownperiod'
+        self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
+                                        [name, '2'], message_args={'value': name}
+                                       )
+
+    def test_notnull(self):
+        self.assertFieldValidationError(IntegerField, 'min_value',
+                                        DatePeriodField().clean, ['days', '0'],
+                                        message_args={'limit_value': 1}
+                                       )
 
 
 class DateRangeFieldTestCase(FieldTestCase):

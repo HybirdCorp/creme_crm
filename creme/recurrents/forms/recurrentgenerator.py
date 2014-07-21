@@ -55,7 +55,7 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
 
     def save(self):
         instance = self.instance
-        instance.last_generation = instance.first_generation #TODO: in model.save() ?? + fields non nullable
+        instance.last_generation = instance.first_generation #TODO: in model.save() ??
         instance.ct = self.cleaned_data['ct']
 
         return super(RecurrentGeneratorCreateForm, self).save()

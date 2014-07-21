@@ -28,7 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..utils.meta import FieldInfo, ModelFieldEnumerator #get_verbose_field_name
 from .base import CremeModel
-from .fields import EntityCTypeForeignKey
+from .fields import EntityCTypeForeignKey, DatePeriodField
 
 
 logger = logging.getLogger(__name__)
@@ -64,6 +64,7 @@ class SearchConfigItem(CremeModel):
     EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
                              models.FileField, models.ImageField,
                              models.BooleanField, models.NullBooleanField,
+                             DatePeriodField, #TODO: JSONField ?
                             ]
 
     class Meta:

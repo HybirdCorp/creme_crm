@@ -21,7 +21,7 @@ try:
     else:
         billing_installed = False
 
-    from ..models import Periodicity, RecurrentGenerator
+    from ..models import RecurrentGenerator #Periodicity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -50,7 +50,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         gen_name = 'Recurrent invoice'
         ct = ContentType.objects.get_for_model(model)
-        periodicity = Periodicity.objects.all()[0]
+        #periodicity = Periodicity.objects.all()[0]
         response = self.client.post(url,
                                     data={'recurrent_generator_wizard-current_step': 0,
 
@@ -58,7 +58,9 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '0-name':             gen_name,
                                           '0-ct':               ct.id,
                                           '0-first_generation': '08-07-2014 11:00',
-                                          '0-periodicity':      periodicity.id,
+                                          #'0-periodicity':      periodicity.id,
+                                          '0-periodicity_0':    'months',
+                                          '0-periodicity_1':    '1',
                                          }
                                     )
         self.assertNoWizardFormError(response)
@@ -92,8 +94,9 @@ class RecurrentsBillingTestCase(CremeTestCase):
         tpl = self.get_object_or_fail(TemplateBase, name=tpl_name)
 
         self.assertEqual(user,        gen.user)
-        self.assertEqual(ct,     gen.ct)
-        self.assertEqual(periodicity, gen.periodicity)
+        self.assertEqual(ct,          gen.ct)
+        #self.assertEqual(periodicity, gen.periodicity)
+        self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
         self.assertEqual(self.create_datetime(year=2014, month=7, day=8, hour=11),
                          gen.first_generation
                         )
@@ -135,7 +138,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertGET200(url)
 
         user = self.user
-        periodicity = Periodicity.objects.all()[0]
+        #periodicity = Periodicity.objects.all()[0]
 
         def post(model):
             ct = ContentType.objects.get_for_model(model)
@@ -146,7 +149,9 @@ class RecurrentsBillingTestCase(CremeTestCase):
                                           '0-name':             'Recurrent billing obj',
                                           '0-ct':               ct.id,
                                           '0-first_generation': '08-07-2014 11:00',
-                                          '0-periodicity':      periodicity.id,
+                                          #'0-periodicity':      periodicity.id,
+                                          '0-periodicity_0':    'weeks',
+                                          '0-periodicity_1':    '3',
                                          }
                                    )
 

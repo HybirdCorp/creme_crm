@@ -979,6 +979,37 @@ class AdaptiveWidget(Select):
                         )
 
 
+class DatePeriodWidget(MultiWidget):
+    def __init__(self, choices=(), attrs=None):
+        widgets = (Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                   TextInput(attrs={'class': 'dperiod-value'}), #TODO: min_value
+                  )
+        super(DatePeriodWidget, self).__init__(widgets, attrs)
+
+    @property
+    def choices(self):
+        return self.widgets[0].choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.widgets[0].choices = choices
+
+    def decompress(self, value):
+        if value:
+            d = value.as_dict()
+            return d['type'], d['value']
+
+        return None, None
+
+    def format_output(self, rendered_widgets):
+        return u'<ul class="ui-layout hbox">%s</ul>' % (
+                    _('%(dateperiod_value)s%(dateperiod_type)s') % {
+                            'dateperiod_type':  u'<li>%s</li>' % rendered_widgets[0],
+                            'dateperiod_value': u'<li>%s</li>' % rendered_widgets[1],
+                        }
+                )
+
+
 class DateRangeWidget(MultiWidget):
     def __init__(self, attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'

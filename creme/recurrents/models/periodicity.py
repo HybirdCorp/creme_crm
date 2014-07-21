@@ -18,21 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, PositiveIntegerField
-from django.utils.translation import ugettext_lazy as _
+#Commented for version 1.5 (8 July 2014)
+#from django.db.models import CharField, TextField, PositiveIntegerField
+#from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeModel
+#from creme.creme_core.models import CremeModel
 
 
-class Periodicity(CremeModel):
-    name            = CharField(_(u"Name of the periodicity"), max_length=100, blank=True, null=True)
-    value_in_days   = PositiveIntegerField(_(u'Duration of the period (in days)'), blank=True, null=True) #TODO: rename to 'period' ???
-    description     = TextField(_(u"Description of the time unit"), blank=True, null=True)
+#class Periodicity(CremeModel):
+    #name            = CharField(_(u"Name of the periodicity"), max_length=100, blank=True, null=True)
+    #value_in_days   = PositiveIntegerField(_(u'Duration of the period (in days)'), blank=True, null=True) #TODO: rename to 'period' ???
+    #description     = TextField(_(u"Description of the time unit"), blank=True, null=True)
 
-    class Meta:
-        app_label = 'recurrents'
-        verbose_name = _(u'Periodicity of generator recurennce')
-        verbose_name_plural = _(u'Periodicities of generator recurennce')
+    #class Meta:
+        #app_label = 'recurrents'
+        #verbose_name = _(u'Periodicity of generator recurennce')
+        #verbose_name_plural = _(u'Periodicities of generator recurennce')
 
-    def __unicode__(self):
-        return self.name
+    #def __unicode__(self):
+        #return self.name
