@@ -9,10 +9,10 @@
 {% endblock %}
 
 {% block entity_buttons %}
-    {% if path %}
+    {% comment %}{% if path %}{% endcomment %}
         {% get_edit_button object user %}
         {% if object.is_deleted %}&nbsp;{% get_restore_button object user %}</li>{% endif %}
         &nbsp;
         {% block delete_button %}{% get_delete_button object user %}{% endblock %}
-    {% endif %}
+    {% comment %}{% endif %}{% endcomment %}
 {% endblock %}

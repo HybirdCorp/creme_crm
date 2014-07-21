@@ -180,11 +180,16 @@ class CremeEntity(CremeAbstractEntity):
         return real_entity.get_absolute_url()
 
     def get_edit_absolute_url(self):
-        return "/creme_core/entity/edit/%s" % self.id
+        """Returns the url of the edition view for this instance.
+        If '' (void string) is returned, the model can not be edited directly.
+        eg: return "/my_app/my_model/edit/%s" % self.id
+        """
+        #return "/creme_core/entity/edit/%s" % self.id
+        return ''
 
     def get_delete_absolute_url(self):
-        """Return the url of the deletion view (should use POST method) for this model.
-        If '' (void string) is returned, the model can not be deleted diretcly.
+        """Returns the url of the deletion view (should use POST method) for this instance.
+        If '' (void string) is returned, the model can not be deleted directly.
         """
         return "/creme_core/entity/delete/%s" % self.id
 

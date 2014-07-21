@@ -31,42 +31,48 @@ register = Library()
 
 @register.inclusion_tag('creme_core/templatetags/widgets/add_button.html', takes_context=True)
 def get_add_button(context, entity, user):
-    context.update({
-            'can_add': user.has_perm_to_create(entity),
-           })
+    #context.update({
+            #'can_add': user.has_perm_to_create(entity),
+           #})
+    context['can_add'] = user.has_perm_to_create(entity)
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
 def get_delete_button(context, entity, user):
-    context.update({
-            'can_delete': user.has_perm_to_delete(entity),
-           })
+    #context.update({
+            #'can_delete': user.has_perm_to_delete(entity),
+           #})
+    context['can_delete'] = user.has_perm_to_delete(entity)
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
 def get_restore_button(context, entity, user): #TODO: factorise
-    context.update({
-            'can_delete': user.has_perm_to_delete(entity),
-           })
+    #context.update({
+            #'can_delete': user.has_perm_to_delete(entity),
+           #})
+    context['can_delete'] = user.has_perm_to_delete(entity)
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
 def get_edit_button(context, entity, user):
-    context.update({
-            'can_change': user.has_perm_to_change(entity),
-           })
+    #context.update({
+            #'can_change': user.has_perm_to_change(entity),
+           #})
+    context['can_change'] = user.has_perm_to_change(entity)
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/clone_button.html', takes_context=True)
 def get_clone_button(context, entity, user):
-    context.update({
-            'can_create': user.has_perm_to_create(entity),
-           })
+    #context.update({
+            #'can_create': user.has_perm_to_create(entity),
+           #})
+    context['can_create'] = user.has_perm_to_create(entity)
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/entity_actions.html', takes_context=True)
 def get_entity_actions(context, entity):
-    user = context['request'].user
+    #user = context['request'].user
+    user = context['user']
 
     context.update({
             'id':      entity.id,
