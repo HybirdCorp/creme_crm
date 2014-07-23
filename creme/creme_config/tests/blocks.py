@@ -10,7 +10,7 @@ try:
     from creme.creme_core.models.block import *
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme.creme_core.blocks import history_block
-    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
     from creme.creme_config.blocks import(BlockDetailviewLocationsBlock, BlockPortalLocationsBlock,
         BlockDefaultMypageLocationsBlock, RelationBlocksConfigBlock,
@@ -19,8 +19,6 @@ try:
     from creme.documents.models import Folder, Document
 
     from creme.persons.models import Contact, Organisation  #need CremeEntity
-
-    from creme.emails.models import EmailCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -910,8 +908,11 @@ class BlocksConfigTestCase(CremeTestCase):
         post('civility', error=False)
         post('civility__shortcut', error=False)
 
+    @skipIfNotInstalled('creme.emails')
     def test_edit_relationblock_ctypes03(self):
         "Validation errors with M2M"
+        from creme.emails.models import EmailCampaign
+
         rb_item = RelationBlockItem(
                 block_id='specificblock_creme_config-test-subfoo',
                 relation_type=RelationType.create(('test-subfoo', 'subject_predicate'),
