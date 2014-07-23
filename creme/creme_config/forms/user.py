@@ -89,7 +89,7 @@ class UserAddForm(CremeModelForm):
         return role
 
     def clean(self):
-        cleaned = self.cleaned_data
+        cleaned = super(UserAddForm, self).clean()
 
         if not self._errors and cleaned['password_1'] != cleaned['password_2']:
             self.errors['password_2'] = ErrorList([ugettext(u'Passwords are different')])

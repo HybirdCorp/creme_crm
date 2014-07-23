@@ -379,6 +379,34 @@ class UserTestCase(CremeTestCase):
                                      )
         self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
 
+    def test_create08(self):
+        "Unique username"
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        user = self.user
+        password = 'password'
+        response = self.assertPOST200(self.ADD_URL,
+                                      data={'username':     user.username,
+                                            'password_1':   password,
+                                            'password_2':   password,
+                                            'first_name':   user.first_name,
+                                            'last_name':    user.last_name,
+                                            'email':        'd.knut@eswat.ol',
+                                            'is_superuser': True,
+                                            'organisation': orga.id,
+                                            'relation':     REL_SUB_EMPLOYED_BY,
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'username',
+                             _(u'%(model_name)s with this %(field_label)s already exists.') % {
+                                    'model_name':  _('User'),
+                                    'field_label': _('Username'),
+                                }
+                            )
+
     def test_edit01(self):
         self.login()
 
