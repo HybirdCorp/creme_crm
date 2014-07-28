@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import (PositiveIntegerField, DateTimeField, CharField, TextField,
-                              BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
-from django.db.models.signals import post_delete
+import logging
+
+from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
+        TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -32,6 +34,9 @@ from creme.creme_config.models import SettingValue
 from ..constants import *
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
+
+
+logger = logging.getLogger(__name__)
 
 
 class Activity(CremeEntity):
@@ -189,6 +194,27 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
+    def is_auto_orga_subject_enabled(self):
+        #TODO: better cache system for SettingValues...
+        CACHE_NAME = '_auto_orga_subject_cache'
+        enabled = getattr(self, CACHE_NAME, None)
+
+        if enabled is None:
+            try:
+                sv = SettingValue.objects.get(key=SETTING_AUTO_ORGA_SUBJECTS)
+            except SettingValue.DoesNotExist:
+                logger.critical('SettingValue with key=%s cannot be found !'
+                                ' ("creme_populate" command has not been runned correctly)',
+                                SETTING_AUTO_ORGA_SUBJECTS
+                            )
+                enabled = False
+            else:
+                enabled = sv.value
+
+            setattr(self, CACHE_NAME, enabled)
+
+        return enabled
+
     @staticmethod
     def display_review():
         return SettingValue.objects.get(key=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
@@ -271,3 +297,37 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
         # activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
         for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True): 
             activity.calendars.remove(calendar_id)
+
+@receiver(post_save, sender=Relation)
+def _set_orga_as_subject(sender, instance, **kwargs):
+    from functools import partial
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
+    from creme.persons.models import Organisation
+
+    if instance.type_id != REL_SUB_PART_2_ACTIVITY:
+        return
+
+    #NB: when a Relation is created, it is saved twice in order to set the link
+    #    with its symmetric instance
+    if instance.symmetric_relation_id is None:
+        return
+
+    activity = instance.object_entity.get_real_entity()
+
+    if not activity.is_auto_orga_subject_enabled():
+        return
+
+    create_rel = partial(Relation.objects.get_or_create,
+                         type_id=REL_SUB_ACTIVITY_SUBJECT,
+                         object_entity=activity,
+                         defaults={'user': instance.user},
+                        )
+
+    for orga in Organisation.objects.filter(relations__type__in=(REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES),
+                                            relations__object_entity=instance.subject_entity_id,
+                                           ) \
+                                    .exclude(is_deleted=False,
+                                             properties__type=PROP_IS_MANAGED_BY_CREME,
+                                            ):
+        create_rel(subject_entity=orga)

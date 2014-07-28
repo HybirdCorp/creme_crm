@@ -70,9 +70,13 @@ class ParticipantCreateForm(CremeForm):
         existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY,
                                           relations__object_entity=entity.id,
                                          )
-        fields['participants'].q_filter = {'~pk__in': [c.id for c in existing],
-                                           'is_user__isnull': True,
-                                          }
+
+        participants_field = fields['participants']
+        participants_field.q_filter = {'~pk__in': [c.id for c in existing],
+                                       'is_user__isnull': True,
+                                      }
+        if entity.is_auto_orga_subject_enabled():
+            participants_field.help_text = ugettext('The organisations of the participants will be automatically added as subjects')
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
         user_qs = User.objects.filter(is_staff=False) \
