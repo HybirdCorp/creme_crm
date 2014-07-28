@@ -32,7 +32,9 @@ from .constants import *
 
 class ParticipantsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'participants')
-    dependencies  = (Relation, Contact, Calendar)
+    #NB: Organisation is a hack in order to reload the SubjectsBlock when
+    #    auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
+    dependencies  = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
@@ -70,7 +72,7 @@ class ParticipantsBlock(QuerysetBlock):
 
 class SubjectsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'subjects')
-    dependencies  = (Relation,)
+    dependencies  = (Relation, Organisation) #see ParticipantsBlock.dependencies
     relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'

@@ -158,6 +158,12 @@ class Populator(BasePopulator):
 
         sk = SettingKey.create(pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
                                description=_(u"Display minutes information in activities blocks"),
-                               app_label='activities', type=SettingKey.BOOL
+                               app_label='activities', type=SettingKey.BOOL,
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value=True)
+
+        sk = SettingKey.create(pk=SETTING_AUTO_ORGA_SUBJECTS,
+                               description=_(u"Add automatically the organisations of the participants as activities subjects"),
+                               app_label='activities', type=SettingKey.BOOL,
                               )
         SettingValue.create_if_needed(key=sk, user=None, value=True)

@@ -17,6 +17,9 @@ try:
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils import create_or_update
 
+    from creme.creme_config.models import SettingKey, SettingValue
+
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
     from creme.assistants.models import Alert
@@ -89,8 +92,12 @@ class ActivityTestCase(_ActivitiesTestCase):
     def _acttype_field_value(self, atype_id, subtype_id=None):
         return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id})
 
-    def _relation_field_value(self, entity):
-        return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+    #def _relation_field_value(self, entity):
+        #return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+    def _relation_field_value(self, *entities):
+        return '[%s]' % ','.join('{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+                                    for entity in entities
+                                )
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY]
@@ -141,6 +148,16 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         efilter = self.get_object_or_fail(EntityFilter, pk=EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
+
+        sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
+        sv = self.get_object_or_fail(SettingValue, key=sk)
+        self.assertIsNone(sv.user)
+        self.assertIs(sv.value, True)
+
+        sk = self.get_object_or_fail(SettingKey, pk=SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key=sk)
+        self.assertIsNone(sv.user)
+        self.assertIs(sv.value, True)
 
     def test_portal(self):
         self.login()
@@ -256,18 +273,34 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFormError(response, 'form', 'linked_entities',     msg % dojo)
 
     def test_createview03(self):
+        "No end given ; auto subjects"
         self.login()
-
         #me   = self.contact
         user = self.user
+        me   = user.linked_contact
 
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
         genma = create_contact(first_name='Genma', last_name='Saotome')
+        akane = create_contact(first_name='Akane', last_name='Tendo')
 
-        dojo = Organisation.objects.create(user=user, name='Dojo')
+        create_orga = partial(Organisation.objects.create, user=user)
+        dojo_t = create_orga(name='Tendo Dojo')
+        dojo_s = create_orga(name='Saotome Dojo')
+        school = create_orga(name='Furinkan High')
+        rest   = create_orga(name='Okonomiyaki tenshi')
 
-        title  = 'My task'
+        mngd = Organisation.get_all_managed_by_creme()[0]
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=me,    type_id=REL_SUB_EMPLOYED_BY, object_entity=mngd)
+        create_rel(subject_entity=ranma, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo_s)
+        create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=school)
+        create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo_t)
+        create_rel(subject_entity=genma, type_id=REL_SUB_MANAGES,     object_entity=school) # 2 employes for the same organisations
+        create_rel(subject_entity=genma, type_id=REL_SUB_EMPLOYED_BY, object_entity=rest)
+
+        title  = 'My training'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(user)
         type_id = 'activities-activity_custom_1'
@@ -283,9 +316,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '12:10:00',
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
-                                          'other_participants': '[%d]' % genma.id,
-                                          'subjects':           self._relation_field_value(ranma),
-                                          'linked_entities':    self._relation_field_value(dojo),
+                                          'other_participants': '[%d, %s]' % (genma.id, akane.id),
+                                          'subjects':           self._relation_field_value(ranma, rest),
+                                          'linked_entities':    self._relation_field_value(dojo_s),
                                           'type_selector':      self._acttype_field_value(type_id),
                                          }
                                    )
@@ -293,16 +326,23 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, type=type_id, title=title)
         self.assertEqual(status, act.status)
-        self.assertEqual(self.create_datetime(year=2013, month=3, day=26, hour=12, minute=10), act.start)
-        self.assertEqual(self.create_datetime(year=2013, month=3, day=27, hour=12, minute=25), act.end)
+        
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=3, day=26, hour=12, minute=10), act.start)
+        self.assertEqual(create_dt(year=2013, month=3, day=27, hour=12, minute=25), act.end)
 
-        self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
+        self.assertRelationCount(1, me,     REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, genma,  REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, akane,  REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, ranma,  REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo_s, REL_SUB_LINKED_2_ACTIVITY, act)
+        self.assertRelationCount(0, dojo_s, REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo_t, REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #1
+        self.assertRelationCount(1, school, REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #2
+        self.assertRelationCount(0, mngd,   REL_SUB_ACTIVITY_SUBJECT,  act) #no auto subject with managed organisations
+        self.assertRelationCount(1, rest,   REL_SUB_ACTIVITY_SUBJECT,  act) #auto subject #3 -> no doublon 
 
-        #self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, genma,               REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo,                REL_SUB_LINKED_2_ACTIVITY, act)
+        self.assertEqual(8, Relation.objects.filter(subject_entity=act.id).count())
 
     def _create_activity_by_view(self, title='My task',
                                  atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
@@ -399,6 +439,43 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
         self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
+
+    def test_createview11(self):
+        "Auto subjects disabled"
+        self.login()
+        #me   = self.contact
+        user = self.user
+        me   = user.linked_contact
+
+        sv = self.get_object_or_fail(SettingValue, key=SETTING_AUTO_ORGA_SUBJECTS)
+        sv.value = False #we disable the auto subjects feature
+        sv.save()
+
+        dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
+        Relation.objects.create(subject_entity=me, type_id=REL_SUB_EMPLOYED_BY,
+                                object_entity=dojo, user=user,
+                               )
+
+        title  = 'My task'
+        my_calendar = Calendar.get_user_default_calendar(user)
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'user':             user.pk,
+                                          'title':            title,
+                                          'status':           Status.objects.all()[0].pk,
+                                          'my_participation': True,
+                                          'my_calendar':      my_calendar.pk,
+                                          'type_selector':    self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        act = self.get_object_or_fail(Activity, title=title)
+        self.assertRelationCount(1, me,   REL_SUB_PART_2_ACTIVITY,  act)
+        self.assertRelationCount(0, dojo, REL_SUB_ACTIVITY_SUBJECT, act)
+
+        #better in a teardown method...
+        sv.value = True
+        sv.save()
 
     def test_createview_errors01(self):
         self.login()

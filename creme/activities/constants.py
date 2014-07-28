@@ -45,6 +45,7 @@ STATUS_DELAYED     = 4
 STATUS_CANCELLED   = 5
 
 DISPLAY_REVIEW_ACTIVITIES_BLOCKS = 'activities-display_review_activities_blocks'
+SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
 
 # Floating styles
 NARROW          = 1

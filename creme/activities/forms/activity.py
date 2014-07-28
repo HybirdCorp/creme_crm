@@ -300,11 +300,15 @@ class ActivityCreateForm(_ActivityCreateForm):
         fields['my_participation'].widget.attrs['onclick'] = \
             "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
-        fields['subjects'].allowed_models = [ct.model_class() 
-                                                for ct in RelationType.objects
-                                                                      .get(pk=REL_SUB_ACTIVITY_SUBJECT)
-                                                                      .subject_ctypes.all()
-                                            ]
+        subjects_field = fields['subjects']
+        subjects_field.allowed_models = [ct.model_class() 
+                                            for ct in RelationType.objects
+                                                                  .get(pk=REL_SUB_ACTIVITY_SUBJECT)
+                                                                  .subject_ctypes.all()
+                                        ]
+        if self.instance.is_auto_orga_subject_enabled():
+            subjects_field.help_text = ugettext('The organisations of the participants will be automatically added as subjects')
+
         fields['participating_users'].queryset = User.objects.filter(is_staff=False).exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
 
@@ -363,13 +367,18 @@ class ActivityCreateForm(_ActivityCreateForm):
         if cdata['my_participation']:
             instance.calendars.add(cdata['my_calendar'])
 
-        create_relation = partial(Relation.objects.create, object_entity=instance, user=instance.user)
+        #create_relation = partial(Relation.objects.create, object_entity=instance, user=instance.user)
+        #TODO: improve Relation model in order to avoid duplcation automatically
+        create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
+                                  defaults={'user': instance.user},
+                                 )
 
         for entities, rtype_id in ((cdata['subjects'],        REL_SUB_ACTIVITY_SUBJECT),
                                    (cdata['linked_entities'], REL_SUB_LINKED_2_ACTIVITY),
                                   ):
             for entity in entities:
-                create_relation(subject_entity=entity, type_id=rtype_id)
+                #create_relation(subject_entity=entity, type_id=rtype_id)
+                create_relation(subject_entity_id=entity.id, type_id=rtype_id)
 
         return instance
 
@@ -468,7 +477,6 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
         p_users_field = fields['participating_users']
         p_users_field.label = _(u'Unavailable users')
         p_users_field.required = True
-
 
     def clean(self):
         self.cleaned_data['busy'] = True
