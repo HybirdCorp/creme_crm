@@ -26,9 +26,9 @@ from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 
+from ..errors import CremeActiveSyncError
 from ..messages import MessageError, _ERROR
 from ..sync import Synchronization
-from ..errors import CremeActiveSyncError
 
 
 @login_required
@@ -38,7 +38,10 @@ def main_sync(request):
         sync = Synchronization(request.user)
     except CremeActiveSyncError as e:
 #        raise Exception(e)
-        tpl_dict = {'all_messages': {_ERROR: [MessageError(message=e)]}.iteritems()}#TODO:Bof
+        #tpl_dict = {'all_messages': {_ERROR: [MessageError(message=e)]}.iteritems()}
+        tpl_dict = {'all_messages': [(_ERROR, [MessageError(message=e)])],
+                    'fatal_error':  True,
+                   }
     else:
         try:
             sync.synchronize()
@@ -47,14 +50,14 @@ def main_sync(request):
 
         tpl_dict = {
             'server_url': sync.server_url,
-            'login'     : sync.login,
-            'domain'    : sync.domain,
+            'login':      sync.login,
+            'domain':     sync.domain,
             'server_ssl': sync.server_ssl,
-            'last_sync' : sync.last_sync,
+            'last_sync':  sync.last_sync,
 
-            'all_messages'  : sync.messages(),
+            'all_messages':   sync.messages(),
             'sync_calendars': sync.is_user_sync_calendars,
-            'sync_contacts' : sync.is_user_sync_contacts,
+            'sync_contacts':  sync.is_user_sync_contacts,
 
             #DEBUG
             'xml':        sync._data['debug']['xml'],
@@ -64,8 +67,10 @@ def main_sync(request):
 
     context = RequestContext(request)
 
-
     if request.is_ajax():
-        return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html', tpl_dict, context_instance=context))
+        return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html',
+                                             tpl_dict, context_instance=context,
+                                            )
+                           )
 
     return render_to_response('activesync/main_sync.html', tpl_dict, context_instance=context)

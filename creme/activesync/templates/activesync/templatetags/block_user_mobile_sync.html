@@ -14,31 +14,38 @@
         </tr>
         <tr class="content">
             <th class="{% cycle "block_header_line_dark" "block_header_line_light" as header_row_color %} th_info">{% trans "Server url" %}</th>
-            <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url}}</td>
+{% comment %}             <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url}}</td> {% endcomment %}
+            <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url.as_html}}{% if url.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Domain" %}</th>
-            <td class="{% cycle row_color %} td_info">{{domain}}</td>
+{% comment %}             <td class="{% cycle row_color %} td_info">{{domain}}</td> {% endcomment %}
+            <td class="{% cycle row_color %} td_info">{{domain.as_html}}{% if domain.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Is secure" %}</th>
-            <td class="{% cycle row_color %} td_info">{{ssl|print_boolean}}</td>
+{% comment %}             <td class="{% cycle row_color %} td_info">{{ssl|print_boolean}}</td> {% endcomment %}
+            <td class="{% cycle row_color %} td_info">{{ssl.as_html}}{% if ssl.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Username" %}</th>
-            <td class="{% cycle row_color %} td_info">{{username}}</td>
+{% comment %}             <td class="{% cycle row_color %} td_info">{{username}}</td> {% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% if username|is_none %}{% trans "Undefined" %}{% else %}{{username.as_html}}{% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Password" %}</th>
-            <td class="{% cycle row_color %} td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td>
+{% comment %}             <td class="{% cycle row_color %} td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td> {% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% if password|is_none %}{% trans "Undefined" %}{% else %}{% for i in password.value|length|xrange %}*{% endfor %}{% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Synchronize activities (calendars)" %}</th>
-            <td class="{% cycle row_color %} td_info">{{sync_cal|print_boolean}}</td>
+            {% comment %}<td class="{% cycle row_color %} td_info">{{sync_cal|print_boolean}}</td>{% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% if sync_cal|is_none %}{% trans "Undefined" %}{% else %}{{sync_cal.as_html}}{% endif %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row_color %} th_info">{% trans "Synchronize contacts" %}</th>
-            <td class="{% cycle row_color %} td_info">{{sync_con|print_boolean}}</td>
+            {% comment %}<td class="{% cycle row_color %} td_info">{{sync_con|print_boolean}}</td>{% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% if sync_con|is_none %}{% trans "Undefined" %}{% else %}{{sync_con.as_html}}{% endif %}</td>
         </tr>
     </tbody>
 </table>

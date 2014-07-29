@@ -38,7 +38,10 @@ class SettingTestCase(CremeTestCase):
 
         size = 156
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
-        self.assertEqual(size, self.refresh(sv).value)
+
+        sv = self.refresh(sv)
+        self.assertEqual(size, sv.value)
+        self.assertEqual(size, sv.as_html)
 
     def test_model_bool(self):
         self.login()
@@ -48,11 +51,19 @@ class SettingTestCase(CremeTestCase):
                                        type=SettingKey.BOOL,
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assertIs(self.refresh(sv).value, True)
+
+        sv = self.refresh(sv)
+        self.assertIs(sv.value, True)
+        #self.assertEqual(_('Yes'), sv.as_html)
+        self.assertEqual('<input type="checkbox" checked disabled/>%s' % _('Yes'), sv.as_html)
 
         sv.value = False
         sv.save()
-        self.assertIs(self.refresh(sv).value, False)
+
+        sv = self.refresh(sv)
+        self.assertIs(sv.value, False)
+        #self.assertEqual(_('No'), sv.as_html)
+        self.assertEqual('<input type="checkbox" disabled/>%s' % _('No'), sv.as_html)
 
     def test_model_hour(self):
         self.login()
@@ -63,7 +74,10 @@ class SettingTestCase(CremeTestCase):
                                       )
         hour = 9
         sv = SettingValue.objects.create(key=sk, user=self.user, value=hour)
-        self.assertEqual(hour, self.refresh(sv).value)
+
+        sv = self.refresh(sv)
+        self.assertEqual(hour, sv.value)
+        self.assertEqual(_('%sh') % hour, sv.as_html)
 
     def test_edit_string(self):
         self.login()

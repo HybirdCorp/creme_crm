@@ -28,7 +28,8 @@ from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 #from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 from django.contrib.contenttypes.models import ContentType
-#from django.utils.translation import ugettext
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from ..registry import creme_registry
 from ..core.exceptions import ConflictError
@@ -207,6 +208,15 @@ def bool_from_str(string):
 
     raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
 
+def bool_as_html(b):
+    if b:
+        checked = 'checked '
+        label = _('Yes')
+    else:
+        checked = ''
+        label = _('No')
+
+    return mark_safe(u'<input type="checkbox" %sdisabled/>%s' % (checked, label))
 
 _I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
                     (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),

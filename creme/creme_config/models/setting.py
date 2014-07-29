@@ -21,8 +21,14 @@
 from django.contrib.auth.models import User
 from django.db.models import (Model, CharField, TextField,
         PositiveSmallIntegerField, BooleanField, ForeignKey)
+from django.utils.translation import ugettext as _
 
-from creme.creme_core.utils import bool_from_str
+from creme.creme_core.utils import bool_from_str, bool_as_html
+
+
+#TODO: move to creme_core
+def print_hour(value):
+    return _('%sh') % value
 
 
 class SettingKey(Model):
@@ -70,6 +76,11 @@ class SettingValue(Model):
     class Meta:
         app_label = "creme_config"
 
+    _HTML_PRINTERS = {
+            SettingKey.BOOL:   bool_as_html,
+            SettingKey.HOUR:   print_hour,
+        }
+
     @property
     def value(self):
         return self.key.cast(self.value_str)
@@ -77,6 +88,16 @@ class SettingValue(Model):
     @value.setter
     def value(self, value):
         self.value_str = str(value)
+
+    @property
+    def as_html(self):
+        value = self.value
+
+        printer = self._HTML_PRINTERS.get(self.key.type)
+        if printer is not None:
+            value = printer(value)
+
+        return value
 
     @staticmethod
     def create_if_needed(key, user, value):

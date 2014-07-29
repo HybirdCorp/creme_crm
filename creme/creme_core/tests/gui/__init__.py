@@ -314,10 +314,12 @@ class GuiTestCase(CremeTestCase):
         orga2 = create_orga(name='Hawk',     subject_to_vat=True)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<input type="checkbox" value="False" disabled/>' + _('No'),
+        #self.assertEqual(u'<input type="checkbox" value="False" disabled/>' + _('No'),
+        self.assertEqual(u'<input type="checkbox" disabled/>' + _('No'),
                          get_html_val(orga1, 'subject_to_vat', user)
                         )
-        self.assertEqual(u'<input type="checkbox" value="True" checked disabled/>' + _('Yes'),
+        #self.assertEqual(u'<input type="checkbox" value="True" checked disabled/>' + _('Yes'),
+        self.assertEqual(u'<input type="checkbox" checked disabled/>' + _('Yes'),
                          get_html_val(orga2, 'subject_to_vat', user)
                         )
 
