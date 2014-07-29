@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,26 +21,24 @@
 from collections import defaultdict
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core import validators
-from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from django.utils.timezone import now
-
+from django.utils.translation import ugettext_lazy as _
 
 from creme.activesync import constants as as_constants
+from .commands import FolderSync, Provision, AirSync
 from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
-                        USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_LOGIN,
-                        USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_SERVER_SSL,
-                        USER_MOBILE_SYNC_SERVER_URL)
+        USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_LOGIN,
+        USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_SERVER_SSL, USER_MOBILE_SYNC_SERVER_URL)
 from .cipher import Cipher
 from .errors import (CremeActiveSyncError, SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
                      SYNC_ERR_WRONG_CFG_NO_LOGIN, SYNC_ERR_WRONG_CFG_NO_PWD,
                      SYNC_ERR_ABORTED, SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)
+from .mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
 from .messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
 from .models import CremeClient, AS_Folder
-from .commands import FolderSync, Provision, AirSync
 from .utils import is_user_sync_calendars, is_user_sync_contacts
-from .mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
 
 
 INFO    = 'info'
@@ -167,7 +165,6 @@ class Synchronization(object):
             self._messages[type].extend(messages)
     ###### End UI helpers #######
 
-
     def synchronize(self):
         """Complete synchronization process"""
         #params     = self.params
@@ -201,7 +198,6 @@ class Synchronization(object):
             folder.save()
             folders_append(folder)
 
-
         client.folder_sync_key = fs.synckey
 
         if not folders:
@@ -224,7 +220,6 @@ class Synchronization(object):
         client.save()
 
     def _sync(self, policy_key, as_folder, synckey=None, fetch=True):
-
         as_ = AirSync(*self.params)
         as_.send(policy_key, as_folder, synckey, fetch)
 
@@ -249,7 +244,6 @@ class Synchronization(object):
         return fs
 
     def _handle_folder_sync(self, folder_sync):
-
         if folder_sync.status == as_constants.SYNC_FOLDER_STATUS_SUCCESS:
             return folder_sync
 
@@ -283,9 +277,5 @@ class Synchronization(object):
                                   as_constants.SYNC_FOLDER_STATUS_BAD_REQUEST,
                                   as_constants.SYNC_FOLDER_STATUS_UNKNOW_ERROR,
                                   as_constants.SYNC_FOLDER_STATUS_ERROR):
-
-            self.add_error_message(_(u'There is a server error, please try again later...'))
+            self.add_error_message(_(u'There is a server error, please try again later…'))
             raise CremeActiveSyncError(SYNC_ERR_ABORTED)
-
-
-

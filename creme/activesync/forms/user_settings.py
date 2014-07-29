@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,9 +39,9 @@ from ..constants import (USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DO
 
 
 class UserSettingsConfigForm(CremeForm):
-    help         =   CharField(   label=_(u"NB"),                  required=False, initial=_(u"Note that if you change your server url or your login, synchronization will be reset. You will not loose all your synchronized contacts but there will be all added on the 'new' account at next synchronization."), widget=Label)
-    url_examples   = ChoiceField( label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
-    url            = URLField(    label=_(u"Server url"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
+    help         =   CharField(   label=_(u"NB"),                  required=False, initial=_(u"Note that if you change your server URL or your login, synchronization will be reset. You will not loose all your synchronized contacts but there will be all added on the 'new' account at next synchronization."), widget=Label)
+    url_examples   = ChoiceField( label=_(u"Server URL examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
+    url            = URLField(    label=_(u"Server URL"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
     domain         = CharField(   label=_(u"Domain"),              required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
     ssl            = ChoiceField( label=_(u"Is secure"),           required=False, help_text=_(u"Let default to get the default configuration  (currently '%s')."), choices=(('', _('Default')) ,('1', _('Yes')), ('0', _('No'))) )
     login          = CharField(   label=_(u"Login"),               required=False)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,12 +32,12 @@ from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_S
 
 
 class MobileSyncForm(CremeForm):
-    url_examples = ChoiceField(label=_(u"Server url examples"), required=False,
+    url_examples = ChoiceField(label=_(u"Server URL examples"), required=False,
                                help_text=_(u"Some common configurations"),
                                choices=chain((("", ""),), COMMONS_SERVER_URL_CFG),
                                widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'})
                               )
-    url    = URLField(label=_(u"Server url"), required=False)
+    url    = URLField(label=_(u"Server URL"), required=False)
     domain = CharField(label=_(u"Domain"), required=False)
     ssl    = BooleanField(label=_(u"Is secure"), required=False)
 
