@@ -41,13 +41,13 @@ SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC = 'sync_err_creme_permission_de
 
 SYNC_ERR_VERBOSE = {
     SYNC_ERR_FORBIDDEN:                    _(u"Wrong username and/or password"),
-    SYNC_ERR_WRONG_CFG_NO_SERVER_URL:      _(u"No server url, please fill in information in global settings configuration or in your own settings"),
-    SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL: _(u"Invalid server url, please check it in your settings"),
+    SYNC_ERR_WRONG_CFG_NO_SERVER_URL:      _(u"No server URL, please fill in information in global settings configuration or in your own settings"),
+    SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL: _(u"Invalid server URL, please check it in your settings"),
     SYNC_ERR_WRONG_CFG_NO_LOGIN:           _(u"No login, please fill in information in your own settings"),
     SYNC_ERR_WRONG_CFG_NO_PWD:             _(u"No password, please fill in information in your own settings"),
     SYNC_ERR_ABORTED:                      _(u"There was an error during synchronization"),
     SYNC_ERR_CONNECTION:                   _(u"It seems there no available connection"),
-    SYNC_ERR_NOT_FOUND:                    _(u"Wrong configuration (wrong server url?)"),
+    SYNC_ERR_NOT_FOUND:                    _(u"Wrong configuration (wrong server URL?)"),
 
     #TODO:%s/contact/entity
     SYNC_ERR_CREME_PERMISSION_DENIED_CREATE:          _(u"You haven't the right to create contacts in Creme"),

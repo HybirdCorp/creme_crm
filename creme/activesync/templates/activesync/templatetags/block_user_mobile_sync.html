@@ -13,7 +13,7 @@
             </th>
         </tr>
         <tr class="content">
-            <th class="{% cycle "block_header_line_dark" "block_header_line_light" as header_row_color %} th_info">{% trans "Server url" %}</th>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" as header_row_color %} th_info">{% trans "Server URL" %}</th>
 {% comment %}             <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url}}</td> {% endcomment %}
             <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url.as_html}}{% if url.default_config %} ({% trans "Default configuration" %}){% endif %}</td>
         </tr>

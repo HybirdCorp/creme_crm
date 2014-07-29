@@ -169,7 +169,7 @@ class AirSync(Base):
             err_status_xml = xml.find('%(ns0)sStatus' % d_ns)
             if err_status_xml:
                 #If the status is at the root it seems there is an error
-                add_error_message(_(u"There was an error during synchronization phase. Error code : %s") % err_status_xml.text)
+                add_error_message(_(u"There was an error during synchronization phase. Error code: %s") % err_status_xml.text)
                 return
 
             collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
@@ -268,7 +268,7 @@ class AirSync(Base):
                                 user=user, creme_entity_ct=ct_creme_model)
                             obj.synced = True
                             obj.save()
-                            msg = _(u"Successfully created %s")  if created else _(u"WARNING : %s was already created")
+                            msg = _(u"Successfully created %s")  if created else _(u"WARNING: %s was already created")
                             self.add_message(MessageSucceedContactAdd(contact=entity, message=msg % entity))
                         except IntegrityError:
                             logger.error(u"Entity : %s (pk=%s) big error in the mapping", entity, entity.pk)#TODO:Make a merge UI?
