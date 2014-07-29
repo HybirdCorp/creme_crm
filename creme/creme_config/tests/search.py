@@ -72,7 +72,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(0, SearchConfigItem.objects.filter(content_type=ct).count())
         self.assertNoFormError(self.client.post(self.ADD_URL, data={'content_type': ct.id}))
 
-        sc_items = SearchConfigItem.objects.filter(content_type=ct)
+        SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, SearchConfigItem.objects.filter(content_type=ct).count())
 
     def _find_field_index(self, formfield, field_name):

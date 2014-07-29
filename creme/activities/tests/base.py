@@ -2,7 +2,7 @@
 
 from creme.creme_core.tests.base import CremeTestCase
 
-from creme.persons.models import Contact
+#from creme.persons.models import Contact
 
 
 class _ActivitiesTestCase(CremeTestCase):

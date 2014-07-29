@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,10 @@
 
 import restkit.errors
 
-from creme.activesync.constants import (SYNC_NEED_CURRENT_POLICY, SYNC_FOLDER_STATUS_ERROR,
-                                  SYNC_FOLDER_STATUS_SUCCESS) #SYNC_FOLDER_STATUS_INVALID_SYNCKEY
+from ..constants import (SYNC_NEED_CURRENT_POLICY, SYNC_FOLDER_STATUS_ERROR,
+        SYNC_FOLDER_STATUS_SUCCESS) #SYNC_FOLDER_STATUS_INVALID_SYNCKEY
 
-from base import Base
+from .base import Base
 
 
 class FolderSync(Base):

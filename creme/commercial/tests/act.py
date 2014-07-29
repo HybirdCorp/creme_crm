@@ -100,7 +100,7 @@ class ActTestCase(CommercialBaseTestCase):
                                               name='Act#1',
                                               expected_sales=1000,
                                               act_type=atype.id,
-                                              segment=self._create_segment().id,
+                                              segment=segment.id,
                                               **kwargs
                                              )
                                     )

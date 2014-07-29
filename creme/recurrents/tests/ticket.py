@@ -222,12 +222,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         tpl = self._create_ticket_template()
         now_value = now()
         start = now_value - timedelta(days=5)
-        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                                periodicity=self._get_weekly(),
-                                                ct=self.ct, template=tpl,
-                                                first_generation=start,
-                                                last_generation=start,
-                                               )
+        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
+                                          periodicity=self._get_weekly(),
+                                          ct=self.ct, template=tpl,
+                                          first_generation=start,
+                                          last_generation=start,
+                                         )
 
         GenDocsCommand().handle(verbosity=0)
 
@@ -244,12 +244,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation is not far enough"
         tpl = self._create_ticket_template()
         now_value = now()
-        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                                periodicity=self._get_weekly(),
-                                                ct=self.ct, template=tpl,
-                                                first_generation=now_value - timedelta(days=13),
-                                                last_generation=now_value - timedelta(days=6),
-                                               )
+        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
+                                          periodicity=self._get_weekly(),
+                                          ct=self.ct, template=tpl,
+                                          first_generation=now_value - timedelta(days=13),
+                                          last_generation=now_value - timedelta(days=6),
+                                         )
 
         GenDocsCommand().handle(verbosity=0)
         self.assertFalse(Ticket.objects.all())
@@ -259,12 +259,12 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
         now_value = now()
-        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                                periodicity=self._get_weekly(),
-                                                ct=self.ct, template=tpl,
-                                                first_generation=now_value - timedelta(days=15),
-                                                last_generation=now_value - timedelta(days=7),
-                                               )
-        
+        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
+                                          periodicity=self._get_weekly(),
+                                          ct=self.ct, template=tpl,
+                                          first_generation=now_value - timedelta(days=15),
+                                          last_generation=now_value - timedelta(days=7),
+                                         )
+
         GenDocsCommand().handle(verbosity=0)
         self.assertEqual(1, Ticket.objects.count())

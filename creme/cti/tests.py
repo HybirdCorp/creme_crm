@@ -2,7 +2,7 @@
 
 try:
     from datetime import timedelta # datetime
-    from functools import partial
+    #from functools import partial
 
     from django.utils.timezone import now
 
@@ -32,7 +32,7 @@ class CTITestCase(CremeTestCase):
 
         user = self.user
         other_user = self.other_user
-        create_contact = partial(Contact.objects.create, user=user)
+        #create_contact = partial(Contact.objects.create, user=user)
         #self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
         #self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
         self.contact = user.linked_contact

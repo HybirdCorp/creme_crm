@@ -11,8 +11,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
-                                   UserRole, SetCredentials, Mutex)
+    from creme.creme_core.models import (CremeEntity, CremeProperty,
+            EntityCredentials, UserRole, SetCredentials, Mutex) #Relation
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.activities.models import Calendar
@@ -128,7 +128,7 @@ class UserTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
-        ce_count = CremeEntity.objects.count()
+        #ce_count = CremeEntity.objects.count()
 
         username = 'deunan'
         password = 'password'

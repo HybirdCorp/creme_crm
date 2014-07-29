@@ -484,9 +484,9 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.user
 
         self._create_persons()
-        baby_joe = Contact.objects.create(user=user, last_name='Baby', first_name='Joe',
-                                          birthday=datetime(year=now().year, month=1, day=1)
-                                         )
+        Contact.objects.create(user=user, last_name='Baby', first_name='Joe',
+                               birthday=datetime(year=now().year, month=1, day=1)
+                              )
         report   = self._create_report('trinita')
         response = self.assertGET200('/reports/report/export/%s/csv' % report.id,
                                      data={'field': 'birthday',
@@ -901,8 +901,8 @@ class ReportTestCase(BaseReportsTestCase):
                                    )[0]
 
         create_field = partial(Field.objects.create, report=contact_report, selected=False, sub_report=None)
-        reg_rfield = create_field(name='last_name', type=RFT_FIELD,    order=1)
-        rel_rfield = create_field(name=rtype.id,    type=RFT_RELATION, order=2)
+        create_field(name='last_name', type=RFT_FIELD, order=1)
+        rel_rfield = create_field(name=rtype.id, type=RFT_RELATION, order=2)
 
         url = self._build_linkreport_url(rel_rfield)
         img_report = self._build_image_report()
