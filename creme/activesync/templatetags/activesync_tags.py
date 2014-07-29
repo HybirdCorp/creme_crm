@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,8 @@
 
 from re import compile as compile_re
 
-from django.template import TemplateSyntaxError, Node as TemplateNode
+from django.template import Library, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
-from django.template import Library
 
 from creme.creme_core.utils.media import creme_media_themed_url
 
@@ -47,9 +46,7 @@ def _do_message_render(parser, token):
 
     message_str = match.groups()[0]
 
-    compile_filter = parser.compile_filter
-
-    return MessageRenderNode(message_var=TemplateLiteral(compile_filter(message_str), message_str))
+    return MessageRenderNode(message_var=TemplateLiteral(parser.compile_filter(message_str), message_str))
 
 class MessageRenderNode(TemplateNode):
     def __init__(self, message_var):

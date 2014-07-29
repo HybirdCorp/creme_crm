@@ -20,47 +20,48 @@
 
 import logging
 #from time import mktime
-from re import compile as compile_re
 from json import dumps as json_dump
+from re import compile as compile_re
 from types import GeneratorType
 
+from django.contrib.contenttypes.models import ContentType
 #from django import template
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode # Token
 from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+#from django.utils.safestring import mark_safe
 from django.utils.simplejson import dumps
-from django.contrib.contenttypes.models import ContentType
+#from django.utils.translation import ugettext_lazy as _
 
 #from mediagenerator.templatetags.media import include_media
 from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, Relation
-from ..utils import safe_unicode
+from ..registry import export_backend_registry, import_backend_registry
+from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import FieldInfo #get_verbose_field_name
 from ..utils.unicode_collation import collator
-from ..registry import export_backend_registry, import_backend_registry
 
 
 logger = logging.getLogger(__name__)
 register = Library()
 
 
-@register.filter(name="print_boolean") #TODO: factorise with field_printers ?
+@register.filter(name="print_boolean")
 def print_boolean(x):
-    if isinstance(x, bool):
-        return mark_safe('<input type="checkbox" value="%s" %s disabled/>%s' % (
-                                x, #escape(x),
-                                'checked' if x else '',
-                                _('Yes') if x else _('No')
-                            )
-                        ) #Potentially double safe marked
+    #if isinstance(x, bool):
+        #return mark_safe('<input type="checkbox" %s disabled/>%s' % (
+                                ##x, #escape(x),
+                                #'checked' if x else '',
+                                #_('Yes') if x else _('No')
+                            #)
+                        #) #Potentially double safe marked
 
-    return x
+    #return x
+    return bool_as_html(x)
 
 @register.filter
 def get_value(dic, key, default=''):

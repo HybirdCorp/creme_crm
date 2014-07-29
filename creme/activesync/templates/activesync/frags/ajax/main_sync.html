@@ -17,58 +17,60 @@
         </td>
     </tr>
 </table>
-<div class="help_box with-table">
-    <table>
-        <thead>
-            <tr>
-                <th class="th_info" colspan="2">{% trans "Your current parameters :" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="content">
-                <th class="th_info">{% trans "Server url" %}</th>
-                <td class="td_info">{{server_url}}</td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">{% trans "Login" %}</th>
-                <td class="td_info">{{login}}</td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">{% trans "Domain" %}</th>
-                <td class="td_info">{{domain}}</td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">{% trans "Is secure (SSL)" %}</th>
-                <td class="td_info">{{server_ssl|print_boolean}}</td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">{% trans "Last synchronization" %}</th>
-                <td class="td_info">{{last_sync|default:_("Never")}}</td>
-            </tr>
-            <tr class="separator">
-                <td class="td_info separator-line" colspan="2"></td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">
-                    <span class="icon">
-                        {% trans "Calendar" as img_title %}<img src="{% creme_media_url 'images/calendar_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
-                    </span>
-                    {% trans "Synchronize your calendars ?" %}
-                </th>
-                <td class="td_info">{{sync_calendars|print_boolean}}</td>
-            </tr>
-            <tr class="content">
-                <th class="th_info">
-                    <span class="icon">
-                        {% trans "Contacts" as img_title %}<img src="{% creme_media_url 'images/contact_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
-                    </span>
-                    {% trans "Synchronize your contacts ?" %}
-                </th>
-                <td class="td_info">{{sync_contacts|print_boolean}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+{% if not fatal_error %}
+    <div class="help_box with-table">
+        <table>
+            <thead>
+                <tr>
+                    <th class="th_info" colspan="2">{% trans "Your current parameters:" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="content">
+                    <th class="th_info">{% trans "Server URL" %}</th>
+                    <td class="td_info">{{server_url}}</td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">{% trans "Login" %}</th>
+                    <td class="td_info">{{login}}</td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">{% trans "Domain" %}</th>
+                    <td class="td_info">{{domain}}</td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">{% trans "Is secure (SSL)" %}</th>
+                    <td class="td_info">{{server_ssl|print_boolean}}</td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">{% trans "Last synchronization" %}</th>
+                    <td class="td_info">{{last_sync|default:_("Never")}}</td>
+                </tr>
+                <tr class="separator">
+                    <td class="td_info separator-line" colspan="2"></td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">
+                        <span class="icon">
+                            {% trans "Calendar" as img_title %}<img src="{% creme_media_url 'images/calendar_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
+                        </span>
+                        {% trans "Synchronize your calendars?" %}
+                    </th>
+                    <td class="td_info">{{sync_calendars|print_boolean}}</td>
+                </tr>
+                <tr class="content">
+                    <th class="th_info">
+                        <span class="icon">
+                            {% trans "Contacts" as img_title %}<img src="{% creme_media_url 'images/contact_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
+                        </span>
+                        {% trans "Synchronize your contacts?" %}
+                    </th>
+                    <td class="td_info">{{sync_contacts|print_boolean}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}
 <table class="table_detail_view ui-corner-all" id="activesync-synchronization_result">
     <thead>
         <tr>
@@ -87,7 +89,7 @@
             {% endfor %}
         {% empty %}
             <tr class="content empty">
-                <td class="td_info">{% trans "Nothing to synchronize..." %}</td>
+                <td class="td_info">{% trans "Nothing to synchronize…" %}</td>
             </tr>
         {% endfor %}
     </tbody>

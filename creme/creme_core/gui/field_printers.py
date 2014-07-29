@@ -30,8 +30,9 @@ from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
 
 from ..models import CremeEntity, fields
-from ..utils.meta import FieldInfo #get_model_field_info
 from ..templatetags.creme_widgets import widget_entity_hyperlink
+from ..utils import bool_as_html
+from ..utils.meta import FieldInfo #get_model_field_info
 
 
 #TODO: in settings
@@ -76,16 +77,17 @@ def print_image(entity, fval, user):
             }
 
 def print_boolean(entity, fval, user):
-    if fval:
-        checked = 'checked '
-        label = _('Yes')
-    else:
-        checked = ''
-        label = _('No')
+    #if fval:
+        #checked = 'checked '
+        #label = _('Yes')
+    #else:
+        #checked = ''
+        #label = _('No')
 
-    return u'<input type="checkbox" value="%s" %sdisabled/>%s' % (
-                escape(fval), checked, label
-            )
+    #return u'<input type="checkbox" value="%s" %sdisabled/>%s' % (
+                #escape(fval), checked, label
+            #)
+    return bool_as_html(fval)
 
 def print_urlfield(entity, fval, user):
     if not fval:

@@ -1,5 +1,5 @@
 {% load i18n %}
-{% comment %}{% load creme_widgets %}{% endcomment %}{% load creme_block %}
+{% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         <th class="label">{% get_block_title _('%s Setting value') _('%s Setting values') %}</th>
@@ -14,7 +14,7 @@
             {% for setting_value in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{setting_value.key.description}}</td>
-                    <td class="{{row_color}}">{{setting_value.value}}</td>{# TODO: A bool value is displayed "as it". => Display 'Yes'/'No' ? #}
+                    <td class="{{row_color}}">{{setting_value.as_html}}</td>
                     <td class="{{row_color}} action">
                         {% get_line_editor at_url '/creme_config/settings/edit/{{setting_value.id}}' with_perms 1 %}
                     </td>
