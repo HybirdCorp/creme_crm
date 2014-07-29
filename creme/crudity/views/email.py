@@ -28,7 +28,7 @@ from django.template.loader import render_to_string
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 
-from creme.persons.models.contact import Contact
+#from creme.persons.models.contact import Contact
 
 from ..backends.models import CrudityBackend
 from ..registry import crudity_registry

@@ -25,6 +25,7 @@ from re import compile as compile_re
 from types import GeneratorType
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import FieldDoesNotExist
 #from django import template
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode # Token
 from django.template.defaulttags import TemplateLiteral

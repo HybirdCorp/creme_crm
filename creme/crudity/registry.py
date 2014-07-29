@@ -179,7 +179,7 @@ class CRUDityRegistry(object):
                     if subject == "*":
                         if fetcher.get_default_backend() is not None:
                             raise ImproperlyConfigured(u"Only one fallback backend is allowed for %s/%s" % (
-                                                            fetcher_source, crud_input_name,
+                                                            fetcher_source, input_name,
                                                         )
                                                       )
 

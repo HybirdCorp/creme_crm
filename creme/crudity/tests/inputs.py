@@ -432,7 +432,7 @@ description3=[[<br>]]
     def test_create_email_input13(self):
         "Text mail sandboxed by user"
         user = self.user
-        other_user = self.other_user
+        #other_user = self.other_user
 
         #Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
         #Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
@@ -601,7 +601,7 @@ description3=[[<br>]]
         "The user doesn't match"
         self._set_sandbox_by_user()
         user = self.user
-        other_user = self.other_user
+        #other_user = self.other_user
 
         #create_contact = Contact.objects.create
         #create_contact(is_user=user,       user=user,       email="user@cremecrm.com")

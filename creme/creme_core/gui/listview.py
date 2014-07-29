@@ -22,7 +22,7 @@ from collections import defaultdict
 from functools import partial
 import logging
 
-from django.db.models import Q, DateField, DateTimeField, ForeignKey
+from django.db.models import Q, DateField, ForeignKey #DateTimeField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 

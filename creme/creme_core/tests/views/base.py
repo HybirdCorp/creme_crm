@@ -14,7 +14,7 @@ try:
 
     from creme.creme_core.views.testjs import js_testview_or_404
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

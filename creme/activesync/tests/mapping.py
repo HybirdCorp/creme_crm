@@ -96,7 +96,8 @@ class MappingTestCase(CremeTestCase):
         employed_by = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
         Relation.objects.create(subject_entity=contact, type=employed_by, object_entity=organisation)
 
-        fulbert_serialized = self._open_n_read(join(self.xml_path, 'contact', 'fulbert.xml'))
+        #fulbert_serialized = 
+        self._open_n_read(join(self.xml_path, 'contact', 'fulbert.xml'))
 #        to_parse = """<?xml version="1.0"?><Contact xmlns:A1="Contact:">%s</Contact>"""
 #        xml_fulbert_serialized_str = tostring(XML(to_parse % fulbert_serialized))
 #        xml_entity_serialized_str  = tostring(XML(to_parse % serialize_entity(contact, CREME_CONTACT_MAPPING)))

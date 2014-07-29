@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,8 @@
 
 from django.conf import settings
 
-from creme.activesync.constants import SYNC_PROVISION_STATUS_SUCCESS # SYNC_PROVISION_RWSTATUS_NA SYNC_PROVISION_RWSTATUS_WIPED
-from base import Base
+from ..constants import SYNC_PROVISION_STATUS_SUCCESS # SYNC_PROVISION_RWSTATUS_NA SYNC_PROVISION_RWSTATUS_WIPED
+from .base import Base
 
 
 class Provision(Base):
@@ -81,6 +81,8 @@ class Provision(Base):
         ns = self.ns
         policy_node = xml.find('%(ns)sPolicies/%(ns)sPolicy' % {'ns': ns})
         status = policy_node.find('%sStatus' % ns)
+
         if status is not None:
             status = status.text
+
         return status

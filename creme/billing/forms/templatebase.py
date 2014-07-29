@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ChoiceField, IntegerField
+from django.forms import ChoiceField # IntegerField
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.contrib.contenttypes.models import ContentType
 #from django.forms.widgets import HiddenInput

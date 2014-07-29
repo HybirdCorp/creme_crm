@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from base import Base
+from .base import Base
 
 class Settings(Base):
     template_name = "activesync/commands/xml/settings/request_min.xml"

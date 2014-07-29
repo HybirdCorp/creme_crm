@@ -546,7 +546,8 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr.add_group('gname2', block4)
         self.assertEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
 
-        group = mngr.pop_group('gname1')
+        #group = 
+        mngr.pop_group('gname1')
         #TODO: test group
         self.assertEqual(['gname2'], mngr.get_remaining_groups())
         self.assertRaises(KeyError, mngr.pop_group, 'gname1')

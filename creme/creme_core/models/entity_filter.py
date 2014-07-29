@@ -28,7 +28,7 @@ from django.db.models import (Model, CharField, TextField, BooleanField,
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
-from django.core.exceptions import ValidationError
+#from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -336,7 +336,7 @@ class _ConditionOperator(object):
         return query
 
     def validate_field_values(self, field, values):
-        """Raises a ValidationError to notify of a problemn with 'values'."""
+        """Raises a ValidationError to notify of a problem with 'values'."""
         if not field.__class__ in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
             clean = field.formfield().clean
             variable = None

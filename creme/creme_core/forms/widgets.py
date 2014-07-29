@@ -22,7 +22,7 @@
 from itertools import chain
 #import warnings
 
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
         TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer) #FileInput
 from django.forms.util import flatatt

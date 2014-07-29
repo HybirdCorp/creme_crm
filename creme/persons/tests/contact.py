@@ -205,10 +205,12 @@ class ContactTestCase(_BaseTestCase):
         user = self.refresh(user) #clean cache
 
         with self.assertNumQueries(1):
-            rel_contact1 = user.linked_contact
+            #rel_contact1 = 
+            user.linked_contact
 
         with self.assertNumQueries(0):
-            rel_contact2 = user.linked_contact
+            #rel_contact2 = 
+            user.linked_contact
 
     def test_is_user02(self):
         """Contact.clean() + integrity of User.
