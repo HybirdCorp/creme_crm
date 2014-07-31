@@ -1,0 +1,2 @@
+creme = this.creme || {};
+
