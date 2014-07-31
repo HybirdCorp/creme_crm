@@ -145,7 +145,7 @@ class ListViewPostProcessor(object):
             current_status = INV_STATUS_NO_ANSWER
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
+        select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
                         event.id,
                         entity.id,
                         '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
@@ -174,7 +174,7 @@ class ListViewPostProcessor(object):
             current_status = PRES_STATUS_DONT_KNOW
 
         has_perm = user.has_perm_to_link
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
+        select = ["""<select onchange="creme.events.saveContactStatus('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
                         event.id,
                         entity.id,
                         '' if has_perm(event) and has_perm(entity) else 'disabled="True"'

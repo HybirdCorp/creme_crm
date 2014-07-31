@@ -555,7 +555,8 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 ('creme.reports',    'reports/js/reports.js'),
                 ('creme.emails',     'emails/js/emails.js'),
                 ('creme.cti',        'cti/js/cti.js'),
-                ('creme.commercial', 'commercial/js/commercial.js')
+                ('creme.commercial', 'commercial/js/commercial.js'),
+                ('creme.events',     'events/js/events.js'),
                )
 
 TEST_CREME_CORE_JS = (#js Unit test files
