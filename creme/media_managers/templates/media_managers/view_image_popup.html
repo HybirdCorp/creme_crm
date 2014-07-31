@@ -12,9 +12,11 @@
     {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
     <script type="text/javascript">
+        /*
         $(document).ready(function() {
             creme.utils.bindShowHideTbody();
         });
+        */
         {% if from_id %}
             if (window.opener) {
                 window.opener.creme.lv_widget.handleSelection([{{object.id}}], '{{from_id}}');

@@ -360,8 +360,6 @@ creme.dialogs = $.extend(creme.dialogs, {
     {
         dialog.on('frame-update', function(frame) {
             creme.blocks.bindEvents(this.content());
-            // TODO : move this in creme.blocks and initialize with bindEvents method
-            creme.utils.bindShowHideTbody(this.content());
         });
     },
 

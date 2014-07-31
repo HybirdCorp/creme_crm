@@ -3,6 +3,7 @@
 
 {% block page_title %} - {% trans "Mobile synchronization" %}{% endblock %}
 
+{% comment %}
 {% block extrahead %}
     <script>
         // TODO : move this in creme.blocks and initialize with bindEvents method
@@ -11,6 +12,7 @@
         });
     </script>
 {% endblock %}
+{% endcomment %}
 
 {% block content %}
     {% include "activesync/frags/ajax/main_sync.html" %}
