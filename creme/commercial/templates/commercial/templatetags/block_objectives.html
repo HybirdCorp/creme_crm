@@ -25,9 +25,9 @@
                     <td class="{{row_color}}">{{objective}}</td>
                     <td class="{{row_color}}">
                         {% if not objective.ctype %}
-                            <button type="button" {% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.incr_counter(-1, '/commercial/objective/{{objective.id}}/incr', {% get_block_reload_uri %})"{% endif %} name="incr_objective_counter{{objective.id}}">-</button>
+                            <button type="button" style="padding:0px 2px;text-align:center;"{% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', -1, {% get_block_reload_uri %});"{% endif %} name="incr_objective_counter{{objective.id}}">&minus;</button>
                             {{objective.counter}}
-                            <button type="button" {% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.incr_counter(1, '/commercial/objective/{{objective.id}}/incr', {% get_block_reload_uri %})"{% endif %} name="decr_objective_counter{{objective.id}}">+</button>
+                            <button type="button" style="padding:0px 2px;text-align:center;"{% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', 1, {% get_block_reload_uri %});"{% endif %} name="decr_objective_counter{{objective.id}}">&plus;</button>
                         {% else %}
                             {{objective.get_count}} ({{objective.ctype}}{% if objective.filter %} / {{objective.filter}}{% endif %})
                         {% endif %}

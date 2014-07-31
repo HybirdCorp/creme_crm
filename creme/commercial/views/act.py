@@ -65,7 +65,7 @@ def edit_objective_pattern(request, objpattern_id):
 @permission_required('commercial')
 def detailview(request, act_id):
     return generic.view_entity(request, act_id, Act, '/commercial/act',
-                               template='commercial/view_act.html'
+                               template='creme_core/generics/view_entity.html'
                               )
 
 @login_required
