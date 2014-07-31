@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-06 17:29+0100\n"
+"POT-Creation-Date: 2014-07-30 15:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,21 +16,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/reports/js/reports.js:65
+#: static/reports/js/reports.js:67
 msgid "None available"
 msgstr "Aucun disponible"
 
-#: static/reports/js/reports.js:117
+#: static/reports/js/reports.js:119
 msgid "All"
 msgstr "Tout"
 
-#: static/reports/js/reports.js:265
+#: static/reports/js/reports.js:267
 msgid "Error"
 msgstr "Erreur"
 
-#: static/reports/js/reports.js:435
-msgid "No backend found"
-msgstr "Outil d'export indisponible"
+#~ msgid "No backend found"
+#~ msgstr "Outil d'export indisponible"
 
 #~ msgid "Select a type"
 #~ msgstr "Sélectionnez un type"

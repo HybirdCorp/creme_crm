@@ -430,25 +430,24 @@ creme.utils.converters.register('creme.graphael.BargraphData', 'jqplotData', fun
 });
 
 
-creme.reports.exportReport = function(link, backends, report_id) {
-    var filterform_url = '/reports/date_filter_form/%d'.format(report_id)
+creme.reports.exportReport = function(link, report_id, title) {
+    var filterform_url = '/reports/export/filter/%d'.format(report_id)
 
-    if (backends.length) {
-        // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
-        // Emulate it for this case.
-        // TODO : filterform should be used as select and redirection url build in js.
-        creme.dialogs.form(filterform_url)
-                     .onFormSuccess(function(event, data, statusText, dataType) {
-                           var matches = data.match(/^<div class="in-popup" closing="true" redirect="(.*)">/)
+    // The export view uses the 'callback_url' feature of inner_popup (maybe only used here).
+    // Emulate it for this case.
+    // TODO : filterform should be used as select and redirection url build in js.
+    creme.dialogs.form(filterform_url, {'title': title || ''})
+                 .on('frame-update', function(event, frame) {
+                      new creme.reports.PreviewController(report_id).bind(frame.delegate());
+                  })
+                 .onFormSuccess(function(event, data, statusText, dataType) {
+                       var matches = data.match(/^<div class="in-popup" closing="true" redirect="(.*)">/)
 
-                           if (matches && matches.length > 1) {
-                               creme.utils.goTo(matches[1]);
-                           }
-                      })
-                     .open({width:800});
-    } else {
-        creme.dialogs.warning(gettext('No backend found')).open({maxWidth:300, resizable:false});
-    }
+                       if (matches && matches.length > 1) {
+                           creme.utils.goTo(matches[1]);
+                       }
+                  })
+                 .open({width:1024});
 }
 
 creme.reports.openGraphEdition = function(graph_id, reload_uri)
@@ -458,6 +457,87 @@ creme.reports.openGraphEdition = function(graph_id, reload_uri)
                      $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
                  }).open();
 }
+
+
+creme.reports.PreviewController = creme.component.Component.sub({
+    _init_: function(report)
+    {
+        this._redirectUrl = '/reports/export/preview/' + report + '?%s';
+        this._downloadUrl = '/reports/export/' + report + '?%s';
+
+        this._listeners = {
+            update:   $.proxy(this._updateHeader, this),
+            redirect: $.proxy(this.redirect, this),
+            download: $.proxy(this.download, this)
+        }
+    },
+
+    bind: function(element)
+    {
+        if (this._header !== undefined)
+            throw 'creme.reports.PreviewController is already bound.';
+
+        var listeners = this._listeners;
+        var header = this._header = $('.report-preview-header', element);
+
+        $('select[name="date_field"]',    header).change(listeners.update);
+        $('select[name="date_filter_0"]', header).change(listeners.update);
+
+        $('button[name="generate"]', header).click(listeners.redirect);
+        $('button[name="download"]', header).click(listeners.download);
+
+        this._updateHeader();
+        return this;
+    },
+
+    unbind: function(element)
+    {
+        var listeners = this._listeners;
+        var header = this._header;
+
+        if (header !== undefined)
+        {
+            $('select[name="date_field"]',    header).unbind('change', listeners.update);
+            $('select[name="date_filter_0"]', header).unbind('change', listeners.update);
+
+            $('button[name="generate"]', header).unbind('click', listeners.redirect);
+            $('button[name="download"]', header).unbind('click', listeners.download);
+        }
+
+        this._header = undefined;
+        return this;
+    },
+
+    _updateHeader: function()
+    {
+        var header = this._header;
+
+        var has_datefield = !Object.isEmpty($('[name="date_field"]', header).val());
+        var has_customdaterange = Object.isEmpty($('[name="date_filter_0"]', header).val());
+
+        $('.date-filter', header).toggle(has_datefield);
+        $('[name="date_filter_1"], [name="date_filter_2"]', header).each(function() {
+            $(this).parents('td:first').toggle(has_customdaterange);
+        });
+
+        if (!has_customdaterange) {
+            $('[name="date_filter_1"], [name="date_filter_2"]', header).val('');
+        }
+
+        if (!has_datefield) {
+            $('[name^="date_filter_"]', header).val('');
+        }
+    },
+
+    redirect: function() {
+        creme.utils.goTo(this._redirectUrl.format($('form', this._header).serialize()));
+    },
+
+    download: function() {
+        creme.utils.goTo(this._downloadUrl.format($('form', this._header).serialize()));
+    }
+});
+
 
 /*
 if(!creme.reports.graphs) creme.reports.graphs = {};

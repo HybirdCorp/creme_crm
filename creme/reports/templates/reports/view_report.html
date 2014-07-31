@@ -3,14 +3,11 @@
 {% load creme_core_tags %}
 
 {% block entity_buttons %}
-    <a href="/reports/report/preview/{{object.id}}">
+    <a href="/reports/export/preview/{{object.id}}">
         <img src="{% creme_media_url 'images/view_64.png' %}" title="{% blocktrans %}Preview of the report : '{{object}}'{% endblocktrans %}" alt="{% trans "Preview" %}"/>
     </a>&nbsp;
-    {% get_export_backends as export_backends %}
-    {% if export_backends|length > 2 %}
-        <a onclick="creme.reports.exportReport($(this), {{export_backends}}, {{object.id}});">
-            <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
-        </a>&nbsp;
-    {% endif %}
+    <a onclick="creme.reports.exportReport($(this), {{object.id}}, &quot;{% blocktrans %}Download «{{object}}»{% endblocktrans %}&quot;);">
+        <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download «{{object}}»{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
+    </a>&nbsp;
     {{block.super}}
 {% endblock %}

@@ -1,0 +1,5 @@
+{% load i18n %}
+{% load creme_core_tags %}
+<form class="report-preview-header" action="" method="POST">{% csrf_token %}
+{% include "reports/frags/report_preview_format.html" %}
+</form>

@@ -270,20 +270,21 @@ class ReportTestCase(BaseReportsTestCase):
         osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=datetime(year=1990, month=4, day=1))
 
         report = self._create_report('My report')
-        url = '/reports/report/preview/%s' % report.id
+        url = '/reports/export/preview/%s' % report.id
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertContains(response, chiyo.last_name)
         self.assertContains(response, osaka.last_name)
 
-        response = self.assertPOST200(url,
-                                      data={'date_filter_0': '',
-                                            'date_filter_1': '1990-01-01',
-                                            'date_filter_2': '1990-12-31',
-                                            'date_field':    'birthday',
-                                           }
-                                     )
+        response = self.assertGET200(url,
+                                     data={'doc_type': 'csv',
+                                           'date_filter_0': '',
+                                           'date_filter_1': '1990-01-01',
+                                           'date_filter_2': '1990-12-31',
+                                           'date_field':    'birthday',
+                                          }
+                                    )
         self.assertTemplateUsed(response, 'reports/preview_report.html')
         self.assertNoFormError(response)
         self.assertContains(response, osaka.last_name)
@@ -332,18 +333,19 @@ class ReportTestCase(BaseReportsTestCase):
                                 }
                           )
 
-    def test_date_filter_form01(self):
+    def test_export_filter_form_customrange(self):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/date_filter_form/%s' % report.id
-        response = self.assertGET200(url)
+        url = '/reports/export/filter/%s' % report.id
+        self.assertGET200(url)
 
         date_field = 'birthday'
         response = self.assertPOST200(url,
-                                      data={'date_filter_0': '',
-                                            'date_filter_1': '1990-01-01',
-                                            'date_filter_2': '1990-12-31',
+                                      data={'doc_type': 'csv',
+                                            'date_filter_0': '',
+                                            'date_filter_1': '01-01-1990',
+                                            'date_filter_2': '31-12-1990',
                                             'date_field':    date_field,
                                            }
                                      )
@@ -352,40 +354,77 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual('/reports/report/export/%s/?field=%s'
-                                                   '&range_name=base_date_range'
-                                                   '&start=01|01|1990|00|00|00'
-                                                   '&end=31|12|1990|23|59|59' % (
+        self.assertEqual('/reports/export/%s?doc_type=csv'
+                                           '&date_field=%s'
+                                           '&date_filter_0='
+                                           '&date_filter_1=01-01-1990'
+                                           '&date_filter_2=31-12-1990' % (
                                 report.id, date_field,
                             ),
                          callback_url
                         )
 
-    def test_date_filter_form02(self):
+    def test_export_filter_form_missing_doctype(self):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/date_filter_form/%s' % report.id
-        response = self.assertGET200(url)
+        url = '/reports/export/filter/%s' % report.id
+        self.assertGET200(url)
 
         date_field = 'birthday'
-        response = self.assertPOST200(url, data={'date_field': date_field,
+        response = self.assertPOST200(url, data={'date_field': date_field,})
+
+        self.assertFormError(response, 'form', 'doc_type',
+                             [_(u'This field is required.')]
+                            )
+
+    def test_export_filter_form_missing_customrange(self):
+        self.login()
+
+        report = self._create_report('My report')
+        url = '/reports/export/filter/%s' % report.id
+        self.assertGET200(url)
+
+        date_field = 'birthday'
+        response = self.assertPOST200(url, data={'doc_type': 'csv',
                                                  'date_filter_0': '',
+                                                 'date_filter_1': '',
+                                                 'date_filter_2': '',
+                                                 'date_field': date_field,
                                                 }
                                      )
-        self.assertFormError(response, 'form', 'date_filter',
+
+        self.assertFormError(response, 'form', '',
                              [_(u"If you chose a Date field, and select «customized» "
                                  "you have to specify a start date and/or an end date."
                                )
                              ]
                             )
 
-    def test_date_filter_form03(self):
+    def test_export_filter_form_invalid_filter(self):
         self.login()
 
         report = self._create_report('My report')
-        url = '/reports/date_filter_form/%s' % report.id
+        url = '/reports/export/filter/%s' % report.id
         response = self.assertGET200(url)
+
+        date_field = 'birthday'
+        response = self.assertPOST200(url, data={'date_field': date_field,
+                                                 'date_filter_0': 'unknown',
+                                                }
+                                     )
+
+        self.assertFormError(response, 'form', 'date_filter',
+                             [_(u"Select a valid choice. %(value)s is not one of the available choices.") % {'value': 'unknown'}
+                             ]
+                            )
+
+    def test_export_filter_form03(self):
+        self.login()
+
+        report = self._create_report('My report')
+        url = '/reports/export/filter/%s' % report.id
+        self.assertGET200(url)
 
         date_field = ''
         doc_type = 'csv'
@@ -399,7 +438,7 @@ class ReportTestCase(BaseReportsTestCase):
         with self.assertNoException():
             callback_url = response.context['callback_url']
 
-        self.assertEqual('/reports/report/export/%s/%s' % (
+        self.assertEqual('/reports/export/%s?doc_type=%s&date_field=' % (
                                 report.id, doc_type,
                             ),
                          callback_url
@@ -423,7 +462,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.create_from_view('Report on invoices', Invoice, hf)
 
-        response = self.assertGET200('/reports/report/export/%s/csv' % report.id)
+        response = self.assertGET200('/reports/export/%s' % report.id, data={'doc_type': 'csv'})
         self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
         self.assertEqual(smart_str('"%s","%s","%s","%s"\r\n' % (
                                       _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
@@ -439,7 +478,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(6, Contact.objects.count()) #create_persons + users' Contacts
 
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/report/export/%s/csv' % report.id)
+        response = self.assertGET200('/reports/export/%s' % report.id, data={'doc_type': 'csv'})
 
         content = (s for s in response.content.split('\r\n') if s)
         self.assertEqual(smart_str('"%s","%s","%s","%s"' % (
@@ -464,10 +503,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/report/export/%s/csv' % report.id,
-                                     data={'field': 'birthday',
-                                           'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                                           'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+        response = self.assertGET200('/reports/export/%s' % report.id,
+                                     data={'doc_type': 'csv',
+                                           'date_field': 'birthday',
+                                           'date_filter_0': '',
+                                           'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                                           'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
                                           }
                                     )
 
@@ -488,11 +529,10 @@ class ReportTestCase(BaseReportsTestCase):
                                birthday=datetime(year=now().year, month=1, day=1)
                               )
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/report/export/%s/csv' % report.id,
-                                     data={'field': 'birthday',
-                                           'range_name': 'current_year',
-                                           'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                                           'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+        response = self.assertGET200('/reports/export/%s' % report.id,
+                                     data={'doc_type': 'csv',
+                                           'date_field': 'birthday',
+                                           'date_filter_0': 'current_year',
                                           }
                                     )
 
@@ -506,23 +546,25 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report = self._create_report('trinita')
-        url = '/reports/report/export/%s/csv' % report.id #TODO: factorise
-        data = {'field': 'birthday',
-                'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+        url = '/reports/export/%s' % report.id #TODO: factorise
+        data = {'doc_type': 'csv',
+                'date_field': 'birthday',
+                'date_filter_0': '',
+                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
                }
-        count = Contact.objects.count()
+        #count = Contact.objects.count()
 
-        def post(**kwargs):
-            response = self.assertGET200(url, data=dict(data, **kwargs))
-            self.assertEqual(count + 1, # "+1" for header
-                             sum(1 if s else 0 for s in response.content.split('\r\n'))
-                            )
+        def export(status, **kwargs):
+            self.assertGET(status, url, data=dict(data, **kwargs))
+#             self.assertEqual(count + 1, # "+1" for header
+#                              sum(1 if s else 0 for s in response.content.split('\r\n'))
+#                             )
 
-        post(field='invalidfield')
-        post(field='first_name') #not a date field
-        post(start='1980-01-01') #invalid format
-        post(end='2000-01-01')   #invalid format
+        export(404, date_field='invalidfield')
+        export(404, date_field='first_name') #not a date field
+        export(200, date_filter_1='1980-01-01') #invalid format
+        export(200, date_filter_2='2000-01-01')   #invalid format
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
@@ -531,10 +573,12 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/report/export/%s/xls' % report.id,
-                                     data={'field': 'birthday',
-                                           'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                                           'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+        response = self.assertGET200('/reports/export/%s' % report.id,
+                                     data={'doc_type': 'xls',
+                                           'date_field': 'birthday',
+                                           'date_filter_0': '',
+                                           'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                                           'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
                                           },
                                      follow=True,
                                     )
