@@ -271,20 +271,77 @@ DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his ema
 
 #LOGS ##########################################################################
 
-import logging
-import warnings
+#LOGS ##########################################################################
 
-logging.basicConfig(
-    level=logging.WARNING, #Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-)
+LOGGING_FORMATTERS = {
+    'verbose': {
+        '()': 'creme.utils.loggers.CremeFormatter',
+        'format': '%(asctime)s %(levelname)-7s [%(modulepath)s:%(lineno)d] - %(name)s : %(message)s',
+    },
+    'simple': {
+        '()': 'creme.utils.loggers.CremeFormatter',
+        'format': '%(asctime)s [%(colored_levelname)s] - %(name)s : %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
+}
+
+# This filter remove all logs containing '/static_media/' string (usefull when log level is DEBUG)
+# LOGGING_FILTERS = {
+#     'media': {
+#         '()':      'creme.utils.loggers.RegexFilter',
+#         'pattern': '.*(\/static_media\/).*',
+#         'exclude': True,
+#     }
+# }
+LOGGING_FILTERS = {}
+
+LOGGING_CONSOLE_HANDLER = {
+    'level': 'WARNING', # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
+    'class': 'logging.StreamHandler',
+    'formatter': 'simple',
+}
+
+# In order to enable logging into a file use the following configuration
+# LOGGING_PATH = '~/creme.log' # create a log file in user home directory
+#
+# LOGGING_FILE_HANDLER = { # compress log file each day in order to save some space
+#     'level': 'INFO',
+#     '()': 'creme.utils.loggers.CompressedTimedRotatingFileHandler',
+#     'formatter': 'verbose',
+#     'filename': LOGGING_PATH,
+#     'interval': 1,
+#     'when': 'D'
+# }
+LOGGING_FILE_HANDLER = {
+    'class': 'logging.NullHandler',
+}
+
+LOGGING_DEFAULT_LOGGER = {
+    'handlers': ['console', 'file'],
+    'level': 'WARNING', # Available levels : DEBUG < INFO < WARNING < ERROR < CRITICAL
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': LOGGING_FORMATTERS,
+    'filters': LOGGING_FILTERS,
+    'handlers': {
+        'console': LOGGING_CONSOLE_HANDLER,
+        'file':    LOGGING_FILE_HANDLER,
+    },
+    'loggers': {
+        '': LOGGING_DEFAULT_LOGGER  # the empty key '' means that all logs are redirected to this logger. 
+    },
+}
+
+import warnings
 
 # Warnings behavior choices (see Python doc):
 # "error" "ignore" "always" "default" "module" "once"
 warnings.simplefilter("once")
 
 #LOGS [END]#####################################################################
-
 
 #GUI ###########################################################################
 
@@ -650,12 +707,10 @@ VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : whe
 
 #APPS CONFIGURATION [END]#######################################################
 
-
 try:
     from local_settings import *
 except ImportError:
     pass
-
 
 #GENERAL [FINAL SETTINGS]-------------------------------------------------------
 
@@ -683,3 +738,4 @@ CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in I
 MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
                         for theme_dir, theme_vb_name in THEMES
                        )
+
