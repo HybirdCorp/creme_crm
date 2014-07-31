@@ -73,6 +73,12 @@ creme.component.Action = creme.component.Component.sub({
         return this;
     },
 
+    trigger: function(event)
+    {
+        this._events.trigger(event, Array.copy(arguments).slice(1), this);
+        return this;
+    },
+
     action: function(data)
     {
         var self = this;
