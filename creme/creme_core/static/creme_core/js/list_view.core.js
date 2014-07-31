@@ -20,10 +20,6 @@
  */
 
 //TODO : To be deleted and all console.log in code also
-if(!window.console) {
-    window.console = {};
-    window.console.log = function(){};
-}
 
 (function($) {
     $.fn.list_view = function(options) {

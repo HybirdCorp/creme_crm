@@ -1,4 +1,5 @@
 {% load media %}
+{% comment %}
 <script type='text/javascript'>
     var creme = {};
     if(!window.console) {
@@ -6,6 +7,7 @@
         window.console.log = function(){};
     }
 </script>
+{% endcomment %}
 {% include_media 'l10n.js' language=LANGUAGE_CODE %}
 {% include_media 'main.js' %}
 <!--script type="text/javascript" src="{{MEDIA_URL}}tiny_mce/jquery.tinymce.js"></script-->
