@@ -74,7 +74,6 @@ creme.blocks.reload = function(url) {
 
 creme.blocks.fill = function(block, content) {
     block.replaceWith(content);
-    content.find('.collapser').each(function() {creme.utils.bindTableToggle($(this));});
     creme.blocks.initialize(content);
 };
 
@@ -252,6 +251,10 @@ creme.blocks.initialize = function(block) {
         creme.blocks.saveState($(this));
     });
 
+    block.find('.collapser').each(function() {
+        creme.blocks.bindTableToggle($(this));
+    });
+
     $('.creme-block-pager', block).each(function() {
         creme.blocks.initPager($(this));
     });
@@ -364,3 +367,43 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
 };
 
 // creme.utils.loadBlock = creme.blocks.reload;
+
+creme.blocks.tableExpandState = function($self, state, trigger) {
+    var $table = $self.parents('table[id!=]');
+    var $collapsable = $table.find('.collapsable');
+
+    var old_state = !$table.hasClass('collapsed');
+
+    if (state === old_state)
+        return;
+
+    $table.toggleClass('collapsed faded', !state);
+
+    if (trigger === undefined || trigger) {
+        $table.trigger('creme-table-collapse', {action: state ? 'show' : 'hide'});
+
+        if (state === true) {
+            $('.ui-creme-resizable', $table).trigger('resize')
+                                            .trigger('resizestop');
+        }
+    }
+}
+
+creme.blocks.tableIsCollapsed = function($self) {
+    return $self.parents('table[id!=]').hasClass('collapsed');
+}
+
+creme.blocks.tableExpand = function($self, trigger) {
+    creme.blocks.tableExpandState($self, true, trigger);
+}
+
+creme.blocks.bindTableToggle = function($self) {
+    $self.click(function(e) {
+        // HACK: we avoid that clicking on a button in the header collapses the block;
+        //       we should stop the propagation of the event in the buttons => we _really_ need to refactor the button system.
+        if ($(e.target).parent('.buttons').length > 0)
+            return;
+
+        creme.blocks.tableExpandState($self, creme.blocks.tableIsCollapsed($self));
+    });
+}

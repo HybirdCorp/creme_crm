@@ -156,50 +156,10 @@ creme.utils.showDialog = function(text, options, div_id) {
 //     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
 // }
 
-creme.utils.tableExpandState = function($self, state, trigger) {
-    var $table = $self.parents('table[id!=]');
-    var $collapsable = $table.find('.collapsable');
-
-    var old_state = !$table.hasClass('collapsed');
-
-    if (state === old_state)
-        return;
-
-    $table.toggleClass('collapsed faded', !state);
-
-    if (trigger === undefined || trigger) {
-        $table.trigger('creme-table-collapse', {action: state ? 'show' : 'hide'});
-
-        if (state === true) {
-            $('.ui-creme-resizable', $table).trigger('resize')
-                                            .trigger('resizestop');
-        }
-    }
-}
-
-creme.utils.tableIsCollapsed = function($self) {
-    return $self.parents('table[id!=]').hasClass('collapsed');
-}
-
-creme.utils.tableExpand = function($self, trigger) {
-    creme.utils.tableExpandState($self, true, trigger);
-}
-
-creme.utils.bindTableToggle = function($self) {
-    $self.click(function(e) {
-        // HACK: we avoid that clicking on a button in the header collapses the block;
-        //       we should stop the propagation of the event in the buttons => we _really_ need to refactor the button system.
-        if ($(e.target).parent('.buttons').length > 0)
-            return;
-
-        creme.utils.tableExpandState($self, creme.utils.tableIsCollapsed($self));
-    });
-}
-
 creme.utils.bindShowHideTbody = function(root) {
-//    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
+    console.warn('this functions is deprecated. creme.blocks.bindEvents do the same work.');
     $('.table_detail_view', root).find('.collapser').each(function() {
-        creme.utils.bindTableToggle($(this));
+        creme.blocks.bindTableToggle($(this));
     });
 }
 
