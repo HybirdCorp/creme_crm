@@ -103,10 +103,11 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
 
     _reloadSelector: function(target, name, data)
     {
-        var target = target.creme().widget();
+        var ready = target.is('.widget-ready');
+        var widget = target.creme().widget();
 
-        if ($.inArray(name, target.dependencies()) !== -1) {
-            target.reload(data, undefined, undefined, true);
+        if (ready && $.inArray(name, widget.dependencies()) !== -1) {
+            widget.reload(data, undefined, undefined, true);
         }
     },
 
