@@ -391,6 +391,7 @@ class RGHRelation(ReportGraphHand):
         #TODO: Optimize ! (populate real entities)
         #TODO: sort alpbabetically (with header_filter_search_field ? Queryset is not paginated so we can sort the "list") ?
         #TODO: make listview url for this case
+        build_url = self._listview_url_builder()
         relations = Relation.objects.filter(type=self._rtype, subject_entity__entity_type=self._graph.report.ct)
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
@@ -401,8 +402,7 @@ class RGHRelation(ReportGraphHand):
             subj_ids = rel_filter(object_entity=obj_id).values_list('subject_entity')
 
             yield (unicode(ce_objects_get(pk=obj_id).get_real_entity()),
-                   y_value_func(entities_filter(pk__in=subj_ids)),
-                  )
+                   [y_value_func(entities_filter(pk__in=subj_ids)), build_url({'pk__in': list(e[0] for e in subj_ids)})])
 
     @property
     def verbose_abscissa(self):
