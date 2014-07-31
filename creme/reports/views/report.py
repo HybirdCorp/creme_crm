@@ -20,25 +20,19 @@
 
 import logging
 
-from django.db.models import DateField, Q, FieldDoesNotExist
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
-from django.utils.encoding import smart_str
-from django.utils.timezone import now
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils import get_from_POST_or_404 #jsonify
-from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity,
         view_entity, list_view, inner_popup, add_to_entity)
 
 from ..forms.report import (ReportCreateForm, ReportEditForm,
-        LinkFieldToReportForm, ReportFieldsForm, DateReportFilterForm)
+                            LinkFieldToReportForm, ReportFieldsForm,)
 from ..models import Report, Field
-from ..utils import decode_datetime
 
 
 logger = logging.getLogger(__name__)
@@ -160,42 +154,6 @@ def change_field_order(request):
 
     return HttpResponse("", status=200, mimetype="text/javascript")
 
-@login_required
-@permission_required('reports')
-def preview(request, report_id):
-    user = request.user
-    report = get_object_or_404(Report, pk=report_id)
-
-    user.has_perm_to_view_or_die(report)
-
-    extra_q_filter = Q()
-    start = end = None
-
-    if request.method == 'POST':
-        filter_form = DateReportFilterForm(report=report, user=user, data=request.POST)
-
-        if filter_form.is_valid():
-            q_dict = filter_form.get_q_dict()
-            start, end = filter_form.get_dates()
-            if q_dict is not None:
-                extra_q_filter = Q(**filter_form.get_q_dict())
-    else:
-        filter_form = DateReportFilterForm(report=report, user=user)
-
-    LIMIT_TO = 25
-
-    return render(request, "reports/preview_report.html",
-                  {'lines': report.fetch_all_lines(limit_to=LIMIT_TO,
-                                                   extra_q=extra_q_filter,
-                                                   user=user,
-                                                  ),
-                   'object':   report,
-                   'limit_to': LIMIT_TO,
-                   'form':     filter_form,
-                   'start':    start,
-                   'end':      end,
-                  },
-                 )
 
 #TODO: jsonify ?
 @login_required
@@ -225,85 +183,3 @@ def set_selected(request):
 
     return HttpResponse(mimetype="text/javascript")
 
-@login_required
-@permission_required('reports')
-def export(request, report_id, doc_type):
-    report         = get_object_or_404(Report, pk=report_id)
-    GET_get        = request.GET.get
-    user           = request.user
-    extra_q_filter = None
-
-    backend = export_backend_registry.get_backend(doc_type)
-    if backend is None:
-        raise Http404('Unknown extension')
-
-    writer = backend()
-    writerow = writer.writerow
-
-    user.has_perm_to_view_or_die(report)
-
-    field_name = GET_get('field')
-
-    if field_name is not None:
-        try:
-            field = report.ct.model_class()._meta.get_field(field_name)
-        except FieldDoesNotExist as e:
-            logger.warn('Error in reports.export(): %s', e)
-        else:
-            if not isinstance(field, DateField):
-                logger.warn('Error in reports.export(): field "%s" is not a DateField', field)
-            else:
-                try:
-                    start = decode_datetime(GET_get('start'))
-                    end   = decode_datetime(GET_get('end'))
-                except ValueError as e:
-                    logger.warn('Error in reports.export(): invalid date (%s)', e)
-                else:
-                    dt_range = date_range_registry.get_range(GET_get('range_name'), # Empty str should get CustomRange
-                                                             start, end,
-                                                            )
-
-                    if dt_range is not None:
-                        extra_q_filter = Q(**dt_range.get_q_dict(field_name, now()))
-
-    writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
-
-    for line in report.fetch_all_lines(extra_q=extra_q_filter, user=user):
-        writerow([smart_str(value) for value in line])
-
-    writer.save(smart_str(report.name))
-
-    return writer.response
-
-@login_required
-@permission_required('reports')
-def date_filter_form(request, report_id):
-    report = get_object_or_404(Report, pk=report_id)
-    user = request.user
-
-    user.has_perm_to_view_or_die(report)
-
-    callback_url = None
-
-    if request.method == 'POST':
-        form = DateReportFilterForm(report=report, user=user, data=request.POST)
-        if form.is_valid():
-            callback_url = '/reports/report/export/%s/%s%s' % (
-                                    report_id,
-                                    form.cleaned_data.get('doc_type'),
-                                    form.forge_url_data,
-                                )
-    else:
-        form = DateReportFilterForm(report=report, user=user)
-
-    return inner_popup(request, 'reports/frags/date_filter_form.html',
-                       {'form':            form,
-                        'title':           _(u'Temporal filters for <%s>' % report),
-                        'inner_popup':     True,
-                        'report_id':       report_id,
-                       },
-                       is_valid=form.is_valid(),
-                       reload=True,
-                       delegate_reload=False,
-                       callback_url=callback_url,
-                      )

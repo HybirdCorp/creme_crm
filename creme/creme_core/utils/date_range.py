@@ -73,6 +73,8 @@ class DateRange(object):
 
 
 class CustomRange(DateRange):
+    name = ''
+
     def __init__(self, start=None, end=None):
         if start and not isinstance(start, datetime):
             start = make_aware_dt(datetime(year=start.year, month=start.month, day=start.day, **_DAY_START))

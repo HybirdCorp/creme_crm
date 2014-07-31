@@ -12,15 +12,8 @@ TODO: this is a hack to disable the Download <a> when datefilter is edited (beca
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
-            var form = $('form.date-filter-form');
-
-            function disableDownload() {
-                // The ugly 'cursor: default;' is here to fix the chantilly theme...
-                $('.report-dl').addClass("forbidden").removeAttr('href').removeAttr('onclick').attr('style', 'cursor: default;');
-            }
-
-            form.find('select').change(function() {disableDownload();});
-            form.find('input').bind('propertychange change keyup input paste', function() {disableDownload();});
+            var controller = new creme.reports.PreviewController({{object.id}});
+            controller.bind($('.report-preview'));
         });
     </script>
 {% endblock %}
@@ -41,9 +34,11 @@ TODO: this is a hack to disable the Download <a> when datefilter is edited (beca
                     </a>&nbsp;
                     {% get_export_backends as export_backends %}
                     {% comment %}{% if export_backends|length > 2 %}{% endcomment %}
+                    {% comment %}
                     <a class="report-dl" href="/reports/report/export/{{object.id}}/%s{{form.forge_url_data}}" onclick="event.preventDefault();creme.exports.exportAs($(this).attr('href'), {{export_backends}});">
                         <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
+                    {% endcomment %}
                     {% comment %}{% endif %}{% endcomment %}
                 </span>
             </td>
@@ -52,42 +47,48 @@ TODO: this is a hack to disable the Download <a> when datefilter is edited (beca
 {% endblock %}
 
 {% block content %}
-    <div class='scrollable-block-container'>
-        {% include "reports/frags/date_filter_form.html" %}
+<div class="report-preview">
+    <div class='scrollable-block-container report-preview-header'>
+        <form>
+        {% include "reports/frags/report_preview_format.html" %}
+        </form>
+        <button type="button" name="generate">{% trans 'Preview' %}</button>
+        <button type="button" name="download">{% trans 'Download' %}</button>
     </div>
 
-    {% with object.get_children_fields_flat as flat_columns %}
-        <div class='scrollable-block-container'>
-            <table class="table_detail_view ui-corner-all with-header" >
-                <thead>
+    <div class='scrollable-block-container report-preview-data'>
+        {% with object.get_children_fields_flat as flat_columns %}
+        <table class="table_detail_view ui-corner-all with-header" >
+            <thead>
+                <tr>
+                    <th colspan="100">{% blocktrans %}Preview of {{limit_to}} first entities{% endblocktrans %}</th>
+                </tr>
+            </thead>
+            <tbody class="collapsable">
+                <tr class="header">
+                    {% comment %}
+                        {% for column in object.columns.all|order_by:"order" %}
+                            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
+                        {% endfor %}
+                    {% endcomment %}
+                    {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as row_color silent %}
+                        <th class="{{row_color}}">{{column}}</th>
+                    {% endfor %}
+                </tr>
+                {% for line in lines %}
                     <tr>
-                        <th colspan="100">{% blocktrans %}Preview of {{limit_to}} first entities{% endblocktrans %}</th>
-                    </tr>
-                </thead>
-                <tbody class="collapsable">
-                    <tr class="header">
                         {% comment %}
-                            {% for column in object.columns.all|order_by:"order" %}
-                                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
-                            {% endfor %}
+                            This cannot be done in any other way, cycle won't reset after exiting the first loop
+                            so an odd number of column will result in a chessboard. https://code.djangoproject.com/ticket/5908
                         {% endcomment %}
-                        {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as row_color silent %}
-                            <th class="{{row_color}}">{{column}}</th>
+                        {% for val in line %}
+                            <td class="{% if forloop.counter|divisibleby:2 %}block_line_light{%else%}block_line_dark{%endif%}">{{val}}&nbsp;</td>
                         {% endfor %}
                     </tr>
-                    {% for line in lines %}
-                        <tr>
-                            {% comment %}
-                                This cannot be done in any other way, cycle won't reset after exiting the first loop
-                                so an odd number of column will result in a chessboard. https://code.djangoproject.com/ticket/5908
-                            {% endcomment %}
-                            {% for val in line %}
-                                <td class="{% if forloop.counter|divisibleby:2 %}block_line_light{%else%}block_line_dark{%endif%}">{{val}}&nbsp;</td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endwith %}
+    </div>
+</div>
 {% endblock %}

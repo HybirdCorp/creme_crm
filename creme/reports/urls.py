@@ -6,12 +6,14 @@ from django.conf.urls import patterns
 urlpatterns = patterns('creme.reports.views',
     (r'^$', 'portal.portal'),
 
-    (r'^reports$',                                               'report.listview'),
-    (r'^report/add$',                                            'report.add'),
-    (r'^report/edit/(?P<report_id>\d+)$',                        'report.edit'),
-    (r'^report/(?P<report_id>\d+)$',                             'report.detailview'),
-    (r'^report/preview/(?P<report_id>\d+)$',                     'report.preview'),
-    (r'^report/export/(?P<report_id>\d+)/(?P<doc_type>[\w-]+)$', 'report.export'),
+    (r'^reports$',                                   'report.listview'),
+    (r'^report/add$',                                'report.add'),
+    (r'^report/edit/(?P<report_id>\d+)$',            'report.edit'),
+    (r'^report/(?P<report_id>\d+)$',                 'report.detailview'),
+
+    (r'^export/preview/(?P<report_id>\d+)$',  'export.preview'),
+    (r'^export/filter/(?P<report_id>\d+)$',   'export.filter'),
+    (r'^export/(?P<report_id>\d+)$',          'export.export'),
 
     #Fields block
     #TODO: put field_id even on POST urls (instead of POST arg)
@@ -20,7 +22,6 @@ urlpatterns = patterns('creme.reports.views',
     (r'^report/field/set_selected$',                    'report.set_selected'),
     (r'^report/field/(?P<field_id>\d+)/link_report$',   'report.link_report'),
     (r'^report/(?P<report_id>\d+)/edit_fields$',        'report.edit_fields'),
-    (r'^date_filter_form/(?P<report_id>\d+)$',          'report.date_filter_form'),
 
     (r'^graph/(?P<report_id>\d+)/add$',                                                                 'graph.add'),
     (r'^graph/edit/(?P<graph_id>\d+)$',                                                                 'graph.edit'),

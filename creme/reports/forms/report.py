@@ -25,10 +25,12 @@ from itertools import chain
 from django.db.transaction import commit_on_success
 from django.forms.fields import ChoiceField
 from django.db.models import ForeignKey, ManyToManyField
+from django.db.models.query_utils import Q
 from django.forms.util import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.core.exceptions import ValidationError
 
 from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -386,3 +388,77 @@ class DateReportFilterForm(CremeForm):
 
     #def save(self, *args, **kwargs):
         #return self.cleaned_data
+
+
+class ReportExportPreviewFilterForm(CremeForm):
+    doc_type    = ChoiceField(label=_(u'Extension'), required=False, choices=())
+    date_field  = ChoiceField(label=_(u'Date field'), required=False, choices=())
+    date_filter = DateRangeField(label=_(u'Date filter'), required=False)
+
+    def __init__(self, report, *args, **kwargs):
+        super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
+        fields = self.fields
+
+        fields['date_field'].choices = self._date_field_choices(report)
+        fields['date_field'].initial = 'current_month'
+
+        fields['doc_type'].choices = self._backend_choices()
+
+    def _date_field_choices(self, report):
+        return chain([("", _(u"None"))],
+                     [(field.name, field.verbose_name) for field in report.ct.model_class()._meta.fields if is_date_field(field)])
+
+    def _backend_choices(self):
+        return [(backend.id, backend.verbose_name) for backend in export_backend_registry.iterbackends()]
+
+    def clean(self):
+        cleaned_data = super(ReportExportPreviewFilterForm, self).clean()
+        date_field = cleaned_data.get('date_field')
+        date_filter = cleaned_data.get('date_filter')
+
+        if not date_field:
+            return cleaned_data
+
+        if not date_filter or not any(date_filter.get_dates(now())):
+            raise ValidationError(_(u"If you chose a Date field, and select «customized» you have to specify a start date and/or an end date."))
+
+        return cleaned_data
+
+    def get_q(self):
+        cleaned_data = self.cleaned_data
+        date_field = cleaned_data['date_field']
+        date_filter = cleaned_data['date_filter']
+
+        if date_field:
+            return Q(**date_filter.get_q_dict(date_field, now()))
+
+        return None
+
+    def get_backend(self):
+        return export_backend_registry.get_backend(self.cleaned_data['doc_type'])
+
+    def export_url_data(self):
+        cleaned_data = self.cleaned_data
+        date_field = cleaned_data['date_field']
+        date_filter = cleaned_data['date_filter']
+
+        data = [('doc_type',      cleaned_data['doc_type']),
+                ('date_field',    date_field),
+               ]
+
+        if date_filter is not None:
+            range = date_filter.name
+            start, end = date_filter.get_dates(now())
+
+            data.extend([('date_filter_0', range),
+                         ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
+                         ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
+                        ])
+
+        return '&'.join('%s=%s' % (key, value) for key, value in data)
+
+
+class ReportExportFilterForm(ReportExportPreviewFilterForm):
+    def __init__(self, report, *args, **kwargs):
+        super(ReportExportFilterForm, self).__init__(report, *args, **kwargs)
+        self.fields['doc_type'].required = True

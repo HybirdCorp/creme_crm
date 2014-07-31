@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-21 16:11+0100\n"
+"POT-Creation-Date: 2014-07-30 15:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,11 +20,11 @@ msgstr ""
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: blocks.py:50
+#: blocks.py:51
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: blocks.py:70 models/graph.py:51
+#: blocks.py:72 models/graph.py:51
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
@@ -61,7 +61,7 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: core/graph.py:100 core/graph.py:421
+#: core/graph.py:100 core/graph.py:422
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
@@ -73,19 +73,19 @@ msgstr "le champ personnalisé n'existe plus."
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:246 core/graph.py:451
+#: core/graph.py:246 core/graph.py:452
 msgid "By days"
 msgstr "Par jours"
 
-#: core/graph.py:265 core/graph.py:465
+#: core/graph.py:265 core/graph.py:466
 msgid "By months"
 msgstr "Par mois"
 
-#: core/graph.py:282 core/graph.py:478
+#: core/graph.py:282 core/graph.py:479
 msgid "By years"
 msgstr "Par années"
 
-#: core/graph.py:322 core/graph.py:489
+#: core/graph.py:322 core/graph.py:490
 msgid "By X days"
 msgstr "Par X jours"
 
@@ -101,7 +101,7 @@ msgstr "Par valeurs (des fiches liées)"
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:528
+#: core/graph.py:529
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
@@ -145,7 +145,8 @@ msgstr "Colonne volatile"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:85 forms/report.py:315 models/graph.py:106
+#: forms/blocks.py:85 forms/report.py:317 forms/report.py:408
+#: models/graph.py:106
 #: templates/reports/templatetags/block_report_graph.html:19
 msgid "None"
 msgstr "Aucun"
@@ -232,48 +233,50 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:91
+#: forms/report.py:93
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:92
+#: forms/report.py:94
 msgid "The columns of the report will be copied from the list view."
 msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
 
-#: forms/report.py:94 models/report.py:40
+#: forms/report.py:96 models/report.py:40
+#: templates/reports/frags/report_preview_format.html:15
 msgid "Filter"
 msgstr "Filtre"
 
 # from creme_core
-#: forms/report.py:108 forms/report.py:112
+#: forms/report.py:110 forms/report.py:114
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
-#: forms/report.py:138
+#: forms/report.py:140
 msgid "All"
 msgstr "Tout"
 
-#: forms/report.py:143
+#: forms/report.py:145
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:254
+#: forms/report.py:256
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:307 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:309 forms/report.py:394
+#: templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:308
+#: forms/report.py:310 forms/report.py:395
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:309
+#: forms/report.py:311 forms/report.py:396
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:358
+#: forms/report.py:360 forms/report.py:423
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -333,7 +336,7 @@ msgstr "Type de fiche"
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
-#: models/report.py:47 templates/reports/preview_report.html:10
+#: models/report.py:47 templates/reports/preview_report.html:24
 msgid "Report"
 msgstr "Rapport"
 
@@ -362,34 +365,32 @@ msgstr "Liste des rapports"
 msgid "Preview %(object)s"
 msgstr "Aperçu %(object)s"
 
-#: templates/reports/preview_report.html:13
+#: templates/reports/preview_report.html:27
 #, python-format
 msgid "Preview %(verbose_name)s: %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
-#: templates/reports/preview_report.html:19
+#: templates/reports/preview_report.html:33
 #: templates/reports/view_graph.html:21
 #, python-format
 msgid "Back to the detailview: '%(report)s'"
 msgstr "Retour sur la fiche : '%(report)s'"
 
-#: templates/reports/preview_report.html:19
+#: templates/reports/preview_report.html:33
 #: templates/reports/view_graph.html:21
 msgid "Back"
 msgstr "Retour"
 
-#: templates/reports/preview_report.html:25
-#: templates/reports/view_report.html:12
-#, python-format
-msgid "Download '%(object)s' as CSV file"
-msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
+#: templates/reports/preview_report.html:58
+#: templates/reports/view_report.html:7
+msgid "Preview"
+msgstr "Aperçu"
 
-#: templates/reports/preview_report.html:25
-#: templates/reports/view_report.html:12
-msgid "Download CSV"
+#: templates/reports/preview_report.html:59
+msgid "Download"
 msgstr "Télécharger CSV"
 
-#: templates/reports/preview_report.html:44
+#: templates/reports/preview_report.html:67
 #, python-format
 msgid "Preview of %(limit_to)s first entities"
 msgstr "Aperçu des %(limit_to)s premières fiches"
@@ -429,9 +430,19 @@ msgstr "Aperçu %(verbose_name)s : %(title)s"
 msgid "Preview of the report : '%(object)s'"
 msgstr "Aperçu du rapport : '%(object)s'"
 
-#: templates/reports/view_report.html:7
-msgid "Preview"
-msgstr "Aperçu"
+#: templates/reports/view_report.html:9
+#, python-format
+msgid "Download «%(object)s»"
+msgstr "Télécharger «%(object)s»"
+
+#: templates/reports/view_report.html:10
+#, python-format
+msgid "Download '%(object)s' as CSV file"
+msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
+
+#: templates/reports/view_report.html:10
+msgid "Download CSV"
+msgstr "Télécharger CSV"
 
 #: templates/reports/frags/date_filter_form.html:22
 msgid "Temporal filters"
@@ -450,6 +461,10 @@ msgstr "Abscisse invalide : %(error)s"
 #, python-format
 msgid "Invalid ordinate: %(error)s"
 msgstr "Ordonnée invalide : %(error)s"
+
+#: templates/reports/frags/report_preview_format.html:6
+msgid "Export parameters"
+msgstr "Paramètres d'export"
 
 #: templates/reports/templatetags/block_report_fields.html:11
 msgid "Edit the columns"
@@ -580,7 +595,7 @@ msgstr "Créer un bloc à partir de ce graphe"
 msgid "Can't create block"
 msgstr "Création de bloc interdite"
 
-#: templates/reports/templatetags/block_report_graphs.html:96
+#: templates/reports/templatetags/block_report_graphs.html:98
 msgid "No graphs registered for the moment"
 msgstr "Aucun graphique enregistré pour le moment"
 
@@ -617,6 +632,11 @@ msgstr "Générer à nouveau"
 msgid "Add an instance block for <%s>"
 msgstr "Ajouter un bloc d'instance pour : <%s>"
 
+#: views/export.py:83
+#, python-format
+msgid "Export <%s>"
+msgstr "Exporter <%s>"
+
 #: views/graph.py:45
 #, python-format
 msgid "Add a graph for <%s>"
@@ -635,24 +655,22 @@ msgstr "Choisir un champ d'abscisse"
 msgid "Number of reports"
 msgstr "Nombre de rapport(s)"
 
-#: views/report.py:47
+#: views/report.py:46
 msgid "Save the report"
 msgstr "Enregistrer le rapport"
 
-#: views/report.py:116
+#: views/report.py:115
 #, python-format
 msgid "Link of the column <%s>"
 msgstr "Liaison de la colonne <%s>"
 
-#: views/report.py:127
+#: views/report.py:126
 #, python-format
 msgid "Edit columns of <%s>"
 msgstr "Modifier les colonnes de <%s>"
 
-#: views/report.py:283
-#, python-format
-msgid "Temporal filters for <%s>"
-msgstr "Filtres temporels pour <%s>"
+#~ msgid "Temporal filters for <%s>"
+#~ msgstr "Filtres temporels pour <%s>"
 
 #~ msgid "Calculated value"
 #~ msgstr "Valeur calculée"

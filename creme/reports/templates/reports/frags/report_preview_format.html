@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load creme_core_tags %}
+<table class="table_detail_view ui-corner-all with-header">
+    <thead>
+        <tr>
+            <th colspan="2">{% trans 'Export parameters' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="content">
+            <td width="10%">{{form.doc_type.label}}</td>
+            <td>{{form.doc_type.errors}}{{form.doc_type}}</td>
+        </tr>
+        <tr class="content">
+            <td width="10%">{% trans 'Filter' %}</td>
+            <td>
+                {{form.date_filter.errors}}
+                <ul class="ui-layout hbox">
+                    <li>{{form.date_field}}</li>
+                    <li class="date-filter">{{form.date_filter}}</li>
+                </ul>
+            </td>
+        </tr>
+        <tr class="content">
+            <td colspan="2" class="report-preview-errors">
+                {{form.non_field_errors}}
+            </td>
+        </tr>
+    </tbody>
+</table>
