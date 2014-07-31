@@ -162,7 +162,7 @@ creme.forms.DateTimePicker.init = function(self) {
     $('li.hour input[type="text"]', self).val(datetime.hour);
     $('li.minute input[type="text"]', self).val(datetime.minute);
 
-    $('li input[type="text"]', self).bind('change', function() {
+    $('li input[type="text"]', self).bind('change propertychange keyup input paste', function() {
             creme.forms.DateTimePicker.update(self);
         });
 
