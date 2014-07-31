@@ -784,9 +784,15 @@ creme.utils.ajaxQuery = function(url, options, data) {
         query.onFail(function(event, error, status) {
                   var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
                   creme.dialogs.error(message, {title: options.warnOnFailTitle}, status)
-                               .onClose(function() {self.fail(error, status);})
+                               .onClose(function() {
+                                   if (options.reloadOnFail) {
+                                       creme.utils.reload();
+                                   }
+                                })
                                .open();
               });
+    } else if (options.reloadOnFail) {
+        query.onFail(function(event, data) {creme.utils.reload();});
     }
 
     if (options.messageOnSuccess)
