@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django.db.models import Model, CharField
 from django.db.utils import IntegrityError
 
@@ -73,6 +75,7 @@ class Mutex(Model):
 
 
 def mutexify(func, lock_name):
+    warnings.warn("mutexify decorator is deprecated; use mutex_autolock instead", DeprecationWarning)
     def _aux(*args, **kwargs):
         try:
             lock = Mutex.get_n_lock(lock_name)
@@ -82,3 +85,32 @@ def mutexify(func, lock_name):
             func(*args, **kwargs)
         finally:
             Mutex.graceful_release(lock_name)
+
+
+def mutex_autolock(lock_name):
+    def _autolock_aux(func):
+        def _aux(*args, **kwargs):
+            Mutex.get_n_lock(lock_name)
+
+            try:
+                return func(*args, **kwargs)
+            finally:
+                Mutex.graceful_release(lock_name)
+
+        return _aux
+    return _autolock_aux
+
+
+class MutexAutoLock(object):
+    def __init__(self, lock_name):
+        self.lock_name = lock_name
+        self.locked = False
+
+    def __enter__(self):
+        Mutex.get_n_lock(self.lock_name)
+        self.locked = True
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.locked:
+            Mutex.graceful_release(self.lock_name)
+
