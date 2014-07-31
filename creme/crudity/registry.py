@@ -86,6 +86,24 @@ class CRUDityRegistry(object):
         self._fetchers = {}
         self._backends = {}
 
+    def autodiscover(self):
+        for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
+            #Fetchers
+            fetchers = getattr(crud_import, "fetchers", {})
+            register_fetchers = self.register_fetchers
+            for source_type, fetchers_list in fetchers.iteritems():
+                register_fetchers(source_type, fetchers_list)
+
+            #Inputs
+            inputs = getattr(crud_import, "inputs", {})
+            register_inputs = self.register_inputs
+            for source_type, inputs_list in inputs.iteritems():
+                register_inputs(source_type, inputs_list)
+
+            #Backends (registered by models)
+            backends = getattr(crud_import, "backends", [])
+            self.register_backends(backends)
+
     def register_fetchers(self, source, fetchers):
         self._fetchers[source] = FetcherInterface(fetchers)
 
@@ -189,21 +207,21 @@ class CRUDityRegistry(object):
 
 crudity_registry = CRUDityRegistry()
 
-for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
-    #Fetchers
-    fetchers = getattr(crud_import, "fetchers", {})
-    register_fetchers = crudity_registry.register_fetchers
-    for source_type, fetchers_list in fetchers.iteritems():
-        register_fetchers(source_type, fetchers_list)
+#for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
+    ##Fetchers
+    #fetchers = getattr(crud_import, "fetchers", {})
+    #register_fetchers = crudity_registry.register_fetchers
+    #for source_type, fetchers_list in fetchers.iteritems():
+        #register_fetchers(source_type, fetchers_list)
 
-    #Inputs
-    inputs = getattr(crud_import, "inputs", {})
-    register_inputs = crudity_registry.register_inputs
-    for source_type, inputs_list in inputs.iteritems():
-        register_inputs(source_type, inputs_list)
+    ##Inputs
+    #inputs = getattr(crud_import, "inputs", {})
+    #register_inputs = crudity_registry.register_inputs
+    #for source_type, inputs_list in inputs.iteritems():
+        #register_inputs(source_type, inputs_list)
 
-    #Backends (registered by models)
-    backends = getattr(crud_import, "backends", [])
-    crudity_registry.register_backends(backends)
-
+    ##Backends (registered by models)
+    #backends = getattr(crud_import, "backends", [])
+    #crudity_registry.register_backends(backends)
+crudity_registry.autodiscover()
 crudity_registry.dispatch()

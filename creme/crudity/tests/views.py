@@ -116,6 +116,8 @@ class CrudityViewsTestCase(CrudityTestCase):
                                          },
                                         ])
     def test_actions_fetch01(self):
+        crudity_registry.autodiscover()
+        crudity_registry.dispatch()
         response = self.assertGET200('/crudity/waiting_actions')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
         self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
