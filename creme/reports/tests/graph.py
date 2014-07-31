@@ -1318,8 +1318,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
             lannisters_idx = x_asc.index(unicode(lannisters))
             starks_idx     = x_asc.index(unicode(starks))
 
-        self.assertEqual(1, y_asc[lannisters_idx])
-        self.assertEqual(2, y_asc[starks_idx]) #not 3, because of the filter
+        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}&filter=test-filter'
+        self.assertEqual([1, fmt % tyrion.pk],                                            y_asc[lannisters_idx])
+        self.assertEqual([2, fmt % ', '.join(str(p) for p in (ned.pk, aria.pk, jon.pk))], y_asc[starks_idx]) #not 3, because of the filter
 
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
@@ -1366,8 +1367,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         tywin_index = x_asc.index(unicode(tywin))
         self.assertNotEqual(-1,  tywin_index)
 
-        self.assertEqual(100, y_asc[tywin_index])
-        self.assertEqual(90,  y_asc[ned_index])
+        fmt = '/persons/organisations?q_filter={"pk__in": [%s]}'
+        self.assertEqual([100, fmt % lannisters.pk],                                y_asc[tywin_index])
+        self.assertEqual([90,  fmt % ', '.join((str(starks.pk), str(tullies.pk)))], y_asc[ned_index])
 
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
@@ -1424,8 +1426,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual({unicode(lannisters), unicode(starks)}, set(x_asc))
 
         index = x_asc.index
-        self.assertEqual(600, y_asc[index(unicode(lannisters))])
-        self.assertEqual(800, y_asc[index(unicode(starks))])
+        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}'
+        self.assertEqual([600, fmt % ', '.join([str(jaime.pk), str(tyrion.pk)])], y_asc[index(unicode(lannisters))])
+        self.assertEqual([800, fmt % ', '.join([str(ned.pk), str(robb.pk)])],     y_asc[index(unicode(starks))])
 
     def test_fetch_by_relation04(self):
         "Invalid RelationType"
