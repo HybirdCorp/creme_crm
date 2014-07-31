@@ -10,7 +10,7 @@ from .custom_field import *
 from .header_filter import HeaderFilter
 from .entity_filter import EntityFilter, EntityFilterCondition, EntityFilterVariable
 
-from .lock import Mutex
+from .lock import Mutex, MutexAutoLock
 
 from .i18n import Language
 from .currency import Currency

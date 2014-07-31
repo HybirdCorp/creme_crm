@@ -1,10 +1,11 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 try:
     from django.db.transaction import commit_on_success
 
     from ..base import CremeTransactionTestCase #CremeTestCase
-    from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
+    from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException, mutex_autolock, MutexAutoLock
+    from creme.creme_core.utils import safe_unicode_error
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -14,6 +15,9 @@ __all__ = ('MutexTestCase',)
 
 #class MutexTestCase(CremeTestCase):
 class MutexTestCase(CremeTransactionTestCase):
+    def tearDown(self):
+        Mutex.graceful_release('dummy_lock')
+
     def _get_ids(self):
         return list(Mutex.objects.order_by('id').values_list('id', flat=True))
 
@@ -72,3 +76,78 @@ class MutexTestCase(CremeTransactionTestCase):
 
         mutex.release()
         self.assertEqual(0, Mutex.objects.count())
+
+    @mutex_autolock('dummy_lock')
+    def locked_func(self, a):
+        return a
+
+    @mutex_autolock('dummy_lock')
+    def invalid_locked_func(self, a):
+        raise Exception('invalid result %s' % a)
+
+    def test_mutex_autolock(self):
+        self.assertEqual(self.locked_func(12), 12)
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_mutex_autolock_already_locked(self):
+        self.assertEqual(self.locked_func(12), 12)
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+        Mutex.get_n_lock('dummy_lock')
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+        with self.assertRaises(MutexLockedException):
+            self.locked_func(5)
+
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_mutex_autolock_unlock_on_fail(self):
+        with self.assertRaises(Exception) as context:
+            self.invalid_locked_func(5)
+
+        self.assertEquals(u'invalid result %s' % 5, safe_unicode_error(context.exception))
+
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_MutexAutoLock(self):
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+        with MutexAutoLock('dummy_lock'):
+            self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_MutexAutoLock_already_locked(self):
+        Mutex.get_n_lock('dummy_lock')
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+        with self.assertRaises(MutexLockedException):
+            with MutexAutoLock('dummy_lock'):
+                self.fail('cannot be here with lock enabled')
+
+        self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_MutexAutoLock_recursive_lock(self):
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+        with self.assertRaises(MutexLockedException):
+            with MutexAutoLock('dummy_lock'):
+                self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+                with MutexAutoLock('dummy_lock'):
+                    self.fail('cannot be here with lock enabled')
+
+                self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+    def test_MutexAutoLock_unlock_on_fail(self):
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
+
+        with self.assertRaises(Exception) as context:
+            with MutexAutoLock('dummy_lock'):
+                self.assertEqual(1, Mutex.objects.filter(id='dummy_lock').count())
+                raise Exception('invalid result !')
+
+        self.assertEquals(u'invalid result !', safe_unicode_error(context.exception))
+        self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
