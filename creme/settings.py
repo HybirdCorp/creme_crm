@@ -551,10 +551,11 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
-                ('creme.billing', 'billing/js/billing.js'),
-                ('creme.reports', 'reports/js/reports.js'),
-                ('creme.emails',  'emails/js/emails.js'),
-                ('creme.cti',     'cti/js/cti.js'),
+                ('creme.billing',    'billing/js/billing.js'),
+                ('creme.reports',    'reports/js/reports.js'),
+                ('creme.emails',     'emails/js/emails.js'),
+                ('creme.cti',        'cti/js/cti.js'),
+                ('creme.commercial', 'commercial/js/commercial.js')
                )
 
 TEST_CREME_CORE_JS = (#js Unit test files
