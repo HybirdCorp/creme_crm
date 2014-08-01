@@ -236,13 +236,15 @@ class CremeEntity(CremeAbstractEntity):
                 logger.debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
     def get_custom_value(self, custom_field):
-        cvalue = self._cvalues_map.get(custom_field.id)
+        cvalue = None
 
-        if cvalue is None:
-            logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
-            self._cvalues_map[custom_field.id] = cvalue = custom_field.get_pretty_value(self.id)
-        else:
-            logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+        try:
+            cvalue = self._cvalues_map[custom_field.id]
+            #logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+        except KeyError:
+            #logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
+            CremeEntity.populate_custom_values([self], [custom_field])
+            cvalue = self._cvalues_map.get(custom_field.id)
 
         return cvalue
 
@@ -254,8 +256,8 @@ class CremeEntity(CremeAbstractEntity):
             entity_id = entity.id
             for custom_field in custom_fields:
                 cf_id = custom_field.id
-                entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id, u'')
-                logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
+                entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id)
+                #logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
         return escape(self.allowed_unicode(user))
