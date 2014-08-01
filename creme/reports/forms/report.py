@@ -304,90 +304,90 @@ class ReportFieldsForm(CremeForm):
         #Field.objects.filter(pk__in=[rfield.id for rfield in old_rfields]).delete()
         Field.objects.filter(pk__in=old_ids).delete()
 
-
-class DateReportFilterForm(CremeForm):
-    doc_type    = ChoiceField(label=_(u'Extension'), required=False, choices=())
-    date_field  = ChoiceField(label=_(u'Date field'), required=False, choices=())
-    date_filter = DateRangeField(label=_(u'Date filter'), required=False)
-
-    def __init__(self, report, *args, **kwargs):
-        super(DateReportFilterForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-
-        date_field_choices = [("", _(u"None"))]
-        #date_field_choices.extend([(field.name, field.verbose_name)
-                                            #for field in get_date_fields(report.ct.model_class())
-                                       #])
-        date_field_choices.extend((field.name, field.verbose_name)
-                                        for field in report.ct.model_class()._meta.fields
-                                            if is_date_field(field)
-                                 )
-        fields['date_field'].choices = date_field_choices
-
-        choices = [(backend.id, backend.verbose_name)
-                        for backend in export_backend_registry.iterbackends()
-                  ]
-        if choices:
-            doc_type = fields['doc_type']
-            doc_type.choices = choices
-            try:
-                doc_type.initial = choices[0][0]
-            except IndexError:
-                pass
-
-    def get_q_dict(self):
-        cdata = self.cleaned_data
-        if cdata:
-            date_field = cdata['date_field']
-            if date_field:
-                return cdata['date_filter'].get_q_dict(date_field, now())
-        return None
-
-    def get_dates(self):
-        cdata = self.cleaned_data
-        if cdata and cdata['date_field']:
-            date_filter = cdata['date_filter']
-            if date_filter:
-                return date_filter.get_dates(now())
-        return None, None
-
-    def clean(self):
-        cdata = super(DateReportFilterForm, self).clean()
-
-        if cdata['date_field']:
-            start, end = self.get_dates()
-            if not start and not end:
-                self.errors['date_filter'] = ErrorList([ugettext(u"If you chose a Date field, and select «customized» you have to specify a start date and/or an end date.")])
-
-        return cdata
-
-    @property
-    def forge_url_data(self):
-        cdata = self.cleaned_data
-
-        if cdata:
-            get_cdata = cdata.get
-            date_field = get_cdata('date_field')
-
-            if date_field:
-                data = ['field=%s' % date_field,
-                        'range_name=%s' % get_cdata('date_filter').name
-                       ]
-
-                start, end = self.get_dates()
-
-                if start is not None:
-                    data.append('start=%s' % encode_datetime(start))
-
-                if end is not None:
-                    data.append('end=%s' % encode_datetime(end))
-
-                return "?%s" % "&".join(data)
-
-        return ""
-
-    #def save(self, *args, **kwargs):
-        #return self.cleaned_data
+# TODO : not used anymore. remove the template reports/frags/date_filter_form.html
+# class DateReportFilterForm(CremeForm):
+#     doc_type    = ChoiceField(label=_(u'Extension'), required=False, choices=())
+#     date_field  = ChoiceField(label=_(u'Date field'), required=False, choices=())
+#     date_filter = DateRangeField(label=_(u'Date filter'), required=False)
+#
+#     def __init__(self, report, *args, **kwargs):
+#         super(DateReportFilterForm, self).__init__(*args, **kwargs)
+#         fields = self.fields
+#
+#         date_field_choices = [("", _(u"None"))]
+#         #date_field_choices.extend([(field.name, field.verbose_name)
+#                                             #for field in get_date_fields(report.ct.model_class())
+#                                        #])
+#         date_field_choices.extend((field.name, field.verbose_name)
+#                                         for field in report.ct.model_class()._meta.fields
+#                                             if is_date_field(field)
+#                                  )
+#         fields['date_field'].choices = date_field_choices
+#
+#         choices = [(backend.id, backend.verbose_name)
+#                         for backend in export_backend_registry.iterbackends()
+#                   ]
+#         if choices:
+#             doc_type = fields['doc_type']
+#             doc_type.choices = choices
+#             try:
+#                 doc_type.initial = choices[0][0]
+#             except IndexError:
+#                 pass
+#
+#     def get_q_dict(self):
+#         cdata = self.cleaned_data
+#         if cdata:
+#             date_field = cdata['date_field']
+#             if date_field:
+#                 return cdata['date_filter'].get_q_dict(date_field, now())
+#         return None
+#
+#     def get_dates(self):
+#         cdata = self.cleaned_data
+#         if cdata and cdata['date_field']:
+#             date_filter = cdata['date_filter']
+#             if date_filter:
+#                 return date_filter.get_dates(now())
+#         return None, None
+#
+#     def clean(self):
+#         cdata = super(DateReportFilterForm, self).clean()
+#
+#         if cdata['date_field']:
+#             start, end = self.get_dates()
+#             if not start and not end:
+#                 self.errors['date_filter'] = ErrorList([ugettext(u"If you chose a Date field, and select «customized» you have to specify a start date and/or an end date.")])
+#
+#         return cdata
+#
+#     @property
+#     def forge_url_data(self):
+#         cdata = self.cleaned_data
+#
+#         if cdata:
+#             get_cdata = cdata.get
+#             date_field = get_cdata('date_field')
+#
+#             if date_field:
+#                 data = ['field=%s' % date_field,
+#                         'range_name=%s' % get_cdata('date_filter').name
+#                        ]
+#
+#                 start, end = self.get_dates()
+#
+#                 if start is not None:
+#                     data.append('start=%s' % encode_datetime(start))
+#
+#                 if end is not None:
+#                     data.append('end=%s' % encode_datetime(end))
+#
+#                 return "?%s" % "&".join(data)
+#
+#         return ""
+#
+#     #def save(self, *args, **kwargs):
+#         #return self.cleaned_data
 
 
 class ReportExportPreviewFilterForm(CremeForm):
