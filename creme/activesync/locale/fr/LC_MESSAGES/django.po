@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activesync 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-29 15:11+0200\n"
+"POT-Creation-Date: 2014-07-29 23:51+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -110,7 +110,7 @@ msgid_plural "Successes"
 msgstr[0] "Succès"
 msgstr[1] "Succès"
 
-#: sync.py:287
+#: sync.py:280
 msgid "There is a server error, please try again later…"
 msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard…"
 
@@ -239,122 +239,108 @@ msgstr ""
 msgid "Deleting %s on the server"
 msgstr "Effacement de %s sur le serveur"
 
-#: forms/mobile_sync.py:35 forms/user_settings.py:43
+#: forms/mobile_sync.py:35 forms/user_settings.py:41
 msgid "Server URL examples"
 msgstr "Exemples d'URL de serveurs"
 
-#: forms/mobile_sync.py:36 forms/user_settings.py:43
+#: forms/mobile_sync.py:36 forms/user_settings.py:42
 msgid "Some common configurations"
 msgstr "Configurations communes"
 
-#: forms/mobile_sync.py:40 forms/user_settings.py:44
+#: forms/mobile_sync.py:40 forms/user_settings.py:40
 #: templates/activesync/frags/ajax/main_sync.html:30
 #: templates/activesync/templatetags/block_mobile_sync_config.html:17
 #: templates/activesync/templatetags/block_user_mobile_sync.html:16
 msgid "Server URL"
 msgstr "URL du serveur"
 
-#: forms/mobile_sync.py:41 forms/user_settings.py:45
+#: forms/mobile_sync.py:41 forms/user_settings.py:46
 #: templates/activesync/frags/ajax/main_sync.html:38
 #: templates/activesync/templatetags/block_mobile_sync_config.html:21
 #: templates/activesync/templatetags/block_user_mobile_sync.html:22
 msgid "Domain"
 msgstr "Domaine"
 
-#: forms/mobile_sync.py:42 forms/user_settings.py:46
+#: forms/mobile_sync.py:42 forms/user_settings.py:47
 #: templates/activesync/templatetags/block_mobile_sync_config.html:25
 #: templates/activesync/templatetags/block_user_mobile_sync.html:28
 msgid "Is secure"
 msgstr "Est sécurisé"
 
-#: forms/user_settings.py:42
-msgid "NB"
-msgstr "N.B."
-
-#: forms/user_settings.py:42
-msgid ""
-"Note that if you change your server URL or your login, synchronization will "
-"be reset. You will not loose all your synchronized contacts but there will "
-"be all added on the 'new' account at next synchronization."
-msgstr ""
-"Notez que si vous changez l'URL du serveur ou votre nom d'utilisateur "
-"(login), la synchronisation sera remise à zéro. Vous ne perdrez pas vos "
-"contacts synchronisés mais ils seront de nouveau ajoutés sur votre 'nouveau' "
-"compte à la prochaine synchronisation."
-
-#: forms/user_settings.py:44 forms/user_settings.py:45
-#, python-format
-msgid "Let empty to get the default configuration (currently '%s')."
-msgstr ""
-"Laissez vide pour obtenir la configuration par défaut (actuellement %s)."
-
-#: forms/user_settings.py:46
-#, python-format
-msgid "Let default to get the default configuration  (currently '%s')."
-msgstr "Laissez pour obtenir la configuration par défaut (actuellement '%s')"
-
-#: forms/user_settings.py:46
+#: forms/user_settings.py:48
 msgid "Default"
 msgstr "Défaut"
 
-#: forms/user_settings.py:46 forms/user_settings.py:49
-#: forms/user_settings.py:50 forms/user_settings.py:115
+#: forms/user_settings.py:48 forms/user_settings.py:54
+#: forms/user_settings.py:58 forms/user_settings.py:128
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_settings.py:46 forms/user_settings.py:49
-#: forms/user_settings.py:50 forms/user_settings.py:115
+#: forms/user_settings.py:48 forms/user_settings.py:54
+#: forms/user_settings.py:58 forms/user_settings.py:128
 msgid "No"
 msgstr "Non"
 
-#: forms/user_settings.py:47 templates/activesync/frags/ajax/main_sync.html:34
+#: forms/user_settings.py:50 templates/activesync/frags/ajax/main_sync.html:34
 msgid "Login"
 msgstr "Nom d'utilisateur"
 
-#: forms/user_settings.py:48
+#: forms/user_settings.py:51
 #: templates/activesync/templatetags/block_user_mobile_sync.html:40
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user_settings.py:49
+#: forms/user_settings.py:52
 #: templates/activesync/templatetags/block_user_mobile_sync.html:46
 msgid "Synchronize activities (calendars)"
 msgstr "Synchroniser les activités (calendriers)"
 
-#: forms/user_settings.py:49
+#: forms/user_settings.py:53
 msgid ""
 "Choose if either you want to synchronize your activities in both way or not."
 msgstr ""
 "Choisissez si vous voulez synchroniser vos activités dans les deux sens ou "
 "non."
 
-#: forms/user_settings.py:50
+#: forms/user_settings.py:56
 #: templates/activesync/templatetags/block_user_mobile_sync.html:52
 msgid "Synchronize contacts"
 msgstr "Synchroniser les contacts"
 
-#: forms/user_settings.py:50
+#: forms/user_settings.py:57
 msgid ""
 "Choose if either you want to synchronize your contacts in both way or not."
 msgstr ""
 "Choisissez si vous voulez synchroniser vos contacts dans les deux sens ou "
 "non."
 
-#: forms/user_settings.py:53
+#: forms/user_settings.py:62
 msgid "Mobile synchronization configuration"
 msgstr "Configuration de synchronisation mobile"
 
-#: forms/user_settings.py:54
+#: forms/user_settings.py:63
 msgid "What to sync"
 msgstr "Que synchroniser"
 
-#: forms/user_settings.py:66
+#: forms/user_settings.py:74
 #: templates/activesync/templatetags/block_user_mobile_sync.html:37
 #: templates/activesync/templatetags/block_user_mobile_sync.html:43
 #: templates/activesync/templatetags/block_user_mobile_sync.html:49
 #: templates/activesync/templatetags/block_user_mobile_sync.html:55
 msgid "Undefined"
 msgstr "Non-défini"
+
+#: forms/user_settings.py:114
+#, python-format
+msgid "Let empty to get the default configuration (currently '%s')."
+msgstr ""
+"Laissez vide pour obtenir la configuration par défaut (actuellement '%s')."
+
+#: forms/user_settings.py:131
+#, python-format
+msgid "Let 'Default' to get the default configuration (currently '%s')."
+msgstr ""
+"Laissez 'Défaut' pour obtenir la configuration par défaut (actuellement '%s')"
 
 #: mappings/contact.py:134
 msgid "Contact's organisation created"
@@ -536,9 +522,23 @@ msgstr "Historique vide pour le moment"
 msgid "Edit default mobile synchronization configuration"
 msgstr "Modifier la configuration de synchronisation mobile par défaut"
 
-#: views/user_settings.py:44
+#: views/user_settings.py:42
 msgid "Edit your mobile synchronization configuration"
 msgstr "Modifier votre configuration de synchronisation mobile"
+
+#: views/user_settings.py:43
+msgid ""
+"Note that if you change your server URL or your login, synchronization will "
+"be reset. You will not loose all your synchronized contacts but there will "
+"be all added on the 'new' account at next synchronization."
+msgstr ""
+"Notez que si vous changez l'URL du serveur ou votre nom d'utilisateur "
+"(login), la synchronisation sera remise à zéro. Vous ne perdrez pas vos "
+"contacts synchronisés mais ils seront de nouveau ajoutés sur votre 'nouveau' "
+"compte à la prochaine synchronisation."
+
+#~ msgid "NB"
+#~ msgstr "N.B."
 
 #~ msgid "Not filled in"
 #~ msgstr "Non-renseigné"
