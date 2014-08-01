@@ -7,8 +7,9 @@ try:
 
     from creme.creme_config.models import SettingValue, SettingKey
 
-    from ..utils import is_user_sync_calendars, is_user_sync_contacts
+    from ..blocks import mobile_sync_config_block
     from ..constants import *
+    from ..utils import is_user_sync_calendars, is_user_sync_contacts
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -16,9 +17,9 @@ except Exception as e:
 class GlobalSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'activesync')
+        cls.populate('creme_core', 'creme_config', 'activesync')
 
-    def test_view(self):
+    def test_editview(self):
         self.login()
         url = '/activesync/mobile_synchronization/edit'
         self.assertGET200(url)
@@ -54,6 +55,11 @@ class GlobalSettingsTestCase(CremeTestCase):
                          form.initial
                         )
 
+    def test_config_page(self):
+        self.login()
+        response = self.assertGET200('/creme_config/activesync/portal/')
+        self.assertContains(response, ' id="%s"' % mobile_sync_config_block.id_)
+
 
 class UserSettingsTestCase(CremeTestCase):
     @classmethod
@@ -79,7 +85,6 @@ class UserSettingsTestCase(CremeTestCase):
 
         SettingValue.objects.create(key=skey, value=True, user=user)
         self.assertTrue(is_user_sync_calendars(user))
-
 
     def test_is_user_sync_contacts(self):
         self.login()
