@@ -18,31 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic.add import add_model_with_popup
 
-from creme.creme_config.models import SettingValue
-
 from ..forms.mobile_sync import MobileSyncForm
-from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 
 
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request):
-    #TODO: Why 404???
-    server_url    = get_object_or_404(SettingValue, key__id=MAPI_SERVER_URL)
-    server_domain = get_object_or_404(SettingValue, key__id=MAPI_DOMAIN)
-    server_ssl    = get_object_or_404(SettingValue, key__id=MAPI_SERVER_SSL)
-
     return add_model_with_popup(request, MobileSyncForm,
                                 title=_(u'Edit default mobile synchronization configuration'),
-                                initial={'url':    server_url.value,
-                                         'domain': server_domain.value,
-                                         'ssl':    server_ssl.value,
-                                        },
                                )
-

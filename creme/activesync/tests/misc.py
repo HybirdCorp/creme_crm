@@ -5,8 +5,7 @@ try:
 
     from creme.creme_config.models import SettingKey, SettingValue
 
-    from ..utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
-    from ..constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+    from ..utils import decode_AS_timezone
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -76,29 +75,3 @@ class MiscTestCase(CremeTestCase):
                          },
                          decoded
                         )
-
-
-class UserSettingsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.populate('creme_config', 'activesync')
-
-    def test_is_user_sync_calendars01(self):
-        self.login()
-        self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_ACTIVITIES).count())
-        self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_ACTIVITIES).count())
-        self.assertIs(False, is_user_sync_calendars(self.user))
-
-        SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_ACTIVITIES), value_str="True", user=self.user)
-
-        self.assertTrue(is_user_sync_calendars(self.user))
-
-    def test_is_user_sync_contacts01(self):
-        self.login()
-        self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_CONTACTS).count())
-        self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_CONTACTS).count())
-        self.assertIs(False, is_user_sync_contacts(self.user))
-
-        SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_CONTACTS), value_str="True", user=self.user)
-
-        self.assertTrue(is_user_sync_contacts(self.user))

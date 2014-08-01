@@ -1,6 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user gets this config until he overrides it in his own settings.' %}</div>
+{% if not request.is_ajax %}
+    <div class="help_box">{% trans 'Here you set the default configuration for mobile synchronization. Each user gets this config until he overrides it in his own settings.' %}</div>
+{% endif %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th class="label">{% get_basic_block_header _('Default mobile synchronization configuration') 'phone_sync_48.png' _('Phone synchronization') %}</th>
@@ -14,8 +16,8 @@
             </th>
         </tr>
         <tr class="content">
-            <th class="block_header_line_light th_info">{% trans "Server URL" %}</th>
-            <td class="block_line_light td_info">{{url.as_html}}</td>
+            <th class="block_header_line_dark th_info">{% trans "Server URL" %}</th>
+            <td class="block_line_dark td_info">{{url.as_html}}</td>
         </tr>
         <tr class="content">
             <th class="block_header_line_light th_info">{% trans "Domain" %}</th>

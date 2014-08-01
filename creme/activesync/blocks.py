@@ -134,8 +134,6 @@ class UserMobileSyncConfigBlock(Block):
                 #pass
         sync_con = get_setting_value(USER_MOBILE_SYNC_CONTACTS)
 
-        print 'DOMAIN', domain
-
         return self._render(self.get_block_template_context(context,
                                                             url=url,
                                                             domain=domain,

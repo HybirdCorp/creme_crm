@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeForm
 
-from creme.creme_config.models.setting import SettingValue
+from creme.creme_config.models import SettingValue
 
 from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
 
@@ -41,21 +41,26 @@ class MobileSyncForm(CremeForm):
     domain = CharField(label=_(u"Domain"), required=False)
     ssl    = BooleanField(label=_(u"Is secure"), required=False)
 
+    def __init__(self, *args, **kwargs):
+        get_sv = SettingValue.objects.get
+        self.server_url    = url    = get_sv(key__id=MAPI_SERVER_URL)
+        self.server_domain = domain = get_sv(key__id=MAPI_DOMAIN)
+        self.server_ssl    = ssl    = get_sv(key__id=MAPI_SERVER_SSL)
+
+        initial = kwargs['initial'] or {}
+        initial.update(url=url.value, domain=domain.value, ssl=ssl.value)
+        kwargs['initial'] = initial
+
+        super(MobileSyncForm, self).__init__(*args, **kwargs)
+
     def save(self):
         clean_get = self.cleaned_data.get
 
-        sv_get = SettingValue.objects.get
+        def upgrade_svalue(svalue, value):
+            if svalue.value != value:
+                svalue.value = value
+                svalue.save()
 
-        sk_url = sv_get(key__id=MAPI_SERVER_URL)
-        sk_url.value=clean_get('url')
-        sk_url.save()
-
-        sk_domain = sv_get(key__id=MAPI_DOMAIN)
-        sk_domain.value=clean_get('domain')
-        sk_domain.save()
-
-        sk_ssl = sv_get(key__id=MAPI_SERVER_SSL)
-        sk_ssl.value=clean_get('ssl')
-        sk_ssl.save()
-
-
+        upgrade_svalue(self.server_url, clean_get('url'))
+        upgrade_svalue(self.server_domain, clean_get('domain'))
+        upgrade_svalue(self.server_ssl, clean_get('ssl'))
