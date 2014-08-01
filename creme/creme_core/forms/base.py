@@ -270,6 +270,7 @@ class CremeEntityForm(CremeModelWithUserForm):
 
         fields = self.fields
 
+        #TODO: why not use cfield.id as 'i' ??
         for i, (cfield, cvalue) in enumerate(self._customs):
             fields[_CUSTOM_NAME % i] = cfield.get_formfield(cvalue)
 

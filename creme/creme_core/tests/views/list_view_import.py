@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from decimal import Decimal
     from functools import partial
     from tempfile import NamedTemporaryFile
 
@@ -8,7 +9,8 @@ try:
     from django.utils.unittest.case import skipIf
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
+    from creme.creme_core.models import (CremePropertyType, CremeProperty,
+            RelationType, Relation, CustomField, CustomFieldEnumValue)
     from creme.creme_core.tests.views.base import ViewsTestCase
 
     from creme.persons.models import Contact, Organisation, Position, Sector
@@ -130,6 +132,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_country_colselect':    0,  'shipaddr_country_colselect':    0,
             'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
         }
+
+        cls.ct = ContentType.objects.get_for_model(Contact)
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
         return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \
@@ -392,6 +396,329 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    def _get_cf_values(self, cf, entity):
+        return self.get_object_or_fail(cf.get_value_class(), custom_field=cf, entity=entity)
+
+    def test_csv_import_customfields01(self): 
+        "CustomField.INT & FLOAT, update, cast error"
+        self.login()
+
+        create_cf = partial(CustomField.objects.create, content_type=self.ct)
+        cf_int = create_cf(name='Size (cm)',   field_type=CustomField.INT)
+        cf_dec = create_cf(name='Weight (kg)', field_type=CustomField.FLOAT)
+
+        lines = [('First name', 'Last name', 'Size', 'Weight'),
+                 (u'Unchô',      u'Kan-u',   '180',    '55'),
+                 (u'Gentoku',    u'Ryûbi',   '155',    ''),
+                 (u'Hakufu',     u'Sonsaku', '',       '50.2'),
+                 (u'Shimei',     u'Ryomou',  'notint', '48'),
+                ]
+
+        kanu = Contact.objects.create(user=self.user, first_name=lines[1][0],
+                                      last_name=lines[1][1],
+                                     )
+        cf_int.get_value_class()(custom_field=cf_dec, entity=kanu).set_value_n_save(Decimal('56'))
+
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              has_header=True,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              key_fields=['first_name', 'last_name'],
+                                              **{'custom_field_%s_colselect' % cf_int.id: 3,
+                                                 'custom_field_%s_colselect' % cf_dec.id: 4,
+                                                }
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(len(lines) - 2, # 2 = 1 header + 1 update
+                         Contact.objects.exclude(id__in=contact_ids).count()
+                        )
+
+        def get_contact(line_index):
+            line = lines[line_index]
+            return self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
+
+        get_cf_values = self._get_cf_values
+        self.assertEqual(180, get_cf_values(cf_int, kanu).value)
+        self.assertEqual(Decimal('55'), get_cf_values(cf_dec, kanu).value)
+
+        ryubi = get_contact(2)
+        self.assertEqual(155, get_cf_values(cf_int, ryubi).value)
+        self.assertFalse(cf_dec.get_value_class().objects.filter(entity=ryubi))
+
+        sonsaku = get_contact(3)
+        self.assertFalse(cf_int.get_value_class().objects.filter(entity=sonsaku))
+        self.assertEqual(Decimal('50.2'), get_cf_values(cf_dec, sonsaku).value)
+
+        ryomou = get_contact(4)
+        self.assertFalse(cf_int.get_value_class().objects.filter(entity=ryomou))
+        self.assertEqual(Decimal('48'), get_cf_values(cf_dec, ryomou).value)
+
+        errors = list(response.context['form'].import_errors)
+        self.assertEqual(1, len(errors))
+
+        error = errors[0]
+        self.assertEqual(list(lines[4]), error.line)
+        self.assertEqual(_('Enter a whole number.'), unicode(error.message))
+        self.assertEqual(ryomou, error.instance)
+
+    def test_csv_import_customfields02(self): 
+        "CustomField.ENUM/MULTI_ENUM (no creation of choice)"
+        self.login()
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
+
+        create_cf = partial(CustomField.objects.create, content_type=self.ct)
+        cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
+        cf_enum2 = create_cf(name='Drink',   field_type=CustomField.ENUM)
+        cf_menum = create_cf(name='Weapons', field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        punch = create_evalue(custom_field=cf_enum, value='Punch')
+        create_evalue(custom_field=cf_enum, value='Kick')
+        create_evalue(custom_field=cf_enum, value='Hold')
+
+        create_evalue(custom_field=cf_enum2, value='Punch') #try to annoy the search on 'punch'
+
+        create_evalue(custom_field=cf_menum, value='Sword')
+        spear = create_evalue(custom_field=cf_menum, value='Spear')
+
+        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
+                 (u'Hakufu',     u'Sonsaku', 'punch',         ''),
+                 (u'Unchô',      u'Kan-u',   'strangulation', 'Spear'),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              has_header=True,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              **{'custom_field_%s_colselect' % cf_enum.id:  3,
+                                                 'custom_field_%s_colselect' % cf_enum2.id: 0,
+                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
+                                                }
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(len(lines) - 1, #1 header
+                         Contact.objects.exclude(id__in=contact_ids).count()
+                        )
+
+        def get_contact(line_index):
+            line = lines[line_index]
+            return self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
+
+        get_cf_values = self._get_cf_values
+        sonsaku = get_contact(1)
+        self.assertEqual(punch, get_cf_values(cf_enum, sonsaku).value)
+
+        kanu = get_contact(2)
+        self.assertFalse(cf_enum.get_value_class().objects.filter(entity=kanu))
+        self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
+
+        errors = list(response.context['form'].import_errors)
+        self.assertEqual(1, len(errors))
+
+        error = errors[0]
+        self.assertEqual(list(lines[2]), error.line)
+        self.assertEqual(_(u'Error while extracting value: tried to retrieve '
+                            'the choice "%(value)s" (column %(column)s). '
+                            'Raw error: [%(raw_error)s]') % {
+                                'raw_error': 'CustomFieldEnumValue matching query does not exist.',
+                                'column':    3,
+                                'value':     'strangulation',
+                            },
+                         unicode(error.message)
+                        )
+        self.assertEqual(kanu, error.instance)
+
+    def test_csv_import_customfields03(self): 
+        "CustomField.ENUM (creation of choice if not found)"
+        self.login()
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
+
+        create_cf = partial(CustomField.objects.create, content_type=self.ct)
+        cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
+        cf_menum = create_cf(name='Weapons', field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        punch = create_evalue(custom_field=cf_enum,  value='Punch')
+        sword = create_evalue(custom_field=cf_menum, value='Sword')
+
+        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
+                 (u'Hakufu',     u'Sonsaku', 'punch',         'sword'),
+                 (u'Unchô',      u'Kan-u',   'strangulation', 'spear'),
+                 (u'Gentoku',    u'Ryûbi',   '',              ''),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              has_header=True,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              **{'custom_field_%s_colselect' % cf_enum.id: 3,
+                                                 'custom_field_%s_create' % cf_enum.id:    True,
+
+                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
+                                                 'custom_field_%s_create' % cf_menum.id:    True,
+                                                }
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(len(lines) - 1, #1 header
+                         Contact.objects.exclude(id__in=contact_ids).count()
+                        )
+
+        def get_contact(line_index):
+            line = lines[line_index]
+            return self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
+
+        get_cf_values = self._get_cf_values
+        sonsaku = get_contact(1)
+        self.assertEqual(punch,   get_cf_values(cf_enum, sonsaku).value)
+        self.assertEqual([sword], list(get_cf_values(cf_menum, sonsaku).value.all()))
+
+        kanu = get_contact(2)
+        strang = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
+                                         value='strangulation',
+                                        )
+        self.assertEqual(strang, get_cf_values(cf_enum, kanu).value)
+        spear = self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_menum,
+                                        value='spear',
+                                       )
+        self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
+
+        ryubi = get_contact(3)
+        self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count()) #not '' choice
+
+        self.assertEqual(0, len(response.context['form'].import_errors))
+
+    def test_csv_import_customfields04(self):
+        "CustomField.ENUM/MULTI_ENUM: creation credentials"
+        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
+                   creatable_models=[Contact, Document],
+                  )
+
+        create_cf = partial(CustomField.objects.create, content_type=self.ct)
+        cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
+        cf_menum = create_cf(name='Weapons', field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        create_evalue(custom_field=cf_enum,  value='Punch')
+        create_evalue(custom_field=cf_menum, value='Sword')
+
+        lines = [('First name', 'Last name', 'Attack',        'Weapons'),
+                 (u'Unchô',      u'Kan-u',   'strangulation', 'spear'),
+                ]
+
+        doc = self._build_csv_doc(lines)
+
+        def post():
+            return self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              has_header=True,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              **{'custom_field_%s_colselect' % cf_enum.id: 3,
+                                                 'custom_field_%s_create' % cf_enum.id: True,
+
+                                                 'custom_field_%s_colselect' % cf_menum.id: 4,
+                                                 'custom_field_%s_create' % cf_menum.id:    True,
+                                                }
+                                             ),
+                                   )
+
+        response = post()
+        self.assertFormError(response, 'form', 'custom_field_%s' % cf_enum.id,
+                             'You can not create choices',
+                            )
+        self.assertFormError(response, 'form', 'custom_field_%s' % cf_menum.id,
+                             'You can not create choices',
+                            )
+
+        role = self.role 
+        role.admin_4_apps = ['creme_config']
+        role.save()
+
+        response = post()
+        self.assertNoFormError(response)
+        self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_enum,
+                                value='strangulation',
+                               )
+        self.get_object_or_fail(CustomFieldEnumValue, custom_field=cf_menum,
+                                value='spear',
+                               )
+
+    def test_csv_import_customfields05(self): 
+        "Default value"
+        self.login()
+        contact_ids = list(Contact.objects.values_list('id', flat=True))
+
+        create_cf = partial(CustomField.objects.create, content_type=self.ct)
+        cf_int  = create_cf(name='Size (cm)', field_type=CustomField.INT)
+        cf_enum = create_cf(name='Attack',    field_type=CustomField.ENUM)
+        cf_menum = create_cf(name='Weapons',  field_type=CustomField.MULTI_ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        punch = create_evalue(custom_field=cf_enum,  value='Punch')
+        sword = create_evalue(custom_field=cf_menum, value='Sword')
+
+        lines = [('First name', 'Last name', 'Size', 'Attack', 'Weapons'),
+                 (u'Unchô',      u'Kan-u',   '',     '',       ''),
+                ]
+
+        doc = self._build_csv_doc(lines)
+
+        def post(defint):
+            return self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              has_header=True,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              key_fields=['first_name', 'last_name'],
+                                              **{'custom_field_%s_colselect' % cf_int.id: 3,
+                                                 'custom_field_%s_defval'    % cf_int.id: defint,
+
+                                                 'custom_field_%s_colselect' % cf_enum.id: 4,
+                                                 'custom_field_%s_defval'    % cf_enum.id: str(punch.id),
+
+                                                 'custom_field_%s_colselect' % cf_menum.id: 5,
+                                                 'custom_field_%s_defval'    % cf_menum.id: str(sword.id),
+                                                }
+                                             ),
+                                   )
+
+        response = post('notint')
+        self.assertFormError(response, 'form', 'custom_field_%s' % cf_int.id, 
+                             _('Enter a whole number.')
+                            )
+
+        response = post('180')
+        self.assertNoFormError(response)
+        self.assertEqual(len(lines) - 1,
+                         Contact.objects.exclude(id__in=contact_ids).count()
+                        )
+
+        def get_contact(line_index): #TODO: inline ?
+            line = lines[line_index]
+            return self.get_object_or_fail(Contact, first_name=line[0], last_name=line[1])
+
+        get_cf_values = self._get_cf_values
+        kanu = get_contact(1)
+        self.assertEqual(180,   get_cf_values(cf_int,  kanu).value)
+        self.assertEqual(punch, get_cf_values(cf_enum, kanu).value)
+        self.assertEqual([sword], list(get_cf_values(cf_menum, kanu).value.all()))
 
     def test_import_error01(self):
         "Form error: unknown extension"

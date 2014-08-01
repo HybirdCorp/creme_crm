@@ -280,6 +280,7 @@ class CustomFieldBoolean(CustomFieldValue):
             self.value = value
             self.save()
 
+
 class CustomFieldEnumValue(CremeModel):
     custom_field = ForeignKey(CustomField, related_name='customfieldenumvalue_set')
     value        = CharField(max_length=100)
