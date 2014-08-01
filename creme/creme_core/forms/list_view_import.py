@@ -24,26 +24,31 @@ from functools import partial
 from itertools import chain, izip_longest
 import logging
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.db.models import Q, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
-                          ModelChoiceField, ModelMultipleChoiceField, IntegerField)
+        ModelChoiceField, ModelMultipleChoiceField, IntegerField)
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
+from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
 
-from creme.creme_core.models import (CremePropertyType, CremeProperty,
-                       RelationType, Relation, CremeEntity, EntityCredentials)
+from creme.creme_core.forms.base import _CUSTOM_NAME
 from creme.creme_core.gui.list_view_import import import_form_registry
+from creme.creme_core.models import (CremePropertyType, CremeProperty,
+        RelationType, Relation, CremeEntity, EntityCredentials,
+        CustomField, CustomFieldValue,
+        #CustomFieldEnum
+        CustomFieldEnumValue,
+        )
+from creme.creme_core.registry import import_backend_registry
 from creme.creme_core.utils.collections import LimitedList
 #from creme.creme_core.views.entity import EXCLUDED_FIELDS
-from creme.creme_core.registry import import_backend_registry
 
 from creme.documents.models import Document
 
@@ -756,7 +761,173 @@ class RelationExtractorField(MultiRelationEntityField):
 
         return MultiRelationsExtractor(extractors)
 
-#-----------------------------------------------------------------------------
+#Extractors (and related field/widget) for custom fields -----------------------
+
+class CustomFieldExtractor(object):
+    def __init__(self, column_index, default_value, value_castor, custom_field, create_if_unfound):
+        self._column_index  = column_index
+        self._default_value = default_value
+        self._value_castor  = value_castor
+
+        self._custom_field = custom_field
+        self._create_if_unfound = create_if_unfound
+
+        ftype = self._custom_field.field_type
+        if ftype == CustomField.ENUM:
+            self._manage_enum = lambda x: x
+        elif ftype == CustomField.MULTI_ENUM:
+            self._manage_enum = lambda x: [x]
+        else:
+            self._manage_enum = None
+
+    def extract_value(self, line):
+        err_msg = None
+
+        if self._column_index: #0 -> not in csv
+            value = line[self._column_index - 1]
+
+            if value and self._manage_enum:
+                try:
+                    return (self._manage_enum(CustomFieldEnumValue.objects.get(custom_field=self._custom_field,
+                                                                               value__iexact=value,
+                                                                              ).id
+                                             ),
+                            err_msg
+                           )
+
+                except CustomFieldEnumValue.DoesNotExist as e:
+                    if self._create_if_unfound:
+                        #TODO: improve self._value_castor avoid the direct 'return' ?
+                        return (self._manage_enum(CustomFieldEnumValue.objects.create(custom_field=self._custom_field,
+                                                                                      value=value,
+                                                                                     ).id
+                                                 ),
+                                err_msg
+                               )
+                    else:
+                        err_msg = ugettext(u'Error while extracting value: tried to retrieve '
+                                            'the choice "%(value)s" (column %(column)s). '
+                                            'Raw error: [%(raw_error)s]') % {
+                                                        'raw_error': e,
+                                                        'column':    self._column_index,
+                                                        'value':     value,
+                                                    }
+
+                    value = None
+
+            if not value:
+                value = self._default_value
+        else:
+            value = self._default_value
+
+        return self._value_castor(value), err_msg
+
+#TODO: make a BaseExtractorWidget ??
+class CustomFieldExtractorWidget(ExtractorWidget):
+    def render(self, name, value, attrs=None, choices=()):
+        get = (value or {}).get
+        output = [u'<table %s><tbody><tr><td>' % flatatt(self.build_attrs(attrs, name=name))]
+        out_append = output.append
+
+        try:
+            sel_val = int(get('selected_column', -1))
+        except TypeError:
+            sel_val = 0
+
+        out_append(self._render_select('%s_colselect' % name,
+                                       choices=chain(self.choices, choices),
+                                       sel_val=sel_val,
+                                       attrs={'class': 'csv_col_select'},
+                                      )
+                  )
+
+        if self.propose_creation:
+            create_id = '%s_create' % name
+            out_append(u'</td><td>&nbsp;<label for="%(id)s">%(label)s:<input type="checkbox" name="%(id)s" %(checked)s></label>' % {
+                            'id': create_id,
+                            'label': ugettext('Create if not found ?'),
+                            'checked': 'checked' if get('can_create') else '',
+                        }
+                      )
+
+        defval_id = '%s_defval' % name
+        out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
+                        defval_id,
+                        ugettext('Default value'),
+                        self.default_value_widget.render(defval_id, get('default_value')),
+                    )
+                  )
+
+        return mark_safe(u'\n'.join(output))
+
+    def value_from_datadict(self, data, files, name):
+        get = data.get
+        return {'selected_column': get('%s_colselect' % name),
+                'can_create':      get('%s_create' % name, False),
+                'default_value':   self.default_value_widget.value_from_datadict(data, files, '%s_defval' % name),
+               }
+
+#TODO: factorise
+class CustomfieldExtractorField(Field):
+    def __init__(self, choices, custom_field, user, *args, **kwargs):
+        super(CustomfieldExtractorField, self).__init__(widget=CustomFieldExtractorWidget,
+                                                        label=custom_field.name,
+                                                        *args, **kwargs
+                                                       )
+
+        self._custom_field = custom_field
+        formfield = custom_field.get_formfield(None)
+        self.required = formfield.required
+        self.user = user
+
+        widget = self.widget
+
+        self._choices = choices
+        widget.choices = choices
+
+        self._original_field = formfield
+        widget.default_value_widget = formfield.widget
+
+    @property
+    def user(self, user):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self.widget.propose_creation = self._can_create = (
+                self._custom_field.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM)
+                and user.has_perm_to_admin('creme_config')
+            )
+
+    def clean(self, value):
+        try:
+            col_index = int(value['selected_column'])
+        except TypeError:
+            raise ValidationError(self.error_messages['invalid'])
+
+        def_value = value['default_value']
+
+        if def_value:
+            self._original_field.clean(def_value) #to raise ValidationError if needed
+        elif self.required and not col_index: #should be useful while CustomFields can not be marked as required
+            raise ValidationError(self.error_messages['required'])
+
+        #TODO: check that col_index is in self._choices ???
+
+        create_if_unfound = value['can_create']
+
+        if not self._can_create and create_if_unfound:
+            raise ValidationError('You can not create choices')
+
+        extractor = CustomFieldExtractor(col_index, def_value, self._original_field.clean,
+                                         self._custom_field, create_if_unfound,
+                                        )
+
+        return extractor
+
+#-------------------------------------------------------------------------------
+
 
 class LVImportError(object):
     __slots__ = ('line', 'message', 'instance')
@@ -786,6 +957,9 @@ class ImportForm(CremeModelForm):
                                                  'But if several entities are found, a new entity is created (in order to avoid errors).'
                                                 ),
                                     )
+
+    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)] #overload by factory
+    header_dict = {} #idem
 
     blocks = FieldBlockManager(
         ('general', _(u'Update mode'),  ('step', 'document', 'has_header', 'key_fields',)),
@@ -961,7 +1135,7 @@ class ImportForm4CremeEntity(ImportForm):
         ('relations',  _(u'Associated relationships'), ('fixed_relations', 'dyn_relations')),
        )
 
-    columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]
+    #columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]
 
     #class Meta:
         #exclude = ('is_deleted', 'is_actived')
@@ -981,9 +1155,19 @@ class ImportForm4CremeEntity(ImportForm):
 
         fdyn_relations = fields['dyn_relations']
         fdyn_relations.allowed_rtypes = rtypes
-        fdyn_relations.columns = self.columns4dynrelations
+        #fdyn_relations.columns = self.columns4dynrelations
+        fdyn_relations.columns = self.choices[1:]
 
         fields['user'].initial = self.user.id
+
+        #TODO: in a staticmethod of CustomField ?? (see models.entity.py)
+        self.cfields = cfields = CustomField.objects.filter(content_type=ct)
+        get_col = self.header_dict.get
+        for cfield in cfields:
+            fields[_CUSTOM_NAME % cfield.id] = CustomfieldExtractorField(
+                                                    self.choices, cfield, user=self.user,
+                                                    initial={'selected_column': get_col(slugify(cfield.name), 0)},
+                                                )
 
     def clean_fixed_relations(self):
         relations = self.cleaned_data['fixed_relations']
@@ -1009,6 +1193,17 @@ class ImportForm4CremeEntity(ImportForm):
     def _post_instance_creation(self, instance, line):
         cdata = self.cleaned_data
         user = instance.user
+
+        for cfield in self.cfields:
+            try:
+                value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
+            except ValidationError as e:
+                self.append_error(line, e.messages[0], instance)
+            else:
+                if err_msg is not None:
+                    self.append_error(line, err_msg, instance)
+                elif value is not None:
+                    CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
         for prop_type in cdata['property_types']:
             CremeProperty(type=prop_type, creme_entity=instance).save()
@@ -1075,6 +1270,8 @@ def form_factory(ct, header):
                                                              choices=choices,
                                                             )
                                  )
-    modelform.columns4dynrelations = choices[1:]
+    #modelform.columns4dynrelations = choices[1:]
+    modelform.choices = choices
+    modelform.header_dict = header_dict
 
     return modelform
