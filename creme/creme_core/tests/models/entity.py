@@ -387,3 +387,31 @@ class EntityTestCase(CremeTestCase):
 
         self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1.for_html())
         self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2.for_html())
+
+    def test_customfield_value(self):
+        create_field = partial(CustomField.objects.create,
+                               content_type=ContentType.objects.get_for_model(Organisation),
+                              )
+        field_A = create_field(name='A', field_type=CustomField.INT)
+        field_B = create_field(name='B', field_type=CustomField.INT)
+        field_C = create_field(name='C', field_type=CustomField.INT)
+
+        orga = Organisation.objects.create(name=u"Konoha", user=self.user)
+        value_A = CustomFieldInteger.objects.create(custom_field=field_A, entity=orga, value=50)
+        value_B = CustomFieldInteger.objects.create(custom_field=field_B, entity=orga, value=100)
+
+        # empty cache
+        self.assertDictEqual(orga._cvalues_map, {})
+
+        self.assertEqual(value_A, orga.get_custom_value(field_A))
+        self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A})
+
+        self.assertEqual(value_B, orga.get_custom_value(field_B))
+        self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A,
+                                                 field_B.pk: value_B,})
+
+        self.assertIsNone(orga.get_custom_value(field_C))
+        self.assertDictEqual(orga._cvalues_map, {field_A.pk: value_A,
+                                                 field_B.pk: value_B,
+                                                 field_C.pk: None,})
+

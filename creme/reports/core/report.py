@@ -342,7 +342,8 @@ class RHCustomField(ReportHand):
         super(RHCustomField, self).__init__(report_field, title=cf.name)
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        return entity.get_custom_value(self._cfield)
+        cvalue = entity.get_custom_value(self._cfield)
+        return unicode(cvalue.value) if cvalue else u''
 
 
 @REPORT_HANDS_MAP(RFT_RELATION)
