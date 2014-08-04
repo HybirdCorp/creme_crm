@@ -26,12 +26,12 @@
                     {% if b_address != None %}
                         <th class="block_header_line_dark  th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
                         <td class="{% cycle row_color_b %} td_info_4_columns" >{% print_field object=b_address field=field_name %}</td>
-                        <td class="{% cycle row_color_b %} edit_inner width_inner_edit_address">{% if b_address %}{% get_field_editor on regular field_name for b_address %}{% endif %}</td>
+                        <td class="{% cycle row_color_b %} edit_inner width_inner_edit_address">{% if b_address != None %}{% get_field_editor on regular field_name for b_address %}{% endif %}</td>
                     {% endif %}
                     {% if s_address != None %}
                         <th class="block_header_line_light th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
                         <td class="{% cycle row_color_s %} td_info_4_columns">{% print_field object=s_address field=field_name %}</td>
-                        <td class="{% cycle row_color_s %} edit_inner width_inner_edit_address">{% if s_address %}{% get_field_editor on regular field_name for s_address %}{% endif %}</td>
+                        <td class="{% cycle row_color_s %} edit_inner width_inner_edit_address">{% if s_address != None %}{% get_field_editor on regular field_name for s_address %}{% endif %}</td>
                     {% endif %}
                 </tr>
             {% endfor %}
