@@ -324,10 +324,13 @@ class EntityCellCustomField(EntityCell):
 
     def render_html(self, entity, user):
         from django.utils.html import escape
-        return escape(entity.get_custom_value(self.custom_field))
+        #return escape(entity.get_custom_value(self.custom_field))
+        return escape(self.render_csv(entity, user))
 
     def render_csv(self, entity, user):
-        return entity.get_custom_value(self.custom_field)
+        #return entity.get_custom_value(self.custom_field)
+        value = entity.get_custom_value(self.custom_field)
+        return value if value is not None else ''
 
 
 @CELLS_MAP
