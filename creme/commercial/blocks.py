@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ class ApproachesBlock(QuerysetBlock):
     verbose_name  = _(u'Commercial approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
 
-    _ORGA_CT_ID = get_ct(Organisation).id
+    #_ORGA_CT_ID = get_ct(Organisation).id
 
     #TODO: factorise with assistants blocks (CremeEntity method ??)
     @staticmethod
@@ -71,7 +71,8 @@ class ApproachesBlock(QuerysetBlock):
         entity = context['object']
         pk = entity.pk
 
-        if entity.entity_type_id == self._ORGA_CT_ID and \
+        #if entity.entity_type_id == self._ORGA_CT_ID and \
+        if isinstance(entity, Organisation) and \
            not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
             managers_ids      = entity.get_managers().values_list('id', flat=True)
             employees_ids     = entity.get_employees().values_list('id', flat=True)
@@ -96,7 +97,7 @@ class ApproachesBlock(QuerysetBlock):
                                               CommercialApproach.get_approaches_for_ctypes(ct_ids),
                                               update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                              )
-        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+        self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -104,7 +105,7 @@ class ApproachesBlock(QuerysetBlock):
         btc = self.get_block_template_context(context, CommercialApproach.get_approaches(),
                                               update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                                              )
-        self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
+        self._populate_related_real_entities(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
