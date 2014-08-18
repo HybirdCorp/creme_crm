@@ -2,6 +2,7 @@
 
 try:
     import os
+    from datetime import datetime
     from tempfile import NamedTemporaryFile
 
     from django.utils.unittest.case import skipIf
@@ -31,14 +32,14 @@ class XLSUtilsTestCase(CremeTestCase):
              'data-xlsx.xlsx'
              )
     current_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-    data = [[u"Prénom", u"Nom", u'Taille1', u'Taille2'],
-            [u"Gérard", u"Bouchard", 0.5, 0.5],
-            [u"Hugo", u"Smett", 122, 122],
-            [u"Rémy", u"Rakic", 12, 12],
-            [u"Florian", u"Fabre", 0.004, 0.004],
-            [u"Jean-Michel", u"Armand", 42, 42],
-            [u"Guillaume", u"Englert", 50, 50],
-            [u"Jonathan", u"Caruana", -50, -50]]
+    data = [[u"Prénom", u"Nom", u'Taille1', u'Taille2', u'Send_Date'],
+            [u"Gérard", u"Bouchard", 0.5, 0.5, datetime(2014, 8, 6, 20, 57, 32)],
+            [u"Hugo", u"Smett", 122, 122, ''],
+            [u"Rémy", u"Rakic", 12, 12, datetime(2014, 8, 6, 19, 48, 32)],
+            [u"Florian", u"Fabre", 0.004, 0.004, u'51/08/2014 00:00:00'],
+            [u"Jean-Michel", u"Armand", 42, 42, datetime(2014, 8, 6, 19, 48, 32)],
+            [u"Guillaume", u"Englert", 50, 50, datetime(2014, 8, 6, 19, 48, 32)],
+            [u"Jonathan", u"Caruana", -50, -50, datetime(2014, 8, 6, 20, 57, 32)]]
 
     def get_file_path(self, filename):
         return os.path.join(self.current_path, filename)
