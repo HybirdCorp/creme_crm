@@ -6,16 +6,17 @@ try:
 
     from django.conf import settings
     from django.core import mail
+    from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import CremeEntity, Relation, CremeProperty
+    from creme.creme_core.models import CremeEntity, Relation, CremeProperty, BlockPortalLocation
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.creme_config.models import SettingValue
 
-    from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER, 
+    from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
     from creme.persons.models import Organisation, Contact
 
@@ -25,6 +26,7 @@ try:
 
     from creme.opportunities.models import Opportunity, SalesPhase
 
+    from ..blocks import approaches_block
     from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
     from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
     from ..models import CommercialApproach
@@ -38,7 +40,7 @@ __all__ = ('CommercialApproachTestCase',)
 class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activities', 'opportunities', 'commercial')
+        cls.populate('creme_core', 'creme_config', 'activities', 'opportunities', 'commercial', 'persons')
 
     def setUp(self):
         self.login()
@@ -232,6 +234,68 @@ class CommercialApproachTestCase(CremeTestCase):
 
         orga.delete()
         self.assertDoesNotExist(comapp)
+
+    @override_settings(BLOCK_SIZE=5)
+    def test_block01(self):
+        sv = SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
+        self.assertTrue(sv.value)
+
+        user = self.user
+        orga = Organisation.objects.create(user=user, name='NERV')
+        mngd_orga = Organisation.get_all_managed_by_creme()[0]
+
+        create_contact = partial(Contact.objects.create, user=user)
+        manager  = create_contact(last_name='Hikari')
+        employee = create_contact(last_name='Katsuragi')
+
+        create_rel     = partial(Relation.objects.create, user=user, object_entity=orga)
+        create_rel(subject_entity=manager,  type_id=REL_SUB_MANAGES)
+        create_rel(subject_entity=employee, type_id=REL_SUB_EMPLOYED_BY)
+
+        opp = Opportunity.objects.create(user=user, name='Opp custo',
+                                         sales_phase=SalesPhase.objects.all()[0],
+                                         emitter=mngd_orga, target=orga,
+                                        )
+
+
+        create_commapp = CommercialApproach.objects.create
+        commapp1 = create_commapp(title='Commapp - orga',     creme_entity=orga)
+        commapp2 = create_commapp(title='Commapp - manager',  creme_entity=manager)
+        commapp3 = create_commapp(title='Commapp - employee', creme_entity=employee)
+        commapp4 = create_commapp(title='Commapp - opp',      creme_entity=opp)
+
+        url = orga.get_absolute_url()
+        response = self.assertGET200(url)
+        self.assertContains(response, ' id="%s"' % approaches_block.id_)
+        self.assertContains(response, commapp1.title)
+        self.assertNotContains(response, commapp2.title)
+        self.assertNotContains(response, commapp3.title)
+        self.assertNotContains(response, commapp4.title)
+
+        #-------
+        sv.value = False
+        sv.save()
+
+        response = self.assertGET200(url)
+        self.assertContains(response, ' id="%s"' % approaches_block.id_)
+        self.assertContains(response, commapp1.title)
+        self.assertContains(response, commapp2.title)
+        self.assertContains(response, commapp3.title)
+        self.assertContains(response, commapp4.title)
+
+    def test_block02(self):
+        "Home"
+        BlockPortalLocation.create(app_name='creme_core', block_id=approaches_block.id_, order=100)
+
+        response = self.assertGET200('/')
+        self.assertContains(response, ' id="%s"' % approaches_block.id_)
+
+    def test_block03(self):
+        "Commercial portal"
+        BlockPortalLocation.create(app_name='commercial', block_id=approaches_block.id_, order=100)
+
+        response = self.assertGET200('/commercial/')
+        self.assertContains(response, ' id="%s"' % approaches_block.id_)
 
     def _send_mails(self):
         EmailsSendCommand().handle(verbosity=0)
