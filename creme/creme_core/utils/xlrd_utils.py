@@ -18,28 +18,68 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import xlrd
+from datetime import datetime
+
+from xlrd import (open_workbook, xldate_as_tuple,
+        XL_CELL_EMPTY, XL_CELL_TEXT, XL_CELL_NUMBER, XL_CELL_DATE,
+        XL_CELL_BOOLEAN, XL_CELL_ERROR, XL_CELL_BLANK)
+
+class XlCTypeHandler(object):
+    """
+        class handling cell types:
+        XL_CELL_EMPTY (0): empty string u''.
+        XL_CELL_TEXT (1): a Unicode string.
+        XL_CELL_NUMBER (2): float (number).
+        XL_CELL_DATE (3): float (date).
+        XL_CELL_BOOLEAN (4): boolean (0, 1).
+        XL_CELL_ERROR (5): int representing internal Excel codes;
+            for a text representation, refer to the supplied
+            dictionary error_text_from_code.
+        XL_CELL_BLANK (6): empty string u''.
+            Note: this type will appear only when
+            open_workbook(..., formatting_info=True) is used.
+        """
+    def __init__(self, book):
+        self.datemode = book.datemode
+        self._ctype_handlers = {
+            # XL_CELL_EMPTY: self.default_handler,
+            # XL_CELL_TEXT: self.default_handler,
+            XL_CELL_NUMBER: self.number_handler,
+            XL_CELL_DATE: self.date_handler,
+            XL_CELL_BOOLEAN: self.boolean_handler,
+            # XL_CELL_ERROR: self.default_handler,
+            # XL_CELL_BLANK: self.default_handler,
+        }
+
+    def default_handler(self, cell):
+        return cell.value
+
+    def number_handler(self, cell):
+        value = cell.value
+        int_value = int(value)
+        return int_value if int_value == value else value
+
+    def date_handler(self, cell):
+        return datetime(*xldate_as_tuple(cell.value, self.datemode))
+
+    def boolean_handler(self, cell):
+        return bool(cell.value)
+
+    def handle_cell(self, cell):
+        return self._ctype_handlers.get(cell.ctype, self.default_handler)(cell)
 
 
 class XlrdReader(object):
     def __init__(self, filedata=None, file_contents=None):
-        sheet = xlrd.open_workbook(filename=getattr(filedata, 'path', filedata),
-                                   file_contents=file_contents).sheet_by_index(0)
-        self._calc = ([self.get_cell_value(cell) for cell in sheet.row(row_number)] for row_number in xrange(sheet.nrows))
+        book = open_workbook(filename=getattr(filedata, 'path', filedata),
+                             file_contents=file_contents)
+        ctype_handler = XlCTypeHandler(book)
+        sheet = book.sheet_by_index(0)
+        get_cell_value = ctype_handler.handle_cell
+        self._calc = ([get_cell_value(cell) for cell in sheet.row(row_number)] for row_number in xrange(sheet.nrows))
 
     def __iter__(self):
         return self
 
     def next(self):
         return self._calc.next()
-
-    def get_cell_value(self, cell):
-        """
-        cell types: 0: empty
-                    1: text
-                    2: numbers
-        """
-        value = cell.value
-        if cell.ctype == 2 and int(value) == float(value):
-            return int(value)
-        return value

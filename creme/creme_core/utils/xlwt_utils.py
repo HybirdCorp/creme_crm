@@ -18,20 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import xlwt
+from datetime import datetime
+
+from xlwt import Workbook, XFStyle
 
 
 class XlwtWriter(object):
     def __init__(self, encoding='utf-8'):
         self.nline = 0
-        self.wb = wb = xlwt.Workbook(encoding='utf-8')
+        self.wb = wb = Workbook(encoding='utf-8')
         self.ws = wb.add_sheet("sheet 1")
+        self.date_format = XFStyle()
+        self.date_format.num_format_str = 'dd/mm/yyyy' #TODO: convert from settings.DATE_FORMAT
 
     def writerow(self, line):
         write = self.ws.write
         nline = self.nline
         for col, cell in enumerate(line):
-            write(nline, col, cell)
+            if isinstance(cell, datetime):
+                write(nline, col, cell, self.date_format)
+            else:
+                write(nline, col, cell)
         self.nline += 1
 
     def save(self, filepath):
