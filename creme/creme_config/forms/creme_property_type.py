@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,9 @@ from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
 
 class _CremePropertyTypeBaseForm(CremeForm):
     text           = CharField(label=_(u'Text'), help_text=_("For example: 'is pretty'"))
-    is_copiable    = BooleanField(label=_(u"Is copiable"), initial=True, required=False)
+    is_copiable    = BooleanField(label=_(u"Is copiable"), initial=True, required=False,
+                                  help_text=_(u'Are the properties with this type copied when an entity is cloned?'),
+                                 )
     subject_ctypes = MultiEntityCTypeChoiceField(label=_(u'Related to types of entities'),
                                                  help_text=_(u'No selected type means that all types are accepted'),
                                                  required=False,
