@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,9 +47,13 @@ class RelationTypeCreateForm(CremeForm):
 
     #TODO: language....
     subject_predicate  = CharField(label=_(u'Subject => object'))
-    subject_is_copiable= BooleanField(label=_(u"Direct relationship is copiable"), initial=True, required=False)
+    subject_is_copiable= BooleanField(label=_(u"Direct relationship is copiable"), initial=True, required=False,
+                                      help_text=_(u'Are the relationships with this type copied when the subject entity is cloned?')
+                                     )
     object_predicate   = CharField(label=_(u'Object => subject'))
-    object_is_copiable = BooleanField(label=_(u"Symmetrical relationship is copiable"), initial=True, required=False)
+    object_is_copiable = BooleanField(label=_(u"Symmetrical relationship is copiable"), initial=True, required=False,
+                                      help_text=_(u'Are the relationships with this type copied when the object entity is cloned?')
+                                     )
 
     object_ctypes      = _CTypesField()
     object_properties  = _PropertyTypesField()

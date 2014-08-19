@@ -450,7 +450,7 @@ class CremeEntity(CremeAbstractEntity):
         self = self.get_real_entity()
         new_entity = self._clone_object()
 
-        new_entity._copy_properties(self)#TODO: Add which properties types to include ?
+        new_entity._copy_properties(self)
         new_entity._copy_relations(self)
 
         new_entity._post_clone(self)

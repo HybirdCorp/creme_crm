@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-24 12:49+0100\n"
+"POT-Creation-Date: 2014-08-19 10:05+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -178,14 +178,20 @@ msgid "Is copiable"
 msgstr "Est copiable"
 
 #: forms/creme_property_type.py:31
+msgid "Are the properties with this type copied when an entity is cloned?"
+msgstr ""
+"Est-ce que les propriétés avec ce type sont copiées quand une fiche est "
+"clonée ?"
+
+#: forms/creme_property_type.py:33
 msgid "Related to types of entities"
 msgstr "S'applique aux types de fiches"
 
-#: forms/creme_property_type.py:32
+#: forms/creme_property_type.py:34
 msgid "No selected type means that all types are accepted"
 msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 
-#: forms/creme_property_type.py:41
+#: forms/creme_property_type.py:43
 msgid "A property type with this name already exists"
 msgstr "Un type de propriété avec ce nom existe déjà"
 
@@ -285,31 +291,46 @@ msgid "Direct relationship is copiable"
 msgstr "La relation directe est copiable"
 
 #: forms/relation_type.py:51
+msgid ""
+"Are the relationships with this type copied when the subject entity is "
+"cloned?"
+msgstr ""
+"Est-ce que les relations avec ce type sont copiées quand la fiche sujet est "
+"clonée ?"
+
+#: forms/relation_type.py:53
 msgid "Object => subject"
 msgstr "Objet => sujet"
 
-#: forms/relation_type.py:52
+#: forms/relation_type.py:54
 msgid "Symmetrical relationship is copiable"
 msgstr "La relation symétrique est copiable"
 
-#: forms/relation_type.py:57
+#: forms/relation_type.py:55
+msgid ""
+"Are the relationships with this type copied when the object entity is cloned?"
+msgstr ""
+"Est-ce que les relations avec ce type sont copiées quand la fiche objet est "
+"clonée ?"
+
+#: forms/relation_type.py:61
 msgid "Subject"
 msgstr "Sujet"
 
-#: forms/relation_type.py:58
+#: forms/relation_type.py:62
 msgid "Verb/Predicate"
 msgstr "Verbe/Prédicat"
 
-#: forms/relation_type.py:60
+#: forms/relation_type.py:64
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:20
 msgid "Object"
 msgstr "Objet"
 
-#: forms/relation_type.py:106
+#: forms/relation_type.py:110
 msgid "Type and object"
 msgstr "Type et objet"
 
-#: forms/relation_type.py:121
+#: forms/relation_type.py:125
 msgid ""
 "A semi-fixed type of relationship with this type and this object already "
 "exists."
@@ -334,30 +355,30 @@ msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
 msgid "Concerned fields"
 msgstr "Champs concernés"
 
-#: forms/setting.py:38 forms/setting.py:51
-#: templates/creme_config/templatetags/block_settings.html:12
+#: forms/setting.py:40 forms/setting.py:53
+#: templates/creme_config/templatetags/block_settings.html:11
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/user.py:43 forms/user.py:141
+#: forms/user.py:44 forms/user.py:150
 #: templates/creme_config/templatetags/block_users.html:26
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:44 forms/user.py:142
+#: forms/user.py:45 forms/user.py:151
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
-#: forms/user.py:45 forms/user.py:120
+#: forms/user.py:46 forms/user.py:129
 #: templates/creme_config/templatetags/block_users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/user.py:47 forms/user.py:121
+#: forms/user.py:48 forms/user.py:130
 msgid "You must choose a role for a non-super user."
 msgstr "Vous devez choisir un rôle pour un utilisateur non super-utilisateur."
 
-#: forms/user.py:64
+#: forms/user.py:65
 msgid ""
 "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
 "underscores are allowed (but not as first character)."
@@ -366,31 +387,31 @@ msgstr ""
 "alphanumériques (a-z, A-Z, 0-9), les tirets et les underscore ( _ ) sont "
 "admis (sauf comme premier caractère)."
 
-#: forms/user.py:76 forms/user.py:153
+#: forms/user.py:87 forms/user.py:143
+msgid "Choose a role or set superuser status to 'True'."
+msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'."
+
+#: forms/user.py:95 forms/user.py:162
 msgid "Passwords are different"
 msgstr "Les mots de passe sont différents"
 
-#: forms/user.py:86 forms/user.py:134
-msgid "Choose a role or set superuser status to 'True'."
-msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'"
-
-#: forms/user.py:166 templates/creme_config/templatetags/block_teams.html:18
+#: forms/user.py:175 templates/creme_config/templatetags/block_teams.html:18
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:175
+#: forms/user.py:184
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:195
+#: forms/user.py:204
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:210 templates/creme_config/user_portal.html:6
+#: forms/user.py:219 templates/creme_config/user_portal.html:6
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/user.py:211
+#: forms/user.py:220
 msgid "Teams"
 msgstr "Équipes"
 
@@ -483,6 +504,11 @@ msgstr "Choisissez votre thème"
 msgid "Choose your time zone"
 msgstr "Choisissez votre fuseau horaire"
 
+#: models/setting.py:31
+#, python-format
+msgid "%sh"
+msgstr "%sh"
+
 #: templates/creme_config/blocks_portal.html:6
 #: templates/creme_config/button_menu_portal.html:6
 #: templates/creme_config/history_portal.html:6
@@ -492,7 +518,7 @@ msgstr "Choisissez votre fuseau horaire"
 #: templates/creme_config/search_portal.html:6
 #: templates/creme_config/user_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
-#: templates/creme_config/user_settings.html:19
+#: templates/creme_config/user_settings.html:21
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:6
 #: templates/creme_config/generics/app_portal.html:6
@@ -551,7 +577,7 @@ msgid "Search in Creme"
 msgstr "Recherche dans Creme"
 
 #: templates/creme_config/search_portal.html:16
-msgid "Create search settings in order to make the gloabl search faster."
+msgid "Create search settings in order to make the global search faster."
 msgstr ""
 "Créez des configurations de recherche afin de rendre la recherche globale "
 "plus rapide."
@@ -582,7 +608,7 @@ msgstr "Rôles"
 msgid "View your settings"
 msgstr "Voir vos réglages"
 
-#: templates/creme_config/user_settings.html:21
+#: templates/creme_config/user_settings.html:23
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
@@ -705,7 +731,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_models.html:54
 #: templates/creme_config/templatetags/block_property_types.html:23
 #: templates/creme_config/templatetags/block_searchconfig.html:22
-#: templates/creme_config/templatetags/block_settings.html:13
+#: templates/creme_config/templatetags/block_settings.html:12
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1023,21 +1049,21 @@ msgstr "Type de relation"
 msgid "No semi-fixed type of relationship for the moment"
 msgstr "Aucun type de relation semi-fixé n'existe pour le moment"
 
-#: templates/creme_config/templatetags/block_settings.html:6
+#: templates/creme_config/templatetags/block_settings.html:5
 #, python-format
 msgid "%s Setting value"
 msgstr "%s Valeur de réglage"
 
-#: templates/creme_config/templatetags/block_settings.html:6
+#: templates/creme_config/templatetags/block_settings.html:5
 #, python-format
 msgid "%s Setting values"
 msgstr "%s Valeurs de réglage"
 
-#: templates/creme_config/templatetags/block_settings.html:11
+#: templates/creme_config/templatetags/block_settings.html:10
 msgid "Description"
 msgstr "Description"
 
-#: templates/creme_config/templatetags/block_settings.html:26
+#: templates/creme_config/templatetags/block_settings.html:25
 msgid "No setting value for this app"
 msgstr "Aucune valeur de réglage pour cette application"
 
