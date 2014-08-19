@@ -237,24 +237,14 @@ class Relation(CremeAbstractEntity):
         else:
             transaction.commit()
 
-    def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
-        pk_val = self._get_pk_val()
+    #Commented on 18 august 2014
+    #def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):
+        #pk_val = self._get_pk_val()
 
-        if self.symmetric_relation is not None:
-            seen_objs.add(self.symmetric_relation.__class__, self.symmetric_relation._get_pk_val(), self.symmetric_relation, parent, nullable)
+        #if self.symmetric_relation is not None:
+            #seen_objs.add(self.symmetric_relation.__class__, self.symmetric_relation._get_pk_val(), self.symmetric_relation, parent, nullable)
 
-        seen_objs.add(self.__class__, pk_val, self, parent, nullable)
-
-#Commented 31/05/2011
-#    def delete(self):
-#        sym_relation = self.symmetric_relation
-#
-#        if sym_relation is not None:
-#            sym_relation = sym_relation.get_real_entity()
-#            sym_relation.symmetric_relation = None
-#            sym_relation.delete()
-#
-#        super(Relation, self).delete()
+        #seen_objs.add(self.__class__, pk_val, self, parent, nullable)
 
     def get_real_entity(self):
         return self._get_real_entity(Relation)
@@ -273,35 +263,6 @@ class Relation(CremeAbstractEntity):
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):
         return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
-
-    #def update_links(self, subject_entity=None, object_entity=None, save=False):
-        #"""Deprecated
-        #Beware: use this method if you have to update the related entities of a relation.
-        #@param subject_entity Give the param if you want to update the value of the relation's subject.
-        #@param object_entity Give the param if you want to update the value of the relation's object.
-        #@param save Save the relation if needed. Default to False.
-        #"""
-        #warnings.warn("Relation.update_links() method is deprecated; "
-                      #"delete your old Relation instace and create a new one instead",
-                      #DeprecationWarning
-                     #)
-
-        #changed = False
-
-        #if subject_entity is not None:
-            #if self.subject_entity_id != subject_entity.id:
-                #self.subject_entity = subject_entity
-                #self.symmetric_relation.object_entity = subject_entity
-                #changed = True
-
-        #if object_entity is not None:
-            #if self.object_entity_id != object_entity.id:
-                #self.object_entity = object_entity
-                #self.symmetric_relation.subject_entity = object_entity
-                #changed = True
-
-        #if save and changed:
-            #self.save()
 
 
 class SemiFixedRelationType(CremeModel):
@@ -324,18 +285,6 @@ def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' Relations (ie: exist in the removed entity & the
     remaining entity).
     """
-
-    #sender_id = sender.id
-    #rel_filter = sender.relations.filter
-
-    #for relation in other_entity.relations.all():
-        #if rel_filter(subject_entity=sender_id, type=relation.type_id,
-                      #object_entity=relation.object_entity_id
-                     #).exists():
-            #relation.delete()
-        ##else:
-            ##relation.update_links(subject_entity=sender)
-
     from .history import HistoryLine
 
     # TRICK: We use the related accessor 'relations_where_is_object' instead
