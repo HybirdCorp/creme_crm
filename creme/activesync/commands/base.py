@@ -125,8 +125,10 @@ class Base(object):
         if ACTIVE_SYNC_DEBUG:
             print u"Response: %s" % prettify(self.decoder(content))
             self._data['debug']['xml'].append(u"Response: %s" % prettify(self.decoder(content)))
-
-        return self.decoder(content)
+        try:
+            return self.decoder(content)
+        except Exception:
+            raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
 #        return fromstring(str(self.decoder(content)))#Trick to use ElementTree instead of libxml2 in waiting for own ElementTree parser
 
     def _send(self, encoded_content, *args, **kwargs):
