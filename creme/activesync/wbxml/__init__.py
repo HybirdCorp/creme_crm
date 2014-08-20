@@ -8,8 +8,8 @@
 #
 ###############################################################################
 
-import dtd
+from .dtd import InitializeDTD
 
-dtd.InitializeDTD()
+InitializeDTD()
 
 from .codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType, WrongWBXMLType, prettify

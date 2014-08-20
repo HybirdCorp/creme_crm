@@ -19,6 +19,7 @@
 ################################################################################
 
 import base64
+
 from Crypto.Cipher import AES
 
 from django.conf import settings
@@ -40,12 +41,12 @@ class Cipher(object):
 
     @staticmethod
     def encrypt_for_db(text):
-        """Cipher the text and encode it in base64. Indeed, ciphered string can't be directly saved in db
-        because of encodings issues"""
+        """Cipher the text and encode it in base64. Indeed, ciphered string 
+        can't be directly saved in db because of encodings issues.
+        """
         return base64.b64encode(Cipher.encrypt(text))
 
     @staticmethod
     def decrypt_from_db(ciphered):
         """base64 Decode the ciphered string and un-cipher it."""
         return Cipher.decrypt(base64.b64decode(ciphered))
-

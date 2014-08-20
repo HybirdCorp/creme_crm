@@ -40,7 +40,6 @@
 #Inspired by SyncEngine Dtd
 
 AirsyncDTD_Forward = {
-
     'codes' : {
         0 : {
             0x05 : 'Sync',
@@ -508,7 +507,6 @@ AirsyncDTD_Forward = {
         }, 0x17: {
 
         },
-
     }, 'namespaces' : {
     	0 : 'AirSync:',
         1 : 'Contacts:',
@@ -537,7 +535,7 @@ AirsyncDTD_Forward = {
     }
 }
 
-AirsyncDTD_Reverse =  {'namespaces' : {}, 'codes' : {} }
+AirsyncDTD_Reverse = {'namespaces': {}, 'codes': {}}
 AirsyncDTD = []
 
 ###############################################################################
@@ -546,33 +544,16 @@ AirsyncDTD = []
 # Populate and initialize
 
 def InitializeDTD():
-        reverse_namespaces = AirsyncDTD_Reverse['namespaces']
+    reverse_namespaces = AirsyncDTD_Reverse['namespaces']
+    for (nsid, nsname) in AirsyncDTD_Forward['namespaces'].iteritems():
+        reverse_namespaces[nsname] = nsid
 
-        for (nsid, nsname) in AirsyncDTD_Forward['namespaces'].iteritems():
-            reverse_namespaces[nsname] = nsid
+    reverse_codes = AirsyncDTD_Reverse['codes']
+    forward_codes = AirsyncDTD_Forward['codes']
+    for (cp, value) in forward_codes.iteritems():
+        reverse_codes[cp] = {}
+        for (tagid, tagname) in forward_codes[cp].iteritems():
+            reverse_codes[cp][tagname] = tagid
 
-        reverse_codes = AirsyncDTD_Reverse['codes']
-        forward_codes = AirsyncDTD_Forward['codes']
-        for (cp, value) in forward_codes.iteritems():
-            reverse_codes[cp] = {}
-            for (tagid, tagname) in forward_codes[cp].iteritems():
-                reverse_codes[cp][tagname] = tagid
-
-	AirsyncDTD.append(AirsyncDTD_Forward)
-	AirsyncDTD.append(AirsyncDTD_Reverse)
-
-
-#def InitializeDTD():
-#        for (nsid, nsname) in AirsyncDTD_Forward['namespaces'].items():
-#            AirsyncDTD_Reverse['namespaces'][nsname] = nsid
-#
-#        for (cp, value) in AirsyncDTD_Forward['codes'].items():
-#            AirsyncDTD_Reverse['codes'][cp] = {}
-#            for (tagid, tagname) in AirsyncDTD_Forward['codes'][cp].items():
-#                AirsyncDTD_Reverse['codes'][cp][tagname] = tagid
-#
-#	AirsyncDTD.append(AirsyncDTD_Forward)
-#	AirsyncDTD.append(AirsyncDTD_Reverse)
-
-
-
+    AirsyncDTD.append(AirsyncDTD_Forward)
+    AirsyncDTD.append(AirsyncDTD_Reverse)

@@ -134,18 +134,19 @@ class Base(object):
     def _send(self, encoded_content, *args, **kwargs):
         try:
             return self.connection.send(self.command, encoded_content, self.device_id, *args, **kwargs)
-        except restkit.errors.Unauthorized, err:
-            self._data['debug']['errors'].append(err.msg)
+        except restkit.errors.Unauthorized as e:
+            self._data['debug']['errors'].append(e.msg)
             raise CremeActiveSyncError(SYNC_ERR_FORBIDDEN)
-        except (socket.gaierror, socket.error), err:
-            self._data['debug']['errors'].append(err.strerror)
+        except (socket.gaierror, socket.error) as e:
+            self._data['debug']['errors'].append(e.strerror)
             raise CremeActiveSyncError(SYNC_ERR_CONNECTION)
-        except restkit.errors.ResourceNotFound, err:
-            self._data['debug']['errors'].append(err.msg)
+        except restkit.errors.ResourceNotFound as e:
+            self._data['debug']['errors'].append(e.msg)
             raise CremeActiveSyncError(SYNC_ERR_NOT_FOUND)
 
     def send(self, template_dict, *args, **kwargs):
         content = render_to_string(self.template_name, template_dict)
         encoded_content = self._encode(content)
         response = self._send(encoded_content, *args, **kwargs)
+
         return self._decode(response)
