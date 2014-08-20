@@ -64,7 +64,7 @@ class GlobalSettingsTestCase(CremeTestCase):
 class UserSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'activesync')
+        cls.populate('creme_core', 'creme_config', 'activesync')
 
     def _assertNoSValue(self, skeys, user):
         self.assertFalse(SettingValue.objects.filter(key__in=skeys, user=user))
@@ -228,3 +228,25 @@ class UserSettingsTestCase(CremeTestCase):
                              user
                             )
         self._build_values_map([USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS], user)
+
+    def _aux_test_sync_view_error(self, url):
+        self.login()
+
+        response = self.client.post('/activesync/user_settings',
+                                    data={'url':            url,
+                                          'ssl':            '1',
+                                          'login':          'fulbert',
+                                          'password':       'fulbert',
+                                          'sync_calendars': '1',
+                                          'sync_contacts':  '1',
+                                         }
+                                   )
+
+        self.assertGET200('/activesync/sync')
+        #TODO: test errors
+
+    def test_sync_view_error01(self):
+        self._aux_test_sync_view_error('http://toto.com')
+
+    def test_sync_view_error02(self):
+        self._aux_test_sync_view_error('http://invalid.com')
