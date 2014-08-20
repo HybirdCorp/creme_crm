@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
+
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -109,13 +111,38 @@ class FutureActivitiesBlock(QuerysetBlock):
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
 
-    def _render(self, template_context):
-        #optimisation
-        CremeEntity.populate_relations(template_context['page'].object_list,
-                                       self._RTYPES_2_POP, #template_context['user'],
-                                      )
+    #def _render(self, template_context):
+        ##optimisation
+        #CremeEntity.populate_relations(template_context['page'].object_list,
+                                       #self._RTYPES_2_POP, #template_context['user'],
+                                      #)
 
-        return super(FutureActivitiesBlock, self)._render(template_context)
+        #return super(FutureActivitiesBlock, self)._render(template_context)
+
+    def get_block_template_context(self, *args, **kwargs):
+        ctxt = super(FutureActivitiesBlock, self).get_block_template_context(*args, **kwargs)
+
+        activities = ctxt['page'].object_list
+        CremeEntity.populate_relations(activities, self._RTYPES_2_POP) #optimisation
+
+        entity = ctxt.get('object')
+        if entity is not None:
+            for activity in activities:
+                activity.enable_unlink_button = True
+
+            if isinstance(entity, Organisation):
+                # We display the 'unlink' button only for Activities that have
+                # at least a Relation with the Organisation (if a direct Relation
+                # does not exist the button is useless).
+                for activity in activities:
+                    activity.enable_unlink_button = \
+                        any(entity.id == rel.object_entity_id
+                                for rel in chain(activity.get_subject_relations(),
+                                                 activity.get_linkedto_relations(),
+                                                )
+                           )
+
+        return ctxt
 
     def detailview_display(self, context):
         entity = context['object']

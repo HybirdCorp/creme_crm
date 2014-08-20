@@ -40,8 +40,10 @@
                     </th>
                     {% if object %}
                         <td class="{{row_color}} action">
-                            {% has_perm_to unlink object as unlink_perm %}{% has_perm_to unlink activity as activity_unlink_perm %}
-                            {% get_line_unlinker at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms unlink_perm|and_op:activity_unlink_perm %}
+                            {% if activity.enable_unlink_button %}
+                                {% has_perm_to unlink object as unlink_perm %}{% has_perm_to unlink activity as activity_unlink_perm %}
+                                {% get_line_unlinker at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms unlink_perm|and_op:activity_unlink_perm %}
+                            {% endif %}
                         </td>
                     {% endif %}
                 </tr>
