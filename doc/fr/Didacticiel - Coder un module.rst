@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-06-2014 pour la version 1.4 de Creme
+:Version: 21-08-2014 pour la version 1.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -371,7 +371,7 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
     from creme.creme_core.forms import CremeEntityForm, CremeDateField
 
-    from creme.beavers.models import Beaver
+    from ..models import Beaver
 
 
     class BeaverForm(CremeEntityForm):
@@ -387,7 +387,7 @@ remplir la date en cliquant.
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
 ramener le ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
 
-    from creme.beavers.forms.beaver import BeaverForm
+    from ..forms.beaver import BeaverForm
 
     @login_required
     @permission_required('beavers')
@@ -546,7 +546,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
     from creme.creme_core.utils import create_or_update as create
     from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-    from creme.beavers.models import *
+    from .models import *
 
 
     class Populator(BasePopulator):
@@ -1050,6 +1050,44 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
 
 Maintenant notre vue nous affiche bien un formulaire pré-rempli en partie.
 
+Utilisation de la création rapide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+En haut de chaque page se trouve le panneau de création rapide, qui permet de
+créer entre 1 et 9 fiches du même type, en même temps. Les formulaires de création
+rapide sont en général, et pour des raisons évidentes, des versions simplifiées
+des formulaires desdites entités. Par exemple, le formulaire de création rapide
+des Sociétés n'a que 2 champs ("nom" et "propriétaire"). Ces formulaires sont
+aussi utilisés dans certains *widgets* de sélection de fiche, qui permettent de
+créer des fiches à la volée.
+
+Si vous souhaitez ajouter la possibilité de création rapide à vos castors, c'est
+très simple. Dans votre ``creme_core_register.py``, ajoutez ces quelques lignes : ::
+
+    from creme.creme_core.gui import quickforms_registry # A fusionner avec les autres imports depuis creme.creme_core.gui...
+
+    from .forms.beaver import BeaverForm
+
+
+    quickforms_registry.register(Beaver, BeaverForm)
+
+
+Ici nous utilisons le formulaire classique des castors, et non une version
+simplifiée, car :
+
+ - il est déjà simple.
+ - l'écriture d'un tel formulaire (dans ``beavers/forms/quick.py`` classiquement)
+   est laissée en exercice au lecteur !
+
+**Attention** : n'enregistrez que des classes dérivant de ``CremeEntity``. Si
+vous enregistrez d'autres types de classes, les droits de création ne seront
+accordés qu'aux super-utilisateurs (car leurs tests de droit sont évités), en
+clair les utilisateurs lambda ne verrons pas la classe dans la liste des créations
+rapides possibles. C'est à la fois un choix d'interface et une limitation de
+l'implémentation, cela pourrait donc changer à l'avenir, mais en l'état il en
+est ainsi.
+
+
 Champs fonctions
 ~~~~~~~~~~~~~~~~
 
@@ -1084,7 +1122,7 @@ Une des manières les plus simple de modifier une app existante pour l'adapter �
 ses propres besoin consiste à surcharger tout ou partie de ses templates.
 
 Pour cela, Creme s'appuie sur le système de chargement des templates de Django.
-Si vous regarder votre fichier ``settings.py``, vous pouvez y trouver la variable
+Si vous regardez votre fichier ``settings.py``, vous pouvez y trouver la variable
 suivante : ::
 
     TEMPLATE_LOADERS = (
