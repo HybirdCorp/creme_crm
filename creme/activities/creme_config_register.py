@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .models import ActivityType, ActivitySubType, Status, Calendar
+from .blocks import user_calendars_block
 from .forms.activity_type import ActivityTypeForm, ActivitySubTypeForm
 from .forms.calendar import CalendarConfigForm
-from .blocks import user_calendars_block
+from .models import ActivityType, ActivitySubType, Status, Calendar
 
 
 to_register = ((ActivityType,    'activity_type',     ActivityTypeForm),

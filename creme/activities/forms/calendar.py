@@ -62,13 +62,10 @@ class CalendarConfigForm(CalendarForm):
 class ActivityCalendarLinkerForm(CremeForm):
     calendar = ModelChoiceField(label=_('Calendar'), queryset=None, empty_label=None)
 
-    #def __init__(self, activity, *args, **kwargs):
-        #self.activity = activity
     def __init__(self, instance, *args, **kwargs):
         self.activity = instance
         super(ActivityCalendarLinkerForm, self).__init__(*args, **kwargs)
         user = self.user
-        #self.calendar = calendar = activity.calendars.get(user=user)
         calendars = instance.calendars.filter(user=user)[:2]
 
         if len(calendars) > 1:

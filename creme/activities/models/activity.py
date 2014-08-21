@@ -235,50 +235,6 @@ END:VEVENT
         super(Activity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 
 
-#class Meeting(Activity):
-    #place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
-
-    #def __init__(self, *args, **kwargs):
-        #super(Meeting, self).__init__(*args, **kwargs)
-        #self.type_id = ACTIVITYTYPE_MEETING
-
-    #class Meta:
-        #app_label = 'activities'
-
-
-#class Task(Activity):
-    #duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
-
-    #def __init__ (self, *args , **kwargs):
-        #super(Task, self).__init__(*args, **kwargs)
-        #self.type_id = ACTIVITYTYPE_TASK
-
-    #class Meta:
-        #app_label = 'activities'
-
-
-#class PhoneCallType(CremeModel):
-    #name        = CharField(_(u"Call type"), max_length=100, blank=True, null=True)
-    #description = TextField(_(u'Description'))
-
-    #def __unicode__(self):
-        #return self.name
-
-    #class Meta:
-        #app_label = 'activities'
-
-
-#class PhoneCall(Activity):
-    #call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
-
-    #def __init__(self, *args, **kwargs):
-        #super(PhoneCall, self).__init__(*args, **kwargs)
-        #self.type_id = ACTIVITYTYPE_PHONECALL
-
-    #class Meta:
-        #app_label = 'activities'
-
-
 @receiver(post_delete, sender=Relation)
 def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
     type_id = instance.type_id

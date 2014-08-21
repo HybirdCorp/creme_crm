@@ -79,8 +79,6 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
         if activity_collisions:
             collision = activity_collisions[0]
-            #collision_start = max(activity_start.time(), collision.start.time())
-            #collision_end   = min(activity_end.time(),   collision.end.time())
             collision_start = max(activity_start.time(), localtime(collision.start).time())
             collision_end   = min(activity_end.time(),   localtime(collision.end).time())
 
