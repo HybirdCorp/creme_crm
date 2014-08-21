@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,22 +25,22 @@ from django.utils.translation import ugettext as _, pgettext
 from django.contrib.auth.models import User
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
         BlockDetailviewLocation, BlockPortalLocation,
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.creme_config.models import SettingKey, SettingValue
 
 from creme.persons.models import Contact, Organisation
 
-from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
 from .blocks import (participants_block, subjects_block, future_activities_block,
                      past_activities_block, related_calendar_block)
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import *
+from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
 
 
 logger = logging.getLogger(__name__)

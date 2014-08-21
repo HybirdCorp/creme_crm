@@ -32,7 +32,6 @@ urlpatterns = patterns('creme.activities.views',
     (r'^linked_activity/unlink$',                        'blocks.unlink_activity'),
 
     #calendar
-    #(r'^calendar/my$',                                                  'calendar.user_calendar'),#for compatibility
     (r'^calendar/user$',                                                'calendar.user_calendar'),
     (r'^calendar/users_activities/(?P<calendar_ids>([\d]+){0,1}(,[\d]+)*)$', 'calendar.get_users_activities'),
     (r'^calendar/activity/update',                                      'calendar.update_activity_date'),

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import DurationField, JSONField  #ColorField
+from creme.creme_core.forms.fields import DurationField, JSONField
 from creme.creme_core.forms.widgets import ChainedInput
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
@@ -30,12 +30,10 @@ from ..models import ActivityType, ActivitySubType
 
 
 class ActivityTypeForm(CremeModelForm):
-    # color = ColorField(label=_(u'Color'))
     default_hour_duration = DurationField(label=_(u'Duration'))
 
     class Meta:
         model = ActivityType
-        #exclude = ('id', 'is_custom')
 
     def save(self):
         instance = self.instance
@@ -73,8 +71,6 @@ class ActivityTypeWidget(ChainedInput):
 
         self.add_dselect('type', options=types, attrs=attrs)
         self.add_dselect('sub_type', options='/activities/type/${type}/json', attrs=attrs)
-#        self.add_dselect("type", options=types, attrs=attrs, label=_(u'Kind of activity'))
-#        self.add_dselect("sub_type", options='/activities/type/${type}/json', attrs=attrs, label=_(u'Activity type'))
 
 
 class ActivityTypeField(JSONField):

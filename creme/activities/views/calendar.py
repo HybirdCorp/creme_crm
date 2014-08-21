@@ -25,13 +25,10 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-#from django.http import Http404 HttpResponse
 from django.shortcuts import render, get_object_or_404
-#from django.utils.simplejson import JSONDecoder JSONEncoder
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
-# from django.contrib.auth.models import User
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.exceptions import ConflictError
@@ -39,13 +36,13 @@ from creme.creme_core.models import EntityCredentials
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup #inner_popup
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from creme.persons.models import Contact
 
+from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
-from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 
@@ -55,8 +52,6 @@ logger = logging.getLogger(__name__)
 
 def _activity_2_dict(activity, user):
     "Return a 'jsonifiable' dictionary"
-    #start = activity.start
-    #end   = activity.end
     tz = get_current_timezone()
     start = make_naive(activity.start, tz)
     end   = make_naive(activity.end, tz)
@@ -99,7 +94,6 @@ def _get_one_activity_per_calendar(calendar_ids, activities):
 
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
-    #return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
     return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000)) #Js gives us miliseconds
 
 def _filter_authorized_calendars(user, calendar_ids):
@@ -153,7 +147,6 @@ def user_calendar(request):
     return render(request, 'activities/calendar.html',
                   {'user_username':           user.username,
                    'events_url':              '/activities/calendar/users_activities/',
-                   # 'users':                   User.objects.order_by('username'),
                    'max_element_search':      MAX_ELEMENT_SEARCH,
                    'my_calendars':            Calendar.objects.filter(user=user),
                    'others_calendars':        dict(others_calendars),
@@ -171,8 +164,7 @@ def user_calendar(request):
 def get_users_activities(request, calendar_ids):
     user = request.user
     calendar_ids = calendar_ids.split(',')
-    # users    = list(User.objects.filter(username__in=usernames.split(','))) #NB: list() to avoid inner query
-    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #idem
+    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #NB: list() to avoid inner query
 
     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 
@@ -188,20 +180,16 @@ def get_users_activities(request, calendar_ids):
                                                 Q(end__gt=start, start__lt=end)
                                                )
                                         .filter(Q(calendars__pk__in=users_cal_ids) |
-                                                Q(type=ACTIVITYTYPE_INDISPO, #user__in=users
+                                                Q(type=ACTIVITYTYPE_INDISPO,
                                                   relations__type=REL_OBJ_PART_2_ACTIVITY,
                                                   relations__object_entity__in=contacts,
                                                  )
                                                ).distinct()
                     )
 
-    #return HttpResponse(JSONEncoder().encode([_activity_2_dict(activity, user)
-                                                #for activity in activities
-                                             #]
-                                            #),
-                        #mimetype='text/javascript'
-                       #)
-    return [_activity_2_dict(activity, user) for activity in _get_one_activity_per_calendar(calendar_ids, activities)]
+    return [_activity_2_dict(activity, user)
+                for activity in _get_one_activity_per_calendar(calendar_ids, activities)
+           ]
 
 @login_required
 @permission_required('activities')
@@ -289,30 +277,3 @@ def link_user_calendar(request, activity_id):
                                  #can_change=lambda activity, user: user.has_perm_to_link(activity),
                                  can_change=lambda activity, user: True,
                                 )
-
-    ##We cannot use the generic view add_to_entity because we need to reload after posting.
-    #user = request.user
-    #activity = get_object_or_404(Activity, pk=activity_id)
-
-    #user.has_perm_to_link_or_die(activity)
-
-    #if request.method == 'POST':
-        #form = ActivityCalendarLinkerForm(activity,
-                                          #user=user,
-                                          #data=request.POST,
-                                          #files=request.FILES or None)
-
-        #if form.is_valid():
-            #form.save()
-    #else:
-        #form = ActivityCalendarLinkerForm(activity, user=user)
-
-    #return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       #{'form':  form,
-                        ##'title': _(u"Add on a calendar"),
-                        #'title': _(u"Change calendar"),
-                       #},
-                       #is_valid=form.is_valid(),
-                       #reload=True,
-                       #delegate_reload=True,
-                      #)

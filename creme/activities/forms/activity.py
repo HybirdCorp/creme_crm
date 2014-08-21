@@ -31,7 +31,6 @@ from django.contrib.auth.models import User
 
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityForm
-#from creme.creme_core.forms.base import FieldBlockManager
 from creme.creme_core.forms.fields import (CremeDateTimeField, CremeTimeField,
         MultiCreatorEntityField, MultiGenericEntityField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -123,19 +122,15 @@ class _ActivityForm(CremeEntityForm):
             raise ValidationError(ugettext(u"You can't set the end of your activity without setting its start"))
 
         if start and start_time:
-            #start = datetime.combine(start, start_time)
             start = make_aware_dt(datetime.combine(start, start_time))
 
         if end and end_time:
-            #end = datetime.combine(end, end_time)
             end = make_aware_dt(datetime.combine(end, end_time))
 
         if start and not end:
             if end_time is not None:
-                #end = datetime.combine(start, end_time)
                 end = make_aware_dt(datetime.combine(start, end_time))
             else:
-                #end = start + atype.as_timedelta()
                 tdelta = atype.as_timedelta()
 
                 if (is_all_day or floating_type == FLOATING_TIME) and tdelta.days:
@@ -186,17 +181,9 @@ class _ActivityForm(CremeEntityForm):
 
 
 class ActivityEditForm(_ActivityForm):
-    #sub_type = ModelChoiceField(label=_('Activity type'), required=False,
-                                #queryset=ActivitySubType.objects.none(),
-                               #) #todo: CreatorModelChoiceField
-
     blocks = _ActivityForm.blocks.new(
         ('datetime', _(u'When'), ['is_all_day', 'start', 'start_time', 'end', 'end_time']),
     )
-
-    #def _get_activity_type_n_subtype(self):
-        #instance = self.instance
-        #return instance.type, instance.sub_type
 
     def _localize(self, dt):
         return localtime(dt) if dt else dt
@@ -206,7 +193,6 @@ class ActivityEditForm(_ActivityForm):
         fields = self.fields
         instance = self.instance
 
-        #fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
         type_f = fields['type_selector']
         type_f.types = ActivityType.objects.filter(pk=instance.type_id)
         type_f.initial = (instance.type_id, instance.sub_type_id)
@@ -248,8 +234,6 @@ class _ActivityCreateForm(_ActivityForm):
 MINUTES = 'minutes'
 
 class ActivityCreateForm(_ActivityCreateForm):
-    #type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
-
     my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
                                            label=_(u'On which of my calendar this activity will appears?'),
@@ -271,9 +255,6 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                 ('weeks', _(u'Week')),
                                                ],
                                       )
-
-    #class Meta(_ActivityForm.Meta):
-        #exclude = _ActivityForm.Meta.exclude + ('sub_type',)
 
     blocks = _ActivityForm.blocks.new(
         ('datetime',       _(u'When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
@@ -354,9 +335,6 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         return super(ActivityCreateForm, self).clean()
 
-    #def _get_activity_type_n_subtype(self):
-        #return self.cleaned_data['type_selector']
-
     def save(self, *args, **kwargs):
         instance = super(ActivityCreateForm, self).save(*args, **kwargs)
 
@@ -367,7 +345,6 @@ class ActivityCreateForm(_ActivityCreateForm):
         if cdata['my_participation']:
             instance.calendars.add(cdata['my_calendar'])
 
-        #create_relation = partial(Relation.objects.create, object_entity=instance, user=instance.user)
         #TODO: improve Relation model in order to avoid duplcation automatically
         create_relation = partial(Relation.objects.get_or_create, object_entity_id=instance.id,
                                   defaults={'user': instance.user},
@@ -377,7 +354,6 @@ class ActivityCreateForm(_ActivityCreateForm):
                                    (cdata['linked_entities'], REL_SUB_LINKED_2_ACTIVITY),
                                   ):
             for entity in entities:
-                #create_relation(subject_entity=entity, type_id=rtype_id)
                 create_relation(subject_entity_id=entity.id, type_id=rtype_id)
 
         return instance

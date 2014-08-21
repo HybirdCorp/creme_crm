@@ -87,13 +87,7 @@ class ParticipantCreateForm(CremeForm):
         if not user_qs:
             fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
-        ##todo: refactor this with a smart widget that manages dependencies
-        #my_participation_field = fields['my_participation']
-        #my_participation_field.widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
-
         if user_pk in existing_users:
-            #my_participation_field.initial = True
-            #my_participation_field.widget.attrs['disabled'] = True
             del fields['my_participation']
             del fields['my_calendar']
         else:
@@ -139,7 +133,6 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 
-            #if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
             if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([ugettext(u"If you participe, you have to choose one of your calendars.")])
 
