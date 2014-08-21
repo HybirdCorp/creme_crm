@@ -4,9 +4,11 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
 
     from creme.persons.models import Organisation
 
+    from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
     from ..models import *
     from .base import CommercialBaseTestCase
 except Exception as e:
@@ -75,6 +77,16 @@ class StrategyTestCase(CommercialBaseTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(strategy).name)
+
+    def test_listview(self):
+        create_strategy = partial(Strategy.objects.create, user=self.user)
+        strategies = {create_strategy(name='Strat#1'), create_strategy(name='Strat#2')}
+        response = self.assertGET200('/commercial/strategies')
+
+        with self.assertNoException():
+            strategies_page = response.context['entities']
+
+        self.assertEqual(strategies, set(strategies_page.object_list))
 
     def test_segment_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -616,3 +628,76 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual({individual.id},
                          {cat.segment_desc_id for cat in cats}
                         )
+
+    def test_reload_assets_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+
+        response = self.assertGET200('/commercial/blocks/assets_matrix/%s/%s/' % (
+                                            strategy.id, orga.id
+                                        )
+                                    )
+
+        with self.assertNoException():
+            result = simplejson.loads(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+        self.assertEqual(assets_matrix_block.id_, result[0])
+        self.assertIn(' id="%s"' % assets_matrix_block.id_, result[1])
+
+    def test_reload_charms_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+
+        response = self.assertGET200('/commercial/blocks/charms_matrix/%s/%s/' % (
+                                            strategy.id, orga.id
+                                        )
+                                    )
+
+        with self.assertNoException():
+            result = simplejson.loads(response.content)
+
+        result = result[0]
+        self.assertEqual(charms_matrix_block.id_, result[0])
+        self.assertIn(' id="%s"' % charms_matrix_block.id_, result[1])
+
+    def test_reload_assets_charms_matrix(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Size', strategy=strategy)
+        charm = MarketSegmentCharm.objects.create(name='Dollars', strategy=strategy)
+
+        orga = Organisation.objects.create(user=self.user, name='Nerv')
+        strategy.evaluated_orgas.add(orga)
+
+        self._set_asset_score(strategy, orga, asset, segment_desc, 1)
+        self._set_charm_score(strategy, orga, charm, segment_desc, 1)
+
+        response = self.assertGET200('/commercial/blocks/assets_charms_matrix/%s/%s/' % (
+                                            strategy.id, orga.id
+                                        )
+                                    )
+
+        with self.assertNoException():
+            result = simplejson.loads(response.content)
+
+        result = result[0]
+        self.assertEqual(assets_charms_matrix_block.id_, result[0])
+        self.assertIn(' id="%s"' % assets_charms_matrix_block.id_, result[1])
