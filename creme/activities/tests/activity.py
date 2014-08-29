@@ -9,7 +9,7 @@ try:
     from django.utils.formats import date_format
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.simplejson.encoder import JSONEncoder
+    #from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now, get_current_timezone, make_naive
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -89,8 +89,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                        end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
                                       )
 
-    def _acttype_field_value(self, atype_id, subtype_id=None):
-        return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id})
+    #def _acttype_field_value(self, atype_id, subtype_id=None):
+        #return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id})
 
     #def _relation_field_value(self, entity):
         #return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
