@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.creme_config.models import SettingValue
+    from creme.creme_core.models import SettingValue
 
     from creme.persons.models import Contact
 
@@ -57,7 +57,7 @@ class BackendsTestCase(CrudityTestCase):
         for backend in backends:
             self.assertTrue(backend.is_sandbox_by_user)
 
-        sv = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
+        sv = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
         sv.value = "False"
         sv.save()
 

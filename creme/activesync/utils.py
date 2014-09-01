@@ -32,7 +32,7 @@ from PIL import Image
 
 from django.core.files.base import File
 
-from creme.creme_config.models import SettingValue
+from creme.creme_core.models import SettingValue
 
 from .constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 
@@ -157,11 +157,12 @@ def encode_AS_timezone(time_zone):
     #TODO: Do this function (for now just handling Europe/Paris
     return 'xP///0MARQBUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAEMARQBTAFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w=='
 
-def _is_user_sync(user, key):
+def _is_user_sync(user, key_id):
     try:
-        return SettingValue.objects.get(key=key, user=user).value
+        return SettingValue.objects.get(key_id=key_id, user=user).value
     except SettingValue.DoesNotExist:
         pass
+
     return False
 
 def is_user_sync_calendars(user):

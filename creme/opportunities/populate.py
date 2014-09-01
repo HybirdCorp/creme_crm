@@ -24,22 +24,21 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.models import (RelationType, SearchConfigItem,
+from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem,
         HeaderFilter, EntityFilterCondition, EntityFilter)
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.creme_config.models import SettingKey, SettingValue
-
 from creme.persons.models import Contact, Organisation
 
 from creme.products.models import Product, Service
 
-from .models import SalesPhase, Origin, Opportunity
 from .blocks import *
 from .buttons import linked_opportunity_button
 from .constants import *
+from .models import SalesPhase, Origin, Opportunity
+from .setting_keys import quote_key
 
 
 logger = logging.getLogger(__name__)
@@ -67,12 +66,7 @@ class Populator(BasePopulator):
         create_rtype((REL_SUB_RESPONSIBLE,       _(u"is responsible for"),                    [Contact]),
                      (REL_OBJ_RESPONSIBLE,       _(u"has as responsible contact"),            [Opportunity]))
 
-
-        sk = SettingKey.create(pk=SETTING_USE_CURRENT_QUOTE,
-                               description=_(u"Use current associated quote to determine an estimation of the opportunity's turnover"),
-                               app_label='opportunities', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=False)
+        SettingValue.create_if_needed(key=quote_key, user=None, value=False)
 
         if not SalesPhase.objects.exists():
             create_sphase = SalesPhase.objects.create

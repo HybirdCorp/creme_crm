@@ -25,8 +25,7 @@ from django.forms.widgets import PasswordInput, Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.base import FieldBlockManager, CremeForm
-
-from creme.creme_config.models.setting import SettingValue, SettingKey
+from creme.creme_core.models import SettingValue
 
 from ..models import CremeClient
 from ..cipher import Cipher
@@ -72,26 +71,26 @@ class UserSettingsConfigForm(CremeForm):
         user = self.user
 
         self._svalues_cache = svalues_cache = {}
+        sv_get = SettingValue.objects.get
 
         def get_svalue(key_id):
-            sv = svalues_cache[key_id] = SettingValue.objects.get(key__id=key_id, user=user)
+            sv = svalues_cache[key_id] = sv_get(key_id=key_id, user=user)
             return sv
 
         fields = self.fields
-        sv_get = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
 
         let_empty_msg = ugettext(u"Let empty to get the default configuration (currently '%s').")
 
         url_field = fields['url']
-        url_field.help_text = let_empty_msg % sv_get(key__id=MAPI_SERVER_URL).value
+        url_field.help_text = let_empty_msg % sv_get(key_id=MAPI_SERVER_URL).value
         try:
             url_field.initial = get_svalue(USER_MOBILE_SYNC_SERVER_URL).value
         except sv_doesnotexist:
             pass
 
         domain_field = fields['domain']
-        domain_field.help_text = let_empty_msg % sv_get(key__id=MAPI_DOMAIN).value
+        domain_field.help_text = let_empty_msg % sv_get(key_id=MAPI_DOMAIN).value
         try:
             domain_field.initial = get_svalue(USER_MOBILE_SYNC_SERVER_DOMAIN).value
         except sv_doesnotexist:
@@ -99,7 +98,7 @@ class UserSettingsConfigForm(CremeForm):
 
         ssl_field = fields['ssl']
         ssl_field.help_text = ugettext(u"Let 'Default' to get the default configuration (currently '%s').") % (
-                                    ugettext('Yes') if sv_get(key__id=MAPI_SERVER_SSL).value else ugettext('No')
+                                    ugettext('Yes') if sv_get(key_id=MAPI_SERVER_SSL).value else ugettext('No')
                                )
         try:
             ssl_field.initial = int(get_svalue(USER_MOBILE_SYNC_SERVER_SSL).value)

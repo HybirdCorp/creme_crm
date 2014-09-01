@@ -14,9 +14,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.management.commands.reminder import Command as ReminderCommand
-    from creme.creme_core.models import CremeEntity, DateReminder
-
-    from creme.creme_config.models import SettingValue
+    from creme.creme_core.models import CremeEntity, DateReminder, SettingValue
 
     from creme.persons.models import Contact
 
@@ -307,7 +305,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_reminder01(self):
         now_value = now()
 
-        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = localtime(now_value).hour
         sv.save()
 
@@ -350,7 +348,7 @@ class TodoTestCase(AssistantsTestCase):
             print 'Skip the test TodoTestCase.test_reminder02 because it is too late.'
             return
 
-        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = next_hour
         sv.save()
 
@@ -367,7 +365,7 @@ class TodoTestCase(AssistantsTestCase):
         "Mails error"
         now_value = now()
 
-        sv = self.get_object_or_fail(SettingValue, key=MIN_HOUR_4_TODO_REMINDER)
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = max(localtime(now_value).hour - 1, 0)
         sv.save()
 

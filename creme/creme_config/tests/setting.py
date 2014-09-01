@@ -4,8 +4,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-
-    from ..models import SettingKey, SettingValue
+    from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
+    from creme.creme_core.models import SettingValue
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -13,6 +13,7 @@ except Exception as e:
 __all__ = ('SettingTestCase',)
 
 
+#TODO: clean registry in teardDown....
 class SettingTestCase(CremeTestCase):
     def setUp(self):
         self.populate('creme_core', 'creme_config')
@@ -20,72 +21,18 @@ class SettingTestCase(CremeTestCase):
     def _buil_edit_url(self, setting_value):
         return '/creme_config/settings/edit/%s' % setting_value.id
 
-    def test_model_string(self):
-        sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
-                                       app_label=None, type=SettingKey.STRING,
-                                       hidden=False,
-                                      )
-        title = 'May the source be with you'
-        sv = SettingValue.objects.create(key=sk, user=None, value=title)
-
-        self.assertEqual(title, self.refresh(sv).value)
-
-    def test_model_int(self):
-        sk = SettingKey.objects.create(pk='persons-page_size', description=u"Page size",
-                                       app_label='persons', type=SettingKey.INT,
-                                      )
-        self.assertFalse(sk.hidden)
-
-        size = 156
-        sv = SettingValue.objects.create(key=sk, user=None, value=size)
-
-        sv = self.refresh(sv)
-        self.assertEqual(size, sv.value)
-        self.assertEqual(size, sv.as_html)
-
-    def test_model_bool(self):
-        self.login()
-
-        sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       description=u"Display logo ?",
-                                       type=SettingKey.BOOL,
-                                      )
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-
-        sv = self.refresh(sv)
-        self.assertIs(sv.value, True)
-        #self.assertEqual(_('Yes'), sv.as_html)
-        self.assertEqual('<input type="checkbox" checked disabled/>%s' % _('Yes'), sv.as_html)
-
-        sv.value = False
-        sv.save()
-
-        sv = self.refresh(sv)
-        self.assertIs(sv.value, False)
-        #self.assertEqual(_('No'), sv.as_html)
-        self.assertEqual('<input type="checkbox" disabled/>%s' % _('No'), sv.as_html)
-
-    def test_model_hour(self):
-        self.login()
-
-        sk = SettingKey.objects.create(pk='persons-reminder_hour',
-                                       description='Reminder hour',
-                                       type=SettingKey.HOUR,
-                                      )
-        hour = 9
-        sv = SettingValue.objects.create(key=sk, user=self.user, value=hour)
-
-        sv = self.refresh(sv)
-        self.assertEqual(hour, sv.value)
-        self.assertEqual(_('%sh') % hour, sv.as_html)
-
     def test_edit_string(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
-                                       app_label='persons', type=SettingKey.STRING,
-                                       hidden=False,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
+                                       #app_label='persons', type=SettingKey.STRING,
+                                       #hidden=False,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_string', description=u"Page title",
+                        app_label='persons', type=SettingKey.STRING, hidden=False,
+                       )
+        setting_key_registry.register(sk)
+
         title = 'May the source be with you'
         sv = SettingValue.objects.create(key=sk, user=None, value=title)
 
@@ -99,9 +46,14 @@ class SettingTestCase(CremeTestCase):
     def test_edit_int(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-size', description=u"Page size",
-                                       app_label='persons', type=SettingKey.INT,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-size', description=u"Page size",
+                                       #app_label='persons', type=SettingKey.INT,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_int', description=u"Page size",
+                        app_label='persons', type=SettingKey.INT,
+                       )
+        setting_key_registry.register(sk)
+
         size = 156
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
 
@@ -112,10 +64,15 @@ class SettingTestCase(CremeTestCase):
     def test_edit_bool(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       description=u"Display logo ?",
-                                       app_label='persons', type=SettingKey.BOOL,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       #description=u"Display logo ?",
+                                       #app_label='persons', type=SettingKey.BOOL,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_bool', description=u"Display logo ?",
+                        app_label='persons', type=SettingKey.BOOL,
+                       )
+        setting_key_registry.register(sk)
+
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
 
         self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={})) #False -> empty POST
@@ -124,10 +81,15 @@ class SettingTestCase(CremeTestCase):
     def test_edit_hour(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-reminder_hour',
-                                       description='Reminder hour',
-                                       app_label='persons', type=SettingKey.HOUR,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-reminder_hour',
+                                       #description='Reminder hour',
+                                       #app_label='persons', type=SettingKey.HOUR,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_hour', description='Reminder hour',
+                        app_label='persons', type=SettingKey.HOUR,
+                       )
+        setting_key_registry.register(sk)
+
         hour = 11
         sv = SettingValue.objects.create(key=sk, user=None, value=hour)
 
@@ -154,43 +116,32 @@ class SettingTestCase(CremeTestCase):
         "Hidden => not editable (value=True)"
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       description=u"Display logo ?",
-                                       app_label='persons', type=SettingKey.BOOL,
-                                       hidden=True,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       #description=u"Display logo ?",
+                                       #app_label='persons', type=SettingKey.BOOL,
+                                       #hidden=True,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_hidden01', description=u"Display logo ?",
+                        app_label='persons', type=SettingKey.BOOL, hidden=True,
+                       )
+        setting_key_registry.register(sk)
+
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
         self.assertGET404(self._buil_edit_url(sv))
 
     def test_edit_hidden02(self):
-        "Hidden => not editable  (value=False)"
+        "Hidden => not editable (value=False)"
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo',
-                                       description=u"Display logo ?",
-                                       app_label='persons', type=SettingKey.BOOL,
-                                       hidden=False,
-                                      )
+        #sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       #description=u"Display logo ?",
+                                       #app_label='persons', type=SettingKey.BOOL,
+                                       #hidden=False,
+                                      #)
+        sk = SettingKey(id='persons-test_edit_hidden02', description=u"Display logo ?",
+                        app_label='persons', type=SettingKey.BOOL, hidden=False,
+                       )
+        setting_key_registry.register(sk)
+
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
         self.assertGET404(self._buil_edit_url(sv))
-
-    def test_create_value_if_needed(self):
-        self.login()
-
-        sk = SettingKey.objects.create(pk='persons-size', description=u"Page size",
-                                       app_label='persons', type=SettingKey.INT,
-                                      )
-
-        self.assertFalse(SettingValue.objects.filter(key=sk))
-
-        size = 156
-        sv = SettingValue.create_if_needed(key=sk, user=None, value=size)
-        self.assertIsInstance(sv, SettingValue)
-        self.assertIsNone(sv.user)
-        self.assertEqual(size, sv.value)
-
-        with self.assertNoException():
-            self.refresh(sv)
-
-        sv = SettingValue.create_if_needed(key=sk, user=None, value=size + 1)
-        self.assertEqual(size, sv.value) #not new size

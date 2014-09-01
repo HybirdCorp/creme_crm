@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,12 +24,13 @@ from django.db.models import FieldDoesNotExist, Max
 from django.forms.models import modelform_factory
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.registry import creme_registry
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.core.setting_key import setting_key_registry
+from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
 
 from creme.creme_config.utils import generate_portal_url
-from creme.creme_config.models.setting import SettingKey
+#from creme.creme_config.models import SettingKey
 
 
 logger = logging.getLogger(__name__)
@@ -125,7 +126,8 @@ class _ConfigRegistry(object):
         self._userblocks = []
 
         #Add app to creme_config if it has at least a visible SettingKey
-        for app_label in SettingKey.objects.filter(hidden=False).values_list('app_label', flat=True).distinct():
+        #for app_label in SettingKey.objects.filter(hidden=False).values_list('app_label', flat=True).distinct():
+        for app_label in {skey.app_label for skey in setting_key_registry if not skey.hidden}:
             _apps[app_label] = AppConfigRegistry(app_label, creme_registry.get_app(app_label).verbose_name)
 
     def get_app(self, app_name):

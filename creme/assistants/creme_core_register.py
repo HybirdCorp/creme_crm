@@ -21,14 +21,19 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.reminder import reminder_registry
+from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui.block import block_registry
 
 from .blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
 from .reminders import reminder_alert, reminder_todo
+from .setting_keys import todo_reminder_key
+
 
 creme_registry.register_app('assistants', _(u'Assistants (Todos, Memo, ...)'), '/')
 block_registry.register(todos_block, memos_block, alerts_block, actions_it_block, actions_nit_block, messages_block)
 
 reminder_registry.register(reminder_alert)
 reminder_registry.register(reminder_todo)
+
+setting_key_registry.register(todo_reminder_key)

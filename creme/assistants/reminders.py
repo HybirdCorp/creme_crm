@@ -20,14 +20,13 @@
 
 from datetime import timedelta #datetime
 
+from django.conf import settings
 from django.db.models import Q
 from django.utils.timezone import now, localtime
 from django.utils.translation import ugettext as _
-from django.conf import settings
 
 from creme.creme_core.core.reminder import Reminder
-
-from creme.creme_config.models import SettingValue
+from creme.creme_core.models import SettingValue
 
 from .constants import MIN_HOUR_4_TODO_REMINDER
 from .models import Alert, ToDo
@@ -81,7 +80,8 @@ class ReminderTodo(Reminder):
 
     def ok_for_continue(self):
         #return now().hour > 8
-        return localtime(now()).hour >= SettingValue.objects.get(key=MIN_HOUR_4_TODO_REMINDER).value
+        #return localtime(now()).hour >= SettingValue.objects.get(key=MIN_HOUR_4_TODO_REMINDER).value
+        return localtime(now()).hour >= SettingValue.objects.get(key_id=MIN_HOUR_4_TODO_REMINDER).value
 
 
 reminder_alert = ReminderAlert()

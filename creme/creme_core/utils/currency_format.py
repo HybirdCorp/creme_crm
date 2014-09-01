@@ -19,10 +19,9 @@ import logging
 from django.conf import settings
 from django.utils import translation
 
-from creme.creme_config.models import SettingKey, SettingValue
-
 from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
-from ..models import Currency
+from ..models import Currency, SettingValue
+
 
 logger = logging.getLogger(__name__)
 WINDOWS = 'nt'
@@ -39,7 +38,7 @@ else:
     def standardized_locale_code(django_code):
         return translation.to_locale(django_code)
 
-#TODO: use an object Formatter in order to avoid multiple queries of SettingKey/SettingValue
+#TODO: use an object Formatter in order to avoid multiple queries of SettingValue VS cache (in global_info)
 def currency(val, currency_or_id=None):
     """Replace a formatted string for an amount.
     @param val Amount as a numeric value.
@@ -59,8 +58,7 @@ def currency(val, currency_or_id=None):
 
     conv = locale.localeconv()
 
-    sk = SettingKey.objects.get(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
-    is_local_symbol = SettingValue.objects.get(key=sk).value
+    is_local_symbol = SettingValue.objects.get(key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL).value
 
     if currency_or_id:
         currency_obj = currency_or_id if isinstance(currency_or_id, Currency) else \

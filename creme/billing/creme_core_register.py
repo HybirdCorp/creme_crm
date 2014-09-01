@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,17 +20,19 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
         icon_registry, import_form_registry, bulk_update_registry, smart_columns_registry)
 
-from .constants import REL_SUB_BILL_RECEIVED
 from .blocks import block_list, BillingBlock
 from .buttons import button_list
-from .forms.lv_import import get_import_form_builder
+from .constants import REL_SUB_BILL_RECEIVED
 from .function_fields import hook_organisation
+from .forms.lv_import import get_import_form_builder
 from .models import (Invoice, Quote, SalesOrder, CreditNote, TemplateBase,
-                     Line, ServiceLine, ProductLine) #Base
+        Line, ServiceLine, ProductLine) #Base
+from .setting_keys import payment_info_key
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
@@ -74,6 +76,9 @@ reg_import_form(SalesOrder, get_import_form_builder)
 bulk_update_registry.register(
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
 )
+
+setting_key_registry.register(payment_info_key)
+
 
 for model in (Invoice, Quote, SalesOrder, CreditNote):
     smart_columns_registry.register_model(model) \

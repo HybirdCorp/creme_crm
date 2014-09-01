@@ -24,10 +24,8 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, SettingValue
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
-
-from creme.creme_config.models import SettingValue
 
 from creme.opportunities.models import Opportunity
 from creme.opportunities.constants import REL_SUB_TARGETS
@@ -73,7 +71,7 @@ class ApproachesBlock(QuerysetBlock):
 
         #if entity.entity_type_id == self._ORGA_CT_ID and \
         if isinstance(entity, Organisation) and \
-           not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+           not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
             managers_ids      = entity.get_managers().values_list('id', flat=True)
             employees_ids     = entity.get_employees().values_list('id', flat=True)
             opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS,

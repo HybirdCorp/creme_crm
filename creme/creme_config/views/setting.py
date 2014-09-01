@@ -24,10 +24,10 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.models import SettingValue
 from creme.creme_core.views.generic import inner_popup
 from creme.creme_core.utils import jsonify
 
-from ..models import SettingValue
 from ..forms.setting import SettingForm
 from ..blocks import settings_block
 

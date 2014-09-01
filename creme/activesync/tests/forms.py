@@ -4,8 +4,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.models import SettingValue, SettingKey
+    from creme.creme_core.models import SettingValue
 
     from ..blocks import mobile_sync_config_block
     from ..constants import *
@@ -24,9 +23,9 @@ class GlobalSettingsTestCase(CremeTestCase):
         url = '/activesync/mobile_synchronization/edit'
         self.assertGET200(url)
 
-        sv_url    = self.get_object_or_fail(SettingValue, key=MAPI_SERVER_URL)
-        sv_domain = self.get_object_or_fail(SettingValue, key=MAPI_DOMAIN)
-        sv_ssl    = self.get_object_or_fail(SettingValue, key=MAPI_SERVER_SSL)
+        sv_url    = self.get_object_or_fail(SettingValue, key_id=MAPI_SERVER_URL)
+        sv_domain = self.get_object_or_fail(SettingValue, key_id=MAPI_DOMAIN)
+        sv_ssl    = self.get_object_or_fail(SettingValue, key_id=MAPI_SERVER_SSL)
 
         server_url = 'http://cremecrm.com/as'
         server_domain = 'creme'
@@ -66,12 +65,12 @@ class UserSettingsTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activesync')
 
-    def _assertNoSValue(self, skeys, user):
-        self.assertFalse(SettingValue.objects.filter(key__in=skeys, user=user))
+    def _assertNoSValue(self, skey_ids, user):
+        self.assertFalse(SettingValue.objects.filter(key_id__in=skey_ids, user=user))
 
-    def _build_values_map(self, skeys, user):
-        svalues = SettingValue.objects.filter(key__in=skeys, user=user)
-        self.assertEqual(len(skeys), len(svalues))
+    def _build_values_map(self, skey_ids, user):
+        svalues = SettingValue.objects.filter(key_id__in=skey_ids, user=user)
+        self.assertEqual(len(skey_ids), len(svalues))
 
         return {svalue.key_id: svalue.value for svalue in svalues}
 
@@ -79,22 +78,20 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
         user = self.user
 
-        skey = self.get_object_or_fail(SettingKey, pk=USER_MOBILE_SYNC_ACTIVITIES)
-        self.assertEqual(0, SettingValue.objects.filter(key=skey).count())
+        self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_ACTIVITIES).count())
         self.assertIs(False, is_user_sync_calendars(user))
 
-        SettingValue.objects.create(key=skey, value=True, user=user)
+        SettingValue.objects.create(key_id=USER_MOBILE_SYNC_ACTIVITIES, value=True, user=user)
         self.assertTrue(is_user_sync_calendars(user))
 
     def test_is_user_sync_contacts(self):
         self.login()
         user = self.user
 
-        skey = self.get_object_or_fail(SettingKey, pk=USER_MOBILE_SYNC_CONTACTS)
-        self.assertEqual(0, SettingValue.objects.filter(key=skey).count())
+        self.assertEqual(0, SettingValue.objects.filter(key_id=USER_MOBILE_SYNC_CONTACTS).count())
         self.assertIs(False, is_user_sync_contacts(user))
 
-        SettingValue.objects.create(key=skey, value=True, user=user)
+        SettingValue.objects.create(key_id=USER_MOBILE_SYNC_CONTACTS, value=True, user=user)
         self.assertTrue(is_user_sync_contacts(user))
 
     def test_view(self):
@@ -105,7 +102,6 @@ class UserSettingsTestCase(CremeTestCase):
                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
                  USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS,
                 ]
-        self.assertEqual(len(skeys), SettingKey.objects.filter(pk__in=skeys).count())
 
         url = '/activesync/user_settings'
         response = self.assertGET200(url)

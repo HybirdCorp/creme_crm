@@ -3,10 +3,8 @@
 try:
     from functools import partial
 
-    #from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.models import SettingKey, SettingValue
+    from creme.creme_core.models import SettingValue
 
     from creme.persons.models import Contact
 
@@ -24,11 +22,10 @@ class AssistantsAppTestCase(CremeTestCase):
         self.populate('assistants')
         self.assertEqual(3, UserMessagePriority.objects.count())
 
-        sk = self.get_object_or_fail(SettingKey, pk=MIN_HOUR_4_TODO_REMINDER)
-        self.assertEqual('assistants',    sk.app_label)
-        self.assertEqual(SettingKey.HOUR, sk.type)
+        self.autodiscover()
 
-        sv = self.get_object_or_fail(SettingValue, key=sk)
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        self.assertEqual('assistants', sv.key.app_label)
         self.assertEqual(9, sv.value)
 
 

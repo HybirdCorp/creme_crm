@@ -24,17 +24,15 @@ import re
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
-                              DateField, DateTimeField,
-                              FileField, ForeignKey, ManyToManyField)
+        DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
 from django.db import transaction, IntegrityError
 from django.template.context import Context
 from django.utils.translation import ugettext_lazy as _ #TODO: lazy ??
 
+from creme.creme_core.models import SettingValue
 from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
 #from creme.creme_core.utils.meta import is_date_field
 from creme.creme_core.views.file_handling import handle_uploaded_file
-
-from creme.creme_config.models import SettingValue
 
 from creme.media_managers.models import Image
 
@@ -99,7 +97,8 @@ class CrudityBackend(object):
     @property
     def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
-            self._sandbox_by_user = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+            self._sandbox_by_user = SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
+
         return self._sandbox_by_user
 
     @is_sandbox_by_user.setter

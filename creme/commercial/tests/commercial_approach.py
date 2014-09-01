@@ -11,10 +11,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.creme_core.models import CremeEntity, Relation, CremeProperty, BlockPortalLocation
+    from creme.creme_core.models import (CremeEntity, Relation, CremeProperty,
+            BlockPortalLocation, SettingValue)
     from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.models import SettingValue
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
@@ -41,6 +40,7 @@ class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities', 'opportunities', 'commercial', 'persons')
+        cls.autodiscover()
 
     def setUp(self):
         self.login()
@@ -237,7 +237,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     @override_settings(BLOCK_SIZE=5)
     def test_block01(self):
-        sv = SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
+        sv = SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         self.assertTrue(sv.value)
 
         user = self.user
@@ -436,7 +436,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     def test_command08(self):
         "DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW setting"
-        sv = self.get_object_or_fail(SettingValue, key=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
+        sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         sv.value = False
         sv.save()
 

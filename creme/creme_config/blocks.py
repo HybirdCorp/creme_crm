@@ -24,16 +24,18 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import (CremeModel, CremeEntity, UserRole,
+from creme.creme_core.core.setting_key import setting_key_registry
+from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
         CremePropertyType, RelationType, SemiFixedRelationType, CustomField,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
-from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.unicode_collation import collator
 
-from .models import  SettingValue
+#from .models import SettingValue
+
 
 _PAGE_SIZE = 20
 
@@ -89,9 +91,15 @@ class SettingsBlock(QuerysetBlock):
     def detailview_display(self, context):
         app_name = context['app_name']
 
+        skeys_ids = [skey.id
+                        for skey in setting_key_registry
+                            if skey.app_label == app_name and not skey.hidden
+                    ]
+
         return self._render(self.get_block_template_context(
                                 context,
-                                SettingValue.objects.filter(key__app_label=app_name, key__hidden=False, user=None),
+                                #SettingValue.objects.filter(key__app_label=app_name, key__hidden=False, user=None),
+                                SettingValue.objects.filter(key_id__in=skeys_ids, user=None),
                                 update_url='/creme_config/settings/%s/reload/' % app_name,
                                 app_name=app_name,
                            ))

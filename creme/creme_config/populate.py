@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
+#from functools import partial
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from .constants import USER_THEME_NAME, USER_TIMEZONE
-from .models import SettingKey
+#from .constants import USER_THEME_NAME, USER_TIMEZONE
+#from .models import SettingKey
 
+#TODO: delete this file ?
 
 class Populator(BasePopulator):
     def populate(self):
-        create_skey = partial(SettingKey.create, description='', hidden=True,
-                              app_label='creme_config', type=SettingKey.STRING,
-                             )
-        create_skey(pk=USER_THEME_NAME)
-        create_skey(pk=USER_TIMEZONE)
+        pass
+        #create_skey = partial(SettingKey.create, description='', hidden=True,
+                              #app_label='creme_config', type=SettingKey.STRING,
+                             #)
+        #create_skey(pk=USER_THEME_NAME)
+        #create_skey(pk=USER_TIMEZONE)
