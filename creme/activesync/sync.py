@@ -55,7 +55,7 @@ class Synchronization(object):
         TODO: Handle SSL & Domain
     """
     def __init__(self, user, *args, **kwargs):
-        from creme.creme_config.models import SettingValue
+        from creme.creme_core.models import SettingValue
 
         self.user = user
         self.client = CremeClient.objects.get_or_create(user=user)[0]
@@ -82,10 +82,10 @@ class Synchronization(object):
         sv_doesnotexist = SettingValue.DoesNotExist
 
         try:
-            self.server_url = sv_get(key__id=USER_MOBILE_SYNC_SERVER_URL, user=user).value
+            self.server_url = sv_get(key_id=USER_MOBILE_SYNC_SERVER_URL, user=user).value
         except sv_doesnotexist:
             try:
-                self.server_url = sv_get(key__id=MAPI_SERVER_URL).value
+                self.server_url = sv_get(key_id=MAPI_SERVER_URL).value
             except sv_doesnotexist:
                 raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_SERVER_URL)
 
@@ -100,30 +100,30 @@ class Synchronization(object):
 
 
         try:
-            self.domain = sv_get(key__id=USER_MOBILE_SYNC_SERVER_DOMAIN, user=user).value
+            self.domain = sv_get(key_id=USER_MOBILE_SYNC_SERVER_DOMAIN, user=user).value
         except sv_doesnotexist:
             try:
-                self.domain = sv_get(key__id=MAPI_DOMAIN).value
+                self.domain = sv_get(key_id=MAPI_DOMAIN).value
             except sv_doesnotexist:
                 self.domain = None
 
         try:
-            self.server_ssl = sv_get(key__id=USER_MOBILE_SYNC_SERVER_SSL, user=user).value
+            self.server_ssl = sv_get(key_id=USER_MOBILE_SYNC_SERVER_SSL, user=user).value
         except sv_doesnotexist:
             try:
-                self.server_ssl = sv_get(key__id=MAPI_SERVER_SSL).value
+                self.server_ssl = sv_get(key_id=MAPI_SERVER_SSL).value
             except sv_doesnotexist:
                 self.server_ssl = False
 
         try:
-            self.login = sv_get(key__id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user).value
+            self.login = sv_get(key_id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user).value
             if self.login.strip() == u"":
                 raise sv_doesnotexist
         except sv_doesnotexist:
             raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_LOGIN)
 
         try:
-            self.pwd = Cipher.decrypt_from_db(sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value)
+            self.pwd = Cipher.decrypt_from_db(sv_get(key_id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value)
             if self.pwd.strip() == u"":
                 raise sv_doesnotexist
         except sv_doesnotexist:

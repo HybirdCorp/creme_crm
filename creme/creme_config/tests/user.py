@@ -11,8 +11,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.core.setting_key import SettingKey
     from creme.creme_core.models import (CremeEntity, CremeProperty,
-            EntityCredentials, UserRole, SetCredentials, Mutex) #Relation
+            EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.activities.models import Calendar
@@ -22,7 +23,6 @@ try:
 
     from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
     from ..constants import USER_THEME_NAME, USER_TIMEZONE
-    from ..models import SettingKey, SettingValue
     from ..utils import get_user_theme
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -952,10 +952,9 @@ class UserTestCase(CremeTestCase):
         "Related SettingValues are deleted."
         self.login()
 
-        setting_key = 'unit_test-test_userl_delete06'
-        sk = SettingKey.create(pk=setting_key, description="",
-                               app_label='creme_config', type=SettingKey.BOOL,
-                              )
+        sk = SettingKey(id='unit_test-test_userl_delete06', description="",
+                        app_label='creme_config', type=SettingKey.BOOL,
+                       ) #NB: we do not ne to register it (because the SettingValue's value is not used)
         sv = SettingValue.objects.create(key=sk, user=self.other_user, value=True)
 
         self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
@@ -988,13 +987,15 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
     def test_change_theme01(self):
-        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
+        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
 
         def change_theme(theme):
             self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
 
-            svalues = SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME)
+            #svalues = SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME)
+            svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
             self.assertEqual(1, len(svalues))
             self.assertEqual(theme, svalues[0].value)
 
@@ -1009,11 +1010,13 @@ class UserSettingsTestCase(CremeTestCase):
                 self.user = user
                 self.session = {}
 
-        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        self.assertFalse(SettingValue.objects.filter(user=user, key=USER_THEME_NAME))
+        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        #self.assertFalse(SettingValue.objects.filter(user=user, key=USER_THEME_NAME))
+        self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
 
         self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-        sv = self.get_object_or_fail(SettingValue, user=user, key=USER_THEME_NAME)
+        #sv = self.get_object_or_fail(SettingValue, user=user, key=USER_THEME_NAME)
+        sv = self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
 
         sv.value = "unknown theme"
         sv.save()
@@ -1034,17 +1037,20 @@ class UserSettingsTestCase(CremeTestCase):
 
             return theme
 
-        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
+        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
         self.assertIsNone(get_theme())
 
         self.client.get('/')
-        self.get_object_or_fail(SettingValue, user=self.user, key=USER_THEME_NAME)
+        #self.get_object_or_fail(SettingValue, user=self.user, key=USER_THEME_NAME)
+        self.get_object_or_fail(SettingValue, user=self.user, key_id=USER_THEME_NAME)
         self.assertEqual(settings.DEFAULT_THEME, get_theme())
 
     def test_change_timezone01(self):
-        self.get_object_or_fail(SettingKey, pk=USER_TIMEZONE)
-        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE))
+        #self.get_object_or_fail(SettingKey, pk=USER_TIMEZONE)
+        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE))
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE))
 
         #TODO: use 'nonlocal' in py3k
         inner = {'called':       False,
@@ -1081,7 +1087,8 @@ class UserSettingsTestCase(CremeTestCase):
         def change_tz(tz):
             self.assertPOST200(url, data={'time_zone': tz})
 
-            svalues = SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE)
+            #svalues = SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE)
+            svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
             self.assertEqual(1, len(svalues))
             self.assertEqual(tz, svalues[0].value)
 

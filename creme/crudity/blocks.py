@@ -23,8 +23,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.gui.block import QuerysetBlock
-
-from creme.creme_config.models import SettingValue
+from creme.creme_core.models import SettingValue
 
 #from creme.emails.models import EntityEmail
 
@@ -43,7 +42,7 @@ class CrudityQuerysetBlock(QuerysetBlock):
 
     @property
     def is_sandbox_by_user(self):
-        return SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
+        return SettingValue.objects.get(key_id=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
 
 
 class WaitingActionBlock(CrudityQuerysetBlock):

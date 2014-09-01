@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,20 +24,19 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import (RelationType, CremePropertyType,
+from creme.creme_core.models import (RelationType, CremePropertyType, SettingValue,
     BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.creme_config.models import SettingKey, SettingValue
-
 from creme.persons.models import Contact, Organisation
 
-from .models import *
 from .blocks import *
-from .constants import *
 from .buttons import complete_goal_button
+from .constants import *
+from .models import *
+from .setting_keys import notification_key, orga_approaches_key
 
 
 logger = logging.getLogger(__name__)
@@ -120,14 +119,5 @@ class Populator(BasePopulator):
         SearchConfigItem.create_if_needed(Act, ['name', 'expected_sales', 'cost', 'goal'])
         SearchConfigItem.create_if_needed(Strategy, ['name'])
 
-        sk = SettingKey.create(pk=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED,
-                               description=_(u"Enable email reminder for commercial approaches"),
-                               app_label='commercial', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
-
-        sk = SettingKey.create(pk=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
-                               description=_(u"Display only organisations' commercial approaches on organisations' file. (Otherwise, display organisations', managers', employees', related opportunities' commercial approaches)"),
-                               app_label='commercial', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=notification_key,    user=None, value=True)
+        SettingValue.create_if_needed(key=orga_approaches_key, user=None, value=True)

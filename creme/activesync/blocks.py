@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 #from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, QuerysetBlock
-
-from creme.creme_config.models.setting import SettingValue
+from creme.creme_core.models import SettingValue
 
 from creme.persons.models.contact import Contact
 
@@ -33,6 +34,9 @@ from .constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL,
         USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
         USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
         USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserMobileSyncConfigBlock(Block):
@@ -64,18 +68,25 @@ class UserMobileSyncConfigBlock(Block):
         user   = request.user
         sv_get = SettingValue.objects.get
 
-        def get_setting_value(user_key, default_key=None):
+        #def get_setting_value(user_key, default_key=None):
+        def get_setting_value(user_key_id, default_key_id=None):
             svalue = None
 
             try:
-                svalue = sv_get(key__id=user_key, user=user)
+                #svalue = sv_get(key__id=user_key, user=user)
+                svalue = sv_get(key_id=user_key_id, user=user)
             except SettingValue.DoesNotExist:
-                if default_key:
-                    #try:
-                        svalue = sv_get(key__id=default_key)
-                    #except SettingValue.DoesNotExist:
-                        #pass
-                    #else:
+                #if default_key:
+                if default_key_id:
+                    try:
+                        #svalue = sv_get(key__id=default_key)
+                        svalue = sv_get(key_id=default_key_id)
+                    except SettingValue.DoesNotExist:
+                        logger.warn('Activesync.UserMobileSyncConfigBlock: unfoundable SettingValue(key="%s") '
+                                    '- Populate has not been runned ?! (if you are running unit tests you can '
+                                    'ignore this message' % default_key_id
+                                   ) #NB useful for creme_config tests
+                    else:
                         svalue.default_config = True
             else:
                 svalue.default_config = False
@@ -156,15 +167,19 @@ class MobileSyncConfigBlock(Block):
     permission    = 'activesync.can_admin'
 
     def detailview_display(self, context):
+        #TODO: group queries ??
         sv_get = SettingValue.objects.get
 
         #Nb: Those values had been populated
-        #server_url    = sv_get(key__id=MAPI_SERVER_URL).value
-        #server_domain = sv_get(key__id=MAPI_DOMAIN).value
-        #server_ssl    = sv_get(key__id=MAPI_SERVER_SSL).value
-        server_url    = sv_get(key__id=MAPI_SERVER_URL)
-        server_domain = sv_get(key__id=MAPI_DOMAIN)
-        server_ssl    = sv_get(key__id=MAPI_SERVER_SSL)
+        ##server_url    = sv_get(key__id=MAPI_SERVER_URL).value
+        ##server_domain = sv_get(key__id=MAPI_DOMAIN).value
+        ##server_ssl    = sv_get(key__id=MAPI_SERVER_SSL).value
+        #server_url    = sv_get(key__id=MAPI_SERVER_URL)
+        #server_domain = sv_get(key__id=MAPI_DOMAIN)
+        #server_ssl    = sv_get(key__id=MAPI_SERVER_SSL)
+        server_url    = sv_get(key_id=MAPI_SERVER_URL)
+        server_domain = sv_get(key_id=MAPI_DOMAIN)
+        server_ssl    = sv_get(key_id=MAPI_SERVER_SSL)
 
         return self._render(self.get_block_template_context(context,
                                                             url=server_url,

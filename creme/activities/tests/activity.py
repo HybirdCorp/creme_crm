@@ -13,11 +13,9 @@ try:
     from django.utils.timezone import now, get_current_timezone, make_naive
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter
+    from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter, SettingValue
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils import create_or_update
-
-    from creme.creme_config.models import SettingKey, SettingValue
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
@@ -149,13 +147,15 @@ class ActivityTestCase(_ActivitiesTestCase):
         efilter = self.get_object_or_fail(EntityFilter, pk=EFILTER_TASKS)
         check_content(efilter, 'Task01', 'Task02')
 
-        sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
-        sv = self.get_object_or_fail(SettingValue, key=sk)
+        #sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
+        #sv = self.get_object_or_fail(SettingValue, key=sk)
+        sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS)
         self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
-        sk = self.get_object_or_fail(SettingKey, pk=SETTING_AUTO_ORGA_SUBJECTS)
-        sv = self.get_object_or_fail(SettingValue, key=sk)
+        #sk = self.get_object_or_fail(SettingKey, pk=SETTING_AUTO_ORGA_SUBJECTS)
+        #sv = self.get_object_or_fail(SettingValue, key=sk)
+        sv = self.get_object_or_fail(SettingValue, key_id=SETTING_AUTO_ORGA_SUBJECTS)
         self.assertIsNone(sv.user)
         self.assertIs(sv.value, True)
 
@@ -447,7 +447,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.user
         me   = user.linked_contact
 
-        sv = self.get_object_or_fail(SettingValue, key=SETTING_AUTO_ORGA_SUBJECTS)
+        #sv = self.get_object_or_fail(SettingValue, key=SETTING_AUTO_ORGA_SUBJECTS)
+        sv = self.get_object_or_fail(SettingValue, key_id=SETTING_AUTO_ORGA_SUBJECTS)
         sv.value = False #we disable the auto subjects feature
         sv.save()
 

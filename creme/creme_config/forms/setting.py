@@ -22,9 +22,9 @@ from django.forms import IntegerField, BooleanField, CharField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.forms import CremeModelForm
-
-from ..models import SettingKey, SettingValue
+from creme.creme_core.models import SettingValue
 
 
 _FIELDS = {
@@ -41,7 +41,7 @@ class SettingForm(CremeModelForm):
 
     class Meta:
         model = SettingValue
-        exclude = ('key', 'user', 'value_str')
+        exclude = ('key_id', 'user', 'value_str')
 
     def __init__(self, *args, **kwargs):
         super(SettingForm, self).__init__(*args, **kwargs)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,9 @@ import logging
 
 from django.conf import settings
 
+from creme.creme_core.models import SettingValue
+
 from .constants import USER_THEME_NAME, USER_TIMEZONE
-from .models import SettingValue, SettingKey
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,8 @@ def get_user_theme(request):
 
     if theme_name is None:
         try:
-            sv = SettingValue.objects.get(user=user, key=USER_THEME_NAME)
+            #sv = SettingValue.objects.get(user=user, key=USER_THEME_NAME)
+            sv = SettingValue.objects.get(user=user, key_id=USER_THEME_NAME)
         except SettingValue.DoesNotExist:
             pass
         else:
@@ -55,9 +57,10 @@ def get_user_theme(request):
                 sv.delete()
 
         if theme_name is None:
-            sk = SettingKey.objects.get(pk=USER_THEME_NAME)
+            #sk = SettingKey.objects.get(pk=USER_THEME_NAME)
             theme_name = settings.DEFAULT_THEME
-            sv = SettingValue.objects.create(user=user, key=sk, value=theme_name)
+            #sv = SettingValue.objects.create(user=user, key=sk, value=theme_name)
+            SettingValue.objects.create(user=user, key_id=USER_THEME_NAME, value=theme_name)
 
         session['usertheme'] = theme_name
 
@@ -65,7 +68,8 @@ def get_user_theme(request):
 
 def get_user_timezone_config(user):
     try:
-        sv = SettingValue.objects.get(user=user, key=USER_TIMEZONE)
+        #sv = SettingValue.objects.get(user=user, key=USER_TIMEZONE)
+        sv = SettingValue.objects.get(user=user, key_id=USER_TIMEZONE)
     except SettingValue.DoesNotExist:
         sv = None
         value = settings.TIME_ZONE

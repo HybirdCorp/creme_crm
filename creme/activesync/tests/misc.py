@@ -3,8 +3,6 @@
 try:
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.creme_config.models import SettingKey, SettingValue
-
     from ..utils import decode_AS_timezone
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

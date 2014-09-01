@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui import (creme_menu, block_registry, button_registry,
         icon_registry, bulk_update_registry, import_form_registry, smart_columns_registry)
 from creme.creme_core.registry import creme_registry
@@ -29,6 +30,7 @@ from .buttons import add_activity_button, add_meeting_button, add_phonecall_butt
 from .constants import REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT
 from .forms.lv_import import get_csv_form_builder
 from .models import Activity
+from .setting_keys import review_key, auto_subjects_key
 
 
 creme_registry.register_app('activities', _(u'Activities'), '/activities')
@@ -63,3 +65,5 @@ smart_columns_registry.register_model(Activity).register_field('title') \
                                                .register_field('start') \
                                                .register_relationtype(REL_OBJ_PART_2_ACTIVITY) \
                                                .register_relationtype(REL_OBJ_ACTIVITY_SUBJECT)
+
+setting_key_registry.register(review_key, auto_subjects_key)

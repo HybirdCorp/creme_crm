@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,14 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.registry import creme_registry
+from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
+from creme.creme_core.registry import creme_registry
 
-from .models import Act, ActObjectivePattern, Strategy
 from .blocks import blocks_list
 from .buttons import complete_goal_button
+from .models import Act, ActObjectivePattern, Strategy
+from .setting_keys import notification_key, orga_approaches_key
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
@@ -53,3 +55,5 @@ reg_icon = icon_registry.register
 reg_icon(Act,                 'images/commercial_%(size)s.png')
 reg_icon(ActObjectivePattern, 'images/commercial_%(size)s.png')
 reg_icon(Strategy,            'images/commercial_%(size)s.png')
+
+setting_key_registry.register(notification_key, orga_approaches_key)

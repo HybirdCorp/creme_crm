@@ -4,8 +4,8 @@ try:
     import random
 
     from creme.creme_core.tests.base import CremeTestCase
-
-    from creme.creme_config.models import SettingValue, SettingKey
+    from creme.creme_core.core.setting_key import SettingKey, setting_key_registry
+    from creme.creme_core.models import SettingValue
 
     from ..cipher import Cipher
 except Exception as e:
@@ -58,14 +58,15 @@ class CipherTestCase(CremeTestCase):
     def test_ciphered_setting_value01(self):
         self.login()
         password = "my password"
-        skey_id = 'CipherTestCase-test_ciphered_setting_value01'
-        skey = SettingKey.objects.create(id=skey_id, type=SettingKey.STRING)
-        sv = SettingValue.objects.get_or_create(key=skey, user=self.user)[0]
-        #self.assertEqual(1, SettingValue.objects.count())
-        self.assertEqual(1, SettingValue.objects.filter(key=skey).count())
+        skey_id = 'activesync-test_ciphered_setting_value01'
+        skey = SettingKey(id=skey_id, type=SettingKey.STRING, app_label='creme_config', description='')
+        setting_key_registry.register(skey) #TODO: clean in tearDown()...
+
+        sv = SettingValue.create_if_needed(key=skey, user=self.user, value='val')
+        self.assertEqual(1, SettingValue.objects.filter(key_id=skey_id).count())
 
         sv.value = Cipher.encrypt_for_db(password)
         sv.save()
 
-        sv = SettingValue.objects.get(key=skey, user=self.user)
+        sv = SettingValue.objects.get(key_id=skey_id, user=self.user)
         self.assertEqual(password, Cipher.decrypt_from_db(sv.value))

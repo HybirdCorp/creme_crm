@@ -311,7 +311,7 @@ if 'creme.billing' in settings.INSTALLED_APPS:
     from django.db.models.signals import post_save, post_delete
     from django.dispatch import receiver
 
-    from creme.creme_config.models import SettingValue
+    from creme.creme_core.models import SettingValue
 
     from creme.billing.models import Quote
 
@@ -337,7 +337,7 @@ if 'creme.billing' in settings.INSTALLED_APPS:
 
     def use_current_quote():
         try:
-            use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+            use_current_quote = SettingValue.objects.get(key_id=SETTING_USE_CURRENT_QUOTE).value
         except SettingValue.DoesNotExist:
             logger.critical("Populate for opportunities has not been run !")
             use_current_quote = False

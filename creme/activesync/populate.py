@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,60 +19,13 @@
 ################################################################################
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import SettingValue
 
-from creme.creme_config.models import SettingKey, SettingValue
-
-from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
-                        USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
-                        USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
-                        USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
+from .setting_keys import mapi_server_url_key, mapi_domain_key, mapi_server_ssl_key
 
 
 class Populator(BasePopulator):
     def populate(self):
-        sk = SettingKey.create(pk=MAPI_SERVER_URL,
-                               description="", hidden=True,
-                               app_label='activesync', type=SettingKey.STRING
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value="")
-
-        sk = SettingKey.create(pk=MAPI_DOMAIN,
-                               description="", hidden=True,
-                               app_label='activesync', type=SettingKey.STRING
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value="")
-
-        sk = SettingKey.create(pk=MAPI_SERVER_SSL,
-                               description="", hidden=True,
-                               app_label='activesync', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=False)
-
-        SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_URL,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.STRING
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_DOMAIN,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.STRING
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_SSL,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.BOOL
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_LOGIN,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.STRING
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_PWD,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.STRING
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_ACTIVITIES,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.BOOL
-                         )
-        SettingKey.create(pk=USER_MOBILE_SYNC_CONTACTS,
-                          description="", hidden=True,
-                          app_label='activesync', type=SettingKey.BOOL
-                         )
+        SettingValue.create_if_needed(key=mapi_server_url_key, user=None, value='')
+        SettingValue.create_if_needed(key=mapi_domain_key,     user=None, value='')
+        SettingValue.create_if_needed(key=mapi_server_ssl_key, user=None, value=False)

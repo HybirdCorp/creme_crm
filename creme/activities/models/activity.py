@@ -27,9 +27,7 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, Relation
-
-from creme.creme_config.models import SettingValue
+from creme.creme_core.models import CremeEntity, Relation, SettingValue
 
 from ..constants import *
 from .calendar import Calendar
@@ -201,7 +199,8 @@ END:VEVENT
 
         if enabled is None:
             try:
-                sv = SettingValue.objects.get(key=SETTING_AUTO_ORGA_SUBJECTS)
+                #sv = SettingValue.objects.get(key=SETTING_AUTO_ORGA_SUBJECTS)
+                sv = SettingValue.objects.get(key_id=SETTING_AUTO_ORGA_SUBJECTS)
             except SettingValue.DoesNotExist:
                 logger.critical('SettingValue with key=%s cannot be found !'
                                 ' ("creme_populate" command has not been runned correctly)',
@@ -217,7 +216,8 @@ END:VEVENT
 
     @staticmethod
     def display_review():
-        return SettingValue.objects.get(key=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
+        #return SettingValue.objects.get(key=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
+        return SettingValue.objects.get(key_id=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
 
     def count_lines_display_block(self):
         total=1

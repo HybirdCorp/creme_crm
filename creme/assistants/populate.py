@@ -21,14 +21,13 @@
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation
+from creme.creme_core.models import SettingValue, BlockDetailviewLocation, BlockPortalLocation
 from creme.creme_core.utils import create_if_needed
-
-from creme.creme_config.models import SettingKey, SettingValue
 
 from .blocks import alerts_block, memos_block, todos_block, messages_block
 from .constants import USERMESSAGE_PRIORITIES, MIN_HOUR_4_TODO_REMINDER
 from .models import UserMessagePriority
+from .setting_keys import todo_reminder_key
 
 
 class Populator(BasePopulator):
@@ -51,8 +50,4 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
         BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=400)
 
-        sk = SettingKey.create(pk=MIN_HOUR_4_TODO_REMINDER,
-                               description=_('Minimum hour to send the mails related to Todos'),
-                               app_label='assistants', type=SettingKey.HOUR,
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=9)
+        SettingValue.create_if_needed(key=todo_reminder_key, user=None, value=9)

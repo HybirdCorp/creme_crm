@@ -11,11 +11,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import (RelationType, Currency, Vat,
+    from creme.creme_core.models import (RelationType, Currency, Vat, SettingValue,
             CremePropertyType, CremeProperty, BlockDetailviewLocation)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-
-    from creme.creme_config.models import SettingValue
 
     from creme.persons.models import Contact, Organisation, Address
 
@@ -147,6 +145,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         CremeTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'billing')
         cls.populate('creme_config', 'billing')
+        cls.autodiscover()
 
     def _aux_test_csv_import(self, model, status_model):
         count = model.objects.count()
@@ -376,7 +375,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
                         )
 
     def _get_setting_value(self):
-        return self.get_object_or_fail(SettingValue, key__pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+        return self.get_object_or_fail(SettingValue, key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
     def test_block_orga01(self):
         self.login()

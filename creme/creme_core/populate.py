@@ -24,14 +24,12 @@ import logging
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme.creme_config.models import SettingKey, SettingValue
-
-from .models import *
-from .utils import create_if_needed
-from .constants import *
 from .blocks import properties_block, relations_block, customfields_block, history_block
+from .constants import *
 from .management.commands.creme_populate import BasePopulator
-
+from .models import *
+from .setting_keys import block_opening_key, block_showempty_key, currency_symbol_key
+from .utils import create_if_needed
 
 logger = logging.getLogger(__name__)
 
@@ -71,23 +69,9 @@ class Populator(BasePopulator):
                 root.is_staff = False
                 root.save()
 
-        sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
-                               description=_(u"By default, are blocks open ?"),
-                               app_label='creme_core', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
-
-        sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                               description=_(u"By default, are empty fields displayed ?"),
-                               app_label='creme_core', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
-
-        sk = SettingKey.create(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL,
-                               description=_(u"Display the currency local symbol (ex: €) ? If no the international symbol will be used (ex: EUR)"),
-                               app_label='creme_core', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
+        SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
+        SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
 
         #BlockPortalLocation.create_empty_config() #default portal
         #BlockPortalLocation.create_empty_config('creme_core') #home

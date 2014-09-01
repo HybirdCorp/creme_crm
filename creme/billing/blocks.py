@@ -24,10 +24,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import SettingValue, CremeEntity, Relation
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-
-from creme.creme_config.models.setting import SettingValue
 
 from creme.persons.models import Contact, Organisation
 from creme.persons.blocks import AddressBlock
@@ -224,7 +222,7 @@ class PaymentInformationBlock(QuerysetBlock):
         has_to_be_displayed = True
 
         try:
-            if SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
+            if SettingValue.objects.get(key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value \
                and not organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME).exists():
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:

@@ -2,6 +2,7 @@
 
 from .entity import *
 from .relation import *
+from .setting_value import *
 from .header_filter import *
 from .entity_filter import *
 from .auth import *

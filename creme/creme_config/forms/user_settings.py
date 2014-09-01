@@ -26,11 +26,11 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeForm
+from creme.creme_core.models import SettingValue
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.media import get_current_theme
 
 from ..constants import USER_THEME_NAME, USER_TIMEZONE
-from ..models import SettingValue, SettingKey
 from ..utils import get_user_timezone_config
 
 
@@ -47,11 +47,14 @@ class UserThemeForm(CremeForm):
     def save(self, *args, **kwargs):
         theme = self.cleaned_data['theme']
 
+        #TODO: SettingValue.objects.get_or_create (update_model_instance if 'not created')
         try:
-            sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
+            #sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
+            sv = SettingValue.objects.get(user=self.user, key_id=USER_THEME_NAME)
         except SettingValue.DoesNotExist:
-            sk = SettingKey.objects.get(pk=USER_THEME_NAME)
-            SettingValue.objects.create(user=self.user, key=sk, value=theme)
+            #sk = SettingKey.objects.get(pk=USER_THEME_NAME)
+            #SettingValue.objects.create(user=self.user, key=sk, value=theme)
+            SettingValue.objects.create(user=self.user, key_id=USER_THEME_NAME, value=theme)
         else:
             update_model_instance(sv, value=theme)
 
@@ -74,8 +77,9 @@ class UserTimeZoneForm(CremeForm):
         time_zone = self.cleaned_data['time_zone']
 
         if not self.setting_value:
-            sk = SettingKey.objects.get(pk=USER_TIMEZONE)
-            SettingValue.objects.create(user=self.user, key=sk, value=time_zone)
+            #sk = SettingKey.objects.get(pk=USER_TIMEZONE)
+            #SettingValue.objects.create(user=self.user, key=sk, value=time_zone)
+            SettingValue.objects.create(user=self.user, key_id=USER_TIMEZONE, value=time_zone)
         else:
             update_model_instance(self.setting_value, value=time_zone)
 

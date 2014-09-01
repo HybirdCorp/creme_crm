@@ -12,11 +12,9 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
-                                      CremeProperty, SetCredentials, Currency)
+            CremeProperty, SetCredentials, Currency, SettingValue)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
-
-    from creme.creme_config.models import SettingKey, SettingValue
 
     from creme.documents.models import Document
 
@@ -155,9 +153,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        keys = SettingKey.objects.filter(pk=SETTING_USE_CURRENT_QUOTE)
-        self.assertEqual(1, len(keys))
-        self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
+        self.assertEqual(1, SettingValue.objects.filter(key_id=SETTING_USE_CURRENT_QUOTE).count())
 
         #contribution to activities
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
@@ -775,7 +771,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
 
     def _set_quote_config(self, use_current_quote):
-        sv = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
+        sv = SettingValue.objects.get(key_id=SETTING_USE_CURRENT_QUOTE)
         sv.value = use_current_quote
         sv.save()
 

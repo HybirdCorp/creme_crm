@@ -19,67 +19,39 @@
 ################################################################################
 
 from django.contrib.auth.models import User
-from django.db.models import (Model, CharField, TextField,
-        PositiveSmallIntegerField, BooleanField, ForeignKey)
+from django.db.models import Model, CharField, TextField, ForeignKey
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.utils import bool_from_str, bool_as_html
+from ..core.setting_key import SettingKey, setting_key_registry
+from ..utils import bool_as_html
 
 
-#TODO: move to creme_core
+#TODO: move to utils
 def print_hour(value):
     return _('%sh') % value
 
 
-class SettingKey(Model):
-    id          = CharField(primary_key=True, max_length=100)
-    description = TextField()
-    app_label   = CharField(max_length=100, blank=True, null=True)
-    type        = PositiveSmallIntegerField()
-    hidden      = BooleanField(default=False)
-
-    STRING = 1
-    INT    = 2
-    BOOL   = 3
-    HOUR   = 10
-
-    _CASTORS = {
-            STRING: unicode,
-            INT:    int,
-            BOOL:   bool_from_str,
-            HOUR:   int, #TODO: validate 0 =< x =< 23  ??
-        }
-
-    class Meta:
-        app_label = "creme_config"
-
-    def cast(self, value_str):
-        return self._CASTORS[self.type](value_str)
-
-    @staticmethod
-    def create(pk, description, app_label, type, hidden=False):
-        from creme.creme_core.utils import create_or_update
-
-        sk = create_or_update(SettingKey, pk=pk, description=description,
-                              app_label=app_label, type=type, hidden=hidden,
-                             )
-        #sk.settingvalue_set.all().delete()
-
-        return sk
-
 #TODO: Add a null and blank attribute ?? And a unique together with key, user
 class SettingValue(Model):
-    key       = ForeignKey(SettingKey)
+    key_id    = CharField(max_length=100) #see SettingKey.id
     user      = ForeignKey(User, blank=True, null=True)
     value_str = TextField()
 
     class Meta:
-        app_label = "creme_config"
+        app_label = 'creme_core'
 
     _HTML_PRINTERS = {
             SettingKey.BOOL:   bool_as_html,
             SettingKey.HOUR:   print_hour,
         }
+
+    @property
+    def key(self):
+        return setting_key_registry[self.key_id]
+
+    @key.setter
+    def key(self, skey):
+        self.key_id = skey.id
 
     @property
     def value(self):
@@ -101,12 +73,6 @@ class SettingValue(Model):
 
     @staticmethod
     def create_if_needed(key, user, value):
-        #try:
-            #sv = SettingValue.objects.get(key=key, user=user)
-        #except SettingValue.DoesNotExist:
-            #sv = SettingValue.objects.create(key=key, user=user, value=value)
-
-        #return sv
-        return SettingValue.objects.get_or_create(key=key, user=user,
+        return SettingValue.objects.get_or_create(key_id=key.id, user=user,
                                                   defaults={'value': value},
                                                  )[0]

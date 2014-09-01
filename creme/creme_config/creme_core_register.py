@@ -20,10 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.registry import creme_registry
+from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui import creme_menu, block_registry
+from creme.creme_core.registry import creme_registry
 
 from .blocks import blocks_list
+from .setting_keys import theme_key, timezone_key
 
 
 creme_registry.register_app('creme_config', _(u'General configuration') , '/creme_config')
@@ -42,3 +44,5 @@ reg_item('/creme_config/user/portal/',          _(u'Users settings'),           
 reg_item('/creme_config/role/portal/',          _(u'Roles and credentials settings'),  'creme_config')
 
 block_registry.register(*blocks_list)
+
+setting_key_registry.register(theme_key, timezone_key)

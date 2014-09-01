@@ -25,10 +25,9 @@ from django.core.management.color import no_style
 from django.core.management.sql import sql_delete
 from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
-from creme.creme_core.models import CremeEntity, PreferedMenuItem
+from creme.creme_core.core.setting_key import setting_key_registry
+from creme.creme_core.models import CremeEntity, PreferedMenuItem, SettingValue
 from creme.creme_core.utils import split_filter
-
-from creme.creme_config.models import SettingKey, SettingValue
 
 
 MAX_ERRORS = 15 #maximum errors count before aborting #TODO: as argument
@@ -97,8 +96,10 @@ class Command(AppCommand):
 
         PreferedMenuItem.objects.filter(url__startswith='/%s/' % app_label).delete()
 
-        SettingValue.objects.filter(key__app_label=app_label).delete()
-        SettingKey.objects.filter(app_label=app_label).delete()
+        #SettingValue.objects.filter(key__app_label=app_label).delete()
+        #SettingKey.objects.filter(app_label=app_label).delete()
+        skey_ids = [skey.id for skey in setting_key_registry if skey.app_label == app_label]
+        SettingValue.objects.filter(key_id__in=skey_ids).delete()
 
         if 'south' not in settings.INSTALLED_APPS:
             self.stderr.write('ERROR: "south" seems to be not installed (it should be...). Continuing anyway.\n')

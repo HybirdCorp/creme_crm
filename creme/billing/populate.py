@@ -27,23 +27,21 @@ from django.utils.translation import ugettext as _, pgettext
 from creme.creme_core.core.entity_cell import (EntityCellRegularField,
         EntityCellFunctionField, EntityCellRelation)
 from creme.creme_core.models import (RelationType, SearchConfigItem,
-        ButtonMenuItem, HeaderFilter, EntityFilter,
+        ButtonMenuItem, HeaderFilter, EntityFilter, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, EntityFilterCondition)
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.creme_config.models import SettingKey, SettingValue
-
 from creme.persons.models import Organisation, Contact
 
 from creme.products.models import Product, Service
 
-from .models import *
 from .constants import *
 from .blocks import *
 from .buttons import *
-
+from .models import *
+from .setting_keys import payment_info_key
 
 logger = logging.getLogger(__name__)
 
@@ -220,11 +218,7 @@ class Populator(BasePopulator):
         for model in models:
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
-        sk = SettingKey.create(pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA,
-                               description=_(u"Display payment information block only on the detailview of organisations managed by Creme"),
-                               app_label='billing', type=SettingKey.BOOL
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=payment_info_key, user=None, value=True)
 
         if 'creme.reports' in settings.INSTALLED_APPS:
             logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')

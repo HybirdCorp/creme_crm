@@ -25,8 +25,7 @@ from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeForm
-
-from creme.creme_config.models import SettingValue
+from creme.creme_core.models import SettingValue
 
 from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
 
@@ -42,10 +41,13 @@ class MobileSyncForm(CremeForm):
     ssl    = BooleanField(label=_(u"Is secure"), required=False)
 
     def __init__(self, *args, **kwargs):
-        get_sv = SettingValue.objects.get
-        self.server_url    = url    = get_sv(key__id=MAPI_SERVER_URL)
-        self.server_domain = domain = get_sv(key__id=MAPI_DOMAIN)
-        self.server_ssl    = ssl    = get_sv(key__id=MAPI_SERVER_SSL)
+        get_sv = SettingValue.objects.get #TODO: group queries ?
+        #self.server_url    = url    = get_sv(key__id=MAPI_SERVER_URL)
+        #self.server_domain = domain = get_sv(key__id=MAPI_DOMAIN)
+        #self.server_ssl    = ssl    = get_sv(key__id=MAPI_SERVER_SSL)
+        self.server_url    = url    = get_sv(key_id=MAPI_SERVER_URL)
+        self.server_domain = domain = get_sv(key_id=MAPI_DOMAIN)
+        self.server_ssl    = ssl    = get_sv(key_id=MAPI_SERVER_SSL)
 
         initial = kwargs['initial'] or {}
         initial.update(url=url.value, domain=domain.value, ssl=ssl.value)

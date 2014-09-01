@@ -458,14 +458,12 @@ class CurrencyFormatTestCase(CremeTestCase):
         from decimal import Decimal
 
         from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
-        from creme.creme_core.models import Currency
+        from creme.creme_core.models import Currency, SettingValue
         from creme.creme_core.utils.currency_format import currency
 
-        from creme.creme_config.models import SettingKey, SettingValue
-
-
-        sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
-        sv = self.get_object_or_fail(SettingValue, key=sk)
+        #sk = self.get_object_or_fail(SettingKey, pk=DISPLAY_CURRENCY_LOCAL_SYMBOL)
+        #sv = self.get_object_or_fail(SettingValue, key=sk)
+        sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_CURRENCY_LOCAL_SYMBOL)
         self.assertTrue(sv.value)
 
         result1 = currency(3)

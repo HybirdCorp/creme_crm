@@ -36,8 +36,7 @@ from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
 from .relation import RelationType
-
-from creme.creme_config.models import SettingValue
+from .setting_value import SettingValue
 
 
 __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation',
@@ -417,13 +416,24 @@ class BlockState(CremeModel):
         try:
             return BlockState.objects.get(block_id=block_id, user=user)
         except BlockState.DoesNotExist:
-            states = SettingValue.objects.filter(key__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS])
+            #states = SettingValue.objects.filter(key__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS])
+            states = {sv.key_id: sv.value
+                        for sv in SettingValue.objects.filter(key_id__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
+                                                                          SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+                                                                         ]
+                                                             )
+                     }
 
-            #TODO: optimisation does not work
-            is_default_open             = states.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-            is_default_fields_displayed = states.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+            #todo: optimisation does not work
+            #is_default_open             = states.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+            #is_default_fields_displayed = states.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
 
-            return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
+            #return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
+
+            return BlockState(block_id=block_id, user=user,
+                              is_open=states[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN],
+                              show_empty_fields=states[SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS],
+                             )
 
     @staticmethod
     def get_for_block_ids(block_ids, user):
@@ -434,8 +444,11 @@ class BlockState(CremeModel):
         """
         states = {}
 
-        is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-        is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value#TODO: Method for get_default_states?
+        #is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+        #is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value#TODO: Method for get_default_states?
+        get_sv = SettingValue.objects.get #TODO: group queries ??
+        is_default_open             = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+        is_default_fields_displayed = get_sv(key_id=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value #TODO: Method for get_default_states?
 
         for state in BlockState.objects.filter(block_id__in=block_ids, user=user):
             states[state.block_id] = state

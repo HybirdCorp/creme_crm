@@ -21,18 +21,16 @@
 import logging
 
 from django.conf import settings
-from django.utils.translation import ugettext as _, pgettext
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
-        BlockDetailviewLocation, BlockPortalLocation,
+        BlockDetailviewLocation, BlockPortalLocation, SettingValue,
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
-
-from creme.creme_config.models import SettingKey, SettingValue
 
 from creme.persons.models import Contact, Organisation
 
@@ -41,6 +39,7 @@ from .blocks import (participants_block, subjects_block, future_activities_block
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import *
 from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
+from .setting_keys import review_key, auto_subjects_key
 
 
 logger = logging.getLogger(__name__)
@@ -156,14 +155,16 @@ class Populator(BasePopulator):
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
 
-        sk = SettingKey.create(pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
-                               description=_(u"Display minutes information in activities blocks"),
-                               app_label='activities', type=SettingKey.BOOL,
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
+        #sk = SettingKey.create(pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
+                               #description=_(u"Display minutes information in activities blocks"),
+                               #app_label='activities', type=SettingKey.BOOL,
+                              #)
+        #SettingValue.create_if_needed(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=review_key, user=None, value=True)
 
-        sk = SettingKey.create(pk=SETTING_AUTO_ORGA_SUBJECTS,
-                               description=_(u"Add automatically the organisations of the participants as activities subjects"),
-                               app_label='activities', type=SettingKey.BOOL,
-                              )
-        SettingValue.create_if_needed(key=sk, user=None, value=True)
+        #sk = SettingKey.create(pk=SETTING_AUTO_ORGA_SUBJECTS,
+                               #description=_(u"Add automatically the organisations of the participants as activities subjects"),
+                               #app_label='activities', type=SettingKey.BOOL,
+                              #)
+        #SettingValue.create_if_needed(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=auto_subjects_key, user=None, value=True)

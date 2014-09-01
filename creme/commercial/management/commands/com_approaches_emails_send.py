@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        from creme.creme_config.models.setting import SettingValue
+        from creme.creme_core.models import SettingValue
         from creme.creme_core.models.lock import Mutex, MutexLockedException
 
         from creme.commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         except MutexLockedException:
             print 'A process is already running'
         else:
-            if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+            if SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
                 activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
 
                 emails = []

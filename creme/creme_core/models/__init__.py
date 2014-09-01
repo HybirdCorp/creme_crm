@@ -3,6 +3,8 @@
 from .base import CremeModel, CremeAbstractEntity#, CremeEntityManager
 from .entity import CremeEntity
 
+from .setting_value import SettingValue
+
 from .relation import RelationType, Relation, SemiFixedRelationType
 from .creme_property import CremePropertyType, CremeProperty
 from .custom_field import *
