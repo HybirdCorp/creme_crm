@@ -26,7 +26,8 @@ try:
     from creme.opportunities.models import Opportunity, SalesPhase
 
     from ..blocks import approaches_block
-    from ..constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+    from ..constants import (DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
+            IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
     from ..management.commands.com_approaches_emails_send import Command as EmailsSendCommand
     from ..models import CommercialApproach
 except Exception as e:
@@ -436,7 +437,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
     def test_command08(self):
         "DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW setting"
-        sv = self.get_object_or_fail(SettingValue, key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
+        sv = self.get_object_or_fail(SettingValue, key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)
         sv.value = False
         sv.save()
 
