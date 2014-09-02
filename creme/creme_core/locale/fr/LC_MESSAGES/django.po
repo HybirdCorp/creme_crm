@@ -1274,7 +1274,7 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 
 #: models/entity_filter.py:166
 msgid "A condition can not reference its own filter."
-msgstr "Une conditionne peut pas réféerencer son propre filtre."
+msgstr "Une condition ne peut pas référencer son propre filtre."
 
 #: models/entity_filter.py:169
 msgid "There is a cycle with a subfilter."
