@@ -63,7 +63,7 @@ class Command(BaseCommand):
         from creme.creme_core.models import SettingValue
         from creme.creme_core.models.lock import Mutex, MutexLockedException
 
-        from creme.commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+        from creme.commercial.constants import IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
         from creme.commercial.models import CommercialApproach
 
         from creme.opportunities.constants import REL_SUB_TARGETS
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         except MutexLockedException:
             print 'A process is already running'
         else:
-            if SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+            if SettingValue.objects.get(key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED).value:
                 activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
 
                 emails = []
