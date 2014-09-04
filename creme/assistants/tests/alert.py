@@ -193,11 +193,11 @@ class AlertTestCase(AssistantsTestCase):
         reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
         now_value = now()
 
-        create_alert = partial(Alert.objects.create, creme_entity=self.entity, user=self.user,
-                               trigger_date=now_value - timedelta(minutes=70),
+        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
+                               user=self.user, trigger_date=now_value,
                               )
-        alert1 = create_alert(title='Alert#1')
-        create_alert(title='Alert#2', trigger_date=now_value - timedelta(minutes=50))
+        alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
+        create_alert(title='Alert#2',          trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
 
         def remind():
@@ -209,7 +209,7 @@ class AlertTestCase(AssistantsTestCase):
 
         reminder = reminders[0]
         self.assertEqual(alert1, reminder.object_of_reminder)
-        self.assertEqual(1,     reminder.ident)
+        self.assertEqual(1,      reminder.ident)
         self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
 
         messages = mail.outbox
