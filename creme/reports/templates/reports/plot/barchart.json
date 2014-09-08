@@ -42,10 +42,6 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
         "yaxis": {
-            {% if rgraph.is_count %}
-            "tickInterval": 1,
-            "min": 0.0,
-            {% endif %}
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
             "tickOptions": {
                 "formatString": {% if rgraph.is_count %}"%d"{% else %}"%d"{% endif %},
