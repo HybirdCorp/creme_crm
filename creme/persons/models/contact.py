@@ -89,10 +89,12 @@ class Contact(CremeEntity):
         verbose_name_plural = _(u'Contacts')
 
     def __unicode__(self):
-        if self.civility:
+        civ = self.civility
+
+        if civ and civ.shortcut:
 #            return u'%s %s %s' % (self.civility.shortcut, self.first_name, self.last_name)
             return ugettext('%(civility)s %(first_name)s %(last_name)s') % {
-                        'civility':   self.civility.shortcut,
+                        'civility':   civ.shortcut,
                         'first_name': self.first_name,
                         'last_name':  self.last_name,
                     }

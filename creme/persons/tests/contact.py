@@ -37,6 +37,37 @@ class ContactTestCase(_BaseTestCase):
     def _build_edit_url(self, contact):
         return '/persons/contact/edit/%s' % contact.id
 
+    def test_unicode(self):
+        first_name = 'Spike'
+        last_name  = 'Spiegel'
+        build_contact = partial(Contact, last_name=last_name)
+        self.assertEqual(last_name, unicode(build_contact()))
+        self.assertEqual(last_name, unicode(build_contact(first_name='')))
+        self.assertEqual(_('%(first_name)s %(last_name)s') % {
+                                'first_name': first_name,
+                                'last_name':  last_name,
+                            },
+                         unicode(build_contact(first_name=first_name))
+                        )
+
+        captain = Civility.objects.create(title='Captain') #no shortcut
+        self.assertEqual(_('%(first_name)s %(last_name)s') % {
+                                'first_name': first_name,
+                                'last_name':  last_name,
+                            },
+                         unicode(build_contact(first_name=first_name, civility=captain))
+                        )
+
+        captain.shortcut = shortcut = 'Cpt'
+        captain.save()
+        self.assertEqual(_('%(civility)s %(first_name)s %(last_name)s') % {
+                            'civility':   shortcut,
+                            'first_name': first_name,
+                            'last_name':  last_name,
+                            },
+                         unicode(build_contact(first_name=first_name, civility=captain))
+                        )
+
     def test_createview01(self):
         self.login()
 
