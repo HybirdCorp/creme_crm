@@ -71,6 +71,17 @@ ArrayTools = {
         this.set(data, prev, next_val);
 
         return data;
+    },
+
+    insertOrReplace: function(data, replaceIndex, insertIndex, value)
+    {
+        if (insertIndex !== undefined) {
+            data.splice(insertIndex, 0, value);
+        } else {
+            ArrayTools.set(data, replaceIndex, value);
+        }
+
+        return data;
     }
 }
 
@@ -159,14 +170,10 @@ GeneratorTools = {
 
         format: function(format, targetIndex)
         {
-            return function(value, index, data) {
+            return function(value, index, data)
+            {
                 var array = value.slice();
-
-                if (targetIndex !== undefined) {
-                    array.splice(targetIndex, 0, format.format(value));
-                } else {
-                    ArrayTools.set(array, format.format(value));
-                }
+                array.splice(targetIndex !== undefined ? targetIndex : value.length, 0, format.format(value));
 
                 return array;
             }
