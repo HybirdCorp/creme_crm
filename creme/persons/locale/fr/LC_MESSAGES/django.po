@@ -474,7 +474,7 @@ msgid "A user is associated with this contact."
 msgstr "Un utilisateur est relié à ce contact."
 
 #: models/contact.py:113
-msgid "This Contact is related to a user and must have a fisrt name."
+msgid "This Contact is related to a user and must have a first name."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 
 #: models/contact.py:116

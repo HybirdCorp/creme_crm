@@ -76,7 +76,7 @@ class Contact(CremeEntity):
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
     #objects = CremeEntityManager()
-    # Needed because we expand it's function fields in other apps (ie. billing)
+    # Needed because we expand its function fields in other apps (ie. billing)
     #TODO: refactor
     function_fields = CremeEntity.function_fields.new()
 
@@ -115,7 +115,7 @@ class Contact(CremeEntity):
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                raise ValidationError(ugettext('This Contact is related to a user and must have a fisrt name.'))
+                raise ValidationError(ugettext('This Contact is related to a user and must have a first name.'))
 
             if not self.email:
                 raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))

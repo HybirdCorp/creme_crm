@@ -267,7 +267,7 @@ class ContactTestCase(_BaseTestCase):
             contact.full_clean()
 
         self.assertIsInstance(cm.exception, ValidationError)
-        self.assertEqual([_('This Contact is related to a user and must have a fisrt name.')],
+        self.assertEqual([_('This Contact is related to a user and must have a first name.')],
                          cm.exception.messages
                         )
 
