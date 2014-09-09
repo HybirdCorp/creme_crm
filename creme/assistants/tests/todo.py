@@ -30,6 +30,14 @@ __all__ = ('TodoTestCase',)
 
 
 class TodoTestCase(AssistantsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        AssistantsTestCase.setUpClass()
+        cls.original_send_messages = EmailBackend.send_messages
+
+    def tearDown(self):
+        EmailBackend.send_messages = self.original_send_messages
+
     def _build_add_url(self, entity):
         return '/assistants/todo/add/%s/' % entity.id
 
@@ -70,6 +78,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
         self.assertLess((now() - todo.creation_date).seconds, 10)
         self.assertIsNone(todo.deadline)
+        self.assertIs(todo.reminded, False)
 
         self.assertEqual(title, unicode(todo))
 
@@ -329,6 +338,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(todo1, reminder.object_of_reminder)
         self.assertEqual(1,     reminder.ident)
         self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+        self.assertTrue(self.refresh(todo1).reminded)
+        self.assertFalse(self.refresh(todo4).reminded)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -372,7 +383,7 @@ class TodoTestCase(AssistantsTestCase):
         reminder_ids = list(DateReminder.objects.values_list('id', flat=True))
 
         ToDo.objects.create(title='Todo#1', deadline=now_value,
-                            creme_entity=self.entity, user=self.user
+                            creme_entity=self.entity, user=self.user,
                            )
 
         self.send_messages_called = False
@@ -381,13 +392,10 @@ class TodoTestCase(AssistantsTestCase):
             self.send_messages_called = True
             raise Exception('Sent error')
 
-        original_send_messages = EmailBackend.send_messages
         EmailBackend.send_messages = send_messages
 
         ReminderCommand().handle(verbosity=0)
 
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
-
-        #TODO: in teardDown...
-        EmailBackend.send_messages = original_send_messages
+        #self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
