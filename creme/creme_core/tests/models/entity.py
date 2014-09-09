@@ -42,8 +42,8 @@ class EntityTestCase(CremeTestCase):
             entity = CremeEntity.objects.create(user=self.user)
 
         now_value = now()
-        self.assertLess((now_value - entity.created).seconds,  10)
-        self.assertLess((now_value - entity.modified).seconds, 10)
+        self.assertDatetimesAlmostEqual(now_value, entity.created)
+        self.assertDatetimesAlmostEqual(now_value, entity.modified)
 
     def test_property01(self): #TODO: create a test case for CremeProperty ???
         text = 'TEXT'

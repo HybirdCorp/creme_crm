@@ -1698,10 +1698,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         initial_start = start_f.initial
         self.assertIsInstance(initial_start, datetime)
-
-        self.assertGreaterEqual(initial_start, today)
-        self.assertLessEqual(initial_start, datetime.today())
-        #self.assertLessEqual(initial_start, now())
+        self.assertDatetimesAlmostEqual(datetime.today().replace(second=0, microsecond=0),
+                                        initial_start
+                                       )
 
         initial_end = end_f.initial
         self.assertIsNone(initial_end)

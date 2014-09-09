@@ -76,7 +76,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(1, ToDo.objects.count())
         self.assertEqual(entity.id,             todo.entity_id)
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
-        self.assertLess((now() - todo.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), todo.creation_date)
         self.assertIsNone(todo.deadline)
         self.assertIs(todo.reminded, False)
 
@@ -334,7 +334,7 @@ class TodoTestCase(AssistantsTestCase):
         reminder = reminders[0]
         self.assertEqual(todo1, reminder.object_of_reminder)
         self.assertEqual(1,     reminder.ident)
-        self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+        self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         self.assertTrue(self.refresh(todo1).reminded)
         self.assertFalse(self.refresh(todo4).reminded)
 

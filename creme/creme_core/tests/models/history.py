@@ -531,8 +531,8 @@ about this fantastic animation studio."""
         self.assertEqual(unicode(rei),      hline.entity_repr)
         self.assertEqual(TYPE_RELATION_DEL, hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
-        self.assertLess((now() - hline.date).seconds, 1)
         self.assertEqual(True,              hline.line_type.is_about_relation)
+        self.assertDatetimesAlmostEqual(now(), hline.date)
 
         hline_sym = hlines[-1]
         self.assertEqual(nerv,             hline_sym.entity.get_real_entity())

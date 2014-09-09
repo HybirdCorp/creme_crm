@@ -211,7 +211,7 @@ class AlertTestCase(AssistantsTestCase):
         reminder = reminders[0]
         self.assertEqual(alert1, reminder.object_of_reminder)
         self.assertEqual(1,      reminder.ident)
-        self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+        self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         self.assertTrue(self.refresh(alert1).reminded)
         self.assertFalse(self.refresh(alert2).reminded)
 

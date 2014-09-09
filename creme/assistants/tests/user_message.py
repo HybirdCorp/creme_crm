@@ -80,7 +80,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(self.user, message.sender)
         self.assertEqual(user01,    message.recipient)
 
-        self.assertLess((now() - message.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), message.creation_date)
 
         self.assertEqual(title, unicode(message))
 
@@ -245,7 +245,7 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(user, message.sender)
         #self.assertEqual(user, message.recipient)
-        self.assertLess((now() - message.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), message.creation_date)
         self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
         self.assertFalse(message.email_sent)
         self.assertEqual(meeting.id,             message.entity_id)

@@ -71,7 +71,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertEqual(description, commapp.description)
         self.assertEqual(entity.id,   commapp.entity_id)
 
-        self.assertLess((now() - commapp.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), commapp.creation_date)
         self.assertEqual(title, unicode(commapp))
 
     def test_merge(self):
