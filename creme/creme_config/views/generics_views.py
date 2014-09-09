@@ -18,20 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
 from creme.creme_core.auth.decorators import login_required#, permission_required
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
-from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 
-from ..registry import config_registry
 from ..blocks import generic_models_block
+from ..registry import config_registry
 
 
 def _get_appconf(user, app_name):
@@ -108,16 +108,16 @@ def portal_model(request, app_name, model_name):
 
 @login_required
 def delete_model(request, app_name, model_name):
-    model   = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
-    object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+    model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
+    instance = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    if not getattr(object_, 'is_custom', True):
+    if not getattr(instance, 'is_custom', True):
         raise Http404('Can not delete (is not custom)')
 
     try:
-        object_.delete()
+        instance.delete()
     except ProtectedError:
-        msg = _('%s can not be deleted because of its dependencies.') % object_
+        msg = _('%s can not be deleted because of its dependencies.') % instance
 
         #TODO: factorise ??
         if request.is_ajax():
