@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+    from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder, simplejson
 
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Civility
 
     from creme.billing.models import InvoiceStatus
+
+    from ..blocks import generic_models_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -29,7 +32,7 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertGET404('/creme_config/unexsitingapp/portal/')
 
         self.assertGET200('/creme_config/persons/civility/portal/')
-        self.assertGET404('/creme_config/persons/unexsitingmodel/portal/')
+        self.assertGET404('/creme_config/persons/unexistingmodel/portal/')
 
         self.assertGET200('/creme_config/billing/invoice_status/portal/')
 
@@ -144,12 +147,31 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_delete01(self):
         civ = Civility.objects.create(title='Herr')
-        self.assertPOST200('/creme_config/persons/civility/delete', data={'id': civ.pk})
+        url = '/creme_config/persons/civility/delete'
+        data = {'id': civ.pk}
+        self.assertGET404(url, data=data)
+        self.assertPOST200(url, data=data)
         self.assertDoesNotExist(civ)
 
     def test_delete02(self):
-        civ = InvoiceStatus.objects.create(name='Okidoki', is_custom=False)
-        self.assertGET404('/creme_config/persons/civility/delete', data={'id': civ.pk})
-        self.assertStillExists(civ)
+        "Not custom instance"
+        status = InvoiceStatus.objects.create(name='Okidoki', is_custom=False)
+        self.assertPOST404('/creme_config/billing/invoice_status/delete', data={'id': status.pk})
+        self.assertStillExists(status)
 
-#TODO: (r'^models/(?P<ct_id>\d+)/reload/$', 'generics_views.reload_block'),
+    def test_reload_block(self):
+        response = self.assertGET200('/creme_config/models/%s/reload/' %
+                                        ContentType.objects.get_for_model(Civility).id
+                                    )
+
+        with self.assertNoException():
+            result = simplejson.loads(response.content)
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(1, len(result))
+
+        result = result[0]
+        self.assertIsInstance(result, list)
+        self.assertEqual(2, len(result))
+        self.assertEqual(generic_models_block.id_, result[0])
+        self.assertIn(' id="%s"' % generic_models_block.id_, result[1])
