@@ -48,7 +48,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             memo.entity_id)
         self.assertEqual(entity.entity_type_id, memo.entity_content_type_id)
 
-        self.assertLess((now() - memo.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), memo.creation_date)
 
         self.assertEqual(content, unicode(memo))
 

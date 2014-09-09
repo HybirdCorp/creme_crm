@@ -634,9 +634,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTrue(project.is_closed)
         self.assertTrue(project.effective_end_date)
 
-        #delta = datetime.combine(date.today(), time()) - project.effective_end_date
-        #self.assertLess(delta.seconds, 10)
-        self.assertLess((now() - project.effective_end_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), project.effective_end_date)
 
         #already closed
         self.assertPOST404(url, follow=True)

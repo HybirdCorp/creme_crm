@@ -58,7 +58,7 @@ class CTITestCase(CremeTestCase):
         self.assert_(pcall.description)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
         self.assertEqual(STATUS_IN_PROGRESS, pcall.status.id)
-        self.assertLess((now() - pcall.start).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
@@ -176,8 +176,8 @@ class CTITestCase(CremeTestCase):
         self.assertIn(unicode(contact), pcall.title)
         self.assertTrue(pcall.description)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
-        self.assertEqual(STATUS_IN_PROGRESS,     pcall.status.id)
-        self.assertLess((now() - pcall.start).seconds, 10)
+        self.assertEqual(STATUS_IN_PROGRESS,                 pcall.status.id)
+        self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)

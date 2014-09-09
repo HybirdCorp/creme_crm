@@ -63,7 +63,7 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             action.entity_id)
         self.assertEqual(entity.id,             action.creme_entity.id)
 
-        self.assertLess((now() - action.creation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), action.creation_date)
         #self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
         self.assertEqual(self.create_datetime(year=2010, month=12, day=24),
                          action.deadline
@@ -148,7 +148,7 @@ class ActionTestCase(AssistantsTestCase):
 
         action = self.refresh(action)
         self.assertTrue(action.is_ok)
-        self.assertLess((now() - action.validation_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(now(), action.validation_date)
 
     def test_merge(self):
         def creator(contact01, contact02):

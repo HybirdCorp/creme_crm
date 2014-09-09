@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
 from tempfile import NamedTemporaryFile
@@ -120,6 +120,15 @@ class _CremeTestCase(object):
     def autodiscover():
         if not list(creme_registry.iter_apps()):
             autodiscover()
+
+    def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
+        delta = max(dt1, dt2) - min(dt1, dt2)
+
+        if delta > timedelta(seconds=seconds):
+            self.fail('<%s> & <%s> are not almost equal: delta is <%s>' % (
+                            dt1, dt2, delta
+                        )
+                     )
 
     def assertDoesNotExist(self, instance):
         model = instance.__class__

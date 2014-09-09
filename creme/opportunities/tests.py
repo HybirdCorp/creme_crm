@@ -631,7 +631,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(1, len(quotes))
 
         quote = quotes[0]
-        self.assertLess((date.today() - quote.issuing_date).seconds, 10)
+        self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)

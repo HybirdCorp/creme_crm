@@ -285,9 +285,7 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
 
-        #fmt = '%d %m %Y %H %M'
-        #self.assertEqual(sending_date.strftime(fmt), sending.sending_date.strftime(fmt))
-        self.assertLess(abs((sending_date - sending.sending_date).seconds), 60)
+        self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
         self.assertFormError(post(data=data), 'form', 'sending_date',
                              _(u"Sending date required for a deferred sending")
