@@ -213,9 +213,9 @@ def isiterable(iterable):
 def format_string(ustring, format_str):
     return format_str % ustring
 
-@register.filter(name="enumerate") #TODO: why not use forloop.counter/counter0
-def enumerate_iterable(iterable):
-    return enumerate(iterable)
+#@register.filter(name="enumerate")
+#def enumerate_iterable(iterable):
+    #return enumerate(iterable)
 
 @register.filter
 def to_timestamp(date):
