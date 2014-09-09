@@ -184,8 +184,8 @@ class _CremeTestCase(object):
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)
 
-    def assertRedirectsToLogin(self, response, url):
-        self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
+    #def assertRedirectsToLogin(self, response, url):
+        #self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
 
     #def assertGETRedirectsToLogin(self, url):
         #self.assertRedirectsToLogin(self.client.get(url), url)
