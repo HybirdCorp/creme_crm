@@ -20,6 +20,8 @@
 
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.utils.imports import find_n_import
+
 # TODO : AppRecurrentRegistry indirection useless (at least for now)
 
 class TemplateRecurrentRegistry:
@@ -80,3 +82,6 @@ class RecurrentRegistry:
 
 
 recurrent_registry = RecurrentRegistry()
+
+for recurrents_import in find_n_import('recurrents_register', ['to_register']):
+    recurrent_registry.register(*recurrents_import.to_register)
