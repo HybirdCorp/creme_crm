@@ -616,7 +616,7 @@ class PollFormsTestCase(_PollsTestCase):
                                                 'choices':  u'\n'.join(choices),
                                                }
                                          )
-            self.assertFormError(response, 'form', None, [_(u'Give 2 choices at least.')])
+            self.assertFormError(response, 'form', None, _(u'Give 2 choices at least.'))
 
         post()
         post('White')
@@ -645,7 +645,7 @@ class PollFormsTestCase(_PollsTestCase):
                                                 'choices':  u'\n'.join(choices),
                                                }
                                          )
-            self.assertFormError(response, 'form', None, [_(u'Give 2 choices at least.')])
+            self.assertFormError(response, 'form', None, _(u'Give 2 choices at least.'))
 
         post()
         post('White')
@@ -1342,7 +1342,7 @@ class PollFormsTestCase(_PollsTestCase):
                                      )
 
         if error:
-            self.assertFormError(response, 'form', 'conditions', [error])
+            self.assertFormError(response, 'form', 'conditions', error)
         else:
             self.assertNoFormError(response)
 

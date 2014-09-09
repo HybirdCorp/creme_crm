@@ -410,7 +410,7 @@ class PollRepliesTestCase(_PollsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'pform',
-                             [_(u'The form must contain one line at least.')]
+                             _(u'The form must contain one line at least.')
                             )
 
     def test_createview05(self):
@@ -902,17 +902,15 @@ class PollRepliesTestCase(_PollsTestCase):
         upper_bound = 20
         preply, rline = self._build_reply_with_int_line(lower_bound, upper_bound)
         self.assertFormError(self._fill(preply, 5, check_errors=False), 'form', 'answer',
-                             [_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
                                  'limit_value': lower_bound,
                                 }
-                             ]
                             )
 
         self.assertFormError(self._fill(preply, 25, check_errors=False), 'form', 'answer',
-                             [_(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
                                  'limit_value': upper_bound,
                                 }
-                             ]
                             )
 
         answer = 15
@@ -955,7 +953,7 @@ class PollRepliesTestCase(_PollsTestCase):
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
         self.assertFormError(self._fill(preply, 'notanint', check_errors=False),
-                             'form', 'answer', [_(u'Enter a valid date.')]
+                             'form', 'answer', _(u'Enter a valid date.')
                             )
 
         self.assertNoFormError(self._fill(preply, '8-6-2012'))
@@ -972,16 +970,14 @@ class PollRepliesTestCase(_PollsTestCase):
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
         self.assertFormError(self._fill(preply, -1, check_errors=False), 'form', 'answer',
-                             [_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
                                  'limit_value': 0,
                                 }
-                             ]
                             )
         self.assertFormError(self._fill(preply, 24, check_errors=False), 'form', 'answer',
-                             [_(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
                                  'limit_value': 23,
                                 }
-                             ]
                             )
 
         self._fill(preply, '17')
@@ -1009,14 +1005,13 @@ class PollRepliesTestCase(_PollsTestCase):
 
         answer = 'Invalid choice'
         self.assertFormError(self._fill(preply, answer, check_errors=False), 'form', 'answer',
-                             [_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': answer
-                                }
-                             ]
+                                },
                             )
 
         self.assertFormError(self.client.post(self._build_fill_url(preply), follow=True),
-                             'form', 'answer', [_(u'The answer is required.')]
+                             'form', 'answer', _(u'The answer is required.'),
                             )
 
         self.assertNoFormError(self._fill(preply, 2))
@@ -1046,10 +1041,9 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertIsInstance(answer_field.widget, UnorderedMultipleChoiceWidget)
 
         self.assertFormError(self._fill(preply, [5, 7], check_errors=False), 'form', 'answer',
-                             [_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': 5
-                                }
-                             ]
+                                },
                             )
 
         self.assertNoFormError(self._fill(preply, [1, 2]))
@@ -1064,10 +1058,9 @@ class PollRepliesTestCase(_PollsTestCase):
         answer = 42
         self.assertFormError(self._fill(preply, {'answer_0': answer, 'answer_1': ''}, check_errors=False),
                              'form', 'answer',
-                             [_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
                                     'value': answer
-                                }
-                             ]
+                                },
                             )
 
         self.assertNoFormError(self._fill(preply, {'answer_0': 2, 'answer_1': ''}))
@@ -1121,7 +1114,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.login()
         preply, rline = self._build_reply_with_int_line()
         self.assertFormError(self._fill(preply, '', not_applicable=False, check_errors=False),
-                             'form', 'answer', [_(u'The answer is required.')]
+                             'form', 'answer', _(u'The answer is required.')
                             )
 
     def test_fillview_wizard01(self):
