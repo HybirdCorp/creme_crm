@@ -34,8 +34,8 @@ from creme.creme_core.signals import pre_merge_related
 
 class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
-    is_ok         = BooleanField(_("Done ?"), editable=False)
-    has_deadline  = BooleanField(editable=False) #TODO: useful ??? (deadline can be NULL)
+    is_ok         = BooleanField(_("Done ?"), editable=False, default=False)
+    #has_deadline  = BooleanField(editable=False)
     reminded      = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
@@ -51,14 +51,14 @@ class ToDo(CremeModel):
         verbose_name = _(u'Todo')
         verbose_name_plural = _(u'Todos')
 
-    def __init__(self, *args, **kwargs):
-        super(ToDo, self).__init__(*args, **kwargs)
+    #def __init__(self, *args, **kwargs):
+        #super(ToDo, self).__init__(*args, **kwargs)
 
-        if self.pk is None:
-            self.is_ok = False #TODO: default=false in field instead ??
+        #if self.pk is None:
+            #self.is_ok = False
 
-        if self.deadline is None:
-            self.has_deadline = False
+        #if self.deadline is None:
+            #self.has_deadline = False
 
     def __unicode__(self):
         return self.title
