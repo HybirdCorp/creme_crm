@@ -29,7 +29,6 @@ from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
 from ..forms.recurrentgenerator import RecurrentGeneratorEditForm #RecurrentGeneratorWizard
 from ..models import RecurrentGenerator
-from ..registry import recurrent_registry
 
 #_wizard = RecurrentGeneratorWizard()
 
@@ -67,6 +66,8 @@ class RecurrentGeneratorWizard(SessionWizardView):
         return context
 
     def get_form(self, step=None, data=None, files=None):
+        from ..registry import recurrent_registry
+
         form = None
 
         # step can be None (see WizardView doc)

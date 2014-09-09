@@ -28,7 +28,6 @@ from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import DateTimeWidget
 
 from ..models import RecurrentGenerator
-from ..registry import recurrent_registry
 
 
 class RecurrentGeneratorEditForm(CremeEntityForm):
@@ -44,6 +43,8 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     ct = EntityCTypeChoiceField(label=_(u'Type of resource used as template'))
 
     def __init__(self, *args, **kwargs):
+        from ..registry import recurrent_registry
+
         #kwargs['user'] = kwargs['initial']['user']
         #super(RecurrentGeneratorCreateForm, self).__init__(data=args[0], **kwargs)
         super(RecurrentGeneratorCreateForm, self).__init__(*args, **kwargs)
