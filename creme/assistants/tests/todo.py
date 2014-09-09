@@ -324,10 +324,7 @@ class TodoTestCase(AssistantsTestCase):
         todo1 = create_todo(title='Todo#1', deadline=now_value)
         create_todo(title='Todo#2', deadline=now_value + timedelta(days=2))
         create_todo(title='Todo#3')
-        todo4 = create_todo(title='Todo#4', deadline=now_value)
-        #TODO: default=false in field instead ?? (see models.todo.py)
-        todo4.is_ok = True
-        todo4.save()
+        todo4 = create_todo(title='Todo#4', deadline=now_value, is_ok=True)
 
         ReminderCommand().handle(verbosity=0)
 
