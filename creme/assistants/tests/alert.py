@@ -51,6 +51,7 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertIs(False,        alert.is_validated)
         self.assertEqual(self.user, alert.user)
+        self.assertIs(False,        alert.reminded)
 
         self.assertEqual(entity.id,             alert.entity_id)
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
@@ -197,7 +198,7 @@ class AlertTestCase(AssistantsTestCase):
                                user=self.user, trigger_date=now_value,
                               )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
-        create_alert(title='Alert#2',          trigger_date=now_value + timedelta(minutes=70))
+        alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
 
         def remind():
@@ -211,6 +212,8 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(alert1, reminder.object_of_reminder)
         self.assertEqual(1,      reminder.ident)
         self.assertLess((now_value - reminder.date_of_remind).seconds, 60)
+        self.assertTrue(self.refresh(alert1).reminded)
+        self.assertFalse(self.refresh(alert2).reminded)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))

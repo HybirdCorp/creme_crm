@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ class ToDo(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     is_ok         = BooleanField(_("Done ?"), editable=False)
     has_deadline  = BooleanField(editable=False) #TODO: useful ??? (deadline can be NULL)
+    reminded      = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
     description   = TextField(_(u'Description'), blank=True, null=True)
     creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)

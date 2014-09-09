@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 from collections import defaultdict
 
-from django.db.models import CharField, TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models import (CharField, TextField, BooleanField, DateTimeField,
+        ForeignKey, PositiveIntegerField)
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -28,7 +29,8 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
+        FunctionFieldResultsList)
 from creme.creme_core.signals import pre_merge_related
 
 
@@ -36,6 +38,7 @@ class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
     is_validated        = BooleanField(_('Validated'), editable=False)
+    reminded            = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
     trigger_date        = DateTimeField(_(u"Trigger date"))
 
     entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set", editable=False)
