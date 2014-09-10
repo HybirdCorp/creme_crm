@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-25 11:33+0100\n"
+"POT-Creation-Date: 2014-09-09 11:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -44,7 +44,7 @@ msgstr "Créer un salarié"
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 
-#: blocks.py:183 models/address.py:35 models/address.py:52
+#: blocks.py:183 models/address.py:35 models/address.py:49
 msgid "Address"
 msgstr "Adresse"
 
@@ -200,7 +200,7 @@ msgstr "Monsieur"
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:87 models/contact.py:188
+#: populate.py:87 models/contact.py:194
 msgid "N/A"
 msgstr "NC"
 
@@ -257,19 +257,19 @@ msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
 #: forms/base.py:44 forms/lv_import.py:103 forms/merge.py:113
-#: models/contact.py:61 models/organisation.py:56
+#: models/contact.py:63 models/organisation.py:56
 #: templates/persons/templatetags/block_address.html:20
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
 #: forms/base.py:45 forms/lv_import.py:104 forms/merge.py:114
-#: models/contact.py:65 models/organisation.py:60
+#: models/contact.py:67 models/organisation.py:60
 #: templates/persons/templatetags/block_address.html:21
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:38 models/contact.py:73
-#: templates/persons/templatetags/block_contact.html:61
+#: forms/contact.py:38 models/contact.py:76
+#: templates/persons/templatetags/block_contact.html:63
 msgid "Birthday"
 msgstr "Anniversaire"
 
@@ -309,11 +309,12 @@ msgid "Creation date"
 msgstr "Date de création"
 
 #: forms/organisation.py:34 models/organisation.py:67
+#: templates/persons/view_organisation.html:16
 #: templates/persons/templatetags/block_organisation.html:100
 msgid "Logo"
 msgstr "Logo"
 
-#: forms/quick.py:36 models/organisation.py:80
+#: forms/quick.py:36 models/organisation.py:78
 msgid "Organisation"
 msgstr "Société"
 
@@ -375,113 +376,118 @@ msgstr "État"
 msgid "Country"
 msgstr "Pays"
 
-#: models/address.py:53 templates/persons/templatetags/block_address.html:7
+#: models/address.py:50 templates/persons/templatetags/block_address.html:7
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models/contact.py:48 models/other_models.py:38
+#: models/contact.py:50 models/other_models.py:38
 #: templates/persons/templatetags/block_contact.html:24
 msgid "Civility"
 msgstr "Civilité"
 
-#: models/contact.py:49 templates/persons/templatetags/block_contact.html:34
+#: models/contact.py:51 templates/persons/templatetags/block_contact.html:34
 msgid "Last name"
 msgstr "Nom"
 
-#: models/contact.py:50 templates/persons/templatetags/block_contact.html:29
+#: models/contact.py:52 templates/persons/templatetags/block_contact.html:29
 msgid "First name"
 msgstr "Prénom"
 
-#: models/contact.py:51 models/organisation.py:65
-#: templates/persons/templatetags/block_contact.html:71
+#: models/contact.py:53 models/organisation.py:65
+#: templates/persons/templatetags/block_contact.html:73
 #: templates/persons/templatetags/block_organisation.html:90
 msgid "Description"
 msgstr "Description"
 
-#: models/contact.py:53 models/organisation.py:42
+#: models/contact.py:55 models/organisation.py:42
 msgid "Phone number"
 msgstr "Numéro de téléphone"
 
-#: models/contact.py:54
+#: models/contact.py:56
 #: templates/persons/templatetags/block_contact_coordinates.html:19
 #: templates/persons/templatetags/block_linked_people.html:28
 msgid "Mobile"
 msgstr "Mobile"
 
-#: models/contact.py:55 models/organisation.py:43
+#: models/contact.py:57 models/organisation.py:43
 #: templates/persons/templatetags/block_contact_coordinates.html:24
 #: templates/persons/templatetags/block_orga_coordinates.html:19
 msgid "Fax"
 msgstr "Fax"
 
-#: models/contact.py:56 templates/persons/templatetags/block_contact.html:44
+#: models/contact.py:58 templates/persons/templatetags/block_contact.html:44
 msgid "Position"
 msgstr "Fonction"
 
-#: models/contact.py:57 models/other_models.py:62
+#: models/contact.py:59 models/other_models.py:62
 #: templates/persons/templatetags/block_organisation.html:39
 msgid "Line of business"
 msgstr "Secteur d'activités"
 
-#: models/contact.py:58 models/organisation.py:44
+#: models/contact.py:60 models/organisation.py:44
 #: templates/persons/templatetags/block_contact_coordinates.html:29
 #: templates/persons/templatetags/block_orga_coordinates.html:24
 msgid "Email address"
 msgstr "Adresse e-mail"
 
-#: models/contact.py:59 models/organisation.py:45
+#: models/contact.py:61 models/organisation.py:45
 #: templates/persons/templatetags/block_contact_coordinates.html:34
 #: templates/persons/templatetags/block_orga_coordinates.html:29
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/contact.py:60
+#: models/contact.py:62
 msgid "Spoken language(s)"
 msgstr "Langue(s) parlée(s)"
 
-#: models/contact.py:69 templates/persons/templatetags/block_contact.html:55
+#: models/contact.py:71 templates/persons/templatetags/block_contact.html:55
 msgid "Related user"
 msgstr "Utilisateur associé"
 
-#: models/contact.py:74
+#: models/contact.py:75
+msgctxt "persons-is_user"
+msgid "None"
+msgstr "Aucun"
+
+#: models/contact.py:77
 msgid "Photograph"
 msgstr "Photo du contact"
 
-#: models/contact.py:83
+#: models/contact.py:84
 msgid "Add a contact"
 msgstr "Ajouter un contact"
 
-#: models/contact.py:88 templates/persons/portal.html:5
+#: models/contact.py:89 templates/persons/portal.html:5
 msgid "Contact"
 msgstr "Contact"
 
-#: models/contact.py:89
+#: models/contact.py:90
 msgid "Contacts"
 msgstr "Contacts"
 
-#: models/contact.py:94
+#: models/contact.py:97
 #, python-format
 msgid "%(civility)s %(first_name)s %(last_name)s"
 msgstr "%(civility)s %(first_name)s %(last_name)s"
 
-#: models/contact.py:101
+#: models/contact.py:105
 #, python-format
 msgid "%(first_name)s %(last_name)s"
 msgstr "%(first_name)s %(last_name)s"
 
-#: models/contact.py:108
+#: models/contact.py:114
 msgid "A user is associated with this contact."
 msgstr "Un utilisateur est relié à ce contact."
 
-#: models/contact.py:113
+#: models/contact.py:119
 msgid "This Contact is related to a user and must have a first name."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 
-#: models/contact.py:116
+#: models/contact.py:122
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:189
+#: models/contact.py:195
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
@@ -544,15 +550,15 @@ msgstr "Revenu annuel"
 msgid "Date of creation of the organisation"
 msgstr "Date de création de la société"
 
-#: models/organisation.py:75
+#: models/organisation.py:73
 msgid "Add an organisation"
 msgstr "Ajouter une société"
 
-#: models/organisation.py:81
+#: models/organisation.py:79
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: models/organisation.py:100
+#: models/organisation.py:98
 msgid "This siren already exists and must be unique !"
 msgstr "Ce siren existe déjà et doit être unique !"
 
@@ -632,10 +638,6 @@ msgstr "Portail Comptes & contacts"
 msgid "List of contacts"
 msgstr "Liste des contacts"
 
-#: templates/persons/view_organisation.html:8
-msgid "Please enter the web site address"
-msgstr "Veuillez entrez l'adresse du site web"
-
 #: templates/persons/frags/billing_block.html:12
 msgid "Copy the address to right side"
 msgstr "Copier l'adresse à droite"
@@ -671,11 +673,7 @@ msgstr "Dernière modification"
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: templates/persons/templatetags/block_contact.html:57
-msgid "None"
-msgstr "Aucun"
-
-#: templates/persons/templatetags/block_contact.html:66
+#: templates/persons/templatetags/block_contact.html:68
 msgid "Photo"
 msgstr "Photo"
 
@@ -860,6 +858,9 @@ msgstr "Nombre de société(s)"
 #, python-format
 msgid "Number of customers of %s"
 msgstr "Nombre de client(s) de %s"
+
+#~ msgid "Please enter the web site address"
+#~ msgstr "Veuillez entrez l'adresse du site web"
 
 #~ msgid "Ok"
 #~ msgstr "Ok"

@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 #TODO: use creme_core.utils.imports ???
 def autodiscover():
     """Auto-discover in INSTALLED_APPS the creme_core_register.py files."""
-    for app in settings.INSTALLED_APPS:
+    for app in settings.INSTALLED_APPS: #TODO: only INSTALLED_CREME_APPS
         try:
             find_module("creme_core_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
         except ImportError:
@@ -47,9 +47,22 @@ def autodiscover():
 _add_tags_to_fields()
 
 
-#ForeignKey's formfield() hooking --------------------------------------------
-#TODO: move to creme_config ??
+#ForeignKey's null_label adding ------------------------------------------------
 from django.db.models import ForeignKey
+
+def _get_null_label(self):
+    return getattr(self, '_creme_null_label', '')
+
+def _set_null_label(self, null_label):
+    self._creme_null_label = null_label
+
+    return self
+
+ForeignKey.get_null_label = _get_null_label
+ForeignKey.set_null_label = _set_null_label
+
+#ForeignKey's formfield() hooking ----------------------------------------------
+#TODO: move to creme_config ??
 
 original_fk_formfield = ForeignKey.formfield
 
@@ -63,7 +76,7 @@ def new_fk_formfield(self, **kwargs):
 
 ForeignKey.formfield = new_fk_formfield
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 from django.db.transaction import commit_on_success
 
 try:

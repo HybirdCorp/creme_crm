@@ -68,6 +68,8 @@ def _add_tags_to_fields():
     #TODO: could become useless with HeaderFilter refactoring, that ignores
     #      by default the sub fields of FK. (to be continued...)
     #ContentType hooking
-    get_ct_field = ContentType._meta.get_field_by_name
+    #get_ct_field = ContentType._meta.get_field_by_name
+    get_ct_field = ContentType._meta.get_field
     for fname in ('name', 'app_label', 'model'):
-        get_ct_field(fname)[0].set_tags(viewable=False)
+        #get_ct_field(fname)[0].set_tags(viewable=False)
+        get_ct_field(fname).set_tags(viewable=False)

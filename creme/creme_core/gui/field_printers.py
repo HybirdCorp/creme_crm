@@ -64,19 +64,19 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 
     return "height=%s width=%s" % (h, w)
 
-def simple_print(entity, fval, user):
+def simple_print(entity, fval, user, field):
     return unicode(escape(fval)) if fval is not None else "" #TODO: remove 'unicode()'
 
-def simple_print_csv(entity, fval, user):
+def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
 
-def print_image(entity, fval, user):
+def print_image(entity, fval, user, field):
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
             }
 
-def print_boolean(entity, fval, user):
+def print_boolean(entity, fval, user, field):
     #if fval:
         #checked = 'checked '
         #label = _('Yes')
@@ -89,21 +89,21 @@ def print_boolean(entity, fval, user):
             #)
     return bool_as_html(fval)
 
-def print_urlfield(entity, fval, user):
+def print_urlfield(entity, fval, user, field):
     if not fval:
         return ""
 
     esc_fval = escape(fval)
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
 
-def print_datetime(entity, fval, user):
+def print_datetime(entity, fval, user, field):
     #return date_format(fval, 'DATETIME_FORMAT') if fval else ''
     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
-def print_date(entity, fval, user):
+def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
-def print_foreignkey(entity, fval, user):
+def print_foreignkey(entity, fval, user, field):
     #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
     from creme.media_managers.models.image import Image
 
@@ -117,16 +117,22 @@ def print_foreignkey(entity, fval, user):
     if isinstance(fval, CremeEntity):
         return widget_entity_hyperlink(fval, user)
 
-    return escape(unicode(fval)) if fval else u''
+    #return escape(unicode(fval)) if fval else u''
+    if fval is None:
+        #return unicode(field.get_null_label())
+        null_label = field.get_null_label()
+        return u'<em>%s</em>' % null_label if null_label else ''
 
-def print_foreignkey_csv(entity, fval, user):
+    return escape(unicode(fval))
+
+def print_foreignkey_csv(entity, fval, user, field):
     if isinstance(fval, CremeEntity):
         #TODO: change allowed unicode ??
         return unicode(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
 
     return unicode(fval) if fval else u''
 
-def print_many2many(entity, fval, user):
+def print_many2many(entity, fval, user, field):
     output = []
 
     #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
@@ -156,7 +162,7 @@ def print_many2many(entity, fval, user):
 
     return ''.join(output)
 
-def print_many2many_csv(entity, fval, user):
+def print_many2many_csv(entity, fval, user, field):
     if issubclass(fval.model, CremeEntity):
         #TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
         return u'/'.join(unicode(e) if user.has_perm_to_view(e)
@@ -166,7 +172,7 @@ def print_many2many_csv(entity, fval, user):
 
     return u'/'.join(unicode(a) for a in fval.all())
 
-def print_duration(entity, fval, user):
+def print_duration(entity, fval, user, field):
     try:
         h, m, s = fval.split(':')
     except (ValueError, AttributeError):
@@ -196,7 +202,7 @@ class _FieldPrintersRegistry(object):
             models.DateField:                  print_date,
             models.DateTimeField:              print_datetime,
             #models.DecimalField:               simple_print,
-            models.EmailField:                 lambda entity, fval, user: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
+            models.EmailField:                 lambda entity, fval, user, field: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
             #models.FileField:                  simple_print,
             #models.FilePathField:              simple_print,
             #models.FloatField:                 simple_print,
@@ -208,7 +214,7 @@ class _FieldPrintersRegistry(object):
             #models.PositiveSmallIntegerField:  simple_print,
             #models.SlugField:                  simple_print,
             #models.SmallIntegerField:          simple_print,
-            models.TextField:                  lambda entity, fval, user: linebreaks(fval) if fval else "",
+            models.TextField:                  lambda entity, fval, user, field: linebreaks(fval) if fval else "",
             #models.TimeField:                  simple_print,
             models.URLField:                   print_urlfield,
             models.ForeignKey:                 print_foreignkey,
@@ -222,7 +228,7 @@ class _FieldPrintersRegistry(object):
             fields.CreationDateTimeField :     print_datetime,
         }
         self._csv_printers = {
-            models.BooleanField:               lambda entity, fval, user: _('Yes') if fval else _('No'),
+            models.BooleanField:               lambda entity, fval, user, field: _('Yes') if fval else _('No'),
             models.DateField:                  print_date,
             models.DateTimeField:              print_datetime,
             #models.ImageField:                 print_image, TODO ??
@@ -360,7 +366,7 @@ class _FieldPrintersRegistry(object):
 
             def printer(obj, user):
                 #return mark_safe(print_func(obj, getattr(obj, base_name), user))
-                return print_func(obj, getattr(obj, base_name), user)
+                return print_func(obj, getattr(obj, base_name), user, base_field)
 
         return printer
 

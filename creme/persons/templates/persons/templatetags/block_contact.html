@@ -52,7 +52,8 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Related user" %}{% comment %}{% trans "Linked Creme user" %}{% endcomment %}</th>
-            <td class="{% cycle row_color %} td_info">{{object.is_user|default:_('None') }}</td>
+            {% comment %}<td class="{% cycle row_color %} td_info">{{object.is_user|default:_('None') }}</td>{% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='is_user' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'is_user' for object %}</td>
         </tr>
         <tr class="content">

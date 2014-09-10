@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,9 @@ from creme.creme_core.gui.field_printers import simple_print
 from creme.creme_core.utils.media import creme_media_themed_url
 
 
-def print_phone(entity, fval, user):
+def print_phone(entity, fval, user, field):
     if not fval:
-        return simple_print(entity, fval, user)
+        return simple_print(entity, fval, user, field)
 
     return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
             'url':    settings.ABCTI_URL,

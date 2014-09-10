@@ -7,6 +7,7 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.gui.field_printers import field_printers_registry
 
     from creme.persons.models import Contact, Organisation
 
@@ -23,6 +24,7 @@ class CTITestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities')
+        cls.autodiscover()
 
     def _buid_add_pcall_url(self, contact):
         return '/cti/phonecall/add/%s' % contact.id
@@ -37,6 +39,24 @@ class CTITestCase(CremeTestCase):
         #self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
         self.contact = user.linked_contact
         self.contact_other_user = other_user.linked_contact
+
+    def test_print_phone(self):
+        self.login()
+
+        user = self.user
+        get_html_val = field_printers_registry.get_html_field_value
+        get_csv_val  = field_printers_registry.get_csv_field_value
+
+        contact = self.contact
+        self.assertEqual('', get_html_val(contact, 'phone', user))
+        self.assertEqual('', get_csv_val(contact,  'phone', user))
+
+        contact.phone = '112233'
+        self.assertEqual(contact.phone, get_csv_val(contact, 'phone', user))
+
+        html = get_html_val(contact, 'phone', user)
+        self.assertIn(contact.phone, html)
+        self.assertIn('<a onclick="creme.cti.phoneCall', html)
 
     def test_add_phonecall01(self):
         self.login()
