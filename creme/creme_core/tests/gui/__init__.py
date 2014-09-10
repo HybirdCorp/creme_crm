@@ -9,7 +9,7 @@ try:
     from django.contrib.sessions.models import Session
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, pgettext
 
     from ..base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -129,6 +129,14 @@ class GuiTestCase(CremeTestCase):
 
         self.assertEqual(escaped_title,        get_html_val(casca, 'position__title', user))
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
+
+        #FK: with & without customised null_label
+        self.assertEqual('', get_html_val(casca, 'sector',  user))
+        self.assertEqual('', get_csv_val(casca,  'sector',  user))
+        self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
+                         get_html_val(casca, 'is_user', user)
+                        )
+        self.assertEqual('', get_csv_val(casca,  'is_user', user)) #null_label not used in csv backend
 
         self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
                                 casca.image.get_image_url(),

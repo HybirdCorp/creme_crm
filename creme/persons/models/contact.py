@@ -30,7 +30,7 @@ from django.db.models.signals import post_save
 from django.db.transaction import commit_on_success
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, Language #, CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
@@ -71,7 +71,8 @@ class Contact(CremeEntity):
     is_user         = ForeignKey(User, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
                                  blank=True, null=True, related_name='related_contact',
                                  on_delete=SET_NULL, editable=False
-                                ).set_tags(clonable=False, enumerable=False)
+                                ).set_tags(clonable=False, enumerable=False) \
+                                 .set_null_label(pgettext_lazy('persons-is_user', 'None'))
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
