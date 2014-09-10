@@ -83,17 +83,6 @@ class ReportTestCase(BaseReportsTestCase):
                                                                         )
                                     ])
 
-    def _build_doc_report(self):
-        doc_report = Report.objects.create(name="Documents report", user=self.user,
-                                           ct=ContentType.objects.get_for_model(Document)
-                                          )
-
-        create_field = partial(Field.objects.create, type=RFT_FIELD)
-        create_field(report=doc_report, name='title',       order=1)
-        create_field(report=doc_report, name="description", order=2)
-
-        return doc_report
-
     def _build_image_report(self):
         img_report = Report.objects.create(user=self.user, name="Report on images",
                                            ct=ContentType.objects.get_for_model(Image),
@@ -971,7 +960,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.assertGET409(self._build_linkreport_url(rfield1)) #not a RFT_RELATION Field
 
-        doc_report = self._build_doc_report()
+        doc_report = self._create_simple_documents_report()
         url = self._build_linkreport_url(rfield2)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, data={'report': doc_report.id}))
@@ -1280,7 +1269,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_field(report=self.folder_report, name='title',       order=1)
         create_field(report=self.folder_report, name='description', order=2)
 
-        self.doc_report = self._build_doc_report()
+        self.doc_report = self._create_simple_documents_report()
         create_field(report=self.doc_report, name='folder__title', order=3,
                      sub_report=self.folder_report, selected=selected,
                     )
@@ -1623,7 +1612,7 @@ class ReportTestCase(BaseReportsTestCase):
         create_report = partial(Report.objects.create, user=user, filter=None)
         create_field = partial(Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD)
 
-        self.doc_report = self._build_doc_report() if select_doc_report is not None else None
+        self.doc_report = self._create_simple_documents_report() if select_doc_report is not None else None
 
         self.folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
         create_field(report=self.folder_report, name='title',    order=1)
@@ -1930,7 +1919,7 @@ class ReportTestCase(BaseReportsTestCase):
         doc2 = create_doc(title='Helmet', folder=folder)
 
         rtype = RelationType.objects.get(pk=REL_SUB_HAS)
-        doc_report = self._build_doc_report()
+        doc_report = self._create_simple_documents_report()
         create_field(report=self.report_contact, name=rtype.id, order=3,
                      selected=True, sub_report=doc_report,
                     )

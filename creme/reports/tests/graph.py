@@ -8,13 +8,15 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
             EntityFilter, EntityFilterCondition,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
     from creme.creme_core.tests.base import skipIfNotInstalled
+
+    from creme.documents.models import Document, Folder
 
     from creme.persons.models import Organisation, Contact, Position, Sector
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
@@ -24,7 +26,7 @@ try:
         from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase
-    from ..core.graph import ListViewURLBuilder
+    from ..core.graph import ListViewURLBuilder # fetch_graph_from_instance_block
     from ..models import Field, Report, ReportGraph
     from ..constants import *
 except Exception as e:
@@ -79,12 +81,14 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                      name=u"All invoices of the current year",
                                                      ct=self.ct_invoice,
                                                     )
-        self.rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
+        #self.rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
+        rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
 
         #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
         create_field(name='name',                            order=1)
-        create_field(name=self.rtype.id,  type=RFT_RELATION, order=2)
+        #create_field(name=self.rtype.id,  type=RFT_RELATION, order=2)
+        create_field(name=rtype.id,       type=RFT_RELATION, order=2)
         create_field(name='total_no_vat',                    order=3)
         create_field(name='issuing_date',                    order=4)
 
@@ -1555,6 +1559,67 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(list(reversed(x_asc)), x_desc)
         self.assertEqual(list(reversed(y_asc)), y_desc)
 
+    def _create_documents_rgraph(self):
+        report = self._create_simple_documents_report()
+        return ReportGraph.objects.create(user=self.user, report=report,
+                                          name='Number of created documents / year',
+                                          abscissa='created', type=RGT_YEAR,
+                                          ordinate='', is_count=True,
+                                         )
+
+    def test_create_instance_block_config_item01(self):
+        "No link"
+        rgraph = self._create_documents_rgraph()
+
+        ibci = rgraph.create_instance_block_config_item()
+        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, ibci.block_id)
+        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), ibci.verbose)
+        self.assertEqual('', ibci.data)
+
+    def test_create_instance_block_config_item02(self):
+        "Link: regular field"
+        rgraph = self._create_documents_rgraph()
+        create_ibci = rgraph.create_instance_block_config_item
+
+        fk_name = 'folder'
+        ibci = create_ibci(volatile_field=fk_name)
+        self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
+                                rgraph.id, fk_name, RFT_FIELD,
+                            ),
+                         ibci.block_id
+                        )
+        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), ibci.verbose)
+        self.assertEqual('%s|%s' % (fk_name, RFT_FIELD),
+                         ibci.data
+                        )
+
+        self.assertIsNone(create_ibci(volatile_field='unknown'))
+        self.assertIsNone(create_ibci(volatile_field='description')) #not FK
+        self.assertIsNone(create_ibci(volatile_field='user')) #not FK to CremeEntity
+        self.assertIsNone(create_ibci(volatile_field='folder__title')) #deep > 1
+
+    def test_create_instance_block_config_item03(self):
+        "Link: relation type"
+        report = self._create_simple_contacts_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='Number of created contacts / year',
+                                            abscissa='created', type=RGT_YEAR,
+                                            ordinate='', is_count=True,
+                                           )
+
+        rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
+
+        ibci = rgraph.create_instance_block_config_item(volatile_rtype=rtype)
+        self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
+                                rgraph.id, rtype.id, RFT_RELATION,
+                            ),
+                         ibci.block_id
+                        )
+        self.assertEqual(u'%s - %s' % (rgraph.name, rtype), ibci.verbose)
+        self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION),
+                         ibci.data
+                        )
+
     @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
         rgraph = self._create_invoice_report_n_graph()
@@ -1562,7 +1627,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         url = self._build_add_block_url(rgraph)
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'graph': rgraph.name}))
+        #self.assertNoFormError(self.client.post(url, data={'graph': rgraph.name}))
+        self.assertNoFormError(self.client.post(url))
 
         items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -1573,13 +1639,13 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual('', item.data)
 
         #---------------------------------------------------------------------
-        response = self.assertPOST200(url, data={'graph': rgraph.name})
+        #response = self.assertPOST200(url, data={'graph': rgraph.name})
+        response = self.assertPOST200(url)
         self.assertFormError(response, 'form', None,
-                             [_(u'The instance block for %(graph)s with %(column)s already exists !') % {
+                             _(u'The instance block for %(graph)s with %(column)s already exists !') % {
                                         'graph':  rgraph.name,
                                         'column': _(u'None'),
                                     }
-                             ]
                             )
         #---------------------------------------------------------------------
         #Display on home
@@ -1628,29 +1694,208 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertGET404(self._build_fetchfromblock_url_(item, invoice, 'FOOBAR'))
 
-    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block02(self):
-        "Volatile relation"
-        rgraph = self._create_invoice_report_n_graph()
-        rtype_id = self.rtype.id
-        response = self.client.post(self._build_add_block_url(rgraph),
-                                    data={'graph':           rgraph.name,
-                                          'volatile_column': '%s|%s' % (rtype_id, RFT_RELATION),
-                                         }
-                                   )
-        self.assertNoFormError(response)
+        "Volatile column (RFT_FIELD)"
+        rgraph = self._create_documents_rgraph()
+
+        url = self._build_add_block_url(rgraph)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['volatile_column'].choices
+
+        self.assertEqual(3, len(choices))
+        self.assertEqual(('', pgettext('reports-volatile_choice', 'None')), choices[0])
+
+        fk_name = 'folder'
+        folder_choice = 'fk-%s' % fk_name
+        self.assertEqual((_('Fields'), [(folder_choice, _('Folder'))]),
+                         choices[1]
+                        )
+
+        self.assertNoFormError(self.client.post(url, data={'volatile_column': folder_choice}))
 
         items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
+        self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fk_name, RFT_FIELD),
                          item.block_id
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, self.rtype), item.verbose)
-        self.assertEqual('%s|%s' % (rtype_id, RFT_RELATION), item.data)
+        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), item.verbose) #TODO: remove
+        self.assertEqual('%s|%s' % (fk_name, RFT_FIELD), item.data)
 
-    #def test_add_graph_instance_block03(self): #TODO: volatile field
+        #Display on detailview
+        create_folder = partial(Folder.objects.create, user=self.user)
+        folder1 = create_folder(title='Internal')
+        folder2 = create_folder(title='External')
+
+        create_doc = partial(Document.objects.create, user=self.user)
+        doc1 = create_doc(title='Doc#1.1', folder=folder1)
+        create_doc(title='Doc#1.2', folder=folder1)
+        create_doc(title='Doc#2',   folder=folder2)
+
+        ct = folder1.entity_type
+        BlockDetailviewLocation.objects.filter(content_type=ct).delete()
+        BlockDetailviewLocation.create(block_id=item.block_id, order=1,
+                                       zone=BlockDetailviewLocation.RIGHT, model=Folder,
+                                      )
+
+        response = self.assertGET200(folder1.get_absolute_url())
+        self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
+
+        #x, y = fetch_graph_from_instance_block(item, folder1, order='ASC')
+        x, y, error = ReportGraph.fetch_from_instance_block(item, folder1, order='ASC')
+        self.assertIsNone(error)
+
+        year = doc1.created.year
+        self.assertEqual([unicode(year)], x)
+        self.assertEqual([[2, '/documents/documents?q_filter={"created__year": %s}' % year]], y)
+
+    def test_add_graph_instance_block02_error01(self):
+        "Volatile column (RFT_FIELD): invalid field"
+        rgraph = self._create_documents_rgraph()
+
+        #we create voluntarily an invalid item
+        #TODO: factorise
+        fname = 'invalid'
+        ibci = InstanceBlockConfigItem.objects.create(
+                    entity=rgraph,
+                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
+                    data='%s|%s' % (fname, RFT_FIELD),
+                )
+
+        folder = Folder.objects.create(user=self.user, title='My folder')
+
+        x, y, error = ReportGraph.fetch_from_instance_block(ibci, folder)
+        self.assertEqual([], x)
+        self.assertEqual([], y)
+        self.assertEqual(_('The field is invalid.'), error)
+
+    def test_add_graph_instance_block02_error02(self):
+        "Volatile column (RFT_FIELD): field is not a FK to CremeEntity"
+        rgraph = self._create_documents_rgraph()
+
+        #we create voluntarily an invalid item
+        fname = 'description'
+        ibci = InstanceBlockConfigItem.objects.create(
+                    entity=rgraph,
+                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fname, RFT_FIELD),
+                    data='%s|%s' % (fname, RFT_FIELD),
+                )
+
+        folder = Folder.objects.create(user=self.user, title='My folder')
+
+        x, y, error = ReportGraph.fetch_from_instance_block(ibci, folder)
+        self.assertEqual([], x)
+        self.assertEqual([], y)
+        self.assertEqual(_('The field is invalid (not a foreign key).'), error)
+
+    def test_add_graph_instance_block02_error03(self):
+        "Volatile column (RFT_FIELD): field is not a FK to the given Entity type"
+        rgraph = self._create_documents_rgraph()
+
+        ibci = rgraph.create_instance_block_config_item(volatile_field='folder')
+        self.assertIsNotNone(ibci)
+
+        x, y, error = ReportGraph.fetch_from_instance_block(ibci, self.user.linked_contact)
+        self.assertEqual([], x)
+        self.assertEqual([], y)
+        self.assertIsNone(error)
+
+    def test_add_graph_instance_block03(self):
+        "Volatile column (RFT_RELATION)"
+        user = self.user
+        report = self._create_simple_contacts_report()
+        rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
+        incompatible_rtype = RelationType.create(('reports-subject_related_doc', 'is related to doc',   [Report]),
+                                                 ('reports-object_related_doc',  'is linked to report', [Document]),
+                                                )[0]
+
+        rgraph = ReportGraph.objects.create(user=user, report=report,
+                                            name='Number of created contacts / year',
+                                            abscissa='created', type=RGT_YEAR,
+                                            ordinate='', is_count=True,
+                                           )
+
+        url = self._build_add_block_url(rgraph)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response.context['form'].fields['volatile_column'].choices
+
+        rel_group = choices[2]
+        self.assertEqual(_('Relationships'), rel_group[0])
+
+        rel_choices = frozenset((k, unicode(v)) for k, v in rel_group[1])
+        choice_id = 'rtype-%s' % rtype.id
+        #self.assertIn((choice_id, unicode(rtype.predicate)), rel_choices)
+        self.assertIn((choice_id, unicode(rtype)), rel_choices)
+        #self.assertNotIn(('rtype-%s' % incompatible_rtype.id, unicode(incompatible_rtype.predicate)),
+                         #rel_choices
+                        #)
+        self.assertNotIn(('rtype-%s' % incompatible_rtype.id, unicode(incompatible_rtype)),
+                         rel_choices
+                        )
+
+        self.assertNoFormError(self.client.post(url, data={'volatile_column': choice_id}))
+
+        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
+        self.assertEqual(1, len(items))
+
+        item = items[0]
+        self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
+                                rgraph.id, rtype.id, RFT_RELATION,
+                            ),
+                         item.block_id
+                        )
+        self.assertEqual(u'%s - %s' % (rgraph.name, rtype), item.verbose)
+        self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION), item.data)
+
+        create_contact = partial(Contact.objects.create, user=user)
+        sonsaku = create_contact(first_name='Sonsaku', last_name='Hakufu')
+        ryomou  = create_contact(first_name='Ryomou',  last_name='Shimei')
+        create_contact(first_name=u'Kan-u', last_name=u'Unchô')
+
+        nanyo = Organisation.objects.create(user=user, name=u'Nanyô')
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype, object_entity=nanyo)
+        create_rel(subject_entity=sonsaku)
+        create_rel(subject_entity=ryomou)
+
+        #x, y = fetch_graph_from_instance_block(item, nanyo, order='ASC')
+        x, y, error = ReportGraph.fetch_from_instance_block(item, nanyo)
+        self.assertIsNone(error)
+
+        year = sonsaku.created.year
+        self.assertEqual([unicode(year)], x)
+        self.assertEqual([[2, '/persons/contacts?q_filter={"created__year": %s}' % year]], y)
+
+        #invalid choice
+        choice = 'invalid'
+        response = self.assertPOST200(url, data={'volatile_column': choice})
+        self.assertFormError(response, 'form', 'volatile_column',
+                             _(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': choice
+                                }
+                            )
+
+    def test_add_graph_instance_block03_error(self):
+        "Volatile column (RFT_RELATION): invalid relation type"
+        rgraph = self._create_documents_rgraph()
+
+        #we create voluntarily an invalid item
+        rtype_id = 'invalid'
+        ibci = InstanceBlockConfigItem.objects.create(
+                    entity=rgraph,
+                    block_id='instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, RFT_RELATION),
+                    data='%s|%s' % (rtype_id, RFT_RELATION),
+                )
+
+        x, y, error = ReportGraph.fetch_from_instance_block(ibci, self.user.linked_contact)
+        self.assertEqual([], x)
+        self.assertEqual([], y)
+        self.assertEqual(_('The relationship type is invalid.'), error)
 
     @skipIfNotInstalled('creme.billing')
     def test_get_available_report_graph_types(self):

@@ -18,19 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import logging
+import logging
 
-from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey
+from django.db.models import (PositiveIntegerField, CharField, BooleanField,
+        ForeignKey, Q, FieldDoesNotExist)
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
-from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
+from creme.creme_core.models import CremeEntity, RelationType, InstanceBlockConfigItem
 from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
 from ..constants import RFT_RELATION, RFT_FIELD
 from .report import Report
 
 
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ReportGraph(CremeEntity):
@@ -77,6 +78,63 @@ class ReportGraph(CremeEntity):
 
         return self.hand.fetch(entities, order)
 
+    @staticmethod
+    def fetch_from_instance_block(instance_block, entity, order='ASC'):
+        volatile_id = instance_block.data.split('|')
+        volatile_column, rfield_type = (volatile_id[0], volatile_id[1]) if volatile_id[0] else ('', 0)
+
+        try:
+            rfield_type = int(rfield_type)
+        except ValueError:
+            logger.warn('Instance block: invalid link type "%s" in block "%s".',
+                        rfield_type, instance_block,
+                       )
+            rfield_type = 0
+
+        graph  = instance_block.entity.get_real_entity()
+        x = []
+        y = []
+        error = None
+
+        if rfield_type == RFT_FIELD:
+            model = graph.report.ct.model_class()
+
+            try:
+                field = model._meta.get_field(volatile_column)
+            except FieldDoesNotExist:
+                logger.warn(u'Instance block: invalid field %s.%s in block "%s".',
+                            model.__name__, volatile_column, instance_block,
+                           )
+                error = _('The field is invalid.')
+            else:
+                if not isinstance(field, ForeignKey):
+                    logger.warn('Instance block: field %s.%s in block "%s" is not a FK.',
+                                model.__name__, volatile_column, instance_block,
+                               )
+                    error = _('The field is invalid (not a foreign key).')
+                elif isinstance(entity, field.rel.to):
+                    x, y = graph.fetch(extra_q=Q(**{volatile_column: entity.pk}),
+                                       order=order,
+                                      )
+        elif rfield_type == RFT_RELATION:
+            try:
+                rtype = RelationType.objects.get(pk=volatile_column)
+            except RelationType.DoesNotExist:
+                logger.warn('Instance block: invalid RelationType "%s" in block "%s".',
+                            volatile_column, instance_block,
+                           )
+                error = _('The relationship type is invalid.')
+            else:
+                x, y = graph.fetch(extra_q=Q(relations__type=rtype,
+                                             relations__object_entity=entity.pk,
+                                            ),
+                                   order=order,
+                                  )
+        else:
+            x, y = graph.fetch(order=order)
+
+        return x, y, error
+
     @property
     def hand(self):
         from ..core.graph import RGRAPH_HANDS_MAP #lazy loading
@@ -91,17 +149,43 @@ class ReportGraph(CremeEntity):
     class InstanceBlockConfigItemError(Exception):
         pass
 
+    #TODO: remove verbose (compute dynamically)
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from creme.reports.blocks import ReportGraphBlock
 
-        if volatile_field: #TODO: unit test
+        if volatile_field:
             assert volatile_rtype is None
             #verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
-            verbose = FieldInfo(self.report.ct.model_class(), volatile_field).verbose_name #TODO: manage invalid field ???
-            key = u"%s|%s" % (volatile_field, RFT_FIELD)
+            try:
+                field_info = FieldInfo(self.report.ct.model_class(), volatile_field)
+            except FieldDoesNotExist:
+                logger.info('ReportGraph.create_instance_block_config_item(): '
+                            'invalid field "%s" -> InstanceBlockConfigItem not built.',
+                            volatile_field
+                           )
+                return None
+
+            if len(field_info) > 1:
+                logger.info('ReportGraph.create_instance_block_config_item(): '
+                            'field "%s" with deep > 1 -> InstanceBlockConfigItem not built.',
+                            volatile_field
+                           )
+                return None
+
+            field = field_info[0]
+
+            if not (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
+                logger.info('ReportGraph.create_instance_block_config_item(): '
+                            'field "%s" is not a ForeignKey to CremeEntity -> InstanceBlockConfigItem not built.',
+                            volatile_field
+                           )
+                return None
+
+            verbose = field.verbose_name
+            key = '%s|%s' % (volatile_field, RFT_FIELD)
         elif volatile_rtype:
             verbose = unicode(volatile_rtype)
-            key = u"%s|%s" % (volatile_rtype.id, RFT_RELATION)
+            key = '%s|%s' % (volatile_rtype.id, RFT_RELATION)
         else:
             verbose = ugettext(u'None')
             key = ''

@@ -244,7 +244,7 @@ class RHRegularField(ReportHand):
 class RHForeignKey(RHRegularField):
     def __init__(self, report_field):
         #field_info = get_model_field_info(report_field.model, report_field.name) #todo: factorise with __new__
-        field_info = FieldInfo(report_field.model, report_field.name) #TODO: factorise with __new__
+        self._field_info = field_info = FieldInfo(report_field.model, report_field.name) #TODO: factorise with __new__
         #fk_info = field_info[0]
         #fk_field = fk_info['field']
         fk_field = field_info[0]
@@ -305,6 +305,14 @@ class RHForeignKey(RHRegularField):
 
     def get_linkable_ctypes(self):
         return (ContentType.objects.get_for_model(self._qs.model),) if self._linked2entity else None
+
+    @property
+    def field_info(self):
+        return self._field_info
+
+    @property
+    def linked2entity(self):
+        return self._linked2entity
 
 
 class RHManyToManyField(RHRegularField):
@@ -376,6 +384,10 @@ class RHRelation(ReportHand):
 
     def get_linkable_ctypes(self):
         return self._rtype.object_ctypes.all()
+
+    @property
+    def relation_type(self):
+        return self._rtype
 
 
 @REPORT_HANDS_MAP(RFT_FUNCTION)
