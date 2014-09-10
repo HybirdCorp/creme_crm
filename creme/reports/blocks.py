@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import InstanceBlockConfigItem
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from .core.graph import fetch_graph_from_instance_block
+#from .core.graph import fetch_graph_from_instance_block
 from .models import Report, Field, ReportGraph
 
 
@@ -66,6 +66,7 @@ class ReportGraphsBlock(QuerysetBlock):
                            )
 
 
+#TODO: errors (invalid field/relation_type) should be displayed in creme_config too
 class ReportGraphBlock(Block):
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
@@ -84,16 +85,15 @@ class ReportGraphBlock(Block):
         self.verbose_name          = self.verbose
 
     def detailview_display(self, context):
-        entity  = context['object']
-        graph   = self.graph
-
-        x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
+        entity = context['object']
+        #x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
+        x, y, error = ReportGraph.fetch_from_instance_block(self.instance_block_config, entity)
 
         return self._render(self.get_block_template_context(context,
-                                                            graph=graph,
-                                                            x=x,
-                                                            y=y,
-                                                            volatile_column=self.verbose.split(' - ')[1],
+                                                            graph=self.graph,
+                                                            x=x, y=y,
+                                                            error=error,
+                                                            volatile_column=self.verbose.split(' - ')[1], #TODO: compute here for translation
                                                             instance_block_id=self.instance_block_id,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                                             #is_ajax=context['request'].is_ajax(),
@@ -111,8 +111,7 @@ class ReportGraphBlock(Block):
         #TODO: update_url ??
         return self._render(self.get_block_template_context(context,
                                                             graph=graph,
-                                                            x=x,
-                                                            y=y,
+                                                            x=x, y=y,
                                                             volatile_column=self.verbose.split(' - ')[1],
                                                             instance_block_id=self.instance_block_id,
                                                             #is_ajax=context['request'].is_ajax(),

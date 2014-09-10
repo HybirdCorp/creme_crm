@@ -19,7 +19,7 @@
                 {% blocktrans with volatile_column|default:_("None") as vc %}Volatile column : {{vc}}{% endblocktrans %}
             </th>
         </tr>
-        {% if x %}{% comment %}{% if x and y %}{% endcomment %}
+        {% if x %}
             <tr class="content">
                 <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
                     <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
@@ -50,6 +50,10 @@
                     </div>
                 </td>
             </tr>
+        {% elif error %}
+            <tr class="content">
+                <td class="td_error" colspan="2">{{error}}</td>
+            </tr>
         {% else %}
             <tr class="content empty">
                 <td colspan="2">
@@ -59,13 +63,3 @@
         {% endif %}
     </tbody>
 </table>
-
-{% comment %}
-{% if x and y %}
-    {% if block_name %}
-        <script type="text/javascript">
-            creme.blocks.register('#{{ block_name }}');
-        </script>
-    {% endif %}
-{% endif %}
-{% endcomment %}

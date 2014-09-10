@@ -31,7 +31,7 @@ from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, Relati
 from creme.creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 
 from ..constants import *
-from ..core.graph import RGRAPH_HANDS_MAP, fetch_graph_from_instance_block
+from ..core.graph import RGRAPH_HANDS_MAP # fetch_graph_from_instance_block
 from ..forms.graph import ReportGraphForm
 from ..models import ReportGraph
 
@@ -128,7 +128,7 @@ def fetch_graph(request, graph_id, order):
 
     x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
 
-    return {'x': x, 'y': y, 'graph_id': graph_id}
+    return {'x': x, 'y': y, 'graph_id': graph_id} #TODO: graph_id useful ??
 
 @jsonify
 #@permission_required('reports') ??
@@ -137,6 +137,8 @@ def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order)
 
     instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
+    #x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
+    x, y, error = ReportGraph.fetch_from_instance_block(instance_block, entity, order=order)
 
+    #TODO: send error too ?
     return {'x': x, 'y': y}

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from datetime import timedelta
 from json import dumps as json_encode
 #import logging
 
-from django.db.models import Min, Max, FieldDoesNotExist, Q
+from django.db.models import Min, Max, FieldDoesNotExist #Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, CustomField, CustomFieldEnumValue
@@ -543,47 +543,47 @@ class RGHCustomFK(_RGHCustomField):
             yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
-def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
-    volatile_column = instance_block.data
-    graph           = instance_block.entity.get_real_entity()
-    ct_entity       = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
+#def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
+    #volatile_column = instance_block.data
+    #graph           = instance_block.entity.get_real_entity()
+    #ct_entity       = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
 
-    columns = volatile_column.split('|')
-    volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
+    #columns = volatile_column.split('|')
+    #volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
 
-    try:
-        hfi_type = int(hfi_type)
-    except ValueError:
-        hfi_type = 0
+    #try:
+        #hfi_type = int(hfi_type)
+    #except ValueError:
+        #hfi_type = 0
 
-    x = []
-    y = []
+    #x = []
+    #y = []
 
-    if hfi_type == RFT_FIELD: #TODO: unit test
-        try:
-            field = graph.report.ct.model_class()._meta.get_field(volatile_column)
-        except FieldDoesNotExist:
-            pass
-        else:
-            if field.get_internal_type() == 'ForeignKey' and field.rel.to == entity.__class__: #TODO: use isinstance()
-                x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}), #TODO: str() ??
-                                   order=order
-                                  )
-    elif hfi_type == RFT_RELATION: #TODO: unit test
-        try:
-            rtype = RelationType.objects.get(pk=volatile_column)
-        except RelationType.DoesNotExist:
-            pass
-        else:
-            obj_ctypes = rtype.object_ctypes.all()
+    #if hfi_type == RFT_FIELD:
+        #try:
+            #field = graph.report.ct.model_class()._meta.get_field(volatile_column)
+        #except FieldDoesNotExist:
+            #pass
+        #else:
+            #if field.get_internal_type() == 'ForeignKey' and field.rel.to == entity.__class__: #todo: use isinstance()
+                #x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}), #todo: str() ??
+                                   #order=order
+                                  #)
+    #elif hfi_type == RFT_RELATION:
+        #try:
+            #rtype = RelationType.objects.get(pk=volatile_column)
+        #except RelationType.DoesNotExist:
+            #pass
+        #else:
+            #obj_ctypes = rtype.object_ctypes.all()
 
-            if not obj_ctypes or ct_entity in obj_ctypes: #TODO: use RelationType.is_compatible
-                x, y = graph.fetch(extra_q=Q(relations__type=rtype,
-                                             relations__object_entity=entity.pk,
-                                            ),
-                                   order=order
-                                  )
-    else:
-        x, y = graph.fetch(order=order)
+            #if not obj_ctypes or ct_entity in obj_ctypes: #todo: use RelationType.is_compatible
+                #x, y = graph.fetch(extra_q=Q(relations__type=rtype,
+                                             #relations__object_entity=entity.pk,
+                                            #),
+                                   #order=order
+                                  #)
+    #else:
+        #x, y = graph.fetch(order=order)
 
-    return (x, y)
+    #return (x, y)

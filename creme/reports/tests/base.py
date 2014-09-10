@@ -17,7 +17,7 @@ try:
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.documents.models import Folder
+    from creme.documents.models import Document, Folder
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
@@ -80,6 +80,17 @@ class BaseReportsTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         report = Report.objects.create(user=self.user, name=name, ct=ct, filter=efilter)
         Field.objects.create(report=report, name='last_name', type=RFT_FIELD, order=1)
+
+        return report
+
+    def _create_simple_documents_report(self):
+        report = Report.objects.create(name="Documents report", user=self.user,
+                                           ct=ContentType.objects.get_for_model(Document)
+                                          )
+
+        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_field(name='title',       order=1)
+        create_field(name="description", order=2)
 
         return report
 
