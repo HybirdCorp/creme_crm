@@ -351,10 +351,11 @@ def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
-    TYPE: miust be in ('create', 'view','change', 'delete', 'link', 'unlink', 'create', 'export')
+    TYPE: must be in ('create', 'view','change', 'delete', 'link', 'unlink', 'create', 'export', 'admin')
     OBJECT: * TYPE in ('view','change', 'delete', 'unlink') => must be a CremeEntity.
             * TYPE='link' => can be a CremeEntity instance or a class inheriting from CremeEntity.
             * TYPE in ('create', 'export') and a class inheriting from CremeEntity OR a ContentType instance.
+            * TYPE='admin' => an app name, like 'creme_core'.
     """
     try:
         # Splitting by None == splitting by spaces.
