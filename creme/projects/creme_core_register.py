@@ -21,12 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
 from .models import Project, ProjectTask
 from .blocks import block_list
-
-from .forms.project import ProjectEditInnerStart, ProjectEditInnerEnd
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
@@ -42,6 +40,3 @@ block_registry.register(*block_list)
 reg_icon = icon_registry.register
 reg_icon(Project,     'images/project_%(size)s.png')
 reg_icon(ProjectTask, 'images/task_%(size)s.png')
-
-bulk_update_registry.register(Project, innerforms={'start_date':  ProjectEditInnerStart,
-                                                   'end_date':    ProjectEditInnerEnd,})

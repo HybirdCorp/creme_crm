@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import datetime, date, time
     from functools import partial
 
+    from django.utils.formats import date_format
     from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -154,7 +154,10 @@ class ProjectsTestCase(CremeTestCase):
                                             'responsibles': '[%d]' % manager.id,
                                            }
                                      )
-        self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
+        self.assertFormError(response, 'form', None, _(u'Start (%(start)s) must be before end (%(end)s).') % {
+                                                         'start': date_format(self.create_datetime(2012, 2, 16), 'DATE_FORMAT'),
+                                                         'end': date_format(self.create_datetime(2012, 2, 15), 'DATE_FORMAT'),
+                                                      })
 
     def test_project_lisview(self):
         self.login()
@@ -164,11 +167,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertGET200('/projects/projects')
 
     def _build_inner_edit_url(self, entity, field): #TODO: in creme_core ??
-        return '/creme_core/entity/edit/%s/%s/field/%s' % (
-                        entity.entity_type_id,
-                        entity.id,
-                        field,
-                    )
+        url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
+        return url % {'ct': entity.entity_type_id, 'id': entity.id, 'field': field}
 
     def test_project_inner_edit01(self):
         self.login()
@@ -190,14 +190,19 @@ class ProjectsTestCase(CremeTestCase):
         "Validation error"
         self.login()
 
-        project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        response = self.client.post(self._build_inner_edit_url(project, 'start_date'),
-                                    data={'entities_lbl': [unicode(project)],
-                                          'field_value':  '2012-3-27', #<= after end_date
-                                         }
-                                   )
-        self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
-        self.assertEqual(self.create_datetime(year=2012, month=2, day=16),
+        project = self.create_project('Eva01', start_date='2012-02-20', end_date='2012-03-25')[0]
+        response = self.assertPOST200(self._build_inner_edit_url(project, 'start_date'),
+                                      data={'entities_lbl': [unicode(project)],
+                                            'field_value':  '2012-03-27', #<= after end_date
+                                           }
+                                     )
+
+        self.assertFormError(response, 'form', None, _(u'Start (%(start)s) must be before end (%(end)s).') % {
+                                                         'start': date_format(self.create_datetime(2012, 3, 27), 'DATE_FORMAT'),
+                                                         'end': date_format(self.create_datetime(2012, 3, 25), 'DATE_FORMAT'),
+                                                      })
+
+        self.assertEqual(self.create_datetime(year=2012, month=2, day=20),
                          self.refresh(project).start_date
                         )
 

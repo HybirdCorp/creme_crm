@@ -68,7 +68,6 @@ reg_merge_form = merge_form_registry.register
 reg_merge_form(Contact,      get_merge_form_builder)
 reg_merge_form(Organisation, get_merge_form_builder)
 
-bulk_update_registry.register(Contact)
 bulk_update_registry.register(Organisation, exclude=['siren'])
 
 smart_columns_registry.register_model(Contact).register_field('first_name') \

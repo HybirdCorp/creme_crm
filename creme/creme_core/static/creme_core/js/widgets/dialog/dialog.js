@@ -54,7 +54,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
                   });
         }
 
-        frame.bind($('<div>').addClass('ui-creme-dialog-frame'));
+        frame.bind($('<div>').data('creme-dialog', this)
+                             .addClass('ui-creme-dialog-frame'));
     },
     
     _onFrameCleanup: function() {
@@ -336,6 +337,17 @@ creme.dialog.Dialog = creme.component.Component.sub({
     }
 });
 
+creme.dialog.redirect = function(url, from) {
+    if (from === undefined) {
+        creme.utils.redirect(url);
+    }
+
+    var dialog = $(from).parents(".ui-creme-dialog-frame:first").data("creme-dialog");
+
+    if (dialog) {
+        dialog.fetch(url);
+    }
+}
 
 creme.dialogs = creme.dialogs || {};
 

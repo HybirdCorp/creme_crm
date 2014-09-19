@@ -5,7 +5,7 @@ try:
 
     from ..base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
-    from creme.creme_core.forms.bulk import EntityInnerEditForm
+    from creme.creme_core.forms.bulk import BulkDefaultEditForm
 
     from creme.persons.models import Contact, Organisation
 
@@ -81,7 +81,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
         is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
 
-        class _ActivityInnerStart(EntityInnerEditForm):
+        class _ActivityInnerStart(BulkDefaultEditForm):
             pass
 
         bulk_update_registry.register(Activity, exclude=['type'], innerforms={'start': _ActivityInnerStart})

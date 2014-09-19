@@ -31,7 +31,7 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.persons.models import Contact
 
-from .models import ProjectStatus, TaskStatus, Project, ProjectTask, Resource
+from .models import ProjectStatus, TaskStatus
 from .blocks import *
 from .constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
 

@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.gui import creme_menu, icon_registry, bulk_update_registry
+from creme.creme_core.gui import creme_menu, icon_registry
 from creme.creme_core.registry import creme_registry
 
 from .models import RecurrentGenerator
@@ -35,5 +35,3 @@ reg_item('/recurrents/generators',    _(u'All recurrent generators'),      'recu
 reg_item('/recurrents/generator/add', RecurrentGenerator.creation_label,   'recurrents.add_recurrentgenerator')
 
 icon_registry.register(RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
-
-bulk_update_registry.register(RecurrentGenerator)
