@@ -61,7 +61,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _init_model: function(element, options)
     {
         var self = this;
-        var converter = options.datatype === 'json' ? function(data) {return creme.widget.cleanval(data, {})} : undefined;
+        var converter = this._converter = options.datatype === 'json' ? function(data) {return creme.widget.cleanval(data, null)} : undefined;
         var initial = creme.model.ChoiceRenderer.parse(element, converter);
 
         this._model_onchange_cb = function() {
@@ -276,7 +276,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (this.options.datatype === 'string')
             return value;
 
-        return creme.widget.cleanval(value, value);
+        return this._converter ? this._converter(value) : value;
     },
 
     reset: function(element) {
