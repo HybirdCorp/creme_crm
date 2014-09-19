@@ -54,10 +54,7 @@ button_registry.register(add_activity_button, add_meeting_button, add_phonecall_
 
 icon_registry.register(Activity, 'images/calendar_%(size)s.png')
 
-bulk_update_registry.register(
-    #(Activity,  ['type', 'start', 'end', 'busy', 'is_all_day', 'sub_type']),
-    (Activity,  ['start', 'end', 'busy', 'is_all_day', 'sub_type']),
-)
+bulk_update_registry.register(Activity, exclude=['start', 'end', 'busy', 'is_all_day', 'sub_type'])
 
 import_form_registry.register(Activity, get_csv_form_builder)
 

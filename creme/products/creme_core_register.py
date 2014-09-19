@@ -25,6 +25,7 @@ from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk
 
 from .blocks import images_block
 from .models import Product, Service
+from .forms.product import ProductInnerEditCategory
 
 
 creme_registry.register_app('products', _(u'Products and services'), '/products')
@@ -43,7 +44,8 @@ reg_icon = icon_registry.register
 reg_icon(Product, 'images/product_%(size)s.png')
 reg_icon(Service, 'images/service_%(size)s.png')
 
-bulk_update_registry.register(
-    (Product, ['category', 'sub_category']),
-    (Service, ['category', 'sub_category']),
-)
+bulk_update_registry.register(Product, innerforms={'category':     ProductInnerEditCategory,
+                                                   'sub_category': ProductInnerEditCategory})
+
+bulk_update_registry.register(Service, innerforms={'category':     ProductInnerEditCategory,
+                                                   'sub_category': ProductInnerEditCategory})

@@ -73,9 +73,7 @@ reg_import_form(Invoice,    get_import_form_builder)
 reg_import_form(Quote,      get_import_form_builder)
 reg_import_form(SalesOrder, get_import_form_builder)
 
-bulk_update_registry.register(
-    (TemplateBase, ['status_id', 'ct', 'base_ptr']),
-)
+bulk_update_registry.register(TemplateBase, exclude=['status_id', 'ct', 'base_ptr'])
 
 setting_key_registry.register(payment_info_key)
 

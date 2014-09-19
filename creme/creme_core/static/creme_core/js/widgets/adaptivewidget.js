@@ -19,69 +19,48 @@
 creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
     options : {
         url: '',
-        field_value_name: '',
-        parent_selector: 'td',
         object_id: ''
     },
 
-    _create: function(element, options) {
-        var self = creme.widget.AdaptiveWidget;
-
-        element.data('url', options['url']);
-        element.data('field_value_name', options['field_value_name']);
-        element.data('parent_selector', options['parent_selector']);
-        element.data('object_id', options['object_id']);
+    _create: function(element, options, cb)
+    {
+        var self = this;
 
         element.bind('change', function() {
-            self._change(element);
+            self._updateFieldWidget(element);
         });
 
-        self._change(element);
-
-        //self.val(element, self.val(element));
-        element.addClass('widget-ready');
+        this._updateFieldWidget(element, {
+            done: function() {
+                element.addClass('widget-ready');
+                creme.object.invoke(cb, element);
+            } 
+        });
     },
 
-    _change: function(element) {
+    _updateFieldWidget: function(element, listeners)
+    {
+        var options = this.options;
+        var listeners = listeners || {};
+
         var $select = element.find('select');
         var $form = $select.parents('form');
-        var value = $select.val();
-        var field_value_name = element.data('field_value_name');
-        var object_id = element.data('object_id');
+        var field_name = $select.val();
 
-        var $target = $form.find('[name='+field_value_name+']');
-        var $parent_target = $target.parents(element.data('parent_selector'));
+        var $target = $form.find('[name="field_value"]');
+        var $parent_target = $target.parents('td:first');
 
-        var query = creme.ajax.query(element.data('url'), {backend: {dataType: 'json'}})
+        var query = creme.ajax.query(options.url, {backend: {dataType: 'json'}})
                               .onDone(function(event, data) {
                                    $parent_target.empty().html(data.rendered);
                                    creme.widget.ready($parent_target);
-                               });
+                               })
+                              .on(listeners);
 
-        query.post({
-                  'field_name': value,
-                  'field_value_name': field_value_name,
-                  'object_id': object_id
+        query.get({
+                  'field_name': field_name,
+                  'object_id': options.object_id
               });
-
-        /*
-        creme.ajax.post({
-            url: element.data('url'),
-            dataType: 'json',
-            data:{
-                'field_name': value,
-                'field_value_name': field_value_name,
-                'object_id': object_id
-            },
-            success: function(data){
-                $parent_target.empty().html(data.rendered);
-                creme.widget.ready($parent_target);
-                //$target.remove();
-                //$parent_target.append($(data.rendered));
-            }
-
-        });
-        */
     }
 
 });

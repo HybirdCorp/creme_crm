@@ -36,6 +36,4 @@ reg_item('/recurrents/generator/add', RecurrentGenerator.creation_label,   'recu
 
 icon_registry.register(RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
 
-bulk_update_registry.register(
-    (RecurrentGenerator, ['periodicity']), #TODO: the multi-value field does not work here => improve bulk_update system !!
-)
+bulk_update_registry.register(RecurrentGenerator)

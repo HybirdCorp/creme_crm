@@ -32,6 +32,7 @@ from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from ..gui.block import Block, block_registry, BlocksManager
 from ..gui.bulk_update import bulk_update_registry
+from ..forms.base import _CUSTOM_NAME
 
 register = Library()
 
@@ -357,7 +358,7 @@ class RegularFieldEditorNode(TemplateNode):
         field_name = field_eval.name
 
         context['field']     = field_name
-        context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
+        context['updatable'] = bulk_update_registry.is_updatable(model, field_name, exclude_unique=False)
 
     def render(self, context):
         instance = self.object_var.eval(context)
@@ -376,7 +377,7 @@ class RegularFieldEditorNode(TemplateNode):
 
 class CustomFieldEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, field, instance):
-        context['field']     = field.id
+        context['field']     = 'customfield-%d' % field.id
         context['updatable'] = True
 
 class EntityCellEditorNode(RegularFieldEditorNode):
@@ -387,10 +388,10 @@ class EntityCellEditorNode(RegularFieldEditorNode):
             field_name = cell.field_info[0].name
             context['field'] = field_name
             #context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
-            context['updatable'] = bulk_update_registry.is_bulk_updatable(instance.__class__,
-                                                                          field_name,
-                                                                          exclude_unique=False,
-                                                                         )
+            context['updatable'] = bulk_update_registry.is_updatable(instance.__class__,
+                                                                     field_name,
+                                                                     exclude_unique=False,
+                                                                    )
         elif isinstance(cell, EntityCellCustomField):
             context['field'] = cell.value
             context['updatable'] = True

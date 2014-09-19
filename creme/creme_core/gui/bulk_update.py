@@ -18,47 +18,83 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from creme.creme_core.models.custom_field import CustomField
+
 
 class _BulkUpdateRegistry(object):
+    class ModelBulkStatus(object):
+        def __init__(self, model, ignore=False):
+            self._model = model
+            self.ignore = ignore
+
+            self.excludes = set()
+            self.innerforms = {}
+
+        def is_updatable(self, field, exclude_unique=True):
+            if isinstance(field, CustomField):
+                return True
+
+            return field.editable and not (exclude_unique and field.unique) and field.name not in self.excludes
+
+        def updatables(self, exclude_unique=True):
+            if self.ignore:
+                return []
+
+            is_updatable = self.is_updatable
+            return (field for field in self._model._meta.fields if is_updatable(field, exclude_unique))
+
     def __init__(self):
-        self._excluded_fieldnames = {} #key: model / values: set of field names (strings)
+        self._status = {}
 
-    def register(self, *fields_to_exclude):
-        excluded_fieldnames = self._excluded_fieldnames
+    def _get_or_create_status(self, model):
+        bulk = self._status.get(model)
 
-        for new_model, new_names in fields_to_exclude:
-            new_names = set(new_names)
+        if bulk is None:
+            bulk = self._status[model] = self.ModelBulkStatus(model)
 
-            for model, names in excluded_fieldnames.iteritems():
-                if new_model is not model:
-                    if issubclass(model, new_model):
-                        names |= new_names
-                    elif issubclass(new_model, model):
-                        new_names |= names
+        return bulk
 
-            old_names = excluded_fieldnames.get(new_model)
+    def register(self, model, exclude=None, innerforms=None):
+        bulk = self._get_or_create_status(model)
 
-            if old_names is None:
-                excluded_fieldnames[new_model] = new_names
-            else:
-                old_names |= new_names
+        if exclude:
+            bulk.excludes.update(set(exclude))
 
-    def get_fields(self, model, exclude_unique=True):
-        excluded_fields = self._excluded_fieldnames.get(model)
+        bulk.innerforms.update(innerforms or {})
+
+        # merge exclusion of subclasses
+        for old_model, old_bulk in self._status.iteritems():
+            if old_model is not model:
+                # registered subclass inherits exclusions of new model 
+                if issubclass(old_model, model):
+                    old_bulk.exclude.update(bulk.exclude)
+
+                # new model inherits exclusions of registered superclass
+                if issubclass(model, old_model):
+                    bulk.exclude.update(old_bulk.exclude)
+
+        return bulk
+
+    def ignore(self, model):
+        bulk = self._get_or_create_status(model)
+        bulk.ignore = True
+        return bulk
+
+    def status(self, model):
+        bulk = self._status.get(model)
 
         # get excluded field by inheritance in case of working model is not registered yet
-        if not excluded_fields:
-            self.register((model, []))
-            excluded_fields = self._excluded_fieldnames.get(model)
+        if bulk is None:
+            bulk = self.register(model)
 
-        for field in model._meta.fields:
-            if field.editable and field.name not in excluded_fields and not (exclude_unique and field.unique):
-                yield field
+        return bulk
 
-    def is_bulk_updatable(self, model, field_name, exclude_unique=True):
-        for field in self.get_fields(model, exclude_unique=exclude_unique):
+    def is_updatable(self, model, field_name, exclude_unique=True):
+        for field in self.status(model).updatables(exclude_unique):
             if field.name == field_name:
                 return True
+
+        return False
 
 
 bulk_update_registry = _BulkUpdateRegistry()

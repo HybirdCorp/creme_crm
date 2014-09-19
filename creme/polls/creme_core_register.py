@@ -46,7 +46,4 @@ reg_icon(PollForm,     'images/poll_%(size)s.png')
 reg_icon(PollReply,    'images/poll_%(size)s.png')
 reg_icon(PollCampaign, 'images/poll_%(size)s.png')
 
-#TODO: remove when BulkUpdate manages correctly FK on CremeEntity (right field/widget) (see test_regular_field09)
-bulk_update_registry.register(
-    (PollReply, ['campaign', 'person']),
-)
+bulk_update_registry.register(PollReply, exclude=['person'])

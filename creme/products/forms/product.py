@@ -18,6 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext as _
+
+from creme.creme_core.forms.bulk import EntityInnerEditForm
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.gui.bulk_update import bulk_update_registry
+from creme.creme_core.utils.meta import FieldInfo
+
 from ..models import Product
 from .base import _BaseCreateForm, _BaseEditForm
 
@@ -30,3 +37,15 @@ class ProductCreateForm(_BaseCreateForm):
 class ProductEditForm(_BaseEditForm):
     class Meta(_BaseEditForm.Meta):
         model = Product
+
+class ProductInnerEditCategory(_BaseEditForm):
+    class Meta(_BaseEditForm.Meta):
+        model = Product
+        fields = ('sub_category',)
+
+    def __init__(self, model, field_name, user, instance, *args, **kwargs):
+        super(ProductInnerEditCategory, self).__init__(instance=instance, user=user, *args, **kwargs)
+        del self.fields['user']
+
+    def clean(self, *args, **kwargs):
+        return super(ProductInnerEditCategory, self).clean(*args, **kwargs)
