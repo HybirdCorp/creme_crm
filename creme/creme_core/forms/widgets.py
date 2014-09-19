@@ -105,11 +105,17 @@ class DynamicSelect(Select):
     def _get_options(self):
         return list(self.options()) if callable(self.options) else self.options
 
-    def render(self, name, value, attrs=None):
+    @property
+    def choices(self):
+        return self._get_options()
+
+    @choices.setter
+    def choices(self, choices):
+        self.options = choices
+
+    def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
-        self.choices = self._get_options()
-
         output = widget_render_input(Select.render, self, name, value, context, url=self.url)
 
         if not self.label:

@@ -27,8 +27,8 @@ from django.contrib.auth.models import User
 
 from creme.creme_core.models import UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.forms import CremeForm, CremeModelForm #ListEditionField
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
+from creme.creme_core.forms import CremeForm, CremeModelForm, EntityCTypeChoiceField
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect
 from creme.creme_core.utils import creme_entity_content_types
 
 
@@ -114,7 +114,10 @@ class AddCredentialsForm(CremeModelForm):
     can_link   = BooleanField(label=_(u'Can link'),   required=False, help_text=_(u'You must have the permission to link on 2 entities to create a relationship between them.'))
     can_unlink = BooleanField(label=_(u'Can unlink'), required=False, help_text=_(u'You must have the permission to unlink on 2 entities to delete a relationship between them.'))
     set_type   = ChoiceField(label=_(u'Type of entities set'), choices=SetCredentials.ESETS_MAP.items())
-    ctype      = ChoiceField(label=_(u'Apply to a specific type'), choices=()) #TODO: EntityTypeChoiceField ???
+    ctype      = EntityCTypeChoiceField(label=_(u'Apply to a specific type'),
+                                        widget=DynamicSelect(attrs={'autocomplete': True}),
+                                        required=False,
+                                        empty_label=pgettext('content_type', 'None'))
 
     class Meta:
         model = SetCredentials
@@ -124,13 +127,9 @@ class AddCredentialsForm(CremeModelForm):
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
         self.role = role
 
-        choices = [(0, pgettext('content_type', 'None'))]
-        choices += sorted_entity_models_choices()
-        self.fields['ctype'].choices = choices
-
-    def clean_ctype(self):
-        ct_id = int(self.cleaned_data['ctype'])
-        return ContentType.objects.get_for_id(ct_id) if ct_id else None
+#     def clean_ctype(self):
+#         ct_id = int(self.cleaned_data['ctype'])
+#         return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
     def save(self, *args, **kwargs):
         instance = self.instance
