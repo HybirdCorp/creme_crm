@@ -5,6 +5,7 @@ try:
 
     from ..base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
+    from creme.creme_core.forms.bulk import EntityInnerEditForm
 
     from creme.persons.models import Contact, Organisation
 
@@ -21,11 +22,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.bulk_update_registry = _BulkUpdateRegistry()
 
     def test_bulk_update_registry01(self):
-        is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Organisation)
+        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Organisation)
 
         organisation_excluded_fields = ['siren']
 
-        self.bulk_update_registry.register((Organisation, organisation_excluded_fields))
+        self.bulk_update_registry.register(Organisation, exclude=organisation_excluded_fields)
 
         # TODO uncomment when bulk registry will manage empty_or_unique fields
 #        self.assertTrue(is_bulk_updatable(field_name='siren', exclude_unique=False)) # Inner editable
@@ -37,7 +38,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='siren')) # excluded field
 
     def test_bulk_update_registry02(self):
-        is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Contact)
+        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Contact)
 
         self.assertTrue(is_bulk_updatable(field_name='first_name'))
         self.assertTrue(is_bulk_updatable(field_name='last_name'))
@@ -50,11 +51,11 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_bulk_update_registry03(self):
         bulk_update_registry = self.bulk_update_registry
 
-        is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Activity)
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
 
         activity_excluded_fields = ['type', 'start_date', 'end_date', 'busy', 'is_all_day']
 
-        bulk_update_registry.register((Activity, activity_excluded_fields))
+        bulk_update_registry.register(Activity, exclude=activity_excluded_fields)
 
         self.assertTrue(is_bulk_updatable(field_name='title'))
         self.assertTrue(is_bulk_updatable(field_name='description'))
@@ -62,6 +63,34 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='type'))
         self.assertFalse(is_bulk_updatable(field_name='end_date'))
         self.assertFalse(is_bulk_updatable(field_name='busy'))
+
+    def test_bulk_update_registry_ignore(self):
+        bulk_update_registry = self.bulk_update_registry
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+
+        bulk_update_registry.ignore(Activity)
+
+        self.assertFalse(is_bulk_updatable(field_name='title'))
+        self.assertFalse(is_bulk_updatable(field_name='description'))
+
+        self.assertFalse(is_bulk_updatable(field_name='type'))
+        self.assertFalse(is_bulk_updatable(field_name='end_date'))
+        self.assertFalse(is_bulk_updatable(field_name='busy'))
+
+    def test_bulk_update_registry_innerforms(self):
+        bulk_update_registry = self.bulk_update_registry
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+
+        class _ActivityInnerStart(EntityInnerEditForm):
+            pass
+
+        bulk_update_registry.register(Activity, exclude=['type'], innerforms={'start': _ActivityInnerStart})
+
+        self.assertFalse(is_bulk_updatable(field_name='type'))
+        self.assertIsNone(bulk_update_registry.status(Activity).innerforms.get('type'))
+
+        self.assertTrue(is_bulk_updatable(field_name='start'))
+        self.assertEquals(_ActivityInnerStart, bulk_update_registry.status(Activity).innerforms.get('start'))
 
     #def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
         #bulk_update_registry = self.bulk_update_registry
@@ -131,7 +160,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_bulk_update_registry06(self):
         "Unique field"
         from creme.tickets.models import Ticket
-        is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Ticket)
+        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Ticket)
 
         # 'title' is an unique field which means that its not bulk updtable if the registry manage the unique
         # and it is if not

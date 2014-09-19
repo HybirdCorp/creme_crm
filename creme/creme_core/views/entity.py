@@ -24,6 +24,7 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
+from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 #from django.core import serializers
@@ -40,6 +41,7 @@ from ..core.exceptions import ConflictError
 from ..forms import CremeEntityForm
 from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
+from ..forms.fields import CreatorEntityField
 from ..gui.bulk_update import bulk_update_registry
 from ..models import CremeEntity, EntityCredentials #CustomField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
@@ -103,6 +105,7 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
 
     filtered = {True: [], False: []}
     has_perm = user.has_perm_to_change
+
     for entity in entities:
         filtered[has_perm(entity)].append(entity)
 
@@ -200,53 +203,39 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
 @login_required
 @jsonify
 def get_widget(request, ct_id):
-    model             = get_ct_or_404(ct_id).model_class()
-    POST              = request.POST
-    field_name        = get_from_POST_or_404(POST, 'field_name')
-    field_value_name  = get_from_POST_or_404(POST, 'field_value_name')
-    inner_edit_obj_id = POST.get('object_id')
+    model      = get_ct_or_404(ct_id).model_class()
+    GET        = request.GET
+    field_name = get_from_GET_or_404(GET, 'field_name')
+    entity_id  = GET.get('object_id')
 
     model_field, is_custom = EntitiesBulkUpdateForm.get_field(model, field_name)
 
     if model_field is None:
-        raise Http404(u'Unknown field')
+        raise Http404(u"The field %s.%s doesn't exist" % (model._meta.verbose_name, field_name))
 
-    if inner_edit_obj_id: # Inner edition
-        instance = get_object_or_404(model, pk=inner_edit_obj_id)
+    instance = get_object_or_404(model, pk=entity_id) if entity_id else None
 
+    if instance:
         #TODO: factorise this credentials test ?
         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
         request.user.has_perm_to_change_or_die(owner)
 
-        is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
+        is_updatable = bulk_update_registry.is_updatable(model, field_name, exclude_unique=False)
     else: # Bulk edition
-        is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name)
+        is_updatable = bulk_update_registry.is_updatable(model, field_name)
 
     # Prepare form field with custom widget if needed and initial value according to edit type
     if is_custom:
-        if inner_edit_obj_id:
-            #TODO why get_custom_value doesnt seem to work when populate custom values has not been called
-            CremeEntity.populate_custom_values([instance], [model_field])
-            form_field = model_field.get_formfield(instance.get_custom_value(model_field))
-        else:
-            form_field = model_field.get_formfield(None)
-    elif is_updatable:
-        form_field = model_field.formfield()
-        form_field.choices = _get_choices(model_field, request.user)
-        form_field.widget = _FIELDS_WIDGETS.get(model_field.__class__) or form_field.widget
+        form_field = EntitiesBulkUpdateForm.get_custom_formfield(model_field, instance)
+    else:
+        if not is_updatable:
+            raise Http404(u'The field %s.%s is not editable' % (model._meta.verbose_name, field_name))
 
-        if inner_edit_obj_id:
-            form_field.initial = model_to_dict(instance, [field_name])[field_name]
+        form_field = EntitiesBulkUpdateForm.get_updatable_formfield(model_field, request.user, instance)
 
-    value = form_field.initial
-
-    if isinstance(value, datetime):
-        value = date_format(localtime(value), 'DATETIME_FORMAT')
-
-    return {'rendered': form_field.widget.render(name=field_value_name,
-                                                 #value=form_field.initial,
-                                                 value=value,
-                                                 attrs={'id': 'id_%s' % field_value_name},
+    return {'rendered': form_field.widget.render(name='field_value',
+                                                 value=form_field.initial,
+                                                 attrs={'id': 'id_field_value'},
                                                 ),
            }
 
@@ -315,7 +304,7 @@ def search_and_view(request):
     raise Http404(_(u'No entity corresponding to your search was found.'))
 
 @login_required
-def edit_field(request, ct_id, id, field_str):
+def edit_field(request, ct_id, id, field_name):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
     entity = get_object_or_404(model, pk=id)
@@ -323,29 +312,38 @@ def edit_field(request, ct_id, id, field_str):
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
     user.has_perm_to_change_or_die(owner)
 
-    try:
-        if request.method == 'POST':
-            form = EntityInnerEditForm(model=model,
-                                       field_id=field_str,
-                                       subject=entity,
-                                       user=user,
-                                       data=request.POST,
-                                      )
+    model_field, __ = EntitiesBulkUpdateForm.get_field(model, field_name)
 
-            if form.is_valid():
-                form.save()
-        else:
-            form = EntityInnerEditForm(model=model,
-                                       field_id=field_str,
-                                       subject=entity,
-                                       user=user,
-                                      )
-    except EntityInnerEditForm.InvalidField as e:
-        raise Http404(e)
+    if model_field is None:
+        raise Http404(u"The field %s.%s doesn't exist" % (model._meta.verbose_name, field_name))
+
+    bulk_status = bulk_update_registry.status(model)
+
+    if not bulk_status.is_updatable(model_field, exclude_unique=False):
+        raise Http404(u'The field %s.%s is not editable' % (model._meta.verbose_name, field_name))
+
+    form_class = bulk_status.innerforms.get(field_name, EntityInnerEditForm)
+
+    if request.method == 'POST':
+        form = form_class(model=model,
+                          field_name=field_name,
+                          instance=entity,
+                          user=user,
+                          data=request.POST,
+                         )
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = form_class(model=model,
+                          field_name=field_name,
+                          instance=entity,
+                          user=user,
+                         )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Inner update'),
+                        'title': _(u'Edit «%s»') % unicode(entity),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,

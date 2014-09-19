@@ -6,6 +6,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, CustomField
     from ..base import CremeTestCase
@@ -179,7 +180,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                )
             render = template.render(Context({'object': orga, 'user': self.user, 'custom_field_id': custom_field_orga}))
 
-        self.assertFieldEditorTag(render, orga, custom_field_orga.id)
+        self.assertFieldEditorTag(render, orga, _CUSTOMFIELD_FORMAT % custom_field_orga.id)
 
     def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
         with self.assertNoException():
@@ -213,7 +214,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_get_field_editor06(self):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Amestris')
-        bulk_update_registry.register((Organisation, ['siren']),)
+        bulk_update_registry.register(Organisation, exclude=['siren'],)
 
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}") # not editable
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}") # not editable

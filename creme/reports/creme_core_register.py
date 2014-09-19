@@ -42,6 +42,4 @@ reg_icon = icon_registry.register
 reg_icon(Report,      'images/report_%(size)s.png')
 reg_icon(ReportGraph, 'images/graph_%(size)s.png')
 
-bulk_update_registry.register(
-    (Report, ['ct', 'columns', 'filter']),
-)
+bulk_update_registry.register(Report, exclude=['ct', 'columns'])
