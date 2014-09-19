@@ -80,7 +80,7 @@ creme.model.CollectionController = creme.component.Component.sub({
     {
         this.model().fetch();
         return this;
-    },
+    }
 });
 
 

@@ -45,7 +45,7 @@ creme.widget.CONTAINER_LAYOUTS = {
             comparator: comparator,
             reverse: options['sort-reverse']
         });
-    },
+    }
 }
 
 creme.widget.Container = creme.widget.declare('ui-creme-container', {

@@ -29,7 +29,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     options : {
         popupURL: '',
         popupSelection: creme.widget.EntitySelectorMode.SINGLE,
-        popupAuto: undefined,
         labelURL: '',
         label: gettext('Select'),
         qfilter: '',
@@ -49,14 +48,14 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
         $(element).bind('click', function() {
             if (self._enabled) {
-                self._select(element, $(this));
+                self._select(element);
             }
         });
 
-        this
-
-        $(element).bind('selectorlist-added', function(e, selector) {
-            self._autoselect(element);
+        $(element).bind('action', function(e, action, listeners) {
+            if (action === 'select') {
+                self._select(element, listeners);
+            }
         });
 
         var selection = this._popupSelectMode = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
@@ -65,8 +64,6 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                                                        qfilter: options.qfilter,
                                                        selection: selection
                                                    });
-
-        this._isPopupAuto = !Object.isNone(options.popupAuto)
 
         this._reloadLabel(element, cb, undefined, sync);
         element.addClass('widget-ready');
@@ -92,59 +89,26 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         }
     },
 
-    _update: function(element, values)
-    {
-        this.val(element, values[0]);
-
-        // TODO : hack that automatically add lines when multiselection is enabled
-        if (this.isMultiple(element) && (values.length > 1))
-        {
-            var list = this.parentSelectorList(element).creme().widget();
-            var chainname = element.parent().attr('chained-name');
-            var chain = chainname ? element.parents('.ui-creme-chainedselect:first').creme().widget() : undefined;
-
-            if (Object.isEmpty(list))
-                return;
-
-            if (Object.isEmpty(chain)) {
-                for(var index = 1; index < values.length; ++index) {
-                    var selector = list.appendSelector(values[index]);
-                }
-            } else {
-                var data = creme.widget.cleanval(chain.val());
-
-                for(var index = 1; index < values.length; ++index) {
-                    data[chainname] = values[index];
-                    var selector = list.appendSelector(data);
-                }
-            }
-        }
-    },
-
-    _autoselect: function(element)
+    _select: function(element, listeners)
     {
         var self = this;
-
-        if (this._isPopupAuto && Object.isEmpty(this.val(element)))
-        {
-            this._select(element, function(element, result) {
-                if (Object.isEmpty(self.val(element))) {
-                    self.parentSelectorList(element).creme().widget().removeSelector(element);
-                }
-            });
-        }
-    },
-
-    _select: function(element, cb)
-    {
-        var self = this;
-        var multiple = this._popupSelectMode === creme.widget.EntitySelectorMode.MULTIPLE;
+        var multiple = this.isMultiple();
         var url = this.popupURL(element);
+        var listeners = listeners || {};
 
+        console.log(multiple);
+        
         creme.lv_widget.listViewAction(url, {multiple:multiple})
                        .onDone(function(event, data) {
-                            self._update(element, data);
-                            creme.object.invoke(cb, element, data);
+                            //self._update(element, data);
+                            self.val(element, data[0]);
+                            creme.object.invoke(listeners.done, 'done', element, data);
+                        })
+                       .onCancel(function() {
+                            creme.object.invoke(listeners.cancel, 'cancel')
+                        })
+                       .onFail(function() {
+                            creme.object.invoke(listeners.fail, 'fail')
                         })
                        .start();
     },

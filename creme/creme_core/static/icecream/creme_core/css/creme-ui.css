@@ -61,10 +61,13 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
 
 .ui-creme-selectorlist[disabled] img.delete { display: none; }
-.ui-creme-selectorlist[disabled] div.add {
-    opacity: .50;
-    filter: Alpha(Opacity=50);
-    cursor: default;
+.ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
+    display: none;
+}
+
+.ui-creme-selectorlist button[type="button"].ui-creme-actionbutton {
+    background-image: url("icecream/images/add_16.png");
+    padding-left: 20px;
 }
 
 /*----------------------------------*/
@@ -237,10 +240,11 @@ ul.ui-creme-actionbuttonlist {
     padding: 0px 4px 0px 0px;
 }
 
-ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton {
+button[type="button"].ui-creme-actionbutton {
     padding: 1px 6px 1px 6px;
     cursor: pointer;
     margin: 0px;
+    min-height: 20px;
 /*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
@@ -254,7 +258,7 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton {
     color: #22439f;
 }
 
-ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton:hover {
+button[type="button"].ui-creme-actionbutton:hover {
 /*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
@@ -269,13 +273,13 @@ ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton:hove
     background-color: #f4fafd;
 }
 
-ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[disabled] {
+button[type="button"].ui-creme-actionbutton[disabled] {
     opacity: .50;
     filter: Alpha(Opacity=50);
     cursor: default;
 }
 
-ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[disabled]:hover {
+button[type="button"].ui-creme-actionbutton[disabled]:hover {
 /*    background-color: #D9E5EA;*/
     background-color: #ebebeb; /* desaturate and lighten */
 }
