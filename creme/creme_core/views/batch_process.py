@@ -68,8 +68,9 @@ def batch_process(request, ct_id):
         cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'creme_core/batch_process.html',
-                  {'form':       bp_form,
-                   'cancel_url': cancel_url,
+                  {'form':          bp_form,
+                   'submit_label':  _('Run'),
+                   'cancel_url':    cancel_url,
                   }
                  )
 
