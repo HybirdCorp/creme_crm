@@ -104,7 +104,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
             this._target.css({
                              'overflow-x': 'hidden',
                              'overflow-y': 'hidden',
-                             'position':   'relative',
+                             'position':   'relative'
                          });
 
             this.resize();

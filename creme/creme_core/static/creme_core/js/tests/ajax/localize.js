@@ -3,7 +3,7 @@ module("creme.ajax.backend.js", {
     },
 
     teardown: function() {
-    },
+    }
 });
 
 test('creme.ajax.localizedErrorMessage (unknown)', function() {

@@ -667,15 +667,17 @@ class CreatorEntityField(JSONField):
     def _clear_actions(self):
         self.widget.clear_actions()
 
-    def _add_action(self, *args, **kwargs):
-        self.widget.add_action(*args, **kwargs)
+    def _add_action(self, name, label, **kwargs):
+        self.widget.add_action(name, label, **kwargs)
+
+    def _has_quickform(self, model):
+        from creme.creme_core.gui import quickforms_registry
+        return quickforms_registry.get_form(model) is not None
 
     def _add_create_action(self, user):
         model = self.model
 
-        from creme.creme_core.gui import quickforms_registry
-
-        if quickforms_registry.get_form(model) is None:
+        if not self._has_quickform(model):
             return
 
         allowed = user.has_perm_to_create(model)
@@ -714,18 +716,58 @@ class MultiCreatorEntityField(CreatorEntityField):
     value_type = list
 
     def _create_widget(self):
-        return SelectorList(EntitySelector(unicode(self.get_ctype().pk),
-                                           {'auto':       False,
-                                            'qfilter':    self.q_filter,
-                                            'multiple':   True,
-                                            'autoselect': True,
-                                           },
-                                          ),
-                            attrs={'clonelast' : False,}
+        self._widget_item = ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
+                                                                     {'auto':       False,
+                                                                      'qfilter':    self.q_filter,
+                                                                      'multiple':   True,
+                                                                      'autoselect': True,
+                                                                     },
+                                                                    )
+                                            )
+
+        return SelectorList(self._widget_item,
+                            attrs={'clonelast' : False},
                            )
 
+    def _clear_actions(self):
+        self._widget_item.clear_actions()
+        self.widget.clear_actions()
+
+    def _add_action(self, name, label, is_list_action=False, **kwargs):
+        enabled = kwargs.pop('enabled', True)
+
+        if is_list_action:
+            self._widget_item.add_action(name, label, enabled=False, **kwargs)
+            self.widget.add_action(name, label, enabled)
+        else:
+            self._widget_item.add_action(name, label, enabled=enabled, **kwargs)
+
+    def _add_create_action(self, user):
+        model = self.model
+
+        if not self._has_quickform(model):
+            return
+
+        allowed = user.has_perm_to_create(model)
+
+        self._add_action('create', model.creation_label, enabled=allowed,
+                         title=_(u'Create') if allowed else _(u"Can't create"),
+                         url=self.create_action_url,
+                         is_list_action=True,
+                        )
+
     def _update_actions(self):
-        pass
+        self._clear_actions()
+        #TODO : use _CremeModel.selection_label instead of 'Select'
+        self._add_action('add', _(u'Select'), is_list_action=True)
+
+        if self._q_filter is not None and self._create_action_url is None:
+            return
+
+        user = self._user
+
+        if user is not None:
+            self._add_create_action(user)
 
     def _value_to_jsonifiable(self, value):
         if not value:

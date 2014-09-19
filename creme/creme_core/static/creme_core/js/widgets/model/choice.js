@@ -158,7 +158,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
             .toggleAttr('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
-    },
+    }
 });
 
 creme.model.ChoiceGroupRenderer.parse = function(element, converter) {

@@ -206,7 +206,7 @@ test('creme.component.EventHandler.bind (object)', function() {
     var handler = new creme.component.EventHandler();
     var listeners = {
             event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')],
+            event2: [this.mockListener('2'), this.mockListener('3')]
         }
 
     deepEqual({}, handler._listeners);
@@ -234,11 +234,11 @@ test('creme.component.EventHandler.bind (object array)', function() {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
             event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')],
+            event2: [this.mockListener('2'), this.mockListener('3')]
         },
         listeners2 = {
             event1: this.mockListener('2.1'),
-            event3: [this.mockListener('2.2'), this.mockListener('2.3')],
+            event3: [this.mockListener('2.2'), this.mockListener('2.3')]
         };
 
     deepEqual({}, handler._listeners);
@@ -445,7 +445,7 @@ test('creme.component.EventHandler.unbind (dict)', function() {
     var handler = new creme.component.EventHandler();
     var listeners = {
             event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')],
+            event2: [this.mockListener('2'), this.mockListener('3')]
         }
 
     handler.bind(listeners);
@@ -470,11 +470,11 @@ test('creme.component.EventHandler.unbind (dict array)', function() {
     var handler = new creme.component.EventHandler();
     var listeners1 = {
             event1: this.mockListener('1'),
-            event2: [this.mockListener('2'), this.mockListener('3')],
+            event2: [this.mockListener('2'), this.mockListener('3')]
         },
         listeners2 = {
             event1: this.mockListener('2.1'),
-            event3: [this.mockListener('2.2'), this.mockListener('2.3')],
+            event3: [this.mockListener('2.2'), this.mockListener('2.3')]
         };
 
     handler.bind([listeners1, listeners2]);

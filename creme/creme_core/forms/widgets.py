@@ -327,11 +327,59 @@ class ChainedInput(TextInput):
 
 
 class SelectorList(TextInput):
+    class Action(object):
+        def __init__(self, name, label, enabled=True, **kwargs):
+            self.name = name
+            self.label = label
+            self.enabled = enabled
+            self.attrs = kwargs or {}
+
+        @property
+        def enabled(self):
+            return self._enabled if callable(self._enabled) else self._enabled is True
+
+        @enabled.setter
+        def enabled(self, enabled):
+            self._enabled = enabled
+
     def __init__(self, selector, attrs=None, enabled=True):
         super(SelectorList, self).__init__(attrs)
         self.selector = selector
         self.enabled = enabled
+        self.actions = [self.Action('add', _(u'Add'))]
         self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
+
+    def add_action(self, name, label, enabled=True, **kwargs):
+        self.actions.append(self.Action(name, label, enabled, **kwargs))
+        return self
+
+    def clear_actions(self):
+        self.actions = []
+        return self
+
+    def _render_actions(self):
+        #output = []
+        #output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
+
+        #return '\n'.join(output)
+        return '\n'.join(self._render_action(action) for action in self.actions)
+
+    def _render_action(self, action):
+        attrs = dict(action.attrs)
+
+        if not action.enabled:
+            attrs['disabled'] = u''
+
+        title = attrs.pop('title', action.label)
+        context = {'name':  action.name,
+                   'attr':  flatatt(attrs),
+                   'label': action.label,
+                   'title': title,
+                  }
+
+        return u'<li><button class="ui-creme-actionbutton selectorlist-%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>'\
+                '    %(label)s'\
+                '</button></li>' % context
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
@@ -347,13 +395,14 @@ class SelectorList(TextInput):
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
+        context['actions'] = self._render_actions()
 
-        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>
-                                %(input)s
-                                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
-                                <ul class="selectors ui-layout"></ul>
-                                <div class="add">%(add)s</div>
-                            </div>""" % context)
+        return mark_safe('<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>'\
+                         '       %(input)s'\
+                         '      <div class="inner-selector-model" style="display:none;">%(selector)s</div>'\
+                         '       <ul class="selectors ui-layout"></ul>'\
+                         '       <ul class="ui-layout hbox">%(actions)s</ul>'\
+                         '</div>' % context)
 
 
 class EntitySelector(TextInput):

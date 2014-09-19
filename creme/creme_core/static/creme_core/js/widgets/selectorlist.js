@@ -32,9 +32,15 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
             element.attr('disabled', '');
         }
 
-        $('div.add', element).click(function() {
+        $('.selectorlist-add', element).click(function() {
             if (self._enabled) {
                 self.appendLastSelector(element);
+            }
+        });
+
+        $('.selectorlist-create', element).click(function() {
+            if (self._enabled) {
+                self.createSelector(element);
             }
         });
 
@@ -50,12 +56,6 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
         element.addClass('widget-ready');
         creme.object.invoke(cb, element);
-    },
-
-    _buildSelector: function(element)
-    {
-        var model = this.selectorModel(element).clone();
-        return creme.widget.create(model, {}, undefined, true);
     },
 
     lastSelector: function(element) {
@@ -90,38 +90,51 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         return selector;
     },
 
-    appendLastSelector: function(element, cb)
+    appendLastSelector: function(element)
     {
         var last = this.lastSelector(element);
         var value = this._isCloneLast && last.creme().isActive() ? last.creme().widget().val() : undefined;
-        return this.appendSelector(element, value, cb);
+        return this.appendSelector(element, value);
     },
 
-    appendSelector: function(element, value, cb)
+    appendSelector: function(element, value, action)
     {
-        var selector = this._appendSelector(element, value);
+        var self = this;
+        var action = action || 'select';
 
-        if (selector !== undefined)
-        {
-            this._update(element, cb);
-            selector.element.trigger('selectorlist-added', [selector]);
-
-            creme.object.invoke(cb, selector, value);
-            return selector.element;
-        }
-
-        return;
+        return this._buildSelector(element, value, {
+            done: function(event, selector, value) {
+                if (value === undefined) {
+                    selector.triggerHandler('action', [action, {
+                        cancel: function() {
+                            self.removeSelector(element, selector);
+                        },
+                        done: function(event, selector, data) {
+                            data.slice(1).forEach(function(value) {
+                                self.appendSelector(element, value);
+                            });
+                        }
+                    }]);
+                } else {
+                    selector.creme().widget().val(value);
+                }
+            }
+        });
     },
 
-    _appendSelector: function(element, value)
+    createSelector: function(element, value) {
+        return this.appendSelector(element, value, 'create');
+    },
+
+    _buildSelector: function(element, value, listeners)
     {
         var self = this;
         var selector_model = this.selectorModel(element).clone();
 
-        if (creme.object.isempty(selector_model))
+        if (creme.object.isempty(selector_model)) {
+            creme.object.invoke(listeners.fail, 'fail');
             return;
-
-        selector_model.css('display', 'hidden');
+        }
 
         var selector_item = $('<li>').addClass('selector');
         var selector_layout = $('<ul>').addClass('ui-layout hbox').css('display', 'block').appendTo(selector_item);
@@ -147,15 +160,14 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         });
 
         var selector = creme.widget.create(selector_model, {disabled: !this._enabled}, function() {
-            selector_model.css('display', 'inline');
+            creme.object.invoke(listeners.done, 'done', selector_model, value);
         }, true);
 
-        if (creme.object.isempty(selector)) {
-            selector_item.removeFromParent();
-            return;
+        if (selector === undefined) {
+            selector_item.remove();
+            creme.object.invoke(listeners.fail, 'fail');
         }
 
-        selector.val(value);
         return selector;
     },
 
@@ -175,7 +187,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         $('ul.selectors', element).empty();
 
         for (var i = 0; i < values.length; ++i) {
-            this._appendSelector(element, values[i]);
+            this.appendSelector(element, values[i]);
         }
     },
 
