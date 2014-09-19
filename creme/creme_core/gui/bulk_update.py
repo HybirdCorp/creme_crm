@@ -67,11 +67,11 @@ class _BulkUpdateRegistry(object):
             if old_model is not model:
                 # registered subclass inherits exclusions of new model 
                 if issubclass(old_model, model):
-                    old_bulk.exclude.update(bulk.exclude)
+                    old_bulk.excludes.update(bulk.excludes)
 
                 # new model inherits exclusions of registered superclass
                 if issubclass(model, old_model):
-                    bulk.exclude.update(old_bulk.exclude)
+                    bulk.excludes.update(old_bulk.excludes)
 
         return bulk
 

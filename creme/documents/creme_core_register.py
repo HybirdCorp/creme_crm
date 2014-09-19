@@ -45,6 +45,5 @@ reg_icon(Document, 'images/document_%(size)s.png')
 reg_icon(Folder,   'images/document_%(size)s.png')
 
 bulk_update_registry.register(Document, exclude=['filedata'])
-bulk_update_registry.register(Folder)
 
 quickforms_registry.register(Document, DocumentQuickForm)

@@ -20,21 +20,18 @@
 
 from functools import partial
 
-from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
+from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
 
-from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
-from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
-from creme.creme_core.forms.bulk import EntityInnerEditForm
-
+from creme.creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.models import Relation
 from creme.persons.models import Contact
 
-from ..models import Project
 from ..constants import REL_OBJ_PROJECT_MANAGER
+from ..models import Project
 
 
 class ProjectEditForm(CremeEntityForm):
@@ -63,23 +60,3 @@ class ProjectCreateForm(ProjectEditForm):
             create_relation(object_entity=contact)
 
         return instance
-
-
-class ProjectEditInnerStart(EntityInnerEditForm):
-    def clean(self, *args, **kwargs):
-        cleaned_data = super(ProjectEditInnerStart, self).clean(*args, **kwargs)
-
-        if cleaned_data['field_value'] >= self.instance.end_date:
-            raise ValidationError(_(u'Start must be before end.'))
-
-        return cleaned_data
-
-
-class ProjectEditInnerEnd(EntityInnerEditForm):
-    def clean(self, *args, **kwargs):
-        cleaned_data = super(ProjectEditInnerEnd, self).clean(*args, **kwargs)
-
-        if self.instance.start_date >= cleaned_data['field_value']:
-            raise ValidationError(_(u'Start must be before end.'))
-
-        return cleaned_data

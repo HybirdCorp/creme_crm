@@ -20,13 +20,11 @@
 
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.bulk import EntityInnerEditForm
-from creme.creme_core.forms.widgets import Label
-from creme.creme_core.gui.bulk_update import bulk_update_registry
-from creme.creme_core.utils.meta import FieldInfo
+from creme.creme_core.forms.bulk import BulkForm
 
 from ..models import Product
 from .base import _BaseCreateForm, _BaseEditForm
+from creme.products.forms.fields import CategoryField
 
 
 class ProductCreateForm(_BaseCreateForm):
@@ -38,14 +36,23 @@ class ProductEditForm(_BaseEditForm):
     class Meta(_BaseEditForm.Meta):
         model = Product
 
-class ProductInnerEditCategory(_BaseEditForm):
-    class Meta(_BaseEditForm.Meta):
-        model = Product
-        fields = ('sub_category',)
 
-    def __init__(self, model, field_name, user, instance, *args, **kwargs):
-        super(ProductInnerEditCategory, self).__init__(instance=instance, user=user, *args, **kwargs)
-        del self.fields['user']
+class ProductInnerEditCategory(BulkForm):
+    def __init__(self, model, field_name, user, entities, is_bulk, **kwargs):
+        super(ProductInnerEditCategory, self).__init__(model, field_name, user, entities, is_bulk, **kwargs)
 
-    def clean(self, *args, **kwargs):
-        return super(ProductInnerEditCategory, self).clean(*args, **kwargs)
+        sub_category = CategoryField(label=_(u'Sub-category'))
+
+        if not is_bulk:
+            sub_category.initial = entities[0].sub_category
+
+        self.fields['sub_category'] = sub_category
+
+    def save(self, *args, **kwargs):
+        entities = self.entities
+        sub_category = self.cleaned_data['sub_category']
+
+        for entity in entities:
+            entity.category = sub_category.category
+            entity.sub_category = sub_category
+            entity.save()

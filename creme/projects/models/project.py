@@ -20,8 +20,9 @@
 
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
+from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 
 from creme.creme_core.models import CremeEntity
 
@@ -68,7 +69,9 @@ class Project(CremeEntity):
 
         #TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
-            raise ValidationError(ugettext(u'Start must be before end.'))
+            raise ValidationError(ugettext(u'Start (%(start)s) must be before end (%(end)s).') %\
+                                  {'start': date_format(localtime(self.start_date), 'DATE_FORMAT'),
+                                   'end': date_format(localtime(self.end_date), 'DATE_FORMAT'),})
 
     def delete(self):
         for task in self.get_tasks():

@@ -166,6 +166,10 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             button.focus();
     },
 
+    _updateButtonLabel: function(name, label) {
+        $('.ui-button-text', this.button(name)).html(label);
+    },
+
     _populateButtons: function(buttons, options)
     {
         this._appendButton(buttons, 'send', gettext('Save'), this.submit);

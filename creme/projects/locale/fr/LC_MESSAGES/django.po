@@ -261,8 +261,8 @@ msgid "Project"
 msgstr "Projet"
 
 #: models/project.py:73
-msgid "Start must be before end."
-msgstr "Le début doit être avant la fin."
+msgid "Start (%(start)s) must be before end (%(end)s)."
+msgstr "La date de début (%(start)s) doit être avant la date de fin (%(end)s)."
 
 #: models/projectstatus.py:28 models/taskstatus.py:28
 #: templates/projects/templatetags/block_parent_tasks.html:16

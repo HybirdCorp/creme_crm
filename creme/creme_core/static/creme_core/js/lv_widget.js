@@ -240,6 +240,37 @@ creme.lv_widget.addToSelectedLines = function(list, url) {
     return action;
 }
 
+creme.lv_widget.editSelectedLines = function(list, url) {
+    var list = $(list);
+    var selection = creme.lv_widget.selectedLines(list);
+
+    if (!selection.length) {
+        creme.dialogs.warning(gettext("Please select at least one entity.")).open();
+        return;
+    }
+
+    var dialog = creme.dialogs.form(url.format(selection.join(',')), {});
+
+    dialog.onFormSuccess(function(event, data) {
+              list.list_view('reload');
+           })
+          .onFormError(function(event, data) {
+              if ($('form', this.content()).length == 0) {
+                  this._updateButtonState('send', false);
+                  this._updateButtonLabel('cancel', gettext('Close'));
+                  this._bulk_edit_done = true;
+              }
+           })
+          .onClose(function() {
+              if (this._bulk_edit_done) {
+                  list.list_view('reload');
+              }
+          })
+          .open({width:800});
+
+    return dialog;
+}
+
 creme.lv_widget.handleSort = function(sort_field, sort_order, new_sort_field, input, callback) {
     var $sort_field = $(sort_field);
     var $sort_order = $(sort_order);
