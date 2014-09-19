@@ -24,6 +24,7 @@ import logging
 from collections import OrderedDict
 
 from dateutil.relativedelta import relativedelta
+from dateutil.rrule import rrule, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 
 from django.utils.translation import ugettext_lazy as _, ungettext
 
@@ -45,6 +46,10 @@ class DatePeriod(object):
         "Period as a jsonifiable dictionary"
         raise NotImplementedError
 
+    def as_rrule(self):
+        "Period as a dateutil recurrent rule"
+        raise NotImplementedError
+
     def as_dict(self):
         "Period as a jsonifiable dictionary"
         d = {'type': self.name}
@@ -64,6 +69,9 @@ class SimpleValueDatePeriod(DatePeriod):
     def _ungettext(self, value):
         raise NotImplementedError
 
+    def as_rrule(self, **kwargs):
+        return rrule(self.frequency, interval=self._value, **kwargs)
+
     def as_timedelta(self):
         return relativedelta(**{self.name: self._value})
 
@@ -74,6 +82,7 @@ class SimpleValueDatePeriod(DatePeriod):
 class MinutesPeriod(SimpleValueDatePeriod):
     name = 'minutes'
     verbose_name = _('Minute(s)')
+    frequency = MINUTELY
 
     def _ungettext(self, value):
         return ungettext('%s minute', '%s minutes', value)
@@ -82,6 +91,7 @@ class MinutesPeriod(SimpleValueDatePeriod):
 class HoursPeriod(SimpleValueDatePeriod):
     name         = 'hours'
     verbose_name = _('Hour(s)')
+    frequency = HOURLY
 
     def _ungettext(self, value):
         return ungettext('%s hour', '%s hours', value)
@@ -90,6 +100,7 @@ class HoursPeriod(SimpleValueDatePeriod):
 class DaysPeriod(SimpleValueDatePeriod):
     name = 'days'
     verbose_name = _('Day(s)')
+    frequency = DAILY
 
     def _ungettext(self, value):
         return ungettext('%s day', '%s days', value)
@@ -98,6 +109,7 @@ class DaysPeriod(SimpleValueDatePeriod):
 class WeeksPeriod(SimpleValueDatePeriod):
     name = 'weeks'
     verbose_name = _('Week(s)')
+    frequency = WEEKLY
 
     def _ungettext(self, value):
         return ungettext('%s week', '%s weeks', value)
@@ -106,6 +118,7 @@ class WeeksPeriod(SimpleValueDatePeriod):
 class MonthsPeriod(SimpleValueDatePeriod):
     name = 'months'
     verbose_name = _('Month(s)')
+    frequency = MONTHLY
 
     def _ungettext(self, value):
         return ungettext('%s month', '%s months', value)
@@ -114,6 +127,7 @@ class MonthsPeriod(SimpleValueDatePeriod):
 class YearsPeriod(SimpleValueDatePeriod):
     name = 'years'
     verbose_name = _('Year(s)')
+    frequency = YEARLY
 
     def _ungettext(self, value):
         return ungettext('%s year', '%s years', value)
