@@ -138,9 +138,18 @@ class DatePeriodRegistry(object):
         self._periods = OrderedDict()
         self.register(*periods)
 
-    def choices(self):
+    def choices(self, choices=None):
+        """Return a list of tuples which can be used to build the DatePeriodField formfield.
+        @param choices List of names or None, used to filter the registry elements.
+                       If None provided, return all the elements.
+        @return the tuples (name, period_klass.verbose_name) of registry elements.
+        """
+        is_allowed = (lambda name: True) if choices is None else \
+                     lambda name: name in choices
+
         for name, period_klass in self._periods.iteritems():
-            yield name, period_klass.verbose_name
+            if is_allowed(name):
+                yield name, period_klass.verbose_name
 
     def get_period(self, name, *args):
         klass = self._periods.get(name)

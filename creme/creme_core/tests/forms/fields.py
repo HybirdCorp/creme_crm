@@ -68,6 +68,16 @@ class DatePeriodFieldTestCase(FieldTestCase):
                                         [name, '2'], message_args={'value': name}
                                        )
 
+    def test_choices(self):
+        clean = DatePeriodField(choices=('months',)).clean
+        period = clean(['months', '5'])
+        self.assertIsInstance(period, DatePeriod)
+
+        name = 'years'
+        self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
+                                        [name, '2'], message_args={'value': name}
+                                       )
+
     def test_notnull(self):
         self.assertFieldValidationError(IntegerField, 'min_value',
                                         DatePeriodField().clean, ['days', '0'],
