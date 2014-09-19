@@ -94,6 +94,7 @@ class DynamicSelect(Select):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
         self.label = label
+        self.from_python = None
 
         if not options:
             self.options = ()
@@ -116,6 +117,8 @@ class DynamicSelect(Select):
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
+
+        value = self.from_python(value) if self.from_python is not None else value
         output = widget_render_input(Select.render, self, name, value, context, url=self.url)
 
         if not self.label:
