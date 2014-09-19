@@ -1163,11 +1163,12 @@ class DatePeriodField(MultiValueField):
     widget = DatePeriodWidget
 
     def __init__(self, *args, **kwargs):
+        choices = kwargs.pop("choices", None)
         super(DatePeriodField, self).__init__((ChoiceField(), IntegerField(min_value=1)),
                                               *args, **kwargs
                                              )
         #TODO: 'choices' property
-        self.fields[0].choices = self.widget.choices = list(date_period_registry.choices())
+        self.fields[0].choices = self.widget.choices = list(date_period_registry.choices(choices=choices))
 
     def compress(self, data_list):
         if data_list:
