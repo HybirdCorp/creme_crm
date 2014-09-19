@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
+from creme.creme_core.forms.widgets import DynamicSelect
 
 #TODO: User friendly order in choices fields
 
@@ -68,6 +69,7 @@ class CustomFieldsCTAddForm(CustomFieldsBaseForm):
                         help_text=_(u'The other custom fields for this type of resource '
                                     u'will be chosen by editing the configuration'
                                    ),
+                        widget=DynamicSelect({'autocomplete': True})
                     )
 
     def __init__(self, *args, **kwargs):

@@ -120,7 +120,7 @@ class UserRoleTestCase(CremeTestCase):
                                                'can_link':   False,
                                                'can_unlink': False,
                                                'set_type':   set_type,
-                                               'ctype':      0,
+                                               'ctype':      '',
                                               }
                                    )
         self.assertNoFormError(response)

@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
         icon_registry, quickforms_registry, import_form_registry,
@@ -105,6 +106,7 @@ def _add_related_orga_fields(form):
                                                                                object_ctypes=get_ct(Organisation),
                                                                               ),
                                           empty_label=None,
+                                          widget=DynamicSelect(attrs={'autocomplete':True}),
                                          )
     fields['first_name'].required = True
     fields['last_name'].required = True

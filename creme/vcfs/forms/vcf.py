@@ -34,6 +34,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, CremeModelWithUserForm
+from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -107,7 +108,9 @@ class VcfImportForm(CremeModelWithUserForm):
     relation      = ModelChoiceField(label=_('Position in the organisation'),
                                      #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
                                      queryset=RelationType.objects.none(),
-                                     initial=REL_SUB_EMPLOYED_BY, required=False
+                                     initial=REL_SUB_EMPLOYED_BY, required=False,
+                                     empty_label='',
+                                     widget=DynamicSelect(attrs={'autocomplete':True}),
                                     )
     work_name     = CharField(label=_('Name'),           required=False)
     work_phone    = CharField(label=_('Phone number'),   required=False)

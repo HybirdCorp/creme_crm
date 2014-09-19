@@ -20,7 +20,7 @@
 
 from itertools import chain
 
-from django.forms import MultipleChoiceField, ChoiceField, ValidationError
+from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -29,7 +29,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCell
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, MultiEntityCTypeChoiceField
 from creme.creme_core.forms.header_filter import EntityCellsField
-from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, DynamicSelect
 from creme.creme_core.gui.block import block_registry, SpecificRelationsBlock
 from creme.creme_core.models import (RelationType, CremeEntity,
     BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
@@ -71,7 +71,7 @@ class _BlockLocationsForm(CremeForm):
             locations_store = list(old_locations)
 
             if lendiff > 0:
-               locations_store.extend(location_builder() for i in xrange(lendiff))
+                locations_store.extend(location_builder() for __ in xrange(lendiff))
 
         store_it = iter(locations_store)
 
@@ -102,7 +102,8 @@ class _BlockDetailviewLocationsForm(_BlockLocationsForm):
 
 
 class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Related resource'))
+    ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
+                                   widget=DynamicSelect(attrs={'autocomplete': True}))
 
     def __init__(self, *args, **kwargs):
         super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
@@ -180,7 +181,8 @@ class _BlockPortalLocationsForm(_BlockLocationsForm):
 
 
 class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
-    app_name = ChoiceField(label=_(u'Related application'), choices=(), required=True)
+    app_name = ChoiceField(label=_(u'Related application'), choices=(),
+                           widget=DynamicSelect(attrs={'autocomplete': True}))
 
     def __init__(self, *args, **kwargs):
         super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
@@ -188,6 +190,7 @@ class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
         excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
         excluded_apps.add('creme_core')
         excluded_apps.add('creme_config')
+
         self.fields['app_name'].choices = [(app.name, app.verbose_name)
                                                for app in creme_registry.iter_apps()
                                                    if not app.name in excluded_apps
@@ -230,6 +233,9 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
 
 
 class RelationBlockAddForm(CremeModelForm):
+    relation_type = ModelChoiceField(RelationType.objects, empty_label=None,
+                                     widget=DynamicSelect(attrs={'autocomplete': True}))
+
     class Meta:
         model = RelationBlockItem
 
@@ -237,7 +243,9 @@ class RelationBlockAddForm(CremeModelForm):
         super(RelationBlockAddForm, self).__init__(*args, **kwargs)
 
         existing_type_ids = RelationBlockItem.objects.values_list('relation_type_id', flat=True)
-        self.fields['relation_type'].queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
+
+        relation_type = self.fields['relation_type']
+        relation_type.queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
 
     def save(self, *args, **kwargs):
         self.instance.block_id = SpecificRelationsBlock.generate_id('creme_config', self.cleaned_data['relation_type'].id)
@@ -316,7 +324,8 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
 
 
 class CustomBlockConfigItemCreateForm(CremeModelForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Related resource'))
+    ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
+                                   widget=DynamicSelect(attrs={'autocomplete': True}))
 
     class Meta:
         model = CustomBlockConfigItem

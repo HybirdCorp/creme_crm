@@ -23,7 +23,7 @@ from django.forms import ChoiceField, ValidationError #CharField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.forms.base import CremeForm
-#from creme.creme_core.forms.widgets import Label
+from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 
@@ -33,6 +33,7 @@ from ..models import ReportGraph
 class GraphInstanceBlockForm(CremeForm):
     #graph           = CharField(label=_(u"Related graph"), widget=Label(), required=False)
     volatile_column = ChoiceField(label=_(u'Volatile column'), choices=(), required=False,
+                                  widget=DynamicSelect(attrs={'autocomplete': True}),
                                   help_text=_("When the graph is displayed on the detailview of an entity, "
                                               "only the entities linked to this entity by the following link "
                                               "are used to compute the graph."
