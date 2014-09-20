@@ -1,0 +1,37 @@
+{% load i18n creme_core_tags creme_block creme_widgets %}
+{% if page.paginator.count %}{% templatize "{{sfields|length|add:1}}" as colspan %}
+    <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}" search-count="{{page.paginator.count}}">
+        {% get_block_header colspan=colspan %}
+            <th class="label">
+                <table cellspacing="0" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <th>
+                                {% comment %}{% get_image_for_ctype ctype 'normal' %} TODO not class="block_icon"{% endcomment %}
+                                <img src="{% get_image_path_for_ctype ctype 'normal' %}" alt="{{short_title}}" title="{{short_title}}" class="block_icon"/>
+                            </th>
+                            <th>&nbsp;{{title}}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </th>
+        {% end_get_block_header %}
+        <tbody {% comment %}class="collapsable" TODO ??{% endcomment %}>
+            <tr class="header">
+                <th class="block_header_line_dark action">{% trans 'Action' %}</th>
+                {% for sfield in sfields %}
+                    <th class="block_header_line_dark">{{sfield}}</th>
+                {% endfor %}
+            </tr>
+            {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                <tr class="content">
+                    <td class="{{row_color}} action"><a href="{{entity.get_absolute_url}}" {% if entity.is_deleted %}class="is_deleted"{% endif %}>{% trans 'Go to the page' %}</a></td>
+                    {% for sfield in sfields %}
+                        <td class="{{row_color}} search_result">{% print_field object=entity field=sfield.name %}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% get_block_footer colspan %}
+    </table>
+{% endif %}

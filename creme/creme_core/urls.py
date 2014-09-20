@@ -96,7 +96,8 @@ creme_core_patterns = patterns('creme.creme_core.views',
     (r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)$', 'batch_process.get_ops'),
 
     #Research
-    (r'^search$', 'search.search'),
+    (r'^search$',                                                       'search.search'),
+    (r'^search/reload_block/(?P<block_id>[\w\-\|]+)/(?P<research>.+)$', 'search.reload_block'),
 
     (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$', 'quick_forms.add'),
     (r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', 'quick_forms.add_from_widget'),

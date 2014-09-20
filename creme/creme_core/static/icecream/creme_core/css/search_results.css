@@ -1,3 +1,8 @@
+.search_results {
+    padding-left: 5px; /* factorise with .detailview ? */
+}
+
+/*
 .search_results{}
 .search_results .table_header .logo {}
 .search_results .table_header .title {}
@@ -12,3 +17,4 @@
     width: 100%;
     overflow-x: auto;
 }
+*/
