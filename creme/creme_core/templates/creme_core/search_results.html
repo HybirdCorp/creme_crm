@@ -1,8 +1,8 @@
 {#  {% extends "creme_core/base.html" %}#}
 {% load i18n %}
-{% load creme_core_tags %}
+{% load creme_core_tags creme_block %}
 
-{# {% block page_title %} - {% trans 'Search results' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %} #}
+{# {% block page_title %} - {% trans 'Search results' %} : {{results|length}} result{{results|pluralize}}{% endblock %} #}
 
 {% comment %}{% block content %}{% endcomment %}
 <div class="search_results">
@@ -10,7 +10,8 @@
         <tr>
             <td class="logo"><img src="{% creme_media_url 'images/search_64.png' %}" alt="{% trans "Search" %}"/></td>
             <td class="title">
-                <h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>
+                {% comment %}<h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>{% endcomment %}
+                <h1 id="search_results_title">Search results</h1>{% comment %}The title is updated by JavaScript{% endcomment %}
             </td>
             <td class="actions"></td>
         </tr>
@@ -33,6 +34,7 @@
             <li>{{error_message}}</li>
         </ul>
     {% endif %}
+{% comment %}
     {% for result in results %}
         {% with result.entities as entities %}
             {% if entities %}
@@ -43,7 +45,7 @@
                                 <tr>
                                     <th colspan="{{sfields|length|add:1}}" valign="middle" align="left">
                                         {{entities|length}}
-                                        {% if entities|length == 1 %}{% comment %}TODO: improve plural management...{% endcomment %}
+                                        {% if entities|length == 1 %}{# todo: improve plural management...#}
                                             {{result.model|get_meta_value:"verbose_name"}}
                                         {% else %}
                                             {{result.model|get_meta_value:"verbose_name_plural"}}
@@ -73,5 +75,10 @@
             {% endif %}
         {% endwith %}
     {% endfor %}
+{% endcomment %}
+
+    {% import_blocks blocks as 'result_blocks' %}
+    {% display_blocks 'result_blocks' %}
+    {% get_blocks_dependencies %}
 {% comment %}{% endblock %}{% endcomment %}
 </div>

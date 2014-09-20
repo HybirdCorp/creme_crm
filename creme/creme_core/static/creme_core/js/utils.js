@@ -45,8 +45,7 @@ creme.utils.hidePageLoadOverlay = function() {
 creme.utils.loading = function(div_id, is_loaded, params) {
     var overlay = creme.utils._overlay;
 
-    if (overlay === undefined)
-    {
+    if (overlay === undefined) {
         overlay = creme.utils._overlay = new creme.dialog.Overlay();
         overlay.bind($('body'))
                .addClass('page-loading')
@@ -593,22 +592,34 @@ creme.utils.handleResearch = function(target_node_id, from) {
         },
         dataType: 'html',
         success: function(data, status, req) {
-            $('#' + target_node_id).html(data);
+            var root = $('#' + target_node_id);
+            root.html(data);
+            creme.blocks.bindEvents(root); //initialize block (or pager and co do not work)
 
             //highlight the word that we are searching
             research = research.toLowerCase();
-            $('div.result').find("td, td *")
-                           .contents()
-                           .filter(function() {
-                                    if(this.nodeType != Node.TEXT_NODE) return false;
-                                    return this.textContent.toLowerCase().indexOf(research) >= 0;
-                                })
-                           .wrap($('<mark/>'));
+//             $('div.result').find("td, td *")
+            root.find('.search_result')
+                .contents()
+                .filter(function() {
+                        if (this.nodeType != Node.TEXT_NODE) return false;
+                        return this.textContent.toLowerCase().indexOf(research) >= 0;
+                    })
+                .wrap($('<mark/>'));
+
+            // we update the title ; this is done on client isde because pagination is done in the template rendering
+            // and we want to avoid making the count() queries twice.
+            var total = 0;
+            root.find('[search-count]').each(function() {
+                total += parseInt(this.getAttribute('search-count'));
+            });
+            root.find('#search_results_title')
+                .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
         },
         error: function(req, status, errorThrown) {
         },
         complete: function() {
-            document.title = gettext("Search results...");
+            document.title = gettext("Search results…");
         }
     });
 }
