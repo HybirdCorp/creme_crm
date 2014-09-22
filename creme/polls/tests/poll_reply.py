@@ -745,7 +745,7 @@ class PollRepliesTestCase(_PollsTestCase):
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
-        url = '/creme_core/entity/edit/%s/%s/field/%s' % (preply.entity_type_id, preply.id, 'name')
+        url = '/creme_core/entity/edit/inner/%s/%s/field/%s' % (preply.entity_type_id, preply.id, 'name')
         self.assertGET200(url)
 
         name = preply.name + ' (edited)'
@@ -766,7 +766,7 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform1)
 
-        self.assertPOST404('/creme_core/entity/edit/%s/%s/field/%s' % (
+        self.assertPOST403('/creme_core/entity/edit/inner/%s/%s/field/%s' % (
                                         preply.entity_type_id, preply.id, 'pform'),
                            data={'entities_lbl': [unicode(preply)],
                                  'field_value':  pform2.id,
