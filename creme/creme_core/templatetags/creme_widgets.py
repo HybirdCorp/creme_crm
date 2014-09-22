@@ -93,6 +93,11 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False): #TODO: takes_co
     #return entity.allowed_unicode(user)
     return settings.HIDDEN_VALUE
 
+#TODO: use in forbidden.html
+#@register.inclusion_tag('creme_core/templatetags/widgets/list_instances.html')
+#def widget_list_instances(instances, user):
+    #return {'objects': instances, 'user': user}
+
 @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
 def widget_select_or_msg(items, void_msg):
     return {'items': items, 'void_msg': void_msg}

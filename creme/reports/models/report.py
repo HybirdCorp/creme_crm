@@ -23,7 +23,7 @@ import logging
 
 from django.contrib.auth.models import User
 from django.db.models import (CharField, PositiveIntegerField,
-        PositiveSmallIntegerField, BooleanField, ForeignKey)
+        PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class Report(CremeEntity):
     name   = CharField(_(u'Name of the report'), max_length=100)
     ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
-    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
+    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True, on_delete=PROTECT)
 
     creation_label = _('Add a report')
     _columns = None

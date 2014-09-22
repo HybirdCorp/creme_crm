@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,11 @@
 import logging
 
 from django.core.exceptions import PermissionDenied
+from django.db.models.deletion import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.template.context import RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
@@ -98,13 +101,19 @@ def delete(request):
     efilter      = get_object_or_404(EntityFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
     allowed, msg = efilter.can_edit_or_delete(request.user)
-    status = 400
+    status = 400 #TODO: 409 ??
 
     if allowed:
         try:
             efilter.delete()
-        except EntityFilter.DependenciesError, e:
+        except EntityFilter.DependenciesError as e:
             return_msg = unicode(e)
+        except ProtectedError as e:
+            return_msg = _(u'"%s" can not be deleted because of its dependencies.') % efilter
+            return_msg += render_to_string('creme_core/templatetags/widgets/list_instances.html',
+                                           {'objects': e.args[1][:25], 'user': request.user},
+                                           context_instance=RequestContext(request),
+                                          )
         else:
             return_msg = _(u'Filter sucessfully deleted')
             status = 200

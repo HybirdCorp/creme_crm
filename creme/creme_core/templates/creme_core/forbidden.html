@@ -30,7 +30,7 @@
                     <p>
                         {% if error_message %}
                             {{error_message}}
-                            {% if protected_objects %}
+                            {% if protected_objects %}{% comment %}TODO: use list_instances widget {% endcomment %}
                                 <ul>
                                     {% for object in protected_objects%}
                                         <li>{{object|get_meta_value:'verbose_name'}} :

@@ -251,6 +251,31 @@ class ReportTestCase(BaseReportsTestCase):
         for report in reports:
             self.assertIn(report, reports_page.object_list)
 
+    def test_delete_efilter(self):
+        "The filter should not be deleted."
+        self.login()
+
+        efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=['Mihana'],
+                                                                   )
+                               ])
+
+        report = self._create_report('My awesome report', efilter)
+
+        url = '/creme_core/entity_filter/delete'
+        data = {'id': efilter.id}
+        response = self.assertPOST200(url, data=data, follow=True)
+        self.assertStillExists(efilter)
+        self.assertStillExists(report)
+        self.assertRedirects(response, Contact.get_lv_absolute_url())
+
+        #AJAX version
+        response = self.assertPOST(400, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertStillExists(efilter)
+        self.assertStillExists(report)
+
     def test_preview(self):
         self.login()
 
