@@ -6,7 +6,7 @@ try:
 
     from django.conf import settings
     from django.core import mail
-    from django.test.utils import override_settings
+    #from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
@@ -236,8 +236,10 @@ class CommercialApproachTestCase(CremeTestCase):
         orga.delete()
         self.assertDoesNotExist(comapp)
 
-    @override_settings(BLOCK_SIZE=5)
+    #@override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
     def test_block01(self):
+        approaches_block.page_size = 5
+
         sv = SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW)
         self.assertTrue(sv.value)
 

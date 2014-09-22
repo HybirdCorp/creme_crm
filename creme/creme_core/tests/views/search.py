@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.serializers.json import simplejson
-    from django.test.utils import override_settings
+    #from django.test.utils import override_settings
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.gui.block import QuerysetBlock
@@ -27,6 +27,13 @@ class SearchViewTestCase(ViewsTestCase):
     def setUpClass(cls):
         cls.populate('creme_config', 'creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
+
+        QuerysetBlock.page_size = 10
+
+    @classmethod
+    def tearDownClass(cls):
+        del QuerysetBlock.page_size
+        assert QuerysetBlock.page_size #in PaginatedBlock
 
     def _build_contacts(self):
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -90,7 +97,7 @@ class SearchViewTestCase(ViewsTestCase):
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
-    @override_settings(BLOCK_SIZE=10)
+    #@override_settings(BLOCK_SIZE=10)
     def test_search02(self):
         "Deleted entities are found too"
         self.login()
@@ -116,7 +123,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertContains(response, self.linus2.get_absolute_url())
         self.assertNotContains(response, self.alan.get_absolute_url())
 
-    @override_settings(BLOCK_SIZE=10)
+    #@override_settings(BLOCK_SIZE=10)
     def test_search03(self):
         self.login()
         self._setup_contacts()

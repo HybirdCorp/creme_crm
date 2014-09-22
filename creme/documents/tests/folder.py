@@ -4,7 +4,7 @@ try:
     from functools import partial
 
     from django.conf import settings
-    from django.test.utils import override_settings
+    #from django.test.utils import override_settings
     from django.utils.encoding import smart_str, smart_unicode
 
     from .base import _DocumentsTestCase
@@ -142,9 +142,11 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
         self.get_object_or_fail(Folder, pk=folder.pk)
 
-    @override_settings(BLOCK_SIZE=max(4, settings.BLOCK_SIZE))
+    #@override_settings(BLOCK_SIZE=max(4, settings.BLOCK_SIZE))
     def test_block(self):
         "Block which display contained docs"
+        folder_docs_block.page_size = max(4, settings.BLOCK_SIZE)
+
         folder = Folder.objects.create(user=self.user, title='PDF',
                                        description='Contains PDF files',
                                        parent_folder=None,
