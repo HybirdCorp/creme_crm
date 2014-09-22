@@ -2166,7 +2166,7 @@ msgstr "Modifier le filtre personnalisé"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:22
 msgid "Delete custom filter"
-msgstr "Supprimer le filtre personnalisée"
+msgstr "Supprimer le filtre personnalisé"
 
 #: templates/creme_core/templatetags/listview_headerfilters.html:3
 msgid "Show only the desired columns"
