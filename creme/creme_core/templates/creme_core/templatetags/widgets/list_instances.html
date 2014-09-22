@@ -1,0 +1,16 @@
+{% load creme_core_tags creme_widgets %}
+<ul>
+    {% for object in objects %}
+        <li>{{object|get_meta_value:'verbose_name'}} :
+            {% if object|is_entity %}
+                {% widget_entity_hyperlink object.get_real_entity user %}
+            {% elif object|is_relation %}
+                {% widget_entity_hyperlink object.subject_entity.get_real_entity user %}
+                {{object.type.predicate}}
+                {% widget_entity_hyperlink object.object_entity.get_real_entity user %}
+            {% else %}
+                {{object}}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
