@@ -3,7 +3,7 @@
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Delete a property type, will delete associated properties' %}</div>
 {% endif %}
-{% has_perm_to admin 'creme_config' as admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
         <th class="label">{% get_block_title _('%s Type of property') _('%s Types of property') 'property_48.png' _('Type of property') %}</th>

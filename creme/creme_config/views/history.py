@@ -31,17 +31,17 @@ from ..forms.history import HistoryConfigForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add(request):
     return add_model_with_popup(request, HistoryConfigForm, _(u'New relation types'))
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/history_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete(request):
     get_object_or_404(HistoryConfigItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 

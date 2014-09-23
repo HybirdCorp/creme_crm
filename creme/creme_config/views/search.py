@@ -32,24 +32,24 @@ from ..forms.search import SearchEditForm, SearchAddForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add(request):
     return add_model_with_popup(request, SearchAddForm, _(u'New search configuration'))
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/search_portal.html',
                   {'SHOW_HELP': settings.SHOW_HELP},#TODO:Context processor ?
                  )
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit(request, search_config_id):
     return edit_model_with_popup(request, {'pk': search_config_id}, SearchConfigItem, SearchEditForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete(request):
     search_cfg_id = get_from_POST_or_404(request.POST, 'id')
 

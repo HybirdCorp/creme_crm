@@ -63,13 +63,15 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
                                 "{% has_perm_to export entity as xperm %}{{xperm}}"
                                 "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+                                "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
+                                "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
 
-        self.assertEqual('True' * 9, render.strip())
+        self.assertEqual('True' * 11, render.strip())
 
     def test_has_perm_to02(self):
         self.login(is_superuser=False)
@@ -86,13 +88,15 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
                                 "{% has_perm_to export entity as xperm %}{{xperm}}"
                                 "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+                                "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
+                                "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
 
-        self.assertEqual('False' * 9, render.strip())
+        self.assertEqual('False' * 11, render.strip())
 
     def test_has_perm_to03(self):
         self.login(is_superuser=False, allowed_apps=['persons'], creatable_models=[Organisation])
@@ -115,13 +119,17 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
                                 "{% has_perm_to export entity as xperm %}{{xperm}}"
                                 "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+                                "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
+                                "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
 
-        self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())
+        self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2 + 'True' + 'False',
+                         render.strip()
+                        )
 
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
         fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" if block else \

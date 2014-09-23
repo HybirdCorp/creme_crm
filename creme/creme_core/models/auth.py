@@ -389,6 +389,9 @@ class UserProfile(Model):
 
         return creds
 
+    def has_perm_to_access(self, app_name):
+        return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
+
     def has_perm_to_admin(self, app_name):
         #return self.has_perm('%s.can_admin' % app_name) #todo: app_name in self.role.admin_4_apps + use this method in backend
         return self.is_superuser or (app_name in self.role.admin_4_apps)

@@ -1,9 +1,10 @@
 {% extends "creme_config/portal.html" %}
 {% load i18n %}
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
 
 {% block title %}
-    <a href="/creme_config/">{% trans "Configuration" %} > </a>{% trans "Button menu" %}
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="/creme_config/">{% trans "Configuration" %} > </a>{% endif %}{% trans "Button menu" %}
 {% endblock %}
 
 {% block before_statistics %}

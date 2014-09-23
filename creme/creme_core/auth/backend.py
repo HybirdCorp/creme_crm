@@ -40,7 +40,8 @@ class EntityBackend(ModelBackend):
                 if app_name == 'my_page': #NB: for side menu (TODO: can we improve that ??)
                     return True
 
-                return user_obj.role.is_app_allowed_or_administrable(app_name)
+                #return user_obj.role.is_app_allowed_or_administrable(app_name)
+                return user_obj.has_perm_to_access(app_name)
 
             if action_name == 'can_admin':
                 #return app_name in user_obj.role.admin_4_apps

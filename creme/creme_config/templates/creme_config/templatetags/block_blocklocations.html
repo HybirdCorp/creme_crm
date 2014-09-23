@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-{% has_perm_to admin 'creme_config' as admin_perm %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
         <th class="label">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>

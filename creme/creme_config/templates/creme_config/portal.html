@@ -27,7 +27,7 @@
                 <td class="{% cycle row_color %}"><a href="/creme_config/blocks/portal/">{% trans "Blocks settings" %}</a></td>
             </tr>
             <tr class="content">
-                <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_config' as admin_perm %}
+                <td class="{% cycle row_color %}">{% has_perm_to admin 'creme_core' as admin_perm %}
                     {% if admin_perm %}
                         <a href="/creme_config/prefered_menu/edit/">{% trans "Default prefered menu settings" %}</a>
                     {% else %}

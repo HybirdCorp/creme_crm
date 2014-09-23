@@ -51,7 +51,7 @@ def add_team(request):
     return add_model_with_popup(request, TeamCreateForm, _(u'New team'))
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/user_portal.html')
 

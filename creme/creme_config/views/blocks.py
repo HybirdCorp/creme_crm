@@ -39,32 +39,32 @@ from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLoca
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_detailview(request):
     return add_model_with_popup(request, BlockDetailviewLocationsAddForm, _(u'New blocks configuration')) #TODO: title detail view ???
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_portal(request):
     return add_model_with_popup(request, BlockPortalLocationsAddForm, _(u'New blocks configuration')) #TODO: title portal ???
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_relation_block(request):
     return add_model_with_popup(request, RelationBlockAddForm, _(u'New type of block'))
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_custom_block(request):
     return add_model_with_popup(request, CustomBlockConfigItemCreateForm, _(u'New custom block'))
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/blocks_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit_detailview(request, ct_id):
     ct_id = int(ct_id)
 
@@ -99,7 +99,7 @@ def edit_detailview(request, ct_id):
                       )
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit_portal(request, app_name):
     if  app_name == 'default':
         app_name = ''
@@ -157,7 +157,7 @@ def _edit_mypage(request, title, user=None):
                       )
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit_default_mypage(request):
     return _edit_mypage(request, _(u'Edit default "My page"'))
 
@@ -168,7 +168,7 @@ def edit_mypage(request):
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_ctypes_2_relation_block(request, rbi_id):
     return edit_model_with_popup(request, {'id': rbi_id}, RelationBlockItem,
                                  RelationBlockItemAddCtypesForm,
@@ -176,7 +176,7 @@ def add_ctypes_2_relation_block(request, rbi_id):
                                 )
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit_ctype_of_relation_block(request, rbi_id, ct_id):
     ctype = get_ct_or_404(ct_id)
     rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
@@ -206,7 +206,7 @@ def edit_ctype_of_relation_block(request, rbi_id, ct_id):
 
 @POST_only
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_ctype_of_relation_block(request, rbi_id):
     ctype = get_ct_or_404(get_from_POST_or_404(request.POST, 'id'))
     rbi = get_object_or_404(RelationBlockItem, id=rbi_id)
@@ -221,7 +221,7 @@ def delete_ctype_of_relation_block(request, rbi_id):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit_custom_block(request, cbci_id):
     return edit_model_with_popup(request, {'id': cbci_id}, CustomBlockConfigItem,
                                  CustomBlockConfigItemEditForm,
@@ -254,7 +254,7 @@ def edit_custom_block(request, cbci_id):
                  #)
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_detailview(request):
     ct_id = get_from_POST_or_404(request.POST, 'id', int)
 
@@ -266,7 +266,7 @@ def delete_detailview(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_portal(request):
     app_name = get_from_POST_or_404(request.POST, 'id')
 
@@ -278,7 +278,7 @@ def delete_portal(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_default_mypage(request):
     get_object_or_404(BlockMypageLocation, pk=get_from_POST_or_404(request.POST, 'id'), user=None).delete()
 
@@ -291,14 +291,14 @@ def delete_mypage(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_relation_block(request):
     get_object_or_404(RelationBlockItem, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_instance_block(request):
     block_id = get_from_POST_or_404(request.POST, 'id')
     get_object_or_404(InstanceBlockConfigItem, pk=block_id).delete()
@@ -306,7 +306,7 @@ def delete_instance_block(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_custom_block(request):
     cbci_id = get_from_POST_or_404(request.POST, 'id')
     get_object_or_404(CustomBlockConfigItem, pk=cbci_id).delete()
