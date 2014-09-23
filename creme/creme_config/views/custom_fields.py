@@ -32,36 +32,37 @@ from ..blocks import custom_fields_block
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add_ct(request):
     return add_model_with_popup(request, CustomFieldsCTAddForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add(request, ct_id):
     return add_model_with_popup(request, CustomFieldsAddForm,
                                 initial={'ct': get_ct_or_404(ct_id)}
                                )
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/custom_fields/portal.html')
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def view(request, ct_id):
     ct = get_ct_or_404(ct_id)
+    #TODO: test app creds ??
 
     return render(request, 'creme_config/custom_fields/view.html', {'content_type': ct})
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit(request, field_id):
     return edit_model_with_popup(request, {'pk': field_id}, CustomField, CustomFieldsEditForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete_ct(request):
     for field in CustomField.objects.filter(content_type=get_from_POST_or_404(request.POST, 'id')):
         field.delete()
@@ -72,7 +73,7 @@ def delete_ct(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete(request):
     field = CustomField.objects.get(pk=get_from_POST_or_404(request.POST, 'id'))
     field.delete()
@@ -84,7 +85,7 @@ def delete(request):
 
 @jsonify
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def reload_block(request, ct_id):
     context = RequestContext(request)
     context['content_type'] = get_ct_or_404(ct_id)

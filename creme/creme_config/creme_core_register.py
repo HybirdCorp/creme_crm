@@ -31,12 +31,13 @@ from .setting_keys import theme_key, timezone_key
 creme_registry.register_app('creme_config', _(u'General configuration') , '/creme_config')
 
 reg_item = creme_menu.register_app('creme_config', '/creme_config/').register_item
+#TODO: 'creme_config'-> '' (perm is not really 'creme_config', but this item is not visible if the user has not 'creme_config' perm)
 reg_item('/creme_config/',                      _(u"Portal of general configuration"), 'creme_config')
 reg_item('/creme_config/relation_type/portal/', _(u"Relation types settings"),         'creme_config')
 reg_item('/creme_config/property_type/portal/', _(u"Property types settings"),         'creme_config')
 reg_item('/creme_config/custom_fields/portal/', _(u"Custom fields settings"),          'creme_config')
 reg_item('/creme_config/blocks/portal/',        _(u"Blocks settings"),                 'creme_config')
-reg_item('/creme_config/prefered_menu/edit/',   _(u"Default prefered menu settings"),  'creme_config.can_admin') #TODO: viewer mode if user ahs credentials 'creme_config' ?
+reg_item('/creme_config/prefered_menu/edit/',   _(u"Default prefered menu settings"),  'creme_core.can_admin') #TODO: viewer mode if user has credentials 'creme_core' ?
 reg_item('/creme_config/button_menu/portal/',   _(u"Button menu settings"),            'creme_config')
 reg_item('/creme_config/search/portal/',        _(u"Search settings"),                 'creme_config')
 reg_item('/creme_config/history/portal/',       _(u"History settings"),                'creme_config')

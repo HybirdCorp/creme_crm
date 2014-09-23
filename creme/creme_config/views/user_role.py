@@ -72,7 +72,7 @@ def delete_credentials(request):
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/user_role_portal.html')
 

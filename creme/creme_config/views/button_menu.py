@@ -32,17 +32,17 @@ from ..forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add(request):
     return add_model_with_popup(request, ButtonMenuAddForm, _(u'New buttons configuration'))
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/button_menu_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit(request, ct_id):
     ct_id = int(ct_id) or None
     bmi = ButtonMenuItem.objects.filter(content_type=ct_id).order_by('order')
@@ -72,7 +72,7 @@ def edit(request, ct_id):
                       )
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
     ButtonMenuItem.objects.filter(content_type=ct_id).delete()

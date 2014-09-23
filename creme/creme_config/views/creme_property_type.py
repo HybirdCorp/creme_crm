@@ -31,12 +31,12 @@ from ..forms.creme_property_type import CremePropertyTypeEditForm, CremeProperty
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def add(request):
     return add_model_with_popup(request, CremePropertyTypeAddForm, _(u'New custom type of property'))
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit(request, property_type_id):
     property_type = get_object_or_404(CremePropertyType, pk=property_type_id)
 
@@ -62,12 +62,12 @@ def edit(request, property_type_id):
                       )
 
 @login_required
-@permission_required('creme_config')
+#@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/property_type_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def delete(request):
     property_type = get_object_or_404(CremePropertyType, pk=get_from_POST_or_404(request.POST, 'id'))
 

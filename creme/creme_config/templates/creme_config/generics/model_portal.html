@@ -7,7 +7,8 @@
 {% block page_title %} - {{config_title}} > {{app_verbose_name}} > {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}{% endblock %}
 
 {% block title %}
-    <a href="/creme_config/">{{config_title}} > </a>
+    {% has_perm_to access 'creme_config' as conf_perm %}
+    {% if conf_perm %}<a href="/creme_config/">{{config_title}} > </a>{% endif %}
     <a href="/creme_config/{{app_name}}/portal/">{{app_verbose_name}} > </a>
     {% blocktrans with model|get_meta_value:'verbose_name' as model_name %}Type : {{model_name}}{% endblocktrans %}
 {% endblock %}

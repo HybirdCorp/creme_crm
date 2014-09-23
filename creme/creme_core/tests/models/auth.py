@@ -651,6 +651,10 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm('foobar'))
         self.assertFalse(role.allowed_apps)
 
+        has_perm_to_access = user.has_perm_to_access
+        self.assertFalse(has_perm_to_access('creme_core'))
+        self.assertFalse(has_perm_to_access('foobar'))
+
         role.allowed_apps = ['creme_core', 'foobar']
         role.save()
 
@@ -664,6 +668,10 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core'))
         self.assertTrue(has_perm('foobar'))
         self.assertFalse(has_perm('quux'))
+
+        self.assertTrue(has_perm_to_access('creme_core'))
+        self.assertTrue(has_perm_to_access('foobar'))
+        self.assertFalse(has_perm_to_access('quux'))
 
     def test_app_creds02(self):
         "Admin_4_apps"
@@ -723,6 +731,7 @@ class CredentialsTestCase(CremeTestCase):
         user.is_superuser = True
 
         self.assertTrue(user.has_perm_to_admin('creme_core'))
+        self.assertTrue(user.has_perm_to_access('creme_core'))
 
         has_perm = user.has_perm
         self.assertTrue(has_perm('creme_core'))

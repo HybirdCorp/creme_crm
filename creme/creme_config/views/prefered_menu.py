@@ -29,7 +29,7 @@ from ..forms.prefered_menu import PreferedMenuForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('creme_core.can_admin')
 def edit(request):
     if request.method == 'POST':
         form = PreferedMenuForm(user2edit=None, user=request.user, data=request.POST)

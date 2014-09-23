@@ -343,6 +343,7 @@ _PERMS_FUNCS = {
         'delete': lambda entity, user: user.has_perm_to_delete(entity),
         'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
         'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
+        'access': lambda app_name, user: user.has_perm_to_access(app_name),
         'admin':  lambda app_name, user: user.has_perm_to_admin(app_name),
     }
 
