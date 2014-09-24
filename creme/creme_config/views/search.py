@@ -40,7 +40,7 @@ def add(request):
 #@permission_required('creme_config')
 def portal(request):
     return render(request, 'creme_config/search_portal.html',
-                  {'SHOW_HELP': settings.SHOW_HELP},#TODO:Context processor ?
+                  #{'SHOW_HELP': settings.SHOW_HELP},#todo:Context processor ?
                  )
 
 @login_required
