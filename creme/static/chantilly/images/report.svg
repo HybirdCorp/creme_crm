@@ -14,13 +14,13 @@
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.48.5 r10040"
    version="1.0"
-   sodipodi:docname="reporting.svg"
+   sodipodi:docname="report.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="reporting_22.png"
-   inkscape:export-xdpi="15.46875"
-   inkscape:export-ydpi="15.46875">
+   inkscape:export-filename="report_48.png"
+   inkscape:export-xdpi="33.75"
+   inkscape:export-ydpi="33.75">
   <defs
      id="defs4">
     <linearGradient
@@ -247,7 +247,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="53.780128"
+     inkscape:cx="55.208699"
      inkscape:cy="118.54749"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"

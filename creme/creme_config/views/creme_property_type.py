@@ -66,6 +66,7 @@ def edit(request, property_type_id):
 def portal(request):
     return render(request, 'creme_config/property_type_portal.html')
 
+#TODO: use the view in creme_core instead
 @login_required
 @permission_required('creme_core.can_admin')
 def delete(request):

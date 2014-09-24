@@ -1,0 +1,38 @@
+{% load creme_core_tags creme_block creme_widgets %}
+{% if page.paginator.count %}
+    <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+        {% get_block_header colspan=2 %}
+            <th class="label">
+                {% if ctype %}
+                    <table cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    {% comment %}{% get_image_for_ctype ctype 'normal' %} TODO not class="block_icon"{% endcomment %}
+                                    <img src="{% get_image_path_for_ctype ctype 'normal' %}" alt="{{short_title}}" title="{{short_title}}" class="block_icon"/>
+                                </th>
+                                <th>&nbsp;{{title}}</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% else %}
+                    {% get_block_title _('%s Other entity') _('%s Other entities') %}
+                {% endif %}
+            </th>
+        {% end_get_block_header %}
+        <tbody class="collapsable">
+            {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                <tr class="content">
+                    <td class="{{row_color}}">
+                        {% if not ctype %}{% get_image_for_object entity.get_real_entity 'small' %}{% endif %}
+                        {% widget_entity_hyperlink entity user %}
+                    </td>
+                    <td class="{{row_color}} action">{% has_perm_to change entity as has_perm %}
+                        {% get_line_unlinker at_url '/creme_core/property/delete_from_type' with_args "{'ptype_id':'{{ptype_id}}','entity_id':{{entity.id}} }" with_perms has_perm %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% get_block_footer 2 %}
+    </table>
+{% endif %}

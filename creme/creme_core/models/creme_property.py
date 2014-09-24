@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,7 @@ class CremePropertyType(CremeModel):
     is_custom      = BooleanField(default=False) #TODO: editable=False ??
     is_copiable    = BooleanField(default=True)  # if True, the properties with this type can be copied (ie when cloning or converting an entity)
 
-    def __unicode__(self):
-        return self.text
+    creation_label = _('Add a type of property')
 
     class Meta:
         app_label = 'creme_core'
@@ -44,10 +43,26 @@ class CremePropertyType(CremeModel):
         verbose_name_plural = _(u'Types of property')
         ordering = ('text',)
 
+    def __unicode__(self):
+        return self.text
+
     def delete(self):
         #self.property_i18n_set.all().delete()
         CremeProperty.objects.filter(type=self).delete()
         super(CremePropertyType, self).delete()
+
+    def get_absolute_url(self):
+        return '/creme_core/property/type/%s' % self.id
+
+    def get_edit_absolute_url(self):
+        return '/creme_core/property/type/%s/edit' % self.id
+
+    def get_delete_absolute_url(self):
+        return '/creme_core/property/type/%s/delete' % self.id
+
+    @staticmethod
+    def get_lv_absolute_url():
+        return '/creme_config/property_type/portal/'
 
     @staticmethod
     def create(str_pk, text, subject_ctypes=(), is_custom=False, generate_pk=False, is_copiable=True):

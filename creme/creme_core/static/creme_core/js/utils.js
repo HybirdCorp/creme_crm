@@ -250,8 +250,8 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: factor
 */
 }
 
-creme.utils.confirmSubmit = function(atag) {
-    creme.dialogs.confirm(gettext('Are you sure ?'))
+creme.utils.confirmSubmit = function(atag, msg) {
+    creme.dialogs.confirm(msg || gettext('Are you sure ?'))
                  .onOk(function() {$('form', $(atag)).submit();})
                  .open();
 /*
