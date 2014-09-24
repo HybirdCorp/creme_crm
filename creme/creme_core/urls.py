@@ -42,9 +42,14 @@ relation_patterns = patterns('creme.creme_core.views.relation',
 )
 
 property_patterns = patterns('creme.creme_core.views.creme_property',
-    (r'^add_to_entities/(?P<ct_id>\d+)/$',  'add_properties_bulk'),
-    #(r'^get_types$',                        'get_property_types_for_ct'), #Commented on 21 february 2012
-    (r'^add/(?P<entity_id>\d+)$',           'add_to_entity'),
+    (r'^add_to_entities/(?P<ct_id>\d+)/$',                               'add_properties_bulk'),
+    (r'^add/(?P<entity_id>\d+)$',                                        'add_to_entity'),
+    (r'^delete_from_type$',                                              'delete_from_type'),
+    (r'^type/add$',                                                      'add_type'),
+    (r'^type/(?P<ptype_id>[\w-]+)$',                                     'type_detailview'),
+    (r'^type/(?P<ptype_id>[\w-]+)/edit$',                                'edit_type'),
+    (r'^type/(?P<ptype_id>[\w-]+)/delete$',                              'delete_type'),
+    (r'^type/(?P<ptype_id>[\w-]+)/reload_block/(?P<block_id>[\w\-]+)/$', 'reload_block'),
 )
 
 blocks_patterns = patterns('creme.creme_core.views.blocks',

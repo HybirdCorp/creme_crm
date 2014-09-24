@@ -28,7 +28,18 @@ class PropertyTypeTestCase(CremeTestCase):
         return '/creme_config/property_type/edit/%s' % ptype.id
 
     def test_portal(self):
-        self.assertGET200('/creme_config/property_type/portal/')
+        create_ptype = CremePropertyType.create
+        ptype1  = create_ptype(str_pk='test-prop_hairy', text='is hairy')
+        ptype2  = create_ptype(str_pk='test-prop_beard', text='is bearded')
+
+        url = CremePropertyType.get_lv_absolute_url()
+        self.assertEqual('/creme_config/property_type/portal/', url)
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_config/property_type_portal.html')
+
+        self.assertContains(response, unicode(ptype1))
+        self.assertContains(response, unicode(ptype2))
 
     def _find_property_type(self, prop_types, text):
         for prop_type in prop_types:

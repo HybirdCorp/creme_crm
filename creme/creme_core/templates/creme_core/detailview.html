@@ -55,7 +55,7 @@
     <div class="zone_spacer_5px file_buttons">
         {% block button_tab %}
             <ul class="button_list hbox">
-                {% get_button_menu %}
+                {% get_button_menu %}{% comment %}TODO: works only with CremeEntities => move to view entity.html ?? {% endcomment %}
                 {% block extra_menu_buttons %}{% endblock %}
             </ul>
         {% endblock %}

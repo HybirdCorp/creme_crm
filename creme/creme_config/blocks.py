@@ -20,9 +20,10 @@
 
 from collections import defaultdict
 
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
@@ -120,7 +121,8 @@ class PropertyTypesBlock(_ConfigAdminBlock):
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
-                                context, CremePropertyType.objects.all(),
+                                context,
+                                CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 

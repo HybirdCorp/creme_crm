@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-20 21:54+0200\n"
+"POT-Creation-Date: 2014-09-24 14:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: blocks.py:35 forms/list_view_import.py:1125 models/creme_property.py:94
+#: blocks.py:35 forms/list_view_import.py:1125 models/creme_property.py:109
 #: models/entity.py:51
 msgid "Properties"
 msgstr "Propriétés"
@@ -243,6 +243,7 @@ msgid "Actions"
 msgstr "Actions"
 
 #: forms/base.py:189 forms/base.py:214 forms/relation.py:170
+#: templates/creme_core/view_property_type.html:59
 msgid "General information"
 msgstr "Informations générales"
 
@@ -278,7 +279,7 @@ msgstr "Filtre"
 #: forms/batch_process.py:140
 #: templates/creme_core/templatetags/listview_entityfilters.html:8
 #: templates/creme_core/templatetags/search_panel.html:17
-#: views/entity_filter.py:126 views/entity_filter.py:140
+#: views/entity_filter.py:135 views/entity_filter.py:149
 msgid "All"
 msgstr "Tout"
 
@@ -295,7 +296,7 @@ msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/creme_property.py:35 models/creme_property.py:43
+#: forms/creme_property.py:35 models/creme_property.py:42
 msgid "Type of property"
 msgstr "Type de propriété"
 
@@ -664,7 +665,7 @@ msgstr ""
 "retrouver \"%(value)s\" sur %(model)s"
 
 #: forms/list_view_import.py:504 forms/list_view_import.py:1187
-#: models/auth.py:431
+#: models/auth.py:434
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer : %s"
@@ -984,6 +985,7 @@ msgid "Change"
 msgstr "Modifier"
 
 #: models/auth.py:209 models/entity.py:288
+#: templates/creme_core/view_property_type.html:46
 #: templates/creme_core/templatetags/block_relations.html:13
 #: templates/creme_core/templatetags/widgets/block_line_deletor.html:5
 #: templates/creme_core/templatetags/widgets/delete_button.html:12
@@ -1030,65 +1032,65 @@ msgstr "Est une équipe ?"
 msgid "%s (team)"
 msgstr "%s (équipe)"
 
-#: models/auth.py:401
+#: models/auth.py:404
 #, python-format
 msgid "Invalid app \"%s\""
 msgstr "App invalide \"%s\""
 
-#: models/auth.py:403
+#: models/auth.py:406
 #, python-format
 msgid "You are not allowed to configure this app: %s"
 msgstr "Vous n'êtes pas autorisé à configurer cette app: %s"
 
-#: models/auth.py:418
+#: models/auth.py:421
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
 msgstr "Vous n'êtes pas autorisé à modifier cette fiche: %s"
 
-#: models/auth.py:444 views/entity.py:533
+#: models/auth.py:447 views/entity.py:533
 #, python-format
 msgid "You are not allowed to delete this entity: %s"
 msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: %s"
 
-#: models/auth.py:457
+#: models/auth.py:460
 #, python-format
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/auth.py:481
+#: models/auth.py:484
 #, python-format
 msgid "You are not allowed to link this entity: %s"
 msgstr "Vous n'êtes pas autorisé à relier cette fiche: %s"
 
-#: models/auth.py:484
+#: models/auth.py:487
 #, python-format
 msgid "You are not allowed to link: %s"
 msgstr "Vous n'avez pas la permission de lier: %s"
 
-#: models/auth.py:494
+#: models/auth.py:497
 #, python-format
 msgid "You are not allowed to unlink this entity: %s"
 msgstr "Vous n'êtes pas autorisé à délier cette fiche: %s"
 
-#: models/auth.py:503
+#: models/auth.py:506
 #, python-format
 msgid "You are not allowed to view this entity: %s"
 msgstr "Vous n'êtes pas autorisé à voir cette fiche: %s"
 
-#: models/auth.py:529
+#: models/auth.py:532
 #, python-format
 msgid "%(first_name)s %(last_name)s."
 msgstr "%(first_name)s %(last_name)s."
 
-#: models/auth.py:546
+#: models/auth.py:549
 msgid "Username"
 msgstr "Utilisateur"
 
-#: models/auth.py:547
+#: models/auth.py:550
 msgid "Last name"
 msgstr "Nom"
 
-#: models/auth.py:548
+#: models/auth.py:551
 msgid "Email address"
 msgstr "Adresse e-mail"
 
@@ -1141,11 +1143,15 @@ msgstr "Boutons à afficher"
 msgid "Deprecated button"
 msgstr "Bouton obsolète"
 
-#: models/creme_property.py:44
+#: models/creme_property.py:38
+msgid "Add a type of property"
+msgstr "Ajouter un type de propriété"
+
+#: models/creme_property.py:43
 msgid "Types of property"
 msgstr "Types de propriété"
 
-#: models/creme_property.py:93
+#: models/creme_property.py:108
 #: templates/creme_core/templatetags/block_properties.html:6
 msgid "Property"
 msgstr "Propriété"
@@ -1246,7 +1252,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:150 models/header_filter.py:102
 #: views/batch_process.py:39 views/batch_process.py:83 views/entity.py:274
-#: views/entity_filter.py:51 views/entity_filter.py:137
+#: views/entity_filter.py:54 views/entity_filter.py:146
 #: views/header_filter.py:45 views/header_filter.py:119
 #: views/generic/listview.py:226
 msgid "You are not allowed to acceed to this app"
@@ -1733,7 +1739,7 @@ msgstr "Filtre : %s"
 msgid "Creme 403 Error"
 msgstr "Creme Erreur 403"
 
-#: templates/creme_core/forbidden.html:51
+#: templates/creme_core/forbidden.html:52
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 "Vous n'avez pas accès à cette page, veuillez contacter votre administrateur."
@@ -1816,6 +1822,74 @@ msgstr "Votre recherche : "
 msgid "Concerned types : "
 msgstr "Types concernés : "
 
+#: templates/creme_core/view_property_type.html:12
+msgid "Go to the configuration of types"
+msgstr "Aller à la configuration des types"
+
+#: templates/creme_core/view_property_type.html:29
+msgid "Property type"
+msgstr "Type de propriété"
+
+#: templates/creme_core/view_property_type.html:44
+msgid ""
+"Deleting a property type will delete the associated properties.<br>Are you "
+"sure?"
+msgstr "Supprimer un type de propriété supprimera les propriétés associées.<br>"
+"Êtes-vous sûr ?"
+
+#: templates/creme_core/view_property_type.html:46
+#: templates/creme_core/templatetags/widgets/delete_button.html:12
+#, python-format
+msgid "Delete '%(object)s'"
+msgstr "Supprimer '%(object)s'"
+
+#: templates/creme_core/view_property_type.html:50
+#: templates/creme_core/templatetags/widgets/delete_button.html:18
+#, python-format
+msgid "You can't delete '%(object)s'"
+msgstr "Vous ne pouvez pas supprimer '%(object)s'"
+
+#: templates/creme_core/view_property_type.html:50
+#: templates/creme_core/templatetags/widgets/block_line_deletor.html:8
+#: templates/creme_core/templatetags/widgets/delete_button.html:18
+msgid "Can't delete"
+msgstr "Suppression interdite"
+
+#: templates/creme_core/view_property_type.html:59
+#: templates/creme_core/generics/portal.html:61
+#: templates/creme_core/templatetags/block_customfields.html:7
+#: templates/creme_core/templatetags/block_object.html:6
+msgid "Information"
+msgstr "Informations"
+
+#: templates/creme_core/view_property_type.html:69
+msgid "Text"
+msgstr "Texte"
+
+#: templates/creme_core/view_property_type.html:73
+msgid "Applies on entities with following types"
+msgstr "S'applique aux fiches des types suivants"
+
+#: templates/creme_core/view_property_type.html:78
+msgid "No related type of resource"
+msgstr "Pas de type de ressource associé"
+
+#: templates/creme_core/view_property_type.html:89
+msgid "Is copiable"
+msgstr "Est copiable"
+
+#: templates/creme_core/view_property_type.html:93
+#: templates/creme_core/generics/portal.html:61
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/creme_core/view_property_type.html:94
+#, python-format
+msgid "%(count)s entity with this property"
+msgid_plural "%(count)s entities with this property"
+msgstr[0] "%(count)s fiche avec cette propriété"
+msgstr[1] "%(count)s fiches avec cette propriété"
+
 #: templates/creme_core/frags/list_view_content.html:50
 #: templates/creme_core/frags/list_view_content.html:56
 #: templates/creme_core/frags/list_view_content.html:59
@@ -1893,16 +1967,6 @@ msgstr "Configurer"
 msgid "forbidden"
 msgstr "interdit"
 
-#: templates/creme_core/generics/portal.html:61
-msgid "Statistics"
-msgstr "Statistiques"
-
-#: templates/creme_core/generics/portal.html:61
-#: templates/creme_core/templatetags/block_customfields.html:7
-#: templates/creme_core/templatetags/block_object.html:6
-msgid "Information"
-msgstr "Informations"
-
 #: templates/creme_core/generics/blockform/add_wizard.html:14
 #, python-format
 msgid "%(title)s: step %(current_step)s of %(step_count)s"
@@ -1952,7 +2016,7 @@ msgid "Edit «%(object)s»"
 msgstr "Modifier «%(object)s»"
 
 #: templates/creme_core/generics/blockform/edit.html:14
-#: views/generic/edit.py:52
+#: views/creme_property.py:131 views/generic/edit.py:52
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
@@ -2069,6 +2133,16 @@ msgstr "Autres types"
 #: templates/creme_core/templatetags/block_specific_relations.html:66
 msgid "No related entity for the moment"
 msgstr "Aucune fiche liée pour le moment"
+
+#: templates/creme_core/templatetags/block_tagged_entities.html:20
+#, python-format
+msgid "%s Other entity"
+msgstr "%s Autre fiche"
+
+#: templates/creme_core/templatetags/block_tagged_entities.html:20
+#, python-format
+msgid "%s Other entities"
+msgstr "%s Autres fiches"
 
 #: templates/creme_core/templatetags/block_trash.html:6
 #, python-format
@@ -2245,11 +2319,6 @@ msgstr "Aller à la page 1"
 msgid "Next page"
 msgstr "Page suivante"
 
-#: templates/creme_core/templatetags/widgets/block_line_deletor.html:8
-#: templates/creme_core/templatetags/widgets/delete_button.html:18
-msgid "Can't delete"
-msgstr "Suppression interdite"
-
 #: templates/creme_core/templatetags/widgets/block_line_linker.html:9
 #: templates/creme_core/templatetags/widgets/block_line_relator.html:15
 msgid "Can't link"
@@ -2294,16 +2363,6 @@ msgstr "Supprimer définitivement '%(object)s'"
 #: templates/creme_core/templatetags/widgets/delete_button.html:10
 msgid "Delete permanently"
 msgstr "Supprimer définitivement"
-
-#: templates/creme_core/templatetags/widgets/delete_button.html:12
-#, python-format
-msgid "Delete '%(object)s'"
-msgstr "Supprimer '%(object)s'"
-
-#: templates/creme_core/templatetags/widgets/delete_button.html:18
-#, python-format
-msgid "You can't delete '%(object)s'"
-msgstr "Vous ne pouvez pas supprimer '%(object)s'"
 
 #: templates/creme_core/templatetags/widgets/edit_button.html:7
 #, python-format
@@ -2467,14 +2526,23 @@ msgstr "Demain"
 msgid "Run"
 msgstr "Exécuter"
 
-#: views/creme_property.py:63
+#: views/creme_property.py:69
 msgid "Multiple adding of properties"
 msgstr "Ajout multiple de propriétés"
 
-#: views/creme_property.py:83
+#: views/creme_property.py:78
 #, python-format
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
+
+#: views/creme_property.py:102
+msgid "Save the type of property"
+msgstr "Enregistrer le type de propriété"
+
+#: views/creme_property.py:207 views/search.py:93
+#, python-format
+msgid "%(count)s %(model)s"
+msgstr "%(count)s %(model)s"
 
 #: views/entity.py:89
 #, python-format
@@ -2512,7 +2580,7 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:489 views/entity.py:554
+#: views/entity.py:489 views/entity.py:554 views/entity_filter.py:112
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
 msgstr "\"%s\" ne peut être effacé à cause de ses dépendances."
@@ -2549,15 +2617,15 @@ msgstr "Aucune fiche séléctionnée"
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s fiche(s) n'existe(nt) pas ou plus"
 
-#: views/entity_filter.py:63
+#: views/entity_filter.py:66
 msgid "Save the filter"
 msgstr "Enregistrer le filtre"
 
-#: views/entity_filter.py:92
+#: views/entity_filter.py:95
 msgid "Save the modified filter"
 msgstr "Enregistrer le filtre modifié"
 
-#: views/entity_filter.py:109
+#: views/entity_filter.py:118
 msgid "Filter sucessfully deleted"
 msgstr "Filtre supprimé avec succès"
 
@@ -2617,11 +2685,6 @@ msgstr "Il manque une propriété compatible pour la fiche objet avec l'id=%s"
 #, python-format
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour la fiche avec l'id=%s"
-
-#: views/search.py:93
-#, python-format
-msgid "%(count)s %(model)s"
-msgstr "%(count)s %(model)s"
 
 #: views/search.py:115
 msgid "Empty search…"
@@ -2701,9 +2764,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Filters"
 #~ msgstr "Filtres"
-
-#~ msgid "No property types"
-#~ msgstr "Pas de type de propriété"
 
 #~ msgid "Block state"
 #~ msgstr "Etat de bloc"

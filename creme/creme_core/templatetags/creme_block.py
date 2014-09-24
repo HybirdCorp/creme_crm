@@ -842,7 +842,7 @@ _BLOCKS_IMPORTER_RE = compile_re(r'(.*?) as (.*?)$')
 
 @register.tag(name="import_blocks")
 def do_blocks_importer(parser, token):
-    #{% import_blocks blocks as 'my_blocks' %} with blocks a list of registered blocks
+    #{% import_blocks blocks as 'my_blocks' %} with blocks a list of blocks
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:

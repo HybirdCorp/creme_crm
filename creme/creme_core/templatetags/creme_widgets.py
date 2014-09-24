@@ -81,6 +81,16 @@ def get_entity_actions(context, entity):
     return context
 
 @register.simple_tag
+def widget_hyperlink(instance):
+    """{% widget_hyperlink my_instance %}
+    @param instance Instance of DjangoModel which has a get_absolute_url() method
+           & should have overload its __unicode__() method too.
+           BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
+           because the permissions are not checked.
+    """
+    return u'<a href="%s">%s</a>' % (instance.get_absolute_url(), escape(instance))
+
+@register.simple_tag
 def widget_entity_hyperlink(entity, user, ignore_deleted=False): #TODO: takes_context for user ???
     "{% widget_entity_hyperlink my_entity user %}"
     if user.has_perm_to_view(entity):
