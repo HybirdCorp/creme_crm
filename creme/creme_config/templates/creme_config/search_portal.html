@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% if SHOW_HELP %}
+    {% comment %}{% if SHOW_HELP %}{% endcomment %}
         <div class="help_box">
             <table>
                 <tr>
@@ -22,7 +22,7 @@
                 </tr>
             </table>
         </div>
-    {% endif %}
+    {% comment %}{% endif %}{% endcomment %}
     {% import_block from_app 'creme_config' named 'searchconfig' as 'searchconfig_block' %}
     {% display_block_detailview 'searchconfig_block' %}
 {% endblock %}

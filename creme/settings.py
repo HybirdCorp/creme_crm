@@ -352,8 +352,8 @@ USE_STRUCT_MENU = True #True = use the per app menu
 BLOCK_SIZE = 10 #Lines number in common blocks
 MAX_LAST_ITEMS = 9 #Max number of items in the 'Last viewed items' bar
 
-#Show or not help messages in all the application
-SHOW_HELP = True
+##Show or not help messages in all the application
+#SHOW_HELP = True
 
 HIDDEN_VALUE = u"??"
 
