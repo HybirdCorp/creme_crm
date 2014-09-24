@@ -27,7 +27,7 @@ from ..forms.mobile_sync import MobileSyncForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+@permission_required('activesync.can_admin')
 def edit(request):
     return add_model_with_popup(request, MobileSyncForm,
                                 title=_(u'Edit default mobile synchronization configuration'),
