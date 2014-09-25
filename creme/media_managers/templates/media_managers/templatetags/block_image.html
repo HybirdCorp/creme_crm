@@ -14,12 +14,12 @@
         {% cycle "block_line_light" "block_line_dark" as row_color silent %}
         <tr class="content">
             <th class="{% cycle header_row %} th_info">{% trans "Name" %}</th>
-            <td class="{% cycle row_color %} td_info">{{object.name}}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='name' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'name' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_row %} th_info">{% trans "Description" %}</th>
-            <td class="{% cycle row_color %} td_info">{{object.description}}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='description' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'description' for object %}</td>
         </tr>
         <tr class="content">
