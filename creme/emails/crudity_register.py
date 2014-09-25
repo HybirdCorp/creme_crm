@@ -31,6 +31,7 @@ from creme.documents.models import Document, Folder, FolderCategory
 
 from creme.crudity.backends.models import CrudityBackend
 from creme.crudity.inputs.base import CrudityInput
+from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
 
 from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
@@ -48,7 +49,8 @@ class EntityEmailBackend(CrudityBackend):
             return
 
         if self.is_sandbox_by_user:
-            current_user = self.get_owner(sender=email.senders[0])
+            #current_user = self.get_owner(sender=email.senders[0])
+            current_user = CreateEmailInput.get_owner(True, sender=email.senders[0])
 
         current_user_id = current_user.id
         folder_cat, created = FolderCategory.objects.get_or_create(pk=DOCUMENTS_FROM_EMAILS)
@@ -84,7 +86,6 @@ class EntityEmailBackend(CrudityBackend):
                                           folder=folder,
                                          )
 
-            #Relation.create(doc, REL_OBJ_RELATED_2_DOC, mail)
             create_relation(subject_entity=doc, type_id=REL_OBJ_RELATED_2_DOC,
                             object_entity=mail, user_id=current_user_id
                            )
