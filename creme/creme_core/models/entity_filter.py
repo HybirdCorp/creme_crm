@@ -55,7 +55,7 @@ class EntityFilterList(list):
     Indeed, it's as a cache.
     """
     def __init__(self, content_type):
-        super(EntityFilterList, self).__init__(EntityFilter.objects.filter(entity_type=content_type).order_by('name'))
+        super(EntityFilterList, self).__init__(EntityFilter.objects.filter(entity_type=content_type))
         self._selected = None
 
     @property
@@ -126,6 +126,7 @@ class EntityFilter(Model): #CremeModel ???
         app_label = 'creme_core'
         verbose_name = _(u'Filter of Entity')
         verbose_name_plural = _(u'Filters of Entity')
+        ordering = ('name',)
 
     class CycleError(Exception):
         pass
