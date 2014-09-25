@@ -148,6 +148,6 @@ def get_for_ctype(request, ct_id, include_all=False):
     #return list(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
     choices = [('', _(u'All'))] if include_all else []
 
-    choices.extend(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
+    choices.extend(EntityFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
 
     return choices
