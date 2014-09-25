@@ -87,7 +87,7 @@ class CRUDityRegistry(object):
         self._backends = {}
 
     def autodiscover(self):
-        for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
+        for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'backends']):
             #Fetchers
             fetchers = getattr(crud_import, "fetchers", {})
             register_fetchers = self.register_fetchers
@@ -120,7 +120,7 @@ class CRUDityRegistry(object):
             fetcher.add_inputs(*inputs)
         else:
             logger.warning(u"The fetcher '%s' does not exist, inputs '%s' will not be registered",
-                            source, inputs,
+                           source, inputs,
                           )
 
     def register_backends(self, backends):

@@ -146,7 +146,9 @@ class CreateEmailInput(EmailInput):
 
         return True
 
-    def get_owner(self, is_sandbox_by_user, sender=None):
+    @staticmethod
+    #def get_owner(self, is_sandbox_by_user, sender=None):
+    def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
         if is_sandbox_by_user:
             try:

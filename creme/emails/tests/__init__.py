@@ -5,3 +5,4 @@ from .template import *
 from .sending import *
 from .signature import *
 from .mail import *
+from .crudity import *
