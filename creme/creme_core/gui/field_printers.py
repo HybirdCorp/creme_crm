@@ -260,6 +260,7 @@ class _FieldPrintersRegistry(object):
             models.FloatField:                 css_number_listview,
             models.PositiveIntegerField:       css_number_listview,
             models.PositiveSmallIntegerField:  css_number_listview,
+            fields.MoneyField:                 css_number_listview, #TODO: implement inheritage, in order to inherit from DecimalField ?
             models.TextField:                  css_textarea_listview,
         }
 
