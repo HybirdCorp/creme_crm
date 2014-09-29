@@ -361,7 +361,7 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
     }
 
     url = '/creme_core/relation/add_to_entities/%s/%s/'.format(subject_ct_id, rtype_ids.join(','));
-    url = creme.utils.appendInUrl(url, '?persist=ids&ids=' + values.join('ids='));
+    url += '?' + $.param({persist: 'id', ids: values})
 
     creme.blocks.form(url, {blockReloadUrl: block_url}).open();
 };
