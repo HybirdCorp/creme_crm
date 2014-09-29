@@ -223,7 +223,7 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     ct = get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label):
-        raise Http404(_(u"You are not allowed to acceed to this app"))
+        raise Http404(_(u"You are not allowed to access to this app"))
 
     req_get = request.REQUEST.get
     o2m = bool(int(o2m))

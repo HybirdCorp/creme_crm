@@ -1255,7 +1255,7 @@ msgstr "Ce filtre ne peut être modifié/effacé"
 #: views/entity_filter.py:54 views/entity_filter.py:146
 #: views/header_filter.py:45 views/header_filter.py:119
 #: views/generic/listview.py:226
-msgid "You are not allowed to acceed to this app"
+msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
 
 #: models/entity_filter.py:158
@@ -2771,7 +2771,7 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 #~ msgid "Blocks states"
 #~ msgstr "Etats de blocs"
 
-#~ msgid "You are not allowed to acceed to this app %s"
+#~ msgid "You are not allowed to access to this app %s"
 #~ msgstr "Vous n'êtes autorisé à accéder à cette application %s"
 
 #~ msgid "Content type is not registered in config"

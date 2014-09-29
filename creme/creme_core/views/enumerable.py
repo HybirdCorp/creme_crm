@@ -42,8 +42,8 @@ def json_list_enumerable(request, ct_id):
         app_name = ct.app_label
 
         if not request.user.has_perm(app_name):
-            #raise Http404(_(u"You are not allowed to acceed to this app %s") % app_name)
-            raise Http404(u"You are not allowed to acceed to the app '%s'" % app_name)
+            #raise Http404(_(u"You are not allowed to access to this app %s") % app_name)
+            raise Http404(u"You are not allowed to access to the app '%s'" % app_name)
 
         try:
             config_registry.get_app(app_name).get_model_conf(ct.id)
