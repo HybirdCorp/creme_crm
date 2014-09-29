@@ -152,7 +152,8 @@ class CreateEmailInput(EmailInput):
         """Returns the owner to assign to waiting actions and history"""
         if is_sandbox_by_user:
             try:
-                return Contact.objects.filter(email__iexact=sender, is_user__isnull=False)[0].is_user
+                #return Contact.objects.filter(email__iexact=sender, is_user__isnull=False)[0].is_user
+                return User.objects.filter(email=sender)[0]
             except IndexError:
                 return User.objects.filter(is_superuser=True).order_by('-pk')[0]#No need to catch IndexError
 
