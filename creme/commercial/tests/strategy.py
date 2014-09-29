@@ -200,7 +200,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         name = 'Size'
         asset = CommercialAsset.objects.create(name=name, strategy=strategy)
-        url = '/commercial/asset/edit/%s/' % asset.id
+        #url = '/commercial/asset/edit/%s/' % asset.id
+        url = asset.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -236,7 +237,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         name = 'Size'
         charm = MarketSegmentCharm.objects.create(name=name, strategy=strategy)
 
-        url = '/commercial/charm/edit/%s/' % charm.id
+        #url = '/commercial/charm/edit/%s/' % charm.id
+        url = charm.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'

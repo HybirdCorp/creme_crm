@@ -42,8 +42,8 @@ class PollFormsTestCase(_PollsTestCase):
     def _build_choices_url(self, line):
         return '/polls/pform_line/%s/choices' % line.id
 
-    def _build_editline_url(self, line):
-        return '/polls/pform_line/%s/edit' % line.id
+    #def _build_editline_url(self, line):
+        #return '/polls/pform_line/%s/edit' % line.id
 
     def _build_deleteline_url(self):
         return DELETE_RELATED_URL % get_ct(PollFormLine).id
@@ -266,7 +266,8 @@ class PollFormsTestCase(_PollsTestCase):
         name = 'introduction'
         section = PollFormSection.objects.create(pform=pform, name=name, order=1)
 
-        url = '/polls/pform_section/%s/edit' % section.id
+        #url = '/polls/pform_section/%s/edit' % section.id
+        url = section.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = name.title()
@@ -870,7 +871,8 @@ class PollFormsTestCase(_PollsTestCase):
         qtype1 = PollLineType.STRING
         line = PollFormLine.objects.create(pform=pform, question=question, order=1, type=qtype1)
 
-        url = self._build_editline_url(line)
+        #url = self._build_editline_url(line)
+        url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -899,7 +901,8 @@ class PollFormsTestCase(_PollsTestCase):
                                            type=PollLineType.STRING, disabled=True,
                                           )
 
-        url = self._build_editline_url(line)
+        #url = self._build_editline_url(line)
+        url = line.get_edit_absolute_url()
         self.assertGET404(url)
         self.assertPOST404(url, data={'question': line.question})
 
@@ -908,7 +911,8 @@ class PollFormsTestCase(_PollsTestCase):
         line = PollFormLine.objects.create(pform=PollForm.objects.create(user=self.user, name='Form#1'),
                                            question='Are you ready ?', order=1, type=PollLineType.BOOL,
                                           )
-        response = self.assertGET200(self._build_editline_url(line))
+        #response = self.assertGET200(self._build_editline_url(line))
+        response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -919,7 +923,8 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices01(self):
         "ENUM"
         line = self._create_enum_line([[1, 'White'], [2, 'black']])
-        url = self._build_editline_url(line)
+        #url = self._build_editline_url(line)
+        url = line.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -947,7 +952,8 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices02(self):
         "Delete some choices"
         line = self._create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        response = self.client.post(self._build_editline_url(line),
+        #response = self.client.post(self._build_editline_url(line),
+        response = self.client.post(line.get_edit_absolute_url(),
                                     data={'question':    line.question,
                                           'new_choices': 'Cyan',
 
@@ -981,7 +987,8 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line([[2, 'Black'], [3, 'Red']],
                                       del_choices=[[1, 'White'], [4, 'Blue']]
                                      )
-        response = self.client.post(self._build_editline_url(line),
+        #response = self.client.post(self._build_editline_url(line),
+        response = self.client.post(line.get_edit_absolute_url(),
                                     data={'question':    line.question,
                                           'new_choices': 'Magenta',
 
@@ -1002,7 +1009,8 @@ class PollFormsTestCase(_PollsTestCase):
     def test_edit_line_choices04(self):
         "Assert choices are not empty"
         line = self._create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
-        response = self.assertPOST200(self._build_editline_url(line),
+        #response = self.assertPOST200(self._build_editline_url(line),
+        response = self.assertPOST200(line.get_edit_absolute_url(),
                                       data={'question': line.question,
 
                                             'old_choices_check_0': 'on',
@@ -1020,7 +1028,8 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line([[1, 'White'], [2, 'black']],
                                       qtype=PollLineType.MULTI_ENUM
                                      )
-        response = self.assertGET200(self._build_editline_url(line))
+        #response = self.assertGET200(self._build_editline_url(line))
+        response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -1034,7 +1043,8 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line([[1, 'White'], [2, 'black']],
                                       qtype=PollLineType.ENUM_OR_STRING
                                      )
-        response = self.assertGET200(self._build_editline_url(line))
+        #response = self.assertGET200(self._build_editline_url(line))
+        response = self.assertGET200(line.get_edit_absolute_url())
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -1077,7 +1087,8 @@ class PollFormsTestCase(_PollsTestCase):
                                              operator=PollFormLineCondition.EQUALS,
                                             )
 
-        response = self.client.post(self._build_editline_url(line1),
+        #response = self.client.post(self._build_editline_url(line1),
+        response = self.client.post(line1.get_edit_absolute_url(),
                                     data={'question':    line1.question,
                                           'new_choices': 'Passionately',
 
@@ -1109,7 +1120,8 @@ class PollFormsTestCase(_PollsTestCase):
                                              operator=PollFormLineCondition.EQUALS,
                                             )
 
-        response = self.assertPOST200(self._build_editline_url(line1), #TODO: factorise ?
+        #response = self.assertPOST200(self._build_editline_url(line1), #todo: factorise ?
+        response = self.assertPOST200(line1.get_edit_absolute_url(), #TODO: factorise ?
                                       data={'question':    line1.question,
                                             'new_choices': 'Passionately',
 

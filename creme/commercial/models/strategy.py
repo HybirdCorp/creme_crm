@@ -343,6 +343,9 @@ class CommercialAsset(CremeModel):
     def __unicode__(self):
         return self.name
 
+    def get_edit_absolute_url(self):
+        return '/commercial/asset/edit/%s/' % self.id
+
     def get_related_entity(self): #for generic views
         return self.strategy
 
@@ -372,6 +375,9 @@ class MarketSegmentCharm(CremeModel):
 
     def __unicode__(self):
         return self.name
+
+    def get_edit_absolute_url(self):
+        return '/commercial/charm/edit/%s/' % self.id
 
     def get_related_entity(self): #for generic views
         return self.strategy

@@ -355,12 +355,13 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(61,  objective11.counter_goal) # 33% -> 20 * 3,3
         self.assertEqual(200, objective12.counter_goal) # 10% -> 20 * 10
 
-    def test_edit_objective01(self):
+    def test_edit_objective(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertEqual(1, objective.counter_goal)
 
-        url = '/commercial/objective/%s/edit' % objective.id
+        #url = '/commercial/objective/%s/edit' % objective.id
+        url = objective.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = 'OBJ_NAME'
@@ -380,7 +381,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(ct,           objective.ctype)
         self.assertEqual(efilter,      objective.filter)
 
-    def test_delete_objective01(self):
+    def test_delete_objective(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)

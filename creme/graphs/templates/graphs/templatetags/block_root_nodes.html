@@ -22,7 +22,8 @@
                     <td class="{{row_color}}">{% widget_entity_hyperlink rnode.entity user %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg rnode.get_relation_types _('No type of relation') %}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}
+                        {% comment %}{% get_line_editor at_url '/graphs/root/edit/{{rnode.id}}/' with_perms has_perm %}{% endcomment %}
+                        {% get_line_editor at_url rnode.get_edit_absolute_url with_perms has_perm %}
                         {% get_line_unlinker at_url '/graphs/root/delete' with_args "{'id':{{rnode.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>

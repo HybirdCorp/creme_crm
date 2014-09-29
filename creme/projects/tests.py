@@ -597,7 +597,8 @@ class ProjectsTestCase(CremeTestCase):
                               }
                         )
 
-        url = '/projects/resource/edit/%s' % resource.id
+        #url = '/projects/resource/edit/%s' % resource.id
+        url = resource.get_edit_absolute_url()
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
@@ -615,7 +616,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, len(wperiods))
 
         wperiod = wperiods[0]
-        url = '/projects/period/edit/%s' % wperiod.id
+        #url = '/projects/period/edit/%s' % wperiod.id
+        url = wperiod.get_edit_absolute_url()
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,

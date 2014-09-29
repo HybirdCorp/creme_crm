@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,3 +44,6 @@ class EmailSignature(CremeModel):
 
     def can_change_or_delete(self, user):
         return self.user_id == user.id or user.is_superuser
+
+    def get_edit_absolute_url(self):
+        return '/emails/signature/edit/%s' % self.id

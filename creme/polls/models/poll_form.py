@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,7 @@
 from functools import partial
 
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
-                              PositiveIntegerField, PositiveSmallIntegerField,
-                              ForeignKey, SET_NULL, ProtectedError)
+        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, SET_NULL, ProtectedError)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel, CremeEntity
@@ -161,6 +160,9 @@ class PollFormSection(CremeModel):
 
         super(PollFormSection, self).delete()
 
+    def get_edit_absolute_url(self):
+        return '/polls/pform_section/%s/edit' % self.id
+
     def get_related_entity(self): #for generic views
         return self.pform
 
@@ -212,6 +214,9 @@ class PollFormLine(CremeModel, _PollLine):
         self.disabled = True
         self.conditions.all().delete()
         self.save()
+
+    def get_edit_absolute_url(self):
+        return '/polls/pform_line/%s/edit' % self.id
 
     def get_related_entity(self): #for generic views
         return self.pform

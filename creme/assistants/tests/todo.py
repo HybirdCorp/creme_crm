@@ -41,8 +41,8 @@ class TodoTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
         return '/assistants/todo/add/%s/' % entity.id
 
-    def _build_edit_url(self, todo):
-        return '/assistants/todo/edit/%s/' % todo.id
+    #def _build_edit_url(self, todo):
+        #return '/assistants/todo/edit/%s/' % todo.id
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
@@ -108,7 +108,8 @@ class TodoTestCase(AssistantsTestCase):
         description = 'Description'
         todo = self._create_todo(title, description)
 
-        url = self._build_edit_url(todo)
+        #url = self._build_edit_url(todo)
+        url = todo.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       += '_edited'
@@ -136,7 +137,8 @@ class TodoTestCase(AssistantsTestCase):
             entity2 = todo.creme_entity
 
         self.assertEqual(entity, entity2)
-        self.assertGET403(self._build_edit_url(todo))
+        #self.assertGET403(self._build_edit_url(todo))
+        self.assertGET403(todo.get_edit_absolute_url())
 
     def test_delete_related01(self):
         self._create_todo()

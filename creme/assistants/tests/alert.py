@@ -81,7 +81,8 @@ class AlertTestCase(AssistantsTestCase):
         description = 'Description'
         alert = self._create_alert(title, description, '2010-9-29')
 
-        url = '/assistants/alert/edit/%s/' % alert.id
+        #url = '/assistants/alert/edit/%s/' % alert.id
+        url = alert.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       += '_edited'
