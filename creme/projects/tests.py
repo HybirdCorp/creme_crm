@@ -73,7 +73,7 @@ class ProjectsTestCase(CremeTestCase):
         return self.get_object_or_fail(Project, name=name), manager
 
     def create_task(self, project, title, status=None, atype=ACTIVITYTYPE_TASK, sub_type=None):
-        status = status or TaskStatus.objects.all()[0]
+        status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
         response = self.client.post(self._build_add_ask_url(project), follow=True,
                                     data={'user':          self.user.id,
                                           'title':         title,
@@ -527,6 +527,9 @@ class ProjectsTestCase(CremeTestCase):
                              [_(u"This entity doesn't exist.")]
                             )
 
+    def build_add_resource_url(self, task):
+        return '/projects/task/%s/resource/add' % task.id
+
     def test_resource_n_period01(self):
         "Creation views"
         self.login()
@@ -535,8 +538,11 @@ class ProjectsTestCase(CremeTestCase):
         task    = self.create_task(project, 'legs')
         self.assertFalse(task.resources_set.all())
 
-        worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
-        response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
+        url = self.build_add_resource_url(task)
+        self.assertGET200(url)
+
+        worker = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
+        response = self.client.post(url, follow=True,
                                     data={'user':           self.user.id,
                                           'linked_contact': worker.id,
                                           'hourly_cost':    100,
@@ -576,7 +582,7 @@ class ProjectsTestCase(CremeTestCase):
         project  = self.create_project('Eva02')[0]
         task     = self.create_task(project, 'arms')
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
-        self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
+        self.client.post(self.build_add_resource_url(task), follow=True,
                          data={'user':           self.user.id,
                                'linked_contact': worker.id,
                                'hourly_cost':    100,
@@ -624,6 +630,29 @@ class ProjectsTestCase(CremeTestCase):
         wperiod = self.refresh(wperiod)
         self.assertEqual(10, wperiod.duration)
 
+    def test_resource_n_period03(self):
+        "Not alive task"
+        self.login()
+
+        project = self.create_project('Eva02')[0]
+        status  = self.get_object_or_fail(TaskStatus, id=COMPLETED_PK)
+        task    = self.create_task(project, 'legs', status=status)
+
+        url = self.build_add_resource_url(task)
+        response = self.assertGET200(url)
+        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+
+        worker = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
+        response = self.client.post(url, follow=True,
+                                    data={'user':           self.user.id,
+                                          'linked_contact': worker.id,
+                                          'hourly_cost':    100,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertFalse(task.resources_set.all())
+        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+
     def test_project_close(self):
         self.login()
 
@@ -644,7 +673,7 @@ class ProjectsTestCase(CremeTestCase):
         #already closed
         self.assertPOST404(url, follow=True)
 
-    def _create_task(self, title, project, parents=None):
+    def _create_parented_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
         task = ProjectTask.objects.create(project=project, order=0, duration=0,
                                           tstatus=status, user=self.user,
@@ -675,7 +704,7 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
         project = self.create_project('Project')[0]
 
-        create_task = self._create_task
+        create_task = self._create_parented_task
         task1    = create_task('1', project)
         task11   = create_task('1.1', project, [task1])
         task111  = create_task('1.1.1', project, [task11])
@@ -716,20 +745,20 @@ class ProjectsTestCase(CremeTestCase):
         contact1 = Contact.objects.create(user=user)
         contact2 = Contact.objects.create(user=user)
 
-        task1 = self._create_task('1', project)
+        task1 = self._create_parented_task('1', project)
         resource1 = self._create_resource(contact1, task1)
         resource2 = self._create_resource(contact2, task1)
         self._create_working_period(task1, resource1)
         self._create_working_period(task1, resource2)
 
-        task2 = self._create_task('2', project)
+        task2 = self._create_parented_task('2', project)
         resource3 = self._create_resource(contact1, task2)
         resource4 = self._create_resource(contact2, task2)
         self._create_working_period(task2, resource3)
         self._create_working_period(task2, resource4)
 
-        task3 = self._create_task('3', project, [task1, task2])
-        self._create_task('4', project, [task3])
+        task3 = self._create_parented_task('3', project, [task1, task2])
+        self._create_parented_task('4', project, [task3])
 
         cloned_project = project.clone()
 
