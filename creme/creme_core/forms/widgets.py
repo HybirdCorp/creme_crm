@@ -955,11 +955,17 @@ u"""</tbody></table>
 
 
 class Label(TextInput):
+    empty_label = None
+
+    def __init__(self, attrs=None, empty_label=None):
+        TextInput.__init__(self, attrs=attrs)
+        self.empty_label = empty_label
+
     def render(self, name, value, attrs=None):
         return mark_safe(u'%(input)s<span %(attrs)s>%(content)s</span>' % {
                 'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
                 'attrs':   flatatt(self.build_attrs(attrs, name=name)),
-                'content': conditional_escape(force_unicode(value)),
+                'content': conditional_escape(force_unicode(value if value is not None else self.empty_label)),
             })
 
 

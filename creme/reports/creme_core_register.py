@@ -23,9 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
-from .models import Report, ReportGraph
 from .blocks import report_fields_block, report_graphs_block, ReportGraphBlock
-
+from .forms.bulk import ReportFilterBulkForm
+from .models import Report, ReportGraph
 
 creme_registry.register_app('reports', _(u'Reports'), '/reports')
 creme_registry.register_entity_models(Report)
@@ -42,4 +42,4 @@ reg_icon = icon_registry.register
 reg_icon(Report,      'images/report_%(size)s.png')
 reg_icon(ReportGraph, 'images/graph_%(size)s.png')
 
-bulk_update_registry.register(Report, exclude=['ct', 'columns'])
+bulk_update_registry.register(Report, exclude=['ct', 'columns'], innerforms={'filter': ReportFilterBulkForm})

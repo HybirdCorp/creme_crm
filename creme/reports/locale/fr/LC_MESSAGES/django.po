@@ -252,7 +252,7 @@ msgid "Filter"
 msgstr "Filtre"
 
 # from creme_core
-#: forms/report.py:110 forms/report.py:114
+#: forms/report.py:110 forms/report.py:114 forms/report.py:496
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
@@ -292,6 +292,14 @@ msgid ""
 msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
+
+#: forms/report.py:482 forms/report.py:488
+msgid ""
+"Filter field can only be updated when reports target the same type of "
+"entities (e.g: only contacts)."
+msgstr ""
+"Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
+"type de fiche (ex: seulement les contacts)."
 
 #: models/graph.py:38
 msgctxt "reports-graphs"
