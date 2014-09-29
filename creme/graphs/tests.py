@@ -229,7 +229,8 @@ class GraphsTestCase(CremeTestCase):
         rnode = RootNode.objects.create(graph=graph, entity=orga)
         rnode.relation_types = [rtype01]
 
-        url = '/graphs/root/edit/%s/' % rnode.id
+        #url = '/graphs/root/edit/%s/' % rnode.id
+        url = rnode.get_edit_absolute_url()
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.pk, rtype02.pk]}))

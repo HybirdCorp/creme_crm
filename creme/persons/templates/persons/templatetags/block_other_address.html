@@ -23,7 +23,8 @@
                         <td class="{% cycle row_color %} td_info">{% print_field object=address field=field_name %}</td>
                         {% if forloop.first %}
                             <td class="{{row_color}}" align="center" valign="center" rowspan="{{field_names|length}}">
-                                {% get_line_editor at_url '/persons/address/edit/{{address.id}}/' with_perms has_perm %}
+                                {% comment %}{% get_line_editor at_url '/persons/address/edit/{{address.id}}/' with_perms has_perm %}{% endcomment %}
+                                {% get_line_editor at_url address.get_edit_absolute_url with_perms has_perm %}
                                 {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id': {{address.id}} }" with_perms has_perm %}
                             </td>
                         {% endif %}

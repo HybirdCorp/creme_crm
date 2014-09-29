@@ -157,10 +157,11 @@ class RootNode(CremeModel):
     class Meta:
         app_label = 'graphs'
 
+    def get_edit_absolute_url(self):
+        return '/graphs/root/edit/%s/' % self.id
+
     def get_related_entity(self): #for generic views (edit_related_to_entity)
         return self.graph
 
     def get_relation_types(self):
         return self.relation_types.select_related('symmetric_type')
-
-

@@ -23,7 +23,8 @@
                     <td class="{{row_color}}">{{signature.body}}</td>
                     <td class="{{row_color}}">{{signature.images.count}}</td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/emails/signature/edit/{{signature.id}}' with_perms 1 %}
+                        {% comment %}{% get_line_editor at_url '/emails/signature/edit/{{signature.id}}' with_perms 1 %}{% endcomment %}
+                        {% get_line_editor at_url signature.get_edit_absolute_url with_perms 1 %}
                         {% get_line_deletor at_url '/emails/signature/delete' with_args "{'id' : {{signature.id}} }" with_perms 1 %}
                     </td>
                 </tr>

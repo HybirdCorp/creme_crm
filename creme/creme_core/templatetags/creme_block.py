@@ -51,6 +51,17 @@ def _arg_in_quotes_or_die(arg, tag_name):
     if not (first_char == arg[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
+
+class InnerTemplateVar(object):
+    __slots__ = ('tpl',)
+
+    def __init__(self, tpl):
+        self.tpl = tpl
+
+    def eval(self, context):
+        return self.tpl.render(context)
+
+
 #-------------------------------------------------------------------------------
 _COLSPAN_ARG = 'colspan='
 
@@ -419,21 +430,35 @@ def do_line_editor(parser, token):
         raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     edit_url, perm_str = match.groups()
-
     first_char = edit_url[0]
-    if not (first_char == edit_url[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
+    #if not (first_char == edit_url[-1] and first_char in ('"', "'")):
+        #raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
 
-    return LineEditorNode(edit_url[1:-1], TemplateLiteral(parser.compile_filter(perm_str), perm_str))
+    #return LineEditorNode(edit_url[1:-1], TemplateLiteral(parser.compile_filter(perm_str), perm_str))
+
+    if first_char in ('"', "'"):
+        if first_char != edit_url[-1]:
+            raise TemplateSyntaxError("%r tag's url argument should end with a "
+                                      "quote if it's a template string" % tag_name
+                                     )
+
+        edit_url_var = InnerTemplateVar(Template(edit_url[1:-1]))
+    else:
+        edit_url_var = TemplateLiteral(parser.compile_filter(edit_url), edit_url)
+
+    return LineEditorNode(edit_url_var, TemplateLiteral(parser.compile_filter(perm_str), perm_str))
 
 class LineEditorNode(TemplateNode):
-    def __init__(self, edit_url, perm_var):
+    #def __init__(self, edit_url, perm_var):
+    def __init__(self, edit_url_var, perm_var):
         self.template = get_template('creme_core/templatetags/widgets/block_line_editor.html')
-        self.url_tpl = Template(edit_url)
+        #self.url_tpl = Template(edit_url)
+        self.edit_url_var = edit_url_var
         self.perm_var = perm_var
 
     def render(self, context):
-        context['edit_url'] = self.url_tpl.render(context)
+        #context['edit_url'] = self.url_tpl.render(context)
+        context['edit_url'] = self.edit_url_var.eval(context)
         context['edit_line_perm'] = self.perm_var.eval(context)
 
         return self.template.render(context)

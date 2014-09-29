@@ -87,7 +87,8 @@ class ActionTestCase(AssistantsTestCase):
         reaction = 'REACTION'
         action = self._create_action('2010-12-24', title, descr, reaction)
 
-        url = '/assistants/action/edit/%s/' % action.id
+        #url = '/assistants/action/edit/%s/' % action.id
+        url = action.get_edit_absolute_url()
         self.assertGET200(url)
 
         title    += '_edited'

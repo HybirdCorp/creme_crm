@@ -143,6 +143,9 @@ class ActObjective(CremeModel):
     def __unicode__(self):
         return self.name
 
+    def get_edit_absolute_url(self):
+        return '/commercial/objective/%s/edit' % self.id
+
     def get_related_entity(self): #NB: see edit_related_to_entity()
         return self.act
 

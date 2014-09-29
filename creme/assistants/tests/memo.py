@@ -57,7 +57,8 @@ class MemoTestCase(AssistantsTestCase):
         homepage = True
         memo = self._create_memo(content, homepage)
 
-        url = '/assistants/memo/edit/%s/' % memo.id
+        #url = '/assistants/memo/edit/%s/' % memo.id
+        url = memo.get_edit_absolute_url()
         self.assertGET200(url)
 
         content += u""": 

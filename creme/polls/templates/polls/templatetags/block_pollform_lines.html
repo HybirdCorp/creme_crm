@@ -21,7 +21,8 @@
                         <div style="float:left;">
                             <h3>{% print_node_number style node %})&nbsp;{% print_field object=node field='name' %}</h3>
                             {% print_field object=node field='body' %}
-                            {% get_line_editor at_url '/polls/pform_section/{{node.id}}/edit' with_perms has_perm %}
+                            {% comment %}{% get_line_editor at_url '/polls/pform_section/{{node.id}}/edit' with_perms has_perm %}{% endcomment %}
+                            {% get_line_editor at_url node.get_edit_absolute_url with_perms has_perm %}
                             {% if not node.has_line %}
                                 {% get_line_deletor at_url '/creme_core/entity/delete_related/{{section_ct_id}}' with_args "{'id' : {{node.id}} }" with_perms has_perm %}
                             {% endif %}
@@ -41,7 +42,8 @@
                                     <p>[{{node.poll_line_type.description}}]</p>
                                     <p>
                                         {% with conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %}
-                                            {% get_line_editor at_url '/polls/pform_line/{{node.id}}/edit' with_perms has_perm %}
+                                            {% comment %}{% get_line_editor at_url '/polls/pform_line/{{node.id}}/edit' with_perms has_perm %}{% endcomment %}
+                                            {% get_line_editor at_url node.get_edit_absolute_url with_perms has_perm %}
 
                                             {% if has_perm|and_op:no_deps %}
                                                 <a class="pointer" onclick="creme.blocks.confirmPOSTQuery('/polls/pform_line/{{node.id}}/disable', {blockReloadUrl:{% get_block_reload_uri %}}).start();">

@@ -63,6 +63,9 @@ class ToDo(CremeModel):
     def __unicode__(self):
         return self.title
 
+    def get_edit_absolute_url(self):
+        return '/assistants/todo/edit/%s/' % self.id
+
     @staticmethod
     def get_todos(entity):
         return ToDo.objects.filter(entity_id=entity.id).select_related('user')

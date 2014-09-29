@@ -39,7 +39,8 @@ class SignaturesTestCase(_EmailsTestCase):
         body = 'I love you... not'
         signature = EmailSignature.objects.create(user=self.user, name=name, body=body)
 
-        url = '/emails/signature/edit/%s' % signature.id
+        #url = '/emails/signature/edit/%s' % signature.id
+        url = signature.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -61,7 +62,8 @@ class SignaturesTestCase(_EmailsTestCase):
         signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        self.assertGET403('/emails/signature/edit/%s' % signature.id)
+        #self.assertGET403('/emails/signature/edit/%s' % signature.id)
+        self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
         "Superuser can delete all signatures"
@@ -70,7 +72,8 @@ class SignaturesTestCase(_EmailsTestCase):
         signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
                                                   body='I love you... not',
                                                  )
-        self.assertGET200('/emails/signature/edit/%s' % signature.id)
+        #self.assertGET200('/emails/signature/edit/%s' % signature.id)
+        self.assertGET200(signature.get_edit_absolute_url())
 
     def _delete(self, signature):
         return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)

@@ -37,7 +37,8 @@
                         <a href="{{period.resource.get_absolute_url}}">{{period.resource}}</a>
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/projects/period/edit/{{period.id}}' with_perms task_change_perm %}
+                        {% comment %}{% get_line_editor at_url '/projects/period/edit/{{period.id}}' with_perms task_change_perm %}{% endcomment %}
+                        {% get_line_editor at_url period.get_edit_absolute_url with_perms task_change_perm %}
                         {% get_line_deletor at_url '/projects/period/delete' with_args "{'id': {{period.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>

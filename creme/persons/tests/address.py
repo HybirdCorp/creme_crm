@@ -146,7 +146,8 @@ class AddressTestCase(CremeTestCase):
         self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
         address = Address.objects.filter(object_id=orga.id)[0]
 
-        url = '/persons/address/edit/%s' % address.id
+        #url = '/persons/address/edit/%s' % address.id
+        url = address.get_edit_absolute_url()
         self.assertGET200(url)
 
         city = 'Groville'

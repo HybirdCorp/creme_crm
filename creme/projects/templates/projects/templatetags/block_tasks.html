@@ -50,10 +50,10 @@
                     {% endif %}
                     <td class="{{row_color}} action">
                         {% has_perm_to view task as view_perm %}
-                        {% get_line_viewer at_url '/projects/task/{{ task.pk }}' with_label "" with_perms view_perm %}
+                        {% get_line_viewer at_url '/projects/task/{{task.pk}}' with_label "" with_perms view_perm %}
 
                         {% has_perm_to change task as change_perm %}
-                        {% get_line_editor at_url '/projects/task/edit/{{ task.pk }}/popup' with_perms change_perm %}
+                        {% get_line_editor at_url '/projects/task/edit/{{task.pk}}/popup' with_perms change_perm %}
 
                         {% has_perm_to delete task as delete_perm %}
                         {% get_line_deletor at_url '/projects/task/delete' with_args "{'id' : {{task.pk}} }" with_perms delete_perm %}

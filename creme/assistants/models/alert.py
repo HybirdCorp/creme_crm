@@ -55,6 +55,9 @@ class Alert(CremeModel):
     def __unicode__(self):
         return self.title
 
+    def get_edit_absolute_url(self):
+        return '/assistants/alert/edit/%s/' % self.id
+
     @staticmethod
     def get_alerts(entity):
         return Alert.objects.filter(is_validated=False, entity_id=entity.id).select_related('user')

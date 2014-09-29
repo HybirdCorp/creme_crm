@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,6 +56,9 @@ class Address(CremeModel):
             s = u' '.join(filter(None, [self.po_box, self.state, self.country]))
 
         return s
+
+    def get_edit_absolute_url(self):
+        return '/persons/address/edit/%s' % self.id
 
     def get_related_entity(self): #for generic views
         return self.owner

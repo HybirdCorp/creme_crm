@@ -31,8 +31,8 @@
                     <td class="{{row_color}}" align="center">{% widget_entity_hyperlink resource.linked_contact user %}</td>
                     <td class="{{row_color}}" align="center">{% blocktrans with resource.hourly_cost as cost %}{{cost}} € / hour{% endblocktrans %}</td>
                     <td class="{{row_color}} action">
-                        {% comment %}TODO: use {{resource.get_edit_absolute_url}} ?? {% endcomment %}
-                        {% get_line_editor at_url '/projects/resource/edit/{{resource.id}}' with_perms task_change_perm %}
+                        {% comment %}{% get_line_editor at_url '/projects/resource/edit/{{resource.id}}' with_perms task_change_perm %}{% endcomment %}
+                        {% get_line_editor at_url resource.get_edit_absolute_url with_perms task_change_perm %}
                         {% get_line_deletor at_url '/projects/resource/delete' with_args "{'id': {{resource.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>

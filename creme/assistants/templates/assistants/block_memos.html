@@ -34,7 +34,8 @@
                     <td class="{{row_color}}">{% print_field object=memo field='content' %}</td>
                     <td class="{{row_color}} action">
                         {% has_perm_to change memo.creme_entity as has_perm %}
-                        {% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}
+                        {% comment %}{% get_line_editor at_url '/assistants/memo/edit/{{memo.id}}/' with_perms has_perm %}{% endcomment %}
+                        {% get_line_editor at_url memo.get_edit_absolute_url with_perms has_perm %}
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{memo.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
