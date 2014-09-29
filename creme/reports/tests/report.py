@@ -236,6 +236,88 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(report).name)
 
+    def test_report_inneredit_filter(self):
+        self.login()
+
+        contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
+        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                           operator=EntityFilterCondition.IEQUALS,
+                                                                           name='last_name', values=['Mihana']
+                                                                           )
+                                      ])
+
+        orga_filter = EntityFilter.create('test-filter2', 'Mihana house', Organisation, is_custom=True)
+        orga_filter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                        operator=EntityFilterCondition.IEQUALS,
+                                                                        name='name', values=['Mihana']
+                                                                   )
+                                   ])
+
+        reportA = self._create_report('A')
+        self.assertIsNone(reportA.filter)
+
+        url = self.build_inneredit_url(reportA, 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response, 'Mihana family')
+        self.assertNotContains(response, 'Mihana house') # excluded from filter choices because report targets a Contact.
+
+        response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
+        self.assertNoFormError(response)
+
+        reportA = self.refresh(reportA)
+        self.assertEqual(reportA.filter.pk, contact_filter.pk)
+
+    def test_report_bulkedit_filter_same_ctypes(self):
+        self.login()
+
+        contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
+        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                           operator=EntityFilterCondition.IEQUALS,
+                                                                           name='last_name', values=['Mihana']
+                                                                           )
+                                      ])
+        orga_filter = EntityFilter.create('test-filter2', 'Mihana house', Organisation, is_custom=True)
+        orga_filter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                        operator=EntityFilterCondition.IEQUALS,
+                                                                        name='name', values=['Mihana']
+                                                                        )
+                                   ])
+
+        reportA = self._create_report('A')
+        reportB = self._create_report('B')
+
+        url = self.build_bulkedit_url([reportA, reportB], 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response, 'Mihana family')
+        self.assertNotContains(response, 'Mihana house')
+
+        response = self.client.post(url, data={'field_value': contact_filter.pk})
+        self.assertNoFormError(response)
+
+        self.assertEqual(self.refresh(reportA).filter, contact_filter)
+        self.assertEqual(self.refresh(reportB).filter, contact_filter)
+
+    def test_report_bulkedit_filter_different_ctypes(self):
+        self.login()
+
+        contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
+        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                           operator=EntityFilterCondition.IEQUALS,
+                                                                           name='last_name', values=['Mihana']
+                                                                           )
+                                      ])
+
+        reportA = self._create_report('A')
+        reportB = self._create_simple_organisations_report('B')
+
+        url = self.build_bulkedit_url([reportA, reportB], 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response, _(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts)."))
+
+        response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
+        self.assertFormError(response, 'form', None,
+                             _(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts)."))
+
     def test_listview(self):
         self.login()
 
