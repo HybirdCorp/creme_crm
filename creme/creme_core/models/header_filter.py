@@ -100,7 +100,7 @@ class HeaderFilter(Model): #CremeModel ???
             return (True, 'OK')
 
         if not user.has_perm(self.entity_type.app_label):
-            return (False, ugettext(u"You are not allowed to acceed to this app"))
+            return (False, ugettext(u"You are not allowed to access to this app"))
 
         if not self.user.is_team:
             if self.user_id == user.id:

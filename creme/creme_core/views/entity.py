@@ -271,7 +271,7 @@ def search_and_view(request):
             raise Http404(u'These model does not exist: %s' % model_id)
 
         if not has_perm(ct.app_label):
-            raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+            raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
         model = ct.model_class()
 

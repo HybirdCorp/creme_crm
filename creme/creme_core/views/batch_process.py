@@ -36,7 +36,7 @@ def batch_process(request, ct_id):
 
     #if not request.user.has_perm(ct.app_label):
     if not user.has_perm(ct.app_label): #TODO: factorise
-        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+        raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
     #try: #todo: factorise
         #callback_url = ct.model_class().get_lv_absolute_url()
@@ -80,7 +80,7 @@ def get_ops(request, ct_id, field):
     ct = get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label):
-        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+        raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
     field = ct.model_class()._meta.get_field(field)
 
