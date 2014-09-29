@@ -4,10 +4,6 @@
 
 {% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
 
-{% comment %}
-TODO: this is a hack to disable the Download <a> when datefilter is edited (because href becomes deprecated)
-      so we have to rework this form in order to 'Download' to be integrated in the form & become a submit button too.
-{% endcomment %}
 {% block extrahead %}
     {{block.super}}
     <script type='text/javascript'>
