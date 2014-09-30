@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import timedelta
+#from datetime import timedelta
 
 from django.core.management.base import BaseCommand
+from django.db.transaction import commit_on_success
 from django.utils.timezone import now
 
 
@@ -41,19 +42,17 @@ class Command(BaseCommand):
             print 'A process is already running'
         else:
             for generator in RecurrentGenerator.objects.filter(is_working=True):
-                #recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
-                recurrent_date = generator.last_generation + generator.periodicity.as_timedelta()
+                last = generator.last_generation
+                next_generation = generator.first_generation if last is None else \
+                                  last + generator.periodicity.as_timedelta()
 
-                last  = generator.last_generation
-                first = generator.first_generation
-                now_value = now()
+                if next_generation <= now():
+                    with commit_on_success():
+                        template = generator.template.get_real_entity()
 
-                if recurrent_date < now_value or (last == first and first < now_value):
-                    template = generator.template.get_real_entity()
+                        template.create_entity()
 
-                    template.create_entity()
-
-                    generator.last_generation = now_value
-                    generator.save()
+                        generator.last_generation = next_generation
+                        generator.save()
 
             Mutex.graceful_release(LOCK_NAME)

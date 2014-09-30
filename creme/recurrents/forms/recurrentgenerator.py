@@ -38,6 +38,11 @@ class RecurrentGeneratorEditForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = RecurrentGenerator
 
+    def __init__(self, *args, **kwargs):
+        super(RecurrentGeneratorEditForm, self).__init__(*args, **kwargs)
+        if self.instance.last_generation:
+            del self.fields['first_generation']
+
 
 class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
     ct = EntityCTypeChoiceField(label=_(u'Type of resource used as template'))
@@ -56,7 +61,7 @@ class RecurrentGeneratorCreateForm(RecurrentGeneratorEditForm):
 
     def save(self):
         instance = self.instance
-        instance.last_generation = instance.first_generation #TODO: in model.save() ??
+        #instance.last_generation = instance.first_generation #todo: in model.save() ??
         instance.ct = self.cleaned_data['ct']
 
         return super(RecurrentGeneratorCreateForm, self).save()
