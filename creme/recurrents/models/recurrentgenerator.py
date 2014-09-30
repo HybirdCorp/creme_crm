@@ -32,7 +32,7 @@ class RecurrentGenerator(CremeEntity):
     name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'))
-    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), editable=False)
+    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), null=True, editable=False)
     #periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
     periodicity      = DatePeriodField(_(u'Periodicity of the generation'))
     ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'), editable=False)

@@ -129,7 +129,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(self.create_datetime(year=2014, month=6, day=11, hour=9),
                          gen.first_generation
                         )
-        self.assertEqual(gen.last_generation, gen.first_generation)
+        #self.assertEqual(gen.last_generation, gen.first_generation)
+        self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
 
@@ -141,26 +142,25 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertFalse(tpl.solution)
 
     @skipIfNotInstalled('creme.tickets')
-    def test_editview(self):
+    def test_editview01(self):
         user = self.user
 
         #old_per, new_per = Periodicity.objects.all()[:2]
-        get_period = date_period_registry.get_period
 
         tpl1 = self._create_ticket_template(title='TicketTemplate #1')
         tpl2 = self._create_ticket_template(title='TicketTemplate #2')
 
-        now_value = now()
         gen = RecurrentGenerator.objects.create(name='Gen1',
                                                 user=user,
-                                                first_generation=now_value,
-                                                last_generation=now_value,
+                                                first_generation=now(),
+                                                last_generation=None,
                                                 #periodicity=old_per,
-                                                periodicity=get_period('weeks', 2),
+                                                periodicity=date_period_registry.get_period('weeks', 2),
                                                 ct=self.ct, template=tpl1,
                                                )
 
-        url = '/recurrents/generator/edit/%s' % gen.id
+        #url = '/recurrents/generator/edit/%s' % gen.id
+        url = gen.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = gen.name.upper()
@@ -192,6 +192,38 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())
 
     @skipIfNotInstalled('creme.tickets')
+    def test_editview02(self):
+        "last_generation has been filled => cannot edit first_generation"
+        user = self.user
+
+        now_value = now()
+        gen = RecurrentGenerator.objects.create(name='Gen1',
+                                                user=user,
+                                                first_generation=now_value,
+                                                last_generation=now_value,
+                                                #periodicity=Periodicity.objects.all()[0],
+                                                periodicity=date_period_registry.get_period('months', 1),
+                                                ct=self.ct,
+                                                template=self._create_ticket_template(title='TicketTemplate #1'),
+                                               )
+
+        name = gen.name.upper()
+        response = self.client.post(gen.get_edit_absolute_url(), follow=True,
+                                    data={'user':             user.id,
+                                          'name':             name,
+                                          'first_generation': '12-06-2014 10:00', #should not be used
+                                          #'periodicity':      gen.periodicity_id,
+
+                                          'periodicity_0':    'months',
+                                          'periodicity_1':    '3',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        gen = self.refresh(gen)
+        self.assertEqual(now_value, gen.first_generation)
+
+    @skipIfNotInstalled('creme.tickets')
     def test_listview(self):
         tpl = self._create_ticket_template()
         #periodicity = Periodicity.objects.all()[0]
@@ -216,18 +248,18 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
     @skipIfNotInstalled('creme.tickets')
     def test_command01(self):
-        "first_generation == last_generation + in the past"
+        "first_generation in the past + (no generation yet (ie last_generation is None)"
         self.assertFalse(Ticket.objects.all())
 
         tpl = self._create_ticket_template()
         now_value = now()
         start = now_value - timedelta(days=5)
-        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                          periodicity=self._get_weekly(),
-                                          ct=self.ct, template=tpl,
-                                          first_generation=start,
-                                          last_generation=start,
-                                         )
+        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
+                                                periodicity=self._get_weekly(),
+                                                ct=self.ct, template=tpl,
+                                                first_generation=start,
+                                                last_generation=None,
+                                               )
 
         GenDocsCommand().handle(verbosity=0)
 
@@ -238,6 +270,9 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(u'%s %s #1' % (tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
                          ticket.title
                         )
+
+        gen = self.refresh(gen)
+        self.assertEqual(gen.first_generation, gen.last_generation)
 
     @skipIfNotInstalled('creme.tickets')
     def test_command02(self):
@@ -259,12 +294,15 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
         now_value = now()
-        RecurrentGenerator.objects.create(name='Gen1', user=self.user,
-                                          periodicity=self._get_weekly(),
-                                          ct=self.ct, template=tpl,
-                                          first_generation=now_value - timedelta(days=15),
-                                          last_generation=now_value - timedelta(days=7),
-                                         )
+        gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
+                                                periodicity=self._get_weekly(),
+                                                ct=self.ct, template=tpl,
+                                                first_generation=now_value - timedelta(days=15),
+                                                last_generation=now_value - timedelta(days=7),
+                                               )
 
         GenDocsCommand().handle(verbosity=0)
         self.assertEqual(1, Ticket.objects.count())
+
+        gen = self.refresh(gen)
+        self.assertEqual(now_value, gen.last_generation)

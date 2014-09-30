@@ -99,7 +99,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertEqual(self.create_datetime(year=2014, month=7, day=8, hour=11),
                          gen.first_generation
                         )
-        self.assertEqual(gen.last_generation, gen.first_generation)
+        #self.assertEqual(gen.last_generation, gen.first_generation)
+        self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
 
