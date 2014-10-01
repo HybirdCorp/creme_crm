@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.db.models import BooleanField, DecimalField
+from django.db.transaction import commit_on_success
 from django.utils.translation import ugettext_lazy as _
 
 from .base import CremeModel
@@ -39,6 +40,7 @@ class Vat(CremeModel):
         verbose_name_plural = _(u'VAT')
         ordering = ('value',)
 
+    @commit_on_success
     def save(self, *args, **kwargs):
         if self.is_default:
             Vat.objects.update(is_default=False)
@@ -47,6 +49,7 @@ class Vat(CremeModel):
 
         super(Vat, self).save(*args, **kwargs)
 
+    @commit_on_success
     def delete(self, *args, **kwargs):
         if self.is_default:
             existing_vat = Vat.objects.exclude(id=self.id)[:1]

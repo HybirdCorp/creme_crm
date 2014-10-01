@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
+from django.db.transaction import commit_on_success
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
@@ -136,6 +137,7 @@ class PaymentInformation(CremeModel):
         verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
 
     #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ???
+    @commit_on_success
     def save(self, *args, **kwargs):
         if self.is_default:
             PaymentInformation.objects.filter(organisation=self.organisation, is_default=True).update(is_default=False)
@@ -144,6 +146,7 @@ class PaymentInformation(CremeModel):
 
         super(PaymentInformation, self).save(*args, **kwargs)
 
+    @commit_on_success
     def delete(self, *args, **kwargs):
         if self.is_default:
             existing_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
