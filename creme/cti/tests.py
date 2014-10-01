@@ -40,6 +40,25 @@ class CTITestCase(CremeTestCase):
         self.contact = user.linked_contact
         self.contact_other_user = other_user.linked_contact
 
+    def test_config(self):
+        "Should not ne available when creating UserRoles"
+        self.login()
+
+        response = self.assertGET200('/creme_config/role/add/')
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
+            admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
+
+        self.assertIn('creme_core', apps_choices)
+        self.assertIn('persons',    apps_choices)
+        self.assertNotIn('cti',    apps_choices) #<==
+
+        self.assertIn('creme_core', admin_choices)
+        self.assertIn('persons',    admin_choices)
+        self.assertNotIn('cti',    admin_choices) #<==
+
     def test_print_phone(self):
         self.login()
 

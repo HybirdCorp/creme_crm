@@ -57,7 +57,20 @@ class UserRoleTestCase(CremeTestCase):
         self.login()
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            apps_choices  = set(c[0] for c in fields['allowed_apps'].choices)
+            admin_choices = set(c[0] for c in fields['admin_4_apps'].choices)
+
+        self.assertIn('creme_core',   apps_choices)
+        self.assertIn('creme_config', apps_choices)
+        self.assertIn('persons',      apps_choices)
+
+        self.assertIn('creme_core', admin_choices)
+        self.assertIn('persons',    admin_choices)
+        self.assertNotIn('creme_config', admin_choices) #<==
 
         get_ct = ContentType.objects.get_for_model
         name = 'CEO'

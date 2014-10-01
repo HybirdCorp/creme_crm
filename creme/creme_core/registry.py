@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,24 +28,28 @@ class NotRegistered(Exception):
 
 
 class CremeApp(object):
-    __slots__ = ('name', 'verbose_name', 'url')
+    __slots__ = ('name', 'verbose_name', 'url', 'credentials')
 
-    def __init__(self, name, verbose_name, url):
+    def __init__(self, name, verbose_name, url, credentials):
         self.name = name
         self.verbose_name = verbose_name
         self.url = url
+        self.credentials = credentials
 
 
 class CremeRegistry(object):
     """Registry for Creme Applications and Entities."""
+    CRED_NONE    = 0b00
+    CRED_REGULAR = 0b01
+    CRED_ADMIN   = 0b10
 
     def __init__(self):
         self._entity_models = []
         self._apps = {}
         self._generic_registry = {}
 
-    def register_app(self, name, verbose_name, url=None):
-        self._apps[name] = CremeApp(name, verbose_name, url)
+    def register_app(self, name, verbose_name, url=None, credentials=CRED_REGULAR|CRED_ADMIN):
+        self._apps[name] = CremeApp(name, verbose_name, url, credentials)
 
     def get_app(self, name):
         app = self._apps.get(name)

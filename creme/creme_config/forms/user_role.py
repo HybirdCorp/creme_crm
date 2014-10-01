@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,22 +20,25 @@
 
 #from itertools import izip
 
-from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
-from creme.creme_core.models import UserRole, SetCredentials, Mutex
-from creme.creme_core.registry import creme_registry
 from creme.creme_core.forms import CremeForm, CremeModelForm, EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect
+from creme.creme_core.models import UserRole, SetCredentials, Mutex
+from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.utils.unicode_collation import collator
 
 
 _ALL_ENTITIES = list(creme_entity_content_types())
 
 def sorted_entity_models_choices(): #TODO: factorise with other modules ??
-    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: t[1])
+    #return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: t[1])
+    sort_key = collator.sort_key
+    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: sort_key(t[1]))
 
 def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
@@ -59,11 +62,31 @@ class UserRoleCreateForm(CremeModelForm):
         fields['creatable_ctypes'].choices  = models_choices
         fields['exportable_ctypes'].choices = models_choices
 
-        apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()),
-                      key=lambda t: t[1]
+        #sort_key = collator.sort_key
+        #apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()),
+                      ##key=lambda t: t[1]
+                      #key=lambda t: sort_key(t[1])
+                     #)
+        #fields['allowed_apps'].choices = apps
+        #fields['admin_4_apps'].choices = apps
+
+        iter_apps    = creme_registry.iter_apps
+        CRED_REGULAR = creme_registry.CRED_REGULAR
+        fields['allowed_apps'].choices = self.app_choices(app for app in iter_apps()
+                                                            if app.credentials & CRED_REGULAR
+                                                         )
+        CRED_ADMIN   = creme_registry.CRED_ADMIN
+        fields['admin_4_apps'].choices = self.app_choices(app for app in iter_apps()
+                                                            if app.credentials & CRED_ADMIN
+                                                         )
+
+    @staticmethod
+    def app_choices(apps):
+        sort_key = collator.sort_key
+
+        return sorted(((app.name, unicode(app.verbose_name)) for app in apps),
+                      key=lambda t: sort_key(t[1])
                      )
-        fields['allowed_apps'].choices = apps
-        fields['admin_4_apps'].choices = apps
 
     def save(self, *args, **kwargs):
         instance = self.instance

@@ -28,7 +28,9 @@ from .blocks import blocks_list
 from .setting_keys import theme_key, timezone_key
 
 
-creme_registry.register_app('creme_config', _(u'General configuration') , '/creme_config')
+creme_registry.register_app('creme_config', _(u'General configuration') ,
+                            '/creme_config', credentials=creme_registry.CRED_REGULAR,
+                           )
 
 reg_item = creme_menu.register_app('creme_config', '/creme_config/').register_item
 #TODO: 'creme_config'-> '' (perm is not really 'creme_config', but this item is not visible if the user has not 'creme_config' perm)
