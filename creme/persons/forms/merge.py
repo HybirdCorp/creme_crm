@@ -79,6 +79,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         return True, ()
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
+        super(_PersonMergeForm, self)._post_entity1_update(entity1, entity2, cleaned_data)
         save_address = self._save_address
 
         must_save1, to_del1 = save_address(entity1, entity2, 'billing_address',  cleaned_data, _BILL_PREFIX)
