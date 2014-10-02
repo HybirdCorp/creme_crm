@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,10 +28,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
-from ..models import CremeEntity
+from ..models import CremeEntity, CustomField, CustomFieldValue
 from ..signals import pre_merge_related
 from ..gui.merge import merge_form_registry
-from .base import CremeForm
+from .base import CremeForm, _CUSTOM_NAME
 
 
 logger = logging.getLogger(__name__)
@@ -126,14 +126,16 @@ class MergeEntitiesBaseForm(CremeForm):
         self.entity1 = entity1
         self.entity2 = entity2
 
+        fields = self.fields
+
         build_initial = self._build_initial_dict
         entity1_initial = build_initial(entity1)
         entity2_initial = build_initial(entity2)
 
-        #the youngest entity is prefered
+        #the older entity is prefered
         initial_index = 0 if entity1.modified <= entity2.modified else 1
 
-        for name, field in self.fields.iteritems():
+        for name, field in fields.iteritems():
             if name == 'entities_labels':
                 field.initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
             else:
@@ -142,11 +144,39 @@ class MergeEntitiesBaseForm(CremeForm):
                 initial.append(initial[initial_index] or initial[1 - initial_index])
                 field.set_merge_initial(initial)
 
+        # custom fields --------------------------------------------------------
+        #TODO: factorise (CremeEntityForm ? get_custom_fields_n_values ? ...)
+        cfields = CustomField.objects.filter(content_type=entity1.entity_type)
+        CremeEntity.populate_custom_values([entity1, entity2], cfields)
+        self._customs = customs = [(cfield,
+                                    entity1.get_custom_value(cfield),
+                                    entity2.get_custom_value(cfield),
+                                   ) for cfield in cfields
+                                  ]
+
+        for i, (cfield, cvalue1, cvalue2) in enumerate(customs):
+            formfield1 = cfield.get_formfield(cvalue1)
+            fields[_CUSTOM_NAME % i] = merge_field = MergeField(formfield1,
+                                                                model_field=None,
+                                                                label=cfield.name,
+                                                               )
+
+            initial = [formfield1.initial,
+                       cfield.get_formfield(cvalue2).initial,
+                      ]
+            initial.append(initial[initial_index] or initial[1 - initial_index])
+            merge_field.set_merge_initial(initial)
+
     def _build_initial_dict(self, entity):
         return model_to_dict(entity)
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
-        pass
+        for i, (custom_field, cvalue1, cvalue2) in enumerate(self._customs):
+            value = cleaned_data[_CUSTOM_NAME % i] #TODO: factorize with __init__() ?
+            CustomFieldValue.save_values_for_entities(custom_field, [entity1], value)
+
+            if cvalue2 is not None:
+                cvalue2.delete()
 
     def clean(self):
         cdata = super(MergeEntitiesBaseForm, self).clean()

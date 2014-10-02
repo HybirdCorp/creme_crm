@@ -4,12 +4,13 @@ try:
     from datetime import timedelta
     from functools import partial
 
+    from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            CremePropertyType, CremeProperty) #Language
+            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue) #Language
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
@@ -303,6 +304,99 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual({(image.id, unicode(image)), ('', '---------')},
                          set(f_image._original_field.choices)
                         )
+
+    def test_merge_customfields(self):
+        self.login()
+
+        create_cf = partial(CustomField.objects.create, field_type=CustomField.INT,
+                            content_type=ContentType.objects.get_for_model(Contact),
+                           )
+        cf_01 = create_cf(name='Number of manga')
+        cf_02 = create_cf(name='Number of anime')
+        cf_03 = create_cf(name='Club', field_type=CustomField.ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        enum_val1_1 = create_evalue(custom_field=cf_03, value='Club Manga')
+        create_evalue(custom_field=cf_03, value='Club Anime')
+
+        user = self.user
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
+        contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
+
+        create_cfval_01 = partial(cf_01.get_value_class().objects.create, custom_field=cf_01)
+        cf_01_value01 = create_cfval_01(entity=contact01, value=500)
+        cf_01_value02 = create_cfval_01(entity=contact02, value=510)
+
+        cf_02_value01 = cf_02.get_value_class().objects.create(custom_field=cf_02, entity=contact01, value=100)
+
+        cf_03_value02 = cf_03.get_value_class()(custom_field=cf_03, entity=contact02)
+        cf_03_value02.set_value_n_save(enum_val1_1.id)
+
+        url = self.build_merge_url(contact01, contact02)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            f_cf_01 = fields['custom_field_0']
+            f_cf_02 = fields['custom_field_1']
+            f_cf_03 = fields['custom_field_2']
+
+        self.assertFalse(f_cf_01.required)
+        self.assertEqual([500,  510,  500],  f_cf_01.initial)
+        self.assertEqual([100,  None, 100],  f_cf_02.initial)
+        self.assertEqual([None, cf_03_value02.id, cf_03_value02.id], f_cf_03.initial)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+
+                                          'custom_field_0_1':      500,
+                                          'custom_field_0_2':      510,
+                                          'custom_field_0_merged': 510,
+
+                                          'custom_field_1_1':      100,
+                                          'custom_field_1_2':      '',
+                                          'custom_field_1_merged': '',
+
+                                          'custom_field_2_1':      '',
+                                          'custom_field_2_2':      cf_03_value02.id,
+                                          'custom_field_2_merged': cf_03_value02.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertRedirects(response, contact01.get_absolute_url())
+
+        self.assertDoesNotExist(contact02)
+
+        new_contact01 = self.refresh(contact01)
+        self.assertEqual(contact01.first_name, new_contact01.first_name)
+        self.assertEqual(contact01.last_name,  new_contact01.last_name)
+
+        cf_01_values = cf_01.get_value_class().objects.filter(id__in=(cf_01_value01.id, cf_01_value02.id))
+        self.assertEqual(1, len(cf_01_values))
+
+        cf_01_value = cf_01_values[0]
+        self.assertEqual(contact01.id, cf_01_value.entity_id)
+        self.assertEqual(510, cf_01_value.value)
+
+        self.assertDoesNotExist(cf_02_value01)
+
+        cf_03_values = cf_03.get_value_class().objects.filter(custom_field=cf_03)
+        self.assertEqual(1, len(cf_03_values))
+
+        cf_03_value = cf_03_values[0]
+        self.assertEqual(contact01.id, cf_03_value.entity_id)
+        self.assertEqual(enum_val1_1, cf_03_value.value)
 
     def test_error01(self):
         "Try to merge 2 entities with different types"
