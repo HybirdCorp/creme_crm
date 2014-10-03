@@ -431,7 +431,8 @@ def merge(request, entity1_id, entity2_id):
     EntitiesMergeForm = merge_form_factory(entity1.__class__)
 
     if request.method == 'POST':
-        merge_form = EntitiesMergeForm(user=request.user, data=request.POST,
+        POST = request.POST
+        merge_form = EntitiesMergeForm(user=request.user, data=POST,
                                        entity1=entity1, entity2=entity2
                                       )
 
@@ -439,12 +440,16 @@ def merge(request, entity1_id, entity2_id):
             merge_form.save()
 
             return redirect(entity1)
+
+        cancel_url = POST.get('cancel_url')
     else:
         try:
             merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
         except MergeEntitiesBaseForm.CanNotMergeError as e:
             #raise Http404(e)
             raise ConflictError(e)
+
+        cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'creme_core/merge.html',
                   {'form':   merge_form,
@@ -459,6 +464,8 @@ def merge(request, entity1_id, entity2_id):
                                       'with any of old entities will be automatically '
                                       'available in the new merged entity.'
                                      ),
+                    'submit_label': _('Merge'),
+                    'cancel_url': cancel_url,
                   }
                  )
 
