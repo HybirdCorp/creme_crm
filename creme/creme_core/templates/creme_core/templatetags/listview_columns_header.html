@@ -22,11 +22,11 @@
                         </select>
                     {% elif widget_type == "datefield" %}
                         <span>
-                            <label for="id_{{cell.value}}{{whoami}}">{% trans "Between" %}</label>
+                            <label for="id_{{cell.key}}{{whoami}}">{% trans "Between" %}</label>
                             <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}" title="{{cell.title}}" type="{{widget_type}}"
                                     style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"
                                     onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="first"/>
-                            &nbsp;<label for="id_{{cell.value}}{{whoami}}_2">{% trans "and" %}</label>&nbsp;
+                            &nbsp;<label for="id_{{cell.key}}{{whoami}}_2">{% trans "and" %}</label>&nbsp;
                             <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}_2" title="{{cell.title}}" type="{{widget_type}}"
                                     style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"
                                     onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="second"/>
