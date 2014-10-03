@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import date
     from decimal import Decimal
     from functools import partial
 
@@ -9,7 +10,8 @@ try:
     from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import Relation, SetCredentials, Vat
+    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+    from creme.creme_core.models import Relation, SetCredentials, Vat, HeaderFilter
 
     from creme.persons.models import Contact, Organisation
 
@@ -1001,3 +1003,64 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(invoice.discount, full_discount)
         self.assertEqual(invoice.total_no_vat, discount_zero)
         self.assertEqual(invoice.total_vat, discount_zero)
+
+    def test_search_functionfield(self):
+        "LineTypeField"
+        self.login()
+        user = self.user
+
+        invoice = Invoice.objects.create(user=user, name='Invoice',
+                                         expiration_date=date(year=2012, month=12, day=15),
+                                         status=InvoiceStatus.objects.all()[0],
+                                        )
+
+        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
+        pline1 = create_pline(on_the_fly_item='Fly1')
+        pline2 = create_pline(on_the_fly_item='Fly2')
+
+        create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
+        sline1 = create_sline(on_the_fly_item='Fly3')
+        sline2 = create_sline(on_the_fly_item='Fly4')
+
+        func_field = Line.function_fields.get('get_verbose_type')
+
+        HeaderFilter.create(pk='test-hf_orga', name='Orga view', model=Organisation,
+                            cells_desc=[EntityCellRegularField.build(model=Organisation, name='name'),
+                                        EntityCellFunctionField(func_field),
+                                       ],
+                           )
+
+        def _get_entities_set(response):
+            with self.assertNoException():
+                entities_page = response.context['entities']
+
+            return set(entities_page.object_list)
+
+        url = Line.get_lv_absolute_url()
+        response = self.assertGET200(url)
+        ids = {l.id for l in _get_entities_set(response)}
+        self.assertIn(pline1.id, ids)
+        self.assertIn(pline2.id, ids)
+        self.assertIn(sline1.id, ids)
+        self.assertIn(sline2.id, ids)
+
+        def post(line_type):
+            return self.assertPOST200(url, data={'_search': 1,
+                                                 'regular_field-name': '',
+                                                 'function_field-%s' % func_field.name: line_type,
+                                                }
+                                     )
+
+        response = post(PRODUCT_LINE_TYPE)
+        ids = {l.id for l in _get_entities_set(response)}
+        self.assertIn(pline1.id,    ids)
+        self.assertIn(pline2.id,    ids)
+        self.assertNotIn(sline1.id, ids)
+        self.assertNotIn(sline2.id, ids)
+
+        response = post(SERVICE_LINE_TYPE)
+        ids = {l.id for l in _get_entities_set(response)}
+        self.assertNotIn(pline1.id, ids)
+        self.assertNotIn(pline2.id, ids)
+        self.assertIn(sline1.id,    ids)
+        self.assertIn(sline2.id,    ids)

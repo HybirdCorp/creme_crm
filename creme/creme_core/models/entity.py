@@ -49,6 +49,12 @@ class EntityAction(object):
 class _PrettyPropertiesField(FunctionField):
     name         = "get_pretty_properties"
     verbose_name = _(u'Properties')
+    has_filter   = True #==> quick search in ListView
+
+    @classmethod
+    def filter_in_result(cls, search_string):
+        #should we make a separated query to retrieve first the searched types ?
+        return Q(properties__type__text__icontains=search_string)
 
     def __call__(self, entity):
         return FunctionFieldResultsList(FunctionFieldResult(unicode(p)) for p in entity.get_properties())

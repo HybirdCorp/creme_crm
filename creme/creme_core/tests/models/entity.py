@@ -341,7 +341,7 @@ class EntityTestCase(CremeTestCase):
             self.fail('No "get_pretty_properties" function field found')
 
         self.assertEqual(_(u'Properties'), unicode(pp_ff.verbose_name))
-        self.assertFalse(pp_ff.has_filter)
+        self.assertTrue(pp_ff.has_filter)
         self.assertFalse(pp_ff.is_hidden)
         self.assertIsNone(pp_ff.choices)
 
