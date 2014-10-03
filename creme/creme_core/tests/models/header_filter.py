@@ -299,7 +299,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(name,            cell.value)
         self.assertEqual(unicode(funfield.verbose_name), cell.title)
-        self.assertIs(cell.has_a_filter, False) #TODO: test with a filterable FunctionField
+        self.assertIs(cell.has_a_filter, True) #TODO: test with a non-filterable FunctionField
         self.assertIs(cell.editable,     False)
         self.assertIs(cell.sortable,     False)
         self.assertIs(cell.is_hidden,    False)

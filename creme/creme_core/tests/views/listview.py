@@ -1177,82 +1177,62 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(dragons.name,    content)
 
     def test_search_functionfield01(self):
+        "_PrettyPropertiesField"
+        self.login()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        eva01     = create_orga(name='Eva01')
+        eva02     = create_orga(name='Eva02')
+
+        create_ptype = CremePropertyType.create
+        is_red  = create_ptype(str_pk='test-prop_red',  text='is red')
+        is_fast = create_ptype(str_pk='test-prop_fast', text='is fast')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(type=is_red, creme_entity=swordfish)
+        create_prop(type=is_red, creme_entity=eva02)
+
+        create_prop(type=is_fast, creme_entity=swordfish)
+        create_prop(type=is_fast, creme_entity=bebop)
+
+        ff_name = 'get_pretty_properties'
+        hf = self._build_hf(EntityCellFunctionField.build(Organisation, ff_name))
+
+        url = self.url
+        data = {'hfilter': hf.id, '_search': 1}
+        response = self.assertPOST200(url, data=dict(data, **{'function_field-%s' % ff_name: 'red'}))
+        orgas_set = self._get_entities_set(response)
+        self.assertIn(swordfish, orgas_set)
+        self.assertIn(eva02,     orgas_set)
+        self.assertNotIn(bebop,  orgas_set)
+        self.assertNotIn(eva01,  orgas_set)
+
+    #TODO: create a fake FunctionField
+    @skipIfNotInstalled('creme.assistants')
+    def test_search_functionfield02(self):
         "Can not search on this FunctionField"
+        from creme.assistants.models import ToDo
+
         self.login()
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
-        ptype = CremePropertyType.create(str_pk='test-prop_red',  text='is red')
-        CremeProperty.objects.create(type=ptype, creme_entity=swordfish)
+        ToDo.objects.create(user=self.user, creme_entity=bebop, title='Reparation',
+                            description='To be repaired.',
+                           )
 
-        func_field = Organisation.function_fields.get('get_pretty_properties')
+        func_field = Organisation.function_fields.get('assistants-get_todos')
         self._build_hf(EntityCellFunctionField(func_field))
 
         response = self.assertPOST200(self.url, data={'_search':       1,
-                                                      #'name':          '',
-                                                      #func_field.name: 'red',
                                                       'regular_field-name': '',
-                                                      'function_field-%s' % func_field.name: 'red',
+                                                      'function_field-%s' % func_field.name: 'repair',
                                                      }
                                      )
         orgas_set = self._get_entities_set(response)
         self.assertIn(bebop,     orgas_set)
         self.assertIn(swordfish, orgas_set)
-
-    @skipIfNotInstalled('creme.billing')
-    def test_search_functionfield02(self):
-        "billing_LineTypeField"
-        from creme.billing.constants import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-        from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
-
-        self.login()
-        user = self.user
-
-        invoice = Invoice.objects.create(user=user, name='Invoice',
-                                         expiration_date=date(year=2012, month=12, day=15),
-                                         status=InvoiceStatus.objects.all()[0],
-                                        )
-
-        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
-        pline1 = create_pline(on_the_fly_item='Fly1')
-        pline2 = create_pline(on_the_fly_item='Fly2')
-
-        create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
-        sline1 = create_sline(on_the_fly_item='Fly3')
-        sline2 = create_sline(on_the_fly_item='Fly4')
-
-        func_field = Line.function_fields.get('get_verbose_type')
-        self._build_hf(EntityCellFunctionField(func_field))
-
-        url = Line.get_lv_absolute_url()
-        response = self.assertGET200(url)
-        ids = {l.id for l in self._get_entities_set(response)}
-        self.assertIn(pline1.id, ids)
-        self.assertIn(pline2.id, ids)
-        self.assertIn(sline1.id, ids)
-        self.assertIn(sline2.id, ids)
-
-        def post(line_type):
-            return self.assertPOST200(url, data={'_search':       1,
-                                                 #'name':          '',
-                                                 #func_field.name: line_type,
-                                                 'regular_field-name': '',
-                                                 'function_field-%s' % func_field.name: line_type,
-                                                }
-                                     )
-
-        response = post(PRODUCT_LINE_TYPE)
-        ids = {l.id for l in self._get_entities_set(response)}
-        self.assertIn(pline1.id,    ids)
-        self.assertIn(pline2.id,    ids)
-        self.assertNotIn(sline1.id, ids)
-        self.assertNotIn(sline2.id, ids)
-
-        response = post(SERVICE_LINE_TYPE)
-        ids = {l.id for l in self._get_entities_set(response)}
-        self.assertNotIn(pline1.id, ids)
-        self.assertNotIn(pline2.id, ids)
-        self.assertIn(sline1.id,    ids)
-        self.assertIn(sline2.id,    ids)
