@@ -96,7 +96,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var self = this;
         var disabled = this.disabled(element);
         var input = this._delegate(element);
-        var content = this.content(element).addClass('ie-checkbox-fallback');
+        var content = this.content(element);
 
         var renderer = this._grouped ? new creme.model.CheckGroupListRenderer() : new creme.model.CheckListRenderer();
         var controller = this._controller = new creme.model.CollectionController(this._backend);
