@@ -402,6 +402,11 @@ span.ui-creme-datepicker-trigger {
 }
 
 .checklist-content .checkbox-field {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+
     margin-right: 20px;
 
     padding-top:2px;
