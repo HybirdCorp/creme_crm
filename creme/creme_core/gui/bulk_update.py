@@ -28,7 +28,7 @@ class _BulkUpdateRegistry(object):
             self.ignore = ignore
 
             self.excludes = set()
-            self.innerforms = {}
+            self._innerforms = {}
 
         def is_updatable(self, field, exclude_unique=True):
             if isinstance(field, CustomField):
@@ -42,6 +42,9 @@ class _BulkUpdateRegistry(object):
 
             is_updatable = self.is_updatable
             return (field for field in self._model._meta.fields if is_updatable(field, exclude_unique))
+
+        def get_form(self, name, default=None):
+            return self._innerforms.get(name, default)
 
     def __init__(self):
         self._status = {}
@@ -60,7 +63,8 @@ class _BulkUpdateRegistry(object):
         if exclude:
             bulk.excludes.update(set(exclude))
 
-        bulk.innerforms.update(innerforms or {})
+        if innerforms:
+            bulk._innerforms.update(dict(innerforms))
 
         # merge exclusion of subclasses
         for old_model, old_bulk in self._status.iteritems():
@@ -69,9 +73,13 @@ class _BulkUpdateRegistry(object):
                 if issubclass(old_model, model):
                     old_bulk.excludes.update(bulk.excludes)
 
-                # new model inherits exclusions of registered superclass
+                # new model inherits exclusions and custom forms of registered superclass
                 if issubclass(model, old_model):
                     bulk.excludes.update(old_bulk.excludes)
+
+                    merged_innerforms = dict(old_bulk._innerforms)
+                    merged_innerforms.update(bulk._innerforms)
+                    bulk._innerforms = merged_innerforms
 
         return bulk
 

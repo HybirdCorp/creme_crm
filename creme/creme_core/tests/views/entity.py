@@ -668,7 +668,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         cls.contact_bulk_status = bulk_update_registry.status(Contact)
 
     def tearDown(self):
-        bulk_update_registry.status(Contact).innerforms = {}
+        bulk_update_registry.status(Contact)._innerforms = {}
 
     def _build_url(self, field_name, *contact_ids):
         url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
