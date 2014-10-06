@@ -316,7 +316,7 @@ def inner_edit_field(request, ct_id, id, field_name):
     bulk_status = bulk_update_registry.status(model)
 
     field_name = field_name if field_name is not None else bulk_status.updatables().next().name
-    form_class = bulk_status.innerforms.get(field_name, BulkDefaultEditForm)
+    form_class = bulk_status.get_form(field_name, BulkDefaultEditForm)
 
     try:
         if request.method == 'POST':
@@ -360,7 +360,7 @@ def bulk_edit_field(request, ct_id, id, field_name):
     bulk_status = bulk_update_registry.status(model)
 
     field_name = field_name if field_name is not None else bulk_status.updatables().next().name
-    form_class = bulk_status.innerforms.get(field_name, BulkDefaultEditForm)
+    form_class = bulk_status.get_form(field_name, BulkDefaultEditForm)
 
     try:
         if request.method == 'POST':
