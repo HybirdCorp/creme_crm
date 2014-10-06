@@ -32,7 +32,6 @@ from ..core.entity_cell import EntityCellRegularField, EntityCellCustomField
 from ..models import Relation, BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from ..gui.block import Block, block_registry, BlocksManager
 from ..gui.bulk_update import bulk_update_registry
-from ..forms.base import _CUSTOM_NAME
 
 register = Library()
 
@@ -404,7 +403,7 @@ class EntityCellEditorNode(RegularFieldEditorNode):
                                                                      exclude_unique=False,
                                                                     )
         elif isinstance(cell, EntityCellCustomField):
-            context['field'] = cell.value
+            context['field'] = 'customfield-%s' % cell.value
             context['updatable'] = True
         else:
             context['updatable'] = False

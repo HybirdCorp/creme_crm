@@ -134,7 +134,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def assertFieldEditorTag(self, render, entity, field_name, block=False):
         fmt = """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {blockReloadUrl:""" if block else \
               """<a onclick="creme.blocks.form('/creme_core/entity/edit/inner/%s/%s/field/%s', {reloadOnSuccess:"""
-        self.assertTrue(render.strip().startswith(fmt % (entity.entity_type_id, entity.id, field_name)))
+        expected = fmt % (entity.entity_type_id, entity.id, field_name)
+        self.assertTrue(render.strip().startswith(expected),
+                        "%s\n doesn't start with\n %s" % (render.strip(), expected))
 
     def test_get_field_editor01(self):
         self.login()
