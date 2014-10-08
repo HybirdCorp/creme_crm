@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import absolute_import
+from __future__ import absolute_import #for standard 'collections' module
+
+import collections
+from sys import maxint
 
 
 class LimitedList(object):
@@ -49,6 +52,95 @@ class LimitedList(object):
         return repr(self._data)
 
 
+class ClassKeyedMap(object):
+    """A kind of dictionnary where key must be classes (with single inheritance).
+    When a value is not found, the value of the nearest parent (in the class
+    inheritage meaning), in the map, is used. If there is no parent class,
+    a default value given a construction is used.
+    No get() method because there is no 'default' argument.
+    """
+    def __init__(self, items=(), default=None):
+        self._data = dict(items)
+        self._default = default
+
+    @staticmethod
+    def _nearest_parent_class(klass, classes): #TODO: in utils ??
+        #class Klass1(object): pass
+        #class Klass2(Klass1): pass
+        #Klass2.mro() #=> [<class 'Klass2'>, <class 'Klass1'>, <type 'object'>]
+        # -> So the smallest order corresponds to the nearest class
+        get_order = {cls: i for i, cls in enumerate(klass.mro())}.get
+
+        return sorted(classes, key=lambda cls: get_order(cls, maxint))[0]
+
+    def __getitem__(self, key_class):
+        """There is no default argument, beacuse it is given at construction ;
+        the default value is used to fill the cache (so there are side effects),
+        and a different default value could lead to strange behaviours.
+        """
+        data = self._data
+
+        try:
+            key_class_value = data[key_class]
+        except KeyError:
+            #TODO: improve algo with complex registration parent/child with holes + annoying order 
+            #      VS we want to control the behaviour with instaleld apps order ??
+            family = [cls for cls in data.iterkeys() if issubclass(key_class, cls)]
+
+            if family:
+                key_class_value = data[self._nearest_parent_class(key_class, family)]
+            else:
+                key_class_value = self._default
+
+            #NB: we insert the missing value to keep an amortized O(1) complexity on future calls.
+            data[key_class] = key_class_value
+
+        return key_class_value
+
+    def __setitem__(self, key_class, value):
+        data = self._data
+
+        for cls in data.iterkeys():
+            if issubclass(cls, key_class):
+                data[cls] = value
+
+        data[key_class] = value
+
+        #return value #NB: useless, python does it for us
+
+    def __contains__(self, key):
+        return key in self._data
+
+    #def __eq__(self, other): #would be an heavy operation....
+
+    def __iter__(self):
+        return iter(self._data)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __nonzero__(self):
+        return bool(self._data)
+
+    def __repr__(self):
+        return 'ClassKeyedMap(%s, default=%s)' % (repr(list(self.items())),
+                                                  repr(self.default),
+                                                 )
+
+    @property
+    def default(self):
+        return self._default
+
+    def items(self): #NB: already Py3K ready :)
+        return self._data.iteritems()
+
+    def keys(self): #NB: already Py3K ready :)
+        return self._data.iterkeys()
+
+    def values(self): #NB: already Py3K ready :)
+        return self._data.itervalues()
+
+
 ################################################################################
 #    Copyright (C) 2009-2012 Raymond Hettinger
 #
@@ -72,8 +164,6 @@ class LimitedList(object):
 ################################################################################
 
 # Found at http://code.activestate.com/recipes/576694/
-
-import collections
 
 class OrderedSet(collections.MutableSet):
     """Set that remembers original insertion order.
