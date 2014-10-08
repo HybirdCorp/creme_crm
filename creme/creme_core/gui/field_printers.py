@@ -32,6 +32,7 @@ from django.utils.translation import ungettext, ugettext_lazy as _
 from ..models import CremeEntity, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils import bool_as_html
+from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo #get_model_field_info
 
 
@@ -64,32 +65,25 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
 
     return "height=%s width=%s" % (h, w)
 
-def simple_print(entity, fval, user, field):
+def simple_print(entity, fval, user, field): #TODO: rename simple_print_html
     return unicode(escape(fval)) if fval is not None else "" #TODO: remove 'unicode()'
 
 def simple_print_csv(entity, fval, user, field):
     return unicode(fval) if fval is not None else ""
 
-def print_image(entity, fval, user, field):
+def print_image(entity, fval, user, field): #TODO: rename print_image_html
     return """<a onclick="creme.dialogs.image('%(url)s').open();"><img src="%(url)s" %(size)s alt="%(url)s"/></a>""" % {
                 'url':  fval.url,
                 'size': image_size(fval),
             }
 
-def print_boolean(entity, fval, user, field):
-    #if fval:
-        #checked = 'checked '
-        #label = _('Yes')
-    #else:
-        #checked = ''
-        #label = _('No')
-
-    #return u'<input type="checkbox" value="%s" %sdisabled/>%s' % (
-                #escape(fval), checked, label
-            #)
+def print_boolean(entity, fval, user, field): #TODO: rename print_boolean_html
     return bool_as_html(fval)
 
-def print_urlfield(entity, fval, user, field):
+def print_boolean_csv(entity, fval, user, field):
+    return _('Yes') if fval else _('No')
+
+def print_urlfield(entity, fval, user, field): #TODO: rename print_url_html
     if not fval:
         return ""
 
@@ -103,7 +97,7 @@ def print_datetime(entity, fval, user, field):
 def print_date(entity, fval, user, field):
     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
-def print_foreignkey(entity, fval, user, field):
+def print_foreignkey(entity, fval, user, field): #TODO: rename print_foreignkey_html
     #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
     from creme.media_managers.models.image import Image
 
@@ -132,7 +126,7 @@ def print_foreignkey_csv(entity, fval, user, field):
 
     return unicode(fval) if fval else u''
 
-def print_many2many(entity, fval, user, field):
+def print_many2many(entity, fval, user, field): #TODO: rename print_many2many_html
     output = []
 
     #TODO: temporary hack before print_field refactor in order to give extra parameters for custom display. 
@@ -191,95 +185,91 @@ def print_duration(entity, fval, user, field):
         'second_label': ungettext('second', 'seconds', s)
     }
 
+def print_email_html(entity, fval, user, field):
+    return '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else ''
+
+def print_text_html(entity, fval, user, field):
+    return linebreaks(fval) if fval else ''
+
+
 #TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry(object):
     def __init__(self):
-        self._printers = {
-            #models.AutoField:                  simple_print,
-            models.BooleanField:               print_boolean,
-            #models.CharField:                  simple_print,
-            #models.CommaSeparatedIntegerField: simple_print,
-            models.DateField:                  print_date,
-            models.DateTimeField:              print_datetime,
-            #models.DecimalField:               simple_print,
-            models.EmailField:                 lambda entity, fval, user, field: '<a href="mailto:%s">%s</a>' % (fval, fval) if fval else '',
-            #models.FileField:                  simple_print,
-            #models.FilePathField:              simple_print,
-            #models.FloatField:                 simple_print,
-            models.ImageField:                 print_image,
-            #models.IntegerField:               simple_print,
-            #models.IPAddressField:             simple_print,
-            #models.NullBooleanField:           simple_print,
-            #models.PositiveIntegerField:       simple_print,
-            #models.PositiveSmallIntegerField:  simple_print,
-            #models.SlugField:                  simple_print,
-            #models.SmallIntegerField:          simple_print,
-            models.TextField:                  lambda entity, fval, user, field: linebreaks(fval) if fval else "",
-            #models.TimeField:                  simple_print,
-            models.URLField:                   print_urlfield,
-            models.ForeignKey:                 print_foreignkey,
-            models.ManyToManyField:            print_many2many,
-            models.OneToOneField:              print_foreignkey,
+        self._printers = ClassKeyedMap([
+                    (models.BooleanField,       print_boolean),
 
-            #fields.PhoneField:                 simple_print,
-            fields.DurationField:              print_duration,
+                    (models.DateField,          print_date),
+                    (models.DateTimeField,      print_datetime),
 
-            fields.ModificationDateTimeField:  print_datetime, #TODO: use inheritance, & remove this line ??
-            fields.CreationDateTimeField :     print_datetime,
-        }
-        self._csv_printers = {
-            models.BooleanField:               lambda entity, fval, user, field: _('Yes') if fval else _('No'),
-            models.DateField:                  print_date,
-            models.DateTimeField:              print_datetime,
-            #models.ImageField:                 print_image, TODO ??
+                    (models.TextField,          print_text_html),
+                    (models.EmailField,         print_email_html),
+                    (models.URLField,           print_urlfield),
+                    (models.ImageField,         print_image),
 
-            models.ForeignKey:                 print_foreignkey_csv,
-            models.ManyToManyField:            print_many2many_csv,
-            models.OneToOneField:              print_foreignkey_csv,
+                    (models.ForeignKey,         print_foreignkey),
+                    (models.ManyToManyField,    print_many2many),
+                    (models.OneToOneField,      print_foreignkey),
 
-            fields.DurationField:              print_duration,
+                    (fields.DurationField,      print_duration),
+                    (fields.DatePeriodField,    simple_print), #TODO: JSONField ?
+                ],
+                default=simple_print,
+            )
+        self._csv_printers = ClassKeyedMap([
+                    (models.BooleanField,       print_boolean_csv),
 
-            fields.ModificationDateTimeField:  print_datetime,
-            fields.CreationDateTimeField :     print_datetime,
-        }
+                    (models.DateField,          print_date),
+                    (models.DateTimeField,      print_datetime),
+                    #(models.ImageField,         print_image_csv, TODO ??
+
+                    (models.ForeignKey,         print_foreignkey_csv),
+                    (models.ManyToManyField,    print_many2many_csv),
+                    (models.OneToOneField,      print_foreignkey_csv),
+
+                    (fields.DurationField,      print_duration),
+                ],
+                default=simple_print_csv,
+            )
+
         self._printers_maps = {
-                'html': (self._printers,     simple_print),
-                'csv':  (self._csv_printers, simple_print_csv),
+                'html': self._printers,
+                'csv':  self._csv_printers,
             }
 
-        self.css_default_listview = css_default_listview = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
-        self.css_default_header_listview = css_default_header_listview = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
+        css_default        = getattr(settings, 'CSS_DEFAULT_LISTVIEW')
+        css_default_header = getattr(settings, 'CSS_DEFAULT_HEADER_LISTVIEW')
 
-        css_number_listview = getattr(settings, 'CSS_NUMBER_LISTVIEW', css_default_listview)
-        css_textarea_listview = getattr(settings, 'CSS_TEXTAREA_LISTVIEW', css_default_listview)
-        css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header_listview)
+        css_number_listview      = getattr(settings, 'CSS_NUMBER_LISTVIEW',      css_default)
+        css_textarea_listview    = getattr(settings, 'CSS_TEXTAREA_LISTVIEW',    css_default)
+        css_date_header_listview = getattr(settings, 'CSS_DATE_HEADER_LISTVIEW', css_default_header)
 
-        self._listview_css_printers = {
-            models.CommaSeparatedIntegerField: css_number_listview,
-            models.DecimalField:               css_number_listview,
-            models.FloatField:                 css_number_listview,
-            models.PositiveIntegerField:       css_number_listview,
-            models.PositiveSmallIntegerField:  css_number_listview,
-            fields.MoneyField:                 css_number_listview, #TODO: implement inheritage, in order to inherit from DecimalField ?
-            models.TextField:                  css_textarea_listview,
-        }
+        self._listview_css_printers = ClassKeyedMap([
+                    (models.IntegerField,               css_number_listview),
+                    (models.CommaSeparatedIntegerField, css_number_listview),
+                    (models.DecimalField,               css_number_listview),
+                    (models.FloatField,                 css_number_listview),
 
-        self._header_listview_css_printers = {
-            models.DateField:                   css_date_header_listview,
-            fields.CreationDateTimeField:       css_date_header_listview,
-            fields.ModificationDateTimeField:   css_date_header_listview,
-            models.DateTimeField:               css_date_header_listview,
-        }
+                    (models.TextField,                  css_textarea_listview),
+                ],
+                default=css_default,
+            )
 
-    def register(self, field, printer):
+        self._header_listview_css_printers = ClassKeyedMap([
+                    (models.DateField,          css_date_header_listview),
+                    (models.DateTimeField,      css_date_header_listview),
+                ],
+                default=css_default_header,
+            )
+
+    def register(self, field, printer): #TODO: html & csv
         """Register a field printer.
-        @param field A class inheriting django.models.Field
-        @param printer A callable with 2 parameter: 'obj' & 'fval'. See simple_print, print_urlfield etc...
+        @param field A class inheriting django.models.Field.
+        @param printer A callable object. See simple_print(), print_urlfield for arguments/return.
         """
         self._printers[field] = printer
 
     def register_listview_css_class(self, field, css_class, header_css_class):
-        """Register a listview css class for field .
+        """Register a listview css class for field.
         @param field A class inheriting django.models.Field
         @param css_class A string
         """
@@ -287,10 +277,10 @@ class _FieldPrintersRegistry(object):
         self._header_listview_css_printers[field] = header_css_class
 
     def get_listview_css_class_for_field(self, field_class):
-        return self._listview_css_printers.get(field_class, self.css_default_listview)
+        return self._listview_css_printers[field_class]
 
     def get_header_listview_css_class_for_field(self, field_class):
-        return self._header_listview_css_printers.get(field_class, self.css_default_header_listview)
+        return self._header_listview_css_printers[field_class]
 
     def _build_field_printer(self, field_info, output='html'):
         base_field = field_info[0]
@@ -362,8 +352,7 @@ class _FieldPrintersRegistry(object):
 
                             return ''.join(lines)
         else:
-            printer_funcs, default_func = self._printers_maps[output]
-            print_func = printer_funcs.get(base_field.__class__, default_func)
+            print_func = self._printers_maps[output][base_field.__class__]
 
             def printer(obj, user):
                 #return mark_safe(print_func(obj, getattr(obj, base_name), user))

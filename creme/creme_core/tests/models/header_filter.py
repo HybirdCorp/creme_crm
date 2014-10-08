@@ -232,7 +232,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
-
     def test_build_4_customfield04(self):
         "BOOL CustomField"
         customfield = CustomField.objects.create(name=u'Is fun ?', field_type=CustomField.BOOL,

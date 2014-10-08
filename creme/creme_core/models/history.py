@@ -42,6 +42,7 @@ from .fields import CreationDateTimeField, CremeUserForeignKey, CTypeForeignKey
 logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model
 _EXCLUDED_FIELDS = ('modified',) #frozenset(('modified',)) #TODO: add a 'historisable' tag instead ??
+#TODO: ClassKeyedMap ??
 _SERIALISABLE_FIELDS = frozenset(('CharField',
 
                                   'IntegerField', 'BigIntegerField', 'PositiveIntegerField',
@@ -100,6 +101,7 @@ def _fk_printer(field, val):
 
     return unicode(out)
 
+#TODO: ClassKeyedMap ?
 _PRINTERS = {
         'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
         'ForeignKey':   _fk_printer,

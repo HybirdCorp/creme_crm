@@ -21,7 +21,7 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import (FieldDoesNotExist, BooleanField, PositiveIntegerField,
+from django.db.models import (Field, FieldDoesNotExist, BooleanField, PositiveIntegerField,
         DecimalField, DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
 
@@ -118,7 +118,8 @@ class EntityCell(object):
         return self.title #used by CustomBlockConfigItem block (creme_config)
 
     def _get_field_class(self):
-        return None
+        #return None
+        return Field
 
     def _get_listview_css_class(self, attr_name):
         listview_css_class = getattr(self, attr_name)
@@ -276,6 +277,9 @@ class EntityCellCustomField(EntityCell):
         CustomField.DATETIME:   DateTimeField,
         CustomField.INT:        PositiveIntegerField,
         CustomField.FLOAT:      DecimalField,
+        CustomField.BOOL:       BooleanField,
+        CustomField.ENUM:       ForeignKey,
+        CustomField.ENUM:       ManyToManyField,
     }
 
     def __init__(self, customfield):
@@ -308,7 +312,7 @@ class EntityCellCustomField(EntityCell):
         return self._customfield
 
     def _get_field_class(self):
-        return self._CF_CSS.get(self._customfield.field_type)
+        return self._CF_CSS.get(self._customfield.field_type, Field)
 
     @staticmethod
     #def populate_entities(cells, entities, user):
