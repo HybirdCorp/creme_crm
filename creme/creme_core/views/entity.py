@@ -52,16 +52,19 @@ logger = logging.getLogger(__name__)
 @login_required
 @jsonify
 def get_creme_entities_repr(request, entities_ids):
-    entities = CremeEntity.objects.filter(pk__in=[id for id in entities_ids.split(',') if id])
+    e_ids = [int(e_id) for e_id in entities_ids.split(',') if e_id] #with the url regexp we are sure that int() will work
+    entities = CremeEntity.objects.in_bulk(e_ids)
+
+    CremeEntity.populate_real_entities(list(entities.itervalues())) #NB: list + itervalues = Py3K ready
+
     user = request.user
     has_perm = user.has_perm_to_view
 
-    CremeEntity.populate_real_entities(entities)
-
-    return [{'id': entity.id,
+    return [{'id': e_id,
              'text': entity.get_real_entity().get_entity_summary(user) if has_perm(entity) else
-                     _(u'Entity #%s (not viewable)') % entity.id
-            } for entity in entities
+                     _(u'Entity #%s (not viewable)') % e_id
+            } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
+                if entity is not None
            ]
 
 
