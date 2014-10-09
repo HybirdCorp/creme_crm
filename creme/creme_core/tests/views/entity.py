@@ -1033,8 +1033,8 @@ class InnerEditTestCase(_BulkEditTestCase):
     def create_orga(self):
         return Organisation.objects.create(user=self.user, name="Organisation")
 
-    def _build_url(self, ctype, entity, field):
-        return self.url % {'ct': ctype, 'id': entity, 'field': field}
+    def _build_url(self, ctype_id, entity_id, field):
+        return self.url % {'ct': ctype_id, 'id': entity_id, 'field': field}
 
 #     def test_get_widget_regular01(self):
 #         self.login()

@@ -63,11 +63,11 @@ class BaseEditForm(CremeEntityForm):
     expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
 
     blocks = CremeEntityForm.blocks.new(
-                ('orga_n_address', _(u'Organisations'), ['source', 'target']),
+                ('orga_n_address', _(u'Organisations'), ['source', 'target']), #TODO: rename
             )
 
-    class Meta:
-        exclude = CremeEntityForm.Meta.exclude + ('billing_address', 'shipping_address')
+    #class Meta:
+        #exclude = CremeEntityForm.Meta.exclude + ('billing_address', 'shipping_address')
 
     def __init__(self, *args, **kwargs):
         super(BaseEditForm, self).__init__(*args, **kwargs)

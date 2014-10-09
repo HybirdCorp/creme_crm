@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,8 +54,14 @@ class Base(CremeEntity):
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True).set_tags(enumerable=False)
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True).set_tags(enumerable=False)
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+                                  related_name='BillingAddress_set', #TODO: remove ? (with '+')
+                                  blank=True, null=True, editable=False,
+                                 ).set_tags(enumerable=False)
+    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+                                  related_name='ShippingAddress_set', #TODO: remove ? (with '+')
+                                  blank=True, null=True, editable=False,
+                                 ).set_tags(enumerable=False)
     currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
     comment          = TextField(_(u'Comment'), blank=True, null=True)
     #total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
