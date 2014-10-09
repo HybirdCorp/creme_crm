@@ -357,6 +357,33 @@ class InvoiceTestCase(_BillingTestCase):
                              ) #refresh
                         )
 
+    def test_inner_edit(self):
+        self.login()
+
+        name = 'invoice001'
+        invoice = self.create_invoice_n_orgas(name, user=self.user)[0]
+
+        url_fmt = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
+        ct_id = invoice.entity_type_id
+
+        def build_url(field_name):
+            return url_fmt % {'ct': ct_id, 'id': invoice.id, 'field': field_name}
+
+        url = build_url('name')
+        self.assertGET200(url)
+
+        name = name.title()
+        response = self.client.post(url, data={'entities_lbl': [unicode(invoice)],
+                                               'field_value':  name,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(name, self.refresh(invoice).name)
+
+        #Addresses should not be editable
+        self.assertGET403(build_url('billing_address'))
+        self.assertGET403(build_url('shipping_address'))
+
     def test_generate_number01(self):
         self.login()
 
