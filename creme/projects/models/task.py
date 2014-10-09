@@ -66,9 +66,9 @@ class ProjectTask(Activity):
     def get_edit_absolute_url(self):
         return "/projects/task/edit/%s" % self.id
 
-    ##### ------------------ #####
-    ##### Business functions #####
-    ##### ------------------ #####
+    @property
+    def safe_duration(self):
+        return self.duration or 0
 
     def delete(self):
         for resource in self.get_resources():
@@ -115,12 +115,14 @@ class ProjectTask(Activity):
             self.effective_duration = sum(period.duration for period in self.get_working_periods())
 
         if format == '%':
-            return (self.effective_duration * 100) / self.duration
+            duration = self.duration
+
+            return (self.effective_duration * 100) / duration if duration else 100
 
         return self.effective_duration
 
     def get_delay(self):
-        return self.get_effective_duration() - self.duration
+        return self.get_effective_duration() - self.safe_duration
 
     def is_alive(self):
         return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
