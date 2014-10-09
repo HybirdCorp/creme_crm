@@ -190,14 +190,17 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(rei))
         self.assertFalse(user.has_perm_to_view(mari))
 
-        response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s' % (
-                                            rei.id, asuka.id, mari.id, nerv.id
+        unknown_id = 1024
+        self.assertFalse(CremeEntity.objects.filter(id=unknown_id))
+
+        response = self.assertGET200('/creme_core/entity/get_repr/%s,%s,%s,%s,%s' % (
+                                            mari.id, rei.id, nerv.id, unknown_id, asuka.id
                                         )
                                     )
-        self.assertEqual([{'id': rei.id,   'text': unicode(rei)},
-                          {'id': asuka.id, 'text': unicode(asuka)},
-                          {'id': mari.id,  'text': _(u'Entity #%s (not viewable)') % mari.id},
+        self.assertEqual([{'id': mari.id,  'text': _(u'Entity #%s (not viewable)') % mari.id},
+                          {'id': rei.id,   'text': unicode(rei)},
                           {'id': nerv.id,  'text': unicode(nerv)},
+                          {'id': asuka.id, 'text': unicode(asuka)},
                          ],
                          simplejson.loads(response.content)
                         )
