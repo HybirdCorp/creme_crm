@@ -27,20 +27,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, RelationType, CustomField
+from ..models.fields import DatePeriodField
 from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils.meta import FieldInfo #get_model_field_info
 
 
 logger = logging.getLogger(__name__)
-
-#HFI_ACTIONS    = 0
-#HFI_FIELD      = 1
-#HFI_RELATION   = 2
-#HFI_FUNCTION   = 3
-#HFI_CUSTOM     = 4
-##HFI_CALCULATED = 5 #todo: Used only in reports for the moment, integrate into HF?
-#HFI_VOLATILE   = 6 #not saved in DB : added at runtime to implements tricky columnns ; see EntityCell.volatile_render
-#HFI_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used only in reports for the moment, integrate into HF?
 
 
 class EntityCellsRegistry(object):
@@ -204,6 +196,9 @@ class EntityCellRegularField(EntityCell):
             pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
+        elif isinstance(field, DatePeriodField):
+            has_a_filter = False
+            sortable = False
         elif isinstance(field, ManyToManyField):
             has_a_filter = False #TODO: manage like ForeignKey...
             sortable = False
