@@ -40,6 +40,9 @@ class ProjectsTestCase(CremeTestCase):
     def _build_add_ask_url(self, project):
         return '/projects/project/%s/task/add' % project.id
 
+    def _build_add_resource_url(self, task):
+        return '/projects/task/%s/resource/add' % task.id
+
     def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
         return JSONEncoder().encode({'type': atype, 'sub_type': sub_type})
 
@@ -134,10 +137,9 @@ class ProjectsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'responsibles',
-                             [_(u"Some entities are not linkable: %s") % (
+                             _(u"Some entities are not linkable: %s") % (
                                     _(u'Entity #%s (not viewable)') % manager.id
                                 )
-                             ]
                             )
 
     def test_project_createview03(self):
@@ -220,18 +222,26 @@ class ProjectsTestCase(CremeTestCase):
         url = self._build_add_ask_url(project)
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True,
+        def post(duration):
+            return self.client.post(url, follow=True,
                                     data={'user':                user.id,
                                           'title':               'head',
                                           'start':               '2010-10-11 15:00',
                                           'end':                 '2010-10-11 17:00',
-                                          'duration':            50,
+                                          'duration':            duration,
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'participating_users': user.id,
                                           'busy':                True,
                                           'type_selector':       self._build_type_value(),
                                          }
-                                   )
+                                    )
+
+        response = post('')
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'duration', _('This field is required.'))
+
+        duration_1 = 50
+        response = post(duration_1)
         self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(project=project)
@@ -242,12 +252,13 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task1)
         self.assertEqual(1, task1.calendars.count())
 
+        duration_2 = 180
         response = self.client.post(url, follow=True,
                                     data={'user':                user.id,
                                           'title':               'torso',
                                           'start':               '2010-10-11 17:01',
                                           'end':                 '2010-10-11 17:30',
-                                          'duration':            180,
+                                          'duration':            duration_2,
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'parent_tasks':        '[%d]' % task1.id,
                                           'participating_users': user.id,
@@ -266,7 +277,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
         self.assertEqual(set(tasks), set(project.get_tasks()))
-        self.assertEqual(180 + 50,   project.get_expected_duration())
+        self.assertEqual(duration_1 + duration_2,   project.get_expected_duration())
 
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
         self.assertEqual(1, task2.calendars.count())
@@ -291,7 +302,7 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
-                             [_(u"This entity doesn't exist.")]
+                             _(u"This entity doesn't exist.")
                             )
 
     def test_task_createview03(self):
@@ -341,7 +352,7 @@ class ProjectsTestCase(CremeTestCase):
         task1 = tasks[0]
 
         self.assertFormError(response, 'form', None,
-            [_(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
+            _(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
                     'participant': contact,
                     'activity':    task1,
                     #'start':       max(task2_start.time(), task1.start.time()),
@@ -349,7 +360,6 @@ class ProjectsTestCase(CremeTestCase):
                     'start':       '16:59:00',
                     'end':         '17:00:00',
                 }
-            ]
         )
 
     def test_task_createview04(self):
@@ -484,7 +494,7 @@ class ProjectsTestCase(CremeTestCase):
         #Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': '[%d]' % task02.id}),
                              'form', 'parents',
-                             [_(u"This entity doesn't exist.")]
+                             _(u"This entity doesn't exist.")
                             )
 
     def test_task_add_parent02(self):
@@ -501,7 +511,7 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'parents': '[%d]' % task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             [_(u"This entity doesn't exist.")]
+                             _(u"This entity doesn't exist.")
                             )
 
     def test_task_add_parent03(self):
@@ -527,8 +537,35 @@ class ProjectsTestCase(CremeTestCase):
                              [_(u"This entity doesn't exist.")]
                             )
 
-    def build_add_resource_url(self, task):
-        return '/projects/task/%s/resource/add' % task.id
+    def test_duration01(self):
+        self.login()
+        project = self.create_project('Eva01')[0]
+        task = self.create_task(project, 'Title')
+
+        self.assertEqual(50, task.duration)
+        self.assertEqual(50, task.safe_duration)
+
+        self.assertEqual(0, task.get_effective_duration())
+        self.assertEqual(0, task.get_effective_duration('%'))
+
+        self.assertEqual(-50, task.get_delay())
+        self.assertEqual(50, project.get_expected_duration())
+
+    def test_duration02(self):
+        self.login()
+        project = self.create_project('Eva01')[0]
+
+        task = self.create_task(project, 'Title')
+        task.duration = None #can be edited as an Activity...
+        task.save()
+
+        self.assertEqual(0, task.safe_duration)
+
+        self.assertEqual(0,   task.get_effective_duration())
+        self.assertEqual(100, task.get_effective_duration('%'))
+
+        self.assertEqual(0, task.get_delay())
+        self.assertEqual(0, project.get_expected_duration())
 
     def test_resource_n_period01(self):
         "Creation views"
@@ -538,7 +575,7 @@ class ProjectsTestCase(CremeTestCase):
         task    = self.create_task(project, 'legs')
         self.assertFalse(task.resources_set.all())
 
-        url = self.build_add_resource_url(task)
+        url = self._build_add_resource_url(task)
         self.assertGET200(url)
 
         worker = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
@@ -582,7 +619,7 @@ class ProjectsTestCase(CremeTestCase):
         project  = self.create_project('Eva02')[0]
         task     = self.create_task(project, 'arms')
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
-        self.client.post(self.build_add_resource_url(task), follow=True,
+        self.client.post(self._build_add_resource_url(task), follow=True,
                          data={'user':           self.user.id,
                                'linked_contact': worker.id,
                                'hourly_cost':    100,
@@ -640,7 +677,7 @@ class ProjectsTestCase(CremeTestCase):
         status  = self.get_object_or_fail(TaskStatus, id=COMPLETED_PK)
         task    = self.create_task(project, 'legs', status=status)
 
-        url = self.build_add_resource_url(task)
+        url = self._build_add_resource_url(task)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/error.html')
 

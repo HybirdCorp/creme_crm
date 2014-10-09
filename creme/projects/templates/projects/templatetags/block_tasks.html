@@ -28,7 +28,7 @@
                     <td class="{{row_color}}" align="center">{% widget_entity_hyperlink task user %}</td>
                     {% if view_perm %}
                         <td class="{{row_color}}" align="center">{% get_activity_icon task.type_id 'small' %}</td>
-                        <td class="{{row_color}}" align="center">{{task.duration}}h</td>
+                        <td class="{{row_color}}" align="center">{{task.safe_duration}}h</td>
                         {% include 'projects/frag_task_delay_td.html' %}
                         <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
                         <td class="{{row_color}}">

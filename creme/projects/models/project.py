@@ -90,10 +90,10 @@ class Project(CremeEntity):
     def get_project_cost(self):
         return sum(task.get_task_cost() for task in self.get_tasks())
 
-    def get_expected_duration(self):
-        return sum(task.duration for task in self.get_tasks())
+    def get_expected_duration(self): #TODO: not used ??
+        return sum(task.safe_duration for task in self.get_tasks())
 
-    def get_effective_duration(self):
+    def get_effective_duration(self): #TODO: not used ??
         return sum(task.get_effective_duration() for task in self.get_tasks())
 
     def get_delay(self):
