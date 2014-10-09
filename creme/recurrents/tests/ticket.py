@@ -8,7 +8,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.formats import date_format
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import HeaderFilter
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
@@ -48,6 +50,19 @@ class RecurrentsTicketsTestCase(CremeTestCase):
 
     def test_populate(self):
         self.assertTrue(HeaderFilter.objects.filter(entity_type=ContentType.objects.get_for_model(RecurrentGenerator)))
+
+    def test_entity_cell(self):
+        e_cell = EntityCellRegularField.build(model=RecurrentGenerator, name='name')
+        self.assertIsInstance(e_cell, EntityCellRegularField)
+        self.assertEqual(_('Name of the generator'), e_cell.title)
+        self.assertTrue(e_cell.sortable)
+        self.assertTrue(e_cell.has_a_filter)
+
+        e_cell = EntityCellRegularField.build(model=RecurrentGenerator, name='periodicity')
+        self.assertIsInstance(e_cell, EntityCellRegularField)
+        self.assertEqual(_('Periodicity of the generation'), e_cell.title)
+        self.assertFalse(e_cell.sortable)
+        self.assertFalse(e_cell.has_a_filter)
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(user=self.user,
