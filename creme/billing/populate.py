@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -175,13 +175,19 @@ class Populator(BasePopulator):
         create_bmi(pk='billing-salesorder_contact_button',  model=Contact, button=add_related_salesorder, order=101)
         create_bmi(pk='billing-invoice_contact_button',     model=Contact, button=add_related_invoice,    order=102)
 
-        models = (Invoice, CreditNote, Quote, SalesOrder)
+        models_4_blocks = [(Invoice, True), #boolean -> insert CreditNote block
+                           (CreditNote, False),
+                           (Quote, True),
+                           (SalesOrder, True),
+                           (TemplateBase, False),
+                          ]
 
-        for model in models:
+        for model, has_credit_notes in models_4_blocks:
             BlockDetailviewLocation.create(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
             BlockDetailviewLocation.create(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
-            if model is not CreditNote:
-                BlockDetailviewLocation.create(block_id=credit_note_block.id_,     order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
+
+            if has_credit_notes:
+                BlockDetailviewLocation.create(block_id=credit_note_block.id_, order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
 
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
             BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
@@ -205,7 +211,7 @@ class Populator(BasePopulator):
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
-            for model in models:
+            for model, __ in models_4_blocks:
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
@@ -215,7 +221,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=received_invoices_block.id_,         order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
         BlockDetailviewLocation.create(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
-        for model in models:
+        for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
         SettingValue.create_if_needed(key=payment_info_key, user=None, value=True)

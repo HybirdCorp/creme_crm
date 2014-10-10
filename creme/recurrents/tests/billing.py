@@ -111,6 +111,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
         self.assertEqual(source,    tpl.get_source().get_real_entity())
         self.assertEqual(target,    tpl.get_target().get_real_entity())
 
+        self.assertEqual(status.name, tpl.verbose_status)
+
     @skipIfNotInstalled('creme.billing')
     def test_create_invoice(self):
         self._aux_test_create(Invoice, InvoiceStatus)
