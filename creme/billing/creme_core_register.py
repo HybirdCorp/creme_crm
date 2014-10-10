@@ -52,10 +52,8 @@ reg_item('/billing/lines',           _(u'All lines'),           'billing')
 reg_item('/billing/product_lines',   _(u'All product lines'),   'billing')
 reg_item('/billing/service_lines',   _(u'All service lines'),   'billing')
 
-block_registry.register_4_model(Quote,        BillingBlock())
-block_registry.register_4_model(Invoice,      BillingBlock())
-block_registry.register_4_model(SalesOrder,   BillingBlock())
-block_registry.register_4_model(TemplateBase, BillingBlock())
+for model in (Quote, Invoice, SalesOrder, CreditNote, TemplateBase):
+    block_registry.register_4_model(model, BillingBlock())
 
 block_registry.register(*block_list)
 button_registry.register(*button_list)
