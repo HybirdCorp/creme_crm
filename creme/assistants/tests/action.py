@@ -117,7 +117,7 @@ class ActionTestCase(AssistantsTestCase):
     def test_delete_entity01(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         self.entity.delete()
-        self.assertFalse(Action.objects.filter(pk=action.pk).exists())
+        self.assertDoesNotExist(action)
 
     def _aux_test_delete(self, ajax=False):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
@@ -126,7 +126,7 @@ class ActionTestCase(AssistantsTestCase):
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
                                     data={'id': action.id}, **kwargs
                                    )
-        self.assertFalse(Action.objects.filter(pk=action.pk))
+        self.assertDoesNotExist(action)
 
         return response
 

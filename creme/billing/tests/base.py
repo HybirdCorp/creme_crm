@@ -124,11 +124,11 @@ class _BillingTestCaseMixin(object):
 
     def assertDeleteStatusOK(self, status, short_name):
         self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
-        self.assertFalse(status.__class__.objects.filter(pk=status.pk).exists())
+        self.assertDoesNotExist(status)
 
     def assertDeleteStatusKO(self, status, short_name, doc):
         self.assertPOST404('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
-        self.assertTrue(status.__class__.objects.filter(pk=status.pk).exists())
+        self.assertStillExists(status)
 
         doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
         self.assertEqual(status, doc.status)

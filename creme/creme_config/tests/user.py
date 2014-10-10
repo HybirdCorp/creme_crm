@@ -804,7 +804,7 @@ class UserTestCase(CremeTestCase):
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
-        self.assertFalse(User.objects.filter(id=other_user.id).exists())
+        self.assertDoesNotExist(other_user)
 
         ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
         self.assertEqual(user, ce.user)
@@ -916,7 +916,7 @@ class UserTestCase(CremeTestCase):
 
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
-        self.assertFalse(User.objects.filter(id=other_user.id).exists())
+        self.assertDoesNotExist(other_user)
 
         cal = self.get_object_or_fail(Calendar, pk=cal.id)
         self.assertEqual(user, cal.user)

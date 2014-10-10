@@ -301,7 +301,7 @@ about this fantastic animation studio."""
         gainax.trash()
 
         self.assertPOST200(gainax.get_delete_absolute_url(), follow=True)
-        self.assertFalse(Organisation.objects.filter(pk=gainax.id).exists())
+        self.assertDoesNotExist(gainax)
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
@@ -503,7 +503,7 @@ about this fantastic animation studio."""
 
         rtype_id = rtype.id
         relation.delete(); rtype.delete()
-        self.assertFalse(RelationType.objects.filter(pk=rtype_id).exists())
+        self.assertDoesNotExist(rtype)
         self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
 
     def test_delete_relation(self):

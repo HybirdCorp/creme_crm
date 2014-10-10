@@ -1514,7 +1514,7 @@ class EntityFiltersTestCase(CremeTestCase):
         with self.assertNoException():
             filtered = list(efilter.filter(Contact.objects.all()))
 
-        self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
+        self.assertDoesNotExist(cond2)
         self.assertEqual(set(self._get_ikari_case_sensitive()), {c.id for c in filtered})
 
     def test_invalid_datefield(self):

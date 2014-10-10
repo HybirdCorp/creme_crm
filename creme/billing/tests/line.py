@@ -618,7 +618,7 @@ class LineTestCase(_BillingTestCase):
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         self.assertPOST200('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
-        self.assertFalse(Vat.objects.filter(pk=vat.pk).exists())
+        self.assertDoesNotExist(vat)
 
     def test_delete_vat02(self):
         self.login()
@@ -630,7 +630,7 @@ class LineTestCase(_BillingTestCase):
                                          )
 
         self.assertPOST404('/creme_config/creme_core/vat_value/delete', data={'id': vat.pk})
-        self.assertTrue(Vat.objects.filter(pk=vat.pk).exists())
+        self.assertStillExists(vat)
 
         self.get_object_or_fail(Invoice, pk=invoice.pk)
 

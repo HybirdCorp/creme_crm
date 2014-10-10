@@ -407,7 +407,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+        self.assertDoesNotExist(orga02)
 
         with self.assertNoException():
             orga01 = self.refresh(orga01)
@@ -494,7 +494,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+        self.assertDoesNotExist(orga02)
 
         with self.assertNoException():
             orga01 = self.refresh(orga01)
@@ -580,7 +580,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                    )
         self.assertNoFormError(response)
 
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+        self.assertDoesNotExist(orga02)
 
         with self.assertNoException():
             orga01 = self.refresh(orga01)
@@ -596,7 +596,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop = Organisation.objects.create(user=self.user, name='Bebop', sector=hunting)
 
         self.assertPOST200('/creme_config/persons/sector/delete', data={'id': hunting.pk})
-        self.assertFalse(Sector.objects.filter(pk=hunting.pk).exists())
+        self.assertDoesNotExist(hunting)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.sector)
@@ -608,7 +608,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop = Organisation.objects.create(user=self.user, name='Bebop', legal_form=band)
 
         self.assertPOST200('/creme_config/persons/legal_form/delete', data={'id': band.pk})
-        self.assertFalse(LegalForm.objects.filter(pk=band.pk).exists())
+        self.assertDoesNotExist(band)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.legal_form)
@@ -620,7 +620,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop = Organisation.objects.create(user=self.user, name='Bebop', staff_size=size)
 
         self.assertPOST200('/creme_config/persons/staff_size/delete', data={'id': size.pk})
-        self.assertFalse(StaffSize.objects.filter(pk=size.pk).exists())
+        self.assertDoesNotExist(size)
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.staff_size)

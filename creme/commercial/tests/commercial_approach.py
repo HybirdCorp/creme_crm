@@ -100,7 +100,7 @@ class CommercialApproachTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+        self.assertDoesNotExist(orga02)
 
         with self.assertNoException():
             orga01 = self.refresh(orga01)

@@ -201,11 +201,10 @@ class LanguageTestCase(ViewsTestCase):
     def test_delete(self):
         language = Language.objects.create(name='Klingon', code='KLN')
 
-        response = self.client.post('/creme_config/creme_core/language/delete',
-                                    data={'id': language.id}
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertFalse(Language.objects.filter(pk=language.pk).exists())
+        self.assertPOST200('/creme_config/creme_core/language/delete',
+                           data={'id': language.id}
+                          )
+        self.assertDoesNotExist(language)
 
 
 class CurrencyTestCase(ViewsTestCase):
@@ -271,7 +270,7 @@ class CurrencyTestCase(ViewsTestCase):
         self.assertPOST200('/creme_config/creme_core/currency/delete',
                            data={'id': currency.id}
                           )
-        self.assertFalse(Currency.objects.filter(pk=currency.pk).exists())
+        self.assertDoesNotExist(currency)
 
 
 class ExceptionMiddlewareTestCase(ViewsTestCase):

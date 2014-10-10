@@ -334,7 +334,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         url = self.DEL_CALENDAR_URL
         self.assertGET404(url)
         self.assertPOST200(url, data={'id': cal.id})
-        self.assertFalse(Calendar.objects.filter(pk=cal.pk))
+        self.assertDoesNotExist(cal)
 
     def test_delete_calendar03(self):
         "No super user"
@@ -346,7 +346,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         self.assertPOST200(self.DEL_CALENDAR_URL, data={'id': cal.id})
-        self.assertFalse(Calendar.objects.filter(pk=cal.pk))
+        self.assertDoesNotExist(cal)
 
     def test_delete_calendar04(self): 
         "Other user's calendar"
@@ -374,7 +374,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         url = self.DEL_CALENDAR_URL
         self.assertPOST200(url, data={'id': cal.id})
-        self.assertFalse(Calendar.objects.filter(pk=cal.pk))
+        self.assertDoesNotExist(cal)
 
         act = self.refresh(act)
         self.assertEqual([default_calendar], list(act.calendars.all()))
@@ -760,7 +760,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertPOST200('/creme_config/activities/calendar/delete',
                            data={'id': cal2.id},
                           )
-        self.assertFalse(Calendar.objects.filter(pk=cal2.pk).exists())
+        self.assertDoesNotExist(cal2)
         self.assertTrue(self.refresh(cal1).is_default)
 
     def test_config03(self): 

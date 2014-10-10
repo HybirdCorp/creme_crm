@@ -124,7 +124,7 @@ class FolderTestCase(_DocumentsTestCase):
         "No doc inside"
         folder = self._create_folder_2_delete()
         response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
-        self.assertFalse(Folder.objects.filter(pk=folder.pk).exists())
+        self.assertDoesNotExist(folder)
         self.assertRedirects(response, '/documents/folders')
 
     def test_deleteview02(self):

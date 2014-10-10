@@ -156,7 +156,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertRedirects(response, orga01.get_absolute_url())
 
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+        self.assertDoesNotExist(orga02)
 
         new_orga01 = self.refresh(orga01)
         self.assertEqual(orga01.name,  new_orga01.name)
@@ -177,7 +177,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact02.id,  sym_rel3.object_entity_id)
 
         #rel2 should have been deleted (no doublon)
-        self.assertFalse(Relation.objects.filter(pk=rel2.id).exists())
+        self.assertDoesNotExist(rel2)
         self.assertRelationCount(1, contact01, rtype.id, orga01)
 
         prop1 = self.refresh(prop1)
@@ -189,7 +189,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(orga01.id, prop2.creme_entity_id)
 
         #prop3 should have been deleted (no doublon)
-        self.assertFalse(CremeProperty.objects.filter(pk=prop3.pk).exists())
+        self.assertDoesNotExist(prop3)
 
         #HistoryLines: duplicated relations/properties that are deleted are do not generate line
         hline_types = set(HistoryLine.objects.filter(id__gt=last_hline_id).values_list('type', flat=True))
@@ -258,7 +258,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertRedirects(response, contact01.get_absolute_url())
 
-        self.assertFalse(Contact.objects.filter(pk=contact02).exists())
+        self.assertDoesNotExist(contact02)
 
         new_contact01 = self.refresh(contact01)
         self.assertEqual(contact01.first_name, new_contact01.first_name)

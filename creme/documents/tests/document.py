@@ -361,7 +361,7 @@ class DocumentTestCase(_DocumentsTestCase):
         folder = Folder.objects.create(user=self.user, title='One piece', category=cat)
 
         self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
-        self.assertFalse(FolderCategory.objects.filter(pk=cat.pk).exists())
+        self.assertDoesNotExist(cat)
 
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
         self.assertIsNone(folder.category)
