@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.forms.widgets import HiddenInput
 
 from ..models import TemplateBase
-from .base import BaseEditForm
+from .base import BaseEditForm, copy_or_create_address
 
 
 class _TemplateBaseForm(BaseEditForm):
@@ -72,3 +72,14 @@ class TemplateBaseCreateForm(_TemplateBaseForm):
         #self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
 
         #return super(TemplateBaseCreateForm, self).save()
+
+    def save(self, *args, **kwargs):
+        instance = super(TemplateBaseCreateForm, self).save(*args, **kwargs)
+
+        target = self.cleaned_data['target']
+        instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
+        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+
+        instance.save()
+
+        return instance
