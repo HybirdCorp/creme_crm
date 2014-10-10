@@ -1658,7 +1658,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                 )
 
         self.assertPOST200(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
-        self.assertFalse(ActivityType.objects.filter(pk=atype.pk).exists())
+        self.assertDoesNotExist(atype)
 
     def test_detete_activity_type02(self):
         self.login()

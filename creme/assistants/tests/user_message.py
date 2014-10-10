@@ -289,7 +289,7 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
         self.assertPOST200(self.DEL_PRIORITY_URL, data={'id': priority.pk})
-        self.assertFalse(UserMessagePriority.objects.filter(pk=priority.pk).exists())
+        self.assertDoesNotExist(priority)
 
     def test_delete_priority02(self):
         priority = UserMessagePriority.objects.create(title='Important')
@@ -301,7 +301,7 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
 
         self.assertPOST404(self.DEL_PRIORITY_URL, data={'id': priority.pk})
-        self.assertTrue(UserMessagePriority.objects.filter(pk=priority.pk).exists())
+        self.assertStillExists(priority)
 
         message = self.get_object_or_fail(UserMessage, pk=message.pk)
         self.assertEqual(priority, message.priority)

@@ -198,8 +198,8 @@ class SendingsTestCase(_EmailsTestCase):
         #test delete sending ---------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
         self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
-        self.assertFalse(EmailSending.objects.filter(pk=sending.pk).exists())
-        self.assertFalse(LightWeightEmail.objects.filter(pk=mail.pk).exists())
+        self.assertDoesNotExist(sending)
+        self.assertDoesNotExist(mail)
 
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):

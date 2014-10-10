@@ -246,7 +246,7 @@ class EntityViewsTestCase(ViewsTestCase):
         url = self._build_delete_url(entity)
         self.assertGET404(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
-        self.assertFalse(Organisation.objects.filter(pk=entity.id))
+        self.assertDoesNotExist(entity)
 
     def test_delete_entity03(self):
         "No DELETE credentials"
@@ -303,8 +303,8 @@ class EntityViewsTestCase(ViewsTestCase):
         entity02 = self.get_object_or_fail(CremeEntity, pk=entity02.id)
         self.assertTrue(entity02.is_deleted)
 
-        self.assertFalse(CremeEntity.objects.filter(pk=entity03.id).exists())
-        self.assertTrue(CremeEntity.objects.filter(pk=entity04.id).exists())
+        self.assertDoesNotExist(entity03)
+        self.assertStillExists(entity04)
 
     def test_delete_entities02(self):
         self.login()
@@ -417,7 +417,7 @@ class EntityViewsTestCase(ViewsTestCase):
         #self.assertEqual([contact3], list(Contact.objects.even_deleted()))
         #self.assertEqual([contact3], list(Contact.objects.all()))
         self.assertFalse(Contact.objects.filter(id__in=[contact1.id, contact2.id]))
-        self.get_object_or_fail(Contact, pk=contact3.pk)
+        self.assertStillExists(contact3)
 
     def test_empty_trash02(self):
         self.login()
@@ -434,7 +434,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         self.assertPOST(409, self.EMPTY_TRASH_URL)
         self.assertEqual(2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
-        self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
+        self.assertDoesNotExist(entity03)
 
     def test_get_info_fields01(self):
         self.login()

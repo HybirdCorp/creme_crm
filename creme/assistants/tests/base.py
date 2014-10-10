@@ -63,7 +63,7 @@ class AssistantsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        self.assertFalse(Contact.objects.filter(pk=contact02).exists())
+        self.assertDoesNotExist(contact02)
 
         with self.assertNoException():
             contact01 = self.refresh(contact01)

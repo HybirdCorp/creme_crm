@@ -1357,7 +1357,7 @@ class SalesPhaseTestCase(CremeTestCase):
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
         self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
-        self.assertFalse(SalesPhase.objects.filter(pk=sp.pk).exists())
+        self.assertDoesNotExist(sp)
 
     def test_delete02(self):
         self.login()
@@ -1371,7 +1371,7 @@ class SalesPhaseTestCase(CremeTestCase):
                                          target=create_orga(user=user,  name='Target renegade'),
                                         )
         self.assertPOST404(self.DELETE_URL, data={'id': sp.pk})
-        self.assertTrue(SalesPhase.objects.filter(pk=sp.pk).exists())
+        self.assertStillExists(sp)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(sp, opp.sales_phase)
@@ -1409,7 +1409,7 @@ class OriginTestCase(CremeTestCase):
                                         )
 
         self.assertPOST200('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
-        self.assertFalse(Origin.objects.filter(pk=origin.pk).exists())
+        self.assertDoesNotExist(origin)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertIsNone(opp.origin)

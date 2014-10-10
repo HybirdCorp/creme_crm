@@ -227,7 +227,7 @@ class ProductTestCase(_ProductsTestCase):
         product, cat, sub_cat = self._build_product_cat_subcat()
 
         self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
-        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+        self.assertStillExists(sub_cat)
 
         product = self.assertStillExists(product)
         self.assertEqual(sub_cat, product.sub_category)
@@ -238,8 +238,8 @@ class ProductTestCase(_ProductsTestCase):
         product, cat, sub_cat = self._build_product_cat_subcat()
 
         self.assertPOST404('/creme_config/products/category/delete', data={'id': cat.pk})
-        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
-        self.assertTrue(Category.objects.filter(pk=cat.pk).exists())
+        self.assertStillExists(sub_cat)
+        self.assertStillExists(cat)
 
         product = self.assertStillExists(product)
         self.assertEqual(sub_cat, product.sub_category)

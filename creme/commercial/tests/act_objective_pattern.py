@@ -349,7 +349,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                             )
 
         self.assertNoFormError(self._delete_comp(comp01), status=302)
-        self.assertFalse(ActObjectivePatternComponent.objects.filter(pk=comp01.id))
+        self.assertDoesNotExist(comp01)
 
     def test_delete_pattern_component02(self):
         pattern = self._create_pattern()

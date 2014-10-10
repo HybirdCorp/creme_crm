@@ -455,7 +455,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertIs(naruto.is_deleted, True)
 
         self.assertPOST200(url, follow=True)
-        self.assertFalse(Contact.objects.filter(pk=naruto.pk))
+        self.assertDoesNotExist(naruto)
 
     def test_delete02(self):
         "Can not delete if the Contact corresponds to an user"
@@ -1176,7 +1176,7 @@ class ContactTestCase(_BaseTestCase):
                                         )
 
         self.assertPOST200('/creme_config/persons/civility/delete', data={'id': captain.pk})
-        self.assertFalse(Civility.objects.filter(pk=captain.pk).exists())
+        self.assertDoesNotExist(captain)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.civility)
@@ -1190,7 +1190,7 @@ class ContactTestCase(_BaseTestCase):
                                         )
 
         self.assertPOST200('/creme_config/persons/position/delete', data={'id': captain.pk})
-        self.assertFalse(Position.objects.filter(pk=captain.pk).exists())
+        self.assertDoesNotExist(captain)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.position)
@@ -1204,7 +1204,7 @@ class ContactTestCase(_BaseTestCase):
                                         )
 
         self.assertPOST200('/creme_config/persons/sector/delete', data={'id': piracy.pk})
-        self.assertFalse(Sector.objects.filter(pk=piracy.pk).exists())
+        self.assertDoesNotExist(piracy)
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.sector)

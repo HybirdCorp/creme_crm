@@ -644,7 +644,7 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.save()
 
         self.assertPOST200('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
-        self.assertFalse(PaymentTerms.objects.filter(pk=pterms.pk).exists())
+        self.assertDoesNotExist(pterms)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
         self.assertIsNone(invoice.payment_terms)
@@ -670,7 +670,7 @@ class InvoiceTestCase(_BillingTestCase):
         invoice.save()
 
         self.assertPOST200('/creme_config/billing/additional_information/delete', data={'id': info.pk})
-        self.assertFalse(AdditionalInformation.objects.filter(pk=info.pk).exists())
+        self.assertDoesNotExist(info)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
         self.assertIsNone(invoice.additional_info)
@@ -697,8 +697,8 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         self.assertIsInstance(s_addr, Address)
 
         invoice.delete()
-        self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
-        self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk).exists())
+        self.assertDoesNotExist(invoice)
+        self.assertDoesNotExist(service_line)
 
         #with self.assertNoException():
             #Organisation.objects.get(pk=source.pk)
@@ -706,8 +706,8 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         self.get_object_or_fail(Organisation, pk=source.pk)
         self.get_object_or_fail(Organisation, pk=target.pk)
 
-        self.assertFalse(Address.objects.filter(pk=b_addr.id).exists())
-        self.assertFalse(Address.objects.filter(pk=s_addr.id).exists())
+        self.assertDoesNotExist(b_addr)
+        self.assertDoesNotExist(s_addr)
 
     def test_delete02(self):
         "Can't be deleted"

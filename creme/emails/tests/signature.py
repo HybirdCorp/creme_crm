@@ -85,7 +85,7 @@ class SignaturesTestCase(_EmailsTestCase):
                                                   body='See U space cowboy',
                                                  )
         self.assertEqual(200, self._delete(signature).status_code)
-        self.assertFalse(EmailSignature.objects.filter(pk=signature.id).exists())
+        self.assertDoesNotExist(signature)
 
     def test_delete02(self):
         "'perm' error"
@@ -108,7 +108,7 @@ class SignaturesTestCase(_EmailsTestCase):
                                                 )
 
         self.assertEqual(200, self._delete(signature).status_code)
-        self.assertFalse(EmailSignature.objects.filter(pk=signature.id).exists())
+        self.assertDoesNotExist(signature)
 
         template = self.get_object_or_fail(EmailTemplate, pk=template.id)
         self.assertIsNone(template.signature)

@@ -609,7 +609,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
         self._delete(efilter)
-        self.assertFalse(EntityFilter.objects.filter(pk=efilter.id).count())
+        self.assertDoesNotExist(efilter)
 
     def test_delete07(self):
         "Can not delete if used as subfilter"
@@ -620,7 +620,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02.set_conditions([EntityFilterCondition.build_4_subfilter(efilter01)])
 
         self._delete(efilter01)
-        self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
+        self.assertStillExists(efilter01)
 
     def test_delete08(self):
         "Can not delete if used as subfilter (for relations)"
@@ -635,7 +635,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=efilter01)])
 
         self._delete(efilter01)
-        self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
+        self.assertStillExists(efilter01)
 
     def test_get_content_types01(self):
         self.login()
