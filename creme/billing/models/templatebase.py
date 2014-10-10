@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import date, timedelta
+import logging
 
 from django.db.models import PositiveIntegerField #ForeignKey
 from django.utils.translation import pgettext_lazy
@@ -28,6 +29,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from creme.creme_core.models.fields import CTypeForeignKey
 
 from .base import Base
+
+
+logger = logging.getLogger(__name__)
 
 
 class TemplateBase(Base):
@@ -61,6 +65,14 @@ class TemplateBase(Base):
             return RecurrentGenerator.objects.get(template=self)
         except ObjectDoesNotExist:
             return None
+
+    @property
+    def verbose_status(self):
+        try: #TODO: cache
+            return self.ct.model_class()._meta.get_field('status').rel.to.objects.get(id=self.status_id).name
+        except Exception: #TODO: test
+            logger.exception('Error in TemplateBase.verbose_status')
+            return ''
 
     # This method is used by the generation job
     def create_entity(self):

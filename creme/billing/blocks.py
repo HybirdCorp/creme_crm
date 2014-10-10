@@ -46,13 +46,14 @@ class BillingBlock(Block):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             is_invoice=isinstance(document, Invoice),
                                                             is_quote=isinstance(document, Quote),
+                                                            is_templatebase=isinstance(document, TemplateBase),
                                                            )
                            )
 
 
 class _LineBlock(SimpleBlock):
-    dependencies        = (Base, CreditNote, Quote, Invoice, SalesOrder)
-    target_ctypes       = (Base, CreditNote, Quote, Invoice, SalesOrder)
+    dependencies        = (Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    target_ctypes       = (Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase) #TODO: Base ??
     line_model          = "OVERLOAD_ME"
     line_type           = "OVERLOAD_ME"
     related_item_ct     = "OVERLOAD_ME"
@@ -145,19 +146,19 @@ class CreditNoteBlock(QuerysetBlock):
 
 class TotalBlock(SimpleBlock):
     id_                 = SimpleBlock.generate_id('billing', 'total')
-    dependencies        = (ProductLine, ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
+    dependencies        = (ProductLine, ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
     verbose_name        = _(u'Total')
     template_name       = 'billing/templatetags/block_total.html'
-    target_ctypes       = (Base, Invoice, CreditNote, Quote, SalesOrder)
+    target_ctypes       = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ??
 
 
 class TargetBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('billing', 'target')
-    dependencies  = (Invoice, SalesOrder, Quote)
+    dependencies  = (Invoice, CreditNote, SalesOrder, Quote, TemplateBase)
     verbose_name  = _(u'Target organisation')
     template_name = 'billing/templatetags/block_target.html'
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ??
 
 
 class ReceivedInvoicesBlock(QuerysetBlock):
@@ -245,7 +246,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u"Default payment information")
     template_name = "billing/templatetags/block_billing_payment_information.html"
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ?
     dependencies  = (Relation, PaymentInformation)
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
     order_by      = 'name'
@@ -270,7 +271,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
 
 class BillingAddressBlock(AddressBlock):
     id_  = Block.generate_id('billing', 'address')
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ?
 
 
 class PersonsStatisticsBlock(Block):

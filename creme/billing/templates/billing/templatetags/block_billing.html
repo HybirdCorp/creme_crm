@@ -78,8 +78,12 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Status" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=object field='status' %}</td>
-            <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'status' for object %}</td>
+            {% if is_templatebase %}
+                <td class="{% cycle row_color %} td_info" colspan="2">{{object.verbose_status}}</td>
+            {% else %}
+                <td class="{% cycle row_color %} td_info">{% print_field object=object field='status' %}</td>
+                <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'status' for object %}</td>
+            {% endif %}
         </tr>
         {% if is_invoice %}
             <tr class="content">
