@@ -10,7 +10,7 @@ try:
     from creme.creme_core.models import Currency
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
-    from creme.persons.models import Organisation
+    from creme.persons.models import Organisation, Address
 
     if 'creme.billing' in settings.INSTALLED_APPS:
         from creme.billing.models import (Invoice, InvoiceStatus, TemplateBase,
@@ -41,7 +41,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         cls.populate(*apps)
 
-    def _aux_test_create(self, model, status_model):
+    def _aux_test_create(self, model, status_model, target_has_addresses=False):
         self.login()
         user = self.user
         url = self.ADD_URL
@@ -67,6 +67,24 @@ class RecurrentsBillingTestCase(CremeTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source Orga')
         target = create_orga(name='Target Orga')
+
+        if target_has_addresses:
+            create_address = Address.objects.create
+            target.billing_address = create_address(name="Billing address 01",
+                                                    address="BA1 - Address", po_box="BA1 - PO box",
+                                                    zipcode="BA1 - Zip code", city="BA1 - City",
+                                                    department="BA1 - Department",
+                                                    state="BA1 - State", country="BA1 - Country",
+                                                    owner=target,
+                                                   )
+            target.shipping_address = create_address(name="Shipping address 01",
+                                                     address="SA1 - Address", po_box="SA1 - PO box",
+                                                     zipcode="SA1 - Zip code", city="SA1 - City",
+                                                     department="SA1 - Department",
+                                                     state="SA1 - State", country="SA1 - Country",
+                                                     owner=target,
+                                                    )
+            target.save()
 
         tpl_name = 'Subscription invoice'
         status    = status_model.objects.all()[0]
@@ -113,9 +131,36 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
         self.assertEqual(status.name, tpl.verbose_status)
 
+        billing_address = tpl.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(tpl, billing_address.owner)
+
+        shipping_address = tpl.shipping_address
+        self.assertIsInstance(shipping_address, Address)
+        self.assertEqual(tpl, shipping_address.owner)
+
+        if target_has_addresses:
+            b_addr = target.billing_address
+            self.assertEqual(b_addr.name, billing_address.name)
+            self.assertEqual(b_addr.city, billing_address.city)
+
+            s_addr = target.shipping_address
+            self.assertEqual(s_addr.name,       shipping_address.name)
+            self.assertEqual(s_addr.department, shipping_address.department)
+        else:
+            self.assertEqual(_(u'Billing address'), billing_address.name)
+            self.assertFalse(billing_address.city)
+
+            self.assertEqual(_(u'Shipping address'), shipping_address.name)
+            self.assertFalse(shipping_address.city)
+
     @skipIfNotInstalled('creme.billing')
-    def test_create_invoice(self):
+    def test_create_invoice01(self):
         self._aux_test_create(Invoice, InvoiceStatus)
+
+    @skipIfNotInstalled('creme.billing')
+    def test_create_invoice02(self):
+        self._aux_test_create(Invoice, InvoiceStatus, target_has_addresses=True)
 
     @skipIfNotInstalled('creme.billing')
     def test_create_quote(self):
