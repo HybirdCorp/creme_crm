@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.forms.widgets import HiddenInput
 
 from ..models import TemplateBase
-from .base import BaseEditForm, copy_or_create_address
+from .base import BaseEditForm, copy_or_create_address, first_managed_orga_id
 
 
 class _TemplateBaseForm(BaseEditForm):
@@ -67,6 +67,7 @@ class TemplateBaseCreateForm(_TemplateBaseForm):
         #self._build_status_field(ContentType.objects.get_for_id(kwargs['initial']['ct']))
         self._build_status_field(ct)
         self.instance.ct = ct
+        self.fields['source'].initial = first_managed_orga_id()
 
     #def save(self):
         #self.instance.ct = ContentType.objects.get_for_id(self.cleaned_data['ct'])
