@@ -49,6 +49,12 @@ def copy_or_create_address(address, owner, name):
 
     return address.clone(owner)
 
+def first_managed_orga_id():
+    try:
+        return Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
+    except IndexError:
+        logger.warn('No managed organisation ?!')
+
 
 class BaseEditForm(CremeEntityForm):
     #currency = CreatorModelChoiceField(label=_(u'Currency'), queryset=Currency.objects.all(), initial=DEFAULT_CURRENCY_PK)
@@ -178,10 +184,11 @@ class BaseCreateForm(BaseEditForm):
     def __init__(self, *args, **kwargs):
         super(BaseCreateForm, self).__init__(*args, **kwargs)
 
-        try:
-            self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0] #[:1][0] ??
-        except IndexError as e:
-            logger.debug('Exception in %s.__init__: %s', self.__class__, e)
+        #try:
+            #self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
+        #except IndexError as e:
+            #logger.debug('Exception in %s.__init__: %s', self.__class__, e)
+        self.fields['source'].initial = first_managed_orga_id()
 
     def save(self, *args, **kwargs):
         instance = self.instance
