@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -32,6 +35,9 @@ from creme.creme_core.views.generic import add_model_with_popup, edit_model_with
 
 from ..blocks import generic_models_block
 from ..registry import config_registry
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_appconf(user, app_name):
@@ -97,6 +103,19 @@ def add_model_from_widget(request, app_name, model_name):
 def portal_model(request, app_name, model_name):
     app_config = _get_appconf(request.user, app_name)
     model      = _get_modelconf(app_config, model_name).model
+    meta = model._meta
+
+    try:
+        order_field = meta.get_field('order')
+    except FieldDoesNotExist:
+        pass
+    else:
+        if meta.ordering and meta.ordering[0] == 'order' and isinstance(order_field, IntegerField):
+            for order, instance in enumerate(model.objects.order_by('order', 'pk'), start=1):
+                if order != instance.order:
+                    logger.warn('Fix an order problem in model %s (%s)', model, instance)
+                    instance.order = order
+                    instance.save()
 
     return render(request, 'creme_config/generics/model_portal.html',
                   {'model':            model,

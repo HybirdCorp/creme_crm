@@ -1265,11 +1265,12 @@ class SalesPhaseTestCase(CremeTestCase):
     DOWN_URL   = '/creme_config/opportunities/sales_phase/down/%s'
     UP_URL     = '/creme_config/opportunities/sales_phase/up/%s'
     DELETE_URL = '/creme_config/opportunities/sales_phase/delete'
+    PORTAL_URL = '/creme_config/opportunities/sales_phase/portal/'
 
     @classmethod
     def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config' ,'opportunities')
         SalesPhase.objects.all().delete()
-        cls.populate('creme_core', 'creme_config')
 
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create
@@ -1278,18 +1279,47 @@ class SalesPhaseTestCase(CremeTestCase):
 
         self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
 
+    def test_creme_config_block(self):
+        self.login()
+        self.assertGET200('/creme_config/opportunities/portal/')
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', order=2)
+        sp2 = create_phase(name='Abandoned',   order=1)
+
+        response = self.assertGET200(self.PORTAL_URL)
+
+        sp1_index = response.content.index(sp1.name)
+        self.assertNotEqual(-1, sp1_index)
+
+        sp2_index = response.content.index(sp2.name)
+        self.assertNotEqual(-1, sp2_index)
+
+        self.assertLess(sp2_index, sp1_index) #order_by('order')
+
+    def test_creme_config_block_reordering(self):
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', order=2)
+        sp2 = create_phase(name='Abandoned',   order=1)
+        sp3 = create_phase(name='Won',         order=1) # 2 x '1' !!
+        sp4 = create_phase(name='Lost',        order=3)
+
+        self.assertGET200(self.PORTAL_URL)
+
+        refresh = self.refresh
+        self.assertEqual(3, refresh(sp1).order)
+        self.assertEqual(1, refresh(sp2).order)
+        self.assertEqual(2, refresh(sp3).order)
+        self.assertEqual(4, refresh(sp4).order)
+
     def test_incr_order01(self):
         self.login()
 
         create_phase = SalesPhase.objects.create
         sp1 = create_phase(name='Forthcoming', order=1)
         sp2 = create_phase(name='Abandoned',   order=2)
-
-        self.assertGET200('/creme_config/opportunities/portal/')
-
-        response = self.assertGET200('/creme_config/opportunities/sales_phase/portal/')
-        self.assertContains(response, sp1.name)
-        self.assertContains(response, sp2.name)
 
         url = self.DOWN_URL % sp1.id
         self.assertGET404(url)
