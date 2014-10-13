@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,7 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
 
 #Catching the save of the relation between a Contact and his employer
 def post_save_relation_employed_by(sender, instance, **kwargs):
-    if instance.type.id == REL_SUB_EMPLOYED_BY:
+    if instance.type_id == REL_SUB_EMPLOYED_BY:
         contact = instance.subject_entity
         post_save_activesync_handler(Contact, contact, False)
 
