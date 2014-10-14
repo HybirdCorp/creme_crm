@@ -3,12 +3,14 @@
 try:
     from datetime import date
     from decimal import Decimal
+    from functools import partial
 
     from creme.creme_core.models import Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
+    from creme.persons.models import Organisation, Address
 
-    from ..models import QuoteStatus, Quote
+    from ..models import QuoteStatus, Quote, ServiceLine
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase
 except Exception as e:
@@ -28,6 +30,7 @@ class QuoteTestCase(_BillingTestCase):
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
+        self.assertIsNone(quote.acceptation_date)
 
         self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target)
@@ -87,8 +90,9 @@ class QuoteTestCase(_BillingTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
-                                          'issuing_date':    '2012-2-12',
-                                          'expiration_date': '2012-3-13',
+                                          'issuing_date':     '2012-2-12',
+                                          'expiration_date':  '2012-3-14',
+                                          'acceptation_date': '2012-3-13',
                                           'status':          status.id,
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
@@ -101,7 +105,8 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.refresh(quote)
         self.assertEqual(name,                             quote.name)
         self.assertEqual(date(year=2012, month=2, day=12), quote.issuing_date)
-        self.assertEqual(date(year=2012, month=3, day=13), quote.expiration_date)
+        self.assertEqual(date(year=2012, month=3, day=14), quote.expiration_date)
+        self.assertEqual(date(year=2012, month=3, day=13), quote.acceptation_date)
         self.assertEqual(currency,                         quote.currency)
         self.assertEqual(status,                           quote.status)
 
@@ -129,3 +134,50 @@ class QuoteTestCase(_BillingTestCase):
 
     def test_csv_import(self):
         self._aux_test_csv_import(Quote, QuoteStatus)
+
+    def test_clone(self):
+        user = self.user
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        target.billing_address = b_addr = \
+            Address.objects.create(name="Billing address 01",
+                                   address="BA1 - Address", city="BA1 - City",
+                                   owner=target,
+                                  )
+        target.save()
+
+        #status = QuoteStatus.objects.filter(is_default=False)[0] TODO
+
+        quote = self.create_quote('Quote001', source, target,
+                                  #status=status,
+                                 )
+        quote.acceptation_date = date.today()
+        quote.save()
+
+        sl = ServiceLine.objects.create(related_item=self.create_service(),
+                                        user=user, related_document=quote,
+                                       )
+
+        cloned = self.refresh(quote.clone())
+        quote = self.refresh(quote)
+
+        self.assertIsNone(cloned.acceptation_date)
+        #self.assertTrue(cloned.status..is_default) TODO
+
+        self.assertNotEqual(quote, cloned)#Not the same pk
+        self.assertEqual(source, cloned.get_source().get_real_entity())
+        self.assertEqual(target, cloned.get_target().get_real_entity())
+
+        #Lines are cloned
+        self.assertEqual(1, len(cloned.service_lines))
+        self.assertNotEqual([sl], list(cloned.service_lines))
+
+        #Addresses are cloned
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,      billing_address.owner)
+        self.assertEqual(b_addr.name, billing_address.name)
+        self.assertEqual(b_addr.city, billing_address.city)

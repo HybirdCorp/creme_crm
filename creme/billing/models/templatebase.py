@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date, timedelta
+from datetime import timedelta #date
 import logging
 
 from django.db.models import PositiveIntegerField #ForeignKey
@@ -82,8 +82,10 @@ class TemplateBase(Base):
 
         # Common rules for the recurrent generation of a "base" object for billing app. See base's child for specific rules
         instance.generate_number()
-        instance.issuing_date = date.today()
-        instance.expiration_date = date.today() + timedelta(days=30) # TODO : 30 days after the issuing date, user configurable rules ???
+        instance.expiration_date = instance.issuing_date + timedelta(days=30) #TODO: user configurable rules ???
+
+        instance.additional_info = self.additional_info
+        instance.payment_terms   = self.payment_terms
 
         instance.save()
 
