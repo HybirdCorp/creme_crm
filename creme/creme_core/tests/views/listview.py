@@ -162,16 +162,17 @@ class ListViewTestCase(ViewsTestCase):
         post(bebop, swordfish, '*') #invalid value
         post(bebop, swordfish, sort_field='unknown') #invalid value
 
-    def test_order02_prelude(self):
-        "Sort by ForeignKey"
-        #NB: the DatabaseError cannot be rollbacked here in the test context,
-        #    so we cannot do this test in test_order02, because it cause an error.
-        try:
-            bool(Contact.objects.order_by('image'))
-        except:
-            pass
-        else:
-            self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
+    #TODO: for now there should not be CremeEntity with 'id' as ordering
+    #def test_order02_prelude(self):
+        #"Sort by ForeignKey"
+        ##NB: the DatabaseError cannot be rollbacked here in the test context,
+        ##    so we cannot do this test in test_order02, because it cause an error.
+        #try:
+            #bool(Contact.objects.order_by('image'))
+        #except:
+            #pass
+        #else:
+            #self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
 
     def test_order02(self):
         "Sort by ForeignKey"
@@ -238,11 +239,13 @@ class ListViewTestCase(ViewsTestCase):
 
         #NB: it seems that NULL are not ordered in the same way on different DB engines
         #post('civility', False, ed, spike, faye) #Beware: sorting is done by id
-        content = post('civility', False, spike, faye) #Beware: sorting is done by id
+        #content = post('civility', False, spike, faye) #Beware: sorting is done by id
+        content = post('civility', False, faye, spike) # sorting is done by 'title'
         self.assertFound(ed.last_name, content)
 
         #post('civility', True, faye, spike, ed)
-        post('civility', True, faye, spike)
+        #post('civility', True, faye, spike)
+        post('civility', True, spike, faye)
         #post('civility__title', False, ed, faye, spike)
         post('civility__title', False, faye, spike)
         #post('civility__title', True, spike, faye, ed)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from creme.commercial.models import MarketSegment
 
 
 class PollCampaign(CremeEntity):
-    name = CharField(_(u'Name'), max_length=100)
+    name           = CharField(_(u'Name'), max_length=100)
     goal           = TextField(_(u'Goal of the campaign'), blank=True, null=True)
     start          = DateField(_(u'Start'), null=True, blank=True)
     due_date       = DateField(_(u'Due date'), null=True, blank=True)
@@ -43,6 +43,7 @@ class PollCampaign(CremeEntity):
         app_label = 'polls'
         verbose_name = _(u'Campaign of polls')
         verbose_name_plural = _(u'Campaigns of polls')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

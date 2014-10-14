@@ -52,6 +52,7 @@ class Strategy(CremeEntity):
         app_label = "commercial"
         verbose_name = _(u'Commercial strategy')
         verbose_name_plural = _(u'Commercial strategies')
+        ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
         super(Strategy, self).__init__(*args, **kwargs)

@@ -38,6 +38,7 @@ class MailingList(CremeEntity):
         app_label = "emails"
         verbose_name = _(u'Mailing list')
         verbose_name_plural = _(u'Mailing lists')
+        ordering = ('name',)
 
     def __unicode__(self) :
         return self.name

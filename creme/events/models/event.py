@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,6 +38,7 @@ class EventType(CremeModel):
         app_label = 'events'
         verbose_name = _(u'Type of event')
         verbose_name_plural = _(u'Types of event')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
@@ -59,6 +60,7 @@ class Event(CremeEntity):
         app_label = 'events'
         verbose_name = _(u'Event')
         verbose_name_plural = _(u'Events')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

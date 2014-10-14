@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,6 +56,7 @@ class PollReply(CremeEntity):
         app_label = 'polls'
         verbose_name = _(u'Form reply')
         verbose_name_plural = _(u'Form replies')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

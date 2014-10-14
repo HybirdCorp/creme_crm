@@ -18,9 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.conf import settings
 
 from .utils.imports import safe_import_object
+
+
+logger = logging.getLogger(__name__)
 
 
 class NotRegistered(Exception):
@@ -64,7 +69,27 @@ class CremeRegistry(object):
 
     def register_entity_models(self, *models):
         """Register CremeEntity models."""
-        self._entity_models.extend(models)
+        #self._entity_models.extend(models)
+        from .models import CremeEntity
+
+        entity_models = self._entity_models
+
+        for model in models:
+            if not issubclass(model, CremeEntity):
+                logger.critical('CremeRegistry.register_entity_models: "%s" is not'
+                                ' a subclass of CremeEntity, so we ignore it', model,
+                               )
+                continue
+
+            ordering = model._meta.ordering
+            if not ordering or ordering[0] == 'id':
+                logger.warn('CremeRegistry.register_entity_models: "%s" should'
+                            ' have a Meta.ordering different from "id", so we'
+                            ' give it a default one', model,
+                           )
+                model._meta.ordering = ('header_filter_search_field',)
+
+            entity_models.append(model)
 
     def iter_entity_models(self):
         return iter(self._entity_models)

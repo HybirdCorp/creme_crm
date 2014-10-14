@@ -42,6 +42,7 @@ class EmailTemplate(CremeEntity):
         app_label = "emails"
         verbose_name = _(u"Email template")
         verbose_name_plural = _(u"Email templates")
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

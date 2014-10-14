@@ -245,6 +245,7 @@ class ListViewState(object):
                         if cell.sortable:
                             sort_field = field_name
 
+                            #TODO: should we use the Meta.ordering of the related model ?
                             if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                                 extra_sort_field = '__header_filter_search_field'
 

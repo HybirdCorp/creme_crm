@@ -296,6 +296,7 @@ class InstanceBlockConfigItem(CremeModel):
         app_label = 'creme_core'
         #verbose_name = _(u"Instance's Block to display")
         #verbose_name_plural = _(u"Instance's Blocks to display")
+        ordering = ('id',)
 
     def __unicode__(self):
         return unicode(self.verbose or self.entity)

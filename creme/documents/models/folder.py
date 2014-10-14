@@ -47,6 +47,7 @@ class Folder(CremeEntity):
         app_label = 'documents'
         verbose_name = _(u'Folder')
         verbose_name_plural = _(u'Folders')
+        ordering = ('title',)
 
     def __unicode__(self):
         return self.title

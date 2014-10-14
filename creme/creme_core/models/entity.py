@@ -71,7 +71,8 @@ class CremeEntity(CremeAbstractEntity):
 
     class Meta:
         app_label = 'creme_core'
-        ordering = ('id',)
+        #ordering = ('id',) # order by id on a FK can cause a crashes
+        ordering = ('header_filter_search_field',)
 
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)

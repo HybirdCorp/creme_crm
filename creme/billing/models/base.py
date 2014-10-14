@@ -90,6 +90,7 @@ class Base(CremeEntity):
 
     class Meta:
         app_label = 'billing'
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
