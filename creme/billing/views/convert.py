@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import commit_on_success
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
@@ -47,21 +48,28 @@ def convert(request, document_id):
 
     user.has_perm_to_create_or_die(dest_class)
 
-    if isinstance(src, TemplateBase): #TODO: unitest
-        dest = TemplateBase()
-        dest.build(src, ContentType.objects.get_for_model(dest_class))
-        dest.name = _(u'%(src)s (converted into template of <%(dest)s>)') % {'src': src.name, 'dest': dest_class._meta.verbose_name}
-        dest.save()
-        # Generator of template src now works with converted template
-        generator = src.get_generator()
-        generator.template = dest #TODO: old Template is 'lost' ? (no deleted but no linkable to a generator anymore)
-        generator.save()
-    else:
-        dest = dest_class()
-        dest.build(src)
-        dest.name = _(u'%(src)s (converted into  %(dest)s)') % {'src': src.name, 'dest': dest._meta.verbose_name}
-        dest.generate_number()
-        dest.save()
+    with commit_on_success():
+        if isinstance(src, TemplateBase): #TODO: unitest
+            dest = TemplateBase()
+            dest.build(src, ContentType.objects.get_for_model(dest_class))
+            dest.name = _(u'%(src)s (converted into template of <%(dest)s>)') % {
+                                'src':  src.name,
+                                'dest': dest_class._meta.verbose_name,
+                            }
+            dest.save()
+            # Generator of template src now works with converted template
+            generator = src.get_generator()
+            generator.template = dest #TODO: old Template is 'lost' ? (no deleted but no linkable to a generator anymore)
+            generator.save()
+        else:
+            dest = dest_class()
+            dest.build(src)
+            dest.name = _(u'%(src)s (converted into  %(dest)s)') % {
+                                'src':  src.name,
+                                'dest': dest._meta.verbose_name,
+                            }
+            dest.generate_number()
+            dest.save()
 
     return HttpResponse("", mimetype="text/javascript")
     #return redirect(dest)

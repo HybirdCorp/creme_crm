@@ -21,6 +21,7 @@
 from datetime import date
 from itertools import chain
 import logging
+#import warnings
 
 from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
 from django.db.models.signals import post_save, post_delete
@@ -68,8 +69,14 @@ class Base(CremeEntity):
     #total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_vat        = MoneyField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = MoneyField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'), related_name='AdditionalInformation_set', blank=True, null=True, on_delete=SET_NULL)
-    payment_terms    = ForeignKey(PaymentTerms,          verbose_name=_(u'Payment Terms'),          related_name='PaymentTerms_set',          blank=True, null=True, on_delete=SET_NULL)
+    additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'),
+                                  related_name='AdditionalInformation_set',
+                                  blank=True, null=True, on_delete=SET_NULL,
+                                 ).set_tags(clonable=False)
+    payment_terms    = ForeignKey(PaymentTerms, verbose_name=_(u'Payment Terms'),
+                                  related_name='PaymentTerms_set',
+                                  blank=True, null=True, on_delete=SET_NULL,
+                                 ).set_tags(clonable=False)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
 
     creation_label = _('Add an accounting document')
@@ -240,11 +247,28 @@ class Base(CremeEntity):
         for line in chain(source.product_lines, source.service_lines):
             line.clone(self)
 
+    #TODO: factorise with persons ??
+    def _post_save_clone(self, source):
+        save = False
+
+        if source.billing_address is not None:
+            self.billing_address = source.billing_address.clone(self)
+            save = True
+
+        if source.shipping_address is not None:
+            self.shipping_address = source.shipping_address.clone(self)
+            save = True
+
+        if save:
+            self.save()
+
     #TODO: Can not we really factorise with clone()
     def build(self, template):
         self._build_object(template)
+        self._post_save_clone(template) #copy addresses
         self._build_lines(template, ProductLine)
         self._build_lines(template, ServiceLine)
+        #self._post_clone(template) #copy lines TODO: replace the 2 previous lines
         self._build_relations(template)
         self._build_properties(template)
         return self
@@ -258,16 +282,22 @@ class Base(CremeEntity):
         self.issuing_date       = today
         self.expiration_date    = today
         self.discount           = template.discount
-        self.billing_address    = template.billing_address
-        self.shipping_address   = template.shipping_address
+        self.currency           = template.currency
         self.comment            = template.comment
+        self.payment_info       = template.payment_info
         self.save()
+
+        #not copied
+        #additional_info
+        #payment_terms
 
     def _build_lines(self, template, klass):
         logger.debug("=> Clone lines")
+        #warnings.warn("billing.Base._build_lines() method is deprecated; use _post_clone() instead",
+                      #DeprecationWarning
+                     #) TODO
         for line in template.get_lines(klass):
             line.clone(self)
-        #self._post_clone(template) #TODO
 
     def _build_relations(self, template):
         logger.debug("=> Clone relations")

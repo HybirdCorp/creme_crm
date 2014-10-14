@@ -5,14 +5,15 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models.query_utils import Q
     from django.utils.timezone import now
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials, Relation, RelationType
+    from creme.creme_core.models import (CremePropertyType, CremeProperty,
+            SetCredentials, Relation, RelationType, Currency)
 
-    from creme.persons.models import Organisation
+    from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
     from ..models import *
@@ -39,7 +40,42 @@ class ConvertTestCase(_BillingTestCase):
     def test_convert01(self):
         self.login()
 
-        quote, source, target = self.create_quote_n_orgas('My Quote')
+        currency = Currency.objects.create(name='Berry', local_symbol='B',
+                                           international_symbol='BB', is_custom=True,
+                                          )
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        create_address = Address.objects.create
+        target.billing_address = b_addr = \
+            create_address(name="Billing address 01",
+                           address="BA1 - Address", po_box="BA1 - PO box",
+                           zipcode="BA1 - Zip code", city="BA1 - City",
+                           department="BA1 - Department",
+                           state="BA1 - State", country="BA1 - Country",
+                           owner=target,
+                          )
+        target.shipping_address = s_addr = \
+            create_address(name="Shipping address 01",
+                           address="SA1 - Address", po_box="SA1 - PO box",
+                           zipcode="SA1 - Zip code", city="SA1 - City",
+                           department="SA1 - Department",
+                           state="SA1 - State", country="SA1 - Country",
+                           owner=target,
+                          )
+        target.save()
+
+        quote = self.create_quote('My Quote', source, target, currency)
+        quote.additional_info = AdditionalInformation.objects.all()[0]
+        quote.payment_terms = PaymentTerms.objects.all()[0]
+        quote.payment_info  = PaymentInformation.objects.create(organisation=source,
+                                                                name="Bank details",
+                                                                is_default=True,
+                                                               )
+        quote.save()
+
         self.assertFalse(Invoice.objects.count())
 
         self._convert(200, quote, 'invoice')
@@ -54,11 +90,28 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(quote.discount,        invoice.discount)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
-        self.assertEqual(quote.currency,        invoice.currency)
+        self.assertEqual(currency,              invoice.currency)
+        self.assertEqual(1,                     invoice.status_id)
+        self.assertEqual(quote.payment_info,    invoice.payment_info)
+        self.assertIsNone(invoice.additional_info)
+        self.assertIsNone(invoice.payment_terms)
 
         self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,       source)
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     object_entity=target)
         self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, object_entity=source)
+
+        #Addresses are cloned
+        billing_address = invoice.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(invoice,     billing_address.owner)
+        self.assertEqual(b_addr.name, billing_address.name)
+        self.assertEqual(b_addr.city, billing_address.city)
+
+        shipping_address = invoice.shipping_address
+        self.assertIsInstance(shipping_address, Address)
+        self.assertEqual(invoice,           shipping_address.owner)
+        self.assertEqual(s_addr.name,       shipping_address.name)
+        self.assertEqual(s_addr.department, shipping_address.department)
 
     def test_convert02(self):
         "SalesOrder + not superuser"

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import date, timedelta
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -10,7 +11,8 @@ try:
     from creme.persons.models import Organisation
 
     from ..models import (TemplateBase, Invoice, InvoiceStatus,
-                          Quote, QuoteStatus, SalesOrder, SalesOrderStatus)
+            Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
+            AdditionalInformation, PaymentTerms)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase
 except Exception as e:
@@ -47,14 +49,24 @@ class TemplateBaseTestCase(_BillingTestCase):
         comment = '*Insert a comment here*'
         tpl = self._create_templatebase(Invoice, invoice_status.id, comment)
 
+        tpl.additional_info = AdditionalInformation.objects.all()[0]
+        tpl.payment_terms = PaymentTerms.objects.all()[0]
+        tpl.save()
+
         with self.assertNoException():
             invoice = tpl.create_entity()
 
         self.assertIsInstance(invoice, Invoice)
         self.assertEqual(comment, invoice.comment)
         self.assertEqual(invoice_status, invoice.status)
+        self.assertEqual(tpl.additional_info, invoice.additional_info)
+        self.assertEqual(tpl.payment_terms,   invoice.payment_terms)
         self.assertEqual(self.source, invoice.get_source().get_real_entity())
         self.assertEqual(self.target, invoice.get_target().get_real_entity())
+
+        self.assertIsNotNone(invoice.number)
+        self.assertEqual(date.today(), invoice.issuing_date)
+        self.assertEqual(invoice.issuing_date + timedelta(days=30), invoice.expiration_date)
 
     def test_create_invoice02(self):
         "Bad status id"

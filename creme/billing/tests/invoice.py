@@ -543,11 +543,41 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
-    def test_clone_with_lines01(self):
+    def test_clone(self):
         self.login()
 
-        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         user = self.user
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        create_address = Address.objects.create
+        target.billing_address = b_addr = \
+            create_address(name="Billing address 01",
+                           address="BA1 - Address", po_box="BA1 - PO box",
+                           zipcode="BA1 - Zip code", city="BA1 - City",
+                           department="BA1 - Department",
+                           state="BA1 - State", country="BA1 - Country",
+                           owner=target,
+                          )
+        target.shipping_address = s_addr = \
+            create_address(name="Shipping address 01",
+                           address="SA1 - Address", po_box="SA1 - PO box",
+                           zipcode="SA1 - Zip code", city="SA1 - City",
+                           department="SA1 - Department",
+                           state="SA1 - State", country="SA1 - Country",
+                           owner=target,
+                          )
+        target.save()
+
+        currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$',
+                                           international_symbol=u'MUSD', is_custom=True,
+                                          )
+        invoice = self.create_invoice('Invoice001', source, target, currency=currency)
+        invoice.additional_info = AdditionalInformation.objects.all()[0]
+        invoice.payment_terms   = PaymentTerms.objects.all()[0]
+        invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}
         ServiceLine.objects.create(related_item=self.create_service(), **kwargs)
@@ -555,23 +585,43 @@ class InvoiceTestCase(_BillingTestCase):
         ProductLine.objects.create(related_item=self.create_product(), **kwargs)
         ProductLine.objects.create(on_the_fly_item="otf product", **kwargs)
 
-        cloned = invoice.clone()
-
-        cloned = self.refresh(cloned)
+        cloned = self.refresh(invoice.clone())
         invoice = self.refresh(invoice)
 
         self.assertNotEqual(invoice, cloned)#Not the same pk
-        self.assertEqual(invoice.get_source(), cloned.get_source())
-        self.assertEqual(invoice.get_target(), cloned.get_target())
+        self.assertEqual(invoice.name,     cloned.name)
+        self.assertEqual(currency,         cloned.currency)
+        self.assertIsNone(cloned.additional_info) #Should not be cloned
+        self.assertIsNone(cloned.payment_terms)   #Should not be cloned
+        self.assertEqual(source, cloned.get_source().get_real_entity())
+        self.assertEqual(target, cloned.get_target().get_real_entity())
 
+        #Lines are cloned
         self.assertEqual(2, len(invoice.service_lines))
         self.assertEqual(2, len(invoice.product_lines))
 
         self.assertEqual(2, len(cloned.service_lines))
         self.assertEqual(2, len(cloned.product_lines))
 
-        self.assertFalse({p.pk for p in invoice.service_lines} & {p.pk for p in cloned.service_lines})
-        self.assertFalse({p.pk for p in invoice.product_lines} & {p.pk for p in cloned.product_lines})
+        self.assertFalse({p.pk for p in invoice.service_lines} &
+                         {p.pk for p in cloned.service_lines}
+                        )
+        self.assertFalse({p.pk for p in invoice.product_lines} &
+                         {p.pk for p in cloned.product_lines}
+                        )
+
+        #Addresses are cloned
+        billing_address = cloned.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(cloned,      billing_address.owner)
+        self.assertEqual(b_addr.name, billing_address.name)
+        self.assertEqual(b_addr.city, billing_address.city)
+
+        shipping_address = cloned.shipping_address
+        self.assertIsInstance(shipping_address, Address)
+        self.assertEqual(cloned,            shipping_address.owner)
+        self.assertEqual(s_addr.name,       shipping_address.name)
+        self.assertEqual(s_addr.department, shipping_address.department)
 
     def test_clone_source_n_target(self):
         "Internal relationtypes should not be cloned"
