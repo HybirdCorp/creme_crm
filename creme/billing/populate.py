@@ -123,12 +123,13 @@ class Populator(BasePopulator):
 
         ButtonMenuItem.create_if_needed(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
-        def create_hf(hf_pk, name, model):
+
+        def create_hf(hf_pk, name, model, status=True):
             HeaderFilter.create(pk=hf_pk, name=name, model=model,
                                 cells_desc=[(EntityCellRegularField, {'name': 'name'}),
                                             EntityCellRelation(rtype=rt_sub_bill_received),
                                             (EntityCellRegularField, {'name': 'number'}),
-                                            (EntityCellRegularField, {'name': 'status'}), #status__name
+                                            (EntityCellRegularField, {'name': 'status'}) if status else None, #status__name
                                             (EntityCellRegularField, {'name': 'total_no_vat'}),
                                             (EntityCellRegularField, {'name': 'issuing_date'}),
                                             (EntityCellRegularField, {'name': 'expiration_date'}),
@@ -139,6 +140,7 @@ class Populator(BasePopulator):
         create_hf('billing-hf_quote',      _(u'Quote view'),       Quote)
         create_hf('billing-hf_salesorder', _(u'Sales order view'), SalesOrder)
         create_hf('billing-hf_creditnote', _(u'Credit note view'), CreditNote)
+        create_hf('billing-hf_template',   _(u'Template view'),    TemplateBase, status=False)
 
 
         def create_hf_lines(hf_pk, name, model, include_type=True):
