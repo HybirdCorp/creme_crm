@@ -78,6 +78,7 @@ class Origin(CremeModel):
         app_label = "opportunities"
         verbose_name = _(u"Origin of opportunity")
         verbose_name_plural = _(u"Origins of opportunity")
+        ordering = ('name',)
 
 
 class Opportunity(CremeEntity):
@@ -105,6 +106,7 @@ class Opportunity(CremeEntity):
         app_label = "opportunities"
         verbose_name = _(u'Opportunity')
         verbose_name_plural = _(u'Opportunities')
+        ordering = ('name',)
 
     #def __init__(self, *args, **kwargs):
         #super(Opportunity, self).__init__(*args, **kwargs)

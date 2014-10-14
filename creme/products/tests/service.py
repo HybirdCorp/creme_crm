@@ -30,7 +30,8 @@ class ServiceTestCase(_ProductsTestCase):
         description = 'Your Eva is washed by pretty girls'
         reference = '42'
         cat = Category.objects.all()[0]
-        sub_cat = SubCategory.objects.all()[0]
+        #sub_cat = SubCategory.objects.all()[0]
+        sub_cat = SubCategory.objects.filter(category=cat)[0]
         unit = 'A wash'
         unit_price = '1.23'
         response = self.client.post(url, follow=True,
@@ -63,8 +64,9 @@ class ServiceTestCase(_ProductsTestCase):
         self.login()
 
         name = 'Eva washing'
-        cat = Category.objects.all()[0]
+        #cat = Category.objects.all()[0]
         sub_cat = SubCategory.objects.all()[0]
+        cat = sub_cat.category
         service = Service.objects.create(user=self.user, name=name, description='Blabla',
                                          unit_price=Decimal('1.23'), reference='42',
                                          category=cat, sub_category=sub_cat, unit='A wash',

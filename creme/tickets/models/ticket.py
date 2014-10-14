@@ -75,6 +75,7 @@ class Ticket(AbstractTicket):
         app_label = 'tickets'
         verbose_name = _(u'Ticket')
         verbose_name_plural = _(u'Tickets')
+        ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
         super(Ticket, self).__init__(*args, **kwargs)
@@ -119,6 +120,7 @@ class TicketTemplate(AbstractTicket):
         app_label = 'tickets'
         verbose_name = _(u'Ticket template')
         verbose_name_plural = _(u'Ticket templates')
+        ordering = ('title',)
 
     def get_absolute_url(self):
         return "/tickets/template/%s" % self.id

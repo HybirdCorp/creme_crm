@@ -1731,8 +1731,8 @@ class ReportTestCase(BaseReportsTestCase):
             create_field(report=self.folder_report, name='invalid', order=3, type=RFT_RELATED)
 
         create_folder = partial(Folder.objects.create, user=user)
-        self.folder1 = create_folder(title='Internal')
-        self.folder2 = create_folder(title='External')
+        self.folder1 = create_folder(title='External')
+        self.folder2 = create_folder(title='Internal')
 
         create_doc = partial(Document.objects.create, user=user)
         self.doc11 = create_doc(title='Doc#1-1', folder=self.folder1, description='Boring !')
@@ -1765,15 +1765,16 @@ class ReportTestCase(BaseReportsTestCase):
         folder3 = Folder.objects.create(user=self.user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
-        lines = [[folder1.title,      doc11.title,      doc11.description],
+        #beware: folders are ordered by title
+        lines = [[folder3.title,      '',               ''],
+                 [folder1.title,      doc11.title,      doc11.description],
                  [folder1.title,      self.doc12.title, ''],
                  [self.folder2.title, self.doc21.title, ''],
-                 [folder3.title,      '',               ''],
                 ]
         fetch = self.folder_report.fetch_all_lines
         self.assertEqual(lines, fetch())
 
-        lines.pop(1)
+        lines.pop(2) #doc12
         self.assertEqual(lines, fetch(user=self.user))
 
     def test_fetch_related_03(self):
@@ -1786,14 +1787,14 @@ class ReportTestCase(BaseReportsTestCase):
         folder1 = self.folder1; doc11 = self.doc11
         fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
         doc11_str = fmt % (doc11.title, doc11.description)
-        lines = [[folder1.title,      doc11_str + ', ' + fmt % (self.doc12.title, '')],
+        lines = [[folder3.title,      ''],
+                 [folder1.title,      doc11_str + ', ' + fmt % (self.doc12.title, '')],
                  [self.folder2.title, fmt % (self.doc21.title, '')],
-                 [folder3.title,      ''],
                 ]
         fetch = self.folder_report.fetch_all_lines
         self.assertEqual(lines, fetch())
 
-        lines[0][1] = doc11_str
+        lines[1][1] = doc11_str
         self.assertEqual(lines, fetch(user=self.user))
 
     def test_fetch_funcfield_01(self):
@@ -2039,8 +2040,8 @@ class ReportTestCase(BaseReportsTestCase):
                          [column.title for column in report_orga.get_children_fields_flat()]
                         )
         self.assertEqual([[self.lannisters.name, tyrion.last_name, tyrion.first_name, '',         ''],
+                          [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''], #beware Documents are ordered by title
                           [starks.name,          ned.last_name,    ned.first_name,    doc1.title, doc1.description],
-                          [starks.name,          ned.last_name,    ned.first_name,    doc2.title, ''],
                           [starks.name,          robb.last_name,   robb.first_name,   '',         '']
                          ],
                          report_orga.fetch_all_lines()

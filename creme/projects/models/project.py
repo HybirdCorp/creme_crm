@@ -46,6 +46,7 @@ class Project(CremeEntity):
         app_label = 'projects'
         verbose_name = _(u'Project')
         verbose_name_plural = _(u'Projects')
+        ordering = ('name',)
 
     def __unicode__(self) :
         return self.name

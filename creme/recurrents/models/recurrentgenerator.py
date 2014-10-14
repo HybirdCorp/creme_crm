@@ -45,6 +45,7 @@ class RecurrentGenerator(CremeEntity):
         app_label = 'recurrents'
         verbose_name = _(u'Recurrent generator')
         verbose_name_plural = _(u'Recurrent generators')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

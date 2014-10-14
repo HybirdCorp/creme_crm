@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db.models import CharField, ManyToManyField, ForeignKey
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
-from django.conf import settings
 
 from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
@@ -41,6 +41,7 @@ class Graph(CremeEntity):
         app_label = 'graphs'
         verbose_name = pgettext_lazy('graphs', u'Graph')
         verbose_name_plural = pgettext_lazy('graphs', u'Graphs')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

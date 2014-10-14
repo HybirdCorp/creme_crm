@@ -82,6 +82,7 @@ class EntityEmail(_Email, CremeEntity):
         app_label = "emails"
         verbose_name = _(u'Email')
         verbose_name_plural = _(u'Emails')
+        ordering = ('-sending_date',)
 
     @transaction.commit_manually
     def genid_n_save(self):

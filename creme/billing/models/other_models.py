@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ class SettlementTerms(CremeModel):
         app_label = 'billing'
         verbose_name = _(u'Settlement terms')
         verbose_name_plural = _(u'Settlement terms')
+        ordering = ('name',)
 
 
 class AbstractStatus(CremeModel):
@@ -97,6 +98,7 @@ class AdditionalInformation(CremeModel):
         app_label = 'billing'
         verbose_name        = pgettext_lazy('billing-singular', u"Additional information")
         verbose_name_plural = pgettext_lazy('billing-plural',   u"Additional information")
+        ordering = ('name',)
 
 
 class PaymentTerms(CremeModel):
@@ -111,6 +113,7 @@ class PaymentTerms(CremeModel):
         app_label = 'billing'
         verbose_name = _(u'Payment terms')
         verbose_name_plural = _(u'Payments terms')
+        ordering = ('name',)
 
 
 class PaymentInformation(CremeModel):
@@ -135,6 +138,7 @@ class PaymentInformation(CremeModel):
         app_label = 'billing'
         verbose_name        = pgettext_lazy('billing-singular', u'Payment information')
         verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
+        ordering = ('name',)
 
     #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too) ???
     @commit_on_success

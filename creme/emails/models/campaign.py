@@ -37,6 +37,7 @@ class EmailCampaign(CremeEntity):
         app_label = "emails"
         verbose_name = _(u"Emailing campaign")
         verbose_name_plural = _(u"Emailing campaigns")
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

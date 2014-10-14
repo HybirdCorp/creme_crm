@@ -35,6 +35,7 @@ class Recipient(CremeModel):
         app_label = "sms"
         verbose_name = _(u'Recipient')
         verbose_name_plural = _(u'Recipients')
+        #ordering = ('phone',) TODO ??
 
     def __unicode__(self):
         return self.phone

@@ -41,6 +41,7 @@ class PollForm(CremeEntity):
         app_label = 'polls'
         verbose_name = _(u'Form of poll')
         verbose_name_plural = _(u'Forms of poll')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

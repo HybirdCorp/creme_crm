@@ -79,6 +79,7 @@ class Line(CremeEntity):
         app_label = 'billing'
         verbose_name = _(u'Line')
         verbose_name_plural = _(u'Lines')
+        ordering = ('created',)
 
     def _pre_delete(self):
         for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM], subject_entity=self.id):

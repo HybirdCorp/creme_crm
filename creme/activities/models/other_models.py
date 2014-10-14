@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,7 @@ class ActivityType(CremeModel):
         app_label = 'activities'
         verbose_name = _(u"Type of activity")
         verbose_name_plural = _(u"Types of activity")
+        ordering = ('name',)
 
     def as_timedelta(self):
         hours, minutes, seconds = self.default_hour_duration.split(':')
@@ -65,6 +66,7 @@ class ActivitySubType(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Sub-type of activity')
         verbose_name_plural = _(u'Sub-types of activity')
+        ordering = ('name',)
 
 
 class Status(CremeModel):
@@ -79,6 +81,7 @@ class Status(CremeModel):
         app_label = 'activities'
         verbose_name = _(u'Status of activity')
         verbose_name_plural = _(u'Statuses of activity')
+        ordering = ('name',)
 
 
 #class PhoneCallType(CremeModel):

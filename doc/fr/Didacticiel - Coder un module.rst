@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 21-08-2014 pour la version 1.4 de Creme
+:Version: 29-09-2014 pour la version 1.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -139,6 +139,7 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
             app_label = "beavers"
             verbose_name = _(u'Beaver')
             verbose_name_plural = _(u'Beavers')
+            ordering = ('name',)
 
         def __unicode__(self):
             return self.name
@@ -169,7 +170,7 @@ En plus des champs contenus en base (fields), nous déclarons :
   ``get_edit_absolute_url()``, pour la vue d'édition, et enfin ``get_lv_absolute_url()``
   pour la vue en liste.
 - le champ ``creation_label`` qui permet de nommer correctement les éléments d'interface
-  (bouton, menu etc...) qui permettent de créer un castor, plutôt qu'un simple "New".
+  (bouton, menu etc…) qui permettent de créer un castor, plutôt qu'un simple "New".
 
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
@@ -755,11 +756,16 @@ Ensuite créez un fichier ``models/status.py`` : ::
             app_label = 'beavers'
             verbose_name = _(u'Beaver status')
             verbose_name_plural  = _(u'Beaver status')
+            ordering = ('name',)
 
 
-**Note** : l'attribut ``is_custom`` ; il sera utilisé par le module *creme_config*
+**Notes** : l'attribut ``is_custom`` ; il sera utilisé par le module *creme_config*
 comme nous allons le voir plus tard. Il est important qu'il se nomme ainsi, et
-qu'il soit de type ``BooleanField``.
+qu'il soit de type ``BooleanField``. Donner un ordre par défaut (attribut ``ordering``
+de la classe ``Meta``) agréable pour l'utilisateur est important, puisque c'est cet
+ordre qui sera utilisé par exemple dans les formulaires (à moins que vous n'en
+précisiez un autre explicitement, évidement).
+
 
 Modifiez *models/__init__.py* : ::
 
@@ -848,6 +854,38 @@ variable ``to_register``.
 Si vous allez sur le portail de la 'Configuration générale', dans le
 'Portails des applications', la section 'Portail configuration Gestion des castors'
 est bien apparue : elle nous permet bien de créer des nouveaux ``Status``.
+
+**Allons un peu loin** : vous pouvez **précisez le formulaire** à utiliser pour
+créer/modifier les statuts en 3ème paramètre du tuple, soit (Model, Nom, Formulaire),
+si celui qui est généré automatiquement ne vous convient pas. Ça pourrait être le
+cas s'il y a une contrainte métier à respecter, mais qui n'est pas exprimable via
+les contraintes habituelles des modèles, comme ``nullable``.
+
+**Allons un peu loin** : si vous pouvez que les **utilisateurs puissent choisir l'ordre**
+des statuts (dans les formulaire, dans la recherche rapide des vue de liste etc…),
+vous devez rajouter un champ ``order`` comme ceci : ::
+
+    # -*- coding: utf-8 -*-
+
+    from django.db.models import CharField, BooleanField, PositiveIntegerField # <- NEW
+    from django.utils.translation import ugettext_lazy as _
+
+    from creme.creme_core.models import CremeModel
+
+
+    class Status(CremeModel):
+        name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
+        is_custom = BooleanField(default=True)
+        order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) # <- NEW
+
+        def __unicode__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'beavers'
+            verbose_name = _(u'Beaver status')
+            verbose_name_plural  = _(u'Beaver status')
+            ordering = ('order',)  # <- NEW
 
 
 Utilisation de South (migrations)

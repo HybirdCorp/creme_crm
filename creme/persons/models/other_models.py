@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from creme.creme_core.models import CremeModel
 
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
 
+
 class Civility(CremeModel):
     title    = CharField(pgettext_lazy('persons-civility', u'Title'), max_length=100)
     shortcut = CharField(_(u'Shortcut'), max_length=100)
@@ -37,6 +38,7 @@ class Civility(CremeModel):
         app_label = "persons"
         verbose_name = _(u'Civility')
         verbose_name_plural = _(u'Civilities')
+        ordering = ('title',)
 
 
 class Position(CremeModel):
@@ -49,6 +51,7 @@ class Position(CremeModel):
         app_label = "persons"
         verbose_name = _(u'People position')
         verbose_name_plural = _(u'People positions')
+        ordering = ('title',)
 
 
 class Sector(CremeModel):
@@ -61,6 +64,7 @@ class Sector(CremeModel):
         app_label = "persons"
         verbose_name = _(u"Line of business")
         verbose_name_plural = _(u"Lines of business")
+        ordering = ('title',)
 
 
 class LegalForm(CremeModel):
@@ -73,6 +77,7 @@ class LegalForm(CremeModel):
         app_label = "persons"
         verbose_name = _(u'Legal form')
         verbose_name_plural = _(u'Legal forms')
+        ordering = ('title',)
 
 
 class StaffSize(CremeModel):

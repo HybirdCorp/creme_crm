@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ class MessagingList(CremeEntity):
         app_label = "sms"
         verbose_name = _(u'SMS messaging list')
         verbose_name_plural = _(u'SMS messaging lists')
+        ordering = ('name',)
 
     def __unicode__(self) :
         return self.name

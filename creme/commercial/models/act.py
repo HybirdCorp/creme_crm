@@ -50,6 +50,7 @@ class ActType(CremeModel):
         app_label = "commercial"
         verbose_name = _(u'Type of Commercial Action')
         verbose_name_plural = _(u'Types of Commercial Actions')
+        ordering = ('title',)
 
     def __unicode__(self):
         return self.title
@@ -72,6 +73,7 @@ class Act(CremeEntity):
         app_label = "commercial"
         verbose_name = _(u'Commercial Action')
         verbose_name_plural = _(u'Commercial Actions')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
@@ -139,6 +141,7 @@ class ActObjective(CremeModel):
         app_label = "commercial"
         verbose_name = _(u'Commercial Objective')
         verbose_name_plural = _(u'Commercial Objectives')
+        #ordering = ('name',) TODO ?
 
     def __unicode__(self):
         return self.name
@@ -193,6 +196,7 @@ class ActObjectivePattern(CremeEntity):
         app_label = "commercial"
         verbose_name = _(u'Commercial objective pattern')
         verbose_name_plural = _(u'Commercial objective patterns')
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
