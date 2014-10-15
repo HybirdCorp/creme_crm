@@ -1,5 +1,15 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load creme_widgets activities_tags %}
+{% load i18n creme_core_tags activities_tags %}
+
+{% block add_new_button %}
+    <li>
+        <a class="menu_button" href="/activities/calendar/user">{% trans "Go to the calendar" as label %}
+            <img src="{% creme_media_url 'images/calendar_32.png' %}" border="0" title="{{label}}" alt="{{label}}" />
+            {{label}}
+        </a>
+    </li>
+    {{block.super}}
+{% endblock %}
 
 {% block logo %}{% get_activity_icon object.type.pk %}{% endblock %}
 {% block title %}{{object.type.name}} : {{object|capfirst}}{% endblock %}
