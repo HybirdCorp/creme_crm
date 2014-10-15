@@ -14,7 +14,7 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="calendar.svg"
    inkscape:export-filename="calendar_32.png"
    inkscape:export-xdpi="22.5"
@@ -83,15 +83,6 @@
          id="rect3861"
          style="color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.96400887;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     </mask>
-    <filter
-       color-interpolation-filters="sRGB"
-       inkscape:collect="always"
-       id="filter3822-9-6-4-3-9">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="2.8610366"
-         id="feGaussianBlur3824-5-7-3-1-6" />
-    </filter>
     <linearGradient
        id="linearGradient3834-0-7-118-6-4-8-2">
       <stop
@@ -150,15 +141,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="4.7453171"
-     inkscape:cx="34.604851"
+     inkscape:cx="6.8933204"
      inkscape:cy="66.437322"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1027"
+     inkscape:window-width="1600"
+     inkscape:window-height="848"
      inkscape:window-x="0"
-     inkscape:window-y="31"
+     inkscape:window-y="24"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -224,7 +215,7 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-924.36218)"
-     style="display:inline"
+     style="display:none"
      sodipodi:insensitive="true">
     <rect
        ry="19.796612"
