@@ -48,8 +48,8 @@
             * A new UI for the columns edition has been added, and it uses the work on the new HeaderFilter form.
             * ReportGraphs :
                 - The form has been improved. Example : the field 'Is count' is already checked if there is no available aggregable field.
-                - Only the ForeignKeys related to enumerable models are available (see the notes on 'enumerable' tag below) for the abcissa.
-                - CustomFields are now available for abcissa & ordinate.
+                - Only the ForeignKeys related to enumerable models are available (see the notes on 'enumerable' tag below) for the abscissa.
+                - CustomFields are now available for abscissa & ordinate.
                 - The graph design has been heavily enhanced. The data is emphasized by a clearer display :
                   many useless/annoying visual elements were removed, legends are better, many glitches were fixed...
             * Several behaviours have been fixed :
