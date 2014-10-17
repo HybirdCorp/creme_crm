@@ -38,7 +38,7 @@ class ProductEditForm(_BaseEditForm):
 
 
 class ProductInnerEditCategory(BulkForm):
-    def __init__(self, model, field_name, user, entities, is_bulk, **kwargs):
+    def __init__(self, model, field_name=None, user=None, entities=(), is_bulk=False, **kwargs):
         super(ProductInnerEditCategory, self).__init__(model, field_name, user, entities, is_bulk, **kwargs)
 
         sub_category = CategoryField(label=_(u'Sub-category'))
