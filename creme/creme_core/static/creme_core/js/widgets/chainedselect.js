@@ -52,7 +52,6 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
                 return $.extend({}, value);
             });
 
-            console.log(chained_data);
             element.trigger('change-multiple', [chained_data]);
         }
 
