@@ -119,8 +119,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     assert issubclass(model, CremeEntity), '%s is not a subclass of CremeEntity' % model
 
     POST_get = request.POST.get
-
     current_lvs = ListViewState.get_state(request)
+
     if current_lvs is None:
         current_lvs = ListViewState.build_from_request(request) #TODO: move to ListViewState.get_state() ???
 

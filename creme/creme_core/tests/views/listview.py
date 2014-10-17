@@ -174,6 +174,14 @@ class ListViewTestCase(ViewsTestCase):
         #else:
             #self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
 
+    def assertListViewContentOrder(self, response, key, entries):
+            content = safe_unicode(self._get_lv_content(response))
+            lines = [(self.assertFound(unicode(getattr(e, key)), content), e)
+                        for e in entries
+                    ]
+            self.assertListEqual(list(entries),
+                                 [line[1] for line in sorted(lines, key=lambda e:e[0])])
+
     def test_order02(self):
         "Sort by ForeignKey"
         self.login()
@@ -305,9 +313,77 @@ class ListViewTestCase(ViewsTestCase):
             lvs = response.context['list_view_state']
             sort_field = lvs.sort_field
             sort_order = lvs.sort_order
+            ordering = lvs._ordering
 
-        self.assertEqual('start', sort_field)
-        self.assertEqual('-',     sort_order)
+        self.assertEqual(None, sort_field)
+        self.assertEqual('',  sort_order)
+        self.assertEqual(['-start'], ordering)
+
+    def test_default_ordering(self):
+        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
+        self.login()
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact(first_name='Spike',  last_name='Spiegel')
+        create_contact(first_name='Faye',   last_name='Valentine')
+        create_contact(first_name='Edward', last_name='Wong')
+
+        url = Contact.get_lv_absolute_url()
+        # for the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
+        response = self.assertPOST200(url, {'hfilter': 'persons-hf_contact'})
+
+        entries = Contact.objects.order_by('last_name', 'first_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+    def test_merge_column_and_default_ordering(self):
+        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
+        self.login()
+
+        create_civ = Civility.objects.create
+        mister = create_civ(title='Mister')
+        miss   = create_civ(title='Miss')
+        self.assertLess(mister.id, miss.id)
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
+        faye = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
+        ed = create_contact(first_name='Edward', last_name='Wong')
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
+                                             (EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                            ],)
+
+        contacts = Contact.objects.filter(pk__in=(spike, faye, ed))
+        url = Contact.get_lv_absolute_url()
+        response = self.assertPOST200(url, data={'hfilter': hf.id,
+                                                 'sort_field': 'civility',
+                                                 'sort_order': ''})
+
+        entries = contacts.order_by('civility', 'last_name', 'first_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+        response = self.assertPOST200(url, data={'hfilter': hf.id,
+                                                 'sort_field': 'civility',
+                                                 'sort_order': '-'})
+
+        entries = contacts.order_by('-civility', 'last_name', 'first_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+        response = self.assertPOST200(url, data={'hfilter': hf.id,
+                                                 'sort_field': 'first_name',
+                                                 'sort_order': ''})
+
+        entries = contacts.order_by('first_name', 'last_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+        response = self.assertPOST200(url, data={'hfilter': hf.id,
+                                                 'sort_field': 'first_name',
+                                                 'sort_order': '-'})
+
+        entries = contacts.order_by('-first_name', 'last_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
 
     def test_efilter01(self):
         self.login()
