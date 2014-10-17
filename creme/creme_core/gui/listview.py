@@ -20,9 +20,11 @@
 
 from collections import defaultdict
 from functools import partial
+from future_builtins import filter
 import logging
 
 from django.db.models import Q, DateField, ForeignKey #DateTimeField
+from django.db.models.fields.related import RelatedField
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 
@@ -60,6 +62,7 @@ class ListViewState(object):
         self.url = get_arg('url')
         self.research = ()
         self.extra_q = None
+        self._ordering = set()
 
     def __repr__(self):
         return u'<ListViewState(efilter_id=%s, hfilter_id=%s, page=%s, rows=%s, _search=%s, sort=%s%s, url=%s, research=%s)>' % (
@@ -82,10 +85,9 @@ class ListViewState(object):
         return request.session.get(url or request.path)
 
     @staticmethod
-    def build_from_request(request):
-        #TODO: use request.REQUEST ??
-        kwargs = {str(k): v for k, v in request.GET.items()}
-        kwargs.update((str(k), v) for k, v in request.POST.items())
+    def build_from_request(request, **kwargs):
+        kwargs.update((str(k), v) for k, v in request.REQUEST.items())
+        #kwargs.update((str(k), v) for k, v in request.POST.items())
         kwargs['url'] = request.path
         return ListViewState(**kwargs)
 
@@ -224,53 +226,56 @@ class ListViewState(object):
 
         return query
 
+    def _get_sortfield(self, cells, field_name):
+        if field_name is None or field_name == 'id':
+            return None
+
+        cell = next(filter(lambda c: c.sortable and c.value == field_name, cells), None)
+
+        if cell is None:
+            logger.warn('ListViewState.set_sort(): can not sort with field "%s"', field_name)
+            return
+
+        if cell.filter_string.endswith('__header_filter_search_field__icontains'):
+            return field_name + '__header_filter_search_field'
+        elif isinstance(cell.field_info[0], RelatedField) and '__' not in field_name:
+            return field_name + '__' + cell.field_info[0].rel.to._meta.ordering[0]
+        else:
+            return field_name
+
     #TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
     #TODO: beware, sorting by FK simply sort by id (Civility etc...) => can we improve that ??
     def set_sort(self, model, cells, field_name, order):
         "@param order string '' or '-'(reverse order)."
-        sort_field = 'id'
+        sort_field = self._get_sortfield(cells, field_name)
+        sort_order = order if order == '-' else ''
+
         # extra field that is used to internally create the final query the
         # sort order is toggled by comparing sorting field and column name
         # (if it's the same '' <-> '-'), so we can not merge this extra field
         # in sort_field, or the toggling we never happen
         # (cell.name == sort_field # ==> cell.name != sort_field +'XXX')
-        extra_sort_field = ''
 
-        if field_name:
-            if field_name != 'id': #avoids annoying log ('id' can not be related to a column)
-                for cell in cells:
-                    if cell.value == field_name:
-                        if cell.sortable:
-                            sort_field = field_name
-
-                            #TODO: should we use the Meta.ordering of the related model ?
-                            if cell.filter_string.endswith('__header_filter_search_field__icontains'):
-                                extra_sort_field = '__header_filter_search_field'
-
-                        break
-                else:
-                    logger.warn('ListViewState.set_sort(): can not sort with field "%s"',
-                                field_name
-                               )
-        else:
-            ordering = model._meta.ordering
-
-            if ordering:
-                sort_field = ordering[0]
-
-                if sort_field.startswith('-'):
-                    order = '-'
-                    sort_field = sort_field[1:]
+        ordering = list(model._meta.ordering)
 
         self.sort_field = sort_field
-        self._extra_sort_field = extra_sort_field
-        self.sort_order = order if order == '-' else ''
+        self.sort_order = sort_order
+
+        if sort_field:
+            try:
+                ordering.remove(sort_field if sort_order == '-' else '-' + sort_field)
+            except ValueError:
+                pass
+
+            ordering.insert(0, sort_order + sort_field)
+
+        self._ordering = ordering
 
     def sort_query(self, queryset):
         "Beware: you should have called set_sort() before"
-        return queryset.order_by(''.join((self.sort_order, self.sort_field, self._extra_sort_field)))
+        return queryset.order_by(*self._ordering)
 
 
 #-----------------------------------------------------------------------------
