@@ -96,12 +96,14 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         var url = this.popupURL(element);
         var listeners = listeners || {};
 
-        console.log(multiple);
-        
         creme.lv_widget.listViewAction(url, {multiple:multiple})
                        .onDone(function(event, data) {
-                            //self._update(element, data);
                             self.val(element, data[0]);
+
+                            if (data.length > 1) {
+                                $(element).trigger('change-multiple', [data]);
+                            }
+
                             creme.object.invoke(listeners.done, 'done', element, data);
                         })
                        .onCancel(function() {
@@ -130,7 +132,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
 
         options.backend.get(url, {fields:['summary']},
                             function(data, status) {
-                                button.html(data[0][0]);
+                                button.html(data[0][0] || '&nbsp;');
                                 creme.object.invoke(on_success, element, data);
                             },
                             function(data, error) {

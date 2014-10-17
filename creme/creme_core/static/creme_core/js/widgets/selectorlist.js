@@ -108,17 +108,21 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
                     selector.triggerHandler('action', [action, {
                         cancel: function() {
                             self.removeSelector(element, selector);
-                        },
-                        done: function(event, selector, data) {
-                            data.slice(1).forEach(function(value) {
-                                self.appendSelector(element, value);
-                            });
                         }
                     }]);
                 } else {
                     selector.creme().widget().val(value);
                 }
             }
+        });
+    },
+
+    appendSelectors: function(element, values, action)
+    {
+        var self = this;
+
+        return values.map(function(value) {
+            return self.appendSelector(element, value, action);
         });
     },
 
@@ -160,6 +164,10 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         });
 
         var selector = creme.widget.create(selector_model, {disabled: !this._enabled}, function() {
+            selector_model.bind('change-multiple', function(e, data) {
+                self.appendSelectors(element, data.slice(1));
+            });
+
             creme.object.invoke(listeners.done, 'done', selector_model, value);
         }, true);
 

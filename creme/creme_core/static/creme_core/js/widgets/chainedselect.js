@@ -41,6 +41,21 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             self._update(element);
         };
 
+        this._dependency_change_multiple = function(e, data) {
+            e.stopPropagation();
+
+            var name = $(this).parent().attr('chained-name');
+            var value = self._selectorValues(element);
+
+            var chained_data = data.map(function(item) {
+                value[name] = item;
+                return $.extend({}, value);
+            });
+
+            console.log(chained_data);
+            element.trigger('change-multiple', [chained_data]);
+        }
+
         $('img.reset', element).click(function() {
             if (self._enabled) {
                 self.reset(element);
@@ -52,6 +67,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         // reload all selectors from actual values in order to initialize them all
         this._reloadSelectors(element, this._selectorValues(element));
         this.selectors(element).bind('change', self._dependency_change);
+        this.selectors(element).bind('change-multiple', self._dependency_change_multiple);
 
         // if empty data, get values from selector and try to force it in widget
         if (creme.object.isempty(data)) {
