@@ -290,7 +290,9 @@ class InstanceBlockConfigItem(CremeModel):
     block_id = CharField(_(u"Block ID"), max_length=300, blank=False, null=False, editable=False)
     entity   = ForeignKey(CremeEntity, verbose_name=_(u"Block related entity"))
     data     = TextField(blank=True, null=True)
-    verbose  = CharField(_(u"Verbose"), max_length=200, blank=True, null=True)
+    verbose  = CharField(_(u"Verbose"), max_length=200, blank=True, null=True) #TODO: remove
+
+    _block = None
 
     class Meta:
         app_label = 'creme_core'
@@ -299,7 +301,8 @@ class InstanceBlockConfigItem(CremeModel):
         ordering = ('id',)
 
     def __unicode__(self):
-        return unicode(self.verbose or self.entity)
+        #return unicode(self.verbose or self.entity)
+        return self.block.verbose_name
 
     def delete(self):
         block_id = self.block_id
@@ -307,6 +310,20 @@ class InstanceBlockConfigItem(CremeModel):
         BlockState.objects.filter(block_id=block_id).delete()
 
         super(InstanceBlockConfigItem, self).delete()
+
+    @property
+    def block(self):
+        block = self._block
+
+        if block is None:
+            from ..gui.block import block_registry
+            self._block = block = block_registry.get_block_4_instance(self, entity=self.entity)
+
+        return block
+
+    @property
+    def errors(self):
+        return getattr(self.block, 'errors', None)
 
     @staticmethod
     def id_is_specific(block_id):
@@ -322,7 +339,7 @@ class InstanceBlockConfigItem(CremeModel):
                       of the same Block class and the same CremeEntity instance.
         """
         if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
-            raise ValueError('InstanceBlockConfigItem.generate_id: useage of a forbidden character in key "%s"' % key)
+            raise ValueError('InstanceBlockConfigItem.generate_id: usage of a forbidden character in key "%s"' % key)
 
         return u'%s|%s-%s' % (block_class.id_, entity.id, key)
 

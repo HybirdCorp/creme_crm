@@ -555,25 +555,34 @@ class _BlockRegistry(object):
     def __iter__(self):
         return self._blocks.iteritems()
 
-    def _get_block_4_instance(self, ibi, entity=None):
+    #def _get_block_4_instance(self, ibi, entity=None):
+    def get_block_4_instance(self, ibi, entity=None):
+        """Get a Block instance corresponding to a InstanceBlockConfigItem.
+        @param ibi InstanceBlockConfigItem instance.
+        @param entity CremeEntity instance if your Block has to be displayed on its detailview.
+        @return Block instance.
+        """
         block_id = ibi.block_id
         block_class = self._instance_block_classes.get(InstanceBlockConfigItem.get_base_id(block_id))
 
         if block_class is None:
             logger.warning('Block class seems deprecated: %s', block_id)
-            return None
+            #return None
+            block = Block()
+            block.verbose_name = '??'
+            block.errors = [_('Unknow type of block (bad uninstall ?)')]
+        else:
+            block = block_class(ibi)
+            block.id_ = block_id
+            #block.verbose_name = ugettext(u"Block of instance: %s") % ibi
 
-        block = block_class(ibi)
-        block.id_ = block_id
-        block.verbose_name = ugettext(u"Block of instance: %s") % ibi
-
-        if entity:
-            # When an InstanceBlock is on a detailview of a entity, the content
-            # of this blockdepends (generally) of this entity, so we have to
-            # complete the dependencies.
-            model = entity.__class__
-            if model not in block.dependencies:
-                block.dependencies += (model,)
+            if entity:
+                # When an InstanceBlock is on a detailview of a entity, the content
+                # of this blockdepends (generally) of this entity, so we have to
+                # complete the dependencies.
+                model = entity.__class__
+                if model not in block.dependencies:
+                    block.dependencies += (model,)
 
         return block
 
@@ -608,7 +617,8 @@ class _BlockRegistry(object):
             if rbi:
                 block = SpecificRelationsBlock(rbi)
             elif ibi:
-                block = self._get_block_4_instance(ibi, entity) or Block()
+                #block = self._get_block_4_instance(ibi, entity) or Block()
+                block = self.get_block_4_instance(ibi, entity)
             elif cbci:
                 block = CustomBlock(id_, cbci)
             elif id_.startswith('modelblock_'): #TODO: constant ?
@@ -656,9 +666,11 @@ class _BlockRegistry(object):
             yield SpecificRelationsBlock(rbi)
 
         for ibi in InstanceBlockConfigItem.objects.all():
-            block = self._get_block_4_instance(ibi)
+            #block = self._get_block_4_instance(ibi)
+            block = self.get_block_4_instance(ibi)
 
-            if block and hasattr(block, 'detailview_display') \
+            #if block and hasattr(block, 'detailview_display') \
+            if hasattr(block, 'detailview_display') \
                and (not block.target_ctypes or model in block.target_ctypes):
                 yield block
 
@@ -675,9 +687,11 @@ class _BlockRegistry(object):
                 yield block
 
         for ibi in InstanceBlockConfigItem.objects.all():
-            block = self._get_block_4_instance(ibi)
+            #block = self._get_block_4_instance(ibi)
+            block = self.get_block_4_instance(ibi)
 
-            if block and hasattr(block, method_name) and \
+            #if block and hasattr(block, method_name) and \
+            if hasattr(block, method_name) and \
                (not block.target_apps or app_name in block.target_apps):
                 yield block
 

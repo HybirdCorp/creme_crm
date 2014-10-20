@@ -20,19 +20,20 @@
 
 from datetime import timedelta
 from json import dumps as json_encode
-#import logging
+import logging
 
-from django.db.models import Min, Max, FieldDoesNotExist #Q
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import Min, Max, FieldDoesNotExist, Q, ForeignKey
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, CustomField, CustomFieldEnumValue
 #from creme.creme_core.models.header_filter import RFT_RELATION, RFT_FIELD
+from creme.creme_core.utils.meta import FieldInfo
 
 from ..constants import *
 from ..report_aggregation_registry import field_aggregation_registry
 
 
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 #TODO: move to creme_core ?
@@ -588,3 +589,98 @@ class RGHCustomFK(_RGHCustomField):
         #x, y = graph.fetch(order=order)
 
     #return (x, y)
+
+#TODO: we use a map/registry of GraphFetcher classes, and use it in get_fetcher_from_instance_block()
+       #and in ReportGraph form to build choices.
+class GraphFetcher(object):
+    """A graph fetcher can fetch the result of a given ReportGraph, with or without
+    a volatile link.
+    It stores the verbose name of this link (for UI), and an error if the link data
+    were invalid.
+    """
+    def __init__(self, graph):
+        self.graph = graph
+        self.error = None
+        self.verbose_volatile_column = pgettext_lazy('reports-volatile_choice', u'None')
+
+    def fetch(self, order='ASC'):
+        return self.graph.fetch(order=order)
+
+    def _aux_fetch_4_entity(self, entity, order):
+        "To be overload in child classes"
+        return self.fetch(order=order)
+
+    def fetch_4_entity(self, entity, order='ASC'):
+        return ([], []) if self.error else self._aux_fetch_4_entity(entity, order)
+
+    @property
+    def verbose_name(self):
+        return u"%s - %s" % (self.graph, self.verbose_volatile_column)
+
+
+class RegularFieldLinkedGraphFetcher(GraphFetcher):
+    def __init__(self, field_name, *args, **kwargs):
+        super(RegularFieldLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        model = self.graph.report.ct.model_class()
+        self.field_name = None
+        self.verbose_volatile_column = '??'
+
+        try:
+            field = model._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            logger.warn(u'Instance block: invalid field %s.%s in block config.',
+                        model.__name__, field_name,
+                       )
+            self.error = _('The field is invalid.')
+        else:
+            if isinstance(field, ForeignKey):
+                self.verbose_volatile_column = field.verbose_name
+                self._field_name = field_name
+                self._volatile_model = field.rel.to
+            else:
+                logger.warn('Instance block: field %s.%s in block config is not a FK.',
+                            model.__name__, field_name,
+                           )
+                self.error = _('The field is invalid (not a foreign key).')
+
+    def _aux_fetch_4_entity(self, entity, order):
+        return self.graph.fetch(extra_q=Q(**{self._field_name: entity.pk}), order=order) \
+               if isinstance(entity, self._volatile_model) else ([], [])
+
+    @staticmethod
+    def validate_fieldname(graph, field_name):
+        try:
+            field_info = FieldInfo(graph.report.ct.model_class(), field_name)
+        except FieldDoesNotExist:
+            return 'invalid field "%s"' % field_name
+
+        if len(field_info) > 1:
+            return 'field "%s" with deep > 1' % field_name
+
+        field = field_info[0]
+
+        if not (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
+            return 'field "%s" is not a ForeignKey to CremeEntity' % field_name
+
+
+class RelationLinkedGraphFetcher(GraphFetcher):
+    def __init__(self, rtype_id, *args, **kwargs):
+        super(RelationLinkedGraphFetcher, self).__init__(*args, **kwargs)
+        try:
+            rtype = RelationType.objects.get(pk=rtype_id)
+        except RelationType.DoesNotExist:
+            logger.warn('Instance block: invalid RelationType "%s" in block config.',
+                        rtype_id,
+                       )
+            self.error = _('The relationship type is invalid.')
+            self.verbose_volatile_column = '??'
+        else:
+            self.verbose_volatile_column = unicode(rtype)
+            self._rtype = rtype
+
+    def _aux_fetch_4_entity(self, entity, order):
+        return self.graph.fetch(extra_q=Q(relations__type=self._rtype,
+                                          relations__object_entity=entity.pk,
+                                         ),
+                                order=order,
+                               )

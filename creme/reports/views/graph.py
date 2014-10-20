@@ -135,10 +135,10 @@ def fetch_graph(request, graph_id, order):
 def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order):
     _check_order(order)
 
-    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id)
+    instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id) #TODO: rename
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     #x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
-    x, y, error = ReportGraph.fetch_from_instance_block(instance_block, entity, order=order)
+    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
 
     #TODO: send error too ?
     return {'x': x, 'y': y}

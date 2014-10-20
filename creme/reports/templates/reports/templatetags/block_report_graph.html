@@ -16,7 +16,8 @@
                 <a class="button_link" href="{{graph.get_absolute_url}}">{% blocktrans %}Go to {{graph}}'s file{% endblocktrans %}</a>
             </th>
             <th class="block_header_line_dark" align="left">
-                {% blocktrans with volatile_column|default:_("None") as vc %}Volatile column : {{vc}}{% endblocktrans %}
+                {% comment %}{% blocktrans with volatile_column|default:_("None") as vc %}Volatile column : {{vc}}{% endblocktrans %}{% endcomment %}
+                {% blocktrans with vc=volatile_column %}Volatile column : {{vc}}{% endblocktrans %}
             </th>
         </tr>
         {% if x %}
