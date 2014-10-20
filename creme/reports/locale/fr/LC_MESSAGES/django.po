@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-10 17:55+0200\n"
+"POT-Creation-Date: 2014-10-16 21:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,10 +23,6 @@ msgstr "Colonnes du rapport"
 #: blocks.py:51
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
-
-#: blocks.py:73 models/graph.py:52
-msgid "Report's graph"
-msgstr "Graphique de rapport"
 
 #: creme_core_register.py:30 models/report.py:48
 #: templates/reports/portal.html:4
@@ -61,49 +57,66 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: core/graph.py:100 core/graph.py:422
+#: core/graph.py:101 core/graph.py:424
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:106 core/graph.py:220
+#: core/graph.py:107 core/graph.py:221
 msgid "the field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:123
+#: core/graph.py:124
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:246 core/graph.py:452
+#: core/graph.py:247 core/graph.py:454
 msgid "By days"
 msgstr "Par jours"
 
-#: core/graph.py:265 core/graph.py:466
+#: core/graph.py:266 core/graph.py:468
 msgid "By months"
 msgstr "Par mois"
 
-#: core/graph.py:282 core/graph.py:479
+#: core/graph.py:283 core/graph.py:481
 msgid "By years"
 msgstr "Par années"
 
-#: core/graph.py:322 core/graph.py:490
+#: core/graph.py:323 core/graph.py:492
 msgid "By X days"
 msgstr "Par X jours"
 
-#: core/graph.py:358
+#: core/graph.py:359
 msgid "By values"
 msgstr "Par valeurs"
 
-#: core/graph.py:377
+#: core/graph.py:378
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
-#: core/graph.py:386
+#: core/graph.py:387
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:529
+#: core/graph.py:531
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
+
+#: core/graph.py:604 forms/blocks.py:79
+msgctxt "reports-volatile_choice"
+msgid "None"
+msgstr "Aucune"
+
+#: core/graph.py:633
+msgid "The field is invalid."
+msgstr "Le champ est invalide."
+
+#: core/graph.py:643
+msgid "The field is invalid (not a foreign key)."
+msgstr "Le champ est invalide (pas une clé étrangère)."
+
+#: core/graph.py:674
+msgid "The relationship type is invalid."
+msgstr "Le type de relation est invalide."
 
 #: core/report.py:202
 msgid "Regular field"
@@ -137,7 +150,7 @@ msgstr "Champ relatif"
 msgid "Volatile column"
 msgstr "Colonne volatile"
 
-#: forms/blocks.py:36
+#: forms/blocks.py:37
 msgid ""
 "When the graph is displayed on the detailview of an entity, only the "
 "entities linked to this entity by the following link are used to compute the "
@@ -147,22 +160,34 @@ msgstr ""
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique."
 
-#: forms/blocks.py:70 forms/graph.py:97 forms/graph.py:147
+#: forms/blocks.py:71 forms/graph.py:97 forms/graph.py:147
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/blocks.py:73 forms/graph.py:98
+#: forms/blocks.py:74 forms/graph.py:98
 msgid "Relationships"
 msgstr "Relations"
 
-#: forms/blocks.py:76
+#: forms/blocks.py:77
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/blocks.py:78
-msgctxt "reports-volatile_choice"
-msgid "None"
-msgstr "Aucune"
+#: forms/bulk.py:33 forms/report.py:140
+msgid "All"
+msgstr "Tout"
+
+#: forms/bulk.py:41 forms/bulk.py:47
+msgid ""
+"Filter field can only be updated when reports target the same type of "
+"entities (e.g: only contacts)."
+msgstr ""
+"Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
+"type de fiche (ex: seulement les contacts)."
+
+# from creme_core
+#: forms/bulk.py:55 forms/report.py:110 forms/report.py:114
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
 
 #: forms/graph.py:45
 msgid "Abscissa field"
@@ -251,15 +276,6 @@ msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
 msgid "Filter"
 msgstr "Filtre"
 
-# from creme_core
-#: forms/report.py:110 forms/report.py:114 forms/report.py:496
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-
-#: forms/report.py:140
-msgid "All"
-msgstr "Tout"
-
 #: forms/report.py:145
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
@@ -280,8 +296,7 @@ msgstr "Champ date"
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:408 models/graph.py:190
-#: templates/reports/templatetags/block_report_graph.html:19
+#: forms/report.py:408
 msgid "None"
 msgstr "Aucun"
 
@@ -293,65 +308,49 @@ msgstr ""
 "Si vous choisisser un Champ date et sélectionnez «Personnalisé» vous devez "
 "spécifier une date de début et/ou une date de fin."
 
-#: forms/report.py:482 forms/report.py:488
-msgid ""
-"Filter field can only be updated when reports target the same type of "
-"entities (e.g: only contacts)."
-msgstr ""
-"Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
-"type de fiche (ex: seulement les contacts)."
-
-#: models/graph.py:38
+#: models/graph.py:39
 msgctxt "reports-graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:40
+#: models/graph.py:41
 msgid "Abscissa axis"
 msgstr "Axe des abscisses"
 
-#: models/graph.py:41
+#: models/graph.py:42
 msgid "Ordinate axis"
 msgstr "Axe des ordonnées"
 
-#: models/graph.py:42
+#: models/graph.py:43
 #: templates/reports/templatetags/block_report_fields.html:30
 #: templates/reports/templatetags/block_report_graphs.html:21
 msgid "Type"
 msgstr "Type"
 
-#: models/graph.py:43
+#: models/graph.py:44
 msgid "Days"
 msgstr "Jours"
 
-#: models/graph.py:44
+#: models/graph.py:45
 msgid "Make a count instead of aggregate?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: models/graph.py:46
+#: models/graph.py:47
 msgid "Add a report's graph"
 msgstr "Ajouter un graphique de rapport"
 
 #: models/graph.py:53
+msgid "Report's graph"
+msgstr "Graphique de rapport"
+
+#: models/graph.py:54
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:108
-msgid "The field is invalid."
-msgstr "Le champ est invalide."
-
-#: models/graph.py:114
-msgid "The field is invalid (not a foreign key)."
-msgstr "Le champ est invalide (pas une clé étrangère)."
-
-#: models/graph.py:126
-msgid "The relationship type is invalid."
-msgstr "Le type de relation est invalide."
-
-#: models/graph.py:197
+#: models/graph.py:153
 #, python-format
-msgid "The instance block for %(graph)s with %(column)s already exists !"
-msgstr "Le bloc d'instance pour %(graph)s avec %(column)s existe déjà"
+msgid "The instance block for \"%s\" with these parameters already exists!"
+msgstr "Le bloc d'instance pour \"%s\" avec ces paramètres existe déjà !"
 
 #: models/report.py:38
 msgid "Name of the report"
@@ -365,7 +364,7 @@ msgstr "Type de fiche"
 msgid "Add a report"
 msgstr "Ajouter un rapport"
 
-#: models/report.py:47 templates/reports/preview_report.html:24
+#: models/report.py:47 templates/reports/preview_report.html:20
 msgid "Report"
 msgstr "Rapport"
 
@@ -394,32 +393,32 @@ msgstr "Liste des rapports"
 msgid "Preview %(object)s"
 msgstr "Aperçu %(object)s"
 
-#: templates/reports/preview_report.html:27
+#: templates/reports/preview_report.html:23
 #, python-format
 msgid "Preview %(verbose_name)s: %(title)s"
 msgstr "Aperçu %(verbose_name)s : %(title)s"
 
-#: templates/reports/preview_report.html:33
+#: templates/reports/preview_report.html:29
 #: templates/reports/view_graph.html:21
 #, python-format
 msgid "Back to the detailview: '%(report)s'"
 msgstr "Retour sur la fiche : '%(report)s'"
 
-#: templates/reports/preview_report.html:33
+#: templates/reports/preview_report.html:29
 #: templates/reports/view_graph.html:21
 msgid "Back"
 msgstr "Retour"
 
-#: templates/reports/preview_report.html:58
+#: templates/reports/preview_report.html:54
 #: templates/reports/view_report.html:7
 msgid "Preview"
 msgstr "Aperçu"
 
-#: templates/reports/preview_report.html:59
+#: templates/reports/preview_report.html:55
 msgid "Download"
 msgstr "Télécharger CSV"
 
-#: templates/reports/preview_report.html:67
+#: templates/reports/preview_report.html:63
 #, python-format
 msgid "Preview of %(limit_to)s first entities"
 msgstr "Aperçu des %(limit_to)s premières fiches"
@@ -560,12 +559,12 @@ msgstr "Graphique"
 msgid "Go to %(graph)s's file"
 msgstr "Aller sur la fiche de %(graph)s"
 
-#: templates/reports/templatetags/block_report_graph.html:19
+#: templates/reports/templatetags/block_report_graph.html:21
 #, python-format
 msgid "Volatile column : %(vc)s"
 msgstr "Colonne volatile : %(vc)s"
 
-#: templates/reports/templatetags/block_report_graph.html:61
+#: templates/reports/templatetags/block_report_graph.html:63
 msgid "No values or graph is not applicable here"
 msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
 

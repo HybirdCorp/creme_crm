@@ -26,6 +26,7 @@ try:
         from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase
+    from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder # fetch_graph_from_instance_block
     from ..models import Field, Report, ReportGraph
     from ..constants import *
@@ -81,13 +82,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                      name=u"All invoices of the current year",
                                                      ct=self.ct_invoice,
                                                     )
-        #self.rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
         rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
 
         #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
         create_field(name='name',                            order=1)
-        #create_field(name=self.rtype.id,  type=RFT_RELATION, order=2)
         create_field(name=rtype.id,       type=RFT_RELATION, order=2)
         create_field(name='total_no_vat',                    order=3)
         create_field(name='issuing_date',                    order=4)
@@ -1573,8 +1572,20 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         ibci = rgraph.create_instance_block_config_item()
         self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, ibci.block_id)
-        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), ibci.verbose)
+        #self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), ibci.verbose)
         self.assertEqual('', ibci.data)
+
+        volatile = pgettext('reports-volatile_choice', u'None')
+        self.assertEqual(u'%s - %s' % (rgraph.name, volatile),
+                         ReportGraphBlock(ibci).verbose_name
+                        )
+
+        #Block verbose name should be dynamically computed
+        rgraph.name = rgraph.name.upper()
+        rgraph.save()
+        self.assertEqual(u'%s - %s' % (rgraph.name, volatile),
+                         ReportGraphBlock(ibci).verbose_name
+                        )
 
     def test_create_instance_block_config_item02(self):
         "Link: regular field"
@@ -1588,7 +1599,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                             ),
                          ibci.block_id
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), ibci.verbose)
+        #self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), ibci.verbose)
         self.assertEqual('%s|%s' % (fk_name, RFT_FIELD),
                          ibci.data
                         )
@@ -1597,6 +1608,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsNone(create_ibci(volatile_field='description')) #not FK
         self.assertIsNone(create_ibci(volatile_field='user')) #not FK to CremeEntity
         self.assertIsNone(create_ibci(volatile_field='folder__title')) #deep > 1
+
+        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')),
+                         ReportGraphBlock(ibci).verbose_name
+                        )
 
     def test_create_instance_block_config_item03(self):
         "Link: relation type"
@@ -1607,7 +1622,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             ordinate='', is_count=True,
                                            )
 
-        rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
+        rtype = RelationType.create(('reports-subject_loves', 'loves',       [Contact]),
+                                    ('reports-object_loves',  'is loved by', [Contact]),
+                                   )[0]
 
         ibci = rgraph.create_instance_block_config_item(volatile_rtype=rtype)
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (
@@ -1615,9 +1632,16 @@ class ReportGraphTestCase(BaseReportsTestCase):
                             ),
                          ibci.block_id
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, rtype), ibci.verbose)
-        self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION),
-                         ibci.data
+        #self.assertEqual(u'%s - %s' % (rgraph.name, rtype), ibci.verbose)
+        self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION), ibci.data)
+        self.assertEqual(u'%s - %s' % (rgraph.name, rtype),
+                         ReportGraphBlock(ibci).verbose_name
+                        )
+
+        rtype.predicate = 'likes'
+        rtype.save()
+        self.assertEqual(u'%s - %s' % (rgraph.name, rtype),
+                         ReportGraphBlock(ibci).verbose_name
                         )
 
     @skipIfNotInstalled('creme.billing')
@@ -1635,17 +1659,27 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         item = items[0]
         self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.block_id)
-        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), item.verbose)
+        #self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), item.verbose)
         self.assertEqual('', item.data)
+        self.assertIsNone(item.errors)
+
+        title = u'%s - %s' % (rgraph.name, pgettext('reports-volatile_choice', u'None'))
+        self.assertEqual(title, ReportGraphBlock(item).verbose_name)
+
+        block = item.block
+        self.assertIsInstance(block, ReportGraphBlock)
+        self.assertEqual(title,   block.verbose_name)
+        self.assertEqual(item.id, block.instance_block_id)
 
         #---------------------------------------------------------------------
         #response = self.assertPOST200(url, data={'graph': rgraph.name})
         response = self.assertPOST200(url)
         self.assertFormError(response, 'form', None,
-                             _(u'The instance block for %(graph)s with %(column)s already exists !') % {
-                                        'graph':  rgraph.name,
-                                        'column': _(u'None'),
-                                    }
+                             #_(u'The instance block for %(graph)s with %(column)s already exists !') % {
+                                        #'graph':  rgraph.name,
+                                        #'column': _(u'None'),
+                                    #}
+                             _(u'The instance block for "%s" with these parameters already exists!') % rgraph.name
                             )
         #---------------------------------------------------------------------
         #Display on home
@@ -1664,7 +1698,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                       )
 
         create_orga = partial(Organisation.objects.create, user=self.user)
-        invoice = self._create_invoice(create_orga(name='BullFrog'), create_orga(name='Maxis'))
+        orga1 = create_orga(name='BullFrog')
+        orga2 = create_orga(name='Maxis')
+        orga3 = create_orga(name='Bitmap brothers')
+
+        invoice = self._create_invoice(orga1, orga2, issuing_date='2014-10-16')
+        self._create_invoice(orga1, orga3, issuing_date='2014-11-03')
 
         response = self.assertGET200(invoice.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
@@ -1673,22 +1712,30 @@ class ReportGraphTestCase(BaseReportsTestCase):
         #---------------------------------------------------------------------
         response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'ASC'))
 
-        #NB: RGT_MONTH
-        dt = now()
-
-        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'DESC'))
         result = json_load(response.content)
         self.assertIsInstance(result, dict)
         self.assertEqual(2, len(result))
-        self.assertEqual(['%(month)02i/%(year)s' % {'month': dt.month, 'year':  dt.year}],
-                         result.get('x')
-                        )
+
+        x_fmt = '%02i/2014' #NB: RGT_MONTH
+        self.assertEqual([x_fmt % 10, x_fmt % 11], result.get('x'))
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
         self.assertURL(y[0][1], '/billing/invoices?q_filter=',
-                       {'issuing_date__month': dt.month,
-                        'issuing_date__year':  dt.year,
+                       {'issuing_date__month': 10,
+                        'issuing_date__year':  2014,
+                       }
+                      )
+
+        response = self.assertGET200(self._build_fetchfromblock_url_(item, invoice, 'DESC'))
+        result = json_load(response.content)
+        self.assertEqual([x_fmt % 11, x_fmt % 10], result.get('x'))
+
+        y = result.get('y')
+        self.assertEqual(0, y[0][0])
+        self.assertURL(y[0][1], '/billing/invoices?q_filter=',
+                       {'issuing_date__month': 11,
+                        'issuing_date__year':  2014,
                        }
                       )
 
@@ -1722,8 +1769,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual('instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, fk_name, RFT_FIELD),
                          item.block_id
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), item.verbose) #TODO: remove
+        #self.assertEqual(u'%s - %s' % (rgraph.name, _(u'Folder')), item.verbose)
         self.assertEqual('%s|%s' % (fk_name, RFT_FIELD), item.data)
+
+        title = u'%s - %s' % (rgraph.name, _(u'Folder'))
+        self.assertEqual(title, ReportGraphBlock(item).verbose_name)
+        self.assertEqual(title, unicode(item))
 
         #Display on detailview
         create_folder = partial(Folder.objects.create, user=self.user)
@@ -1745,8 +1796,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertTemplateUsed(response, 'reports/templatetags/block_report_graph.html')
 
         #x, y = fetch_graph_from_instance_block(item, folder1, order='ASC')
-        x, y, error = ReportGraph.fetch_from_instance_block(item, folder1, order='ASC')
-        self.assertIsNone(error)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(item)
+        self.assertIsNone(fetcher.error)
+
+        x, y = fetcher.fetch_4_entity(folder1) #TODO: order
 
         year = doc1.created.year
         self.assertEqual([unicode(year)], x)
@@ -1767,10 +1820,17 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         folder = Folder.objects.create(user=self.user, title='My folder')
 
-        x, y, error = ReportGraph.fetch_from_instance_block(ibci, folder)
+        #x, y, error = ReportGraph.fetch_from_instance_block(ibci, folder)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
+        x, y = fetcher.fetch_4_entity(folder)
+
         self.assertEqual([], x)
         self.assertEqual([], y)
-        self.assertEqual(_('The field is invalid.'), error)
+        #self.assertEqual(_('The field is invalid.'), error)
+        self.assertEqual(_('The field is invalid.'), fetcher.error)
+        self.assertEqual('??',                       fetcher.verbose_volatile_column)
+
+        self.assertEqual([_('The field is invalid.')], ibci.errors)
 
     def test_add_graph_instance_block02_error02(self):
         "Volatile column (RFT_FIELD): field is not a FK to CremeEntity"
@@ -1786,10 +1846,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         folder = Folder.objects.create(user=self.user, title='My folder')
 
-        x, y, error = ReportGraph.fetch_from_instance_block(ibci, folder)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
+        x, y = fetcher.fetch_4_entity(folder)
+
         self.assertEqual([], x)
         self.assertEqual([], y)
-        self.assertEqual(_('The field is invalid (not a foreign key).'), error)
+        self.assertEqual(_('The field is invalid (not a foreign key).'), fetcher.error)
 
     def test_add_graph_instance_block02_error03(self):
         "Volatile column (RFT_FIELD): field is not a FK to the given Entity type"
@@ -1798,10 +1860,12 @@ class ReportGraphTestCase(BaseReportsTestCase):
         ibci = rgraph.create_instance_block_config_item(volatile_field='folder')
         self.assertIsNotNone(ibci)
 
-        x, y, error = ReportGraph.fetch_from_instance_block(ibci, self.user.linked_contact)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
+        x, y = fetcher.fetch_4_entity(self.user.linked_contact)
         self.assertEqual([], x)
         self.assertEqual([], y)
-        self.assertIsNone(error)
+        #self.assertIsNone(error)
+        self.assertIsNone(fetcher.error)
 
     def test_add_graph_instance_block03(self):
         "Volatile column (RFT_RELATION)"
@@ -1829,11 +1893,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         rel_choices = frozenset((k, unicode(v)) for k, v in rel_group[1])
         choice_id = 'rtype-%s' % rtype.id
-        #self.assertIn((choice_id, unicode(rtype.predicate)), rel_choices)
         self.assertIn((choice_id, unicode(rtype)), rel_choices)
-        #self.assertNotIn(('rtype-%s' % incompatible_rtype.id, unicode(incompatible_rtype.predicate)),
-                         #rel_choices
-                        #)
         self.assertNotIn(('rtype-%s' % incompatible_rtype.id, unicode(incompatible_rtype)),
                          rel_choices
                         )
@@ -1849,8 +1909,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
                             ),
                          item.block_id
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, rtype), item.verbose)
+        #self.assertEqual(u'%s - %s' % (rgraph.name, rtype), item.verbose)
         self.assertEqual('%s|%s' % (rtype.id, RFT_RELATION), item.data)
+        self.assertEqual(u'%s - %s' % (rgraph.name, rtype),
+                         ReportGraphBlock(item).verbose_name
+                        )
 
         create_contact = partial(Contact.objects.create, user=user)
         sonsaku = create_contact(first_name='Sonsaku', last_name='Hakufu')
@@ -1864,8 +1927,10 @@ class ReportGraphTestCase(BaseReportsTestCase):
         create_rel(subject_entity=ryomou)
 
         #x, y = fetch_graph_from_instance_block(item, nanyo, order='ASC')
-        x, y, error = ReportGraph.fetch_from_instance_block(item, nanyo)
-        self.assertIsNone(error)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(item)
+        self.assertIsNone(fetcher.error)
+
+        x, y = fetcher.fetch_4_entity(nanyo)
 
         year = sonsaku.created.year
         self.assertEqual([unicode(year)], x)
@@ -1892,10 +1957,13 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     data='%s|%s' % (rtype_id, RFT_RELATION),
                 )
 
-        x, y, error = ReportGraph.fetch_from_instance_block(ibci, self.user.linked_contact)
+        fetcher = ReportGraph.get_fetcher_from_instance_block(ibci)
+        x, y = fetcher.fetch_4_entity(self.user.linked_contact)
         self.assertEqual([], x)
         self.assertEqual([], y)
-        self.assertEqual(_('The relationship type is invalid.'), error)
+        #self.assertEqual(_('The relationship type is invalid.'), error)
+        self.assertEqual(_('The relationship type is invalid.'), fetcher.error)
+        self.assertEqual('??',                                   fetcher.verbose_volatile_column)
 
     @skipIfNotInstalled('creme.billing')
     def test_get_available_report_graph_types(self):

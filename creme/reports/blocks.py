@@ -66,38 +66,44 @@ class ReportGraphsBlock(QuerysetBlock):
                            )
 
 
-#TODO: errors (invalid field/relation_type) should be displayed in creme_config too
 class ReportGraphBlock(Block):
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
-    verbose_name  = _(u"Report's graph")
+    #verbose_name  = _(u"Report's graph")
+    verbose_name  = "Report's graph" #overloaded by __init__
     template_name = 'reports/templatetags/block_report_graph.html'
-    order_by      = 'name'
+    #order_by      = 'name'
 
     def __init__(self, instance_block_config):
         super(ReportGraphBlock, self).__init__()
-        self.graph                 = instance_block_config.entity.get_real_entity() #TODO: avoid a query ?
-        self.block_id              = instance_block_config.block_id
-        self.volatile_column       = instance_block_config.data
-        self.verbose               = instance_block_config.verbose
+        #self.graph                 = instance_block_config.entity.get_real_entity()
+        #self.block_id              = instance_block_config.block_id
+        #self.volatile_column       = instance_block_config.data
+        #self.verbose               = instance_block_config.verbose #TODO: delete 'verbose' field
         self.instance_block_id     = instance_block_config.id
-        self.instance_block_config = instance_block_config
-        self.verbose_name          = self.verbose
+        #self.instance_block_config = instance_block_config
+        self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
+        #self.verbose_name          = instance_block_config.verbose
+        self.verbose_name = fetcher.verbose_name
+
+        error = fetcher.error
+        self.errors = [error] if error else None #Used by InstanceBlockConfigItem.errors, to display errors in creme_config
 
     def detailview_display(self, context):
         entity = context['object']
         #x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
-        x, y, error = ReportGraph.fetch_from_instance_block(self.instance_block_config, entity)
+        fetcher = self.fetcher
+        x, y = fetcher.fetch_4_entity(entity)
 
-        return self._render(self.get_block_template_context(context,
-                                                            graph=self.graph,
-                                                            x=x, y=y,
-                                                            error=error,
-                                                            volatile_column=self.verbose.split(' - ')[1], #TODO: compute here for translation
-                                                            instance_block_id=self.instance_block_id,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            #is_ajax=context['request'].is_ajax(),
-                                                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                graph=fetcher.graph,
+                                x=x, y=y,
+                                error=fetcher.error,
+                                volatile_column=fetcher.verbose_volatile_column,
+                                instance_block_id=self.instance_block_id,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                               )
                            )
 
     def portal_display(self, context, ct_ids):
@@ -105,18 +111,19 @@ class ReportGraphBlock(Block):
         return self.home_display(context)
 
     def home_display(self, context): #TODO: factorise detailview_display()
-        graph = self.graph
-        x, y = graph.fetch()
+        fetcher = self.fetcher
+        x, y = fetcher.fetch()
 
         #TODO: update_url ??
-        return self._render(self.get_block_template_context(context,
-                                                            graph=graph,
-                                                            x=x, y=y,
-                                                            volatile_column=self.verbose.split(' - ')[1],
-                                                            instance_block_id=self.instance_block_id,
-                                                            #is_ajax=context['request'].is_ajax(),
-                                                           )
-                            )
+        return self._render(self.get_block_template_context(
+                                context,
+                                graph=fetcher.graph,
+                                x=x, y=y,
+                                error=fetcher.error,
+                                volatile_column=fetcher.verbose_volatile_column,
+                                instance_block_id=self.instance_block_id,
+                               )
+                           )
 
 
 report_fields_block = ReportFieldsBlock()

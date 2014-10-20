@@ -1,8 +1,9 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 {% has_perm_to admin 'creme_core' as admin_perm %}
+{% with colspan=3 %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=colspan %}
         <th class="label">{% get_block_title _("%s Instance's block created") _("%s Instances' blocks created") %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
@@ -10,6 +11,7 @@
         {% if page.paginator.count %}
             <tr class="header">
                 <th class="block_header_line_light">{% trans "Related entity" %}</th>
+                <th class="block_header_line_light">{% trans "Errors" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
             {% for block_type in page.object_list %}{% cycle row_color %}
@@ -17,6 +19,19 @@
                     <td class="{{row_color}}">
                         <a href="{{block_type.entity.get_absolute_url}}">{{block_type}}</a>
                     </td>
+                    {% with errors=block_type.errors %}
+                        {% if errors %}
+                            <td class="td_error">{% comment %} TODO: widget {% endcomment %}
+                                {% if errors|length == 1 %}
+                                    {{errors.0}}
+                                {% else %}
+                                    <ul>{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>
+                                {% endif %}
+                        {% else %}
+                            <td class="{{row_color}}">
+                        {% endif %}
+                        </td>
+                    {% endwith %}
                     <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_config/blocks/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms admin_perm %}
                     </td>
@@ -24,9 +39,10 @@
             {% endfor %}
         {% else %}
             <tr>
-                <td colspan="2" class="block_line_dark">{% trans "No type of instance block created for the moment" %}</td>
+                <td colspan="{{colspan}}" class="block_line_dark">{% trans "No type of instance block created for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 2 %}
+    {% get_block_footer colspan %}
 </table>
+{% endwith %}

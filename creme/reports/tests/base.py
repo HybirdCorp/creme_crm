@@ -149,13 +149,16 @@ class BaseReportsTestCase(CremeTestCase):
         create_field(report=report_contact, name='first_name',                                                                  order=2)
         create_field(report=report_contact, name=REL_SUB_EMPLOYED_BY, type=RFT_RELATION, sub_report=report_orga, selected=True, order=3)
 
-    def _create_invoice(self, source, target, name="", total_vat=Decimal("0")):
+    def _create_invoice(self, source, target, name="Invoice#01",
+                        total_vat=Decimal("0"), issuing_date=None,
+                       ):
         # TODO: improve billing to make this code simpler
         user = self.user
-        self.issuing_date = getattr(self, 'issuing_date', None) or now().date()
+        #self.issuing_date = getattr(self, 'issuing_date', None) or now().date()
         invoice = Invoice.objects.create(user=user,
                                          status=InvoiceStatus.objects.all()[0],
-                                         issuing_date=self.issuing_date,
+                                         #issuing_date=self.issuing_date,
+                                         issuing_date=issuing_date or now().date(),
                                          name=name,
                                          total_vat=total_vat,
                                         )

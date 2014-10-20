@@ -8,12 +8,14 @@ try:
     from django.contrib.auth.models import User
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
-    from creme.creme_core.models import (BlockDetailviewLocation,
-            BlockPortalLocation, BlockMypageLocation,
-            RelationBlockItem, RelationType, CustomBlockConfigItem)
     from creme.creme_core.blocks import (relations_block, properties_block,
             customfields_block, history_block)
+    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+    from creme.creme_core.gui.block import Block
+    from creme.creme_core.models import (BlockDetailviewLocation,
+            BlockPortalLocation, BlockMypageLocation,
+            CremeEntity, InstanceBlockConfigItem,
+            RelationBlockItem, RelationType, CustomBlockConfigItem)
     from ..base import CremeTestCase
 
     from creme.documents.models import Document
@@ -362,4 +364,33 @@ class BlockTestCase(CremeTestCase):
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
 
-#TODO: test other models
+    def test_instance_block(self): #see reports for InstanceBlockConfigItem with a working classes; here are the error cases
+        self.login()
+
+        class TestInstanceBlock(Block):
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'invalid_id')
+
+        block_entity = CremeEntity.objects.create(user=self.user)
+
+        generate_id = InstanceBlockConfigItem.generate_id
+        self.assertRaises(ValueError, generate_id, TestInstanceBlock, block_entity, 'foo#bar')
+
+        ibi = InstanceBlockConfigItem(
+                    block_id=generate_id(TestInstanceBlock, block_entity, ''),
+                    entity=block_entity,
+                )
+
+        id_is_specific = InstanceBlockConfigItem.id_is_specific
+        self.assertFalse(id_is_specific(Block.generate_id('creme_core', 'foobar')))
+        self.assertTrue(id_is_specific(ibi.block_id))
+
+        block = ibi.block
+        self.assertIsInstance(block, Block)
+        self.assertFalse(isinstance(block, TestInstanceBlock)) #because the class is not registered
+        self.assertEqual('??', block.verbose_name)
+
+        errors = [_('Unknow type of block (bad uninstall ?)')]
+        self.assertEqual(errors, getattr(block, 'errors', None))
+        self.assertEqual(errors, ibi.errors)
+
+#TODO: test BlockState
