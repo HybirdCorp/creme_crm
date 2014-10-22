@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.db.models import CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
+from creme.creme_core.models.fields import BasicAutoField
 
 
 OPEN_PK       = 1
@@ -41,6 +42,7 @@ class Status(CremeModel):
     "Status of a ticket: open, closed, invalid..."
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    order     = BasicAutoField(_('Order')) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -49,3 +51,4 @@ class Status(CremeModel):
         app_label = 'tickets'
         verbose_name = _(u'Ticket status')
         verbose_name_plural  = _(u'Ticket statuses')
+        ordering = ('order',)

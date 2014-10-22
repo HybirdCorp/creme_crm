@@ -33,9 +33,13 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_populate(self):
         for pk, name in BASE_STATUS:
             try:
-                Status.objects.get(pk=pk)
+                status = Status.objects.get(pk=pk)
             except Status.DoesNotExist:
                 self.fail("Bad populate: status with pk=%s (%s) doesn't exist" % (pk, name))
+            else:
+                self.assertEqual(name, status.name)
+                self.assertFalse(status.is_custom)
+                self.assertIsNotNone(status.order)
 
         self.assertGreaterEqual(Priority.objects.count(),  2)
         self.assertGreaterEqual(Criticity.objects.count(), 2)
@@ -318,6 +322,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         priority = Priority.objects.create(name='Not so important')
+        self.assertEqual(Priority.objects.count(), priority.order)
+
         ticket = Ticket.objects.create(user=self.user,
                                        title='title',
                                        description='description',
@@ -335,6 +341,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         criticity = Criticity.objects.create(name='Not so important')
+        self.assertEqual(Criticity.objects.count(), criticity.order)
+
         ticket = Ticket.objects.create(user=self.user,
                                        title='title',
                                        description='description',
