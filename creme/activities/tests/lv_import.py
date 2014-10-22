@@ -159,7 +159,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual(NARROW, act7.floating_type)
 
         errors = list(form.import_errors)
-        self.assertEqual(1, len(errors), [unicode(e) for e in errors])
+        self.assertEqual(1, len(errors), [e for e in errors])
 
         error = errors[0]
         self.assertEqual(act3, error.instance)
@@ -269,7 +269,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual(len(lines), form.imported_objects_count)
 
         errors = list(form.import_errors)
-        self.assertEqual(1, len(errors), [unicode(e) for e in errors])
+        self.assertEqual(1, len(errors), [e for e in errors])
 
         error = errors[0]
         self.assertEqual(act3, error.instance)

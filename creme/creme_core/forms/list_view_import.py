@@ -26,7 +26,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from django.db.models import Q, ManyToManyField
+from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
@@ -132,7 +132,7 @@ class Extractor(object):
         self._m2m = multiple
 
         if create_if_unfound:
-            self._fk_form = modelform_factory(subfield_model)
+            self._fk_form = modelform_factory(subfield_model) #TODO: creme_config form ??
 
     def extract_value(self, line):
         err_msg = None
@@ -140,7 +140,8 @@ class Extractor(object):
         if self._column_index: #0 -> not in csv
             value = line[self._column_index - 1]
 
-            if self._subfield_search:
+            #if self._subfield_search:
+            if self._subfield_search and value:
                 data = {self._subfield_search: value}
 
                 try:
@@ -176,6 +177,11 @@ class Extractor(object):
                                                 }
 
                     value = None
+
+                if not value:
+                    value = self._default_value
+
+                return value, err_msg
 
             if not value:
                 value = self._default_value
@@ -227,6 +233,8 @@ class ExtractorWidget(SelectMultiple):
                   )
 
         if self.subfield_select:
+            hide_select = (len(self.subfield_select) == 1) #the <select> is annoying if there is only one option
+
             out_append(u"""</td>
                            <td class="csv_subfields_select">%(label)s %(select)s %(check)s
                             <script type="text/javascript">
@@ -234,8 +242,11 @@ class ExtractorWidget(SelectMultiple):
                                     creme.forms.toImportField('%(id)s');
                                 });
                             </script>""" % {
-                          'label':  ugettext(u'Search by:'),
-                          'select': rselect("%s_subfield" % name, choices=self.subfield_select, sel_val=value.get('subfield_search')),
+                          'label':  ugettext(u'Search by:') if not hide_select else '',
+                          'select': rselect("%s_subfield" % name, choices=self.subfield_select,
+                                            sel_val=value.get('subfield_search'),
+                                            attrs={'hidden': 'True'} if hide_select else None
+                                           ),
                           'check':  '' if not self.propose_creation else
                                     '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
                                            ugettext(u'Create if not found ?'),
@@ -304,7 +315,13 @@ class ExtractorField(Field):
             else:
                 creation_perm = user.has_perm_to_admin(app_name)
 
-            sf_choices = ModelFieldEnumerator(model).filter(viewable=True).choices()
+            #sf_choices = ModelFieldEnumerator(model).filter(viewable=True).choices()
+            #TODO: we should improve this (use the Form from creme_config ?)
+            #NB: we exclude BooleanField because it is certainly useless to search on it
+            #    (a model with only 2 valid values could be replaced by static values)
+            sf_choices = ModelFieldEnumerator(model).filter(viewable=True) \
+                                                    .exclude(lambda field, deep: isinstance(field, ModelBooleanField)) \
+                                                    .choices()
 
             widget = self.widget
             widget.subfield_select = sf_choices
@@ -938,8 +955,10 @@ class LVImportError(object):
         self.instance = instance
 
     def __repr__(self):
-        return u'LVImportError(line=%s, message=%s, instance=%s)' % (
-                    self.line, self.message, self.instance,
+        from django.utils.encoding import smart_str
+
+        return 'LVImportError(line=%s, message=%s, instance=%s)' % (
+                    self.line, smart_str(self.message), self.instance,
                 )
 
 
@@ -1230,9 +1249,19 @@ def extractorfield_factory(modelfield, header_dict, choices):
     if selected_column is None:
         selected_column = header_dict.get(slugify(modelfield.name), 0)
 
+
+    if formfield.required:
+        # We remove the '----' choice when it is useless
+        #TODO: improve (hook) the regular behaviour of ModelChoiceField ??
+        options = getattr(formfield, 'choices', None)
+
+        if options is not None and len(options) > 1:
+            formfield.empty_label = None
+            formfield.choices = options #we force the refreshing of widget's choices
+
     return ExtractorField(choices, modelfield, formfield,
                           label=modelfield.verbose_name,
-                          initial={'selected_column': selected_column}
+                          initial={'selected_column': selected_column},
                          )
 
 

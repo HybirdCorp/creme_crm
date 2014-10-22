@@ -26,11 +26,12 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
-                              DateField, PROTECT, SET_NULL, Sum, BooleanField)
+        DateField, PROTECT, SET_NULL, Sum, BooleanField)
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
+from creme.creme_core.models.fields import BasicAutoField
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import FunctionField
 
@@ -54,7 +55,8 @@ class _TurnoverField(FunctionField):
 
 class SalesPhase(CremeModel):
     name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    order = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False)
+    #order = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False)
+    order = BasicAutoField(_('Order')) #.set_tags(viewable=False)
     won   = BooleanField(_(u'Won'), default=False)
 
     def __unicode__(self):

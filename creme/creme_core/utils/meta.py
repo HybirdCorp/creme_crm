@@ -213,7 +213,7 @@ class ModelFieldEnumerator(object):
             if all(ffilter(field, depth) for ffilter in ffilters):
                 field_info = parents_fields + (field,)
 
-                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'): #TODO: isinstance
                     if rem_depth:
                         if include_fk:
                             fields_info.append(field_info)
@@ -230,8 +230,11 @@ class ModelFieldEnumerator(object):
         return fields_info
 
     def filter(self, function=None, **kwargs):
-        """@param kwargs Keywords can be a true field attribute name, or a creme tag.
-        Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
+        """Filter the field sequence.
+        @param function Callable which takes 2 arguments (field instance, deep),
+                        and returns a boolean ('True' means 'the field is accepted').
+        @param kwargs Keywords can be a true field attribute name, or a creme tag.
+               Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
         """
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
         return self

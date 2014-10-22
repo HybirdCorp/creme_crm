@@ -35,7 +35,7 @@ from .taskstatus import TaskStatus
 
 class ProjectTask(Activity):
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
-    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False)
+    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
     parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False,
                                    related_name='children_set', editable=False,
                                   )

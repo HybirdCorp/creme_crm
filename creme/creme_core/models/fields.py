@@ -21,7 +21,7 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
-        ForeignKey, SET, SubfieldBase)
+        PositiveIntegerField, ForeignKey, SET, SubfieldBase, Max)
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.utils.timezone import now
 
@@ -173,6 +173,47 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         defaults = {'form_class': EntityCTypeChoiceField}
         defaults.update(kwargs)
         return super(EntityCTypeForeignKey, self).formfield(**defaults)
+
+
+class BasicAutoField(PositiveIntegerField):
+    """BasicAutoField is A PositiveIntegerField which use an autoincremented
+    value when no value is given.
+
+    Notice that that the method is really simple, so the limits are :
+        - The value is the maximum value plus one, so it does not remember the deleted maximum values.
+        - There could be a race condition on the maximum computing.
+
+    This field is OK for 'order' in ordered model as creme_config wants them because:
+        - creme_config fixes the order problems (duplication, 'hole').
+        - order are principally use by GUI, and are not a business constraint.
+    """
+    def __init__(self, *args, **kwargs):
+        setdefault = kwargs.setdefault
+        setdefault('editable', False)
+        setdefault('blank',    True)
+
+        kwargs['default'] = None # Not '1', in order to distinguish a initialised value from a non initialised one.
+
+        super(BasicAutoField, self).__init__(*args, **kwargs)
+        self.set_tags(viewable=False)
+
+    def pre_save(self, model, add):
+        attname = self.attname
+        value = getattr(model, attname, None)
+
+        if add and value is None:
+            aggr = model.__class__.objects.aggregate(Max(attname))
+            value = (aggr[attname + '__max'] or 0) + 1
+
+            setattr(model, attname, value)
+
+        return value
+
+    def south_field_triple(self):
+        from south.modelsinspector import introspector
+        args, kwargs = introspector(self)
+
+        return ("django.db.models.fields.PositiveIntegerField", args, kwargs)
 
 
 # Code copied/modified from django_extensions one:
