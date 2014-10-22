@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, ForeignKey #PositiveIntegerField
 from django.db.transaction import commit_on_success
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
+from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons.models import Organisation
 
@@ -43,7 +44,8 @@ class SettlementTerms(CremeModel):
 class AbstractStatus(CremeModel):
     name      = CharField(_(u'Name'), max_length=100)
     is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
-    order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) #used by creme_config
+    #order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) #used by creme_config
+    order     = BasicAutoField(_('Order')) #used by creme_config
 
     def __unicode__(self):
         return self.name

@@ -974,6 +974,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               made_sales_colselect=4,
 
                                               sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
                                               sales_phase_create=True,
                                               sales_phase_defval=sp5.pk,
 
@@ -1057,6 +1058,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               made_sales_colselect=4,
 
                                               sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
                                               sales_phase_create='', #<=======
                                               #sales_phase_defval=[...], #<=======
 
@@ -1098,6 +1100,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                 made_sales_colselect=3,
 
                                                 sales_phase_colselect=0,  #<=======
+                                                sales_phase_subfield='name',
                                                 sales_phase_create='',
                                                 #sales_phase_defval=[...],
 
@@ -1135,6 +1138,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               made_sales_colselect=4,
 
                                               sales_phase_colselect=2,
+                                              sales_phase_subfield='name',
                                               sales_phase_create=True,
 
                                               target_persons_organisation_colselect=5,
@@ -1160,7 +1164,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(Contact.objects.filter(last_name=contact_name))
 
     def test_csv_import05(self):
-        "Creation credentials for Organisation or SalesPhase"
+        "Creation credentials for Organisation & SalesPhase are forbidden."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'documents', 'opportunities'],
                    creatable_models=[Opportunity, Document], #not Organisation
@@ -1188,6 +1192,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                     made_sales_colselect=3,
 
                     sales_phase_colselect=5,
+                    sales_phase_subfield='name',
                     sales_phase_create=True,
 
                     target_persons_organisation_colselect=4,
@@ -1201,7 +1206,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                              _(u'You are not allowed to create: %s') % _(u'Organisation')
                             )
         self.assertFormError(response, 'form', 'sales_phase',
-                             u'You are not allowed to create "Sales phase"'
+                             #u'You are not allowed to create "Sales phase"'
+                             'You can not create instances'
                             )
 
         role.admin_4_apps = ['opportunities']
@@ -1242,6 +1248,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               made_sales_colselect=3,
 
                                               sales_phase_colselect=5,
+                                              sales_phase_subfield='name',
 
                                               target_persons_organisation_colselect=4,
                                               target_persons_organisation_create=True,
@@ -1278,6 +1285,14 @@ class SalesPhaseTestCase(CremeTestCase):
         sp2 = create_phase(name='Abandoned',   order=1)
 
         self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
+
+    def test_auto_order(self):
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming')
+        sp2 = create_phase(name='Abandoned')
+
+        self.assertEqual(1, sp1.order)
+        self.assertEqual(2, sp2.order)
 
     def test_creme_config_block(self):
         self.login()

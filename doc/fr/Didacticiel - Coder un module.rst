@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-09-2014 pour la version 1.5 de Creme
+:Version: 22-10-2014 pour la version 1.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -867,16 +867,17 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.db.models import CharField, BooleanField, PositiveIntegerField # <- NEW
+    from django.db.models import CharField, BooleanField
     from django.utils.translation import ugettext_lazy as _
 
     from creme.creme_core.models import CremeModel
+    from creme.creme_core.models.fields import BasicAutoField # <- NEW
 
 
     class Status(CremeModel):
         name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
         is_custom = BooleanField(default=True)
-        order     = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False) # <- NEW
+        order     = BasicAutoField(_(u"Order")) # <- NEW
 
         def __unicode__(self):
             return self.name
@@ -886,6 +887,11 @@ vous devez rajouter un champ ``order`` comme ceci : ::
             verbose_name = _(u'Beaver status')
             verbose_name_plural  = _(u'Beaver status')
             ordering = ('order',)  # <- NEW
+
+
+Notez qu'un ``BasicAutoField`` est par défaut non éditable et non visible, et
+qu'il gère l'auto-incrémentation tout seul, donc normalement vous n'aurez pas à
+vous occuper de lui.
 
 
 Utilisation de South (migrations)

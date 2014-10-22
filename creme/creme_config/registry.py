@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db.models import FieldDoesNotExist, Max
 from django.forms.models import modelform_factory
@@ -26,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.core.setting_key import setting_key_registry
+from creme.creme_core.models.fields import BasicAutoField
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.imports import find_n_import
 
@@ -58,10 +60,12 @@ class ModelConfig(object):
     def model_form(self):
         if self._form_class is None:
             model = self.model
-            get_field_by_name = model._meta.get_field_by_name
+            #get_field_by_name = model._meta.get_field_by_name
+            get_field = model._meta.get_field
 
             try:
-                get_field_by_name('is_custom')
+                #get_field_by_name('is_custom')
+                get_field('is_custom')
             except FieldDoesNotExist:
                 exclude = None
             else:
@@ -70,11 +74,18 @@ class ModelConfig(object):
             self._form_class = form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
 
             try:
-                get_field_by_name('order')
+                #get_field_by_name('order')
+                order_field = get_field('order')
             except FieldDoesNotExist:
                 pass
             else:
-                form_class.add_post_clean_callback(self._manage_order)
+                #form_class.add_post_clean_callback(self._manage_order)
+                if not isinstance(order_field, BasicAutoField):
+                    warnings.warn("creme_config.registry: 'order' field should be a "
+                                  "BasicAutoField if you want to keep the auto-order feature.",
+                                  DeprecationWarning
+                                 )
+                    form_class.add_post_clean_callback(self._manage_order)
 
         return self._form_class
 
