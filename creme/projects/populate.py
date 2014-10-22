@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,20 +20,20 @@
 
 import logging
 
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
-from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme.creme_core.utils import create_if_needed
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.utils import create_if_needed
 
 from creme.persons.models import Contact
 
-from .models import ProjectStatus, TaskStatus
 from .blocks import *
 from .constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
+from .models import ProjectStatus, TaskStatus
 
 
 logger = logging.getLogger(__name__)
@@ -46,16 +46,18 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
                             (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]))
 
-        create_if_needed(ProjectStatus, {'pk': 1}, name=_(u"Invitation to tender"),  description=_(u"Response to an invitation to tender"))
-        create_if_needed(ProjectStatus, {'pk': 2}, name=_(u"Initialization"),        description=_(u"The project is starting"))
-        create_if_needed(ProjectStatus, {'pk': 3}, name=_(u"Preliminary phase"),     description=_(u"The project is in the process of analysis and design"))
-        create_if_needed(ProjectStatus, {'pk': 4}, name=_(u"Achievement"),           description=_(u"The project is being implemented"))
-        create_if_needed(ProjectStatus, {'pk': 5}, name=_(u"Tests"),                 description=_(u"The project is in the testing process (unit / integration / functional)"))
-        create_if_needed(ProjectStatus, {'pk': 6}, name=_(u"User acceptance tests"), description=_(u"The project is in the user acceptance testing process"))
-        create_if_needed(ProjectStatus, {'pk': 7}, name=_(u"Finished"),              description=_(u"The project is finished"))
+        create_if_needed(ProjectStatus, {'pk': 1}, name=_(u"Invitation to tender"),  order=1, description=_(u"Response to an invitation to tender"))
+        create_if_needed(ProjectStatus, {'pk': 2}, name=_(u"Initialization"),        order=2, description=_(u"The project is starting"))
+        create_if_needed(ProjectStatus, {'pk': 3}, name=_(u"Preliminary phase"),     order=3, description=_(u"The project is in the process of analysis and design"))
+        create_if_needed(ProjectStatus, {'pk': 4}, name=_(u"Achievement"),           order=4, description=_(u"The project is being implemented"))
+        create_if_needed(ProjectStatus, {'pk': 5}, name=_(u"Tests"),                 order=5, description=_(u"The project is in the testing process (unit / integration / functional)"))
+        create_if_needed(ProjectStatus, {'pk': 6}, name=_(u"User acceptance tests"), order=6, description=_(u"The project is in the user acceptance testing process"))
+        create_if_needed(ProjectStatus, {'pk': 7}, name=_(u"Finished"),              order=7, description=_(u"The project is finished"))
 
         for pk, statusdesc in TASK_STATUS.iteritems():
-            create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), description=unicode(statusdesc.verbose_name), is_custom=False)
+            create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), order=pk,
+                             description=unicode(statusdesc.verbose_name), is_custom=False,
+                            )
 
         create_hf = HeaderFilter.create
         create_hf(pk='projects-hf_project', name=_(u'Project view'), model=Project,
