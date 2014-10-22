@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.db.models import CharField, TextField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
+from creme.creme_core.models.fields import BasicAutoField
 
 
 class TaskStatus(CremeModel):
@@ -29,11 +30,13 @@ class TaskStatus(CremeModel):
     color_code  = CharField(_('Color'), max_length=100, blank=True, null=True)
     description = TextField(_('Description'))
     is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
+    order       = BasicAutoField(_('Order')) #used by creme_config
 
     class Meta:
         app_label = 'projects'
         verbose_name = _(u'Status of task')
         verbose_name_plural = _(u'Statuses of task')
+        ordering = ('order',)
 
     def __unicode__(self):
         return self.name

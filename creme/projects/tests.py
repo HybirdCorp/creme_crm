@@ -52,8 +52,13 @@ class ProjectsTestCase(CremeTestCase):
                                       obj_models=[Project],
                                      )
 
-        self.assertGreaterEqual(TaskStatus.objects.count(), 2)
-        self.assertTrue(ProjectStatus.objects.exists())
+        status_count = TaskStatus.objects.count()
+        self.assertGreaterEqual(status_count, 2)
+        self.assertEqual(status_count, TaskStatus.objects.order_by('-order')[0].order)
+
+        pstatus_orders = list(ProjectStatus.objects.values_list('order', flat=True))
+        self.assertTrue(pstatus_orders)
+        self.assertTrue(range(len(pstatus_orders) + 1), pstatus_orders)
 
     def test_portal(self):
         self.login()
@@ -222,14 +227,17 @@ class ProjectsTestCase(CremeTestCase):
         url = self._build_add_ask_url(project)
         self.assertGET200(url)
 
+        tstatus = TaskStatus.objects.all()[0]
+        title = 'head'
+
         def post(duration):
             return self.client.post(url, follow=True,
                                     data={'user':                user.id,
-                                          'title':               'head',
+                                          'title':               title,
                                           'start':               '2010-10-11 15:00',
                                           'end':                 '2010-10-11 17:00',
                                           'duration':            duration,
-                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'tstatus':             tstatus.id,
                                           'participating_users': user.id,
                                           'busy':                True,
                                           'type_selector':       self._build_type_value(),
@@ -248,7 +256,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, tasks.count())
 
         task1 = tasks[0]
-        self.assertEqual(1, task1.order)
+        self.assertEqual(title,   task1.title)
+        self.assertEqual(1,       task1.order)
+        self.assertEqual(tstatus, task1.tstatus)
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task1)
         self.assertEqual(1, task1.calendars.count())
 
@@ -315,6 +325,7 @@ class ProjectsTestCase(CremeTestCase):
         contact = user.linked_contact
 
         project = self.create_project('Eva01')[0]
+        tstatus = TaskStatus.objects.all()[0]
 
         url = self._build_add_ask_url(project)
         self.assertGET200(url)
@@ -324,7 +335,7 @@ class ProjectsTestCase(CremeTestCase):
                                  'start':               '2010-10-11 15:00',
                                  'end':                 '2010-10-11 17:00',
                                  'duration':            50,
-                                 'tstatus':             TaskStatus.objects.all()[0].id,
+                                 'tstatus':             tstatus.id,
                                  'participating_users': user.id,
                                  'busy':                True,
                                  'type_selector':       self._build_type_value(),
@@ -341,7 +352,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'start':               task2_start,
                                           'end':                 task2_end,
                                           'duration':            180,
-                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'tstatus':             tstatus.id,
                                           'participating_users': user.id,
                                           'type_selector':       self._build_type_value(),
                                          }

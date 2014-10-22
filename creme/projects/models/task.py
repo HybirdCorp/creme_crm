@@ -51,6 +51,7 @@ class ProjectTask(Activity):
         app_label = 'projects'
         verbose_name = _(u'Task of project')
         verbose_name_plural = _(u'Tasks of project')
+        ordering = Activity._meta.ordering #NB: sadly it seems that inheriting from Activity.Meta does not work.
 
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)
