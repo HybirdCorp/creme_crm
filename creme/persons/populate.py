@@ -102,12 +102,12 @@ class Populator(BasePopulator):
         create_if_needed(LegalForm, {'pk': 3}, title=u"SA")
         create_if_needed(LegalForm, {'pk': 4}, title=u"SAS")
 
-        create_if_needed(StaffSize, {'pk': 1}, size="1 - 5")
-        create_if_needed(StaffSize, {'pk': 2}, size="6 - 10")
-        create_if_needed(StaffSize, {'pk': 3}, size="11 - 50")
-        create_if_needed(StaffSize, {'pk': 4}, size="51 - 100")
-        create_if_needed(StaffSize, {'pk': 5}, size="100 - 500")
-        create_if_needed(StaffSize, {'pk': 6}, size="> 500")
+        create_if_needed(StaffSize, {'pk': 1}, size="1 - 5",     order=1)
+        create_if_needed(StaffSize, {'pk': 2}, size="6 - 10",    order=2)
+        create_if_needed(StaffSize, {'pk': 3}, size="11 - 50",   order=3)
+        create_if_needed(StaffSize, {'pk': 4}, size="51 - 100",  order=4)
+        create_if_needed(StaffSize, {'pk': 5}, size="100 - 500", order=5)
+        create_if_needed(StaffSize, {'pk': 6}, size="> 500",     order=6)
 
         create_hf = HeaderFilter.create
         create_hf(pk='persons-hf_contact', name=_(u'Contact view'), model=Contact,
