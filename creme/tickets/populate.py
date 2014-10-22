@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,13 +47,13 @@ class Populator(BasePopulator):
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
 
         for pk, name in BASE_STATUS:
-            create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False)
+            create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False, order=pk)
 
         for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
-            create_if_needed(Priority, {'pk': i}, name=name)
+            create_if_needed(Priority, {'pk': i}, name=name, order=i)
 
         for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
-            create_if_needed(Criticity, {'pk': i}, name=name)
+            create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
         create_hf = HeaderFilter.create
         create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
