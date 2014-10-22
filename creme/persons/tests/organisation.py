@@ -55,6 +55,15 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_department_colselect': 0,   'shipaddr_department_colselect': 0,
         }
 
+    def test_staff_size(self):
+        count = StaffSize.objects.count()
+
+        create_size = StaffSize.objects.create
+        size1 = create_size(size='4 and a dog')
+        size2 = create_size(size='1 wolf & 1 cub')
+        self.assertEqual(count + 1, size1.order)
+        self.assertEqual(count + 2, size2.order)
+
     def test_createview01(self):
         self.login()
 
@@ -74,7 +83,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(count + 1, Organisation.objects.count())
 
         orga = self.get_object_or_fail(Organisation, name=name)
-        self.assertEqual(description,  orga.description)
+        self.assertEqual(description, orga.description)
         self.assertIsNone(orga.billing_address)
         self.assertIsNone(orga.shipping_address)
 

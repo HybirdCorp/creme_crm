@@ -22,6 +22,7 @@ from django.db.models import CharField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
+from creme.creme_core.models.fields import BasicAutoField
 
 
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
@@ -81,7 +82,8 @@ class LegalForm(CremeModel):
 
 
 class StaffSize(CremeModel):
-    size = CharField(_(u'Size'), max_length=100)
+    size  = CharField(_(u'Size'), max_length=100)
+    order = BasicAutoField(_('Order')) #used by creme_config
 
     def __unicode__(self):
         return self.size
@@ -90,3 +92,4 @@ class StaffSize(CremeModel):
         app_label = "persons"
         verbose_name = _(u"Organisation staff size")
         verbose_name_plural = _(u"Organisation staff sizes")
+        ordering = ('order',)
