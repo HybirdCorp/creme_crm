@@ -1266,7 +1266,9 @@ def extractorfield_factory(modelfield, header_dict, choices):
 
     return ExtractorField(choices, modelfield, formfield,
                           label=modelfield.verbose_name,
-                          initial={'selected_column': selected_column},
+                          initial={'selected_column': selected_column,
+                                   'default_value':   formfield.initial,
+                                  },
                          )
 
 
