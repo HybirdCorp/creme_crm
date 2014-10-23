@@ -19,13 +19,14 @@
 ################################################################################
 
 from future_builtins import filter
-import os
 from functools import partial
 from itertools import chain, izip_longest
 import logging
+from os.path import splitext
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.core import validators
 from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
@@ -96,13 +97,12 @@ class UploadForm(CremeForm):
             if not self.user.has_perm_to_view(document):
                 raise ValidationError(ugettext("You have not the credentials to read this document."))
 
-            pathname, extension = os.path.splitext(filename)
+            pathname, extension = splitext(filename)
             backend = import_backend_registry.get_backend(extension.replace('.', ''))
             if backend is None:
                 raise ValidationError(ugettext("Error reading document, unsupported file type: %s.") % filename)
 
             if cleaned_data['has_header']:
-
                 try:
                     filedata.open()
                     self._header = backend(filedata).next()
@@ -135,6 +135,7 @@ class Extractor(object):
             self._fk_form = modelform_factory(subfield_model) #TODO: creme_config form ??
 
     def extract_value(self, line):
+        value = None
         err_msg = None
 
         if self._column_index: #0 -> not in csv
@@ -183,12 +184,13 @@ class Extractor(object):
 
                 return value, err_msg
 
-            if not value:
-                value = self._default_value
-        else:
-            value = self._default_value
+            #if not value:
+                #value = self._default_value
+        #else:
+            #value = self._default_value
 
-        return self._value_castor(value), err_msg
+        #return self._value_castor(value), err_msg
+        return (self._value_castor(value) if value else self._default_value), err_msg
 
 
 class ExtractorWidget(SelectMultiple):
@@ -280,6 +282,8 @@ class ExtractorField(Field):
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
         super(ExtractorField, self).__init__(widget=ExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
+        modelform_field.required = False
+
         self._modelfield = modelfield
         self._user = None
         self._can_create = False #if True and field is a FK/M2M -> the referenced model can be created
@@ -333,11 +337,13 @@ class ExtractorField(Field):
         except TypeError:
             raise ValidationError(self.error_messages['invalid'])
 
-        def_value = value['default_value']
+        #def_value = value['default_value']
+        def_value = self._original_field.clean(value['default_value'])
 
-        if def_value:
-            self._original_field.clean(def_value) #to raise ValidationError if needed
-        elif self.required and not col_index:
+        #if def_value:
+            #self._original_field.clean(def_value) #to raise ValidationError if needed
+        #elif self.required and not col_index:
+        if self.required and def_value in validators.EMPTY_VALUES and not col_index:
             raise ValidationError(self.error_messages['required'])
 
         #TODO: check that col_index is in self._choices ???
@@ -811,7 +817,6 @@ class CustomFieldExtractor(object):
                                              ),
                             err_msg
                            )
-
                 except CustomFieldEnumValue.DoesNotExist as e:
                     if self._create_if_unfound:
                         #TODO: improve self._value_castor avoid the direct 'return' ?
@@ -1049,7 +1054,7 @@ class ImportForm(CremeModelForm):
             good_fields.append((fname, cleaned))
 
         filedata = self.cleaned_data['document'].filedata
-        pathname, extension = os.path.splitext(filedata.name)
+        pathname, extension = splitext(filedata.name)
         file_extension = extension.replace('.', '')
 
         filedata.open()
