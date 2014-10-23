@@ -218,7 +218,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                 'status_defval':    def_status.pk,
 
                 'discount_colselect': 0,
-                'discount_defval':    0,
+                'discount_defval':    '0',
 
                 'currency_colselect': 0,
                 'currency_defval':    def_currency.pk,
@@ -235,7 +235,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                 #'dyn_relations',
                }
         response = self.assertPOST200(url, data=data)
-        self.assertFormError(response, 'form', 'source', [_(u'Enter a valid value.')])
+        self.assertFormError(response, 'form', 'source', _(u'Enter a valid value.'))
 
         response = self.assertPOST200(url,
                                       data=dict(data,
@@ -247,7 +247,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                                                 target_persons_contact_create=True,
                                                )
                                      )
-        self.assertFormError(response, 'form', 'source', [_(u'This field is required.')])
+        self.assertFormError(response, 'form', 'source', _(u'This field is required.'))
 
         response = self.client.post(url,
                                     data=dict(data,

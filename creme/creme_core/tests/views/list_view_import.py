@@ -5,9 +5,9 @@ try:
     from functools import partial
     from tempfile import NamedTemporaryFile
 
+    from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
-    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, CustomField, CustomFieldEnumValue)
@@ -240,8 +240,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         default_descr = 'A cute pilot'
         response = self.client.post(
-                        url,
-                        data=dict(self.data, document=doc.id, has_header=True,
+                          url,
+                          data=dict(self.data, document=doc.id, has_header=True,
                                     user=self.user.id,
                                     first_name_colselect=1,
                                     last_name_colselect=2,
@@ -251,10 +251,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
                                     position_colselect=3,
                                     position_subfield='title',
+                                    position_defval='', #the browser POST an empty string
                                     position_create=True,
 
                                     sector_colselect=4,
                                     sector_subfield='title',
+                                    sector_defval='', #the browser POST an empty string
                                     #sector_create=False,
 
                                     property_types=[ptype.id],
@@ -264,7 +266,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                     dyn_relations=self._dyn_relations_value(employed, Organisation, 6, 'name'),
 
                                     billaddr_city_colselect=5,
-                                    )
+                                   )
                     )
         self.assertNoFormError(response)
 
