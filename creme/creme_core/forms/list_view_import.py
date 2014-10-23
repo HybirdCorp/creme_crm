@@ -234,6 +234,8 @@ class ExtractorWidget(SelectMultiple):
                           )
                   )
 
+        id_ = attrs['id']
+
         if self.subfield_select:
             hide_select = (len(self.subfield_select) == 1) #the <select> is annoying if there is only one option
 
@@ -255,12 +257,15 @@ class ExtractorWidget(SelectMultiple):
                                            name,
                                            'checked' if value.get('subfield_create') else '',
                                         ),
-                          'id':     attrs['id'],
+                          #'id':     attrs['id'],
+                          'id':     id_,
                         })
 
         out_append(u'</td><td>&nbsp;%s:%s</td></tr></tbody></table>' % (
                         ugettext(u"Default value"),
-                        self.default_value_widget.render("%s_defval" % name, value.get('default_value')),
+                        self.default_value_widget.render("%s_defval" % name, value.get('default_value'),
+                                                         attrs={'id': "%s_defval" % id_},
+                                                        ),
                     )
                   )
 
@@ -476,7 +481,7 @@ class EntityExtractorWidget(ExtractorWidget):
         return self._render_select(self._build_colselect_id(name, model_id),
                                    choices=chain(self.choices, choices),
                                    sel_val=sel_val,
-                                   attrs={'class': 'csv_col_select'},
+                                   attrs={'class': 'csv_col_select'}, #TODO: id
                                   )
 
     def _render_line(self, output, name, cmd, choices, model):
@@ -872,11 +877,13 @@ class CustomFieldExtractorWidget(ExtractorWidget):
                         }
                       )
 
-        defval_id = '%s_defval' % name
+        defval_id = "%s_defval" % attrs['id']
         out_append(u'</td><td>&nbsp;<label for="%s">%s:%s</label></td></tr></tbody></table>' % (
                         defval_id,
                         ugettext('Default value'),
-                        self.default_value_widget.render(defval_id, get('default_value')),
+                        self.default_value_widget.render('%s_defval' % name, get('default_value'),
+                                                         attrs={'id': defval_id},
+                                                        ),
                     )
                   )
 
