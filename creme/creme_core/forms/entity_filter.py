@@ -19,25 +19,25 @@
 ################################################################################
 
 from future_builtins import map
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import date
 import json
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
         RelationType, CremePropertyType, CustomField)
 from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
+from ..utils.date_range import date_range_registry
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import is_date_field
-from ..utils.date_range import date_range_registry
 from ..utils.unicode_collation import collator
 from .base import CremeModelForm
 from .fields import JSONField
@@ -49,15 +49,15 @@ from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
 TRUE = 'true'
 FALSE = 'false'
 
-_HAS_PROPERTY_OPTIONS = {
-        TRUE:  _(u'Has the property'),
-        FALSE: _(u'Does not have the property'),
-    }
+_HAS_PROPERTY_OPTIONS = OrderedDict([
+        (TRUE,  _(u'Has the property')),
+        (FALSE, _(u'Does not have the property')),
+    ])
 
-_HAS_RELATION_OPTIONS = {
-        TRUE:  _(u'Has the relationship'),
-        FALSE: _(u'Does not have the relationship'),
-    }
+_HAS_RELATION_OPTIONS = OrderedDict([
+        (TRUE,  _(u'Has the relationship')),
+        (FALSE, _(u'Does not have the relationship')),
+    ])
 
 _CONDITION_INPUT_TYPE_MAP = {
         _ConditionBooleanOperator: (DynamicSelect,
