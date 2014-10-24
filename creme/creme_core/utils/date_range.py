@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import division
+from __future__ import division, absolute_import #for collections...
 
-from datetime import datetime, timedelta
 from calendar import monthrange
+from collections import OrderedDict
+from datetime import datetime, timedelta
 import logging
 
 from django.utils.translation import ugettext_lazy as _
@@ -272,7 +273,7 @@ class TomorrowRange(DateRange):
 
 class DateRangeRegistry(object):
     def __init__(self, *dranges):
-        self._ranges = {}
+        self._ranges = OrderedDict()
         self.register(*dranges)
 
     def choices(self):
@@ -306,8 +307,8 @@ class DateRangeRegistry(object):
 
 
 date_range_registry = DateRangeRegistry(PreviousYearRange(), CurrentYearRange(), NextYearRange(),
-                                        PreviousMonthRange(), CurrentMonthRange(), NextMonthRange(),
                                         PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
-                                        FutureRange(), PastRange(),
+                                        PreviousMonthRange(), CurrentMonthRange(), NextMonthRange(),
                                         YesterdayRange(), TodayRange(), TomorrowRange(),
+                                        FutureRange(), PastRange(),
                                        )
