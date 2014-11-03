@@ -251,8 +251,8 @@ EXPORT_BACKENDS = (
 
 #EMAILS [internal] #############################################################
 
-# Emails sent to the users of Crem (reminders, assistants.user_message, commercial.commercial_approach...)
-EMAIL_SENDER        = 'sender@domain.org' #This is a creme parameter which specify from_email (sender) when sending email
+# Emails sent to the users of Creme (reminders, assistants.user_message, commercial.commercial_approach...)
+EMAIL_SENDER        = 'sender@domain.org' #This is a Creme parameter which specifies from_email (sender) when sending email
 EMAIL_HOST          = 'localhost'
 EMAIL_HOST_USER     = ''
 EMAIL_HOST_PASSWORD = ''
