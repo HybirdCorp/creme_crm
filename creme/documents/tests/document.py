@@ -149,6 +149,10 @@ class DocumentTestCase(_DocumentsTestCase):
                          response['Content-Disposition']
                         )
 
+    def test_donwload_error(self):
+        self.login()
+        self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
+
     def test_editview(self):
         self.login()
 

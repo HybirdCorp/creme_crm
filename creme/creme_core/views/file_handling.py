@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import with_statement
+#from __future__ import with_statement
 
 import os
 from random import randint
 
-from django.http import HttpResponse
 from django.conf import settings
+from django.http import HttpResponse, Http404
+from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
 from ..utils.secure_filename import secure_filename
@@ -32,9 +33,8 @@ from ..utils.secure_filename import secure_filename
 MAXINT = 100000
 
 def handle_uploaded_file(f, path=None, name=None):
-    """
-        Handle an uploaded file by a form and return the complete file's path
-        path has to be iterable
+    """Handle an uploaded file by a form and return the complete file's path
+    path has to be iterable
     """
     def get_name(file, exists=False):
         if hasattr(file, 'name'):
@@ -99,8 +99,12 @@ def download_file(request, location, mimetype=None):
             ftype = name_parts[-1]
 
     path = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
-    with open(path, 'rb') as f:
-        data = f.read()
+
+    try:
+        with open(path, 'rb') as f:
+            data = f.read()
+    except IOError:
+        raise Http404(_('Invalid file'))
 
     response = HttpResponse(data, mimetype=ftype)
     response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
