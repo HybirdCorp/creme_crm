@@ -19,6 +19,7 @@ else:
     XlwtMissing = False
 
 try:
+    from xlrd import XLRDError
     from creme.creme_core.utils.xlrd_utils import XlrdReader
 except Exception:
     XlrdMissing = True
@@ -45,20 +46,39 @@ class XLSUtilsTestCase(CremeTestCase):
         return os.path.join(self.current_path, filename)
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
-    def test_01(self):
+    def test_unknown_filename(self):
+        with self.assertRaises(IOError):
+            XlrdReader(filedata=self.get_file_path('unknown.xls'))
+
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
+    def test_invalid_file(self):
+        with self.assertRaises(XLRDError) as error:
+            XlrdReader(filedata=self.get_file_path('data-invalid.xls'))
+
+        self.assertEquals(str(error.exception), "Unsupported format, or corrupt file: Expected BOF record; found 'this is '")
+
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
+    def test_sheet(self):
+        rd = XlrdReader(filedata=self.get_file_path(self.files[0]))
+        self.assertIsNotNone(rd.book)
+        self.assertIsNotNone(rd.sheet) 
+        self.assertEquals(rd.sheet.nrows, len(self.data))
+
+    @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
+    def test_read_next(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             for element in self.data:
                 self.assertEqual(element, rd.next())
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
-    def test_02(self):
+    def test_as_list(self):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             self.assertEqual(self.data, list(rd))
 
     @skipIf(XlrdMissing, "Skip tests, couldn't find xlrd libs")
-    def test_03(self):
+    def test_open_file(self):
         for filename in self.files:
             with open(self.get_file_path(filename)) as filename:
                 file_content = filename.read()
@@ -66,7 +86,7 @@ class XLSUtilsTestCase(CremeTestCase):
                 self.assertEqual(list(rd), self.data)
 
     @skipIf(XlrdMissing or XlwtMissing, "Skip tests, couldn't find xlwt or xlrd libs")
-    def test_04(self):
+    def test_write_and_read(self):
         file = NamedTemporaryFile(suffix=".xls")
 
         wt = XlwtWriter()
