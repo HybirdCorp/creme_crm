@@ -19,6 +19,7 @@ try:
     from ..base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import *
+    from creme.creme_core.models.auth import User
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
@@ -989,6 +990,20 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(mario))
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
 
+    def test_other_field_validation_error(self):
+        self.login()
+        empty_user = User.objects.create_user('empty')
+        empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+        empty_contact2 = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+
+        url = self.build_bulkedit_url([empty_contact, empty_contact2, mario], 'last_name')
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'field_value': 'Bros'})
+        self.assertNoFormError(response)
+        self.assertContains(response, _('This Contact is related to a user and must have a first name.'), 2)
+
 #     def test_get_widget01(self):
 #         "Regular field"
 #         self.login()
@@ -1191,3 +1206,24 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertNoFormError(response)
         self.assertEqual(city, self.refresh(address).city)
 
+    def test_other_field_validation_error(self):
+        self.login()
+        empty_user = User.objects.create_user('empty')
+        empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+
+        url = self._build_url(empty_contact.entity_type_id, empty_contact.pk, 'last_name')
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'field_value': 'Bros'})
+        self.assertFormError(response, 'form', None, _('This Contact is related to a user and must have a first name.'))
+
+    def test_both_edited_field_and_field_validation_error(self):
+        self.login()
+        empty_user = User.objects.create_user('empty')
+        empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+
+        url = self._build_url(empty_contact.entity_type_id, empty_contact.pk, 'last_name')
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'field_value': ''})
+        self.assertFormError(response, 'form', 'field_value', _(u'This field is required.'))
