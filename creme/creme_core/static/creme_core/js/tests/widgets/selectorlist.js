@@ -425,7 +425,7 @@ test('creme.widets.selectorlist.append (empty)', function() {
     equal(widget.selectors().length, 1);
     equal(widget.selectors().creme().widget().val(), $.toJSON({ctype: '15', rtype: '1'}));
 
-    deepEqual(widget.selector(0).creme().widget(), last.creme().widget());
+    deepEqual(widget.selector(0).creme().widget(), last);
 });
 
 test('creme.widets.selectorlist.append (not empty)', function() {

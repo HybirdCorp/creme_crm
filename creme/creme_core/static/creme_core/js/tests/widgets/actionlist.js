@@ -19,7 +19,7 @@ function mock_actionlist_add(element, options)
 
 function assertAction(action, name, label, type, url, enabled)
 {
-    equal(creme.object.isempty(action), false);
+    equal(creme.object.isempty(action), false, 'action is empty');
 
     if (creme.object.isempty(action))
         return;
@@ -266,8 +266,8 @@ test('creme.widgets.actionlist.action', function() {
     var widget = creme.widget.create(element);
     deepEqual(widget.dependencies(), ['ctype']);
 
-    equal(widget.actions().length, 3);
-    assertAction(widget.action(0), 'create', 'create', undefined, 'mock/create/popup', true);
-    assertAction(widget.action(1), 'delete', 'delete', undefined, 'mock/delete/popup', false);
-    assertAction(widget.action(2), 'reset', 'reset', 'reset', undefined, true);
+    equal(widget.actions().length, 3, 'action count');
+    assertAction(widget.action('create'), 'create', 'create', undefined, 'mock/create/popup', true);
+    assertAction(widget.action('delete'), 'delete', 'delete', undefined, 'mock/delete/popup', false);
+    assertAction(widget.action('reset'), 'reset', 'reset', 'reset', undefined, true);
 });
