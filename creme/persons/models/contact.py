@@ -107,7 +107,7 @@ class Contact(CremeEntity):
                             'last_name':  self.last_name,
                         }
 
-        return self.last_name
+        return self.last_name or ''
 
     def _check_deletion(self):
         if self.is_user is not None:

@@ -28,6 +28,7 @@ from django.db.models.fields.related import ForeignKey, RelatedField, ManyToMany
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.forms.fields import ChoiceField
+from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import model_to_dict
 from django.forms.widgets import Select
 from django.utils.translation import ugettext, ugettext_lazy as _
@@ -421,6 +422,20 @@ class BulkForm(CremeForm):
 
         return cleaned_entities, invalid_entities
 
+    def _bulk_error_messages(self, entity, error):
+        if not hasattr(error, 'message_dict'):
+            return {NON_FIELD_ERRORS: error.messages}
+
+        fields = {field.name: field for field in (entity._meta.fields + entity._meta.many_to_many)}
+        messages = []
+
+        for key, value in error.message_dict.iteritems():
+            field = fields.get(key)
+            message = ''.join(value) if isinstance(value, (list, tuple)) else value
+            messages.append(u'%s : %s' % (ugettext(field.verbose_name), message) if field is not None else message)
+
+        return {NON_FIELD_ERRORS: messages}
+
 
 class BulkDefaultEditForm(BulkForm):
     def __init__(self, model, field_name=None, user=None, entities=(), is_bulk=False, **kwargs):
@@ -441,6 +456,9 @@ class BulkDefaultEditForm(BulkForm):
         return field_value
 
     def clean(self):
+        if self.errors:
+            return self.cleaned_data
+
         cleaned_data = super(BulkDefaultEditForm, self).clean()
 
         # in bulk mode get all entities, only the first one elsewhere 
@@ -460,7 +478,8 @@ class BulkDefaultEditForm(BulkForm):
 #         if not self.is_bulk and self.bulk_invalid_entities:
 #             self._errors[self.field_name] = self.error_class(self.bulk_invalid_entities[0][1].messages)
         if not self.is_bulk and self.bulk_invalid_entities:
-            raise self.bulk_invalid_entities[0][1]
+            entity, error = self.bulk_invalid_entities[0]
+            raise ValidationError(self._bulk_error_messages(entity, error))
 
         return cleaned_data
 
