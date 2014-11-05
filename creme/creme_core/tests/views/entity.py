@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from os.path import join, exists
     from datetime import date # datetime
     from decimal import Decimal
     from functools import partial
     from tempfile import NamedTemporaryFile
+
+    from creme.media_managers.models import MediaCategory
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -663,6 +666,24 @@ class _BulkEditTestCase(ViewsTestCase):
     def setUpClass(cls):
         cls.populate('creme_config')
 
+    def create_image(self, name, user, categories=()):
+        path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+        self.assertTrue(exists(path))
+
+        image_file = open(path, 'rb')
+
+        response = self.client.post('/media_managers/image/add',
+                         data={'user':        user.pk,
+                               'name':        name,
+                               'description': '',
+                               'image':       image_file,
+                               'categories':  [c.id for c in categories],
+                              }
+                        )
+
+        self.assertEquals(response.status_code, 302)
+        return Image.objects.get(name=name)
+
 
 class BulkEditTestCase(_BulkEditTestCase):
     @classmethod
@@ -674,7 +695,7 @@ class BulkEditTestCase(_BulkEditTestCase):
     def tearDown(self):
         bulk_update_registry.status(Contact)._innerforms = {}
 
-    def _build_url(self, field_name, *contact_ids):
+    def _build_contact_url(self, field_name, *contact_ids):
         url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
         return url % {'ct': self.contact_ct.id, 'id': ','.join(str(id) for id in contact_ids), 'field': field_name}
 
@@ -683,17 +704,17 @@ class BulkEditTestCase(_BulkEditTestCase):
         mario = create_contact(first_name="Mario", last_name="Bros", **(mario_kwargs or {}))
         luigi = create_contact(first_name="Luigi", last_name="Bros", **(luigi_kwargs or {}))
 
-        return mario, luigi, self._build_url(field, mario.id, luigi.id)
+        return mario, luigi, self._build_contact_url(field, mario.id, luigi.id)
 
     def test_regular_field01(self):
         self.login()
 
         self.assertGET404('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id)
-        self.assertGET404(self._build_url('first_name', 0))
-        self.assertGET404(self._build_url('first_name', *range(1024, 1034)))
+        self.assertGET404(self._build_contact_url('first_name', 0))
+        self.assertGET404(self._build_contact_url('first_name', *range(1024, 1034)))
 
         mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-        self.assertGET200(self._build_url('first_name', mario.id))
+        self.assertGET200(self._build_contact_url('first_name', mario.id))
 
     def test_regular_field02(self):
         self.login()
@@ -727,7 +748,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         nintendo = Organisation.objects.create(user=user, name='Nintendo', sector=games)
 
-        url = self._build_url('sector', mario.id, luigi.id, nintendo.id)
+        url = self._build_contact_url('sector', mario.id, luigi.id, nintendo.id)
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': plumbing.id,})
@@ -773,7 +794,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         mario = create_bros(user=self.other_user, first_name='Mario', description=mario_desc)
         luigi = create_bros(user=self.user,       first_name='Luigi', description="Mario's brother")
 
-        response = self.client.post(self._build_url('description', mario.id, luigi.id),
+        response = self.client.post(self._build_contact_url('description', mario.id, luigi.id),
                                     data={'field_value': '',}
                                    )
         self.assertNoFormError(response)
@@ -809,7 +830,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         unallowed = create_img(user=self.other_user, name='unallowed')
         allowed   = create_img(user=self.user,       name='allowed')
 
-        url = self._build_url('image', mario.id, luigi.id)
+        url = self._build_contact_url('image', mario.id, luigi.id)
         response = self.assertPOST200(url, data={'field_value': unallowed.id,})
         self.assertFormError(response, 'form', 'field_value', [_(u"You can't view this value, so you can't set it.")])
 
@@ -832,6 +853,49 @@ class BulkEditTestCase(_BulkEditTestCase):
         birthday = date(2000, 1, 31)
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
+
+    def test_regular_field_many2many(self):
+        self.login()
+
+        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+
+        image = self.create_image('image', self.user, categories)
+        image2 = self.create_image('image2', self.user, categories[:1])
+
+        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image2.categories.all()), categories[:1])
+
+        url = self.build_bulkedit_url([image, image2], 'categories')
+        response = self.client.post(url, data={'field_value': [categories[0].pk, categories[2].pk]})
+        self.assertNoFormError(response)
+
+        image = self.refresh(image)
+        image2 = self.refresh(image2)
+
+        self.assertListEqual(list(image.categories.all()), [categories[0], categories[2]])
+        self.assertListEqual(list(image2.categories.all()), [categories[0], categories[2]])
+
+    def test_regular_field_many2many_invalid(self):
+        self.login()
+
+        categories = [MediaCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
+
+        image = self.create_image('image', self.user, categories)
+        image2 = self.create_image('image2', self.user, categories[:1])
+
+        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image2.categories.all()), categories[:1])
+
+        url = self.build_bulkedit_url([image, image2], 'categories')
+        response = self.client.post(url, data={'field_value': [categories[0].pk, 12]})
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u'Select a valid choice. %s is not one of the available choices.') % 12)
+
+        image = self.refresh(image)
+        image2 = self.refresh(image2)
+
+        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertListEqual(list(image2.categories.all()), categories[:1])
 
     def test_custom_field01(self):
         self.login()
@@ -1043,16 +1107,11 @@ class BulkEditTestCase(_BulkEditTestCase):
 
 
 class InnerEditTestCase(_BulkEditTestCase):
-    url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
-
     def create_contact(self):
         return Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
 
     def create_orga(self):
         return Organisation.objects.create(user=self.user, name="Organisation")
-
-    def _build_url(self, ctype_id, entity_id, field):
-        return self.url % {'ct': ctype_id, 'id': entity_id, 'field': field}
 
 #     def test_get_widget_regular01(self):
 #         self.login()
@@ -1094,7 +1153,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         mario = self.create_contact()
-        url = self._build_url(mario.entity_type_id, mario.id, 'first_name')
+        url = self.build_inneredit_url(mario, 'first_name')
         self.assertGET200(url)
 
         first_name = 'Luigi'
@@ -1109,7 +1168,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         mario = self.create_contact()
-        response = self.client.post(self._build_url(mario.entity_type_id, mario.id, 'birthday'),
+        response = self.client.post(self.build_inneredit_url(mario, 'birthday'),
                                     data={#'entities_lbl': [unicode(mario)],
                                           'field_value': 'whatever',
                                          }
@@ -1124,7 +1183,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         self.assertFalse(self.user.has_perm_to_change(mario))
 
-        self.assertGET403(self._build_url(mario.entity_type_id, mario.id, 'first_name'))
+        self.assertGET403(self.build_inneredit_url(mario, 'first_name'))
 
     def test_regular_field_04(self):
         "Not editable"
@@ -1133,11 +1192,46 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         self.assertFalse(mario._meta.get_field('is_user').editable)
 
-        url = self._build_url(mario.entity_type_id, mario.id, 'is_user')
+        url = self.build_inneredit_url(mario, 'is_user')
         self.assertGET403(url)
         self.assertPOST403(url, data={'field_value': self.other_user.id,
                                      }
                           )
+
+    def test_regular_field_many2many(self):
+        self.login()
+
+        categories = [MediaCategory.objects.create(name='A'),
+                      MediaCategory.objects.create(name='B'),
+                      MediaCategory.objects.create(name='C'),]
+
+        image = self.create_image('image', self.user, categories)
+        self.assertListEqual(list(image.categories.all()), categories)
+
+        url = self.build_inneredit_url(image, 'categories')
+        response = self.client.post(url, data={'field_value': [categories[0].pk, categories[2].pk]})
+        self.assertNoFormError(response)
+
+        image = self.refresh(image)
+        self.assertListEqual(list(image.categories.all()), [categories[0], categories[2]])
+
+    def test_regular_field_many2many_invalid(self):
+        self.login()
+
+        categories = [MediaCategory.objects.create(name='A'),
+                      MediaCategory.objects.create(name='B'),
+                      MediaCategory.objects.create(name='C'),]
+
+        image = self.create_image('image', self.user, categories)
+        self.assertListEqual(list(image.categories.all()), categories)
+
+        url = self.build_inneredit_url(image, 'categories')
+        response = self.client.post(url, data={'field_value': [categories[0].pk, 12]})
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u'Select a valid choice. %s is not one of the available choices.') % 12)
+
+        image = self.refresh(image)
+        self.assertListEqual(list(image.categories.all()), categories)
 
     def test_regular_field_innerform(self):
         self.login()
@@ -1149,7 +1243,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         bulk_update_registry.register(Contact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
-        url = self._build_url(mario.entity_type_id, mario.id, 'last_name')
+        url = self.build_inneredit_url(mario, 'last_name')
 
         self.assertGET200(url)
         response = self.assertPOST200(url, data={'field_value': 'luigi'}
@@ -1168,7 +1262,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         bulk_update_registry.register(Contact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
-        url = self._build_url(mario.entity_type_id, mario.id, 'last_name')
+        url = self.build_inneredit_url(mario, 'last_name')
 
         self.assertGET200(url)
         response = self.assertPOST200(url, data={'field_value': 'luigi'}
@@ -1180,7 +1274,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
         mario = self.create_contact()
         cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type, field_type=CustomField.STR)
-        url = self._build_url(mario.entity_type_id, mario.id, _CUSTOMFIELD_FORMAT % cfield.id)
+        url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT % cfield.id)
         self.assertGET200(url)
 
         value = 'hihi'
@@ -1194,9 +1288,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
         orga = self.create_orga()
         address = Address.objects.create(owner=orga, name='adress 1')
-        ct_address = ContentType.objects.get_for_model(Address)
 
-        url = self._build_url(ct_address.pk, address.pk, 'city')
+        url = self.build_inneredit_url(address, 'city')
         self.assertGET200(url)
 
         city = 'Marseille'
@@ -1211,7 +1304,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         empty_user = User.objects.create_user('empty')
         empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
 
-        url = self._build_url(empty_contact.entity_type_id, empty_contact.pk, 'last_name')
+        url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': 'Bros'})
@@ -1222,7 +1315,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         empty_user = User.objects.create_user('empty')
         empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
 
-        url = self._build_url(empty_contact.entity_type_id, empty_contact.pk, 'last_name')
+        url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': ''})

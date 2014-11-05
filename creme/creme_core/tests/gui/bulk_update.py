@@ -9,6 +9,8 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
+    from creme.media_managers.models import Image
+
     from creme.activities.models import Activity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -63,6 +65,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='type'))
         self.assertFalse(is_bulk_updatable(field_name='end_date'))
         self.assertFalse(is_bulk_updatable(field_name='busy'))
+
+    def test_bulk_update_registry_many2many(self):
+        bulk_update_registry = self.bulk_update_registry
+
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Image)
+
+        bulk_update_registry.register(Image)
+        self.assertTrue(is_bulk_updatable(field_name='categories'))
 
     def test_bulk_update_registry_ignore(self):
         bulk_update_registry = self.bulk_update_registry

@@ -29,9 +29,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.models import model_to_dict
+from django.forms.models import model_to_dict, ModelMultipleChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext, ugettext_lazy as _
+
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from ..models import fields, CremeEntity
 from ..models.custom_field import CustomField, CustomFieldValue, CustomFieldMultiEnum
@@ -42,15 +44,12 @@ from .fields import DatePeriodField, CreatorEntityField, MultiCreatorEntityField
 from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, DatePeriodWidget
 
 # TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
-_FIELDS_WIDGETS = {
-        models.ManyToManyField:           UnorderedMultipleChoiceWidget(),
-        models.DateField:                 CalendarWidget(),
-        models.DateTimeField:             DateTimeWidget(),
-        fields.CreationDateTimeField:     DateTimeWidget(),
-        fields.ModificationDateTimeField: DateTimeWidget(),
-        CustomFieldMultiEnum:             UnorderedMultipleChoiceWidget(),
-        DatePeriodField:                  DatePeriodWidget(),
-    }
+_BULK_FIELD_WIDGETS = {
+    models.DateField:                 CalendarWidget(),
+    models.DateTimeField:             DateTimeWidget(),
+    fields.CreationDateTimeField:     DateTimeWidget(),
+    fields.ModificationDateTimeField: DateTimeWidget(),
+}
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-%d'
@@ -383,17 +382,36 @@ class BulkForm(CremeForm):
 
         return model_field.get_formfield(None)
 
-    def _bulk_updatable_formfield(self, model_field, user, instance=None):
+    def _bulk_related_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()
+        related_to = model_field.rel.to
 
-        if isinstance(model_field, RelatedField) and issubclass(model_field.rel.to, CremeEntity):
-            if isinstance(model_field, ForeignKey):
-                form_field = CreatorEntityField(model_field.rel.to, label=form_field.label, required=form_field.required)
-            elif isinstance(model_field, ManyToManyField):
-                form_field = MultiCreatorEntityField(model_field.rel.to, label=form_field.label, required=form_field.required)
+        if isinstance(model_field, ForeignKey):
+            if issubclass(related_to, CremeEntity):
+                form_field = CreatorEntityField(model=related_to, label=form_field.label, required=form_field.required)
+            else:
+                form_field = CreatorModelChoiceField(queryset=related_to.objects.all(),
+                                                     label=form_field.label,
+                                                     required=form_field.required)
+        elif isinstance(model_field, ManyToManyField):
+            if issubclass(related_to, CremeEntity):
+                form_field = MultiCreatorEntityField(model=related_to, label=form_field.label, required=form_field.required)
+            else:
+                form_field = ModelMultipleChoiceField(label=form_field.label,
+                                                      queryset=related_to.objects.all(),
+                                                      required=form_field.required,
+                                                      widget=UnorderedMultipleChoiceWidget)
 
-        # TODO : should remove this list and use some hooks in model fields in bulk registry to retrieve widgets
-        form_field.widget = _FIELDS_WIDGETS.get(model_field.__class__) or form_field.widget
+        return form_field
+
+    def _bulk_updatable_formfield(self, model_field, user, instance=None):
+        if isinstance(model_field, RelatedField):
+            form_field = self._bulk_related_formfield(model_field, user, instance)
+        else:
+            form_field = model_field.formfield()
+            # TODO : should remove this list and use some hooks in model fields in bulk registry to retrieve widgets
+            form_field.widget = _BULK_FIELD_WIDGETS.get(model_field.__class__) or form_field.widget
+
         form_field.user = user
 
         if instance:
@@ -470,7 +488,7 @@ class BulkDefaultEditForm(BulkForm):
             self.bulk_invalid_entities = []
             return cleaned_data
 
-        values = {self.field_name: self.cleaned_data.get('field_value')}
+        values = {self.field_name: cleaned_data.get('field_value')}
 
         # update attribute <field_name> of each instance of entity and filter valid ones. 
         self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, **values)
