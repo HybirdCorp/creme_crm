@@ -122,6 +122,17 @@ class RegexFilter(Filter):
         return 1
 
 
+################################################################################
+#    This code is derived from the TimedRotatingFileHandler of module
+#    logging/handlers.py of the Python2.7 standard library.
+#
+#    Copyright 2001-2007 by Vinay Sajip. All Rights Reserved.
+#
+#    Copyright (C) 2009-2014  Hybird
+#
+#    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
+################################################################################
+
 class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, *args, **kwargs):
         filenames = kwargs.pop('filename', None)
