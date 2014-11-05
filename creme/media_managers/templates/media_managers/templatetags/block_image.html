@@ -34,8 +34,8 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_row %} th_info">{% trans "Categories" %}</th>
-            <td class="{% cycle row_color %} td_info" colspan="2">{% print_field object=object field='categories' %}</td>
-            {% comment %}<td class="{{row_color}} td_info edit_inner" colspan="2">{% get_field_editor on regular 'categories' for object %} TODO: make it work with M2M</td>{% endcomment %}
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='categories' %}</td>
+            <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'categories' for object %}</td>
         </tr>
         <tr class="content">
             {% comment %}<th class="{% cycle header_row %} action">&nbsp;</th>{% endcomment %}

@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, icon_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from .models import SMSCampaign, MessagingList, MessageTemplate
 from .blocks import messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block
@@ -45,3 +45,5 @@ reg_icon = icon_registry.register
 reg_icon(SMSCampaign,     'images/sms_%(size)s.png')
 reg_icon(MessagingList,   'images/sms_%(size)s.png')
 reg_icon(MessageTemplate, 'images/sms_%(size)s.png')
+
+bulk_update_registry.register(SMSCampaign, exclude=('lists',))

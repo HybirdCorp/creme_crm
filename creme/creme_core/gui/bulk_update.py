@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
+
 from creme.creme_core.models.custom_field import CustomField
 
 
@@ -41,7 +43,8 @@ class _BulkUpdateRegistry(object):
                 return []
 
             is_updatable = self.is_updatable
-            return (field for field in self._model._meta.fields if is_updatable(field, exclude_unique))
+            fields = chain(self._model._meta.fields, self._model._meta.many_to_many)
+            return (field for field in fields if is_updatable(field, exclude_unique))
 
         def get_form(self, name, default=None):
             return self._innerforms.get(name, default)

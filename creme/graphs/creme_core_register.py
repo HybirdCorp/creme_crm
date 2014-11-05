@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, icon_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from .models import Graph
 from .blocks import root_nodes_block, orbital_rtypes_block
@@ -38,3 +38,5 @@ reg_item('/graphs/graph/add', Graph.creation_label,   'graphs.add_graph')
 block_registry.register(root_nodes_block, orbital_rtypes_block)
 
 icon_registry.register(Graph, 'images/graph_%(size)s.png')
+
+bulk_update_registry.register(Graph, exclude=('orbital_relation_types',))
