@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -187,8 +187,8 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=employees_block.id_,     order=120, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
-        BlockDetailviewLocation.create(block_id=rbi_1.block_id,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-        BlockDetailviewLocation.create(block_id=rbi_2.block_id,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_1.block_id,          order=5,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_2.block_id,          order=10,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=30,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Contact)
