@@ -21,8 +21,11 @@
 from datetime import datetime
 
 from xlrd import (open_workbook, xldate_as_tuple,
-        XL_CELL_EMPTY, XL_CELL_TEXT, XL_CELL_NUMBER, XL_CELL_DATE,
-        XL_CELL_BOOLEAN, XL_CELL_ERROR, XL_CELL_BLANK)
+                  #XL_CELL_EMPTY, XL_CELL_TEXT,
+                  XL_CELL_NUMBER, XL_CELL_DATE,
+                  XL_CELL_BOOLEAN,
+                  #XL_CELL_ERROR, XL_CELL_BLANK,
+                 )
 
 class XlCTypeHandler(object):
     """
@@ -70,13 +73,15 @@ class XlCTypeHandler(object):
 
 
 class XlrdReader(object):
-    def __init__(self, filedata=None, file_contents=None):
-        book = open_workbook(filename=getattr(filedata, 'path', filedata),
-                             file_contents=file_contents)
-        ctype_handler = XlCTypeHandler(book)
-        sheet = book.sheet_by_index(0)
-        get_cell_value = ctype_handler.handle_cell
-        self._calc = ([get_cell_value(cell) for cell in sheet.row(row_number)] for row_number in xrange(sheet.nrows))
+    def __init__(self, filedata=None, file_contents=None, sheet_index=0):
+        book = self.book = open_workbook(filename=getattr(filedata, 'path', filedata),
+                                         file_contents=file_contents)
+        sheet = self.sheet = book.sheet_by_index(sheet_index)
+
+        cell_parser = XlCTypeHandler(book)
+        parse = cell_parser.handle_cell
+
+        self._calc = ([parse(cell) for cell in sheet.row(row_number)] for row_number in xrange(sheet.nrows))
 
     def __iter__(self):
         return self
