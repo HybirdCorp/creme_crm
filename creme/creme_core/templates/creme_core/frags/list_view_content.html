@@ -102,7 +102,7 @@
                     <th class="actions"></th>
                 {% else %}
                     <th class="column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
-                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.value}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
+                        <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{cell.title}}
                         </button>
                     </th>

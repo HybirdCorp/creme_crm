@@ -226,27 +226,42 @@ class ListViewState(object):
 
         return query
 
+    def _get_regular_sortfield(self, cell):
+        # compatiblity
+        if cell.filter_string.endswith('__header_filter_search_field__icontains'):
+            return cell.value + '__header_filter_search_field'
+
+        # related field without subfield
+        if isinstance(cell.field_info[0], RelatedField) and len(cell.field_info) == 1:
+            subfield_model = cell.field_info[0].rel.to
+            subfield_ordering = subfield_model._meta.ordering
+
+            if not subfield_ordering:
+                logger.critical('related field model %s should have Meta.ordering set (use pk as fallback)' % subfield_model)
+                return cell.value + '__pk'
+
+            return cell.value + '__' + subfield_ordering[0]
+
+        return cell.value
+
     def _get_sortfield(self, cells, field_name):
         if field_name is None or field_name == 'id':
             return None
 
-        cell = next(filter(lambda c: c.sortable and c.value == field_name, cells), None)
+        cell = next(filter(lambda c: c.sortable and c.key == field_name, cells), None)
 
         if cell is None:
-            logger.warn('ListViewState.set_sort(): can not sort with field "%s"', field_name)
+            logger.warn('no such sortable field "%s"', field_name)
             return
 
-        if cell.filter_string.endswith('__header_filter_search_field__icontains'):
-            return field_name + '__header_filter_search_field'
-        elif isinstance(cell.field_info[0], RelatedField) and '__' not in field_name:
-            return field_name + '__' + cell.field_info[0].rel.to._meta.ordering[0]
+        if isinstance(cell, EntityCellRegularField):
+            return self._get_regular_sortfield(cell)
         else:
-            return field_name
+            logger.warn('can not sort with field "%s" (only sort of regular field is implemented)', field_name)
 
     #TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
-    #TODO: beware, sorting by FK simply sort by id (Civility etc...) => can we improve that ??
     def set_sort(self, model, cells, field_name, order):
         "@param order string '' or '-'(reverse order)."
         sort_field = self._get_sortfield(cells, field_name)
@@ -260,7 +275,7 @@ class ListViewState(object):
 
         ordering = list(model._meta.ordering)
 
-        self.sort_field = sort_field
+        self.sort_field = field_name if sort_field else None
         self.sort_order = sort_order
 
         if sort_field:
