@@ -16,7 +16,7 @@ try:
     from creme.creme_core.tests.base import skipIfNotInstalled
     from .base import ViewsTestCase
 
-    from creme.persons.models import Organisation, Contact, Civility, Sector
+    from creme.persons.models import Organisation, Contact, Civility, Sector, Address
 
     from creme.activities.models import Activity, ActivityType
 except Exception as e:
@@ -35,6 +35,13 @@ class ListViewTestCase(ViewsTestCase):
         cls.url = Organisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(Organisation)
         Civility.objects.all().delete()
+
+    def setUp(self):
+        self._address_ordering = Address._meta.ordering
+        Address._meta.ordering = ()
+
+    def tearDown(self):
+        Address._meta.ordering = self._address_ordering
 
     def assertFound(self, x, string): #TODO: in CremeTestCase ??
         idx = string.find(x)
@@ -146,7 +153,7 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        def post(first, second, sort_order='', sort_field='name'):
+        def post(first, second, sort_order='', sort_field='regular_field-name'):
             response = self.assertPOST200(self.url,
                                           data={'sort_field': sort_field,
                                                 'sort_order': sort_order,
@@ -227,7 +234,7 @@ class ListViewTestCase(ViewsTestCase):
 
         #---------------------------------------------------------------------
         #FK on CremeEntity we just check that it does not crash
-        self.assertPOST200(url, data={'sort_field': 'image'})
+        self.assertPOST200(url, data={'sort_field': 'regular_field-image'})
 
         #---------------------------------------------------------------------
 
@@ -248,16 +255,16 @@ class ListViewTestCase(ViewsTestCase):
         #NB: it seems that NULL are not ordered in the same way on different DB engines
         #post('civility', False, ed, spike, faye) #Beware: sorting is done by id
         #content = post('civility', False, spike, faye) #Beware: sorting is done by id
-        content = post('civility', False, faye, spike) # sorting is done by 'title'
+        content = post('regular_field-civility', False, faye, spike) # sorting is done by 'title'
         self.assertFound(ed.last_name, content)
 
         #post('civility', True, faye, spike, ed)
         #post('civility', True, faye, spike)
-        post('civility', True, spike, faye)
+        post('regular_field-civility', True, spike, faye)
         #post('civility__title', False, ed, faye, spike)
-        post('civility__title', False, faye, spike)
+        post('regular_field-civility__title', False, faye, spike)
         #post('civility__title', True, spike, faye, ed)
-        post('civility__title', True, spike, faye)
+        post('regular_field-civility__title', True, spike, faye)
 
     @skipIfNotInstalled('creme.emails')
     def test_order03(self):
@@ -279,8 +286,8 @@ class ListViewTestCase(ViewsTestCase):
 
         url = EmailCampaign.get_lv_absolute_url()
         #we just check that it does not crash
-        self.assertPOST200(url, data={'sort_field': fname})
-        self.assertPOST200(url, data={'sort_field': func_field_name})
+        self.assertPOST200(url, data={'sort_field': 'regular_field-' + fname})
+        self.assertPOST200(url, data={'sort_field': 'function_field-' + func_field_name})
 
     def test_order04(self):
         "Ordering = '-fieldname'"
@@ -319,7 +326,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual('',  sort_order)
         self.assertEqual(['-start'], ordering)
 
-    def test_default_ordering(self):
+    def test_ordering_default(self):
         self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
         self.login()
 
@@ -335,7 +342,12 @@ class ListViewTestCase(ViewsTestCase):
         entries = Contact.objects.order_by('last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
-    def test_merge_column_and_default_ordering(self):
+        listview_state = response.context['list_view_state']
+        self.assertEqual(None, listview_state.sort_field)
+        self.assertEqual('', listview_state.sort_order)
+        self.assertListEqual(['last_name', 'first_name'], listview_state._ordering)
+
+    def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
         self.login()
 
@@ -358,32 +370,116 @@ class ListViewTestCase(ViewsTestCase):
         contacts = Contact.objects.filter(pk__in=(spike, faye, ed))
         url = Contact.get_lv_absolute_url()
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': 'civility',
+                                                 'sort_field': 'regular_field-civility',
                                                  'sort_order': ''})
 
         entries = contacts.order_by('civility', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': 'civility',
+                                                 'sort_field': 'regular_field-civility',
                                                  'sort_order': '-'})
 
         entries = contacts.order_by('-civility', 'last_name', 'first_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': 'first_name',
+                                                 'sort_field': 'regular_field-first_name',
                                                  'sort_order': ''})
 
         entries = contacts.order_by('first_name', 'last_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         response = self.assertPOST200(url, data={'hfilter': hf.id,
-                                                 'sort_field': 'first_name',
+                                                 'sort_field': 'regular_field-first_name',
                                                  'sort_order': '-'})
 
         entries = contacts.order_by('-first_name', 'last_name')
         self.assertListViewContentOrder(response, 'last_name', entries)
+
+    def test_ordering_related_column(self):
+        self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
+        self.login()
+
+        self.assertFalse(bool(Address._meta.ordering))
+
+        def create_contact(first_name, last_name, address):
+            contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+            contact.billing_address = Address.objects.create(owner=contact, name=address)
+            contact.save()
+            return contact
+
+        create_contact(first_name='Spike',  last_name='Spiegel', address='C')
+        create_contact(first_name='Faye',   last_name='Valentine', address='B')
+        create_contact(first_name='Edward', last_name='Wong', address='A')
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
+                                             (EntityCellRegularField, {'name': 'last_name'}),
+                                             (EntityCellRegularField, {'name': 'first_name'}),
+                                             (EntityCellRegularField, {'name': 'billing_address'}),
+                                            ],)
+
+        url = Contact.get_lv_absolute_url()
+        # for the filter to prevent an issue when HeaderFiltersTestCase is launched before this test
+        response = self.assertPOST200(url, {'hfilter': 'test-hf_contact',
+                                            'sort_field': 'regular_field-billing_address',
+                                            'sort_order': ''})
+
+        entries = Contact.objects.order_by('billing_address__pk', 'last_name', 'first_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+        listview_state = response.context['list_view_state']
+        self.assertEqual('regular_field-billing_address', listview_state.sort_field)
+        self.assertEqual('', listview_state.sort_order)
+        self.assertListEqual(['billing_address__pk', 'last_name', 'first_name'], listview_state._ordering)
+
+        Address._meta.ordering = ('name',)
+
+        response = self.assertPOST200(url, {'hfilter': 'test-hf_contact',
+                                            'sort_field': 'regular_field-billing_address',
+                                            'sort_order': ''})
+
+        entries = Contact.objects.order_by('billing_address__name', 'last_name', 'first_name')
+        self.assertListViewContentOrder(response, 'last_name', entries)
+
+        listview_state = response.context['list_view_state']
+        self.assertEqual('regular_field-billing_address', listview_state.sort_field)
+        self.assertEqual('', listview_state.sort_order)
+        self.assertListEqual(['billing_address__name', 'last_name', 'first_name'], listview_state._ordering)
+
+    def test_ordering_customfield_column(self):
+        "custom field ordering is ignored in current implementation"
+        self.login()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+        redtail   = create_orga(name='Redtail')
+
+        cfield = CustomField.objects.create(name='size (m)',
+                                            content_type=self.ctype,
+                                            field_type=CustomField.INT,
+                                           )
+        klass = cfield.get_value_class()
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=cfield, entity=entity).set_value_n_save(value)
+
+        set_cfvalue(bebop,     42)
+        set_cfvalue(swordfish, 12)
+        set_cfvalue(redtail,   4)
+
+        cfield_cell = EntityCellCustomField(cfield)
+        hf = self._build_hf(cfield_cell)
+
+        url = Organisation.get_lv_absolute_url()
+        response = self.assertPOST200(url, {'hfilter': hf.pk,
+                                            'sort_field': cfield_cell.key,
+                                            'sort_order': ''})
+
+        entries = Organisation.objects.order_by('name')
+        self.assertListViewContentOrder(response, 'name', entries)
 
     def test_efilter01(self):
         self.login()
