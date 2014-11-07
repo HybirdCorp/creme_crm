@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
+
 from south.db import db
 from south.v2 import SchemaMigration
 
@@ -7,6 +9,9 @@ from south.v2 import SchemaMigration
 class Migration(SchemaMigration):
     def forwards(self, orm):
         # 'key_id' is no more a ForeignKey but a regular CharField
+        if settings.DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
+            db.delete_foreign_key('creme_config_settingvalue', 'key_id')
+
         db.delete_index('creme_config_settingvalue', ['key_id'])
         db.alter_column('creme_config_settingvalue', 'key_id',
                         self.gf('django.db.models.fields.CharField')(max_length=100)
