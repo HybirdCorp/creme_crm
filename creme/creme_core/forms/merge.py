@@ -21,6 +21,7 @@
 import logging
 
 from django.db.models import ForeignKey
+from django.db.transaction import commit_on_success
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.util import flatatt
@@ -191,6 +192,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
         return cdata
 
+    @commit_on_success
     def save(self, *args, **kwargs):
         super(MergeEntitiesBaseForm, self).save(*args, **kwargs)
 

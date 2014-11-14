@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-09 11:38+0200\n"
+"POT-Creation-Date: 2014-11-14 11:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -76,31 +76,31 @@ msgstr "Transformer en fournisseur"
 msgid "Add a related contact"
 msgstr "Ajouter un contact lié"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "Accounts and Contacts"
 msgstr "Comptes et Contacts"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:42
 msgid "Portal of accounts and contacts"
 msgstr "Portail des comptes et contacts"
 
-#: creme_core_register.py:42
+#: creme_core_register.py:43
 msgid "All contacts"
 msgstr "Lister les contacts"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:44
 msgid "My customers / prospects / suspects"
 msgstr "Mes clients / prospects / suspects"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:46
 msgid "All organisations"
 msgstr "Lister les sociétés"
 
-#: creme_core_register.py:99
+#: creme_core_register.py:93
 msgid "User organisation"
 msgstr "Société de l'utilisateur"
 
-#: creme_core_register.py:103
+#: creme_core_register.py:97
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
@@ -200,7 +200,7 @@ msgstr "Monsieur"
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:87 models/contact.py:194
+#: populate.py:87 models/contact.py:197
 msgid "N/A"
 msgstr "NC"
 
@@ -256,13 +256,13 @@ msgstr "Gérée par creme"
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: forms/base.py:44 forms/lv_import.py:103 forms/merge.py:113
+#: forms/base.py:44 forms/lv_import.py:103 forms/merge.py:120
 #: models/contact.py:63 models/organisation.py:56
 #: templates/persons/templatetags/block_address.html:20
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:45 forms/lv_import.py:104 forms/merge.py:114
+#: forms/base.py:45 forms/lv_import.py:104 forms/merge.py:121
 #: models/contact.py:67 models/organisation.py:60
 #: templates/persons/templatetags/block_address.html:21
 msgid "Shipping address"
@@ -298,9 +298,9 @@ msgstr "Type de relation"
 msgid "Status in the organisation"
 msgstr "Statut dans la société"
 
-#: forms/merge.py:38
-msgid "Can not merge a Contact that represents a user."
-msgstr "Impossible de fusionner un Contact représentant un utilisateur"
+#: forms/merge.py:39
+msgid "Can not merge 2 Contacts which represent some users."
+msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
 
 #: forms/organisation.py:33
 #: templates/persons/templatetags/block_contact.html:14
@@ -380,7 +380,7 @@ msgstr "Pays"
 msgid "Addresses"
 msgstr "Adresses"
 
-#: models/contact.py:50 models/other_models.py:38
+#: models/contact.py:50 models/other_models.py:40
 #: templates/persons/templatetags/block_contact.html:24
 msgid "Civility"
 msgstr "Civilité"
@@ -419,7 +419,7 @@ msgstr "Fax"
 msgid "Position"
 msgstr "Fonction"
 
-#: models/contact.py:59 models/other_models.py:62
+#: models/contact.py:59 models/other_models.py:66
 #: templates/persons/templatetags/block_organisation.html:39
 msgid "Line of business"
 msgstr "Secteur d'activités"
@@ -487,7 +487,7 @@ msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:195
+#: models/contact.py:198
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
 
@@ -530,7 +530,7 @@ msgstr "Numéro TVA"
 msgid "Subject to VAT"
 msgstr "Assujetti à la TVA"
 
-#: models/organisation.py:54 models/other_models.py:74
+#: models/organisation.py:54 models/other_models.py:79
 #: templates/persons/templatetags/block_organisation.html:34
 msgid "Legal form"
 msgstr "Forme juridique"
@@ -562,59 +562,63 @@ msgstr "Sociétés"
 msgid "This siren already exists and must be unique !"
 msgstr "Ce siren existe déjà et doit être unique !"
 
-#: models/other_models.py:30
+#: models/other_models.py:32
 msgctxt "persons-civility"
 msgid "Title"
 msgstr "Intitulé"
 
-#: models/other_models.py:31
+#: models/other_models.py:33
 msgid "Shortcut"
 msgstr "Raccourci"
 
-#: models/other_models.py:39
+#: models/other_models.py:41
 msgid "Civilities"
 msgstr "Civilités"
 
-#: models/other_models.py:43
+#: models/other_models.py:46
 msgctxt "persons-position"
 msgid "Title"
 msgstr "Intitulé"
 
-#: models/other_models.py:50
+#: models/other_models.py:53
 msgid "People position"
 msgstr "Fonction de personne"
 
-#: models/other_models.py:51
+#: models/other_models.py:54
 msgid "People positions"
 msgstr "Fonctions des personnes"
 
-#: models/other_models.py:55
+#: models/other_models.py:59
 msgctxt "persons-sector"
 msgid "Title"
 msgstr "Intitulé"
 
-#: models/other_models.py:63
+#: models/other_models.py:67
 msgid "Lines of business"
 msgstr "Secteurs d'activités"
 
-#: models/other_models.py:67
+#: models/other_models.py:72
 msgctxt "persons-legalform"
 msgid "Title"
 msgstr "Intitulé"
 
-#: models/other_models.py:75
+#: models/other_models.py:80
 msgid "Legal forms"
 msgstr "Formes juridiques"
 
-#: models/other_models.py:79
+#: models/other_models.py:85
 msgid "Size"
 msgstr "Taille"
 
 #: models/other_models.py:86
+msgid "Order"
+msgstr "Ordre"
+
+#: models/other_models.py:93
 msgid "Organisation staff size"
 msgstr "Effectif de société"
 
-#: models/other_models.py:87
+#: models/other_models.py:94
 msgid "Organisation staff sizes"
 msgstr "Effectifs de société"
 
@@ -796,7 +800,7 @@ msgstr "%s Adresses supplémentaires"
 msgid "Add an address"
 msgstr "Ajouter une adresse"
 
-#: templates/persons/templatetags/block_other_address.html:35
+#: templates/persons/templatetags/block_other_address.html:37
 msgid "No other address set for the moment"
 msgstr "Aucune addresse supplémentaire enregistrée pour le moment"
 

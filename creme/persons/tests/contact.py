@@ -11,14 +11,14 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.widgets import Label, TextInput
-    from creme.creme_core.models import Relation, SetCredentials
     from creme.creme_core.gui.quick_forms import quickforms_registry
+    from creme.creme_core.models import Relation, SetCredentials
 
     from creme.media_managers.models import Image
 
+    from .base import _BaseTestCase
     from ..models import Contact, Organisation, Address, Position, Civility, Sector
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
-    from .base import _BaseTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -1157,12 +1157,118 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNone(contact01.shipping_address)
 
     def test_merge03(self):
-        "Cannot merge Contacts that represent a user"
+        "Merge 1 Contact which represents a user with another Contact"
         self.login()
         user = self.user
 
         contact01 = user.linked_contact
-        contact02 = Contact.objects.create(user=user, first_name='FAYE', last_name='VALENTINE')
+        first_name1 = contact01.first_name
+        last_name2 = 'VALENTINE'
+        contact02 = Contact.objects.create(user=user, first_name='FAYE', last_name=last_name2)
+
+        url = self.build_merge_url(contact01, contact02)
+        self.assertGET200(url)
+
+        data = {'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
+
+                'first_name_1':      first_name1,
+                'first_name_2':      contact02.first_name,
+                'first_name_merged': first_name1,
+
+                'last_name_1':      contact01.last_name,
+                'last_name_2':      last_name2,
+                'last_name_merged': last_name2,
+
+                'email_1':      contact01.email,
+                'email_2':      contact02.email,
+                'email_merged': '',
+               }
+        response = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(response, 'form', None,
+                             _('This Contact is related to a user and must have an e-mail address.')
+                            )
+
+        response = self.client.post(url, follow=True,
+                                    data=dict(data,
+                                              email_merged=contact01.email,
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertDoesNotExist(contact02)
+
+        with self.assertNoException():
+            contact01 = self.refresh(contact01)
+            user = self.refresh(user)
+
+        self.assertEqual(user,        contact01.is_user)
+        self.assertEqual(first_name1, user.first_name)
+        self.assertEqual(last_name2,  user.last_name)
+
+    def test_merge04(self):
+        "Merge 1 Contact with another one which represents a user (entity swap)"
+        self.login()
+        user = self.user
+
+        first_name1 = 'FAYE'
+        contact01 = Contact.objects.create(user=user, first_name=first_name1, last_name='VALENTINE')
+        contact02 = user.linked_contact
+
+        url = self.build_merge_url(contact01, contact02)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            first_name_f = response.context['form'].fields['first_name']
+
+        self.assertEqual([contact02.first_name, #the entities have been swapped (to keep the user-contact first)
+                          contact01.first_name,
+                          contact02.first_name,
+                         ],
+                         first_name_f.initial
+                        )
+
+        data = {'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
+
+                'first_name_1':      contact02.first_name,
+                'first_name_2':      first_name1,
+                'first_name_merged': first_name1,
+
+                'last_name_1':      contact02.last_name,
+                'last_name_2':      contact01.last_name,
+                'last_name_merged': contact01.last_name,
+               }
+        response = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(response, 'form', None,
+                             _('This Contact is related to a user and must have an e-mail address.')
+                            )
+
+        response = self.client.post(url, follow=True,
+                                    data=dict(data,
+                                              email_1=contact02.email,
+                                              email_2=contact01.email,
+                                              email_merged=contact02.email,
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertDoesNotExist(contact01)
+
+        with self.assertNoException():
+            contact02 = self.refresh(contact02)
+
+        self.assertEqual(user,        contact02.is_user)
+        self.assertEqual(first_name1, contact02.first_name)
+
+    def test_merge05(self):
+        "Cannot merge 2 Contacts that represent 2 users"
+        self.login()
+
+        contact01 = self.user.linked_contact
+        contact02 = self.other_user.linked_contact
 
         self.assertGET409(self.build_merge_url(contact01, contact02))
         self.assertGET409(self.build_merge_url(contact02, contact01))
