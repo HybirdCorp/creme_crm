@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
 
-from ..models import Address #Contact
+from ..models import Address, Contact
 
 
 _FIELD_NAMES = Address._INFO_FIELD_NAMES #TODO: use introspection to get editable fields ??
@@ -34,8 +34,12 @@ _SHIP_PREFIX = 'shipaddr_'
 
 class _PersonMergeForm(MergeEntitiesBaseForm):
     def __init__(self, entity1, entity2, *args, **kwargs):
-        if getattr(entity1, 'is_user', None) or getattr(entity2, 'is_user', None):#TODO: create a ContactMergeForm ?
-            raise self.CanNotMergeError(_('Can not merge a Contact that represents a user.'))
+        if isinstance(entity1, Contact): #TODO: create a ContactMergeForm ?
+            if entity2.is_user:
+                if entity1.is_user:
+                    raise self.CanNotMergeError(_('Can not merge 2 Contacts which represent some users.'))
+
+                entity1, entity2 = entity2, entity1
 
         super(_PersonMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
 

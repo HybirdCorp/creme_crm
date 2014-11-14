@@ -174,8 +174,11 @@ class Contact(CremeEntity):
     def save(self, *args, **kwargs):
         super(Contact, self).save(*args, **kwargs)
 
-        if self.is_user:
-            update_model_instance(self.is_user,
+        rel_user = self.is_user
+        if rel_user:
+            rel_user._disable_sync_with_contact = True
+
+            update_model_instance(rel_user,
                                   last_name=self.last_name,
                                   first_name=self.first_name or '',
                                   email=self.email or '',
@@ -220,6 +223,9 @@ User.linked_contact = property(_get_linked_contact)
 @receiver(post_save, sender=User)
 def _sync_with_user(sender, instance, created, **kwargs):
     if instance.is_team:
+        return
+
+    if getattr(instance, '_disable_sync_with_contact', False):
         return
 
     #when received during 'syncdb' it fails because the Contact table does not exist

@@ -442,7 +442,10 @@ def merge(request, entity1_id, entity2_id):
         if merge_form.is_valid():
             merge_form.save()
 
-            return redirect(entity1)
+            # NB: we get the entity1 attribute (ie: not the local variable),
+            # because the entities can be swapped in the form (but form.entity1
+            # is always kept & form.entity2 deleted).
+            return redirect(merge_form.entity1)
 
         cancel_url = POST.get('cancel_url')
     else:
