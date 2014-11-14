@@ -345,7 +345,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertFalse(f_cf_01.required)
         self.assertEqual([500,  510,  500],  f_cf_01.initial)
         self.assertEqual([100,  None, 100],  f_cf_02.initial)
-        self.assertEqual([None, cf_03_value02.id, cf_03_value02.id], f_cf_03.initial)
+        self.assertEqual([None, enum_val1_1.id, enum_val1_1.id], f_cf_03.initial)
 
         response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
@@ -369,8 +369,8 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'custom_field_1_merged': '',
 
                                           'custom_field_2_1':      '',
-                                          'custom_field_2_2':      cf_03_value02.id,
-                                          'custom_field_2_merged': cf_03_value02.id,
+                                          'custom_field_2_2':      enum_val1_1.id,
+                                          'custom_field_2_merged': enum_val1_1.id,
                                          }
                                    )
         self.assertNoFormError(response)

@@ -268,7 +268,7 @@ class ProductTestCase(_ProductsTestCase):
     def test_edit_inner_category_invalid(self):
         self.login()
 
-        sub_cat = SubCategory.objects.order_by('category')[0]
+        sub_cat = SubCategory.objects.all()[0]
         product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category, sub_category=sub_cat
@@ -277,9 +277,15 @@ class ProductTestCase(_ProductsTestCase):
         url = self.build_inneredit_url(product, 'category')
         self.assertGET200(url)
 
-        next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url, data={'sub_category': '{"category":%d,"subcategory":%d}' % (5, next_sub_cat.pk)})
-        self.assertFormError(response, 'form', 'sub_category', _(u"This sub-category cause constraint error."))
+        next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
+        response = self.client.post(url,
+                                    data={'sub_category': '{"category":%d,"subcategory":%d}' % (
+                                                                sub_cat.category_id,
+                                                                next_sub_cat.pk
+                                                            )
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'sub_category', _(u"This sub-category causes constraint error."))
 
         product = self.refresh(product)
         self.assertEqual(sub_cat, product.sub_category)
@@ -316,7 +322,7 @@ class ProductTestCase(_ProductsTestCase):
     def test_edit_bulk_category_invalid(self):
         self.login()
 
-        sub_cat = SubCategory.objects.order_by('category')[0]
+        sub_cat = SubCategory.objects.all()[0]
         create_product = partial(Product.objects.create,
                                  user=self.user, description='A fake god', unit_price=Decimal('1.23'),
                                  category=sub_cat.category, sub_category=sub_cat
@@ -328,10 +334,18 @@ class ProductTestCase(_ProductsTestCase):
         url = self.build_bulkedit_url([product, product2], 'category')
         self.assertGET200(url)
 
-        next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url, {'_bulk_fieldname': url,
-                                          'sub_category': '{"category":%d, "subcategory":%d}' % (5, next_sub_cat.pk)})
-        self.assertFormError(response, 'form', 'sub_category', _(u"This sub-category cause constraint error."))
+        next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
+        response = self.client.post(url,
+                                    {'_bulk_fieldname': url,
+                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
+                                                            sub_cat.category_id,
+                                                            next_sub_cat.pk,
+                                                        )
+                                    }
+                                   )
+        self.assertFormError(response, 'form', 'sub_category',
+                             _(u"This sub-category causes constraint error.")
+                            )
 
         product = self.refresh(product)
         self.assertEqual(sub_cat, product.sub_category)

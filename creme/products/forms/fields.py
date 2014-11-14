@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,8 +43,8 @@ class CategorySelector(ChainedInput):
 class CategoryField(JSONField):
     default_error_messages = {
         'doesnotexist':          _(u"This category doesn't exist."),
-        'categorynotallowed':    _(u"This category cause constraint error."),
-        'subcategorynotallowed': _(u"This sub-category cause constraint error."),
+        'categorynotallowed':    _(u"This category causes constraint error."),
+        'subcategorynotallowed': _(u"This sub-category causes constraint error."),
     }
     value_type = dict
 
