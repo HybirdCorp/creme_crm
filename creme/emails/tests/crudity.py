@@ -100,7 +100,8 @@ class EmailsCrudityTestCase(CremeTestCase):
         email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
                          senders=[other_user.email], ccs=[user.email],
                          tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
-                         dates=[now() - timedelta(hours=1)],
+                         # replace(microsecond=0)  -> MySQL does not like microseconds...
+                         dates=[now().replace(microsecond=0) - timedelta(hours=1)],
                         )
         backend.fetcher_fallback(email, user)
 

@@ -211,7 +211,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         "last_generation has been filled => cannot edit first_generation"
         user = self.user
 
-        now_value = now()
+        now_value = now().replace(microsecond=0)  #MySQL does not record microseconds...
         gen = RecurrentGenerator.objects.create(name='Gen1',
                                                 user=user,
                                                 first_generation=now_value,
@@ -308,7 +308,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     def test_command03(self):
         "last_generation is far enough"
         tpl = self._create_ticket_template()
-        now_value = now()
+        now_value = now().replace(microsecond=0) #MySQL does not record microseconds...
         gen = RecurrentGenerator.objects.create(name='Gen1', user=self.user,
                                                 periodicity=self._get_weekly(),
                                                 ct=self.ct, template=tpl,

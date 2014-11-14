@@ -7,28 +7,28 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 1.4\n"
+"Project-Id-Version: Creme Products 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-22 16:40+0100\n"
+"POT-Creation-Date: 2014-11-14 16:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: creme_core_register.py:30
+#: creme_core_register.py:31
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "Portal of products and services"
 msgstr "Portail des produits et services"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "All services"
 msgstr "Lister les services"
 
@@ -176,8 +176,8 @@ msgstr "Femmes"
 msgid "Kids"
 msgstr "Enfants"
 
-#: forms/base.py:33 forms/fields.py:39 models/other_models.py:53
-#: models/product.py:45 models/service.py:39
+#: forms/base.py:33 forms/fields.py:39 forms/product.py:44
+#: models/other_models.py:54 models/product.py:45 models/service.py:39
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
@@ -196,18 +196,18 @@ msgid "This category doesn't exist."
 msgstr "Cette catégorie n'existe pas."
 
 #: forms/fields.py:46
-msgid "This category cause constraint error."
-msgstr "Cette catégorie à causé une erreur de contrainte."
+msgid "This category causes constraint error."
+msgstr "Cette catégorie cause une erreur de contrainte."
 
 #: forms/fields.py:47
-msgid "This sub-category cause constraint error."
-msgstr "Cette sous-catégorie à causé une erreur de contrainte."
+msgid "This sub-category causes constraint error."
+msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
 #: models/other_models.py:28
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:29 models/other_models.py:45 models/product.py:37
+#: models/other_models.py:29 models/other_models.py:46 models/product.py:37
 #: models/service.py:36
 msgid "Description"
 msgstr "Description"
@@ -216,15 +216,15 @@ msgstr "Description"
 msgid "Categories"
 msgstr "Catégories"
 
-#: models/other_models.py:44
+#: models/other_models.py:45
 msgid "Name of the sub-category"
 msgstr "Nom de la sous-catégorie"
 
-#: models/other_models.py:46
+#: models/other_models.py:47
 msgid "Parent category"
 msgstr "Catégorie parente"
 
-#: models/other_models.py:54
+#: models/other_models.py:55
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
@@ -260,15 +260,15 @@ msgstr "Quantité/Stock"
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:49
+#: models/product.py:48
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: models/product.py:76
+#: models/product.py:52
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:77
+#: models/product.py:53
 msgid "Products"
 msgstr "Produits"
 
@@ -280,15 +280,15 @@ msgstr "Référence"
 msgid "Countable"
 msgstr "Dénombrable"
 
-#: models/service.py:48
+#: models/service.py:47
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: models/service.py:65
+#: models/service.py:51
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:66
+#: models/service.py:52
 msgid "Services"
 msgstr "Services"
 
