@@ -355,45 +355,45 @@ test('creme.model.ChoiceRenderer (parse)', function() {
     deepEqual([], creme.model.ChoiceRenderer.parse($('<select></select>')));
     deepEqual([], creme.model.ChoiceRenderer.parse($('<select><options></options></select>')));
 
-    deepEqual([{value:'1', label:'a', disabled:false, selected: false, visible: true, tags: []},
-               {value:'2', label:'b', disabled:false, selected: true, visible: true, tags: ['tag1']},
-               {value:'3', label:'c', disabled:true, selected: false, visible: true, tags: ['tag2']}],
+    deepEqual([{value:'1', label:'a', help: undefined, disabled:false, selected: false, visible: true, tags: []},
+               {value:'2', label:'b', help: 'B', disabled:false, selected: true, visible: true, tags: ['tag1']},
+               {value:'3', label:'c', help: undefined, disabled:true, selected: false, visible: true, tags: ['tag2']}],
               creme.model.ChoiceRenderer.parse($('<select><options>' +
                                                      '<option value="1">a</option>' +
-                                                     '<option value="2" tags="tag1" selected>b</option>' +
+                                                     '<option value="2" help="B" tags="tag1" selected>b</option>' +
                                                      '<option value="3" tags="tag2" disabled>c</option>' +
                                                  '</options></select>')));
 });
 
 test('creme.model.ChoiceRenderer.parse (no converter)', function() {
     var element = $('<select><options>' +
-                        '<option value="[1, 2]">a</option>' +
+                        '<option value="[1, 2]" help="A">a</option>' +
                         '<option value="[3, 4]">b</option>' +
-                        '<option value="[5, 6]">c</option>' +
+                        '<option value="[5, 6]" help="C">c</option>' +
                     '</options></select>');
     var options = new creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value:'[1, 2]', label:'a', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:'[3, 4]', label:'b', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:'[5, 6]', label:'c', disabled:false, selected:false, visible: true, tags:[]},]);
+    deepEqual(options, [{value:'[1, 2]', label:'a', help: 'A', disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:'[3, 4]', label:'b', help: undefined, disabled:false, selected:false, visible: true, tags:[]},
+                        {value:'[5, 6]', label:'c', help: 'C', disabled:false, selected:false, visible: true, tags:[]},]);
 
     element = $('<select><options>' +
                     '<option value="[1, 2]">a</option>' +
-                    '<option value="[3, 4]" selected>b</option>' +
+                    '<option value="[3, 4]" help="B" selected>b</option>' +
                     '<option value="[5, 6]" disabled>c</option>' +
                 '</options></select>');
     options = new creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value:'[1, 2]', label:'a', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:'[3, 4]', label:'b', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:'[5, 6]', label:'c', disabled:true,  selected:false, visible: true, tags:[]},]);
-    
+    deepEqual(options, [{value:'[1, 2]', label:'a', help: undefined, disabled:false, selected:false, visible: true, tags:[]},
+                        {value:'[3, 4]', label:'b', help: 'B', disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:'[5, 6]', label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
+
     element.val("[1, 2]");
     options = new creme.model.ChoiceRenderer.parse(element);
 
-    deepEqual(options, [{value:'[1, 2]', label:'a', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:'[3, 4]', label:'b', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:'[5, 6]', label:'c', disabled:true,  selected:false, visible: true, tags:[]},]);
+    deepEqual(options, [{value:'[1, 2]', label:'a', help: undefined, disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:'[3, 4]', label:'b', help: 'B', disabled:false, selected:false, visible: true, tags:[]},
+                        {value:'[5, 6]', label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
 });
 
 test('creme.model.ChoiceRenderer.parse (converter)', function() {
@@ -404,9 +404,9 @@ test('creme.model.ChoiceRenderer.parse (converter)', function() {
         '</options></select>');
     var options = new creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
 
-    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:[3, 4], label:'b', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:[5, 6], label:'c', disabled:false, selected:false, visible: true, tags:[]},]);
+    deepEqual(options, [{value:[1, 2], label:'a', help: undefined, disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:[3, 4], label:'b', help: undefined, disabled:false, selected:false, visible: true, tags:[]},
+                        {value:[5, 6], label:'c', help: undefined, disabled:false, selected:false, visible: true, tags:[]},]);
 
     element = $('<select><options>' +
                     '<option value="[1, 2]">a</option>' +
@@ -415,16 +415,16 @@ test('creme.model.ChoiceRenderer.parse (converter)', function() {
                 '</options></select>');
     options = new creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
 
-    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:[3, 4], label:'b', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:[5, 6], label:'c', disabled:true, selected:false,  visible: true, tags:[]},]);
+    deepEqual(options, [{value:[1, 2], label:'a', help: undefined, disabled:false, selected:false, visible: true, tags:[]},
+                        {value:[3, 4], label:'b', help: undefined, disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:[5, 6], label:'c', help: undefined, disabled:true, selected:false,  visible: true, tags:[]},]);
 
     element.val("[1, 2]");
     options = new creme.model.ChoiceRenderer.parse(element, new creme.utils.JSON().decode);
 
-    deepEqual(options, [{value:[1, 2], label:'a', disabled:false, selected:true,  visible: true, tags:[]},
-                        {value:[3, 4], label:'b', disabled:false, selected:false, visible: true, tags:[]},
-                        {value:[5, 6], label:'c', disabled:true,  selected:false, visible: true, tags:[]},]);
+    deepEqual(options, [{value:[1, 2], label:'a', help: undefined, disabled:false, selected:true,  visible: true, tags:[]},
+                        {value:[3, 4], label:'b', help: undefined, disabled:false, selected:false, visible: true, tags:[]},
+                        {value:[5, 6], label:'c', help: undefined, disabled:true,  selected:false, visible: true, tags:[]},]);
 });
 
 assertOptionGroups = function(element, expected) {
@@ -809,12 +809,12 @@ test('creme.model.ChoiceGroupRenderer (filled, model, update, other group, empty
 });
 
 test('creme.model.ChoiceGroupRenderer (parse)', function() {
-    deepEqual([{group: undefined, value:'1', label:'a', disabled:false, selected: false, visible: true, tags: []},
-               {group: 'group1',  value:'2', label:'b', disabled:false, selected: true,  visible: true, tags: ['tag1']},
-               {group: 'group2',  value:'3', label:'c', disabled:true,  selected: false, visible: true, tags: ['tag2']},
-               {group: 'group2',  value:'4', label:'d', disabled:false, selected: false, visible: true, tags: []},
-               {group: undefined, value:'5', label:'e', disabled:false, selected: false, visible: true, tags: []},
-               {group: undefined, value:'6', label:'f', disabled:false, selected: false, visible: true, tags: []}],
+    deepEqual([{group: undefined, value:'1', label:'a', help: undefined, disabled:false, selected: false, visible: true, tags: []},
+               {group: 'group1',  value:'2', label:'b', help: undefined, disabled:false, selected: true,  visible: true, tags: ['tag1']},
+               {group: 'group2',  value:'3', label:'c', help: undefined, disabled:true,  selected: false, visible: true, tags: ['tag2']},
+               {group: 'group2',  value:'4', label:'d', help: undefined, disabled:false, selected: false, visible: true, tags: []},
+               {group: undefined, value:'5', label:'e', help: undefined, disabled:false, selected: false, visible: true, tags: []},
+               {group: undefined, value:'6', label:'f', help: undefined, disabled:false, selected: false, visible: true, tags: []}],
               creme.model.ChoiceGroupRenderer.parse($('<select><options>' +
                                                      '<option value="1">a</option>' +
                                                      '<optgroup label="group1">' +

@@ -61,11 +61,12 @@ creme.model.ChoiceRenderer.parse = function(element, converter) {
         var option_value = option.attr('value');
 
         return {
-            label:    option.html(), 
+            label:    option.html(),
             value:    Object.isFunc(converter) ? converter(option_value) : option_value,
-            disabled: option.is('[disabled]'), 
+            disabled: option.is('[disabled]'),
             selected: values.indexOf(option_value) !== -1,
             visible:  true,
+            help:     option.attr('help'),
             tags:     option.is('[tags]') && option.attr('tags') ? option.attr('tags').split(' ') : []
         };
     }).get();
@@ -177,6 +178,7 @@ creme.model.ChoiceGroupRenderer.parse = function(element, converter) {
             disabled: option.is('[disabled]'),
             selected: values.indexOf(option_value) !== -1,
             visible:  true,
+            help:     option.attr('help'),
             tags:     option.is('[tags]') && option.attr('tags') ? option.attr('tags').split(' ') : []
         };
     }).get();
@@ -199,7 +201,13 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
     createItem: function(target, before, data, index)
     {
-        var item = $('<%s class="checkbox-field"><input type="checkbox"/><span class="checkbox-label"></span></%s>'.format(this._itemtag));
+        var item = $(('<%s class="checkbox-field">' +
+                         '<input type="checkbox"></input>' +
+                         '<div class="checkbox-label">' +
+                             '<span class="checkbox-label-text"></span>' +
+                             '<span class="checkbox-label-help"></span>' +
+                         '</div>' +
+                      '</%s>').format(this._itemtag));
         this.updateItem(target, item, data, undefined, index);
         return item;
     },
@@ -224,8 +232,11 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         checkbox.get()[0].checked = data.selected;
 
-        $('.checkbox-label', item).toggleAttr('disabled', disabled)
-                                  .html(data.label);
+        $('.checkbox-label-text', item).toggleAttr('disabled', disabled)
+                                       .html(data.label);
+
+        $('.checkbox-label-help', item).toggleAttr('disabled', disabled)
+                                       .html(data.help);
 
         item.toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .toggleClass('hidden', !data.visible)
@@ -252,6 +263,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         var converter = this._converter;
         var input = $('input[type="checkbox"]', item);
         var label = $('.checkbox-label', item);
+        var help = $('.checkbox-helptext', item);
         var value = input.attr('value');
 
         return {
@@ -259,6 +271,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
             value:    Object.isFunc(converter) ? converter(value) : value,
             disabled: input.is('[disabled]') || target.is('[disabled]'), 
             selected: input.is(':checked'),
+            help:     help.html(),
             tags:     input.is('[tags]') ? input.attr('tags').split(' ') : [],
             visible:  true
         };

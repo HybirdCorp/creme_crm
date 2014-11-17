@@ -392,13 +392,14 @@ span.ui-creme-datepicker-trigger {
 .checklist-counter {
     float: left;
     color: #777;
-    margin-left: 5px;
-    margin-top: 6px;
+    margin-left: 2px;
+    margin-top: 2px;
     margin-bottom: 2px;
+    display: none;
 }
 
-.checklist-counter:not(.filtered) {
-    display: none;
+.checklist-counter.visible {
+    display: inline-block;
 }
 
 .checklist-content .checkbox-field {
@@ -424,16 +425,8 @@ span.ui-creme-datepicker-trigger {
             transition: opacity 0.2s ease-in-out;
 }
 
-.checklist-content.filtered.filter .checkbox-field:not(.hilighted) {
+.checklist-content .checkbox-field.hidden {
     display: none;
-}
-
-.checklist-content.filtered.search .checkbox-field:not(.hilighted) {
-    opacity: 0.4;
-}
-
-.checklist-content.filtered.search .checkbox-field.hilighted {
-    /*display: none;*/
 }
 
 .checklist-content {
@@ -460,16 +453,38 @@ span.ui-creme-datepicker-trigger {
     margin-left: 4px;
     margin-bottom: 0px;
     margin-top: 2px;
-    vertical-align: top;
+    align-self: flex-start;
 }
 
 .checklist-content .checkbox-label {
     margin-right: 4px;
     max-width: 180px;
-    display: inline-block;
+    cursor: default;
+
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+}
+
+.checklist-content .checkbox-label-help {
+    padding-bottom: 5px;
+    opacity: 0.6;
+    font-size: 11px;
+    font-style: italic;
 }
 
 .checklist-content.wide .checkbox-label {
+    max-width: 370px;
+}
+
+.checklist-content.wide .checkbox-helptext {
     max-width: 370px;
 }
 
