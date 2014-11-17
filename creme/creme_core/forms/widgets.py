@@ -811,10 +811,46 @@ class ColorPickerWidget(TextInput):
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple):
+    class Choice(object):
+        def __init__(self, value, disabled=False, help=u''):
+            self.value = value
+            self.disabled = disabled
+            self.help = help
+
     def __init__(self, attrs=None, choices=(), columntype='', filtertype=None):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
+
+    def render_unordered_choice(self, selected_choices, choice, option_label):
+        # This code is part of method django.forms.widgets.Select.render_option()
+        # ==========================
+        option_value = force_unicode(choice.value)
+
+        if option_value in selected_choices:
+            selected_html = u' selected="selected"'
+            if not self.allow_multiple_selected:
+                # Only allow for a single selection.
+                selected_choices.remove(option_value)
+        else:
+            selected_html = ''
+        # ==========================
+
+        disabled_html = u' disabled' if choice.disabled else u''
+        help_html = u' help="%s"' % escape(choice.help) if choice.help else u''
+
+        return u'<option value="%s"%s%s%s>%s</option>' % (escape(option_value),
+                                                          selected_html,
+                                                          disabled_html,
+                                                          help_html,
+                                                          conditional_escape(force_unicode(option_label)))
+
+    def render_option(self, selected_choices, option_value, option_label):
+        if isinstance(option_value, self.Choice):
+            return self.render_unordered_choice(selected_choices, option_value, option_label)
+
+        return super(UnorderedMultipleChoiceWidget, self).render_option(selected_choices, option_value, option_label)
+
 
     def render(self, name, value, attrs=None, choices=()):
         if not self.choices:
@@ -863,7 +899,8 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
         filter = checkall = ''
 
         if filtertype:
-            filter = '<input type="%s" class="checklist-filter" placeholder="%s">' % (filtertype, _(filtertype.upper()))
+            filtername = _('Filter') if filtertype == 'filter' else _('Search')
+            filter = '<input type="search" class="checklist-filter" placeholder="%s">' % filtername.upper()
 
         if has_checkall:
             checkall = '<a type="button" class="checklist-check-all">%s</a>'\

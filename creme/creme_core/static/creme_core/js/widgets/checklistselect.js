@@ -21,14 +21,12 @@ creme.widget = creme.widget || {};
 creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', {
     options: {
         datatype: 'string',
-        grouped: false
     },
 
     _create: function(element, options, cb, sync)
     {
         var self = this;
 
-        this._grouped = creme.object.isTrue(options.grouped) || element.is('[grouped]');
         this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
 
         this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
@@ -51,34 +49,69 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             self._selections.toggle(parseInt($(this).attr('checklist-index')), $(this).get()[0].checked);
         });
 
+        $('.checkbox-field .checkbox-label', element).bind('click', function() {
+            $(this).parents('.checkbox-field:first').find('input[type="checkbox"]').click();
+        });
+
         element.addClass('widget-ready');
+    },
+
+    _getItemFilter: function(filter) {
+        return function(item) {
+            return (!Object.isEmpty(item.label) && item.label.toLowerCase().indexOf(filter) !== -1) ||
+                   (!Object.isEmpty(item.help) && item.help.toLowerCase().indexOf(filter) !== -1);
+        };
     },
 
     _updateViewFilter: function(element, filter)
     {
         var isfiltered = !Object.isEmpty(filter);
         var content = this.content(element);
-        var items = $('.checkbox-field', content);
-        var counter = $('.checklist-counter', element);
+        var hide = content.is('.filter');
+        var filter_lambda = this._getItemFilter(filter);
 
         content.toggleClass('filtered', isfiltered);
 
-        items.each(function() {
-            var accepted = $('.checkbox-label', this).html().toLowerCase().indexOf(filter) !== -1;
-            $(this).toggleClass('hilighted', accepted);
+        if (hide) {
+            this._filtered.filter(filter_lambda);
+        }
+
+        this._model.each(function(item) {
+            item.disabled = !filter_lambda(item);
         });
 
-        var hilighted_count = $('.checkbox-field.hilighted', content).length
+        this._controller.redraw();
 
-        counter.toggleClass('filtered', isfiltered)
-               .html(ngettext('%d result of %d', '%d results of %d', hilighted_count).format(hilighted_count, items.length));
+        this._updateViewCounter(element);
     },
 
     _updateViewSelection: function(element)
     {
+        var counter = $('.checklist-selection-count', element);
         var comparator = function(a, b) {return creme.utils.compareTo(a.value, b);}
         var indices = this._controller.model().indicesOf(this.val(element) || [], comparator);
+
         this._selections.select(indices);
+    },
+
+    _updateViewCounter: function(element)
+    {
+        var counter = $('.checklist-counter', element);
+        var selection_count = this._selections.selected().length;
+        var hilighted_count = $('.checkbox-field:not(.hidden)', this.content(element)).length;
+        var model_count = this._model.length();
+        var messages = [];
+
+        if (selection_count > 0) {
+            messages.push(ngettext('%d selection', '%d selections', selection_count).format(selection_count));
+        }
+
+        if (hilighted_count !== model_count) {
+            messages.push(ngettext('%d result of %d', '%d results of %d', hilighted_count).format(hilighted_count, model_count));
+        }
+
+        counter.toggleClass('visible', messages.length > 0)
+               .html(messages.join('&nbsp;‒&nbsp;') + '&nbsp;');
     },
 
     _updateDelegate: function(element)
@@ -98,28 +131,33 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var input = this._delegate(element);
         var content = this.content(element);
 
-        var renderer = this._grouped ? new creme.model.CheckGroupListRenderer() : new creme.model.CheckListRenderer();
+        var renderer = new creme.model.CheckGroupListRenderer();
         var controller = this._controller = new creme.model.CollectionController(this._backend);
         var selections = this._selections = new creme.model.SelectionController();
 
-        var choices = this._grouped ? creme.model.ChoiceGroupRenderer.parse(input) : creme.model.ChoiceRenderer.parse(input);
-        var model = new creme.model.Array(choices);
+        var choices = creme.model.ChoiceGroupRenderer.parse(input);
+        var model = this._model = new creme.model.Array(choices);
+        var filtered = this._filtered = new creme.model.Filter(model);
 
         selections.model(model)
                   .selectionFilter(function(item, index) {return !item.disabled;})
-                  .on('change', function() {self._updateDelegate(element);});
+                  .on('change', function() {
+                      self._updateDelegate(element);
+                      self._updateViewCounter(element);
+                   });
 
         renderer.converter(this._converter)
                 .disabled(disabled);
 
         controller.renderer(renderer)
                   .target(content)
-                  .model(model)
+                  .model(filtered)
                   .redraw();
 
         input.bind('change', function() {self._updateViewSelection(element);});
 
-        if ($.browser.msie && !this._grouped)
+        /*
+        if ($.browser.msie)
         {
             var layout = new creme.layout.ColumnSortLayout();
             var column_width = content.get()[0].currentStyle['column-width'] || '200px';
@@ -134,6 +172,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
                   .bind(content)
                   .layout();
         }
+        */
 
         //this._layout.columns(3).resizable(true).bind(content).layout();
     },

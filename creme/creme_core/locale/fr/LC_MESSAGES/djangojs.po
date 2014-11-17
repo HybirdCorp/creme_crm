@@ -261,12 +261,19 @@ msgstr "Conflit"
 msgid "Internal Error"
 msgstr "Erreur interne"
 
-#: static/creme_core/js/widgets/checklistselect.js:74
+#: static/creme_core/js/widgets/checklistselect.js:112
 #, c-format
 msgid "%d result of %d"
 msgid_plural "%d results of %d"
 msgstr[0] "%d résultat sur %d"
 msgstr[1] "%d résultats sur %d"
+
+#: static/creme_core/js/widgets/checklistselect.js:108
+#, c-format
+msgid "%d selection"
+msgid_plural "%d selections"
+msgstr[0] "%d sélection"
+msgstr[1] "%d sélections"
 
 #: static/creme_core/js/widgets/datetime.js:28
 msgid "Today"

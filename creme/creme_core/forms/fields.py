@@ -1370,7 +1370,10 @@ class CTypeChoiceField(Field):
     @ctypes.setter
     def ctypes(self, ctypes):
         self._ctypes = ctypes = list(ctypes)
-        self.widget.choices = build_ct_choices(ctypes) or [('', self.empty_label)]
+        self.widget.choices = self._build_ctype_choices(ctypes) or [('', self.empty_label)]
+
+    def _build_ctype_choices(self, ctypes):
+        return build_ct_choices(ctypes)
 
     def to_python(self, value):
         if value in EMPTY_VALUES:
@@ -1389,7 +1392,20 @@ class CTypeChoiceField(Field):
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):
-    widget = UnorderedMultipleChoiceWidget(columntype='wide')
+    widget = UnorderedMultipleChoiceWidget()
+
+    def _build_ctype_choices(self, ctypes):
+        from ..utils.unicode_collation import collator
+        from ..registry import creme_registry
+
+        Choice = UnorderedMultipleChoiceWidget.Choice
+        get_app = creme_registry.get_app
+
+        choices = [(Choice(ct.id, help=_(get_app(ct.app_label).verbose_name)), unicode(ct)) for ct in ctypes]
+        sort_key = collator.sort_key
+        choices.sort(key=lambda k: sort_key(k[1]))
+
+        return choices
 
     def to_python(self, value):
         ctypes = []
