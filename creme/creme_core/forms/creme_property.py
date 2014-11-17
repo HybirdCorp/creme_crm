@@ -47,8 +47,10 @@ class _AddPropertiesForm(CremeForm):
 
 class AddPropertiesForm(_AddPropertiesForm):
     def __init__(self, entity, *args, **kwargs):
-        super(AddPropertiesForm, self).__init__(*args, **kwargs)
+        # we need this entity in super constructor when post_init_callback is called.
+        # TODO: Add unit tests for this !
         self.entity = entity
+        super(AddPropertiesForm, self).__init__(*args, **kwargs)
 
         #TODO: move queryset to a CremePropertyType method ??
         excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
