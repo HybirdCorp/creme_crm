@@ -400,7 +400,8 @@ class RGHRelation(ReportGraphHand):
         y_value_func = self._y_calculator
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
-            subj_ids = rel_filter(object_entity=obj_id).values_list('subject_entity')
+            subj_ids = rel_filter(object_entity=obj_id).order_by('subject_entity__id')\
+                                                       .values_list('subject_entity')
 
             yield (unicode(ce_objects_get(pk=obj_id).get_real_entity()),
                    [y_value_func(entities_filter(pk__in=subj_ids)), build_url({'pk__in': [e[0] for e in subj_ids]})],
