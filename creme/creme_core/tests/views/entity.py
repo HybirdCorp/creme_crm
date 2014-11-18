@@ -17,7 +17,6 @@ try:
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _
 
-
     from .base import ViewsTestCase
     from ..base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -1218,20 +1217,23 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_regular_field_many2many_invalid(self):
         self.login()
 
-        categories = [MediaCategory.objects.create(name='A'),
-                      MediaCategory.objects.create(name='B'),
-                      MediaCategory.objects.create(name='C'),]
+        create_cat = MediaCategory.objects.create
+        categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', self.user, categories)
-        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertEqual(set(image.categories.all()), set(categories))
+
+        invalid_pk = 1024
+        self.assertFalse(MediaCategory.objects.filter(id=invalid_pk))
 
         url = self.build_inneredit_url(image, 'categories')
-        response = self.client.post(url, data={'field_value': [categories[0].pk, 12]})
+        response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'Select a valid choice. %s is not one of the available choices.') % 12)
+                             _(u'Select a valid choice. %s is not one of the available choices.') % invalid_pk
+                            )
 
         image = self.refresh(image)
-        self.assertListEqual(list(image.categories.all()), categories)
+        self.assertEqual(set(image.categories.all()), set(categories))
 
     def test_regular_field_innerform(self):
         self.login()
