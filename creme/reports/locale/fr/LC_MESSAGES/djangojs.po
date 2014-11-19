@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'REPORTS' APP (JavaScript only)
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2014 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 1.4\n"
+"Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-30 15:52+0200\n"
+"POT-Creation-Date: 2014-11-19 11:16+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,15 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/reports/js/reports.js:67
+#: static/reports/js/reports.js:56
 msgid "None available"
 msgstr "Aucun disponible"
 
-#: static/reports/js/reports.js:119
+#: static/reports/js/reports.js:100
+msgid "No selected view"
+msgstr "Aucune vue sélectionnée"
+
+#: static/reports/js/reports.js:107
 msgid "All"
 msgstr "Tout"
 
-#: static/reports/js/reports.js:267
+#: static/reports/js/reports.js:132
 msgid "Error"
 msgstr "Erreur"
 
@@ -39,9 +43,6 @@ msgstr "Erreur"
 
 #~ msgid "Please select a type."
 #~ msgstr "Veuillez sélectionner un type."
-
-#~ msgid "No selected view"
-#~ msgstr "Aucune vue sélectionnée"
 
 #~ msgid "Ok"
 #~ msgstr "Ok"
