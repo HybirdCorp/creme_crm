@@ -219,6 +219,23 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
+    def test_report_createview04(self):
+        "No HeaderFilter -> no column"
+        self.login()
+
+        name = 'Report #1'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                      data={'user': self.user.pk,
+                                            'name': name,
+                                            'ct':   ContentType.objects.get_for_model(Contact).id,
+                                            'hf':   '',
+                                           }
+                                     )
+        self.assertNoFormError(response)
+
+        report = self.get_object_or_fail(Report, name=name)
+        self.assertFalse(report.columns)
+
     def test_report_editview(self):
         self.login()
 

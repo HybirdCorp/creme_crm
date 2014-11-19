@@ -22,15 +22,15 @@ from functools import partial
 from itertools import chain
 #import logging
 
-from django.db.transaction import commit_on_success
-from django.forms.fields import ChoiceField
+from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
+from django.db.transaction import commit_on_success
+from django.forms.fields import ChoiceField
 from django.forms.util import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.core.exceptions import ValidationError
 
 from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -91,7 +91,7 @@ _CUSTOM_AGG_PREFIX  = _EntityCellCustomAggregate.type_id + '-'
 
 class ReportCreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(),
-                                  help_text=_('The columns of the report will be copied from the list view.')
+                                  help_text=_('If you select a view of list, the columns of the report will be copied from it.'),
                                  )
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
@@ -106,7 +106,7 @@ class ReportCreateForm(CremeEntityForm):
             ct = get_data('ct')
             hf = get_data('hf')
 
-            if hf.entity_type != ct:
+            if hf and hf.entity_type != ct:
                 self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
 
             efilter = get_data('filter')
@@ -118,13 +118,16 @@ class ReportCreateForm(CremeEntityForm):
     @commit_on_success
     def save(self, *args, **kwargs):
         report = super(ReportCreateForm, self).save(*args, **kwargs)
-        build_field = partial(Field.objects.create, report=report)
+        hf = self.cleaned_data['hf']
 
-        for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
-            #TODO: check in clean() that id is OK
-            build_field(name=cell.value, title=cell.title, order=i,
-                        type=_CELL_2_HAND_MAP[cell.type_id],
-                       )
+        if hf is not None:
+            build_field = partial(Field.objects.create, report=report)
+
+            for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
+                #TODO: check in clean() that id is OK
+                build_field(name=cell.value, title=cell.title, order=i,
+                            type=_CELL_2_HAND_MAP[cell.type_id],
+                           )
 
         return report
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-16 21:48+0200\n"
+"POT-Creation-Date: 2014-11-19 11:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: core/graph.py:101 core/graph.py:424
+#: core/graph.py:101 core/graph.py:425
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
@@ -69,19 +69,19 @@ msgstr "le champ personnalisé n'existe plus."
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:247 core/graph.py:454
+#: core/graph.py:247 core/graph.py:455
 msgid "By days"
 msgstr "Par jours"
 
-#: core/graph.py:266 core/graph.py:468
+#: core/graph.py:266 core/graph.py:469
 msgid "By months"
 msgstr "Par mois"
 
-#: core/graph.py:283 core/graph.py:481
+#: core/graph.py:283 core/graph.py:482
 msgid "By years"
 msgstr "Par années"
 
-#: core/graph.py:323 core/graph.py:492
+#: core/graph.py:323 core/graph.py:493
 msgid "By X days"
 msgstr "Par X jours"
 
@@ -97,24 +97,24 @@ msgstr "Par valeurs (des fiches liées)"
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:531
+#: core/graph.py:532
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:604 forms/blocks.py:79
+#: core/graph.py:605 forms/blocks.py:79
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
 
-#: core/graph.py:633
+#: core/graph.py:635
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:643
+#: core/graph.py:645
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:674
+#: core/graph.py:676
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
@@ -172,7 +172,7 @@ msgstr "Relations"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/bulk.py:33 forms/report.py:140
+#: forms/bulk.py:33 forms/report.py:143
 msgid "All"
 msgstr "Tout"
 
@@ -268,39 +268,43 @@ msgid "Existing view"
 msgstr "Vue existante"
 
 #: forms/report.py:94
-msgid "The columns of the report will be copied from the list view."
-msgstr "Les colonnes du rapport seront copiés depuis la vue de liste."
+msgid ""
+"If you select a view of list, the columns of the report will be copied from "
+"it."
+msgstr ""
+"Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
+"copiées depuis celle-ci."
 
 #: forms/report.py:96 models/report.py:40
 #: templates/reports/frags/report_preview_format.html:15
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/report.py:145
+#: forms/report.py:148
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:256
+#: forms/report.py:259
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:394 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:397 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:395
+#: forms/report.py:398
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:396
+#: forms/report.py:399
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:408
+#: forms/report.py:411
 msgid "None"
 msgstr "Aucun"
 
-#: forms/report.py:423
+#: forms/report.py:426
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."
@@ -347,7 +351,7 @@ msgstr "Graphique de rapport"
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:153
+#: models/graph.py:154
 #, python-format
 msgid "The instance block for \"%s\" with these parameters already exists!"
 msgstr "Le bloc d'instance pour \"%s\" avec ces paramètres existe déjà !"
