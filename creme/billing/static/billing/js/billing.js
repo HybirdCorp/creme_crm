@@ -437,23 +437,14 @@ creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
 creme.billing.restoreValue = function(input) {
     var initial_value = input.attr('initial');
 
-    if (initial_value !== undefined) {
-        if (input.attr('type') === 'checkbox') {
-            input.check();
-        } else {
-            if (input.attr('o2m')) { // TODO hack to retrieve the creme entity widget
-                if (initial_value === '') {
-                    input.val('');
-                    $('div', $('div', input.parent())).empty().remove();
-                } else {
-                    creme.lv_widget.handleSelection(initial_value, input.attr('id'));
-                }
-            } else {
-                    input.val(initial_value);
-            }
-        }
-    } else {
-        if (input.attr('type') === 'checkbox') input.uncheck();
+    if (input.attr('type') === 'checkbox') {
+        input.get().checked = !Object.isNone(initial_value);
+    }
+    // TODO : remove this unused code
+    /* else if (input.attr('o2m')) { // TODO hack to retrieve the creme entity widget
+        creme.lv_widget.handleSelection(initial_value || [], input.attr('id'));
+    }*/ else {
+        input.val(initial_value);
     }
 
     input.change();
