@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import warnings
 
 from django.db.models import Model, CharField
 from django.db.utils import IntegrityError
-
+from django.db import transaction
 
 class MutexLockedException(Exception): #TODO: inner class
     def __init__(self, *args, **kwargs):
@@ -47,10 +47,15 @@ class Mutex(Model):
         if self.is_locked():
             raise MutexLockedException()
 
+        sid = transaction.savepoint()
+
         try:
             self.save()
         except IntegrityError:
+            transaction.savepoint_rollback(sid)
             raise MutexLockedException('Mutex is already locked')
+        finally:
+            transaction.savepoint_commit(sid)
 
         #return self
 
