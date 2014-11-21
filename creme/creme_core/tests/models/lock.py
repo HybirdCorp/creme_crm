@@ -21,7 +21,7 @@ class MutexTestCase(CremeTransactionTestCase):
     def _get_ids(self):
         return list(Mutex.objects.order_by('id').values_list('id', flat=True))
 
-    def test_mutex01(self):
+    def test_mutex_lock(self):
         mutex = Mutex(id='mutex-01')
         mutex.lock()
 
@@ -30,18 +30,22 @@ class MutexTestCase(CremeTransactionTestCase):
         mutex.release()
         self.assertEqual(0, Mutex.objects.count())
 
-    def test_mutex02(self):
+    def test_mutex_lock_twice_same_instance(self):
         "Double lock (on same instance) causes an error"
         mutex = Mutex(id='mutex-01')
         mutex.lock()
         self.assertRaises(MutexLockedException, mutex.lock)
 
-    def test_mutex03(self):
+        mutex.graceful_release('mutex-01')
+
+    def test_mutex_unlock_not_locked(self):
         "Release an unlocked Mutex causes an error"
         mutex = Mutex(id='mutex-01')
         self.assertRaises(MutexNotLockedException, mutex.release)
 
-    def test_mutex04(self):
+        mutex.graceful_release('mutex-01')
+
+    def test_mutex_lock_twice_same_name(self):
         "Double lock causes an error (lock method)"
         name1 = 'mutex-01'
         name2 = 'other_mutex'
@@ -65,7 +69,7 @@ class MutexTestCase(CremeTransactionTestCase):
         mutex1.release()
         self.assertEqual([name2], self._get_ids())
 
-    def test_mutex05(self):
+    def test_mutex_lock_twice_static_method(self):
         "Double lock causes an error (get_n_lock static method)"
         name = 'mutex-stuff'
         mutex = Mutex.get_n_lock(name)
