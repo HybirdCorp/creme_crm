@@ -81,6 +81,28 @@
     padding-bottom: 5px;
 }
 
+.list_view tr#list_thead_toolbar button.do-search {
+    position: relative;
+    top: 5px;
+}
+
+.list_view tr#list_thead_toolbar button.do-search > div {
+    display: flex;
+    height: 16px;
+}
+
+.list_view tr#list_thead_toolbar button.do-search img {
+    align-self: center;
+    z-index: 1;
+    top: -5px;
+    left: -5px;
+    position: relative;
+}
+
+.list_view tr#list_thead_toolbar button.do-search span {
+    align-self: center;
+}
+
 .list_view .toolbar button, .list_view .toolbar a, .list_view button {
     /*padding: 4px ;
     border: 1px solid #d5e0e5;
@@ -124,6 +146,35 @@
     border-right: 1px solid #548295;
 }*/
 
+.list_view .columns_top .column button {
+    width: 100%;
+    word-wrap: initial;
+    padding: 1px 2px;
+}
+
+.list_view .page_information {
+    text-align: left;
+    padding-bottom: 5px;
+}
+
+.list_view .columns_top .column button > div {
+    display: flex;
+}
+
+.list_view .columns_top .column .lv-sort-toggle-title {
+    align-self: center;
+    flex-grow: 1;
+}
+
+.list_view .columns_top .column .lv-sort-toggle-flag {
+    visibility: hidden;
+    align-self: center;
+    min-width: 16px;
+}
+
+.list_view .columns_top .column.sorted .lv-sort-toggle-flag {
+    visibility: visible;
+}
 
 .list_view .columns_top th {
     border-top: 1px solid #548295;
@@ -147,6 +198,47 @@
     border-right: 1px solid #548295;
     text-align: center;
     padding-bottom: 2px;
+}
+
+
+.list_view .columns_bottom .text input {
+    min-width: 50px;
+}
+
+.list_view .columns_bottom .lv-search-daterange {
+    display: flex;
+    flex-direction: column;
+    margin-right: -15px;
+}
+
+.list_view .columns_bottom .lv-search-daterange .date-start,
+.list_view .columns_bottom .lv-search-daterange .date-end {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+}
+
+.list_view .columns_bottom .lv-search-daterange label {
+    margin: 2px;
+    align-self: center;
+}
+
+.list_view .columns_bottom .lv-search-daterange input {
+    padding-right: 20px;
+    align-self: center;
+    width: 70px;
+}
+
+.list_view .columns_bottom .lv-search-daterange .ui-datepicker-trigger {
+    right: 20px;
+    align-self: center;
+    opacity: 1;
+    height: 16px;
+    position: relative;
+    bottom: 1px;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
 }
 
 /*.list_view tbody tr:nth-of-type(odd) { CSS3*/
@@ -253,19 +345,63 @@
 }
 
 
-.list_view .left_align {
+.list_view .cl_lv ul {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.list_view tbody .lv-cell {
+    display: flex;
+}
+
+.list_view tbody .lv-cell-content {
+    flex-grow: 1;
+    padding-right: 3px;
+    align-self: center;
+    text-align: center;
+}
+
+.list_view tbody .lv-cell-action {
+    visibility: hidden;
+    height: 16px;
+    align-self: center;
+}
+
+.list_view tbody tr:hover .lv-cell-action {
+    visibility: visible;
+}
+
+.list_view tbody .lv-cell-action a {
+    margin: 0;
+    padding: 0;
+}
+
+.list_view tbody .lv-cell-action a:hover {
+    cursor: pointer;
+}
+
+.list_view tbody .lv-cell-action a img {
+    margin: 0;
+    padding: 0;
+}
+
+.list_view .left_align .lv-cell-content {
+    text-align: left;
+}
+
+.list_view .left_align .lv-cell-content {
     text-align: left;
     padding-left: 5px;
 }
 
-.list_view .text_area {
+.list_view .text_area .lv-cell-content {
     text-align: left;
     padding-left: 5px;
     max-width: 120px;
     white-space: normal;
 }
 
-.list_view .right_align {
+.list_view .right_align .lv-cell-content {
     text-align: right;
     padding-right: 5px;
 }

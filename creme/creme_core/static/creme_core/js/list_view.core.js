@@ -162,6 +162,40 @@
                     return true;
                 }
 
+                this.enableFilters = function() {
+                    self.find('.columns_bottom .column input[type="text"]')
+                        .bind('keydown', function(event) {
+                             event.stopPropagation();
+                             me.getKdSubmit()(event, this, {'_search': 1});
+                         });
+
+                    self.find('.columns_bottom .column select')
+                        .bind('change', function(event) {
+                             event.stopPropagation();
+                             me.getSubmit()(this, {'_search': 1});
+                         });
+
+                    self.find('.columns_bottom .column.datefield input')
+                        .bind('keydown', function(event) {
+                             event.stopPropagation();
+                             me.getKdSubmit()(event, this, {'_search': 1});
+                         })
+                        .datepicker({dateFormat: "yy-mm-dd",
+                                     showOn:     "both",
+                                     buttonImage: creme_media_url('images/icon_calendar.gif'),
+                                     buttonImageOnly: true});
+                }
+
+                this.enableActions = function() {
+                    self.find('.lv-header-action-list').NavIt({ArrowSideOnRight: false});
+                    self.find('.lv-action-toggle')
+                        .click(function() {
+                            $(this).parents('ul').find('ul').slideToggle('slide');
+                         });
+
+                    creme.menu.HNavIt(self.find('.lv-row-action-list'));
+                }
+
                 /***************** Row selection part *****************/
                 this.enableRowSelection = function() {
                     self.find('.'+opts.selectable_class)
@@ -252,6 +286,8 @@
 
                 this.enableEvents = function() {
                     this.enableRowSelection();
+                    this.enableFilters();
+                    this.enableActions();
                     if(!opts.o2m) this.enableCheckAllBoxes();
                 }
 

@@ -74,7 +74,13 @@
                     </a>&nbsp;
                 {% endif %}
                 <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
-                <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);">{% trans "Research" as label %}<img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}</button>
+                <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);">
+                    {% trans "Research" as label %}
+                    <div>
+                        <img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>
+                        <span>{{label}}</span>
+                    </div>
+                </button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}
                     {% for templ in extra_bt_templates %}
@@ -101,9 +107,13 @@
                 {% elif cell.type_id == 'actions' %}
                     <th class="actions"></th>
                 {% else %}
-                    <th class="column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
+                    <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
                         <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
-                            {{cell.title}}
+                            <div>
+                                <span class="lv-sort-toggle-flag ui-icon ui-icon-triangle-1-{% if list_view_state.sort_order == '-' %}n{% else %}s{% endif %}">&nbsp;</span>
+                                <span class="lv-sort-toggle-title">{{cell.title}}</span>
+                                <span class="lv-sort-toggle-flag ui-icon ui-icon-triangle-1-{% if list_view_state.sort_order == '-' %}n{% else %}s{% endif %}">&nbsp;</span>
+                            </div>
                         </button>
                     </th>
                 {% endif %}
@@ -122,9 +132,13 @@
                     {% if cell.type_id == 'actions' and show_actions %}
                         <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
-                        <td class="column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
-                            {% get_listview_cell cell entity user %}
-                            {% if not is_popup_view %}{% get_field_editor on entity_cell cell for entity %}{% endif %}
+                        <td class="{% if cell.key == list_view_state.sort_field %}sorted{% endif %} column cl_lv {{cell.listview_css_class}}" title="" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
+                            <div class="lv-cell">
+                                <div class="lv-cell-content">{% get_listview_cell cell entity user %}</div>
+                                {% if not is_popup_view %}
+                                <div class="lv-cell-action">{% get_field_editor on entity_cell cell for entity %}
+                                {% endif %}
+                            </div>
                         </td>
                     {% endif %}
                 {% endfor %}
@@ -141,6 +155,9 @@
                 <table border="0" width="100%">
                     <tbody>
                         <tr>
+                            <td class="page_information">
+                                {% blocktrans with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+                            </td>
                             <td class="previous_buttons">
                                 <button class="first_page" name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
                                 <button class="previous_page" name="page" value="{{entities.previous_page_number}}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
@@ -163,9 +180,6 @@
                                         <option value="200" {% if rows == 200 %}selected{% endif %}>200</option>
                                     {% endwith %}
                                 </select>
-                            </td>
-                            <td class="page_information">
-                                {% blocktrans with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
                             </td>
                         </tr>
                     </tbody>

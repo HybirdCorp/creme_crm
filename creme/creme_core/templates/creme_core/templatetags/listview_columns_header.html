@@ -4,50 +4,43 @@
     {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for cell in cells %}
         {% with cell.widget_ctx as widget_ctx %}{% with widget_ctx.type as widget_type %}
-            <th {% if cell.is_hidden %}style="display:none;"{% endif %} class="{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if widget_ctx.value %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}">
+            <th {% if cell.is_hidden %}style="display:none;"{% endif %} class="{% if cell.key == list_view_state.sort_field %}sorted {% endif %}{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if widget_ctx.value %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}">
                 {% if cell.has_a_filter %}
                     {% if widget_type == "select" %}
-                        <select name="{{cell.key}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
-                            <option value="">{% trans "Select" %}</option>
+                        <select name="{{cell.key}}" title="{{cell.title}}">
+                            <option value="">{% trans "All" %}</option>
                             {% for options in widget_ctx.values %}
                                 <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %} {% if options.value == NULL_FK %}class="search-nullfk"{% endif %}>{{options.text}}</option>
                             {% endfor %}
                         </select>
                     {% elif widget_type == "checkbox" %}
-                        <select name="{{cell.key}}" title="{{cell.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
-                            <option value="">{% trans "Select" %}</option>
+                        <select name="{{cell.key}}" title="{{cell.title}}">
+                            <option value="">{% trans "All" %}</option>
                             {% for options in widget_ctx.values %}
                                 <option value="{{options.value}}" {% if search %}{{options.selected}}{% endif %}>{{options.text}}</option>
                             {% endfor %}
                         </select>
                     {% elif widget_type == "datefield" %}
-                        <span>
-                            <label for="id_{{cell.key}}{{whoami}}">{% trans "Between" %}</label>
-                            <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}" title="{{cell.title}}" type="{{widget_type}}"
-                                    style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"
-                                    onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="first"/>
-                            &nbsp;<label for="id_{{cell.key}}{{whoami}}_2">{% trans "and" %}</label>&nbsp;
-                            <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}_2" title="{{cell.title}}" type="{{widget_type}}"
-                                    style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"
-                                    onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="second"/>
-                        </span>
-                        <script type="text/javascript">
-                            $("#id_{{cell.key}}{{whoami}}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
-                            $("#id_{{cell.key}}{{whoami}}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
-                        </script>
+                        <div class="lv-search-daterange">
+                            <div class="date-start">
+                                <label for="id_{{cell.key}}{{whoami}}">{% trans "Start" %}</label>
+                                <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}" title="{{cell.title}}" type="{{widget_type}}"
+                                       value="{% if search %}{{widget_ctx.values.start}}{% endif %}"/>
+                            </div>
+                            <div class="date-end">
+                                <label for="id_{{cell.key}}{{whoami}}_2">{% trans "End" %}</label>
+                                <input name="{{cell.key}}" id="id_{{cell.key}}{{whoami}}_2" title="{{cell.title}}" type="{{widget_type}}"
+                                       value="{% if search %}{{widget_ctx.values.end}}{% endif %}"/>
+                            </div>
+                        </div>
                     {% elif widget_type == "text" %}
-                        <input name="{{cell.key}}" title="{{cell.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
+                        <input name="{{cell.key}}" title="{{cell.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" />
                     {% endif %}
                 {% endif %}
                 {% if cell.type_id == 'actions' and show_actions %}
-                    <script type="text/javascript">
-                        $(function() {
-                            $('#bulk_actions').NavIt({ArrowSideOnRight: false});
-                        });
-                    </script>
-                    <ul id="bulk_actions" class="entity_menu ui-widget ui-corner-all ui-state-default">
-                        <li>
-                            <a onclick="$(this).parents('ul').find('ul').slideToggle('slide')">{% trans "Actions" %}</a>
+                    <ul id="bulk_actions" class="lv-header-action-list entity_menu ui-widget ui-corner-all ui-state-default">
+                        <li class="lv-action-list">
+                            <a class="lv-action-toggle">{% trans "Actions" %}</a>
                             <ul style="float: left; position: absolute; z-index: 10; display: none;" class="ui-widget ui-widget-content ui-corner-all">
                                 <li>
                                     <a style="white-space: nowrap;" onclick="creme.lv_widget.deleteSelectedLines($('form[name=list_view_form]'));">
