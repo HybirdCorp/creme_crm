@@ -407,8 +407,15 @@ class EntityCellRelation(EntityCell):
         CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 
     def render_html(self, entity, user):
-        relations_list = ['<ul>']
+        related_entities = entity.get_related_entities(self.value, True)
 
+        if not related_entities:
+            return u''
+
+        if len(related_entities) == 1:
+            return widget_entity_hyperlink(related_entities[0], user)
+
+        relations_list = ['<ul>']
         relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
                                 for e in entity.get_related_entities(self.value, True)
                              )

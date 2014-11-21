@@ -1,12 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags %}
-<script type="text/javascript">
-    $(function() {
-        creme.menu.HNavIt('#actions_menu_{{id}}');
-    });
-</script>
-
-<ul id="actions_menu_{{id}}" class="entity_menu ui-widget ui-corner-all ui-state-default">
+<ul id="actions_menu_{{id}}" class="lv-row-action-list entity_menu ui-widget ui-corner-all ui-state-default">
     <li>
         {% with actions.default as action %}
             {% if action %}

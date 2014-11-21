@@ -391,11 +391,12 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
         creme.lv_widget.initialize({multiple: multiple}, dialog);
 
-        /* USEFULL ??? */
+        /* TODO : remove it, "default-action" class is no longer used in templates.
         $('.list_view_actions .default-action', element).hover(
              function() {$(this).addClass('ui-state-hover');},
              function() {$(this).removeClass('ui-state-hover');}
         );
+        */
 
         element.addClass('widget-ready');
     }

@@ -124,13 +124,19 @@
 
 .list_view tr#list_thead_toolbar button.do-search {
     position: relative;
-    top: 5px;
+    top: 6px;
+}
+
+.list_view tr#list_thead_toolbar button.do-search > div {
+    display: flex;
 }
 
 .list_view tr#list_thead_toolbar button.do-search img {
-    position: relative;
-    top: 2px;
-    left: -5px;
+    align-self: center;
+}
+
+.list_view tr#list_thead_toolbar button.do-search span {
+    align-self: center;
 }
 
 .list_view .toolbar th {
@@ -200,10 +206,48 @@
     background: white;
 }
 
+.list_view .page_information {
+    text-align: left;
+    padding-bottom: 5px;
+}
+
+.list_view .columns_top .column button {
+    width: 100%;
+    word-wrap: initial;
+    padding: 1px 2px;
+}
+
+.list_view .columns_top .column button[disabled] {
+    border: 0px;
+    color: #22439f;
+    opacity: 1;
+    background: none;
+}
+
+.list_view .columns_top .column button > div {
+    display: flex;
+}
+
+.list_view .columns_top .column .lv-sort-toggle-title {
+    align-self: center;
+    flex-grow: 1;
+}
+
+.list_view .columns_top .column .lv-sort-toggle-flag {
+    visibility: hidden;
+    align-self: center;
+    min-width: 16px;
+}
+
+.list_view .columns_top .column.sorted .lv-sort-toggle-flag {
+    visibility: visible;
+}
+
 .list_view .columns_top th {
     border-top: 1px solid rgba(84,130,149,0.3);
     border-left: 1px solid rgba(84,130,149,0.3);
     /*border-right: 1px solid #548295;*/
+    padding: 0px 2px;
 }
 
 .list_view .columns_bottom th.search input,
@@ -215,12 +259,59 @@
     /*background: #fdd5d1 url(jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
 }
 
-.list_view .columns_bottom th{
+.list_view .columns_top th.sorted,
+.list_view .columns_bottom th.sorted {
+	background-color: hsl(198, 0%, 90%);
+}
+
+.list_view .columns_bottom th {
     border-bottom: 1px solid rgba(84,130,149,0.3);
     border-left: 1px solid rgba(84,130,149,0.3);
     /*border-right: 1px solid #548295;*/
     text-align: center;
-    padding-bottom: 2px;
+    padding: 0px 2px 2px 2px;
+}
+
+.list_view .columns_bottom .text input {
+    min-width: 50px;
+}
+
+.list_view .columns_bottom .lv-search-daterange {
+    display: flex;
+    flex-direction: column;
+    margin-right: -15px;
+}
+
+.list_view .columns_bottom .lv-search-daterange .date-start,
+.list_view .columns_bottom .lv-search-daterange .date-end {
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+}
+
+.list_view .columns_bottom .lv-search-daterange label {
+    margin: 2px;
+    padding: 0px 3px;
+    align-self: center;
+}
+
+.list_view .columns_bottom .lv-search-daterange input {
+    padding-right: 20px;
+    align-self: center;
+    width: 70px;
+}
+
+.list_view .columns_bottom .lv-search-daterange .ui-datepicker-trigger {
+    right: 20px;
+    align-self: center;
+    opacity: 1;
+    height: 16px;
+    position: relative;
+    bottom: 1px;
+    z-index: 1;
+    margin: 1px;
+    padding: 1px;
+    padding-top: 2px;
 }
 
 /*.list_view tbody tr:nth-of-type(odd) { CSS3*/
@@ -235,15 +326,29 @@
 
 .list_view tbody td{
     color: #376e86;
-    padding-left: 5px;
-    padding-right: 5px;
     /*min-width:5% !important;*/
     white-space: nowrap;
-    padding: 2px 6px;
+    padding: 2px 4px;
     text-align: center;
     border-bottom: 1px solid rgba(84,130,149,0.3);
     border-left: 1px solid rgba(84,130,149,0.3);
     /*border-right: 1px solid #548295;*/
+}
+
+.list_view tbody td.sorted {
+    background-color: hsl(198, 0%, 94%);
+}
+
+.list_view tbody .selectable:hover td.sorted { 
+    background-color: #fff7d0;
+}
+
+.list_view tbody .selected:not(:hover) td.sorted {
+    background-color: #a5c6d3;
+}
+
+.list_view tbody tr.odd td.sorted {
+    background-color: hsl(198, 0%, 90%);
 }
 
 .list_view tbody td ul{
@@ -325,38 +430,89 @@
 
 /* add a bit of space to the input search fields, as navIt now has zero margin */
 .list_view thead .columns_bottom th:not(.actions) {
-    padding: 2px 0;
+    padding: 0px 2px;
 }
 
 .list_view .cl_lv {
     word-wrap: break-word;
-    /*max-width: 120px;
-    white-space:normal;*/
+    max-width: 200px;
+    /*white-space:normal;*/
 }
 
 .list_view .hd_cl_lv {
     word-wrap: break-word;
+    white-space: nowrap;
 }
 
 .list_view .hd_date_cl_lv {
     word-wrap: break-word;
-    max-width: 120px;
+    /*white-space: nowrap;*/
 }
 
 
-.list_view .left_align {
-    text-align: left;
-    padding-left: 5px;
+.list_view tbody .lv-cell {
+    display: flex;
 }
 
-.list_view .text_area {
+.list_view tbody .lv-cell-content {
+    flex-grow: 1;
+    padding-right: 3px;
+    align-self: center;
+    text-align: center;
+    margin-left: 16px;
+}
+
+.list_view tbody .lv-cell-content ul {
+    margin: 2px;
+    padding: 0px;
+    list-style: none;
+}
+
+.list_view tbody .lv-cell-content a img {
+    width: 64px;
+    height: 64px;
+}
+
+.list_view tbody .lv-cell-action {
+    visibility: hidden;
+    height: 16px;
+    align-self: center;
+}
+
+.list_view tbody tr:hover .lv-cell-action {
+    visibility: visible;
+}
+
+.list_view tbody .lv-cell-action a {
+    margin: 0;
+    padding: 0;
+}
+
+.list_view tbody .lv-cell-action a:hover {
+    cursor: pointer;
+}
+
+.list_view tbody .lv-cell-action a img {
+    margin: 0;
+    padding: 0;
+}
+
+.list_view .lv-cell-content {
+    text-align: center;
+}
+
+.list_view .left_align .lv-cell-content {
     text-align: left;
-    padding-left: 5px;
-    max-width: 120px;
+    margin-left: 0px;
+}
+
+.list_view .text_area .lv-cell-content {
+    text-align: left;
     white-space: normal;
+    margin-left: 0px;
 }
 
-.list_view .right_align {
+.list_view .right_align .lv-cell-content {
     text-align: right;
-    padding-right: 5px;
+    margin-left: 0px;
 }
