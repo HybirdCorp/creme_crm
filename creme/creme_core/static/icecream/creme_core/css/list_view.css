@@ -335,6 +335,8 @@
     /*border-right: 1px solid #548295;*/
 }
 
+/* TODO : enable this CSS if sorted column hilight is needed */
+/*
 .list_view tbody td.sorted {
     background-color: hsl(198, 0%, 94%);
 }
@@ -350,6 +352,7 @@
 .list_view tbody tr.odd td.sorted {
     background-color: hsl(198, 0%, 90%);
 }
+*/
 
 .list_view tbody td ul{
     text-align:left;

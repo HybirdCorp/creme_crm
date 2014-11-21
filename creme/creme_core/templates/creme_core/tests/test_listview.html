@@ -29,7 +29,11 @@
                 var target = $(this).attr('target') || '';
                 var filter = $(this).attr('filter') || '';
 
-                creme.lv_widget.openFilterSelection(target, ctype, filter, multiple);
+                creme.lv_widget.openFilterSelection(ctype, filter, multiple, {
+                    done: function(event, data) {
+                        $('#' + target).val(data.join(','));
+                    }
+                });
             });
 
             $('.listview-open.view').click(function() {

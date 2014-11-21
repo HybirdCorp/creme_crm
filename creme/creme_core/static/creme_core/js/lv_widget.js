@@ -82,11 +82,9 @@ creme.lv_widget = {};
 //    );
 //}
 
-creme.lv_widget.openFilterSelection = function(input_id, ct_id, q_filter, multiple) {
+creme.lv_widget.openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
     creme.lv_widget.listViewAction('/creme_core/list_view/popup/%s/%s?q_filter=%s'.format(ct_id, multiple ? 0 : 1, q_filter), {multiple:multiple})
-                   .onDone(function(event, data) {
-                        creme.lv_widget.handleSelection(data, input_id);
-                    })
+                   .one(listeners)
                    .start();
 }
 
@@ -102,7 +100,10 @@ creme.lv_widget.openFilterView = function(ct_id, q_filter) {
                                });
 }
 
+// TODO : deprecated. no longer used.
 creme.lv_widget.handleSelection = function(ids, targetInputId) {
+    console.warn('this functions is deprecated. Do not use CremeEntityField and MultiCremeEntityField any more.');
+
     if(ids) { //TODO: use a guard
         var $targetInput = $('#' + targetInputId);
         var $targetDiv = $('#' + targetInputId + '_div');
@@ -177,8 +178,10 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
     }
 }
 
-//TODO: rename
+// TODO : deprecated. only used in creme.lv_widget.handleSelection().
 creme.lv_widget.delete_a_value = function (img, targetInputId) {
+    console.warn('this functions is deprecated. only used in creme.lv_widget.handleSelection().');
+
     //TODO: factorise "$(img).parent()", "$('#' + targetInputId)" ??
     var id = $(img).parent().find('input[type="hidden"]').val();
     $('#' + targetInputId).val($('#' + targetInputId).val().replace(id + ',', ''));
