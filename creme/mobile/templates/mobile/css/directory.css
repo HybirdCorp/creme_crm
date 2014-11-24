@@ -1,0 +1,25 @@
+.page-directory .create-actions {
+  margin-top: 20px;
+}
+
+.page-directory .card-container + .create-actions {
+  padding-top: 20px;
+  border-top: 1px solid #dedede;
+}
+
+.card-contact {
+  border-left: 3px solid #356A94;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.card-orga {
+  border-left: 3px solid #94bcff;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.card-contact > .entity-field:first-child,
+.card-orga > .entity-field:first-child {
+  margin-top: 0;
+}

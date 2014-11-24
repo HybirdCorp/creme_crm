@@ -1,0 +1,5 @@
+{% load i18n %}
+<footer>
+  {% if show_delog %}<a href="/mobile/logout/?{{REDIRECT_FIELD_NAME}}=/mobile/login/" class="button">{% trans 'Log out' %}</a>{% endif %}
+  <a href='{{NON_MOBILE_SITE_DOMAIN}}' class="button">{% trans 'Go to the complete site' %}</a>
+</footer>

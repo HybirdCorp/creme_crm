@@ -175,6 +175,10 @@ def and_op(object1, object2):
 def or_op(object1, object2):
     return object1 or object2
 
+@register.filter(name="bool")
+def _bool(object1):
+    return bool(object1)
+
 @register.filter(name="str")
 def _str(object1):
     return str(object1)

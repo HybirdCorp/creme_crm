@@ -1,0 +1,136 @@
+<!DOCTYPE html>{% load i18n mobile_tags %}
+<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<title>Creme Mobile - {% trans 'Activities' %}</title>
+{% comment %}<link rel="stylesheet" href="base.css" />{% endcomment %}
+<style type="text/css">
+  {% include 'mobile/css/base.css' %}
+</style>
+{% comment %}
+<script>
+if (navigator.userAgent.match(/Android/i)) {
+  document.documentElement.className = 'android';
+} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+  document.documentElement.className = 'ios';
+}
+</script>
+{% endcomment %}
+{% include 'mobile/frags/phonecall_script.html' %}
+</head>
+<body class='page-activities' onload='checkCallCookies()'>
+  <nav>
+    <a href='/mobile/' class='tab'>{% trans 'Home' %}</a>
+    <a href='/mobile/persons' class='tab'>{% trans 'Directory' %}</a>
+    <a href='/mobile/activities' class='tab selected-tab'>{% trans 'Activities' %}</a>
+  </nav>
+
+  <section class='hideable-content'>
+    {% if phone_calls %}
+      <div class='card-list late-activities with-more-info showing-more-info'>
+        <div class='card-list-title'>
+          <a href='' class='more-info-trigger showing-more-info'>
+            {% blocktrans count counter=phone_calls|length %}{{counter}} delayed phone call{% plural %}{{counter}} last delayed phone calls{% endblocktrans %}
+          </a>
+        </div>
+
+        <div class='more-info'>
+          {% for phone_call in phone_calls %}
+            <div class='card-container'>
+              {% activity_card phone_call 'done' %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class='card-list late-activities'>
+        <div class='card-list-title'>{% trans 'No delayed phone calls' %}</div>
+      </div>
+    {% endif %}
+
+    {% if floating_activities %}
+      <div class='card-list unplanned-activities with-more-info showing-more-info'>
+        <div class='card-list-title'>
+          <a href='' class='more-info-trigger showing-more-info'>
+            {% with floating_length=floating_activities|length %}
+              {% if floating_length <= floating_activities_count %}
+                {% blocktrans count counter=floating_length %}{{counter}} activity without date{% plural %}{{counter}} activities without date{% endblocktrans %}
+              {% else %}
+                {% blocktrans count counter=floating_length with total=floating_activities_count %}{{counter}} activity without date (on {{total}}){% plural %}{{counter}} activities without date (on {{total}}){% endblocktrans %}
+              {% endif %}
+            {% endwith %}
+          </a>
+        </div>
+
+        <div class='more-info'>
+          {% for activity in floating_activities %}
+            <div class='card-container'>
+              {% activity_card activity %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class='card-list unplanned-activities'>
+        <div class='card-list-title'>{% trans 'No activity without date' %}</div>
+      </div>
+    {% endif %}
+
+    {% if tomorrow_activities %}
+      <div class='card-list future-activities with-more-info'>
+        <div class='card-list-title'>
+            <a href='' class='more-info-trigger'>
+              {% blocktrans count counter=tomorrow_activities|length with tomorrow_date=tomorrow|date:_('l j F') %}{{counter}} activity planned tomorrow, {{tomorrow_date}}{% plural %}{{counter}} activities planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
+            </a>
+        </div>
+
+        <div class='more-info'>
+          {% for activity in tomorrow_activities %}
+            <div class='card-container'>
+              {% activity_card activity 'no-button' never_edit_pcall=1 %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class='card-list future-activities'>
+        <div class='card-list-title'>
+          {% blocktrans with tomorrow_date=tomorrow|date:_('l j F') %}No activity planned tomorrow, {{tomorrow_date}}{% endblocktrans %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+
+  <div id='workflow_panel' />
+  {% get_footer %}
+
+  <script>
+    document.addEventListener ('click', function (e) {
+      var trigger;
+      if (e.target.classList.contains ('more-info-trigger')) {
+        trigger = e.target;
+      } else if (e.target.parentElement.classList.contains ('more-info-trigger')) {
+        trigger = e.target.parentElement;
+      }
+
+      if (trigger) {
+        e.preventDefault();
+
+        var componentWithMoreInfo = trigger;
+        while ((componentWithMoreInfo = componentWithMoreInfo.parentElement)) {
+          if (componentWithMoreInfo.classList.contains ('with-more-info')) {
+            trigger.classList.toggle ('showing-more-info');
+            componentWithMoreInfo.classList.toggle ('showing-more-info');
+            break;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

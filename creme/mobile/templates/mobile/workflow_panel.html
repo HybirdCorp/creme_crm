@@ -1,0 +1,46 @@
+{% load i18n %}
+<div class='card-container'>
+  <div class='card card-activity activity-type-{{type_id}} call-in-progress activity-with-actions {% if not participant_contacts and not participant_organisations %}activity-without-participants{% endif %}'
+       {% if phone_call %}data-activity-id='{{phone_call.id}}'{% endif %}>
+    <div class='activity-summary card-component'>
+      <span class='activity-schedule activity-schedule-beginning'>{{call_start|date:_('d/m/Y H:i')}}</span>
+      <span class='activity-type'>/ {% trans 'Call in progress' %}</span>
+    </div>
+
+    <div class='activity-title card-component'>
+      {% if phone_call %}{{phone_call}}<br/>{% endif %}
+      {% if called_contact %}
+        <div data-person-id='{{called_contact.id}}'>
+          {% blocktrans with last_name=called_contact.last_name first_name=called_contact.first_name %}You left the application to call <span class='call-target'><span class='contact-first-name'>{{first_name}}</span> <span class='contact-last-name'>{{last_name}}</span></span> to <a class='phone-number' href='tel:{{number}}'>{{number}}</a>, you can save the result if this call.{% endblocktrans %}
+        </div>
+      {% elif called_orga %}
+        <div data-person-id='{{called_orga.id}}'>
+          {% blocktrans with name=called_orga.name %}You left the application to call <span class='call-target'><span class='orga-name'>{{name}}</span></span> to <a class='phone-number' href='tel:{{number}}'>{{number}}</a>, you can save the result if this call.{% endblocktrans %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div id='workflow_errors'></div>
+
+    <div class='activity-actions card-component'>
+      <a href='#' class='button' onclick='workflowJustDone()' >{% trans 'Call is just done' %}</a>
+      <a href='#' class='button' onclick='workflowLasted5Minutes()'>{% trans 'Call lasted 5 minutes' %}</a>
+      <a href='#' class='button' onclick='workflowFailed()'>{% trans 'Call has failed' %}</a>
+      <a href='#' class='button' onclick='workflowPostponed()'>{% trans 'Call has failed and<br/> Recall tomorrow' %}</a>
+      <a href='#' class='button' onclick='closePanel();'>{% trans 'Do not save' %}</a>
+    </div>
+
+    {% if participant_contacts or participant_organisations %}
+      <div class='participants'>
+        {% for contact in participant_contacts %}
+            {% if contact.id != user_contact_id %}
+              {% include 'mobile/frags/contact_card.html' with card_classes='participant participant-type-contact card-component' %}
+            {% endif %}
+        {% endfor %}
+        {% for orga in participant_organisations %}
+          {% include 'mobile/frags/orga_card.html' with card_classes='participant participant-type-orga card-component' %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>

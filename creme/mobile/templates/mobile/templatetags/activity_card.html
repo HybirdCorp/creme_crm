@@ -1,0 +1,45 @@
+{% load i18n creme_core_tags mobile_tags %}{% comment %}TODO: remove mobile_tags if orga can participate {% endcomment %}
+{% has_perm_to change activity as edit_perm %}
+{% with participant_relations=activity.get_participant_relations organisations=activity|orga_subjects has_button=buttons_template|and_op:edit_perm start=activity.start %}
+<div class='card card-activity {{extra_classes}} activity-type-{{activity.type_id}} {% if is_floating %}activity-floating{% endif %} {% if activity.is_all_day %}activity-all-day{% endif %} {% if has_button %}activity-with-actions{% endif %} {% if not participant_relations and not organisations %}activity-without-participants{% endif %}'
+     id='activity_{{activity.id}}' data-activity-id='{{activity.id}}'
+     {% if shortcut and not is_floating %}data-shortcut='{{start|date:'H'}}'{% endif %}>
+  <div class='activity-summary card-component'>
+    {% if start %}
+      {% if activity.is_all_day %}
+        <span class='activity-schedule activity-schedule-beginning'>{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% trans 'All day' %}</span>
+      {% elif is_floating %}
+        <span class='activity-schedule activity-schedule-beginning'>{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% trans 'In day' %}</span>
+      {% else %}
+        <span class='activity-schedule'><span class='activity-schedule-beginning'>{% if show_date %}{{start|date:_('d/m/Y H:i')}}{% else %}{{start|date:_('H:i')}}{% endif %}</span> &ndash; {{activity.end|date:_('H:i')}}</span>
+      {% endif %}
+      <span class='activity-type'>/ {{activity.type}}</span>
+    {% else %}
+      <span class='activity-type'>{{activity.type}}</span>
+    {% endif %}
+  </div>
+
+  <div class='activity-title card-component'>{{activity.title}}</div>
+
+  {% if has_button %}
+    <div class='activity-actions card-component'>
+      {% include buttons_template %}
+    </div>
+  {% endif %}
+
+  {% if participant_relations or organisations %}
+    <div class='participants'>
+      {% for relation in participant_relations %}
+        {% with contact=relation.object_entity.get_real_entity %}
+          {% if contact.id != user_contact_id %}
+            {% include 'mobile/frags/contact_card.html' with card_classes='participant participant-type-contact card-component' %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      {% for orga in organisations %}
+        {% include 'mobile/frags/orga_card.html' with card_classes='participant participant-type-orga card-component' %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endwith %}

@@ -320,7 +320,7 @@ msgstr "Société"
 
 #: forms/quick.py:37
 msgid "If no organisation is found, a new one will be created."
-msgstr "Si aucune société n'est trouvée, une nouvelle sera créée."
+msgstr "Si aucune société ne porte ce nom, une fiche société sera aussi créée."
 
 #: forms/quick.py:57
 msgid "You are not allowed to link with a Contact"

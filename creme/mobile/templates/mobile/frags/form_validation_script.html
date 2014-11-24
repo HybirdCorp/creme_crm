@@ -1,0 +1,18 @@
+<script>
+  function hasHtml5Validation() {
+    return typeof document.createElement('input').checkValidity === 'function';
+  }
+
+  if (hasHtml5Validation()) {
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        form.classList.add('form-invalid');
+
+        var firstInvalidElement = form.querySelector('input:invalid');
+        window.scrollTo(0, firstInvalidElement.offsetTop - 25);
+      }
+    });
+  }
+</script>

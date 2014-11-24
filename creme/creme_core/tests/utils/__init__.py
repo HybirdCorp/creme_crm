@@ -16,8 +16,8 @@ try:
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
         safe_unicode, safe_unicode_error, int_2_roman)
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
-        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict)
-                              #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
+        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict, get_dt_from_json_str)
+        #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.queries import get_first_or_None
 
@@ -309,15 +309,14 @@ class DatesTestCase(CremeTestCase):
         dt = datetime(2011, 5, 22, 22, 30, 0)
         self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
 
-    #def test_get_naive_dt_from_tzdate_01(self):
-        #dt_localized = pytz.utc.localize(datetime(2011, 5, 22, 22, 30, 0))
-        #dt = get_naive_dt_from_tzdate(dt_localized)
-        #self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
-
-    #def test_get_creme_dt_from_utc_dt_01(self):
-        #dt_localized = pytz.utc.localize(datetime(2011, 5, 22, 22, 30, 0))
-        #utc_dt = get_utc_dt_from_creme_dt(get_creme_dt_from_utc_dt(dt_localized))
-        #self.assertEqual(dt_localized, utc_dt)
+    def test_get_dt_from_json_str_01(self):
+        dt = get_dt_from_json_str('2014-03-17T15:22:03.357Z')
+        self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
+                                              minute=22, second=3, microsecond=357000,
+                                              utc=True,
+                                             ),
+                         dt
+                        )
 
     def test_get_dt_from_str(self):
         create_dt = self.create_datetime

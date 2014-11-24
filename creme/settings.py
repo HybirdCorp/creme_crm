@@ -204,6 +204,7 @@ INSTALLED_CREME_APPS = (
     'creme.activesync',
     'creme.vcfs',
     #'creme.polls',  #need 'commercial'
+    #'creme.mobile',
 )
 
 
@@ -708,6 +709,15 @@ ABCTI_URL = 'http://127.0.0.1:8087'
 
 #VCF ---------------------------------------------------------------------------
 VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
+
+#MOBILE ----------------------------------------------------------------------
+
+# Domain of the complete version (in order to go to it from the mobile version).
+# eg: 'http://mydomain' #No end slash!
+# '' means that there is only one domain for the complete & the mobile versions ;
+# so SITE_DOMAIN will be used.
+NON_MOBILE_SITE_DOMAIN = ''
+
 
 #APPS CONFIGURATION [END]#######################################################
 
