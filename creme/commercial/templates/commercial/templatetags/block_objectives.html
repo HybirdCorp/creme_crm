@@ -1,13 +1,12 @@
-{% load i18n %}
-{% load creme_core_tags creme_block %}
-{% has_perm_to change object as has_perm %}
+{% load i18n creme_core_tags creme_block commercial_tags %}
+{% has_perm_to change object as edition_perm %}{% has_perm_to link object as link_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
         <th class="label">{% get_block_title _('%s Objective') _('%s Objectives') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_adder at_url '/commercial/act/{{object.id}}/add/objective' with_label _("New objective") with_perms has_perm %}
-                {% get_line_adder at_url '/commercial/act/{{object.id}}/add/objectives_from_pattern' with_label _("Create with a pattern") with_perms has_perm %}
+                {% get_line_adder at_url '/commercial/act/{{object.id}}/add/objective' with_label _("New objective") with_perms edition_perm %}
+                {% get_line_adder at_url '/commercial/act/{{object.id}}/add/objectives_from_pattern' with_label _("Create with a pattern") with_perms edition_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -24,13 +23,23 @@
                 <tr class="content">
                     <td class="{{row_color}}">{{objective}}</td>
                     <td class="{{row_color}}">
-                        {% if not objective.ctype %}
-                            <button type="button" style="padding:0px 2px;text-align:center;"{% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', -1, {% get_block_reload_uri %});"{% endif %} name="incr_objective_counter{{objective.id}}">&minus;</button>
-                            {{objective.counter}}
-                            <button type="button" style="padding:0px 2px;text-align:center;"{% if not has_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', 1, {% get_block_reload_uri %});"{% endif %} name="decr_objective_counter{{objective.id}}">&plus;</button>
-                        {% else %}
-                            {{objective.get_count}} ({{objective.ctype}}{% if objective.filter %} / {{objective.filter}}{% endif %})
-                        {% endif %}
+                        {% with ctype=objective.ctype %}
+                            {% if not ctype %}
+                                <button type="button" style="padding:0px 2px;text-align:center;"{% if not edition_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', -1, {% get_block_reload_uri %});"{% endif %} name="incr_objective_counter{{objective.id}}">&minus;</button>
+                                {{objective.counter}}
+                                <button type="button" style="padding:0px 2px;text-align:center;"{% if not edition_perm %}disabled="true"{% else %}onclick="creme.commercial.increaseObjectiveCounter('{{objective.id}}', 1, {% get_block_reload_uri %});"{% endif %} name="decr_objective_counter{{objective.id}}">&plus;</button>
+                            {% else %}
+                                {% with efilter=objective.filter %}
+                                    {{objective.get_count}} ({{ctype}}{% if efilter %} / {{efilter}}{% endif %})
+
+                                    {% if not efilter and ctype|has_quickform %}
+                                        {% has_perm_to create ctype as creation_perm %}
+                                        {% has_perm_to link ctype.model_class as link_perm2 %}
+                                        {% get_line_adder at_url '/commercial/objective/{{objective.id}}/create_entity' with_label ctype.model_class.creation_label with_perms link_perm|or_op:creation_perm|or_op:link_perm2 %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endwith %}
                     </td>
                     <td class="{{row_color}}">{{objective.counter_goal}}</td>
                     {% if objective.reached %}
@@ -39,9 +48,9 @@
                         <td class="{{row_color}} td_error">{% trans "No"%}</td>
                     {% endif %}
                     <td class="{{row_color}} action">
-                        {% comment %}{% get_line_editor at_url '/commercial/objective/{{objective.id}}/edit' with_perms has_perm %}{% endcomment %}
-                        {% get_line_editor at_url objective.get_edit_absolute_url with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{objective.id}} }" with_perms has_perm %}
+                        {% comment %}{% get_line_editor at_url '/commercial/objective/{{objective.id}}/edit' with_perms edition_perm %}{% endcomment %}
+                        {% get_line_editor at_url objective.get_edit_absolute_url with_perms edition_perm %}
+                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{objective.id}} }" with_perms edition_perm %}
                     </td>
                 </tr>
             {% endfor %}

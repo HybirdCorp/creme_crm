@@ -18,15 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import commit_on_success
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.quick_forms import quickforms_registry
+from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views import generic
 
+from ..constants import REL_SUB_COMPLETE_GOAL
 from ..forms import act as forms
 from ..models import (ActType, Act, ActObjective, MarketSegment,
         ActObjectivePattern, ActObjectivePatternComponent)
@@ -159,3 +164,48 @@ def incr_objective_counter(request, objective_id): #TODO: test if relation Objec
     objective.save()
 
     return HttpResponse()
+
+@login_required
+@permission_required('commercial')
+def create_objective_entity(request, objective_id):
+    objective = get_object_or_404(ActObjective, pk=objective_id)
+    user = request.user
+    user.has_perm_to_link_or_die(objective.act)
+
+    ctype = objective.ctype
+    if ctype is None:
+        raise ConflictError('This objective is not a relationship counter.')
+
+    if objective.filter_id is not None:
+        raise ConflictError('This objective has a filter, so you cannot build a related entity.')
+
+    model = ctype.model_class()
+    user.has_perm_to_create_or_die(model)
+    user.has_perm_to_link_or_die(model)
+
+    form_class = quickforms_registry.get_form(model)
+    if form_class is None:
+        raise ConflictError('This type of resource has no quick form.')
+
+    if request.method == 'POST':
+        form = form_class(user=user, data=request.POST)
+
+        if form.is_valid():
+            with commit_on_success():
+                entity = form.save()
+                Relation.objects.create(subject_entity=entity,
+                                        type_id=REL_SUB_COMPLETE_GOAL,
+                                        object_entity=objective.act,
+                                        user=user,
+                                       )
+    else: #return page on GET request
+        form = form_class(user=user)
+
+    return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
+                       {'form':  form,
+                        'title': model.creation_label,
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )
