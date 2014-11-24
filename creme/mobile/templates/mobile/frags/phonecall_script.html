@@ -1,0 +1,142 @@
+{% load i18n %}
+<script>
+  var PHONECALL_COOKIE = 'phone_call=';
+  var CSRF_COOKIE = 'csrftoken=';
+  var csrf_token = undefined;
+{% comment %}
+  Attributes of 'phonecall_data':
+    -pcall_id   -> ID of the existings delayed PhoneCall thats contains the phone number the user clicked on.
+                    Can be undefined.
+    -call_start -> start date (as JSON string) of the last call (ie: when the user clicked on number).
+    -person_id  -> ID of the contact/orga associated to the phone number.
+    -number     -> phone number the user clicked on.
+{% endcomment %}
+  var phonecall_data = undefined;
+
+  document.addEventListener('click', function (e) {
+    if (e.target.href !== undefined && e.target.href.indexOf('tel:') == 0) {
+      var d = new Date();
+
+      phonecall_data = {number: e.target.text, call_start: d.toJSON()};
+
+      var person_component = e.target;
+      var person_id;
+
+      while ((person_component = person_component.parentElement)) {
+        person_id = person_component.getAttribute('data-person-id');
+        if (person_id) {
+          phonecall_data.person_id = person_id;
+          break;
+        }
+      }
+
+      var activity_component = e.target;
+      var activity_id;
+
+      while ((activity_component = activity_component.parentElement)) {
+        activity_id = activity_component.getAttribute('data-activity-id');
+
+        if (activity_id && activity_component.classList.contains('editable-phonecall')) {
+          phonecall_data.pcall_id = activity_id;
+          break;
+        }
+      }
+
+      // Cookie way (page is reload after click on a phone number)
+      d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
+      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + d.toGMTString();
+
+      // Timer way (page is just suspended after click on a phone number)
+      setTimeout(displayWorkflowPanel, 3000);
+    }
+  });
+
+  function checkCallCookies() {
+    var cookies = document.cookie.split(';');
+
+    for (var i in cookies) {
+      var cookie = cookies[i].trim();
+
+      if (cookie.indexOf(PHONECALL_COOKIE) == 0)  {
+        phonecall_data = JSON.parse(cookie.substring(PHONECALL_COOKIE.length));
+        displayWorkflowPanel();
+      } else if (cookie.indexOf(CSRF_COOKIE) == 0) {
+        csrf_token = decodeURIComponent(cookie.substring(CSRF_COOKIE.length));
+      }
+    }
+  }
+
+  function objectToParameters(obj) {
+    var parameters = "";
+
+    for (var key in obj) {
+      if (parameters)
+        parameters += "&";
+
+      parameters += key + "=" + obj[key];
+    }
+
+    return parameters;
+  }
+
+  function setPanelContent(content) {
+    var display_hideable = content ? 'none': 'block';
+//     var elements = document.getElementsByTagName('*');
+// 
+//     for (i in elements) {
+//         var element = elements[i];
+//         if (element.classList && element.classList.contains ('hideable-content')) {
+//           element.style.display = display_hideable;
+//         }
+//     }
+    var elements = document.querySelectorAll('.hideable-content');
+
+    for (var i = 0; i < elements.length; ++i) {
+      elements[i].style.display = display_hideable;
+    }
+
+    document.getElementById("workflow_panel").innerHTML = content;
+  }
+
+  function displayWorkflowPanel() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/mobile/phone_call/panel?" + objectToParameters(phonecall_data), false);
+    xhr.send();
+
+    if (xhr.status !== 200) {
+      alert("{% trans 'Error' %}: " + xhr.responseText);
+    } else {
+      setPanelContent(xhr.responseText);
+    }
+  }
+
+  function clearCookie() {
+    document.cookie = PHONECALL_COOKIE + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    phonecall_data = undefined;
+  }
+
+  function closePanel() {
+    clearCookie();
+    setPanelContent('');
+  }
+
+  function _workflow(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, false);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.send(objectToParameters(phonecall_data));
+
+    if (xhr.status !== 200) {
+      document.getElementById("workflow_errors").innerHTML = "{% trans 'Error' %}: " + xhr.responseText;
+    } else {
+        clearCookie();
+        window.location = window.location;
+    }
+  }
+
+  function workflowFailed() {_workflow("/mobile/phone_call/failed");}
+  function workflowPostponed() {_workflow("/mobile/phone_call/postponed");}
+  function workflowLasted5Minutes() {_workflow("/mobile/phone_call/lasted_5_minutes");}
+  function workflowJustDone() {_workflow("/mobile/phone_call/just_done");}
+</script>

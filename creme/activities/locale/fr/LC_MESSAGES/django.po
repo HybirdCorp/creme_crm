@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-29 21:11+0200\n"
+"POT-Creation-Date: 2014-11-21 17:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -37,15 +37,15 @@ msgstr "Activités futures"
 msgid "Past activities"
 msgstr "Activités passées"
 
-#: buttons.py:44 constants.py:23 creme_core_register.py:41
+#: buttons.py:44 constants.py:23 creme_core_register.py:43
 msgid "Add a meeting"
 msgstr "Ajouter un rendez-vous"
 
-#: buttons.py:50 creme_core_register.py:42
+#: buttons.py:50 creme_core_register.py:44
 msgid "Add a phone call"
 msgstr "Ajouter un appel téléphonique"
 
-#: buttons.py:56 constants.py:22 creme_core_register.py:43
+#: buttons.py:56 constants.py:22 creme_core_register.py:45
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
@@ -65,141 +65,145 @@ msgstr "Ajouter un salon"
 msgid "Add a demo"
 msgstr "Ajouter une démo"
 
-#: constants.py:28 creme_core_register.py:44
+#: constants.py:28 creme_core_register.py:46
 msgid "Add an indisponibility"
 msgstr "Ajouter une indisponibilité"
 
-#: creme_core_register.py:34 models/activity.py:74
+#: creme_core_register.py:36 models/activity.py:72
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:40
 msgid "Portal of activities"
 msgstr "Portail des activités"
 
-#: creme_core_register.py:39 forms/calendar.py:63 models/calendar.py:42
+#: creme_core_register.py:41 forms/calendar.py:63 models/calendar.py:42
 #: templates/activities/portal.html:11
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:47
 msgid "All activities"
 msgstr "Lister les activités"
 
-#: creme_core_register.py:46
+#: creme_core_register.py:48
 msgid "All phone calls"
 msgstr "Lister les appels téléphoniques"
 
-#: creme_core_register.py:47
+#: creme_core_register.py:49
 msgid "All meetings"
 msgstr "Lister les rendez-vous"
 
-#: populate.py:54
+#: populate.py:53
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
-#: populate.py:55
+#: populate.py:54
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:58
+#: populate.py:57
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
-#: populate.py:59
+#: populate.py:58
 msgid "(activity) is to subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:62
+#: populate.py:61
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
-#: populate.py:63
+#: populate.py:62
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:67
+#: populate.py:66
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:68
+#: populate.py:67
 msgctxt "activities-status"
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:69
+#: populate.py:68
 msgctxt "activities-status"
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:70
+#: populate.py:69
 msgctxt "activities-status"
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:71
+#: populate.py:70
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-#: populate.py:73
+#: populate.py:72
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:75 populate.py:83
+#: populate.py:74 populate.py:82
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:77
+#: populate.py:76
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: populate.py:78
+#: populate.py:77
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:79
+#: populate.py:78
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:80
+#: populate.py:79
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:81
+#: populate.py:80
 msgid "Indisponibility"
 msgstr "Indisponibilité"
 
-#: populate.py:84
+#: populate.py:83
 msgid "Qualification"
 msgstr "Qualification"
 
-#: populate.py:85
+#: populate.py:84
 msgid "Revival"
 msgstr "Relance"
 
-#: populate.py:86
+#: populate.py:85
 msgid "Network"
 msgstr "Réseau"
 
-#: populate.py:87
+#: populate.py:86
 msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:89
+#: populate.py:88
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:90
+#: populate.py:89
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:91
+#: populate.py:90
 msgid "Conference"
 msgstr "Conférence"
+
+#: populate.py:91
+msgid "Outgoing - Failed"
+msgstr "Sortant - Échoué"
 
 #: populate.py:93
 msgid "Activity view"
@@ -217,11 +221,11 @@ msgstr "Appels téléphoniques"
 msgid "Tasks"
 msgstr "Tâches"
 
-#: populate.py:160
+#: setting_keys.py:11
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocks d'activités"
 
-#: populate.py:166
+#: setting_keys.py:15
 msgid ""
 "Add automatically the organisations of the participants as activities "
 "subjects"
@@ -242,7 +246,7 @@ msgstr ""
 msgid "Type"
 msgstr "Type"
 
-#: forms/activity.py:58 models/activity.py:45
+#: forms/activity.py:58 models/activity.py:43
 msgid "Start"
 msgstr "Début"
 
@@ -250,7 +254,7 @@ msgstr "Début"
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:60 models/activity.py:46
+#: forms/activity.py:60 models/activity.py:44
 msgid "End"
 msgstr "Fin"
 
@@ -523,67 +527,67 @@ msgstr "Sujets (sociétés seulement)"
 msgid "Participants & subjects"
 msgstr "Participants et sujets"
 
-#: models/activity.py:44
+#: models/activity.py:42
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:47 models/other_models.py:72
+#: models/activity.py:45 models/other_models.py:74
 msgid "Description"
 msgstr "Description"
 
-#: models/activity.py:48
+#: models/activity.py:46
 msgid "Minutes"
 msgstr "Bilan"
 
-#: models/activity.py:49
+#: models/activity.py:47
 msgid "Activity place"
 msgstr "Lieu de l'activité"
 
-#: models/activity.py:50
+#: models/activity.py:48
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:51
+#: models/activity.py:49
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:54
+#: models/activity.py:52
 msgid "Activity sub-type"
 msgstr "Sous-type d'activité"
 
-#: models/activity.py:57
+#: models/activity.py:55
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:58 models/calendar.py:43
+#: models/activity.py:56 models/calendar.py:43
 #: templates/activities/calendar.html:4
 #: templates/activities/templatetags/block_related_calendar.html:12
 #: templates/activities/templatetags/block_user_calendars.html:8
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:61
+#: models/activity.py:59
 msgid "All day?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:62
+#: models/activity.py:60
 msgid "Busy?"
 msgstr "Occupé ?"
 
-#: models/activity.py:64
+#: models/activity.py:62
 msgid "Floating type"
 msgstr "Type flottant"
 
-#: models/activity.py:69
+#: models/activity.py:67
 msgid "Add an activity"
 msgstr "Ajouter une activité"
 
-#: models/activity.py:73
+#: models/activity.py:71
 msgid "Activity"
 msgstr "Activité"
 
-#: models/calendar.py:31 models/other_models.py:33 models/other_models.py:57
-#: models/other_models.py:71
+#: models/calendar.py:31 models/other_models.py:33 models/other_models.py:58
+#: models/other_models.py:73
 #: templates/activities/templatetags/block_related_calendar.html:26
 #: templates/activities/templatetags/block_user_calendars.html:23
 msgid "Name"
@@ -618,7 +622,7 @@ msgstr "Durée en jours par défaut"
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/other_models.py:44 models/other_models.py:58
+#: models/other_models.py:44 models/other_models.py:59
 msgid "Type of activity"
 msgstr "Type d'activité"
 
@@ -626,19 +630,19 @@ msgstr "Type d'activité"
 msgid "Types of activity"
 msgstr "Types d'activité"
 
-#: models/other_models.py:66
+#: models/other_models.py:67
 msgid "Sub-type of activity"
 msgstr "Sous-type d'activité"
 
-#: models/other_models.py:67
+#: models/other_models.py:68
 msgid "Sub-types of activity"
 msgstr "Sous-types d'activité"
 
-#: models/other_models.py:80
+#: models/other_models.py:82
 msgid "Status of activity"
 msgstr "Statut d'activité"
 
-#: models/other_models.py:81
+#: models/other_models.py:83
 msgid "Statuses of activity"
 msgstr "Statuts d'activité"
 
@@ -671,6 +675,7 @@ msgid "Activities portal"
 msgstr "Portail Activités"
 
 #: templates/activities/portal.html:12
+#: templates/activities/view_activity.html:6
 msgid "Go to the calendar"
 msgstr "Aller au calendrier"
 

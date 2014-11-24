@@ -35,7 +35,7 @@ class PersonsAppTestCase(CremeTestCase):
         hf_filter = HeaderFilter.objects.filter
         self.assertTrue(hf_filter(entity_type=get_ct(Contact)).exists())
         self.assertTrue(hf_filter(entity_type=get_ct(Organisation)).exists())
-        
+
         efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())

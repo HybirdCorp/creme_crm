@@ -1,0 +1,6 @@
+{% load i18n %}
+<div class='search'>{% comment %}TODO: client side validation {% endcomment %}
+  <form action="/mobile/person/search" method="GET">{% csrf_token %}
+    <input type="search" name="search" placeholder="{% trans 'Search in the directory'%}" />
+  </form>
+</div>

@@ -85,9 +85,10 @@ class Populator(BasePopulator):
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_MEETING_NETWORK},       name=_('Network'),                            type=meeting_type, is_custom=False)
         create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_MEETING_OTHER},         name=pgettext('activities-meeting', 'Other'), type=meeting_type, is_custom=False)
 
-        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_('Incoming'),   type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),   type=phone_call_type, is_custom=False)
-        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'), type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_INCOMING},   name=_('Incoming'),          type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_OUTGOING},   name=_('Outgoing'),          type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_CONFERENCE}, name=_('Conference'),        type=phone_call_type, is_custom=False)
+        create_if_needed(ActivitySubType, {'pk': ACTIVITYSUBTYPE_PHONECALL_FAILED},     name=_('Outgoing - Failed'), type=phone_call_type, is_custom=False)
 
         HeaderFilter.create(pk='activities-hf_activity', name=_(u'Activity view'), model=Activity,
                             cells_desc=[(EntityCellRegularField, {'name': 'start'}),

@@ -1,0 +1,96 @@
+{% load i18n creme_core_tags mobile_tags %}{% has_perm_to view contact as view_perm %}
+{% if view_perm %}
+  {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact|employers %}
+  {% with has_address=address|bool %}
+  {% with more_info=email|or_op:has_address|or_op:position|or_op:organisations %}
+  <div class='{{card_classes|default:'card card-contact'}} {% if more_info %}with-more-info{% endif %}' data-person-id='{{contact.id}}'>
+    <div class='entity-field'>
+      <span class='field-label'>{% trans 'contact' %}</span>
+      {% if more_info %}
+        <a class='contact-name more-info-trigger field-value' href=''><span class='contact-first-name'>{{contact.first_name}}</span> <span class='contact-last-name'>{{contact.last_name}}</span></a>
+      {% else %}
+        <span class='contact-name field-value'><span class='contact-first-name'>{{contact.first_name}}</span> <span class='contact-last-name'>{{contact.last_name}}</span></span>
+      {% endif %}
+    </div>
+    {% with phone=contact.phone mobile=contact.mobile %}
+      {% if phone %}
+        <div class='entity-field'>
+          <span class='field-label'>{% trans 'phone' %}</span>
+          <a class='field-value' href='tel:{{phone}}'>{{phone}}</a>
+        </div>
+      {% endif %}
+      {% if mobile %}
+        <div class='entity-field'>
+          <span class='field-label'>{% trans 'mobile' %}</span>
+          <a class='field-value' href='tel:{{mobile}}'>{{mobile}}</a>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if more_info %}
+      <div class='more-info'>
+        {% if email %}
+          <div class='entity-field'>
+            <span class='field-label'>{% trans 'email' %}</span>
+            <a class='field-value' href='mailto:{{email}}'>{{email}}</a>
+          </div>
+        {% endif %}
+        {% if has_address %}
+          <div class='entity-field'>
+            <span class='field-label'>{% trans 'address' %}</span>
+            <a class='field-value' href='http://maps.google.com/?q={{address}}' target="_blank">{# TODO: generic #}
+              {{address|linebreaksbr}}
+            </a>
+          </div>
+        {% endif %}
+        {% if position %}
+          <div class='entity-field'>
+            <span class='field-label'>{% trans 'position' %}</span>
+            <span class='field-value'>{{position}}</span>
+          </div>
+        {% endif %}
+
+        {% for orga in organisations %}
+          {% with orga_phone=orga.phone orga_address=orga.billing_address %}
+          {% with orga_has_address=orga_address|bool %}
+            {% if orga_phone or orga_has_address %}
+              <div class='contact-orga' data-person-id='{{orga.id}}'>
+                <div class='entity-field'>
+                  <span class='field-label'>{% trans 'organisation' %}</span>
+                  <span class='field-value'>{{orga}}</span>
+                </div>
+                {% if orga_phone %}
+                  <div class='entity-field'>
+                    <span class='field-label'>{% trans 'phone' %}</span>
+                    <a class='field-value' href='tel:{{orga_phone}}'>{{orga_phone}}</a>
+                  </div>
+                {% endif %}
+                {% if orga_has_address %}
+                  <div class='entity-field'>
+                    <span class='field-label'>{% trans 'address' %}</span>
+                    <a class='field-value' href='http://maps.google.com/?q={{orga_address}}' target="_blank">
+                      {{orga_address|linebreaksbr}}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class='entity-field'>
+                <span class='field-label'>{% trans 'organisation' %}</span>
+                <span class='field-value'>{{orga}}</span>
+              </div>
+            {% endif %}
+          {% endwith %}{% endwith %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  {% endwith %}{% endwith %}{% endwith %}
+{% else %}
+  <div class='{{card_classes|default:'card card-contact'}}' data-person-id='{{contact.id}}'>
+    <div class='entity-field'>
+      <span class='field-label'>{% trans 'contact' %}</span>
+        <span class='contact-name field-value'><span class='contact-first-name'>??</span> <span class='contact-last-name'>??</span></span>
+    </div>
+  </div>
+{% endif %}

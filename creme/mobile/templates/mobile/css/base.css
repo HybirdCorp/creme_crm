@@ -1,0 +1,574 @@
+{% load media %}
+* {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+body {
+  background: #fbfbfb;
+}
+
+a {
+  color: black;
+}
+
+a:focus {
+  border: none;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #dedede;
+  margin: 10px 0;
+  padding: 0;
+}
+
+footer {
+  margin-top: 20px;
+  border-top: 1px solid #dedede;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+/* button */
+
+.button {
+  display: block;
+  width: 100%;
+  cursor: default;
+  border: 1px solid #d7d7d7;
+  border-bottom: 1px solid #bdbdbd;
+  padding: 8px 10px;
+  text-align: center;
+  text-decoration: none;
+  color: #356A94;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+  background: linear-gradient(#ffffff, #f3f3f3);
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.button:active {
+  background: linear-gradient(#f9f9f9, #ededed);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+  border-bottom-color: #d7d7d7;
+  border-top-color: #bdbdbd;
+  color: #2b5578;
+}
+
+.button:focus {
+  outline: none;
+}
+
+.button + .button {
+  margin-top: 17px;
+}
+
+footer .button {
+  color: #696969;
+}
+
+/* button - end */
+
+.welcome-text {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+/* avoir la nav fixed ? */
+nav {
+  font-size: 0px;
+  margin-bottom: 10px;
+
+/*
+  position: fixed;
+  width: 100%;
+  top: 0;
+*/
+}
+
+nav .tab {
+  font-size: 14px;
+  padding: 8px 0;
+  display: inline-block;
+  width: 33.33%;
+
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  background: #f7f7f7;
+  color: #356A94;
+
+  border-color: #dedede;
+  border-width: 1px 1px 1px 0;
+  border-style: solid;
+}
+
+nav .tab:first-child {
+  border-width: 1px;
+}
+
+nav .selected-tab {
+  border-color: #356A94;
+  background: #356A94;
+  color: white;
+  box-shadow: inset 0 0 2px rgba(0,0,0,0.8); /* effet enfoncé - à voir */
+}
+
+.search {
+/*  border: 1px solid #ccc;*/
+  padding: 5px 5px;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  background: #eee;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.search input {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+
+  padding: 2px;
+  width: 100%;
+
+  border: 1px solid #aaa;
+  border-radius: 4px;
+
+  text-align: center;
+  font-size: 16px;
+/*  background: #f7f7f7;*/
+}
+
+html.ios nav .selected-tab {
+  border-bottom: none;
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+/* Cards */
+.card-list:not(:first-child) {
+  margin-top: 20px;
+  border-top: 1px solid #dedede;
+}
+
+/* card list optical alignment - take into account the title's em box white-space into the white-space between lists */
+html.all .card-list:not(:first-child) {
+  padding-top: 17px;
+}
+
+html.ios .card-list:not(:first-child),
+html.android .card-list:not(:first-child) {
+  padding-top: 15px;
+}
+
+.card-list-title {
+  margin-bottom: 10px;
+/*
+  text-transform: uppercase;
+  font-size: 15px;
+*/
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.card-container {
+  border: 1px solid #ccc;
+  border-left: 0;
+}
+
+.card-container + .card-container {
+  margin-top: 15px;
+}
+
+.card {
+  border-left: 3px solid #c3c3c3;
+  padding: 5px 0;
+  background: #fff;
+}
+
+.card-component {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.entity-field {
+  margin-top: 10px;
+}
+
+/* clearfix */
+.entity-field::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.entity-field .field-label {
+  float: left;
+  width: 75px;
+
+/* 2px if field-value font-size == 18 */
+  margin-top: 2px;
+
+  color: #356A94;
+
+/*  text-transform: uppercase;*/
+  text-transform: capitalize;
+}
+
+.entity-field .field-value {
+  display: block;
+  overflow: hidden; /* field-label float containment http://colinaarts.com/articles/the-magic-of-overflow-hidden/ */
+  font-size: 18px;
+  color: black;
+
+  word-wrap: break-word;
+}
+/* Cards - end */
+
+/* More info component */
+.more-info-trigger {
+  text-decoration: none;
+}
+
+.more-info-trigger > :last-child {
+  padding-right: 7px;
+}
+
+.more-info-trigger::after {
+  content: '';
+  display: inline-block;
+
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  margin-bottom: 3px;
+
+  border-top: 5px solid black;
+  border-bottom: 0;
+}
+
+.more-info-trigger.showing-more-info::after {
+  border-top: 0;
+  border-bottom: 5px solid black;
+}
+
+.with-more-info:not(.showing-more-info) > .more-info {
+  display: none;
+}
+/* More info component - end */
+
+/* Typography - defaults */
+body {
+  font-family: 'HelveticaNeue', 'Roboto-Regular', 'Helvetica', 'Arial', sans-serif;
+  font-size: 16px;
+}
+
+html.all .button {
+  font-weight: 700;
+}
+
+html.all .card-list-title {
+  font-weight: 700;
+}
+
+html.all .activity-schedule-beginning {
+  font-weight: 700;  
+}
+
+html.all .activity-type {
+  font-weight: 700;
+}
+
+html.all .call-in-progress .activity-title .call-target {
+  font-weight: 700;
+}
+
+html.all .call-in-progress .activity-title .phone-number {
+  font-weight: 700;
+}
+
+/* Typography - defaults end */
+
+/* Typography - Android */
+html.android .button {
+  font-family: 'Roboto-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 700;
+}
+
+html.android .field-label {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.android .card-list-title {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.android .activity-schedule-beginning {
+  font-family: 'Roboto-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 700;
+}
+
+html.android .activity-type {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.android .call-in-progress .activity-title .call-target {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.android .call-in-progress .activity-title .phone-number {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+/* Typography - Android end */
+
+/* Typography - iOS */
+html.ios .button {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .field-label {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .card-list-title {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .activity-schedule-beginning {
+  font-family: 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+  font-weight: 700;
+}
+
+html.ios .activity-type {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .call-in-progress .activity-title .call-target {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .call-in-progress .activity-title .phone-number {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+/* Typography - iOS end */
+
+/* Contacts */
+/* A tester sur des vraies données, à activer si elles sont bordéliques */
+/*
+.contact-first-name {
+  text-transform: capitalize;
+}
+*/
+
+.contact-last-name {
+  text-transform: uppercase;
+}
+
+html.ios .contact-last-name {
+  font-size: 0.95em;
+}
+
+.contact-orga {
+  margin-top: 25px;
+}
+/* Contacts - end */
+
+/* Activities */
+
+.activity-summary {
+  overflow: hidden;
+/*  word-break: break-all;*/
+}
+
+/* no white bottom padding on activities ending with activity-actions */
+.activity-with-actions.activity-without-participants {
+  padding-bottom: 0;
+}
+
+.activity-floating {
+  border-left: 3px solid #7c7c7c;
+}
+
+/*.activity-type-meeting {*/
+.activity-type-activities-activitytype_meeting {
+  border-left: 3px solid #356A94;
+}
+
+/*.activity-type-call {*/
+.activity-type-activities-activitytype_phonecall {
+  border-left: 3px solid #94bcff;
+}
+
+.activity-schedule {
+  font-size: 0.95em;
+}
+
+.activity-type {
+  text-transform: uppercase;
+  font-size: 0.9em;
+/*  font-size: 0.8em;*/
+}
+
+.activity-title {
+  margin-top: 5px;
+}
+
+.activity-actions {
+  margin-top: 10px;
+  background: #f7f7f7;
+  border-top: 1px solid #dedede;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.activity-actions:not(:last-child) {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #dedede;
+}
+
+/* separate participants from the previous component: summary, or participant */
+.participant {
+  margin-top: 10px;
+  border-top: 1px solid #dedede;
+  padding-top: 0;
+}
+
+/* don't separate from actions, they have their own background to separate */
+.activity-actions ~ .participants .participant:first-child {
+  border: 0;
+  padding-top: 0;
+}
+
+/* Activities - end */
+
+/* Icons */
+
+/* à voir pour factoriser ça ds une autre classe html comme 'activity-with-icon' */
+.activity-floating .activity-summary::before,
+/*.activity-type-call .activity-summary::before,
+.activity-type-meeting .activity-summary::before {*/
+.activity-type-activities-activitytype_phonecall .activity-summary::before,
+.activity-type-activities-activitytype_meeting .activity-summary::before {
+  content: '';
+  height: 16px;
+  width: 16px;
+  float: right;
+  background-size: 16px;
+  background-image: url({% media_url 'mobile/sprites_16.png' %});
+}
+
+.activity-floating .activity-summary::before {
+/*   background-image: url(img/calendar_16.png); */
+{#   background-image: url({% media_url 'mobile/calendar_16.png' %}); #}
+  background-position: 0 -32px;
+}
+
+/*.activity-type-call .activity-summary::before {*/
+.activity-type-activities-activitytype_phonecall .activity-summary::before {
+/*   background-image: url(img/phone_16.png); */
+{#   background-image: url({% media_url 'mobile/phone_16.png' %});  #}
+  background-position: 0 -48px;
+}
+
+/*.activity-type-meeting .activity-summary::before {*/
+.activity-type-activities-activitytype_meeting .activity-summary::before {
+/*   background-image: url(img/meeting_16.png); */
+{#   background-image: url({% media_url 'mobile/meeting_16.png' %});  #}
+  background-position: 0 -64px;
+}
+
+/* TODO: factorise the selector for 'element with icon in the title' too */
+/* TODO: center icons with the title ? */
+.card-list.list-contact .card-list-title::before,
+.card-list.list-orga .card-list-title::before,
+.form-add-contact .form-title::before,
+.form-add-orga .form-title::before {
+  content: '';
+  height: 16px;
+  width: 16px;
+
+  float: left;
+  margin-right: 5px;
+
+  background-size: 16px;
+  background-image: url({% media_url 'mobile/sprites_16.png' %});
+}
+
+/*.card-list.list-contact .card-list-title::before,
+.form-add-contact .form-title::before {
+  background-image: url(img/contact_16.png);
+{#  background-image: url({% media_url 'mobile/contact_16.png' %}); #}
+}*/
+
+.card-list.list-orga .card-list-title::before,
+.form-add-orga .form-title::before {
+/*   background-image: url(img/organisation_16.png); */
+{#   background-image: url({% media_url 'mobile/organisation_16.png' %}); #}
+  background-position: 0 -16px;
+}
+
+/*TODO:  useful ?? */
+/*.card-list.list-contact .card-list-title::before {
+  background-image: url(img/contact_16.png);
+}*/
+
+/*.card-list.list-orga .card-list-title::before {
+  background-image: url(img/organisation_16.png);
+}*/
+
+/* Retina icons */
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 2dppx),
+only screen and (                min-resolution: 192dpi) {
+  .activity-floating .activity-summary::before {
+/*     background-image: url(img/calendar_32.png); */
+{#     background-image: url({% media_url 'mobile/calendar_32.png' %}); #}
+    background-image: url({% media_url 'mobile/sprites_32.png' %});
+  }
+
+/*   .activity-type-call .activity-summary::before { */
+  .activity-type-activities-activitytype_phonecall .activity-summary::before {
+/*     background-image: url(img/phone_32.png); */
+{#     background-image: url({% media_url 'mobile/phone_32.png' %});  #}
+    background-image: url({% media_url 'mobile/sprites_32.png' %});
+  }
+
+/*   .activity-type-meeting .activity-summary::before { */
+  .activity-type-activities-activitytype_meeting .activity-summary::before {
+/*     background-image: url(img/meeting_32.png); */
+{#     background-image: url({% media_url 'mobile/meeting_32.png' %}); #}
+    background-image: url({% media_url 'mobile/sprites_32.png' %});
+  }
+
+  .card-list.list-contact .card-list-title::before,
+  .form-add-contact .form-title::before {
+/*     background-image: url(img/contact_32.png); */
+{#     background-image: url({% media_url 'mobile/contact_32.png' %}); #}
+    background-image: url({% media_url 'mobile/sprites_32.png' %});
+  }
+
+  .card-list.list-orga .card-list-title::before,
+  .form-add-orga .form-title::before {
+/*     background-image: url(img/organisation_32.png); */
+{#     background-image: url({% media_url 'mobile/organisation_32.png' %}); #}
+    background-image: url({% media_url 'mobile/sprites_32.png' %});
+  }
+}
+
+/* Images - end */
+
+#workflow_errors {
+  color: #be4b53;
+  text-align: center;
+  text-transform: uppercase;
+}

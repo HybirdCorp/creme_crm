@@ -1,0 +1,98 @@
+.form-add {
+  margin-top: 15px;
+/*  padding-top: 10px;*/
+/*  border-top: 1px solid #dedede;*/
+}
+
+html.all .form-title {
+  font-weight: 700;
+}
+
+html.android .form-title {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .form-title {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.form-add hr {
+  margin-top: 20px;
+}
+
+.form-field {
+  margin-top: 15px;
+}
+
+.form-field label {
+  color: #356A94;
+}
+
+.form-field .field-label {
+  text-transform: uppercase;
+  font-size: 0.85em;
+}
+
+.form-field .form-input {
+  display: block;
+
+  -webkit-appearance: none;
+     -moz-appearance: none;
+
+  padding: 2px;
+  width: 100%;
+
+  border: 1px solid #aaa;
+  border-radius: 0;
+
+  font-size: 16px;
+}
+
+.form-field .field-details {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #888;
+}
+
+.form-field .field-modifier {
+  text-transform: none;
+  margin-left: 0px;
+  color: #888;
+}
+
+.form-actions {
+  margin-top: 20px;
+  border-top: 1px solid #dedede;
+  padding-top: 20px;
+}
+
+/* Form validation */
+.form-add.form-invalid input:invalid, .form-input-invalid {
+  background: rgba(190, 75, 83, 0.8);
+}
+
+.field-error {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #be4b53;
+
+  display: none;
+}
+
+/*.form-add.form-invalid input:invalid ~ .field-error,
+.form-add input.form-input-invalid ~ .field-error {
+  display: block;  
+}*/
+.form-add.form-invalid input:invalid ~ .field-error-client,
+.form-add input.form-input-invalid ~ .field-error-server {
+    display: block;
+}
+
+/* TODO: factorise ? */
+.non-field-error {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #be4b53;
+}
+
+/* Form validation - end */

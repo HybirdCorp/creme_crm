@@ -31,6 +31,7 @@ CREATION_LABELS = {ACTIVITYTYPE_TASK:       _(u'Add a task'),
 ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
 ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'
 ACTIVITYSUBTYPE_PHONECALL_CONFERENCE = 'activities-activitysubtype_conference'
+ACTIVITYSUBTYPE_PHONECALL_FAILED     = 'activities-activitysubtype_failed'
 
 ACTIVITYSUBTYPE_MEETING_MEETING       = 'activities-activitysubtype_meeting'
 ACTIVITYSUBTYPE_MEETING_QUALIFICATION = 'activities-activitysubtype_qualification'

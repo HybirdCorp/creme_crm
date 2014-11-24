@@ -1,0 +1,112 @@
+<!DOCTYPE html>{% load i18n creme_core_tags mobile_tags %}
+<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<title>Creme Mobile - {% trans 'Directory' %}</title>
+{% comment %}
+<link rel="stylesheet" href="base.css" />
+<link rel="stylesheet" href="directory.css" />
+{% endcomment %}
+<style type="text/css">
+  {% include 'mobile/css/base.css' %}
+  {% include 'mobile/css/directory.css' %}
+</style>
+{% comment %}
+<script>
+if (navigator.userAgent.match(/Android/i)) {
+  document.documentElement.className = 'android';
+} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+  document.documentElement.className = 'ios';
+}
+</script>
+{% endcomment %}
+{% include 'mobile/frags/phonecall_script.html' %}
+</head>
+<body class='page-directory' onload='checkCallCookies()'>
+  <nav>
+    <a href='/mobile/' class='tab'>{% trans 'Home' %}</a>
+    <a href='/mobile/persons' class='tab selected-tab'>{% trans 'Directory' %}</a>
+    <a href='/mobile/activities' class='tab'>{% trans 'Activities' %}</a>
+  </nav>
+
+  {% include 'mobile/frags/search_div.html' %}
+
+  <section class='hideable-content'>
+    {% has_perm_to create contact_model as contact_creation_perm %}{% has_perm_to create orga_model as orga_creation_perm %}
+    {% if contact_creation_perm or orga_creation_perm %}
+      <div class='create-actions'>
+        {% if contact_creation_perm %}
+          <a href='/mobile/contact/add' class='button'>{% trans 'Add a contact' %}</a>
+        {% endif %}
+        {% if orga_creation_perm %}
+          <a href='/mobile/organisation/add' class='button'>{% trans 'Add an organisation' %}</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class='card-list favorites-contact list-contact'>
+      <div class='card-list-title'>
+        {% if favorite_contacts %}
+          {% blocktrans count counter=favorite_contacts|length %}{{counter}} favorite contact{% plural %}{{counter}} favorite contacts{% endblocktrans %}
+        {% else %}
+          {% trans 'No favorite contact' %}
+        {% endif %}
+      </div>
+
+      {% for contact in favorite_contacts %}
+        <div class='card-container'>
+          {% include 'mobile/frags/contact_card.html' %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class='card-list favorites-orga list-orga'>
+      <div class='card-list-title'>
+        {% if favorite_organisations %}
+          {% blocktrans count counter=favorite_organisations|length %}{{counter}} favorite organisation{% plural %}{{counter}} favorite organisations{% endblocktrans %}
+        {% else %}
+          {% trans 'No favorite organisation' %}
+        {% endif %}
+      </div>
+
+      {% for orga in favorite_organisations %}
+        <div class='card-container'>
+          {% include 'mobile/frags/orga_card.html' %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div id='workflow_panel' />
+  {% get_footer %}
+
+  <script>
+    document.addEventListener ('click', function (e) {
+      var trigger;
+      if (e.target.classList.contains ('more-info-trigger')) {
+        trigger = e.target;
+      } else if (e.target.parentElement.classList.contains ('more-info-trigger')) {
+        trigger = e.target.parentElement;
+      }
+
+      if (trigger) {
+        e.preventDefault();
+
+        var componentWithMoreInfo = trigger;
+        while ((componentWithMoreInfo = componentWithMoreInfo.parentElement)) {
+          if (componentWithMoreInfo.classList.contains ('with-more-info')) {
+            trigger.classList.toggle ('showing-more-info');
+            componentWithMoreInfo.classList.toggle ('showing-more-info');
+            break;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

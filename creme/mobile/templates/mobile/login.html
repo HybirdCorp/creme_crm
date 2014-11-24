@@ -1,0 +1,64 @@
+<!DOCTYPE html>{% load i18n mobile_tags %}
+<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<title>Creme Mobile - {% trans 'Connection' %}</title>
+{% comment %}
+<link rel="stylesheet" href="base.css" />
+<link rel="stylesheet" href="forms.css" />
+{% endcomment %}
+<style type="text/css">
+  {% include 'mobile/css/base.css' %}
+  {% include 'mobile/css/forms.css' %}
+</style>
+{% comment %}
+<script>
+if (navigator.userAgent.match(/Android/i)) {
+  document.documentElement.className = 'android';
+} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+  document.documentElement.className = 'ios';
+}
+</script>
+{% endcomment %}
+</head>
+<body class='page-form'>
+  <section>
+    <form class='form-login{% comment %}form-add form-add-contact{% endcomment %}' method="POST">{% csrf_token %}
+      <div class='form-title'>Creme Mobile - {% trans 'Connection' %}</div>
+
+      {% for error in form.non_field_errors %}
+        <div class='non-field-error non-field-error-server'>{{error}}</div>
+      {% endfor %}
+
+      <input type="hidden" name="{{REDIRECT_FIELD_NAME}}" value="/mobile/" />
+
+      <div class="form-field">
+        <label for='{{form.username.auto_id}}' class='field-label'>{% trans 'Username' %}</label>
+        {{form.username}}
+        <div class='field-error field-error-client'>{% trans 'The username must be filled.' %}</div>
+        {% for error in form.username.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+      </div>
+      <div class="form-field">
+          <label for="{{form.password.auto_id}}" class='field-label'>{% trans 'Password' %}</label>
+          {{form.password}}
+          <div class='field-error field-error-client'>{% trans 'The password must be filled.' %}</div>
+          {% for error in form.password.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+          <input type="hidden" name="this_is_the_login_form" value="1" />
+      </div>
+
+      <div class='form-actions'>
+        <button type='submit' class='button'>{% trans "Log in" %}</button>
+      </div>
+    </form>
+  </section>
+
+  {% get_footer show_delog=0 %}
+
+  {% include 'mobile/frags/form_validation_script.html' %}
+</body>
+</html>

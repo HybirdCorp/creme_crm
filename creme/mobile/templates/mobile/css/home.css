@@ -1,0 +1,59 @@
+/* Shortcuts for iOS */
+
+.shortcuts {
+  display: none;
+
+  position: fixed;
+  right: 0;
+  top: 0;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+  text-align: center;
+
+  color: #969696;
+
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 2.4;
+
+  z-index: 9999;
+
+  -webkit-user-select: none;
+
+  opacity: 0;
+  -webkit-transition: opacity 0.1s ease-out;
+     -moz-transition: opacity 0.1s ease-out;
+          transition: opacity 0.1s ease-out;
+}
+
+.shortcuts.shortcuts-ready {
+  opacity: 1;
+}
+
+.shortcuts .shortcut {
+  padding: 3px 6px 3px 0;
+}
+
+.shortcuts .shortcut:first-child {
+  padding-top: 8px;
+}
+.shortcuts .shortcut:last-child {
+  padding-bottom: 8px;
+}
+
+.shortcuts .shortcut.shortcut-disabled {
+  opacity: 0.6;
+}
+
+html.ios body.with-shortcuts {
+  padding-right: 22px;
+}
+
+html.ios .shortcuts {
+  display: block;
+}
+
+/* Shortcuts for iOS */

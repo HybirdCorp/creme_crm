@@ -1,0 +1,41 @@
+{% load i18n creme_core_tags %}{% has_perm_to view orga as view_perm %}
+{% if view_perm %}
+  {% with address=orga.billing_address %}{% with has_address=address|bool %}
+    <div class='{{card_classes|default:'card card-orga'}} {% if has_address %}with-more-info{% endif %}' data-person-id='{{orga.id}}'>
+      <div class='entity-field'>
+        <span class='field-label'>{% trans 'organisation' %}</span>
+        {% if has_address %}
+          <a class='orga-name more-info-trigger field-value' href=''><span class='orga-name'>{{orga}}</span></a>
+        {% else %}
+          <span class='orga-name field-value'><span class='orga-name'>{{orga}}</span></span>
+        {% endif %}
+      </div>
+      {% with phone=orga.phone %}
+        {% if phone %}
+          <div class='entity-field'>
+            <span class='field-label'>{% trans 'phone' %}</span>
+            <a class='field-value' href='tel:{{phone}}'>{{phone}}</a>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% if has_address %}
+        <div class='more-info'>
+          <div class='entity-field'>
+            <span class='field-label'>{% trans 'address' %}</span>
+            <a class='field-value' href='http://maps.google.com/?q={{address}}' target="_blank">
+              {{address|linebreaksbr}}
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endwith %}{% endwith %}
+{% else %}
+  <div class='{{card_classes|default:'card card-orga'}}' data-person-id='{{orga.id}}'>
+    <div class='entity-field'>
+      <span class='field-label'>{% trans 'organisation' %}</span>
+        <span class='orga-name field-value'><span class='orga-name'>??</span></span>
+    </div>
+  </div>
+{% endif %}

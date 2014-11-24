@@ -1,0 +1,79 @@
+<!DOCTYPE html>{% load i18n mobile_tags %}
+<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="format-detection" content="telephone=no" />
+<title>Creme Mobile - {{title}}</title>
+{% comment %}
+<link rel="stylesheet" href="base.css" />
+<link rel="stylesheet" href="forms.css" />
+{% endcomment %}
+<style type="text/css">
+  {% include 'mobile/css/base.css' %}
+  {% include 'mobile/css/forms.css' %}
+</style>
+{% comment %}
+<script>
+if (navigator.userAgent.match(/Android/i)) {
+  document.documentElement.className = 'android';
+} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+  document.documentElement.className = 'ios';
+}
+</script>
+{% endcomment %}
+{% include 'mobile/frags/phonecall_script.html' %}
+</head>
+<body class='page-form' onload='checkCallCookies()'>
+  <nav>
+    <a href='/mobile/' class='tab'>{% trans 'Home' %}</a>
+    <a href='/mobile/persons' class='tab selected-tab'>{% trans 'Directory' %}</a>
+    <a href='/mobile/activities' class='tab'>{% trans 'Activities' %}</a>
+  </nav>
+
+  <section class='hideable-content'>
+    <form class='form-add form-add-orga' method="POST">{% csrf_token %}
+      <div class='form-title'>{{title}}</div>
+
+      {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
+
+      {% for error in form.non_field_errors %}
+        <div class='non-field-error non-field-error-server'>{{error}}</div>
+      {% endfor %}
+
+      <div class='form-field'>
+        <label class='field-label' for='{{form.name.auto_id}}'>{% trans 'Name' %}<span class='field-modifier'> {% trans '(required)' %}</span></label>
+        {{form.name}}
+        <div class='field-error field-error-client'>{% trans 'The name must be filled.' %}</div>
+        {% for error in form.name.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+      </div>
+
+      <div class='form-field'>
+        <label class='field-label' for='{{form.phone.auto_id}}'>{% trans 'Phone' %}</label>
+        {{form.phone}}
+        {% for error in form.phone.errors %}<div class='field-error field-error-server'>{{error}}</div>{% endfor %}
+      </div>
+
+      <hr/>
+
+      <div class='form-field'>
+        {{form.is_favorite}}
+        <label for='{{form.is_favorite.auto_id}}'>{% trans 'Add this organisation to the favorites' %}</label>
+      </div>
+
+      <div class='form-actions'>
+        <button type='submit' class='button'>{% trans "Add the organisation" %}</button>
+        <a href='{{cancel_url}}' class='button'>{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </section>
+
+  <div id='workflow_panel' />
+  {% get_footer %}
+
+  {% include 'mobile/frags/form_validation_script.html' %}
+</body>
+</html>
