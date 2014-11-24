@@ -407,6 +407,61 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertPOST200(url, data={'diff': -3})
         self.assertEqual(0, self.refresh(objective).counter)
 
+    def _build_create_related_entity_url(self, objective): #TODO: move
+        return '/commercial/objective/%s/create_entity' % objective.id
+
+    def test_objective_create_entity01(self):
+        "Alrigth (No filter, quick form exists, credentials are OK)"
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+
+        url = self._build_create_related_entity_url(objective)
+        self.assertGET200(url)
+
+        name = 'Nerv'
+        response = self.assertPOST200(url,
+                                      data={'user': self.user.id,
+                                            'name': name,
+                                           }
+                                     )
+        self.assertNoFormError(response)
+
+        nerv = self.get_object_or_fail(Organisation, name=name)
+        self.assertRelationCount(1, nerv, REL_SUB_COMPLETE_GOAL, act)
+
+    def test_objective_create_entity02(self):
+        "Not a 'relationships counter objective"
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1')
+        self.assertGET409(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity03(self):
+        "No quick for this entity type"
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Act counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Act),
+                                               )
+        self.assertGET409(self._build_create_related_entity_url(objective))
+
+    def test_objective_create_entity04(self):
+        "The objective has a filter -> error"
+        act = self.create_act()
+
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
+                                                                    operator=EntityFilterCondition.ICONTAINS,
+                                                                    name='name', values=['Ferraille'],
+                                                                   )
+                               ])
+
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                                filter=efilter,
+                                               )
+        self.assertGET409(self._build_create_related_entity_url(objective))
+
     def test_count_relations01(self):
         user = self.user
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
