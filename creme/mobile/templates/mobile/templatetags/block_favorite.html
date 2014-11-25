@@ -1,0 +1,45 @@
+{% load i18n creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=1 %}
+        <th class="label">
+            {% if is_contact %}
+                {% get_block_title _("This contact is a favorite for %s user") _("This contact is a favorite for %s users") %}
+            {% elif is_orga %}
+                {% get_block_title _("This organisation is a favorite for %s user") _("This organisation is a favorite for %s users") %}
+            {% else %}
+                {% get_block_title _("This entity is a favorite for %s user") _("This entity is a favorite for %s users") %}
+            {% endif %}
+        </th>
+        <th class="actions">
+            <div class="buttons">
+                {% if not current_user_fav %}
+                    <a class="link" onclick="creme.blocks.ajaxPOSTQuery('/mobile/mark_as_favorite/{{object.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).start();">
+                        {% trans "Link" as img_title %}<img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+                        {% trans "Mark as favorite" %}
+                    </a>
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            {% for fav_user in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                <tr class="content">
+                    <td class="{{row_color}}">
+                        {{fav_user}}
+                        {% if user == fav_user %}
+                            {% get_line_unlinker at_url '/mobile/unmark_favorite/{{object.id}}' with_args "{}" with_perms 1 %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="content empty">
+                <td class="block_line_dark">
+                    {% trans "This entity is not a favorite for the moment" %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% get_block_footer 1 %}
+</table>

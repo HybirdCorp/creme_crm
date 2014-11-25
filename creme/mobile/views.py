@@ -52,6 +52,7 @@ from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
 from creme.activities.models import Activity, Calendar
 
 from .forms import MobileContactCreateForm, MobileOrganisationCreateForm
+from .models import MobileFavorite
 from .templatetags.mobile_tags import orga_subjects
 
 
@@ -594,3 +595,21 @@ def phonecall_workflow_postponed(request):
     postponed.clone()
 
     return ''
+
+@login_required
+@POST_only
+def mark_as_favorite(request, entity_id):
+    entity = get_object_or_404(CremeEntity, id=entity_id)
+    user = request.user
+
+    user.has_perm_to_view_or_die(entity)
+    MobileFavorite.objects.get_or_create(entity=entity, user=user)
+
+    return HttpResponse()
+
+@login_required
+@POST_only
+def unmark_favorite(request, entity_id):
+    MobileFavorite.objects.filter(entity=entity_id, user=request.user).delete()
+
+    return HttpResponse()
