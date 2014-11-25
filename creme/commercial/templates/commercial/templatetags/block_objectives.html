@@ -35,7 +35,7 @@
                                     {% if not efilter and ctype|has_quickform %}
                                         {% has_perm_to create ctype as creation_perm %}
                                         {% has_perm_to link ctype.model_class as link_perm2 %}
-                                        {% get_line_adder at_url '/commercial/objective/{{objective.id}}/create_entity' with_label ctype.model_class.creation_label with_perms link_perm|or_op:creation_perm|or_op:link_perm2 %}
+                                        {% get_line_adder at_url '/commercial/objective/{{objective.id}}/create_entity' with_label ctype.model_class.creation_label with_perms link_perm|and_op:creation_perm|and_op:link_perm2 %}
                                     {% endif %}
                                 {% endwith %}
                             {% endif %}

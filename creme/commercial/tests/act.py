@@ -7,7 +7,9 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import RelationType, Relation, EntityFilter, EntityFilterCondition
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
+    from creme.creme_core.models import (RelationType, Relation, CremeProperty,
+            EntityFilter, EntityFilterCondition)
 
     from creme.persons.models import Contact, Organisation
 
@@ -31,7 +33,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'activities', 'commercial')
+        cls.populate('creme_config', 'activities', 'opportunities', 'commercial')
 
     def _build_addobjective_url(self, act):
         return '/commercial/act/%s/add/objective' % act.id
@@ -195,6 +197,42 @@ class ActTestCase(CommercialBaseTestCase):
     def test_detailview(self):
         act = self.create_act()
         self.assertGET200('/commercial/act/%s' % act.id)
+
+    def test_create_linked_opportunity(self):
+        act = self.create_act()
+
+        url = '/commercial/act/%s/add/opportunity' % act.id
+        self.assertGET200(url)
+
+        user = self.user
+        create_orga = partial(Organisation.objects.create, user=user)
+        emitter = create_orga(name='Ferraille corp')
+        target  = create_orga(name='World company')
+
+        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        name  = 'Opportunity01'
+        phase = SalesPhase.objects.all()[0]
+        response = self.client.post(url,
+                                    data={'user':        user.id,
+                                          'name':        name,
+                                          'sales_phase': phase.id,
+                                          'target':      '{"ctype":"%s", "entity":"%s"}' % (
+                                                                target.entity_type_id,
+                                                                target.id
+                                                            ),
+                                          'emitter':     emitter.id,
+                                          'currency':    DEFAULT_CURRENCY_PK,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        opp = self.get_object_or_fail(Opportunity, name=name)
+        self.assertEqual(phase,   opp.sales_phase)
+        self.assertEqual(target,  opp.target)
+        self.assertEqual(emitter, opp.emitter)
+        
+        self.assertRelationCount(1, opp, REL_SUB_COMPLETE_GOAL, act)
 
     def test_add_objective01(self):
         act = self.create_act()

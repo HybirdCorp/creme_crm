@@ -21,7 +21,8 @@ urlpatterns = patterns('creme.commercial.views',
     (r'^act/edit/(?P<act_id>\d+)$', 'act.edit'),
     (r'^act/(?P<act_id>\d+)$',      'act.detailview'),
 
-    #Objectives
+    #Objectives & opportunities
+    (r'^act/(?P<act_id>\d+)/add/opportunity$',             'act.add_opportunity'),
     (r'^act/(?P<act_id>\d+)/add/objective$',               'act.add_objective'),
     (r'^act/(?P<act_id>\d+)/add/objectives_from_pattern$', 'act.add_objectives_from_pattern'),
     (r'^objective/(?P<objective_id>\d+)/edit$',            'act.edit_objective'),
