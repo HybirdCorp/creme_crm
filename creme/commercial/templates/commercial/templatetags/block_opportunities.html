@@ -7,6 +7,10 @@
         <th class="actions">
             <div class="buttons">
                 {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id opp_ct.id with_label _("Link to an existing opportunity") with_perms link_perm %}
+
+                {% has_perm_to create opp_ct as opp_creation_perm %}
+                {% has_perm_to link opp_ct.model_class as opp_link_perm %}
+                {% get_line_adder at_url '/commercial/act/{{object.id}}/add/opportunity' with_label _("Add a linked opportunity") with_perms link_perm|and_op:opp_creation_perm|and_op:opp_link_perm %}
             </div>
         </th>
     {% end_get_block_header %}

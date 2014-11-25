@@ -31,6 +31,9 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views import generic
 
+from creme.opportunities.forms.opportunity import OpportunityCreateForm
+from creme.opportunities.models import Opportunity
+
 from ..constants import REL_SUB_COMPLETE_GOAL
 from ..forms import act as forms
 from ..models import (ActType, Act, ActObjective, MarketSegment,
@@ -76,7 +79,8 @@ def detailview(request, act_id):
 @login_required
 @permission_required('commercial')
 def objective_pattern_detailview(request, objpattern_id):
-    return generic.view_entity(request, objpattern_id, ActObjectivePattern, '/commercial/objective_pattern',
+    return generic.view_entity(request, objpattern_id, ActObjectivePattern,
+                               '/commercial/objective_pattern',
                                template='commercial/view_pattern.html'
                               )
 
@@ -88,7 +92,43 @@ def listview(request):
 @login_required
 @permission_required('commercial')
 def listview_objective_pattern(request):
-    return generic.list_view(request, ActObjectivePattern, extra_dict={'add_url': '/commercial/objective_pattern/add'})
+    return generic.list_view(request, ActObjectivePattern,
+                             extra_dict={'add_url': '/commercial/objective_pattern/add'},
+                            )
+
+@login_required
+@permission_required('opportunities')
+@permission_required('opportunities.add_opportunity')
+def add_opportunity(request, act_id):
+    act = get_object_or_404(Act, pk=act_id)
+    user = request.user
+
+    user.has_perm_to_link_or_die(act)
+    user.has_perm_to_link_or_die(Opportunity)
+
+    if request.method == 'POST':
+        form = OpportunityCreateForm(user=user, data=request.POST)
+
+        if form.is_valid():
+            with commit_on_success():
+                opp = form.save()
+                Relation.objects.create(subject_entity=opp,
+                                        type_id=REL_SUB_COMPLETE_GOAL,
+                                        object_entity=act,
+                                        user=user,
+                                       )
+    else:
+        form = OpportunityCreateForm(user=user)
+
+    return generic.inner_popup(request,
+                               'creme_core/generics/blockform/add_popup2.html',
+                               {'form':   form,
+                                'title':  _(u'Add a linked opportunity'),
+                               },
+                               is_valid=form.is_valid(),
+                               reload=False,
+                               delegate_reload=True,
+                              )
 
 @login_required
 @permission_required('commercial')
@@ -138,20 +178,20 @@ def _add_subpattern_component(request, component_id, form_class, title):
 def add_child_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternChildComponentForm,
-                                     ugettext('New child objective for <%s>')
+                                     ugettext('New child objective for <%s>'),
                                     )
 
 def add_parent_pattern_component(request, component_id):
     return _add_subpattern_component(request, component_id,
                                      forms.PatternParentComponentForm,
-                                     ugettext('New parent objective for <%s>')
+                                     ugettext('New parent objective for <%s>'),
                                     )
 
 @login_required
 @permission_required('commercial')
 def edit_objective(request, objective_id):
     return generic.edit_related_to_entity(request, objective_id, ActObjective, forms.ObjectiveForm,
-                                          ugettext(u'Objective for <%s>')
+                                          ugettext(u'Objective for <%s>'),
                                          )
 
 @login_required

@@ -24,11 +24,11 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation, SettingValue
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
+from creme.creme_core.models import Relation, SettingValue
 
-from creme.opportunities.models import Opportunity
 from creme.opportunities.constants import REL_SUB_TARGETS
+from creme.opportunities.models import Opportunity
 
 from creme.persons.models import Organisation
 
