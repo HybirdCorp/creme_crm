@@ -26,6 +26,9 @@ urlpatterns = patterns('creme.mobile.views',
     (r'^phone_call/just_done',        'phonecall_workflow_just_done'),
     (r'^phone_call/failed$',          'phonecall_workflow_failed'),
     (r'^phone_call/postponed$',       'phonecall_workflow_postponed'),
+
+    (r'^mark_as_favorite/(?P<entity_id>\d+)$', 'mark_as_favorite'),
+    (r'^unmark_favorite/(?P<entity_id>\d+)$',  'unmark_favorite'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',

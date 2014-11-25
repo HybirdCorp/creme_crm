@@ -9,13 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-21 17:56+0100\n"
+"POT-Creation-Date: 2014-11-25 22:10+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: blocks.py:34
+msgid "Favorite Contacts & Organisations (for mobile)"
+msgstr "Contacts & Sociétés favoris (pour mobile)"
 
 #: forms.py:59
 msgctxt "mobile-contact"
@@ -28,42 +32,42 @@ msgid "Is favorite"
 msgstr "Est favorite"
 
 # Already in creme_core
-#: views.py:75
+#: views.py:76
 msgid "You do not have access to this page, please contact your administrator."
 msgstr ""
 
 # Already in creme_core
-#: views.py:78
+#: views.py:79
 msgid "The page you have requested is unfoundable."
 msgstr ""
 
 # Already in creme_core
-#: views.py:81
+#: views.py:82
 msgid "You can not perform this action because of business constraints."
 msgstr ""
 
-#: views.py:235
+#: views.py:233
 msgid "Your search is too short."
 msgstr "Votre recherche est trop courte."
 
-#: views.py:461
+#: views.py:453
 msgid "You cannot create a call to youself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
-#: views.py:509 views.py:542
+#: views.py:501 views.py:534
 #, python-format
 msgid "%(status)s call to %(person)s from Creme Mobile"
 msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
 
-#: views.py:510
+#: views.py:502
 msgid "Successful"
 msgstr "réussi"
 
-#: views.py:543
+#: views.py:535
 msgid "Failed"
 msgstr "échoué"
 
-#: views.py:592
+#: views.py:584
 #, python-format
 msgid "Call to %s from Creme Mobile"
 msgstr "Appel vers %s depuis Creme Mobile"
@@ -456,6 +460,49 @@ msgstr "Toute la journée"
 #: templates/mobile/templatetags/activity_card.html:13
 msgid "In day"
 msgstr "Dans la journée"
+
+#: templates/mobile/templatetags/block_favorite.html:6
+#, python-format
+msgid "This contact is a favorite for %s user"
+msgstr "Ce contact est un favori pour %s utilisateur"
+
+#: templates/mobile/templatetags/block_favorite.html:6
+#, python-format
+msgid "This contact is a favorite for %s users"
+msgstr "Ce contact est un favori pour %s utilisateurs"
+
+#: templates/mobile/templatetags/block_favorite.html:8
+#, python-format
+msgid "This organisation is a favorite for %s user"
+msgstr "Cette société est une favorie pour %s utilisateur"
+
+#: templates/mobile/templatetags/block_favorite.html:8
+#, python-format
+msgid "This organisation is a favorite for %s users"
+msgstr "Cette société est une favorie pour %s utilisateurs"
+
+#: templates/mobile/templatetags/block_favorite.html:10
+#, python-format
+msgid "This entity is a favorite for %s user"
+msgstr "Cette fiche est une favorie pour %s utilisateur"
+
+#: templates/mobile/templatetags/block_favorite.html:10
+#, python-format
+msgid "This entity is a favorite for %s users"
+msgstr "Cette fiche est une favorie pour %s utilisateurs"
+
+#Already in creme_core
+#: templates/mobile/templatetags/block_favorite.html:17
+msgid "Link"
+msgstr ""
+
+#: templates/mobile/templatetags/block_favorite.html:18
+msgid "Mark as favorite"
+msgstr "Marquer comme favori"
+
+#: templates/mobile/templatetags/block_favorite.html:39
+msgid "This entity is not a favorite for the moment"
+msgstr "Cette n'est pas une favorie pour le moment"
 
 # Already in creme_core
 #: templates/mobile/templatetags/footer.html:3

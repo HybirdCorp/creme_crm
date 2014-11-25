@@ -1123,3 +1123,31 @@ class MobileTestCase(CremeTestCase):
                             },
                          pcall.title
                         )
+
+    def test_mark_as_favorite(self):
+        self.login()
+        may = Contact.objects.create(user=self.user, first_name='May',
+                                     last_name='Shiranui'
+                                    )
+
+        url = '/mobile/mark_as_favorite/%s' % may.id
+        self.assertGET404(url)
+
+        self.assertPOST200(url)
+        self.get_object_or_fail(MobileFavorite, entity=may, user=self.user)
+
+        self.assertPOST200(url)
+        self.get_object_or_fail(MobileFavorite, entity=may, user=self.user) #not 2 objects
+
+    def test_unmark_favorite(self):
+        self.login()
+        may = Contact.objects.create(user=self.user, first_name='May',
+                                     last_name='Shiranui'
+                                    )
+        fav = MobileFavorite.objects.create(entity=may, user=self.user)
+
+        url = '/mobile/unmark_favorite/%s' % may.id
+        self.assertGET404(url)
+
+        self.assertPOST200(url)
+        self.assertDoesNotExist(fav)
