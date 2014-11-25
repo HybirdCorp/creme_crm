@@ -196,9 +196,12 @@ def edit_objective(request, objective_id):
 
 @login_required
 @permission_required('commercial')
-def incr_objective_counter(request, objective_id): #TODO: test if relation Objective ???
+def incr_objective_counter(request, objective_id):
     objective = get_object_or_404(ActObjective, pk=objective_id)
     request.user.has_perm_to_change_or_die(objective.act)
+
+    if objective.ctype:
+        raise ConflictError('This objective is a relationship counter.')
 
     objective.counter += get_from_POST_or_404(request.POST, 'diff', int)
     objective.save()
