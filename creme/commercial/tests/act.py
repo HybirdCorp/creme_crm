@@ -41,8 +41,14 @@ class ActTestCase(CommercialBaseTestCase):
     def _build_addobjectivefrompattern_url(self, act):
         return '/commercial/act/%s/add/objectives_from_pattern' % act.id
 
+    def _build_create_related_entity_url(self, objective):
+        return '/commercial/objective/%s/create_entity' % objective.id
+
     def _build_edit_url(self, act):
         return '/commercial/act/edit/%s' % act.id
+
+    def _build_incr_url(self, objective):
+        return '/commercial/objective/%s/incr' % objective.id
 
     def test_create(self):
         url = self.ADD_URL
@@ -430,12 +436,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertRedirects(response, act.get_absolute_url())
         self.assertDoesNotExist(objective)
 
-    def test_incr_objective_counter(self):
+    def test_incr_objective_counter01(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertEqual(0, objective.counter)
 
-        url = '/commercial/objective/%s/incr' % objective.id
+        url = self._build_incr_url(objective)
         self.assertPOST200(url, data={'diff': 1})
         self.assertEqual(1, self.refresh(objective).counter)
 
@@ -445,8 +451,13 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertPOST200(url, data={'diff': -3})
         self.assertEqual(0, self.refresh(objective).counter)
 
-    def _build_create_related_entity_url(self, objective): #TODO: move
-        return '/commercial/objective/%s/create_entity' % objective.id
+    def test_incr_objective_counter02(self):
+        "Relationships counter -> error"
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
+                                                ctype=ContentType.objects.get_for_model(Organisation),
+                                               )
+        self.assertPOST409(self._build_incr_url(objective), data={'diff': 1})
 
     def test_objective_create_entity01(self):
         "Alrigth (No filter, quick form exists, credentials are OK)"
