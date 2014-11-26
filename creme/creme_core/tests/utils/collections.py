@@ -191,3 +191,39 @@ class OrderedSetTestCase(CremeTestCase):
         self.assertEqual(['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'],
                          list(s3)
                         )
+
+    def test_eq(self):
+        "__eq__ with a list"
+        s = OrderedSet('Futurama')
+        self.assertEqual(s, ['F','u', 't', 'r', 'a', 'm'])
+        self.assertEqual(s, ['u', 't', 'r', 'a', 'm', 'F'])
+        self.assertNotEqual(s, ['u', 't', 'r', 'a', 'm'])
+
+    def test_discard(self):
+        s = OrderedSet('Futurama')
+
+        with self.assertNoException():
+            s.discard('z')
+
+        s.discard('a')
+        self.assertEqual(['F','u', 't', 'r', 'm'], list(s))
+
+    def test_reversed(self):
+        s = OrderedSet('Futurama')
+        self.assertEqual(['m', 'a', 'r', 't', 'u', 'F'], list(reversed(s)))
+
+    def test_pop01(self):
+        with self.assertRaises(KeyError):
+            OrderedSet().pop()
+
+    def test_pop02(self):
+        s = OrderedSet('Futurama')
+        self.assertEqual('m', s.pop())
+        self.assertEqual(['F','u', 't', 'r', 'a'], list(s))
+
+        self.assertEqual('F', s.pop(last=False))
+        self.assertEqual(['u', 't', 'r', 'a'], list(s))
+
+    def test_repr(self):
+        self.assertEqual('OrderedSet()', repr(OrderedSet()))
+        self.assertEqual("OrderedSet(['F', 'r', 'y'])", repr(OrderedSet('Fry')))
