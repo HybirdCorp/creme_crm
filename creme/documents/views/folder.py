@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -28,6 +30,9 @@ from creme.creme_core.views.generic.listview import list_view
 
 from ..models import Folder
 from ..forms.folder import FolderForm
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -62,7 +67,7 @@ def listview(request):
         try:
             parent_id = int(parent_id)
         except (ValueError, TypeError):
-            pass
+            logger.warn('Folder.listview(): invalid "parent_id" parameter: %s', parent_id)
         else:
             folder = get_object_or_404(Folder, pk=parent_id)
             request.user.has_perm_to_view_or_die(folder)
@@ -85,5 +90,3 @@ def listview(request):
                                 },
                      post_process=post_process,
                     )
-
-
