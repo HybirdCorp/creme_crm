@@ -6,6 +6,7 @@ try:
     from django.conf import settings
     #from django.test.utils import override_settings
     from django.utils.encoding import smart_str, smart_unicode
+    from django.utils.translation import ugettext as _
 
     from .base import _DocumentsTestCase
     from creme.documents.models import Folder, FolderCategory, Document
@@ -14,10 +15,12 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all_ = ('FolderTestCase',)
+__all__ = ('FolderTestCase',)
 
 
 class FolderTestCase(_DocumentsTestCase):
+    LIST_URL = '/documents/folders'
+
     def setUp(self):
         super(FolderTestCase, self).setUp()
         self.login()
@@ -82,23 +85,81 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
 
-    def test_listview(self):
+    def test_listview01(self):
         user = self.user
         category = FolderCategory.objects.all()[0]
 
-        create_folder = partial(Folder.objects.create, user=user, 
+        create_folder = partial(Folder.objects.create, user=user,
                                 parent_folder=None, category=category
                                )
         folder1 = create_folder(title='PDF', description='Contains PDF files')
         folder2 = create_folder(title='SVG', description='Contains SVG files')
 
-        response = self.assertGET200('/documents/folders')
+        response = self.assertGET200(self.LIST_URL)
+
+        with self.assertNoException():
+            context = response.context
+            folders = context['entities'].object_list
+            title   = context['list_title']
+
+        self.assertIn(folder1, folders)
+        self.assertIn(folder2, folders)
+
+        self.assertEqual(_(u"List of %s") % Folder._meta.verbose_name_plural, title)
+
+        with self.assertRaises(KeyError):
+            sub_title = context['list_sub_title']
+
+    def test_listview02(self):
+        "With parent constraint"
+        user = self.user
+        cat = FolderCategory.objects.all()[0]
+
+        create_folder = partial(Folder.objects.create, user=user, category=cat)
+        grand_parent = create_folder(title='Docs', description='Contains docs')
+        parent  = create_folder(title='Vectors', description='Contains Vector docs',
+                                parent_folder=grand_parent,
+                               )
+        folder1 = create_folder(title='PDF', description='Contains PDF files',
+                                parent_folder=parent,
+                               )
+        folder2 = create_folder(title='SVG', description='Contains SVG files',
+                                parent_folder=parent,
+                               )
+
+        parent2 = create_folder(title='Raster', description='Contains Raster gfx')
+        folder3 = create_folder(title='BMP', description='Contains BMP files',
+                                parent_folder=parent2,
+                               )
+
+        response = self.assertGET200(self.LIST_URL, data={'parent_id': parent.id})
+
+        with self.assertNoException():
+            context = response.context
+            folders   = context['entities'].object_list
+            title     = context['list_title']
+            sub_title = context['list_sub_title']
+
+        self.assertIn(folder1, folders)
+        self.assertIn(folder2, folders)
+        self.assertNotIn(grand_parent, folders)
+        self.assertNotIn(parent,  folders)
+        self.assertNotIn(folder3, folders)
+        self.assertNotIn(parent2, folders)
+
+        self.assertEqual(_(u"List sub-folders of %s") % parent, title)
+        self.assertEqual('%s > %s' % (grand_parent.title, parent.title),
+                         sub_title
+                        )
+
+        #------
+        response = self.assertGET200(self.LIST_URL, data={'parent_id': 'invalid'})
 
         with self.assertNoException():
             folders = response.context['entities'].object_list
 
-        self.assertIn(folder1, folders)
-        self.assertIn(folder2, folders)
+        self.assertNotIn(folder1,   folders)
+        self.assertIn(grand_parent, folders)
 
     def test_folder_clone01(self):
         title = 'folder'
@@ -125,7 +186,7 @@ class FolderTestCase(_DocumentsTestCase):
         folder = self._create_folder_2_delete()
         response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         self.assertDoesNotExist(folder)
-        self.assertRedirects(response, '/documents/folders')
+        self.assertRedirects(response, self.LIST_URL)
 
     def test_deleteview02(self):
         "A doc inside protect from deletion"
