@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013  Hybird
+#    Copyright (C) 2013-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,7 @@ def expand_sparse_iterator(sparse_iterator, default_value):
 # TODO: this could be interesting in creme_core.utils
 def sparsezip(full_collection, sparse_collection, default_value):
     "Zips a 'full' collection with a 'sparse' collection by expanding the latter using expand_sparse_iterator()"
-    sequences = [full_collection, expand_sparse_iterator(iter(sparse_collection), default_value)]
-    for value in izip_longest(*sequences, fillvalue=default_value):
+    for value in izip_longest(full_collection,
+                              expand_sparse_iterator(iter(sparse_collection), default_value),
+                              fillvalue=default_value):
         yield value
