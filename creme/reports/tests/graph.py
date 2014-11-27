@@ -422,7 +422,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         #bad CT
         ct_orga = self.ct_orga
-        create_cf(content_type=ct_orga, name='Totem', field_type=CustomField.ENUM) 
+        create_cf(content_type=ct_orga, name='Totem', field_type=CustomField.ENUM)
         create_cf(content_type=ct_orga, name='Gold',  field_type=CustomField.INT)
 
         create_enum_value = partial(CustomFieldEnumValue.objects.create, custom_field=cf_enum)
@@ -909,6 +909,66 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual([150, fmt % ('2013-06-26', '2013-07-05')], y_desc[0])
         self.assertEqual([300, fmt % ('2013-06-16', '2013-06-25')], y_desc[1])
 
+    def test_fetch_with_asymmetrical_date_range01(self):
+        "Count, where the ASC values are different from the DESC ones"
+        report = self._create_simple_organisations_report()
+
+        def create_graph(days):
+            return ReportGraph.objects.create(user=self.user, report=report,
+                                              name=u"Number of organisation created / %s day(s)" % days,
+                                              abscissa='creation_date',
+                                              type=RGT_RANGE, days=days,
+                                              is_count=True,
+                                             )
+
+        rgraph = create_graph(15)
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Target Orga1', creation_date='2013-12-21')
+        create_orga(name='Target Orga2', creation_date='2013-12-26')
+        create_orga(name='Target Orga3', creation_date='2013-12-31')
+        create_orga(name='Target Orga4', creation_date='2014-01-03')
+        create_orga(name='Target Orga5', creation_date='2014-01-05')
+        create_orga(name='Target Orga6', creation_date='2014-01-07')
+
+        #ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(['21/12/2013-04/01/2014', '05/01/2014-19/01/2014'],
+                         x_asc
+                        )
+
+        self.assertEqual(len(y_asc), 2)
+        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        self.assertEqual([4, fmt % ("2013-12-21", "2014-01-04")], y_asc[0])
+        self.assertEqual([2, fmt % ("2014-01-05", "2014-01-19")], y_asc[1])
+
+        #DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(None, 'DESC')
+        self.assertEqual(['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'],
+                         x_desc
+                        )
+        self.assertEqual(len(y_desc), 2)
+        self.assertEqual([5, fmt % ('2013-12-24', '2014-01-07')], y_desc[0])
+        self.assertEqual([1, fmt % ('2013-12-09', '2013-12-23')], y_desc[1])
+
+        #Days = 1 ------------------------------------------------------------
+        rgraph_one_day = create_graph(1)
+        x_one_day, y_one_day = rgraph_one_day.fetch()
+        self.assertEqual(len(y_one_day), 18)
+        self.assertEqual(y_one_day[0][0],  1)
+        self.assertEqual(y_one_day[1][0],  0)
+        self.assertEqual(y_one_day[4][0],  0)
+        self.assertEqual(y_one_day[5][0],  1)
+        self.assertEqual(y_one_day[6][0],  0)
+        self.assertEqual(y_one_day[10][0], 1)
+        self.assertEqual(y_one_day[13][0], 1)
+        self.assertEqual(y_one_day[15][0], 1)
+        self.assertEqual(y_one_day[17][0], 1)
+
+        valid_days_indices = [0, 5, 10, 13, 15, 17]
+        invalid_days_indices = [index for index in xrange(len(y_one_day)) if index not in valid_days_indices]
+        self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 1], valid_days_indices)
+        self.assertEqual([index for index, value in enumerate(y_one_day) if value[0] == 0], invalid_days_indices)
+
     def test_fetch_with_custom_date_range01(self):
         "Count"
         create_cf = partial(CustomField.objects.create, content_type=self.ct_orga,
@@ -1082,7 +1142,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         "Invalid CustomField"
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                            name=u"Minimum of capital by creation date (by day)",
+                                            name=u"Average of capital by creation date (by day)",
                                             abscissa=1000, # <====
                                             type=RGT_CUSTOM_DAY,
                                             ordinate='capital__avg',
@@ -1209,7 +1269,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=user, report=report,
-                                            name=u"Maximum of vine by creation date (period of 1 year)",
+                                            name=u"Sum of vine by creation date (period of 1 year)",
                                             abscissa='creation_date',
                                             type=RGT_YEAR,
                                             ordinate='%s__sum' % cf.id,
@@ -1437,7 +1497,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         "Invalid RelationType"
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                            name=u"Minimum of capital by creation date (by day)",
+                                            name=u"Average of capital by creation date (by day)",
                                             abscissa='invalidrtype', # <====
                                             type=RGT_RELATION,
                                             ordinate='capital__avg',
@@ -1458,7 +1518,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Contacts by title',
-                                            abscissa=1000, #<========= 
+                                            abscissa=1000, #<=========
                                             type=RGT_CUSTOM_FK,
                                             ordinate='', is_count=True,
                                            )
@@ -2014,3 +2074,72 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          },
                          json_load(response.content)
                         )
+
+    def bench_big_fetch_using_count(self):
+        """
+        Little benchmark to see how the 'group by' report queries behave with bigger datasets
+        where there is a visible difference between the old "manual group by's" and the new real sql ones
+        """
+        from datetime import datetime
+        import time
+
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                              name=u"Number of organisation created / %s day(s)" % 1,
+                                              abscissa='creation_date',
+                                              type=RGT_RANGE, days=1,
+                                              is_count=True,
+                                              )
+
+        interval_day_count = 300
+        entities_per_day = 5
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        for i in xrange(1, interval_day_count + 1):
+            creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
+            for _ in xrange(entities_per_day):
+                create_orga(name='Target Orga', creation_date=creation)
+
+        start = time.clock()
+
+        x, y = rgraph.fetch()
+
+        print 'Fetch took', 1000 * (time.clock() - start), 'ms'
+
+        self.assertEqual(len(x), interval_day_count)
+        self.assertEqual(len(y), interval_day_count)
+        self.assertEqual(sum((value for value, _ in y)), interval_day_count * entities_per_day)
+
+    def bench_big_fetch_using_sum(self):
+        """
+        Little benchmark to see how the 'group by' report queries behave with bigger datasets
+        where there is a visible difference between the old "manual group by's" and the new real sql ones
+        """
+        from datetime import datetime
+        import time
+
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"Sum of capital by creation date (period of %s days)" % 1,
+                                            abscissa='creation_date',
+                                            type=RGT_RANGE, days=1,
+                                            ordinate='capital__sum',
+                                            is_count=False,
+                                            )
+
+        interval_day_count = 300
+        entities_per_day = 5
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        for i in xrange(1, interval_day_count + 1):
+            creation = datetime.strptime('%s 2014' % i, '%j %Y').strftime("%Y-%m-%d")
+            for _ in xrange(entities_per_day):
+                create_orga(name='Target Orga', creation_date=creation, capital=100)
+
+        start = time.clock()
+
+        x, y = rgraph.fetch()
+
+        print 'Fetch took', 1000 * (time.clock() - start), 'ms'
+
+        self.assertEqual(len(x), interval_day_count)
+        self.assertEqual(len(y), interval_day_count)
+        self.assertEqual(sum((value for value, _ in y)), interval_day_count * entities_per_day * 100)
