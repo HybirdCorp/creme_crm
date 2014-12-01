@@ -20,14 +20,14 @@
 
 import logging
 
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem,
         HeaderFilter, EntityFilterCondition, EntityFilter)
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.persons.models import Contact, Organisation
@@ -48,6 +48,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'creme_config', 'persons', 'activities', 'products', 'billing']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_TARGETS).exists()
+        INSTALLED_APPS = settings.INSTALLED_APPS
+
         create_rtype = RelationType.create
         rt_sub_targets, rt_obj_targets = create_rtype((REL_SUB_TARGETS, _(u'targets the organisation/contact'), [Opportunity]),
                                                       (REL_OBJ_TARGETS, _(u"targeted by the opportunity"),      [Organisation, Contact]),
@@ -66,103 +69,17 @@ class Populator(BasePopulator):
         create_rtype((REL_SUB_RESPONSIBLE,       _(u"is responsible for"),                    [Contact]),
                      (REL_OBJ_RESPONSIBLE,       _(u"has as responsible contact"),            [Opportunity]))
 
-        SettingValue.create_if_needed(key=quote_key, user=None, value=False)
-
-        if not SalesPhase.objects.exists():
-            create_sphase = SalesPhase.objects.create
-            create_sphase(name=_(u"Forthcoming"),       order=1)
-            create_sphase(name=_(u"Abandoned"),         order=4)
-            won  = create_sphase(name=_(u"Won"),        order=5, won=True)
-            lost = create_sphase(name=_(u"Lost"),       order=6)
-            create_sphase(name=_(u"Under negotiation"), order=3)
-            create_sphase(name=_(u"In progress"),       order=2)
-        else:
-            won = None
-            lost = None
-
-        if not Origin.objects.exists():
-            create_origin = Origin.objects.create
-            create_origin(name=_(u"None"))
-            create_origin(name=_(u"Web site"))
-            create_origin(name=_(u"Mouth"))
-            create_origin(name=_(u"Show"))
-            create_origin(name=_(u"Direct email"))
-            create_origin(name=_(u"Direct phonecall"))
-            create_origin(name=_(u"Employee"))
-            create_origin(name=_(u"Partner"))
-            create_origin(name=_(u"Other"))
-
-        HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity,
-                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
-                                        EntityCellRelation(rtype=rt_sub_targets),
-                                        (EntityCellRegularField, {'name': 'sales_phase'}),
-                                        (EntityCellRegularField, {'name': 'estimated_sales'}),
-                                        (EntityCellRegularField, {'name': 'made_sales'}),
-                                        (EntityCellRegularField, {'name': 'expected_closing_date'}),
-                                       ],
-                           )
-
-        if won:
-            efilter = EntityFilter.create('opportunities-opportunities_won', name=_(u"Opportunities won"), model=Opportunity)
-            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[won.pk])])
-
-            efilter = EntityFilter.create('opportunities-opportunities_lost', name=_(u"Opportunities lost"), model=Opportunity)
-            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[lost.pk])])
-
-            efilter = EntityFilter.create('opportunities-neither_won_nor_lost_opportunities', name=_(u"Neither won nor lost opportunities"), model=Opportunity)
-            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS_NOT, name='sales_phase', values=[won.pk, lost.pk])])
-
-        ButtonMenuItem.create_if_needed(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)#TODO: This pk is kept for compatibility
-        ButtonMenuItem.create_if_needed(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
-
-        SearchConfigItem.create_if_needed(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
-
-        BlockDetailviewLocation.create_4_model_block(                      order=5,   zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=responsibles_block.id_,    order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=62,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=64,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_services_block.id_, order=66,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=target_block.id_,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-
-
-        INSTALLED_APPS = settings.INSTALLED_APPS
 
         if 'creme.activities' in INSTALLED_APPS:
-            logger.info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
+            logger.info('Activities app is installed => an Opportunity can be the subject of an Activity')
 
-            from creme.activities.blocks import future_activities_block, past_activities_block
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Opportunity)
 
-            BlockDetailviewLocation.create(block_id=future_activities_block.id_, order=20, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockPortalLocation.create(app_name='opportunities', block_id=future_activities_block.id_, order=20)
-            BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
-
-
-        if 'creme.assistants' in INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
-
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-
-            BlockPortalLocation.create(app_name='opportunities', block_id=memos_block.id_,    order=100)
-            BlockPortalLocation.create(app_name='opportunities', block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_, order=400)
-
 
         if 'creme.billing' in INSTALLED_APPS:
-            logger.info('Billing app is installed => we create relationships & blocks between Opportunities & billing models')
+            logger.info('Billing app is installed => we create relationships between Opportunities & billing models')
 
             from creme.billing.models import SalesOrder, Invoice, Quote
 
@@ -175,46 +92,145 @@ class Populator(BasePopulator):
             create_rtype((REL_SUB_CURRENT_DOC,       _(u'is the current accounting document of'), [SalesOrder, Invoice, Quote]),
                          (REL_OBJ_CURRENT_DOC,       _(u'has as current accounting document'),    [Opportunity]))
 
-            BlockDetailviewLocation.create(block_id=quotes_block.id_,      order=70, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=salesorders_block.id_, order=72, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=invoices_block.id_,    order=74, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
+
+        SettingValue.create_if_needed(key=quote_key, user=None, value=False)
 
 
-        if 'creme.emails' in INSTALLED_APPS:
-            logger.info('Emails app is installed => we use the emails blocks on detail view')
+        HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity,
+                            cells_desc=[(EntityCellRegularField, {'name': 'name'}),
+                                        EntityCellRelation(rtype=rt_sub_targets),
+                                        (EntityCellRegularField, {'name': 'sales_phase'}),
+                                        (EntityCellRegularField, {'name': 'estimated_sales'}),
+                                        (EntityCellRegularField, {'name': 'made_sales'}),
+                                        (EntityCellRegularField, {'name': 'expected_closing_date'}),
+                                       ],
+                           )
 
-            from creme.emails.blocks import mails_history_block
-
-            BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        SearchConfigItem.create_if_needed(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 
 
-        if 'creme.reports' in INSTALLED_APPS:
-            logger.info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
-            self.create_reports(rt_obj_emit_orga)
+        #if not SalesPhase.objects.exists():
+        if not already_populated:
+            create_sphase = SalesPhase.objects.create
+            create_sphase(name=_(u"Forthcoming"),       order=1)
+            create_sphase(name=_(u"Abandoned"),         order=4)
+            won  = create_sphase(name=_(u"Won"),        order=5, won=True)
+            lost = create_sphase(name=_(u"Lost"),       order=6)
+            create_sphase(name=_(u"Under negotiation"), order=3)
+            create_sphase(name=_(u"In progress"),       order=2)
+        #else:
+            #won = None
+            #lost = None
+
+        #if not Origin.objects.exists():
+            create_origin = Origin.objects.create
+            create_origin(name=_(u"None"))
+            create_origin(name=_(u"Web site"))
+            create_origin(name=_(u"Mouth"))
+            create_origin(name=_(u"Show"))
+            create_origin(name=_(u"Direct email"))
+            create_origin(name=_(u"Direct phonecall"))
+            create_origin(name=_(u"Employee"))
+            create_origin(name=_(u"Partner"))
+            create_origin(name=_(u"Other"))
 
 
-        BlockDetailviewLocation.create(block_id=targetting_opps_block.id_, order=16, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        #if won:
+            efilter = EntityFilter.create('opportunities-opportunities_won', name=_(u"Opportunities won"), model=Opportunity)
+            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[won.pk])])
+
+            efilter = EntityFilter.create('opportunities-opportunities_lost', name=_(u"Opportunities lost"), model=Opportunity)
+            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[lost.pk])])
+
+            efilter = EntityFilter.create('opportunities-neither_won_nor_lost_opportunities', name=_(u"Neither won nor lost opportunities"), model=Opportunity)
+            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS_NOT, name='sales_phase', values=[won.pk, lost.pk])])
+
+
+            ButtonMenuItem.create_if_needed(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)#TODO: This pk is kept for compatibility
+            ButtonMenuItem.create_if_needed(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
+
+            BlockDetailviewLocation.create_4_model_block(                      order=5,   zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=responsibles_block.id_,    order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=62,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=64,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=linked_services_block.id_, order=66,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+            BlockDetailviewLocation.create(block_id=target_block.id_,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
+
+            if 'creme.activities' in INSTALLED_APPS:
+                logger.info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
+
+                from creme.activities.blocks import future_activities_block, past_activities_block
+
+                BlockDetailviewLocation.create(block_id=future_activities_block.id_, order=20, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+                BlockPortalLocation.create(app_name='opportunities', block_id=future_activities_block.id_, order=20)
+                BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
+
+
+            if 'creme.assistants' in INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
+                BlockPortalLocation.create(app_name='opportunities', block_id=memos_block.id_,    order=100)
+                BlockPortalLocation.create(app_name='opportunities', block_id=alerts_block.id_,   order=200)
+                BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_, order=400)
+
+
+            if 'creme.billing' in INSTALLED_APPS:
+                logger.info('Billing app is installed => we use the billing blocks on detail view')
+
+                BlockDetailviewLocation.create(block_id=quotes_block.id_,      order=70, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=salesorders_block.id_, order=72, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
+                BlockDetailviewLocation.create(block_id=invoices_block.id_,    order=74, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
+
+
+            if 'creme.emails' in INSTALLED_APPS:
+                logger.info('Emails app is installed => we use the emails blocks on detail view')
+
+                from creme.emails.blocks import mails_history_block
+
+                BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
+
+            if 'creme.reports' in INSTALLED_APPS:
+                logger.info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
+                self.create_reports(rt_obj_emit_orga)
+
+
+            BlockDetailviewLocation.create(block_id=targetting_opps_block.id_, order=16, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
     def create_reports(self, rt_obj_emit_orga):
         """Create the report 'Opportunities generated by organisation managed by Creme'"""
-        from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
+        from django.contrib.contenttypes.models import ContentType
 
         #from creme.creme_core.models import EntityFilter, EntityFilterCondition
         from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
         #from creme.persons.constants import FILTER_MANAGED_ORGA
 
-        from creme.reports.models import Report, Field, ReportGraph
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_RANGE
+        from creme.reports.models import Report, Field, ReportGraph
 
         #report_name = _(u"Opportunities generated by a Creme managed organisation")  #TODO: see below
         report_name = _(u"Opportunities")
         opp_ct = ContentType.objects.get_for_model(Opportunity)
 
-        if Report.objects.filter(name=report_name, ct=opp_ct).exists():
-            logger.info('It seems that a report "%s" already exists => do not recreate one.', report_name)
-            return
+        #if Report.objects.filter(name=report_name, ct=opp_ct).exists():
+            #logger.info('It seems that a report "%s" already exists => do not recreate one.', report_name)
+            #return
 
         #Create a list view filter to use it in the report ---------------------
         #TODO: uncomment it if the emitter of Opportunities can be an unmanaged Organisation

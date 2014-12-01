@@ -89,6 +89,11 @@ class BlockDetailviewLocation(CremeModel):
         return block_id == MODELBLOCK_ID
 
     @staticmethod
+    def config_exists(model):
+        ct = ContentType.objects.get_for_model(model)
+        return BlockDetailviewLocation.objects.filter(content_type=ct).exists()
+
+    @staticmethod
     def create_empty_config(model=None):
         ct = ContentType.objects.get_for_model(model) if model else None
 

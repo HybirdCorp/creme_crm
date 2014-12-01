@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,19 +42,27 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists()
+
+
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
                             (REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
                            )
 
+
+        #TODO: pk string + is_custom=False ??
         entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=_(u"Documents related to entities"))
         create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=_(u"Documents received by email"))
 
-        if not Folder.objects.filter(title="Creme").exists():
+
+        if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
             Folder.objects.create(user=User.objects.get(pk=1), title="Creme", category=entities_cat,
                                   description=_(u"Folder containing all the documents related to entities")
                                  )
         else:
             logger.info("A Folder with title 'Creme' already exists => no re-creation")
+
+
 
         HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document,
                             cells_desc=[(EntityCellRegularField, {'name': 'title'}),
@@ -68,22 +76,25 @@ class Populator(BasePopulator):
                                        ]
                            )
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Folder)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
-        BlockDetailviewLocation.create(block_id=folder_docs_block.id_,  order=50,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
-
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
-
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Folder)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Folder)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Folder)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
         SearchConfigItem.create_if_needed(Document, ['title', 'description', 'folder__title'])
         SearchConfigItem.create_if_needed(Folder,   ['title', 'description', 'category__name'])
+
+
+        if not already_populated:
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Folder)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=folder_docs_block.id_,  order=50,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Folder)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Folder)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Folder)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Folder)

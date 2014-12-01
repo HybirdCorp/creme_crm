@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,22 +43,25 @@ class Populator(BasePopulator):
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
-        BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
-        BlockDetailviewLocation.create(block_id=orbital_rtypes_block.id_, order=65,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=Graph)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Graph)
-        BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Graph)
-
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
-
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Graph)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Graph)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Graph)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Graph)
 
         SearchConfigItem.create_if_needed(Graph, ['name'])
+
+
+        if not BlockDetailviewLocation.config_exists(Graph): # NB: no straightforward way to test that this populate script has not been already runned
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+            BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+            BlockDetailviewLocation.create(block_id=orbital_rtypes_block.id_, order=65,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=Graph)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Graph)
+            BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Graph)
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Graph)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Graph)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Graph)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Graph)

@@ -78,7 +78,7 @@ if 'creme.billing' in settings.INSTALLED_APPS:
         linked_quote      = get_rtype(id=REL_SUB_LINKED_QUOTE)
     except RelationType.DoesNotExist as e:
         logger.info("A problem occured: %s\n"
-                    "It can happen during unitests. Otherwise, has the database correctly been populated?", e
+                    "It can happen during unitests or during the 'populate' phase. Otherwise, has the database correctly been populated?", e
                    )
     else:
         register_rtype = relationtype_converter.register

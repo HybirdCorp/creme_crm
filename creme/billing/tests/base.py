@@ -13,7 +13,7 @@ try:
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (RelationType, Currency, Vat, SettingValue,
             CremePropertyType, CremeProperty, BlockDetailviewLocation)
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT
 
     from creme.persons.models import Contact, Organisation, Address
 
@@ -144,7 +144,10 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'billing')
-        cls.populate('creme_config', 'billing')
+        #cls.populate('creme_config', 'billing')
+        cls.populate('creme_core', 'billing')
+        #Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
+
         cls.autodiscover()
 
     def _aux_test_csv_import(self, model, status_model):

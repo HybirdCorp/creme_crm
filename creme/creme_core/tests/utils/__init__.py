@@ -356,12 +356,25 @@ class DatesTestCase(CremeTestCase):
 
 
 class QueriesTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        CremeTestCase.setUpClass()
+
+        cls._civ_backup = list(Civility.objects.all())
+        Civility.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+        Civility.objects.bulk_create(cls._civ_backup)
+
     def test_get_first_or_None01(self):
         CremePropertyType.objects.create(text='Is cute', is_custom=True)
         self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
 
     def test_get_first_or_None02(self):
-        Civility.objects.all().delete()
+        #Civility.objects.all().delete()
+        self.assertFalse(Civility.objects.exists())
         self.assertIsNone(get_first_or_None(Civility))
 
     #TODO: test get_q_from_dict()

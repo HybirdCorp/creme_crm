@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,10 +42,13 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        already_populated = MediaCategory.objects.filter(pk=1).exists()
+
         #TODO: created by 'products' & 'persons' app ?? (pk_string)
         create_if_needed(MediaCategory, {'pk': 1}, name=_(u"Product image"),      is_custom=False)
         create_if_needed(MediaCategory, {'pk': 2}, name=_(u"Organisation logo"),  is_custom=False)
         create_if_needed(MediaCategory, {'pk': 3}, name=_(u"Contact photograph"), is_custom=False)
+
 
         HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -56,28 +59,30 @@ class Populator(BasePopulator):
                                        ],
                            )
 
-        BlockDetailviewLocation.create(block_id=image_view_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,   model=Image)
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Image)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT,  model=Image)
-
-        BlockPortalLocation.create(app_name='media_managers', block_id=last_images_block.id_, order=10)
-        BlockPortalLocation.create(app_name='media_managers', block_id=history_block.id_,     order=30)
-
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
-
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=600, zone=BlockDetailviewLocation.RIGHT, model=Image)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=700, zone=BlockDetailviewLocation.RIGHT, model=Image)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=800, zone=BlockDetailviewLocation.RIGHT, model=Image)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=900, zone=BlockDetailviewLocation.RIGHT, model=Image)
-
-            BlockPortalLocation.create(app_name='media_managers', block_id=memos_block.id_,    order=100)
-            BlockPortalLocation.create(app_name='media_managers', block_id=alerts_block.id_,   order=200)
-            BlockPortalLocation.create(app_name='media_managers', block_id=messages_block.id_, order=400)
-
         SearchConfigItem.create_if_needed(Image, ['name', 'description', 'categories__name'])
+
+
+        if not already_populated:
+            BlockDetailviewLocation.create(block_id=image_view_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,   model=Image)
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Image)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.RIGHT,  model=Image)
+            BlockDetailviewLocation.create(block_id=history_block.id_,      order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+
+            BlockPortalLocation.create(app_name='media_managers', block_id=last_images_block.id_, order=10)
+            BlockPortalLocation.create(app_name='media_managers', block_id=history_block.id_,     order=30)
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=600, zone=BlockDetailviewLocation.RIGHT, model=Image)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=700, zone=BlockDetailviewLocation.RIGHT, model=Image)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=800, zone=BlockDetailviewLocation.RIGHT, model=Image)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=900, zone=BlockDetailviewLocation.RIGHT, model=Image)
+
+                BlockPortalLocation.create(app_name='media_managers', block_id=memos_block.id_,    order=100)
+                BlockPortalLocation.create(app_name='media_managers', block_id=alerts_block.id_,   order=200)
+                BlockPortalLocation.create(app_name='media_managers', block_id=messages_block.id_, order=400)

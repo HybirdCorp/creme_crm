@@ -7,7 +7,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Currency
+    from creme.creme_core.constants import DEFAULT_VAT
+    from creme.creme_core.models import Currency, Vat
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
     from creme.persons.models import Organisation, Address
@@ -40,6 +41,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
             apps.append('billing')
 
         cls.populate(*apps)
+
+        Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 
     def _aux_test_create(self, model, status_model, target_has_addresses=False):
         self.login()

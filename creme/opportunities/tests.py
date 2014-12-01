@@ -7,6 +7,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Max
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
@@ -924,12 +925,15 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         user = self.user
 
         count = Opportunity.objects.count()
-        max_order = max(sp.order for sp in SalesPhase.objects.all())
+        #max_order = max(sp.order for sp in SalesPhase.objects.all())
 
         #Opportunity #1
         emitter1 = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         target1  = Organisation.objects.create(user=user, name='Acme')
-        sp1 = SalesPhase.objects.all()[0]
+        #sp1 = SalesPhase.objects.all()[0]
+        sp1 = SalesPhase.objects.create(name='Testphase - test_csv_import01')
+
+        max_order = SalesPhase.objects.aggregate(max_order=Max('order'))['max_order']
 
         #Opportunity #2
         target2_name = 'Black label society'
@@ -999,6 +1003,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(user, opp1.user)
         self.assertEqual(1000, opp1.estimated_sales)
         self.assertEqual(2000, opp1.made_sales)
+        self.assertEqual(1,    SalesPhase.objects.filter(name=sp1.name).count())
         self.assertEqual(sp1,  opp1.sales_phase)
         self.assertFalse(opp1.reference)
         self.assertIsNone(opp1.origin)
@@ -1108,7 +1113,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                 target_persons_organisation_create='',
                                                 target_persons_contact_colselect=0,
                                                 target_persons_contact_create='',
-                                                )
+                                               )
                                      )
         self.assertFormError(response, 'form', 'sales_phase',
                              _('This field is required.')
@@ -1228,8 +1233,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         count = Opportunity.objects.count()
 
-        phase1 = opp1.sales_phase
-        phase2 = SalesPhase.objects.exclude(id=phase1.id)[0]
+        #phase1 = opp1.sales_phase
+        phase1 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #1')
+        #phase2 = SalesPhase.objects.exclude(id=phase1.id)[0]
+        phase2 = SalesPhase.objects.create(name='Testphase - test_csv_import06 #2')
+
+        opp1.sales_phase = phase1
+        opp1.save()
 
         doc = self._build_csv_doc([(opp1.name, '1000', '2000', target2.name, phase1.name), #should be updated
                                    (opp1.name, '1000', '2000', target2.name, phase2.name), #phase is different => not updated
@@ -1257,12 +1267,17 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                              )
                                      )
         self.assertNoFormError(response)
+
         self.assertEqual(count + 1, Opportunity.objects.count())
 
         with self.assertNoException():
             opp2 = Opportunity.objects.exclude(id=opp1.id).get(name=opp1.name)
 
         self.assertEqual(target2, opp2.target)
+
+        with self.assertNoException():
+            form = response.context['form']
+        self.assertFalse(list(form.import_errors))
 
         opp1 = self.refresh(opp1)
         self.assertEqual(target2, opp1.target)
@@ -1276,8 +1291,16 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config' ,'opportunities')
+
+        cls._phase_backup = list(SalesPhase.objects.all())
         SalesPhase.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+        SalesPhase.objects.bulk_create(cls._phase_backup)
 
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create

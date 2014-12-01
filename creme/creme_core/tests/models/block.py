@@ -31,23 +31,51 @@ __all__ = ('BlockTestCase',)
 class BlockTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
+
+        cls.populate('creme_core')
+
+        cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
+        cls._bpl_backup = list(BlockPortalLocation.objects.all())
+        cls._bml_backup = list(BlockMypageLocation.objects.all())
+
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()
         BlockMypageLocation.objects.all().delete()
 
         cls.autodiscover()
 
-    def test_populate(self):
-        self.populate('creme_core')
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
 
-        self.assertEqual({'modelblock', customfields_block.id_, relations_block.id_,
-                          properties_block.id_, history_block.id_,
-                         },
-                         {loc.block_id for loc in BlockDetailviewLocation.objects.all()}
-                        )
-        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
-        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='creme_core')])
-        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockMypageLocation.objects.filter(user=None)])
+        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
+        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
+        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
+
+    def test_populate(self):
+        #self.populate('creme_core')
+
+        #self.assertEqual({'modelblock', customfields_block.id_, relations_block.id_,
+                          #properties_block.id_, history_block.id_,
+                         #},
+                         #{loc.block_id for loc in BlockDetailviewLocation.objects.all()}
+                        #)
+        #self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
+        #self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='creme_core')])
+        #self.assertEqual([history_block.id_], [loc.block_id for loc in BlockMypageLocation.objects.filter(user=None)])
+        self.assertLessEqual({'modelblock', customfields_block.id_, relations_block.id_,
+                              properties_block.id_, history_block.id_,
+                             },
+                             {loc.block_id for loc in self._bdl_backup}
+                            )
+        block_id = history_block.id_
+        #self.assertIn(block_id, set(BlockPortalLocation.objects.filter(app_name='').values_list('block_id', flat=True)))
+        self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == ''})
+        #self.assertIn(block_id, set(BlockPortalLocation.objects.filter(app_name='creme_core').values_list('block_id', flat=True)))
+        self.assertIn(block_id, {bpl.block_id for bpl in self._bpl_backup if bpl.app_name == 'creme_core'})
+        #self.assertIn(block_id, set(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)))
+        self.assertIn(block_id, {bml.block_id for bml in self._bml_backup if bml.user is None})
 
     def test_create_detailview01(self):
         order = 25
@@ -61,6 +89,8 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual(zone,     loc.zone)
 
     def test_create_detailview02(self):
+        self.assertFalse(BlockDetailviewLocation.config_exists(Contact))
+
         order = 4
         zone = BlockDetailviewLocation.LEFT
         block_id = properties_block.id_
@@ -70,6 +100,8 @@ class BlockTestCase(CremeTestCase):
         self.assertEqual(block_id, loc.block_id)
         self.assertEqual(order,    loc.order)
         self.assertEqual(zone,     loc.zone)
+
+        self.assertTrue(BlockDetailviewLocation.config_exists(Contact))
 
     def test_create_detailview03(self):
         block_id = properties_block.id_

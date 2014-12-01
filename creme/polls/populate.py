@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,11 +42,6 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self, *args, **kwargs):
-        create_if_needed(PollType, {'pk': 1}, name=_(u'Survey'))
-        create_if_needed(PollType, {'pk': 2}, name=_(u'Monitoring'))
-        create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
-
-
         create_hf = HeaderFilter.create
         create_hf(pk='polls-hf_pollform', name=_(u'Form view'), model=PollForm,
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -65,42 +60,53 @@ class Populator(BasePopulator):
                              ],
                  )
 
+
         SearchConfigItem.create_if_needed(PollForm,  ['name'])
         SearchConfigItem.create_if_needed(PollReply, ['name'])
 
-        BlockDetailviewLocation.create(block_id=pform_lines_block.id_,    order=5,   zone=BlockDetailviewLocation.TOP, model=PollForm)
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=PollForm)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollForm)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=PollForm)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=PollForm)
-        BlockDetailviewLocation.create(block_id=preplies_block.id_,       order=5,   zone=BlockDetailviewLocation.RIGHT, model=PollForm)
-        BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollForm)
 
-        #TODO: factorise
-        BlockDetailviewLocation.create(block_id=preply_lines_block.id_,     order=5,   zone=BlockDetailviewLocation.TOP, model=PollReply)
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=PollReply)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_  ,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollReply)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,       order=450, zone=BlockDetailviewLocation.LEFT,  model=PollReply)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,        order=500, zone=BlockDetailviewLocation.LEFT,  model=PollReply)
-        BlockDetailviewLocation.create(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollReply)
+        if not PollType.objects.exists(): # NB: no straightforward way to test that this populate script has not been already runned
+            create_if_needed(PollType, {'pk': 1}, name=_(u'Survey'))
+            create_if_needed(PollType, {'pk': 2}, name=_(u'Monitoring'))
+            create_if_needed(PollType, {'pk': 3}, name=_(u'Assessment'))
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=PollCampaign)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,      order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,        order=450, zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,         order=500, zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
-        BlockDetailviewLocation.create(block_id=pcampaign_replies_block.id_, order=5,   zone=BlockDetailviewLocation.RIGHT, model=PollCampaign)
-        BlockDetailviewLocation.create(block_id=history_block.id_,           order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollCampaign)
 
-        BlockDetailviewLocation.create(block_id=related_preplies_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT,  model=Contact)
-        BlockDetailviewLocation.create(block_id=related_preplies_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT,  model=Organisation)
+        if not BlockDetailviewLocation.config_exists(PollForm): # NB: no straightforward way to test that this populate script has not been already runned
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=pform_lines_block.id_,    order=5,   zone=BlockDetailviewLocation.TOP,   model=PollForm)
+            BlockDetailviewLocation.create_4_model_block(order=5,    zone=BlockDetailviewLocation.LEFT,  model=PollForm)
+            create_bdl(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollForm)
+            create_bdl(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=PollForm)
+            create_bdl(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=PollForm)
+            create_bdl(block_id=preplies_block.id_,       order=5,   zone=BlockDetailviewLocation.RIGHT, model=PollForm)
+            create_bdl(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollForm)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+            #TODO: factorise
+            create_bdl(block_id=preply_lines_block.id_,     order=5,   zone=BlockDetailviewLocation.TOP,   model=PollReply)
+            BlockDetailviewLocation.create_4_model_block(order=5,      zone=BlockDetailviewLocation.LEFT,  model=PollReply)
+            create_bdl(block_id=customfields_block.id_  ,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollReply)
+            create_bdl(block_id=properties_block.id_,       order=450, zone=BlockDetailviewLocation.LEFT,  model=PollReply)
+            create_bdl(block_id=relations_block.id_,        order=500, zone=BlockDetailviewLocation.LEFT,  model=PollReply)
+            create_bdl(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollReply)
 
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            BlockDetailviewLocation.create_4_model_block(order=5,       zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
+            create_bdl(block_id=customfields_block.id_,      order=40,  zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
+            create_bdl(block_id=properties_block.id_,        order=450, zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
+            create_bdl(block_id=relations_block.id_,         order=500, zone=BlockDetailviewLocation.LEFT,  model=PollCampaign)
+            create_bdl(block_id=pcampaign_replies_block.id_, order=5,   zone=BlockDetailviewLocation.RIGHT, model=PollCampaign)
+            create_bdl(block_id=history_block.id_,           order=20,  zone=BlockDetailviewLocation.RIGHT, model=PollCampaign)
 
-            for model in (PollForm, PollReply, PollCampaign):
-                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+            create_bdl(block_id=related_preplies_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT,  model=Contact)
+            create_bdl(block_id=related_preplies_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT,  model=Organisation)
+
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                for model in (PollForm, PollReply, PollCampaign):
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
