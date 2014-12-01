@@ -34,7 +34,14 @@ class ListViewTestCase(ViewsTestCase):
         cls.populate('creme_core', 'creme_config', 'billing')
         cls.url = Organisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(Organisation)
+
+        cls._civ_backup = list(Civility.objects.all())
         Civility.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        ViewsTestCase.tearDownClass()
+        Civility.objects.bulk_create(cls._civ_backup)
 
     def setUp(self):
         self._address_ordering = Address._meta.ordering

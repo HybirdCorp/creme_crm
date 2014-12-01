@@ -36,18 +36,17 @@ logger = logging.getLogger(__name__)
 
 class Populator(BasePopulator):
     def populate(self):
-        create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
-        create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
+        already_populated = CremePropertyType.objects.filter(pk=PROP_IS_MANAGED_BY_CREME).exists()
 
-        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u'Euro'),                 local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
-        create_if_needed(Currency, {'pk': 2},                   name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'), is_custom=True)
 
         CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
+
 
         RelationType.create((REL_SUB_HAS, _(u'owns')),
                             (REL_OBJ_HAS, _(u'belongs to')))
 
 
+        #TODO: if not already_populated  ??
         try:
             root = User.objects.get(pk=1)
         except User.DoesNotExist:
@@ -69,33 +68,48 @@ class Populator(BasePopulator):
                 root.is_staff = False
                 root.save()
 
+
         SettingValue.create_if_needed(key=block_opening_key,   user=None, value=True)
         SettingValue.create_if_needed(key=block_showempty_key, user=None, value=True)
         SettingValue.create_if_needed(key=currency_symbol_key, user=None, value=True)
 
-        #BlockPortalLocation.create_empty_config() #default portal
-        #BlockPortalLocation.create_empty_config('creme_core') #home
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
 
-        BlockPortalLocation.create(block_id=history_block.id_, order=8)
-        BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')
-
-        BlockMypageLocation.create(block_id=history_block.id_, order=8)
-        BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
-
-        if not ButtonMenuItem.objects.filter(content_type=None).exists():
-            ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
+        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u'Euro'), local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
 
 
-        existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
-        if not existing_vats:
+        if not already_populated:
+            create_if_needed(Currency, {'pk': 2}, name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'))
+
+
+            create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
+            create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
+
+
+            #BlockPortalLocation.create_empty_config() #default portal
+            #BlockPortalLocation.create_empty_config('creme_core') #home
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT)
+            BlockDetailviewLocation.create(block_id=history_block.id_,      order=8,   zone=BlockDetailviewLocation.RIGHT)
+
+            BlockPortalLocation.create(block_id=history_block.id_, order=8)
+            BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')
+
+            BlockMypageLocation.create(block_id=history_block.id_, order=8)
+            BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
+
+
+            if not ButtonMenuItem.objects.filter(content_type=None).exists():
+                ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
+
+
+            #existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
+            #if not existing_vats:
             values = {Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']}
             values.add(DEFAULT_VAT)
 
-            create_vat = Vat.objects.create
+            #create_vat = Vat.objects.create
+            create_vat = Vat.objects.get_or_create
             for value in values:
                 create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)

@@ -36,6 +36,8 @@ class EventsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config', 'persons', 'opportunities', 'events') #'persons' -> HeaderFilters
+        #if not SalesPhase.objects.exists():
+            #SalesPhase.objects.create(name='Forthcoming', order=1)
 
     def _build_link_contacts_url(self, event):
         return '/events/event/%s/link_contacts' % event.id

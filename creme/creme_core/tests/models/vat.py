@@ -17,7 +17,14 @@ __all__ = ('VatTestCase',)
 class VatTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
+        cls._vat_backup = list(Vat.objects.all())
         Vat.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+        Vat.objects.bulk_create(cls._vat_backup)
 
     def test_create01(self):
         create_vat = Vat.objects.create

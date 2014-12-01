@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,19 +23,21 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import SearchConfigItem, RelationType, HeaderFilter, BlockDetailviewLocation
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilter,
+        BlockDetailviewLocation)
+from creme.creme_core.utils import create_if_needed
 
 from creme.persons.models import Contact
 
 from creme.opportunities.models import Opportunity
 
-from .models import EventType, Event
-from .blocks import resuts_block
 from .constants import *
+from .blocks import resuts_block
+from .models import EventType, Event
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_IS_INVITED_TO).exists()
+
+
         create_rtype = RelationType.create
         create_rtype((REL_SUB_IS_INVITED_TO,       _(u'is invited to the event'),               [Contact]),
                      (REL_OBJ_IS_INVITED_TO,       _(u'has invited'),                           [Event]),
@@ -71,8 +76,6 @@ class Populator(BasePopulator):
                      is_internal=True,
                     )
 
-        for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
-            create_if_needed(EventType, {'pk': i}, name=name)
 
         HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -82,21 +85,29 @@ class Populator(BasePopulator):
                                        ],
                            )
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Event)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=resuts_block.id_,       order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
-
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
-
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Event)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Event)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Event)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Event)
 
         SearchConfigItem.create_if_needed(Event, ['name', 'description', 'type__name'])
+
+
+        if not already_populated:
+            for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
+                create_if_needed(EventType, {'pk': i}, name=name)
+
+
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Event)
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
+            create_bdl(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
+            create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
+            create_bdl(block_id=resuts_block.id_,       order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
+            create_bdl(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Event)
+                create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Event)
+                create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Event)
+                create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Event)

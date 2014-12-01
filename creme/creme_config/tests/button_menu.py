@@ -21,8 +21,21 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        ButtonMenuItem.objects.all().delete()
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        #ButtonMenuItem.objects.all().delete()
+        #cls.populate('creme_core', 'creme_config')
+        cls.populate()
+
+        cls.contact_ct = ct = ContentType.objects.get_for_model(Contact)
+        contact_conf = ButtonMenuItem.objects.filter(content_type=ct)
+        cls._buttonconf_backup = list(contact_conf)
+        contact_conf.delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+
+        ButtonMenuItem.objects.bulk_create(cls._buttonconf_backup)
 
     def setUp(self):
         self.login()
@@ -31,8 +44,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertGET200('/creme_config/button_menu/portal/')
 
     def test_add_detailview(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
+        #ct = ContentType.objects.get_for_model(Contact)
+        ct = self.contact_ct
+        #self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
         url = self.ADD_URL
         self.assertGET200(url)
@@ -58,7 +72,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.fail('No "%s" in field' % button_id)
 
     def test_edit01(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        #ct = ContentType.objects.get_for_model(Contact)
+        ct = self.contact_ct
         self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
 
     def test_edit02(self):
@@ -90,7 +105,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                         )
 
     def test_edit03(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        #ct = ContentType.objects.get_for_model(Contact)
+        ct = self.contact_ct
 
         class TestButton01(Button):
             id_          = Button.generate_id('creme_config', 'test_edit03_1')
@@ -161,7 +177,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.get_object_or_fail(ButtonMenuItem, pk=bmi.pk) #still exists
 
     def test_delete_detailview02(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        #ct = ContentType.objects.get_for_model(Contact)
+        ct = self.contact_ct
         self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.get_object_or_fail(ButtonMenuItem, content_type=ct)
 

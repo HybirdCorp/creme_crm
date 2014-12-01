@@ -32,6 +32,13 @@ class BlocksConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
+
+        cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
+        cls._bpl_backup = list(BlockPortalLocation.objects.all())
+        cls._bml_backup = list(BlockMypageLocation.objects.all())
+        cls._rbi_backup = list(RelationBlockItem.objects.all())
+
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()
         BlockMypageLocation.objects.all().delete()
@@ -39,6 +46,15 @@ class BlocksConfigTestCase(CremeTestCase):
 
         cls.populate('creme_core', 'creme_config')
         cls.autodiscover()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+
+        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
+        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
+        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
+        RelationBlockItem.objects.bulk_create(cls._rbi_backup)
 
     def setUp(self):
         self.login()
@@ -583,7 +599,8 @@ class BlocksConfigTestCase(CremeTestCase):
         "Home -> use 'home_display' method"
         app_name = 'creme_core'
 
-        self.assertTrue(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+        #self.assertTrue(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+        BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name=app_name)
 
         class FoobarBlock(Block):
             id_           = Block.generate_id('creme_config', 'test_edit_portal05')

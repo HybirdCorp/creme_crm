@@ -24,11 +24,24 @@ except Exception as e:
 class CremeBlockTagsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core')
+
+        cls._bdl_backup = list(BlockDetailviewLocation.objects.all())
+        cls._bpl_backup = list(BlockPortalLocation.objects.all())
+        cls._bml_backup = list(BlockMypageLocation.objects.all())
 
         BlockDetailviewLocation.objects.all().delete()
         BlockPortalLocation.objects.all().delete()
         BlockMypageLocation.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+
+        BlockDetailviewLocation.objects.bulk_create(cls._bdl_backup)
+        BlockPortalLocation.objects.bulk_create(cls._bpl_backup)
+        BlockMypageLocation.objects.bulk_create(cls._bml_backup)
 
     def setUp(self):
         self.login()

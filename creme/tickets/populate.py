@@ -20,16 +20,16 @@
 
 import logging
 
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, HeaderFilter,
         SearchConfigItem, BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
 from creme.creme_core.utils import create_if_needed
-from creme.creme_core.blocks import (properties_block, relations_block,
-                                     customfields_block, history_block)
-from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import *
 from .models.status import BASE_STATUS
@@ -43,17 +43,22 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'activities']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_LINKED_2_TICKET).exists()
+
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
+
+        if 'creme.activities' in settings.INSTALLED_APPS:
+            logger.info('Activities app is installed => a Ticket can be the subject of an Activity')
+
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
+
 
         for pk, name in BASE_STATUS:
             create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False, order=pk)
 
-        for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
-            create_if_needed(Priority, {'pk': i}, name=name, order=i)
-
-        for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
-            create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
         create_hf = HeaderFilter.create
         create_hf(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket,
@@ -72,41 +77,50 @@ class Populator(BasePopulator):
                              ],
                  )
 
+
         SearchConfigItem.create_if_needed(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
-        rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Ticket)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
-        BlockDetailviewLocation.create(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+        if not already_populated:
+            for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
+                create_if_needed(Priority, {'pk': i}, name=name, order=i)
 
-        if 'creme.activities' in settings.INSTALLED_APPS:
-            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+            for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
+                create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
-            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
+            rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
 
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Ticket)
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+            create_bdl(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+            create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+            create_bdl(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+            create_bdl(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-        if 'creme.persons' in settings.INSTALLED_APPS:
-            try:
-                from creme.persons.models import Contact, Organisation
-            except ImportError as e:
-                logger.info(str(e))
-            else:
-                from creme.tickets.buttons import linked_2_ticket_button
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
-                ButtonMenuItem.create_if_needed(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
-                ButtonMenuItem.create_if_needed(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
-                logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")
+                create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+                create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+                create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+                create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+
+
+            if 'creme.persons' in settings.INSTALLED_APPS:
+                try:
+                    from creme.persons.models import Contact, Organisation
+                except ImportError as e:
+                    logger.info(str(e))
+                else:
+                    from creme.tickets.buttons import linked_2_ticket_button
+
+                    create_bmi = ButtonMenuItem.create_if_needed
+                    create_bmi(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
+                    create_bmi(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
+
+                    logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

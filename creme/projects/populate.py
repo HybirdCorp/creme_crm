@@ -43,21 +43,17 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
+
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
                             (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]))
 
-        create_if_needed(ProjectStatus, {'pk': 1}, name=_(u"Invitation to tender"),  order=1, description=_(u"Response to an invitation to tender"))
-        create_if_needed(ProjectStatus, {'pk': 2}, name=_(u"Initialization"),        order=2, description=_(u"The project is starting"))
-        create_if_needed(ProjectStatus, {'pk': 3}, name=_(u"Preliminary phase"),     order=3, description=_(u"The project is in the process of analysis and design"))
-        create_if_needed(ProjectStatus, {'pk': 4}, name=_(u"Achievement"),           order=4, description=_(u"The project is being implemented"))
-        create_if_needed(ProjectStatus, {'pk': 5}, name=_(u"Tests"),                 order=5, description=_(u"The project is in the testing process (unit / integration / functional)"))
-        create_if_needed(ProjectStatus, {'pk': 6}, name=_(u"User acceptance tests"), order=6, description=_(u"The project is in the user acceptance testing process"))
-        create_if_needed(ProjectStatus, {'pk': 7}, name=_(u"Finished"),              order=7, description=_(u"The project is finished"))
 
         for pk, statusdesc in TASK_STATUS.iteritems():
             create_if_needed(TaskStatus, {'pk': pk}, name=unicode(statusdesc.name), order=pk,
                              description=unicode(statusdesc.verbose_name), is_custom=False,
                             )
+
 
         create_hf = HeaderFilter.create
         create_hf(pk='projects-hf_project', name=_(u'Project view'), model=Project,
@@ -80,35 +76,49 @@ class Populator(BasePopulator):
                              ],
                  )
 
-        BlockDetailviewLocation.create(block_id=project_tasks_block.id_, order=2,   zone=BlockDetailviewLocation.TOP,   model=Project)
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Project)
-        BlockDetailviewLocation.create(block_id=project_extra_info.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Project)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Project)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Project)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Project)
-        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Project)
 
-        BlockDetailviewLocation.create(block_id=task_resources_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=task_extra_info.id_,           order=30,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,        order=40,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=parent_tasks_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,          order=450, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
-        BlockDetailviewLocation.create(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
+        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf(Project,     ['name', 'description', 'status__name'])
+        create_searchconf(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
+        create_searchconf(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+        if not already_populated:
+            create_if_needed(ProjectStatus, {'pk': 1}, name=_(u"Invitation to tender"),  order=1, description=_(u"Response to an invitation to tender"))
+            create_if_needed(ProjectStatus, {'pk': 2}, name=_(u"Initialization"),        order=2, description=_(u"The project is starting"))
+            create_if_needed(ProjectStatus, {'pk': 3}, name=_(u"Preliminary phase"),     order=3, description=_(u"The project is in the process of analysis and design"))
+            create_if_needed(ProjectStatus, {'pk': 4}, name=_(u"Achievement"),           order=4, description=_(u"The project is being implemented"))
+            create_if_needed(ProjectStatus, {'pk': 5}, name=_(u"Tests"),                 order=5, description=_(u"The project is in the testing process (unit / integration / functional)"))
+            create_if_needed(ProjectStatus, {'pk': 6}, name=_(u"User acceptance tests"), order=6, description=_(u"The project is in the user acceptance testing process"))
+            create_if_needed(ProjectStatus, {'pk': 7}, name=_(u"Finished"),              order=7, description=_(u"The project is finished"))
 
-            for model in (Project, ProjectTask):
-                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        SearchConfigItem.create_if_needed(Project,     ['name', 'description', 'status__name'])
-        SearchConfigItem.create_if_needed(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
-        SearchConfigItem.create_if_needed(ProjectTask, ['project__name', 'duration', 'tstatus__name'])
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=project_tasks_block.id_, order=2,   zone=BlockDetailviewLocation.TOP,   model=Project)
+            BlockDetailviewLocation.create_4_model_block(order=5,   zone=BlockDetailviewLocation.LEFT,  model=Project)
+            create_bdl(block_id=project_extra_info.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Project)
+            create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Project)
+            create_bdl(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Project)
+            create_bdl(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Project)
+            create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Project)
+
+            create_bdl(block_id=task_resources_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+            BlockDetailviewLocation.create_4_model_block(order=5,         zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=task_extra_info.id_,           order=30,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=customfields_block.id_,        order=40,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=parent_tasks_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=properties_block.id_,          order=450, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+            create_bdl(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
+
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail views')
+
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                for model in (Project, ProjectTask):
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)

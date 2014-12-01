@@ -56,7 +56,13 @@ class Populator(BasePopulator):
                              ],
                  )
 
-        if not Category.objects.exists():
+
+        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf(Product, ['name', 'description', 'category__name', 'sub_category__name'])
+        create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
+
+
+        if not Category.objects.exists(): # NB: no straightforward way to test that this populate script has not been already runned
             create_cat = Category.objects.create
             create_subcat = SubCategory.objects.create
 
@@ -102,25 +108,25 @@ class Populator(BasePopulator):
             create_subcat(name=_(u"Kids"),    category=clothes)
             create_subcat(name=_(u"Baybies"), category=clothes)
 
-        for model in (Product, Service):
-            BlockDetailviewLocation.create(block_id=images_block.id_,       order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
-            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
-            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
-            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
-            BlockDetailviewLocation.create(block_id=history_block.id_,      order=30,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
-
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+        if not BlockDetailviewLocation.config_exists(Product): # NB: no straightforward way to test that this populate script has not been already runned
+            create_bdl = BlockDetailviewLocation.create
 
             for model in (Product, Service):
-                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=model)
+                create_bdl(block_id=images_block.id_,       order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
+                BlockDetailviewLocation.create_4_model_block(order=5,  zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+                create_bdl(block_id=history_block.id_,      order=30,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
-        SearchConfigItem.create_if_needed(Product, ['name', 'description', 'category__name', 'sub_category__name'])
-        SearchConfigItem.create_if_needed(Service, ['name', 'description', 'category__name', 'sub_category__name'])
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                for model in (Product, Service):
+                    create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                    create_bdl(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=model)

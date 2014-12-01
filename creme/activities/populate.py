@@ -24,8 +24,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _, pgettext
 
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigItem,
         BlockDetailviewLocation, BlockPortalLocation, SettingValue,
@@ -46,9 +47,11 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core']
+    dependencies = ['creme_core', 'persons']
 
     def populate(self):
+        already_populated = RelationType.objects.filter(pk=REL_SUB_LINKED_2_ACTIVITY).exists()
+
         create_rtype = RelationType.create
         create_rtype((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
                      (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),    [Activity])
@@ -63,11 +66,13 @@ class Populator(BasePopulator):
                          is_internal=True
                         )[1]
 
+
         create_if_needed(Status, {'pk': STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
         create_if_needed(Status, {'pk': STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'), is_custom=False)
         create_if_needed(Status, {'pk': STATUS_DONE},        name=pgettext('activities-status', 'Done'),        description=pgettext('activities-status', 'Done'),        is_custom=False)
         create_if_needed(Status, {'pk': STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'),     is_custom=False)
         create_if_needed(Status, {'pk': STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'),   is_custom=False)
+
 
         create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_TASK},      name=_(u"Task"),            default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         meeting_type = \
@@ -114,44 +119,51 @@ class Populator(BasePopulator):
                                    ]
                                   )
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,           order=40,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=related_calendar_block.id_, order=90,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=participants_block.id_,           order=100, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=subjects_block.id_,               order=120, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,             order=450, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,              order=500, zone=BlockDetailviewLocation.LEFT,  model=Activity)
-        BlockDetailviewLocation.create(block_id=history_block.id_,                order=20,  zone=BlockDetailviewLocation.RIGHT, model=Activity)
+        if not already_populated:
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
-            logger.info('Assistants app is installed => we use the activities blocks on detail views')
+            create_bdl = BlockDetailviewLocation.create
+            create_bdl(block_id=customfields_block.id_,     order=40,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=related_calendar_block.id_, order=90,  zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=participants_block.id_,     order=100, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=subjects_block.id_,         order=120, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=properties_block.id_,       order=450, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=relations_block.id_,        order=500, zone=BlockDetailviewLocation.LEFT,  model=Activity)
+            create_bdl(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=Activity)
 
-            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            if 'creme.assistants' in settings.INSTALLED_APPS:
+                logger.info('Assistants app is installed => we use the activities blocks on detail views')
 
-            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Activity)
-            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Activity)
-            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Activity)
-            BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=Activity)
+                from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+                create_bdl(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Activity)
+                create_bdl(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Activity)
+                create_bdl(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Activity)
+                create_bdl(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=Activity)
+
+            future_id = future_activities_block.id_
+            past_id   = past_activities_block.id_
+            create_bdl(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            create_bdl(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            create_bdl(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            create_bdl(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+
+            BlockPortalLocation.create(app_name='persons',    block_id=future_id, order=20)
+            BlockPortalLocation.create(app_name='persons',    block_id=past_id,   order=21)
+
+            BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
+            BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
 
 
-        future_id = future_activities_block.id_
-        past_id   = past_activities_block.id_
-        BlockDetailviewLocation.create(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-        BlockDetailviewLocation.create(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-        BlockDetailviewLocation.create(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-        BlockDetailviewLocation.create(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-        BlockPortalLocation.create(app_name='persons',    block_id=future_id, order=20)
-        BlockPortalLocation.create(app_name='persons',    block_id=past_id,   order=21)
-        BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
-        BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
+            create_button = ButtonMenuItem.create_if_needed
+            create_button('activities-add_activity_button',  model=None, button=add_activity_button,  order=10)
+            create_button('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=11)
+            create_button('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=12)
+            create_button('activities-add_task_button',      model=None, button=add_task_button,      order=13)
 
-        create_button = ButtonMenuItem.create_if_needed
-        create_button('activities-add_activity_button',  model=None, button=add_activity_button,  order=10)
-        create_button('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=11)
-        create_button('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=12)
-        create_button('activities-add_task_button',      model=None, button=add_task_button,      order=13)
 
         SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
+
 
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
