@@ -21,6 +21,7 @@
 from collections import defaultdict
 from json import loads as jsonloads, dumps as jsondumps
 import logging
+import warnings
 
 from django.db.models import Model, CharField, TextField, BooleanField
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -88,8 +89,11 @@ class HeaderFilter(Model): #CremeModel ???
     def __unicode__(self):
         return u'<HeaderFilter: name="%s">' % self.name
 
-    #TODO: factorise with EntityFilter.can_edit_or_delete ???
     def can_edit_or_delete(self, user):
+        warnings.warn("HeaderFilter.can_edit_or_delete() method is deprecated; use can_edit()/can_delete() methods instead",
+                      DeprecationWarning
+                     )
+
         if not self.is_custom:
             return (False, ugettext(u"This view can't be edited/deleted"))
 
@@ -110,10 +114,67 @@ class HeaderFilter(Model): #CremeModel ???
 
         return (False, ugettext(u"You are not allowed to edit/delete this view"))
 
+    def can_delete(self, user):
+        if not self.is_custom:
+            return (False, ugettext(u"This view can't be deleted"))
+
+        return self.can_edit(user)
+
+    #TODO: factorise with EntityFilter.can_edit ???
+    def can_edit(self, user):
+        if not self.user_id: #all users allowed
+            return (True, 'OK')
+
+        if user.is_superuser:
+            return (True, 'OK')
+
+        if not user.has_perm(self.entity_type.app_label):
+            return (False, ugettext(u"You are not allowed to access to this app"))
+
+        if not self.user.is_team:
+            if self.user_id == user.id:
+                return (True, 'OK')
+        #elif self.user.team_m2m_teamside.filter(teammate=user).exists():
+        elif user.id in self.user.teammates:
+            return (True, 'OK')
+
+        return (False, ugettext(u"You are not allowed to edit/delete this view"))
+
+    #@staticmethod
+    #def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
+        #"""Creation helper ; useful for populate.py scripts.
+        #It clean old EntityCells.
+        #@param cells_desc List of objects where each one can other:
+            #- an instance of EntityCell (one of its child class of course).
+            #- a tuple (class, args)
+              #where 'class' is child class of EntityCell, & 'args' is a dict
+              #containing parameters for the build() method of the previous class.
+        #"""
+        #from ..core.entity_cell import EntityCell
+        #from ..utils import create_or_update
+
+        #cells = []
+
+        #for cell_desc in cells_desc:
+            #if cell_desc is None:
+                #continue
+
+            #if isinstance(cell_desc, EntityCell):
+                #cells.append(cell_desc)
+            #else:
+                #cell = cell_desc[0].build(model=model, **cell_desc[1])
+
+                #if cell is not None:
+                    #cells.append(cell)
+
+        #return create_or_update(HeaderFilter, pk=pk,
+                                #name=name, is_custom=is_custom, user=user,
+                                #entity_type=ContentType.objects.get_for_model(model),
+                                #cells=cells,
+                               #)
     @staticmethod
     def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
-        It clean old EntityCells.
         @param cells_desc List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
             - a tuple (class, args)
@@ -121,27 +182,30 @@ class HeaderFilter(Model): #CremeModel ???
               containing parameters for the build() method of the previous class.
         """
         from ..core.entity_cell import EntityCell
-        from ..utils import create_or_update
 
-        cells = []
+        try:
+            hf = HeaderFilter.objects.get(pk=pk)
+        except HeaderFilter.DoesNotExist:
+            cells = []
 
-        for cell_desc in cells_desc:
-            if cell_desc is None:
-                continue
+            for cell_desc in cells_desc:
+                if cell_desc is None:
+                    continue
 
-            if isinstance(cell_desc, EntityCell):
-                cells.append(cell_desc)
-            else:
-                cell = cell_desc[0].build(model=model, **cell_desc[1])
+                if isinstance(cell_desc, EntityCell):
+                    cells.append(cell_desc)
+                else:
+                    cell = cell_desc[0].build(model=model, **cell_desc[1])
 
-                if cell is not None:
-                    cells.append(cell)
+                    if cell is not None:
+                        cells.append(cell)
 
-        return create_or_update(HeaderFilter, pk=pk,
-                                name=name, is_custom=is_custom, user=user,
-                                entity_type=ContentType.objects.get_for_model(model),
-                                cells=cells,
-                               )
+            hf = HeaderFilter.objects.create(pk=pk, name=name, is_custom=is_custom, user=user,
+                                             entity_type=ContentType.objects.get_for_model(model),
+                                             cells=cells,
+                                            )
+
+        return hf
 
     def _dump_cells(self, cells):
         self.json_cells = jsondumps([cell.to_dict() for cell in cells])

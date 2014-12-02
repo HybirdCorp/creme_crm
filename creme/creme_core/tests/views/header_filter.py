@@ -158,17 +158,17 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertGET200(uri)
 
+    #def test_edit01(self):
+        #"Not editable"
+        #self.login()
+
+        #hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view',
+                                 #model=CremeEntity, is_custom=False,
+                                 #cells_desc=[EntityCellRegularField.build(model=CremeEntity, name='created')],
+                                #)
+        #self.assertGET403(self._build_edit_url(hf))
+
     def test_edit01(self):
-        "Not editable"
-        self.login()
-
-        hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view',
-                                 model=CremeEntity, is_custom=False,
-                                 cells_desc=[EntityCellRegularField.build(model=CremeEntity, name='created')],
-                                )
-        self.assertGET403(self._build_edit_url(hf))
-
-    def test_edit02(self):
         self.login()
 
         field1 = 'first_name'
@@ -203,6 +203,19 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(field1, cells[0].value)
         self.assertEqual(field2, cells[1].value)
 
+    def test_edit02(self):
+        "Not custom -> can be still edited"
+        self.login()
+
+        field1 = 'first_name'
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=False,
+                                 cells_desc=[EntityCellRegularField.build(model=Contact, name=field1)],
+                                )
+
+        url = self._build_edit_url(hf)
+        response = self.assertGET200(url)
+
     def test_edit03(self):
         "Can not edit HeaderFilter that belongs to another user"
         self.login(is_superuser=False)
@@ -218,6 +231,39 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=Contact, is_custom=True, user=self.user,
+                                )
+        self.assertGET403(self._build_edit_url(hf))
+
+    def test_edit05(self):
+        "User belongs to the team -> OK"
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team.teammates = [self.user]
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=my_team,
+                                )
+        self.assertGET200(self._build_edit_url(hf))
+
+    def test_edit06(self):
+        "User does not belong to the team -> error"
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        #my_team.teammates = [self.user] # <=====
+
+        a_team = User.objects.create(username='A-team', is_team=True)
+        a_team.teammates = [self.user]
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=my_team,
                                 )
         self.assertGET403(self._build_edit_url(hf))
 

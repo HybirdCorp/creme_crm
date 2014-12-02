@@ -64,7 +64,8 @@ def add(request, content_type_id, extra_template_dict=None):
 def edit(request, header_filter_id):
     hf = get_object_or_404(HeaderFilter, pk=header_filter_id)
     user = request.user
-    allowed, msg = hf.can_edit_or_delete(user)
+    #allowed, msg = hf.can_edit_or_delete(user)
+    allowed, msg = hf.can_edit(user)
 
     if not allowed:
         raise PermissionDenied(msg)
@@ -94,7 +95,8 @@ def edit(request, header_filter_id):
 def delete(request):
     hf           = get_object_or_404(HeaderFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = hf.entity_type.model_class().get_lv_absolute_url()
-    allowed, msg = hf.can_edit_or_delete(request.user)
+    #allowed, msg = hf.can_edit_or_delete(request.user)
+    allowed, msg = hf.can_delete(request.user)
 
     if allowed:
         hf.delete()

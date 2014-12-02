@@ -58,9 +58,12 @@ def get_listview_entity_filters(context):
 @register.inclusion_tag('creme_core/templatetags/listview_headerfilters.html', takes_context=True)
 def get_listview_headerfilters(context):
     hfilter = context['header_filters'].selected
+    user = context['user']
 
     context['hfilter_id'] = hfilter.id
-    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['user'])[0]
+    #context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['user'])[0]
+    context['can_edit']   = hfilter.can_edit(user)[0]
+    context['can_delete'] = hfilter.can_delete(user)[0]
 
     return context
 
