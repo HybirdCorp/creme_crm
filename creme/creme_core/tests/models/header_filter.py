@@ -67,13 +67,13 @@ class HeaderFiltersTestCase(CremeTestCase):
                          deserialized
                         )
 
-        name += 'v2'
-        hf = HeaderFilter.create(pk=pk, name=name, model=Organisation, is_custom=False, user=self.user)
-        self.assertEqual(name,         hf.name)
-        self.assertEqual(self.user,    hf.user)
-        self.assertEqual(self.orga_ct, hf.entity_type)
-        self.assertIs(hf.is_custom, False)
-        self.assertFalse(hf.cells)
+        #name += 'v2'
+        #hf = HeaderFilter.create(pk=pk, name=name, model=Organisation, is_custom=False, user=self.user)
+        #self.assertEqual(name,         hf.name)
+        #self.assertEqual(self.user,    hf.user)
+        #self.assertEqual(self.orga_ct, hf.entity_type)
+        #self.assertIs(hf.is_custom, False)
+        #self.assertFalse(hf.cells)
 
     def test_create02(self):
         "With cells"
@@ -110,6 +110,27 @@ class HeaderFiltersTestCase(CremeTestCase):
         cell = cells[2]
         self.assertIsInstance(cell, EntityCellRelation)
         self.assertEqual(likes.id, cell.value)
+
+    def test_create03(self):
+        "Do not modify if it already exists"
+        self.login()
+
+        pk = 'tests-hf_contact'
+        name = 'Contact view'
+        hf = HeaderFilter.create(pk=pk, name=name,
+                                 model=Contact, is_custom=False,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+                                )
+
+        hf = HeaderFilter.create(pk=pk, name='Contact view edited', user=self.user,
+                                 model=Contact, is_custom=False,
+                                 cells_desc=[(EntityCellRegularField, {'name': 'first_name'}),
+                                             (EntityCellRegularField, {'name': 'last_name'}),
+                                            ],
+                                )
+        self.assertEqual(name, hf.name)
+        self.assertIsNone(hf.user)
+        self.assertEqual(1, len(hf.cells))
 
     def test_ct_cache(self):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
