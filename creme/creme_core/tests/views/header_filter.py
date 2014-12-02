@@ -255,8 +255,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertStillExists(hf)
 
     def test_delete04(self):
-        "Belongs to my team -> ok"
-        self.login()
+        "The user belongs to the owner team -> ok"
+        self.login(is_superuser=False)
+
+        self.role.allowed_apps = ['persons']
+        self.role.save()
 
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [self.user]
@@ -276,6 +279,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
+
+        my_team = User.objects.create(username='A-team', is_team=True)
+        my_team.teammates = [self.user]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
                                  model=Contact, is_custom=True, user=a_team,
