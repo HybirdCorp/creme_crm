@@ -153,7 +153,7 @@ class EntityFilter(Model): #CremeModel ???
         if not self.user.is_team:
             if self.user_id == user.id:
                 return (True, 'OK')
-        elif user.team_m2m.filter(teammate=user).exists(): #TODO: move in a User method ??
+        elif self.user.team_m2m_teamside.filter(teammate=user).exists(): #TODO: move in a User method ??
             return (True, 'OK')
 
         return (False, ugettext(u"You are not allowed to edit/delete this filter"))

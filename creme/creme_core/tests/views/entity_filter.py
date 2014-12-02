@@ -596,6 +596,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.role.allowed_apps = ['persons']
         self.role.save()
 
+        my_team = User.objects.create(username='A-team', is_team=True)
+        my_team.teammates = [self.user]
+
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
 
