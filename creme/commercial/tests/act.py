@@ -302,7 +302,7 @@ class ActTestCase(CommercialBaseTestCase):
         "Count with EntityFilter"
         act = self.create_act()
         ct = ContentType.objects.get_for_model(Organisation)
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
         name  = 'Objective#3'
         counter_goal = 2
         response = self.client.post(self._build_addobjective_url(act),
@@ -347,7 +347,7 @@ class ActTestCase(CommercialBaseTestCase):
         ct_contact = get_ct(Contact)
         ct_orga    = get_ct(Organisation)
 
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
 
         create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern)
         root01 = create_comp(name='Root01', success_rate=20, ctype=ct_contact, filter=efilter)
@@ -410,7 +410,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         name = 'OBJ_NAME'
         ct = ContentType.objects.get_for_model(Organisation)
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
         counter_goal = 3
         response = self.client.post(url, data={'name':            name,
                                                'entity_counting': self._build_ctypefilter_field(ct, efilter),
@@ -498,12 +498,14 @@ class ActTestCase(CommercialBaseTestCase):
         "The objective has a filter -> error"
         act = self.create_act()
 
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                    operator=EntityFilterCondition.ICONTAINS,
-                                                                    name='name', values=['Ferraille'],
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.ICONTAINS,
+                                                        name='name', values=['Ferraille'],
+                                                    )
+                                                 ],
+                                     )
 
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,
                                                 ctype=ContentType.objects.get_for_model(Organisation),
@@ -545,15 +547,18 @@ class ActTestCase(CommercialBaseTestCase):
         orga02.trash()
         self.assertEqual(1, self.refresh(objective).get_count())
 
-    def test_count_relations02(self): #filter
+    def test_count_relations02(self):
+        "With filter"
         user = self.user
 
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                    operator=EntityFilterCondition.ICONTAINS,
-                                                                    name='name', values=['Ferraille']
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.ICONTAINS,
+                                                        name='name', values=['Ferraille'],
+                                                    ),
+                                                 ],
+                                     )
 
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='Orga counter', counter_goal=2,

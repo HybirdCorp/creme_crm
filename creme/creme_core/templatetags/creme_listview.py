@@ -45,13 +45,19 @@ def get_listview_entity_filters(context):
 
     if efilter:
         efilter_id = efilter.id
-        permission = efilter.can_edit_or_delete(context['user'])[0]
+        #permission = efilter.can_edit_or_delete(context['user'])[0]
+        user = context['user']
+        can_edit   = efilter.can_edit(user)[0]
+        can_delete = efilter.can_delete(user)[0]
     else:
         efilter_id = 0
-        permission = False
+        #permission = False
+        can_edit = can_delete = False
 
     context['efilter_id'] = efilter_id
-    context['can_edit_or_delete'] = permission
+    #context['can_edit_or_delete'] = permission
+    context['can_edit'] = can_edit
+    context['can_delete'] = can_delete
 
     return context
 

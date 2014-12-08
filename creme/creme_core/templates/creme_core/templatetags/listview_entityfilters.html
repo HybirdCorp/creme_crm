@@ -14,10 +14,13 @@
         <a href="/creme_core/entity_filter/add/{{content_type_id}}">
             {% trans "Create a custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
         </a>
-        {% if can_edit_or_delete %}
+        {% comment %}{% if can_edit_or_delete %}{% endcomment %}
+        {% if can_edit %}
             <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit">
                 {% trans "Edit custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>
+        {% endif %}
+        {% if can_delete %}
             <a onclick="creme.lv_widget.deleteEntityFilter($(this).parents('form:first'), '{{efilter_id}}');">
                 {% trans "Delete custom filter" as img_title %}<img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
             </a>

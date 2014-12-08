@@ -1168,6 +1168,9 @@ class EntityFilterEditForm(_EntityFilterForm):
         for field_name in self._CONDITIONS_FIELD_NAMES:
             fields[field_name].initialize(*args)
 
+        if not instance.is_custom:
+            del fields['name']
+
     def clean(self):
         cdata = super(EntityFilterEditForm, self).clean()
 

@@ -63,7 +63,6 @@ class Populator(BasePopulator):
             create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 
 
-
         create_hf = HeaderFilter.create
         create_hf(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act,
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),

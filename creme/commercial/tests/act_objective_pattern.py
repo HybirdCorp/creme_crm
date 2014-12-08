@@ -153,7 +153,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(Contact)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
         response = self.client.post(self._build_addcomp_url(pattern),
                                     data={'name':            name,
                                           'entity_counting': self._build_ctypefilter_field(ct, efilter),
@@ -376,7 +376,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         ct_contact = ContentType.objects.get_for_model(Contact)
         ct_orga    = ContentType.objects.get_for_model(Organisation)
-        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact, is_custom=True)
 
         create_comp = partial(ActObjectivePatternComponent.objects.create,
                               pattern=pattern, success_rate=1,

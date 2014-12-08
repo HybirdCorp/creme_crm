@@ -110,14 +110,15 @@ class Populator(BasePopulator):
                                    (EFILTER_PHONECALLS, _(u"Phone calls"), ACTIVITYTYPE_PHONECALL),
                                    (EFILTER_TASKS,      _(u"Tasks"),       ACTIVITYTYPE_TASK),
                                   ):
-            efilter = EntityFilter.create(pk, name=name, model=Activity, is_custom=False)
-            efilter.set_conditions([EntityFilterCondition.build_4_field(model=Activity,
-                                                                        operator=EntityFilterCondition.EQUALS,
-                                                                        name='type',
-                                                                        values=[atype_id],
-                                                                       ),
-                                   ]
-                                  )
+            EntityFilter.create(pk, name=name, model=Activity, is_custom=False, user='admin',
+                                conditions=[EntityFilterCondition.build_4_field(model=Activity,
+                                                  operator=EntityFilterCondition.EQUALS,
+                                                  name='type',
+                                                  values=[atype_id],
+                                              ),
+                                           ],
+                                )
+
 
         if not already_populated:
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Activity)
