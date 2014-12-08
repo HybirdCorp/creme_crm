@@ -36,8 +36,8 @@ logger = logging.getLogger(__name__)
 
 class TemplateBase(Base):
     #ct        = ForeignKey(ContentType).set_tags(viewable=False)
-    ct        = CTypeForeignKey().set_tags(viewable=False)
-    status_id = PositiveIntegerField().set_tags(viewable=False) #TODO: avoid deletion of status
+    ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
 
     creation_label = pgettext_lazy('billing', 'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
 
