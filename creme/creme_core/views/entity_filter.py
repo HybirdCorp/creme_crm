@@ -70,7 +70,8 @@ def add(request, ct_id):
 def edit(request, efilter_id):
     efilter = get_object_or_404(EntityFilter, pk=efilter_id)
     user = request.user
-    allowed, msg = efilter.can_edit_or_delete(user)
+    #allowed, msg = efilter.can_edit_or_delete(user)
+    allowed, msg = efilter.can_edit(user)
 
     if not allowed:
         raise PermissionDenied(msg)
@@ -100,7 +101,8 @@ def edit(request, efilter_id):
 def delete(request):
     efilter      = get_object_or_404(EntityFilter, pk=get_from_POST_or_404(request.POST, 'id'))
     callback_url = efilter.entity_type.model_class().get_lv_absolute_url()
-    allowed, msg = efilter.can_edit_or_delete(request.user)
+    #allowed, msg = efilter.can_edit_or_delete(request.user)
+    allowed, msg = efilter.can_delete(request.user)
     status = 400 #TODO: 409 ??
 
     if allowed:

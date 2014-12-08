@@ -176,12 +176,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
 
-        efilter = EntityFilter.create('test-filter01', 'Contains "club"', Organisation)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                    operator=EntityFilterCondition.CONTAINS,
-                                                                    name='name', values=['club']
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
+                                      Organisation, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.CONTAINS,
+                                                        name='name', values=['club'],
+                                                    ),
+                                                 ],
+                                     )
         self.assertEqual({orga02, orga03}, set(efilter.filter(Organisation.objects.all()))) # <== not 'orga01'
 
         response = self.client.post(self.build_url(Organisation), follow=True,
@@ -244,12 +247,16 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         description = 'Genshiken meber'
 
-        efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken', Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.EQUALS,
-                                                                    name='description', values=[description]
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Belongs to Genshiken',
+                                      Contact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Contact,
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        name='description',
+                                                        values=[description],
+                                                    )
+                                                 ]
+                                      )
 
         first_name = 'Kanako'
         last_name = 'Ouno'

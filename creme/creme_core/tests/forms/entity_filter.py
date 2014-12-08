@@ -817,8 +817,12 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.login()
 
         naru  = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=self.rtype01, has=True, entity=naru)])
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_relation(
+                                                        rtype=self.rtype01, has=True, entity=naru,
+                                                    ),
+                                                 ],
+                                     )
         field = RelationsConditionsField(model=Contact)
 
         jsondict = {"entity": naru.id, "has": "true", "ctype": naru.entity_type_id, "rtype": self.rtype01.id}
@@ -844,8 +848,8 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                                              ('test-object_belong',  u'(orga) has (orga)',        (Organisation,))
                                             )
 
-        self.sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
-        self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=Organisation)
+        self.sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact,      is_custom=True)
+        self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=Organisation, is_custom=True)
 
     def test_clean_empty_required(self):
         clean = RelationsConditionsField(required=True).clean

@@ -86,8 +86,13 @@ class Populator(BasePopulator):
             rt_map[sym_rt.id] = sym_rt
 
 
-        efilter = EntityFilter.create(FILTER_MANAGED_ORGA, name=_(u"Managed by creme"), model=Organisation)
-        efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=managed_by_creme, has=True)])
+        EntityFilter.create(FILTER_MANAGED_ORGA, name=_(u"Managed by creme"),
+                            model=Organisation, user='admin',
+                            conditions=[EntityFilterCondition.build_4_property(
+                                              ptype=managed_by_creme, has=True,
+                                          ),
+                                       ],
+                           )
 
 
         create_hf = HeaderFilter.create

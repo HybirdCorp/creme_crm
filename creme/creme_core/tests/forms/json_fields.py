@@ -1699,7 +1699,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_unknown_efilter02(self):
         "Content type does not correspond to EntityFilter"
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
         self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
                                         FilteredEntityTypeField().clean,
                                         self.format_str % (self.ct_contact.id, efilter.id)
@@ -1731,7 +1731,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_clean_with_filter01(self):
-        efilter = EntityFilter.create('test-filter01', 'John', Contact)
+        efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True)
         field = FilteredEntityTypeField()
         ct = self.ct_contact
         self.assertEqual((ct, efilter),

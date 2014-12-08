@@ -181,15 +181,16 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        efilter = EntityFilter.create('test-filter01', 'Saotome', Contact)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=['Saotome']
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Saotome', Contact, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(model=Contact,
+                                                        operator=EntityFilterCondition.IEQUALS,
+                                                        name='last_name', values=['Saotome'],
+                                                    )
+                                                 ],
+                                     )
         self.assertEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
 
-        EntityFilter.create('test-filter02', 'Useless', Organisation) #should not be a valid choice
+        EntityFilter.create('test-filter02', 'Useless', Organisation, is_custom=True) #should not be a valid choice
 
         mlist = MailingList.objects.create(user=self.user, name='ml01')
 
@@ -255,12 +256,14 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        efilter = EntityFilter.create('test-filter01', 'Has email', Organisation)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                    operator=EntityFilterCondition.ISEMPTY,
-                                                                    name='email', values=[False]
-                                                                   )
-                               ])
+        efilter = EntityFilter.create('test-filter01', 'Has email', Organisation, is_custom=True,
+                                     conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.ISEMPTY,
+                                                        name='email', values=[False],
+                                                    ),
+                                                ],
+                                     )
         self.assertEqual(expected_ids, {c.id for c in efilter.filter(Organisation.objects.all())})
 
         response = self.client.post('/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id,

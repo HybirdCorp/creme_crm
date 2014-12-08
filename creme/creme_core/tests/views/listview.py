@@ -501,14 +501,13 @@ class ListViewTestCase(ViewsTestCase):
 
         efilter = EntityFilter.create('test-filter01', 'Red', Organisation,
                                       user=user, is_custom=False,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.ISTARTSWITH,
+                                                        name='name', values=['Red'],
+                                                    ),
+                                                 ]
                                      )
-        efilter.set_conditions([EntityFilterCondition.build_4_field(
-                                       model=Organisation,
-                                       operator=EntityFilterCondition.ISTARTSWITH,
-                                       name='name', values=['Red']
-                                      ),
-                               ]
-                              )
 
         response = self.assertPOST200(self.url, data={'filter': efilter.id})
 

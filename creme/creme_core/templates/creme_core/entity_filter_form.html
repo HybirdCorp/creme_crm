@@ -3,6 +3,13 @@
 {% load creme_core_tags %}
 
 {% block content %}
+{% comment %}
     {% trans 'Filter: %s' as fmt %}
     {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:fmt %}
+{% endcomment %}
+    {% if not form.instance.pk %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance.entity_type|format:_('Add a filter for «%s»') %}
+    {% else %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/filter_64.png' title=form.instance|format:_('Edit the filter «%s»') %}
+    {% endif %}
 {% endblock %}
