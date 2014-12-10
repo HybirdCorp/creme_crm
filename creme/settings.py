@@ -205,6 +205,7 @@ INSTALLED_CREME_APPS = (
     'creme.vcfs',
     #'creme.polls',  #need 'commercial'
     #'creme.mobile',
+    'creme.geolocation',
 )
 
 
@@ -413,9 +414,10 @@ CREME_CORE_CSS = ('main.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS
-                 ('creme.billing',    'billing/css/billing.css'),
-                 ('creme.commercial', 'commercial/css/commercial.css'),
-                 ('creme.crudity',    'crudity/css/crudity.css'),
+                 ('creme.billing',     'billing/css/billing.css'),
+                 ('creme.commercial',  'commercial/css/commercial.css'),
+                 ('creme.crudity',     'crudity/css/crudity.css'),
+                 ('creme.geolocation', 'geolocation/css/geolocation.css'),
                 )
 
 CREME_I18N_JS = ('l10n.js',
@@ -552,12 +554,14 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
-                ('creme.billing',    'billing/js/billing.js'),
-                ('creme.reports',    'reports/js/reports.js'),
-                ('creme.emails',     'emails/js/emails.js'),
-                ('creme.cti',        'cti/js/cti.js'),
-                ('creme.commercial', 'commercial/js/commercial.js'),
-                ('creme.events',     'events/js/events.js'),
+                ('creme.billing',     'billing/js/billing.js'),
+                ('creme.reports',     'reports/js/reports.js'),
+                ('creme.emails',      'emails/js/emails.js'),
+                ('creme.cti',         'cti/js/cti.js'),
+                ('creme.commercial',  'commercial/js/commercial.js'),
+                ('creme.events',      'events/js/events.js'),
+                ('creme.geolocation', 'geolocation/js/geolocation.js',),
+                ('creme.geolocation', 'geolocation/js/block.js',),
                )
 
 TEST_CREME_CORE_JS = (#js Unit test files

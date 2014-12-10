@@ -1,0 +1,48 @@
+{% load i18n creme_core_tags creme_block geolocation %}
+<script type='text/javascript'>
+    creme.geolocation.ready(function() {
+        var block = new creme.geolocation.PersonsNeighborhoodBlock($('#block_whoisarround-geolocation'), {{radius}});
+        $('#block_persons-geolocation').bind('block-geoaddress-location', function(event, address, mark) {
+            block.sourcePosition(address, mark.position);
+        });
+    });
+</script>
+
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=2 %}
+        <th class="label">{% get_basic_block_header _('Arround this place') 'info_48.png' _('Arround this place') %}</th>
+        <th class="actions"></th>
+    {% end_get_block_header %}
+
+    <tbody class="collapsable">
+        <tr class="content">
+            <td class="block-geoaddress-header">
+                <span class="block-geoaddress-counter">{% trans "None of" %}</span>&nbsp;
+                <select class="block-geoaddress-filter">
+                    <option value="">{% trans "Locations" %}</option>
+                    {% for groupname, choices in address_filters %}
+                    <optgroup label="{{groupname}}">
+                        {% for value, label in choices %}
+                        <option value='{{value}}'>{{label}}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </select>
+                &nbsp;{% trans "are neighbours of" %}&nbsp;
+                <select class="block-geoaddress-source">
+                    {% for address in ref_addresses %}
+                        <option value='{{address.id}}'>{% if address.name %}{{address.name}}{% else %}{{address}}{% endif %}</option>
+                    {% empty %}
+                        <option value='' disabled>{% trans 'No geolocated address for now' %}</option>
+                    {% endfor %}
+                </select>&nbsp;
+                {% with radius|format_distance as radius_distance %}
+                {% blocktrans %}within a radius of {{radius_distance}}.{% endblocktrans %}
+                {% endwith %}
+            </td>
+        </tr>
+        <tr class="content">
+            <td class="block-geoaddress-canvas"></td>
+        </tr>
+    </tbody>
+</table>
