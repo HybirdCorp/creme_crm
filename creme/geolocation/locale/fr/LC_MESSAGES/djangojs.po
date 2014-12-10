@@ -1,0 +1,40 @@
+# FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
+# Copyright (C) 2014 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -d djangojs -l fr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-09 14:21+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+#"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+#"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: static/geolocation/js/block.js:206
+msgid "No address from"
+msgstr "Aucune adresse de"
+
+#: static/geolocation/js/block.js:206
+msgid "%0$d address from"
+msgid_plural "%0$d addresses from"
+msgstr[0] "%0$d adresse de"
+msgstr[1] "%0$d adresses de"
+
+#: static/geolocation/js/block.js:321
+msgid "None of"
+msgstr "Aucune adresse de"
+
+#: static/geolocation/js/block.js:321
+msgid "%0$d of"
+msgid_plural "%0$d of"
+msgstr[0] "%0$d adresse de"
+msgstr[1] "%0$d adresses de"

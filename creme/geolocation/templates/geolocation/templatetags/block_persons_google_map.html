@@ -1,0 +1,44 @@
+{% load i18n creme_core_tags creme_block geolocation %}
+<script type='text/javascript'>
+    creme.geolocation.ready(function() {
+        new creme.geolocation.PersonsBlock($('#block_persons-geolocation'), {{geoaddresses|safe}});
+    });
+</script>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=2 %}
+        <th class="label">{% get_basic_block_header _('Map') 'info_48.png' _('Map') %}</th>
+        <th class="actions"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <tr class="content">
+            <td class="block-geoaddress-header">
+                <div class="block-geoaddress-items">
+                    {% for address in entity_addresses %}
+                    <div class="block-geoaddress-item item-selected" data-addressid="{{address.id}}">
+                        <input type="checkbox" value="{{address.id}}" checked></input>
+                        <div class="block-geoaddress-label">
+                            {% if address.name %}
+                            <span class="block-geoaddress-title">{{address.name}}</span>
+                            <span class="block-geoaddress-content">{{address}}</span>
+                            {% else %}
+                            <span class="block-geoaddress-title">{{address}}</span>
+                            {% endif %}
+                            <span class="block-geoaddress-position">
+                                {% if address.geoaddress.latitude %}{{address.geoaddress|format_location}}{% endif %}
+                            </span>
+                        </div>
+                        <a class="block-geoaddress-reset" data-addressid="{{address.id}}">
+                            {% trans 'Retrieve location' %}
+                        </a>
+                    </div>
+                    {% empty %}
+                        {% trans 'No address defined for now' %}
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr class="content">
+            <td class="block-geoaddress-canvas"></td>
+        </tr>
+    </tbody>
+</table>
