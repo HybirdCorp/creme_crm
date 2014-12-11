@@ -1,8 +1,14 @@
 {% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
 
 {% block content %}
+{% comment %}
     {% trans 'View of list: %s' as fmt %}
     {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:fmt %}
+{% endcomment %}
+    {% if not form.instance.pk %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance.entity_type|format:_('Add a view of list for «%s»') %}
+    {% else %}
+        {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=form.instance|format:_('Edit the view of list «%s»') %}
+    {% endif %}
 {% endblock %}
