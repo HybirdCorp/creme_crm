@@ -17,6 +17,7 @@ class Migration(DataMigration):
                     admin = user_qs[0]
                 except IndexError:
                     print('It seems there is no User yet')
+                    return
 
         orm['creme_core.EntityFilter'].objects.filter(is_custom=False).update(user=admin)
 
