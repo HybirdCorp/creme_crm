@@ -7,11 +7,12 @@ try:
     #from django.conf import settings
     #from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-            EntityCellFunctionField, EntityCellRelation) #EntityCellCustomField
+            EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, Relation, HeaderFilter
-            #CustomField, CustomFieldEnumValue
+    from creme.creme_core.models.header_filter import HeaderFilterList
     from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation, Position, Sector
@@ -27,9 +28,8 @@ class HeaderFiltersTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
 
-        #TODO: used once ?!
         get_ct = ContentType.objects.get_for_model
-        cls.contact_ct = get_ct(Contact)
+        cls.contact_ct = get_ct(Contact) #TODO: used once ?!
         cls.orga_ct    = get_ct(Organisation)
 
         #create_hf = partial(HeaderFilter.create, is_custom=True)
@@ -51,6 +51,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIsNone(hf.user)
         self.assertEqual(self.contact_ct, hf.entity_type)
         self.assertIs(hf.is_custom, True)
+        self.assertIs(hf.is_private, False)
         self.assertEqual('[]', hf.json_cells)
         self.assertFalse(hf.cells)
 
@@ -77,7 +78,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_create02(self):
         "With cells"
-        self.login()
+        user = self.login()
 
         create_rtype = RelationType.create
         loves = create_rtype(('test-subject_love', u'Is loving'),
@@ -88,7 +89,8 @@ class HeaderFiltersTestCase(CremeTestCase):
                             ) [0]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
-                                 model=Contact, is_custom=True,
+                                 model=Contact, is_custom=True, is_private=True,
+                                 user=user,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                               EntityCellRelation(loves),
                                              (EntityCellRelation, {'rtype_id': likes.id}),
@@ -96,7 +98,11 @@ class HeaderFiltersTestCase(CremeTestCase):
                                             ],
                                 )
 
-        cells = self.refresh(hf).cells
+        hf = self.refresh(hf)
+        self.assertEqual(user, hf.user)
+        self.assertTrue(hf.is_private)
+
+        cells = hf.cells
         self.assertEqual(3, len(cells))
 
         cell = cells[0]
@@ -131,6 +137,25 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(name, hf.name)
         self.assertIsNone(hf.user)
         self.assertEqual(1, len(hf.cells))
+
+    def test_create_errors(self):
+        user = self.login()
+
+        #Private + no user => error
+        with self.assertRaises(ValueError):
+            HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
+                                #user=self.user,
+                                model=Contact, is_private=True,
+                                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+                               )
+
+        #Private + not is_custom => error
+        with self.assertRaises(ValueError):
+            HeaderFilter.create(pk='tests-hf_contact', name='Contact view edited',
+                                user=user, model=Contact,
+                                is_private=True, is_custom=False,
+                                cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
+                               )
 
     def test_ct_cache(self):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -255,8 +280,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields01(self):
         "Regular fields: no FK"
-        self.login()
-        user = self.user
+        user = self.login()
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
                                  cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),
                                              (EntityCellRegularField, {'name': 'first_name'}),
@@ -277,8 +301,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields02(self):
         "Regular fields: FK"
-        self.login()
-        user = self.user
+        user = self.login()
         build = partial(EntityCellRegularField.build, model=Contact)
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
                                  cells_desc=[build(name='last_name'), build(name='first_name'),
@@ -305,8 +328,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."
-        self.login()
-        user = self.user
+        user = self.login()
 
         cell1 = EntityCellRegularField.build(model=Contact, name='last_name')
 
@@ -363,8 +385,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertCellEqual(cell1, hf.cells[0])
 
     def test_populate_entities_relations01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_rt = RelationType.create
         loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love', u'Is loved by'))[1]
@@ -408,3 +429,104 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual([norio], objs2)
         self.assertEqual([norio], objs3)
         self.assertEqual([],      objs4)
+
+    def test_filterlist01(self):
+        user = self.login()
+        create_hf = partial(HeaderFilter.create, name='Orga view',
+                            model=Organisation,
+                            cells_desc=[EntityCellRegularField.build(
+                                                model=Organisation, name='name',
+                                            ),
+                                       ],
+                           )
+        hf1 = create_hf(pk='test-hf_orga1')
+        hf2 = create_hf(pk='test-hf_orga2', user=user)
+        hf3 = create_hf(pk='test-hf_contact', model=Contact, name='Contact view')
+        hf4 = create_hf(pk='test-hf_orga3', user=self.other_user)
+
+        hfl = HeaderFilterList(self.orga_ct, user)
+        self.assertIn(hf1, hfl)
+        self.assertIn(hf2, hfl)
+        self.assertIn(hf4, hfl)
+        self.assertEqual(hf1, hfl.select_by_id(hf1.id))
+        self.assertEqual(hf2, hfl.select_by_id(hf2.id))
+        self.assertEqual(hf2, hfl.select_by_id('unknown_id', hf2.id))
+
+        self.assertNotIn(hf3, hfl)
+
+    def test_filterlist02(self):
+        "Private filters + not super user (+ team management)"
+        user = self.login(is_superuser=False)
+        other_user = self.other_user
+
+        role = self.role
+        role.allowed_apps = ['persons']
+        role.save()
+
+        teammate = User.objects.create(username='fulbertc',
+                                       email='fulbnert@creme.org', role=role,
+                                       first_name='Fulbert', last_name='Creme',
+                                      )
+
+        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        tt_team.teammates = [user, teammate]
+
+        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team.teammates = [other_user]
+
+        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+
+        def create_hf(id, **kwargs):
+            return HeaderFilter.create(pk='test-hf_orga%s' % id,
+                                       name='Orga view #%s' % id,
+                                       model=Organisation, cells_desc=cells,
+                                       **kwargs
+                                      )
+
+        hf01 = create_hf(1)
+        hf02 = create_hf(2,  user=user)
+        hf03 = create_hf(3,  user=other_user)
+        hf04 = create_hf(4,  user=tt_team)
+        hf05 = create_hf(5,  user=a_team)
+        hf06 = create_hf(6,  user=user,       is_private=True, is_custom=True)
+        hf07 = create_hf(7,  user=tt_team,    is_private=True, is_custom=True)
+        hf08 = create_hf(8,  user=other_user, is_private=True, is_custom=True)
+        hf09 = create_hf(9,  user=a_team,     is_private=True, is_custom=True)
+        hf10 = create_hf(10, user=teammate,   is_private=True, is_custom=True)
+
+        hfl = HeaderFilterList(self.orga_ct, user)
+        self.assertIn(hf01, hfl)
+        self.assertIn(hf02, hfl)
+        self.assertIn(hf03, hfl)
+        self.assertIn(hf04, hfl)
+        self.assertIn(hf05, hfl)
+        self.assertIn(hf06, hfl)
+        self.assertIn(hf07, hfl)
+        self.assertNotIn(hf08, hfl)
+        self.assertNotIn(hf09, hfl)
+        self.assertNotIn(hf10, hfl)
+
+    def test_filterlist03(self):
+        "Staff user -> can see all filters"
+        user = self.login(is_staff=True)
+        other_user = self.other_user
+
+        cells = [EntityCellRegularField.build(model=Organisation, name='name')]
+
+        def create_hf(id, **kwargs):
+            return HeaderFilter.create(pk='test-hf_orga%s' % id,
+                                       name='Orga view #%s' % id,
+                                       model=Organisation, cells_desc=cells,
+                                       **kwargs
+                                      )
+
+        hf1 = create_hf(1)
+        hf2 = create_hf(2,  user=user)
+        hf3 = create_hf(3,  user=other_user)
+        hf4 = create_hf(4,  user=other_user, is_private=True, is_custom=True) #<= this,one can not be seen by not staff users
+
+        hfl = HeaderFilterList(self.orga_ct, user)
+        self.assertIn(hf1, hfl)
+        self.assertIn(hf2, hfl)
+        self.assertIn(hf3, hfl)
+        self.assertIn(hf4, hfl)

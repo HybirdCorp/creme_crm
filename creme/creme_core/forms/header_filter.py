@@ -23,11 +23,11 @@ from json import dumps as json_dump
 
 from django.db.transaction import commit_on_success
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-from django.forms.util import flatatt
+from django.forms.util import flatatt, ErrorList
 from django.forms.widgets import Widget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -278,6 +278,7 @@ class HeaderFilterForm(CremeModelForm):
 
     class Meta:
         model = HeaderFilter
+        #TODO: use 'help_texts' (django 1.6)
 
     def __init__(self, *args, **kwargs):
         super(HeaderFilterForm, self).__init__(*args, **kwargs)
@@ -288,14 +289,28 @@ class HeaderFilterForm(CremeModelForm):
         user_f.empty_label = _(u'All users')
         user_f.help_text   = _(u'All users can see the view, but only the owner can edit or delete it')
 
+        fields['is_private'].help_text = _(u'A private view of list can only be used by its owner (or the teammates if the owner is a team)')
+
         cells_f = fields['cells']
 
         if instance.id:
+            if not instance.is_custom:
+                del fields['is_private']
+
             cells_f.content_type = instance.entity_type
             cells_f.initial = instance.cells
         else:
             cells_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
             cells_f.initial = smart_columns_registry.get_cells(ct.model_class())
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if not self._errors:
+            if cdata.get('is_private') and not cdata.get('user'):
+                self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
+
+        return cdata
 
     @commit_on_success
     def save(self):

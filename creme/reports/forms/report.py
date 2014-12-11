@@ -43,9 +43,9 @@ from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get
 
 from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
         RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED) #RFT_AGGREGATE
-from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
+from ..utils import encode_datetime
 
 
 #logger = logging.getLogger(__name__)
@@ -106,7 +106,8 @@ class ReportCreateForm(CremeEntityForm):
             ct = get_data('ct')
             hf = get_data('hf')
 
-            if hf and hf.entity_type != ct:
+            #if hf and hf.entity_type != ct:
+            if hf and not HeaderFilter.get_for_ctype(ct, self.user).filter(id=hf.id).exists():
                 self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
 
             efilter = get_data('filter')

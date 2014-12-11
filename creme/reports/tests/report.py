@@ -138,7 +138,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
         self.assertGET200('/reports/')
 
-    def test_report_createview01(self):
+    def test_createview01(self):
         self.login()
         cf = self._create_cf_int()
 
@@ -181,7 +181,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(cf.name,    field.title)
         self.assertEqual(RFT_CUSTOM, field.type)
 
-    def test_report_createview02(self):
+    def test_createview02(self):
         "With EntityFilter"
         self.login()
         efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
@@ -194,7 +194,7 @@ class ReportTestCase(BaseReportsTestCase):
         report  = self._create_report('My awesome report', efilter)
         self.assertEqual(efilter, report.filter)
 
-    def test_report_createview03(self):
+    def test_createview03(self):
         "Validation errors"
         self.login()
 
@@ -213,13 +213,20 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
-        hf = HeaderFilter.create(pk='test_hf', name='name', model=Organisation)
+        hf_orga = HeaderFilter.create(pk='test_hf-orga', name='name', model=Organisation)
         efilter = EntityFilter.create('test-filter', 'Bad filter', Organisation, is_custom=True)
-        response = post(hf.id, efilter.id)
+        response = post(hf_orga.id, efilter.id)
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
-    def test_report_createview04(self):
+        hf_priv = HeaderFilter.create(pk='test_hf-private', name='name', model=Contact,
+                                      is_private=True, user=self.other_user,
+                                      is_custom=True,
+                                     )
+        response = post(hf_priv.id, '')
+        self.assertFormError(response, 'form', 'hf', msg)
+
+    def test_createview04(self):
         "No HeaderFilter -> no column"
         self.login()
 

@@ -7,6 +7,7 @@ try:
 
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -71,6 +72,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hfilter = hfilters[0]
         self.assertEqual(name, hfilter.name)
         self.assertIsNone(hfilter.user)
+        self.assertFalse(hfilter.is_private)
 
         cells = hfilter.cells
         self.assertEqual(1, len(cells))
@@ -112,8 +114,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         field_name = 'first_name'
         name = 'DefaultHeaderFilter'
         response = self.client.post(url, follow=True,
-                                    data={'name':   name,
-                                          'user':   self.user.id,
+                                    data={'name': name,
+                                          'user': self.user.id,
+                                          'is_private': 'on',
                                           'cells': 'relation-%(rtype)s,regular_field-%(rfield)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
                                                         'rfield': field_name,
                                                         'cfield': customfield.id,
@@ -126,6 +129,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         hfilter = self.get_object_or_fail(HeaderFilter, name=name)
         self.assertEqual(self.user, hfilter.user)
+        self.assertTrue(hfilter.is_private)
 
         cells = hfilter.cells
         self.assertEqual(4, len(cells))
@@ -212,9 +216,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=False,
                                  cells_desc=[EntityCellRegularField.build(model=Contact, name=field1)],
                                 )
-
-        url = self._build_edit_url(hf)
-        response = self.assertGET200(url)
+        self.assertGET200(self._build_edit_url(hf))
 
     def test_edit03(self):
         "Can not edit HeaderFilter that belongs to another user"
@@ -266,6 +268,67 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=True, user=my_team,
                                 )
         self.assertGET403(self._build_edit_url(hf))
+
+    def test_edit07(self):
+        "Staff users can edit all HeaderFilters"
+        self.login(is_staff=True)
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                 is_private=True, user=self.other_user,
+                                )
+        self.assertGET200(self._build_edit_url(hf))
+
+    def test_edit08(self):
+        "Private filter -> cannot be edited by another user (even a super-user)"
+        self.login()
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                 is_private=True, user=self.other_user,
+                                )
+        self.assertGET403(self._build_edit_url(hf))
+
+    def test_edit09(self):
+        "Staff users can edit all HeaderFilters"
+        self.login(is_staff=True)
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                 is_private=True, user=self.other_user,
+                                )
+        url = self._build_edit_url(hf)
+        self.assertGET200(url)
+
+        response = self.assertPOST200(url, follow=True,
+                                      data={'name':       hf.name,
+                                            'user':       '',
+                                            'is_private': 'on',
+                                            'cells':      'regular_field-last_name',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'user',
+                             _('A private view of list must be assigned to a user/team.')
+                            )
+
+    def test_edit10(self):
+        "Not custom filter cannot be private"
+        self.login()
+
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=False,
+                                )
+        url = self._build_edit_url(hf)
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'name':       hf.name,
+                                               'user':       self.user.id,
+                                               'is_private': 'on', #should not be used
+                                               'cells':      'regular_field-last_name',
+                                              }
+                                   )
+        self.assertNoFormError(response, status=302)
+        self.assertFalse(self.refresh(hf).is_private)
 
     def test_delete01(self):
         self.login()
@@ -352,17 +415,21 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual([], load_json(response.content))
 
     def test_hfilters_for_ctype02(self):
-        self.login()
+        user = self.login()
 
         create_hf = HeaderFilter.create
         name01 = 'Contact view01'
         name02 = 'Contact view02'
-        hf01 = create_hf(pk='tests-hf_contact01', name=name01,      model=Contact,      is_custom=False)
-        hf02 = create_hf(pk='tests-hf_contact02', name=name02,      model=Contact,      is_custom=True)
-        create_hf(pk='tests-hf_orga01',           name='Orga view', model=Organisation, is_custom=True)
+        name03 = 'Contact view03'
+        pk_fmt = 'tests-hf_contact%s'
+        hf01 = create_hf(pk=pk_fmt % 1, name=name01,      model=Contact,      is_custom=False)
+        hf02 = create_hf(pk=pk_fmt % 2, name=name02,      model=Contact,      is_custom=True)
+        create_hf(pk='tests-hf_orga01', name='Orga view', model=Organisation, is_custom=True)
+        hf03 = create_hf(pk=pk_fmt % 3, name=name03,      model=Contact,      is_custom=True, is_private=True, user=user)
+        create_hf(pk=pk_fmt % 4,        name='Private',   model=Contact,      is_custom=True, is_private=True, user=self.other_user)
 
         response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual([[hf01.id, name01], [hf02.id, name02]],
+        self.assertEqual([[hf01.id, name01], [hf02.id, name02], [hf03.id, name03]],
                          load_json(response.content)
                         )
 

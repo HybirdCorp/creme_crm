@@ -76,13 +76,15 @@ class _CremeTestCase(object):
             if filename not in existing_files:
                 delete_file(os_path.join(dir_path, filename))
 
-    def login(self, is_superuser=True, allowed_apps=('creme_core',),
+    def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
               creatable_models=None, admin_4_apps=()):
         password = 'test'
 
         superuser = User(username='kirika', email='kirika@noir.jp',
                          first_name='Kirika', last_name='Yumura',
-                         is_superuser=True,
+                         #is_superuser=True,
+                         is_superuser=True or is_staff,
+                         is_staff=is_staff,
                         )
         superuser.set_password(password)
         superuser.save()

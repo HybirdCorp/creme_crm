@@ -116,8 +116,10 @@ def delete(request):
 @jsonify
 def get_for_ctype(request, ct_id):
     ct = get_ct_or_404(ct_id)
+    user = request.user
 
-    if not request.user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+    if not user.has_perm(ct.app_label): #TODO: helper in auth.py ??
         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
 
-    return list(HeaderFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
+    #return list(HeaderFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
+    return list(HeaderFilter.get_for_ctype(ct, user).values_list('id', 'name'))
