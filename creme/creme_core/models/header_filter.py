@@ -87,7 +87,8 @@ class HeaderFilter(Model): #CremeModel ???
             self.cells = []
 
     def __unicode__(self):
-        return u'<HeaderFilter: name="%s">' % self.name
+        #return u'<HeaderFilter: name="%s">' % self.name
+        return self.name
 
     def can_edit_or_delete(self, user):
         warnings.warn("HeaderFilter.can_edit_or_delete() method is deprecated; use can_edit()/can_delete() methods instead",
