@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellActions
@@ -136,7 +136,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         search = current_lvs._search or False
 
     ct = ContentType.objects.get_for_model(model)
-    header_filters = HeaderFilterList(ct)
+    header_filters = HeaderFilterList(ct, request.user)
     #Try first to get the posted header filter which is the most recent.
     #Then try to retrieve the header filter from session, then fallback
     hf = header_filters.select_by_id(POST_get('hfilter', -1),

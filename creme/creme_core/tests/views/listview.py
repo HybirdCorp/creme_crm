@@ -12,6 +12,7 @@ try:
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
             CustomField, CustomFieldEnumValue)
+    from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.utils import safe_unicode
     from creme.creme_core.tests.base import skipIfNotInstalled
     from .base import ViewsTestCase
@@ -31,7 +32,8 @@ class ListViewTestCase(ViewsTestCase):
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
 
-        cls.populate('creme_core', 'creme_config', 'billing')
+        #cls.populate('creme_core', 'creme_config', 'billing')
+        cls.populate('creme_core', 'billing')
         cls.url = Organisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(Organisation)
 
@@ -123,6 +125,9 @@ class ListViewTestCase(ViewsTestCase):
             ctxt = response.context
             hfilters = ctxt['header_filters']
             orgas_page = ctxt['entities']
+
+        self.assertIsInstance(hfilters, HeaderFilterList)
+        self.assertIn(hf, hfilters)
 
         with self.assertNoException():
             sel_hf = hfilters.selected

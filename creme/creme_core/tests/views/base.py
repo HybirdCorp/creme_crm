@@ -24,7 +24,7 @@ __all__ = ('ViewsTestCase', 'MiscViewsTestCase', 'LanguageTestCase', 'CurrencyTe
 
 class ViewsTestCase(CremeTestCase):
     def login(self, is_superuser=True, *args, **kwargs):
-        super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
+        user = super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -34,6 +34,8 @@ class ViewsTestCase(CremeTestCase):
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
+
+        return user
 
     def _set_all_creds_except_one(self, excluded): #TODO: in CremeTestCase ?
         value = EntityCredentials.NONE

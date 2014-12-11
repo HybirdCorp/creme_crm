@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-09 10:14+0100\n"
+"POT-Creation-Date: 2014-12-11 13:14+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -248,7 +248,7 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:241 forms/list_view_import.py:1155 models/base.py:115
-#: models/entity_filter.py:113 models/header_filter.py:71
+#: models/entity_filter.py:113 models/header_filter.py:74
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
@@ -454,7 +454,7 @@ msgstr "Sous-filtres"
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:1113 forms/header_filter.py:288
+#: forms/entity_filter.py:1113 forms/header_filter.py:289
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
@@ -577,11 +577,23 @@ msgstr ""
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/header_filter.py:289
+#: forms/header_filter.py:290
 msgid "All users can see the view, but only the owner can edit or delete it"
 msgstr ""
 "Cette vue sera visible par tous les utilisateurs, mais seul le propriétaire "
 "pourra la modifier ou la supprimer"
+
+#: forms/header_filter.py:292
+msgid ""
+"A private view of list can only be used by its owner (or the teammates if "
+"the owner is a team)"
+msgstr ""
+"Une vue de liste privée peut seulement être utilisée par son propriétaire "
+"(ou les coéquipiers si le propriétaire est une équipe)"
+
+#: forms/header_filter.py:311
+msgid "A private view of list must be assigned to a user/team."
+msgstr "Une vue de liste privée doit être attribuée à un utilisateur/équipe."
 
 #: forms/list_view_import.py:68
 msgid "File to import"
@@ -1256,10 +1268,10 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:157 models/entity_filter.py:184
-#: models/header_filter.py:108 models/header_filter.py:133
+#: models/header_filter.py:112 models/header_filter.py:140
 #: views/batch_process.py:39 views/batch_process.py:83 views/entity.py:277
 #: views/entity_filter.py:54 views/entity_filter.py:148
-#: views/header_filter.py:45 views/header_filter.py:121
+#: views/header_filter.py:45 views/header_filter.py:122
 #: views/generic/listview.py:226
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'êtes autorisé à accéder à cette application: %s"
@@ -1371,23 +1383,28 @@ msgstr "Est vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: models/header_filter.py:70
+#: models/header_filter.py:73
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:76
+#: models/header_filter.py:77
+msgctxt "creme_core-header_filter"
+msgid "Is private?"
+msgstr "Est privée ?"
+
+#: models/header_filter.py:80
 msgid "Add a view"
 msgstr "Ajouter une vue"
 
-#: models/header_filter.py:99
+#: models/header_filter.py:103
 msgid "This view can't be edited/deleted"
 msgstr "Cette vue ne peut être modifiée/supprimée"
 
-#: models/header_filter.py:116 models/header_filter.py:142
+#: models/header_filter.py:120 models/header_filter.py:149
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/header_filter.py:120
+#: models/header_filter.py:124
 msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
 

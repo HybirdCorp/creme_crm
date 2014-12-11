@@ -23,9 +23,9 @@ from json import loads as jsonloads, dumps as jsondumps
 import logging
 import warnings
 
-from django.db.models import Model, CharField, TextField, BooleanField
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model, CharField, TextField, BooleanField, Q
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
@@ -37,8 +37,11 @@ class HeaderFilterList(list):
     """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's a cache.
     """
-    def __init__(self, content_type):
-        super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type))
+    #def __init__(self, content_type):
+        #super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type))
+        #self._selected = None
+    def __init__(self, content_type, user):
+        super(HeaderFilterList, self).__init__(HeaderFilter.get_for_ctype(content_type, user))
         self._selected = None
 
     @property
@@ -70,7 +73,8 @@ class HeaderFilter(Model): #CremeModel ???
     name        = CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
     entity_type = CTypeForeignKey(editable=False)
-    is_custom   = BooleanField(blank=False, default=True, editable=False) #'False' means: cannot be edited/deleted (to be sure that a ContentTypehas always at leats one existing HeaderFilter)
+    is_custom   = BooleanField(blank=False, default=True, editable=False) #'False' means: cannot be deleted (to be sure that a ContentTypehas always at least one existing HeaderFilter)
+    is_private  = BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
     json_cells  = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
 
     creation_label = _('Add a view')
@@ -126,7 +130,10 @@ class HeaderFilter(Model): #CremeModel ???
         if not self.user_id: #all users allowed
             return (True, 'OK')
 
-        if user.is_superuser:
+        if user.is_staff:
+            return (True, 'OK')
+
+        if not self.is_private and user.is_superuser:
             return (True, 'OK')
 
         if not user.has_perm(self.entity_type.app_label):
@@ -174,7 +181,7 @@ class HeaderFilter(Model): #CremeModel ???
                                 #cells=cells,
                                #)
     @staticmethod
-    def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
+    def create(pk, name, model, is_custom=False, user=None, is_private=False, cells_desc=()):
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).
@@ -183,6 +190,13 @@ class HeaderFilter(Model): #CremeModel ???
               containing parameters for the build() method of the previous class.
         """
         from ..core.entity_cell import EntityCell
+
+        if is_private:
+            if not user:
+                raise ValueError('A private filter must belong to a User.')
+
+            if not is_custom:
+                raise ValueError('A private filter must be custom.')
 
         try:
             hf = HeaderFilter.objects.get(pk=pk)
@@ -201,7 +215,8 @@ class HeaderFilter(Model): #CremeModel ???
                     if cell is not None:
                         cells.append(cell)
 
-            hf = HeaderFilter.objects.create(pk=pk, name=name, is_custom=is_custom, user=user,
+            hf = HeaderFilter.objects.create(pk=pk, name=name, user=user,
+                                             is_custom=is_custom, is_private=is_private,
                                              entity_type=ContentType.objects.get_for_model(model),
                                              cells=cells,
                                             )
@@ -235,6 +250,17 @@ class HeaderFilter(Model): #CremeModel ???
     def cells(self, cells):
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
+
+    @staticmethod
+    def get_for_ctype(content_type, user):
+        assert not user.is_team
+
+        qs = HeaderFilter.objects.filter(entity_type=content_type)
+
+        return qs if user.is_staff else \
+               qs.filter(Q(is_private=False) |
+                         Q(is_private=True, user__in=[user] + user.teams)
+                        )
 
     #TODO: dispatch this job in Cells classes
     #def populate_entities(self, entities, user):
