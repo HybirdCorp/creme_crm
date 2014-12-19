@@ -15,7 +15,7 @@ try:
 
     from creme.documents.models import Document
 
-    from creme.persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -327,6 +327,25 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                          },
                          condition.decoded_value
                         )
+
+    def test_edit_filter_with_integer_values(self):
+        self.login()
+
+        civility = Civility.objects.create(title='Other')
+
+        efilter = EntityFilter.create('test-filter01',
+                                      name='Filter 01',
+                                      model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                      model=Contact,
+                                                      operator=EntityFilterCondition.EQUALS,
+                                                      name='civility',
+                                                      values=[civility.pk],
+                                                  ),
+                                                 ]
+                                     )
+
+        self.assertGET200(self._build_edit_url(efilter))
 
     def test_edit01(self):
         self.login()
