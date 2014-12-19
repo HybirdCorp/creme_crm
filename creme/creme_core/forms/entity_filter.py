@@ -464,7 +464,7 @@ class RegularFieldsConditionsField(_ConditionsField):
             if isinstance(operator, _ConditionBooleanOperator):
                 values = search_info['values'][0]
             else:
-                values = u','.join(search_info['values'])
+                values = u','.join(unicode(value) for value in search_info['values'])
 
             field = self._fields[condition.name][-1]
             field_entry = {'name': condition.name, 'type': field_choicetype(field)}
