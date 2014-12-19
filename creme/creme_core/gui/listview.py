@@ -259,6 +259,21 @@ class ListViewState(object):
         else:
             logger.warn('can not sort with field "%s" (only sort of regular field is implemented)', field_name)
 
+    def _get_default_sort(self, cells, ordering):
+        name = ordering[0]
+        order = ''
+
+        if name.startswith('-'):
+            name = name[1:]
+            order = '-'
+
+        name = EntityCellRegularField.type_id + '-' + name
+
+        if not self._get_sortfield(cells, name):
+            return None, ''
+
+        return name, order
+
     #TODO: factorise with :
     #       - template_tags_creme_listview.get_listview_columns_header
     #       - EntityCell builders
@@ -275,9 +290,6 @@ class ListViewState(object):
 
         ordering = list(model._meta.ordering)
 
-        self.sort_field = field_name if sort_field else None
-        self.sort_order = sort_order
-
         if sort_field:
             try:
                 ordering.remove(sort_field if sort_order == '-' else '-' + sort_field)
@@ -285,8 +297,13 @@ class ListViewState(object):
                 pass
 
             ordering.insert(0, sort_order + sort_field)
+        else:
+            field_name, sort_order = self._get_default_sort(cells, ordering)
 
         self._ordering = ordering
+
+        self.sort_field = field_name
+        self.sort_order = sort_order
 
     def sort_query(self, queryset):
         "Beware: you should have called set_sort() before"

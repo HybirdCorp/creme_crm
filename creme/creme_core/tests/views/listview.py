@@ -334,8 +334,8 @@ class ListViewTestCase(ViewsTestCase):
             sort_order = lvs.sort_order
             ordering = lvs._ordering
 
-        self.assertEqual(None, sort_field)
-        self.assertEqual('',  sort_order)
+        self.assertEqual('regular_field-start', sort_field)
+        self.assertEqual('-',  sort_order)
         self.assertEqual(['-start'], ordering)
 
     def test_ordering_default(self):
@@ -355,7 +355,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertListViewContentOrder(response, 'last_name', entries)
 
         listview_state = response.context['list_view_state']
-        self.assertEqual(None, listview_state.sort_field)
+        self.assertEqual('regular_field-last_name', listview_state.sort_field)
         self.assertEqual('', listview_state.sort_order)
         self.assertListEqual(['last_name', 'first_name'], listview_state._ordering)
 
