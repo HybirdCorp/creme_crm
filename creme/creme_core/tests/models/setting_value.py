@@ -62,7 +62,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertIs(sv.value, False)
         self.assertEqual('<input type="checkbox" disabled/>%s' % _('No'), sv.as_html)
 
-    def test_tyoe_hour(self):
+    def test_type_hour(self):
         self.login()
 
         sk = SettingKey(id='persons-test_model_hour', description='Reminder hour',
@@ -76,6 +76,21 @@ class SettingValueTestCase(CremeTestCase):
         sv = self.refresh(sv)
         self.assertEqual(hour, sv.value)
         self.assertEqual(_('%sh') % hour, sv.as_html)
+
+    def test_type_email(self):
+        self.login()
+
+        sk = SettingKey(id='persons-test_model_email', description='Campaign Sender',
+                        app_label='emails', type=SettingKey.EMAIL,
+                       )
+        setting_key_registry.register(sk)
+
+        email = u'd.knut@eswat.ol'
+        sv = SettingValue.objects.create(key=sk, user=self.user, value=email)
+
+        sv = self.refresh(sv)
+        self.assertEqual(email, sv.value)
+        self.assertEqual(email, sv.as_html)
 
     def test_create_value_if_needed(self):
         self.login()

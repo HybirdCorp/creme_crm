@@ -28,12 +28,14 @@ class SettingKey(object):
     INT    = 2
     BOOL   = 3
     HOUR   = 10
+    EMAIL  = 20
 
     _CASTORS = {
             STRING: unicode,
             INT:    int,
             BOOL:   bool_from_str,
             HOUR:   int, #TODO: validate 0 =< x =< 23  ??
+            EMAIL:  unicode,
         }
 
     def __init__(self, id, description, app_label, type=STRING, hidden=False):
