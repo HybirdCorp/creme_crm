@@ -87,12 +87,16 @@
 }
 
 .list_view tr#list_thead_toolbar button.do-search > div {
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
     height: 16px;
 }
 
 .list_view tr#list_thead_toolbar button.do-search img {
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
     z-index: 1;
     top: -5px;
     left: -5px;
@@ -100,7 +104,9 @@
 }
 
 .list_view tr#list_thead_toolbar button.do-search span {
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
 }
 
 .list_view .toolbar button, .list_view .toolbar a, .list_view button {
@@ -158,17 +164,25 @@
 }
 
 .list_view .columns_top .column button > div {
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
 }
 
 .list_view .columns_top .column .lv-sort-toggle-title {
-    align-self: center;
-    flex-grow: 1;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
+    -webkit-flex-grow: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
 }
 
 .list_view .columns_top .column .lv-sort-toggle-flag {
     visibility: hidden;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
     min-width: 16px;
 }
 
@@ -206,32 +220,48 @@
 }
 
 .list_view .columns_bottom .lv-search-daterange {
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
     margin-right: -15px;
 }
 
 .list_view .columns_bottom .lv-search-daterange .date-start,
 .list_view .columns_bottom .lv-search-daterange .date-end {
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: row;
-    align-self: flex-end;
+    -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+            flex-direction: row;
+    -webkit-align-self: flex-end;
+        -ms-flex-item-align: end;
+            align-self: flex-end;
 }
 
 .list_view .columns_bottom .lv-search-daterange label {
     margin: 2px;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
 }
 
 .list_view .columns_bottom .lv-search-daterange input {
     padding-right: 20px;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
     width: 70px;
 }
 
 .list_view .columns_bottom .lv-search-daterange .ui-datepicker-trigger {
     right: 20px;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
     opacity: 1;
     height: 16px;
     position: relative;
@@ -331,8 +361,8 @@
 
 .list_view .cl_lv {
     word-wrap: break-word;
-    /*max-width: 120px;
-    white-space:normal;*/
+    /*max-width: 120px;*/
+    white-space:normal;
 }
 
 .list_view .hd_cl_lv {
@@ -351,20 +381,28 @@
 }
 
 .list_view tbody .lv-cell {
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
 }
 
 .list_view tbody .lv-cell-content {
-    flex-grow: 1;
+    -webkit-flex-grow: 1;
+        -ms-flex-positive: 1;
+            flex-grow: 1;
     padding-right: 3px;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
     text-align: center;
 }
 
 .list_view tbody .lv-cell-action {
     visibility: hidden;
     height: 16px;
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
 }
 
 .list_view tbody tr:hover .lv-cell-action {
