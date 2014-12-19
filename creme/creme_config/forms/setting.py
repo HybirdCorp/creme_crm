@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import IntegerField, BooleanField, CharField
+from django.forms import IntegerField, BooleanField, CharField, EmailField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -29,10 +29,11 @@ from creme.creme_core.models import SettingValue
 
 _FIELDS = {
         SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
-        SettingKey.INT:    lambda label: IntegerField(label=label),
+        SettingKey.INT:    IntegerField,
         SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
         #TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
         SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
+        SettingKey.EMAIL:  EmailField,
     }
 
 
@@ -50,7 +51,7 @@ class SettingForm(CremeModelForm):
         field_class = _FIELDS.get(svalue.key.type)
 
         if field_class:
-            fields['value'] = field_class(ugettext(u'Value'))
+            fields['value'] = field_class(label=ugettext(u'Value'))
 
         fields['value'].initial = svalue.value
 

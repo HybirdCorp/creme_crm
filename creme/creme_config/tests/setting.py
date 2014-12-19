@@ -112,6 +112,28 @@ class SettingTestCase(CremeTestCase):
                                 }
                             )
 
+    def test_edit_email(self):
+        self.login()
+
+        sk = SettingKey(id='persons-test_edit_email', description='Campaign Sender',
+                        app_label='emails', type=SettingKey.EMAIL,
+                       )
+        setting_key_registry.register(sk)
+
+        email = u'd.knut@eswat.ol'
+        sv = SettingValue.objects.create(key=sk, user=None, value=email)
+
+        url = self._buil_edit_url(sv)
+
+        response = self.assertPOST200(url, data={'value': 42})
+        self.assertFormError(response, 'form', 'value',
+                             _(u'Enter a valid e-mail address.')
+                            )
+
+        email = u'd.knut.knut@eswat.ol'
+        self.assertNoFormError(self.client.post(url, data={'value': email}))
+        self.assertEqual(email, self.refresh(sv).value)
+
     def test_edit_hidden01(self):
         "Hidden => not editable (value=True)"
         self.login()
