@@ -1370,7 +1370,15 @@ class CTypeChoiceField(Field):
     @ctypes.setter
     def ctypes(self, ctypes):
         self._ctypes = ctypes = list(ctypes)
-        self.widget.choices = self._build_ctype_choices(ctypes) or [('', self.empty_label)]
+        choices = self._build_empty_choice(self._build_ctype_choices(ctypes))
+
+        self.widget.choices = choices
+
+    def _build_empty_choice(self, choices):
+        if not self.required:
+            return [('', self.empty_label)] + choices
+
+        return choices
 
     def _build_ctype_choices(self, ctypes):
         return build_ct_choices(ctypes)
@@ -1405,6 +1413,9 @@ class MultiCTypeChoiceField(CTypeChoiceField):
         sort_key = collator.sort_key
         choices.sort(key=lambda k: sort_key(k[1]))
 
+        return choices
+
+    def _build_empty_choice(self, choices):
         return choices
 
     def to_python(self, value):
