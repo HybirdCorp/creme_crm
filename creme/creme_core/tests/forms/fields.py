@@ -224,7 +224,13 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
     def test_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = CTypeChoiceField(ctypes=[ct1, ct2]).clean
+        field = CTypeChoiceField(ctypes=[ct1, ct2])
+        clean = field.clean
+
+        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
+                                 (ct2.pk, unicode(ct2)),
+                                ], key=lambda ct: ct[1]),
+                         field.widget.choices)
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
@@ -233,7 +239,14 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
     def test_not_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = CTypeChoiceField(ctypes=[ct1, ct2], required=False).clean
+        field = CTypeChoiceField(ctypes=[ct1, ct2], required=False)
+        clean = field.clean
+
+        self.assertEqual([('', field.empty_label)] +
+                         sorted([(ct1.pk, unicode(ct1)),
+                                 (ct2.pk, unicode(ct2)),
+                                ], key=lambda ct: ct[1]),
+                         field.widget.choices)
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
@@ -305,7 +318,13 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
     def test_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = MultiCTypeChoiceField(ctypes=[ct1, ct2]).clean
+        field = MultiCTypeChoiceField(ctypes=[ct1, ct2])
+        clean = field.clean
+
+        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
+                                 (ct2.pk, unicode(ct2)),
+                                ], key=lambda ct: ct[1]),
+                         [(choice.value, label) for choice, label in field.widget.choices])
 
         self.assertEqual([ct1], clean([ct1.id]))
         self.assertEqual([ct2], clean([ct2.id]))
@@ -316,7 +335,13 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
     def test_not_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = MultiCTypeChoiceField(ctypes=[ct1, ct2], required=False).clean
+        field = MultiCTypeChoiceField(ctypes=[ct1, ct2], required=False)
+        clean = field.clean
+
+        self.assertEqual(sorted([(ct1.pk, unicode(ct1)),
+                                 (ct2.pk, unicode(ct2)),
+                                ], key=lambda ct: ct[1]),
+                         [(choice.value, label) for choice, label in field.widget.choices])
 
         self.assertEqual([ct1], clean([ct1.id]))
         self.assertEqual([ct2], clean([ct2.id]))
