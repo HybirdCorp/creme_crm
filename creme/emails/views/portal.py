@@ -22,7 +22,10 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import app_portal
 
+from creme.creme_config.utils import generate_portal_url
+
 from ..models import EmailCampaign, MailingList #, Sending
+
 
 
 def portal(request):
@@ -32,4 +35,5 @@ def portal(request):
                 #(_("Number of sendings"),       Sending.objects.all().count()),
             )
 
-    return app_portal(request, 'emails', 'emails/portal.html', (EmailCampaign, MailingList), stats)
+    return app_portal(request, 'emails', 'emails/portal.html', (EmailCampaign, MailingList),
+                      stats, config_url=generate_portal_url('emails'))

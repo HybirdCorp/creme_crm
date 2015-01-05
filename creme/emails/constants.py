@@ -27,3 +27,5 @@ MAIL_STATUS = {
                 MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u"Synchronized - Marked as SPAM"),
                 MAIL_STATUS_SYNCHRONIZED_WAITING: _(u"Synchronized - Untreated"),
               }
+
+SETTING_EMAILCAMPAIGN_SENDER = 'emails-emailcampaign_sender'
