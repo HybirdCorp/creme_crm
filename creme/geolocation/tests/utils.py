@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.translation import ugettext as _
+
     from creme.creme_core.models.setting_value import SettingValue
     from creme.persons.models import Organisation, Contact
 
@@ -23,8 +25,61 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         address = self.create_address(orga, zipcode='13012', town=u'Marseille', geoloc=(43.299991, 5.364832))
 
         self.assertDictEqual(dict(id=address.pk,
-                                  address=u'13 rue du yahourt 13012 Marseille 13',
-                                  name=u'Orga 1 - 13 rue du yahourt',
+                                  content=u'13 rue du yahourt 13012 Marseille 13',
+                                  title=u'13 rue du yahourt',
+                                  owner=u'Orga 1',
+                                  is_shipping=False,
+                                  is_billing=False,
+                                  latitude=43.299991,
+                                  longitude=5.364832,
+                                  draggable=True,
+                                  geocoded=False,
+                                  url=orga.get_absolute_url()), address_as_dict(address))
+
+    def test_address_as_dict_empty_billing_shipping(self):
+        self.login()
+
+        orga = Organisation.objects.create(name='Orga 1', user=self.user)
+        address = self.create_billing_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
+
+        self.assertDictEqual(dict(id=address.pk,
+                                  content=u'',
+                                  title=_(u'Billing address'),
+                                  owner=u'Orga 1',
+                                  is_shipping=False,
+                                  is_billing=True,
+                                  latitude=43.299991,
+                                  longitude=5.364832,
+                                  draggable=True,
+                                  geocoded=False,
+                                  url=orga.get_absolute_url()), address_as_dict(address))
+
+        address = self.create_shipping_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
+
+        self.assertDictEqual(dict(id=address.pk,
+                                  content=u'',
+                                  title=_(u'Shipping address'),
+                                  owner=u'Orga 1',
+                                  is_shipping=True,
+                                  is_billing=False,
+                                  latitude=43.299991,
+                                  longitude=5.364832,
+                                  draggable=True,
+                                  geocoded=False,
+                                  url=orga.get_absolute_url()), address_as_dict(address))
+
+    def test_address_as_dict_empty(self):
+        self.login()
+
+        orga = Organisation.objects.create(name='Orga 1', user=self.user)
+        address = self.create_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
+
+        self.assertDictEqual(dict(id=address.pk,
+                                  content=u'',
+                                  title=u'',
+                                  owner=u'Orga 1',
+                                  is_shipping=False,
+                                  is_billing=False,
                                   latitude=43.299991,
                                   longitude=5.364832,
                                   draggable=True,
@@ -59,7 +114,10 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
 
         self.assertEqual(get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS), DEFAULT_SEPARATING_NEIGHBOURS)
 
-        SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=12500)
+        setting = SettingValue.objects.get_or_create(key_id=NEIGHBOURHOOD_DISTANCE.id)[0]
+        setting.value = 12500
+        setting.save()
+
         self.assertEqual(get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS), 12500)
 
     def test_location_bounding_box(self):

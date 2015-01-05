@@ -22,6 +22,7 @@ from math import cos, radians
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.setting_key import SettingKey
@@ -32,18 +33,39 @@ from creme.persons.models import Address
 # TODO : handle case of empty address name 
 def address_as_dict(address):
     geoaddress = address.geoaddress
+    title = address_title(address)
+    content = unicode(address)
+    owner = address.owner
+    address_id = address.id
+
+    is_billing = owner.billing_address_id == address_id
+    is_shipping = owner.shipping_address_id == address_id
 
     return {
-            'id': address.id,
-            'address': unicode(address),
-            'name': u"%s - %s" % (address.owner, address.name),
+            'id': address_id,
+            'content': content,
+            'owner': unicode(owner),
+            'title': title,
+            'is_billing': is_billing,
+            'is_shipping': is_shipping,
             'latitude': geoaddress.latitude,
             'longitude': geoaddress.longitude,
             'draggable': geoaddress.draggable,
             'geocoded': geoaddress.geocoded,
-            'url': address.owner.get_absolute_url(),
+            'url': owner.get_absolute_url(),
            }
 
+def address_title(address):
+    if address.name:
+        return address.name
+
+    if address.owner.billing_address_id == address.id:
+        return _('Billing address')
+
+    if address.owner.shipping_address_id == address.id:
+        return _('Shipping address')
+
+    return ''
 
 def addresses_from_persons(queryset, user):
     entities = EntityCredentials.filter(user, queryset.filter(is_deleted=False))

@@ -21,10 +21,13 @@
 import csv
 import logging
 import urllib2
-import sys
 
 from functools import partial
+from StringIO import StringIO
+from urlparse import urlparse
+from zipfile import ZipFile
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.query_utils import Q
 from django.template.defaultfilters import slugify
@@ -43,15 +46,11 @@ from .setting_keys import NEIGHBOURHOOD_DISTANCE
 
 logger = logging.getLogger(__name__)
 
-TESTING = 'test' in sys.argv[1:2]
-
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
-    TOWNS_URL = "https://bitbucket.org/hybird/geolocation/raw/c86561a7843f37679c39229d06b9c800ed74743f/villes_france.csv"
-
-    def populate_towns(self, iterable):
-        create_town = partial(Town, country="FRANCE")
+    def populate_towns(self, iterable, defaults):
+        create_town = partial(Town, **defaults)
         line = 0
 
         for rows in iter_as_chunk(iterable, 50):
@@ -75,10 +74,42 @@ class Populator(BasePopulator):
                     except Exception as e:
                         logger.error('invalid town data (line %d) : %s', line, e)
 
-                existings = frozenset(Town.objects.filter(zipcode__in=(t.zipcode for t in towns)).values_list('zipcode', flat=True))
+                existings = frozenset(Town.objects.filter(zipcode__in=(t.zipcode for t in towns),
+                                                          slug__in=(t.slug for t in towns))
+                                                  .values_list('zipcode', flat=True)
+                                     )
                 Town.objects.bulk_create([t for t in towns if t.zipcode not in existings])
             except Exception as e:
                 logger.error(e)
+
+    def _open_towns_data(self, url):
+        try:
+            url_info = urlparse(url)
+
+            if url_info.scheme in ('file', ''):
+                input = open(url_info.path, 'rb')
+            elif url_info.scheme in ('http', 'https'):
+                logger.info('Downloading Towns database...')
+                input = urllib2.urlopen(url)
+            else:
+                raise Exception('unsupported protocol %s.' % url_info.scheme)
+
+            if url_info.path.endswith('.zip'):
+                archive = ZipFile(StringIO(input.read()))
+                input = archive.open(archive.namelist()[0])
+
+            return input
+        except Exception as e:
+            raise Exception('Unable to open Towns database from %s : %s' % (url, e))
+
+    def import_towns(self, url, defaults):
+        try:
+            input = self._open_towns_data(url)
+
+            logger.info('Importing Towns database...')
+            self.populate_towns(csv.reader(input), defaults)
+        except Exception as e:
+            logger.warn(e)
 
     def populate_addresses(self):
         GeoAddress.populate_geoaddresses(Address.objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
@@ -89,8 +120,8 @@ class Populator(BasePopulator):
         SettingValue.create_if_needed(key=NEIGHBOURHOOD_DISTANCE, user=None, value=DEFAULT_SEPARATING_NEIGHBOURS)
 
         if not already_populated or not Town.objects.exists():
-            logger.info('Downloading and importing French Towns database...')
-            self.populate_towns(csv.reader(urllib2.urlopen(self.TOWNS_URL)))
+            for url, defaults in settings.GEOLOCATION_TOWNS:
+                self.import_towns(url, defaults)
 
         logger.info('Populating geolocations of existing addresses...')
         self.populate_addresses()

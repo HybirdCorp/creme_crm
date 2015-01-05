@@ -29,19 +29,19 @@ class PopulatorTestCase(GeoLocationBaseTestCase):
     def test_populate_does_not_exist(self):
         self.assertEqual(0, Town.objects.count())
 
-        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET])
+        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'France'})
         self.assertEqual(4, Town.objects.count())
 
-        self.assertTown(Town.objects.get(zipcode='01190'), zipcode='01190', name='Ozan', slug='ozan', longitude=4.91667, latitude=46.3833)
-        self.assertTown(Town.objects.get(zipcode='01630'), zipcode='01630', name='Péron', slug='peron', longitude=5.93333, latitude=46.2)
-        self.assertTown(Town.objects.get(zipcode='97630'), zipcode='97630', name='Acoua', slug='acoua', longitude=45.0645, latitude=-12.7239)
-        self.assertTown(Town.objects.get(zipcode='17150'), zipcode='17150', name='Saint-Bonnet-sur-Gironde', slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35)
+        self.assertTown(Town.objects.get(zipcode='01190'), country='France', zipcode='01190', name='Ozan', slug='ozan', longitude=4.91667, latitude=46.3833)
+        self.assertTown(Town.objects.get(zipcode='01630'), country='France', zipcode='01630', name='Péron', slug='peron', longitude=5.93333, latitude=46.2)
+        self.assertTown(Town.objects.get(zipcode='97630'), country='France', zipcode='97630', name='Acoua', slug='acoua', longitude=45.0645, latitude=-12.7239)
+        self.assertTown(Town.objects.get(zipcode='17150'), country='France', zipcode='17150', name='Saint-Bonnet-sur-Gironde', slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35)
 
     def test_populate_exists_ignored(self):
         Town.objects.create(zipcode='01190', name='Ozan', slug='ozan', longitude=0.0, latitude=0.0)
         self.assertEqual(1, Town.objects.count())
 
-        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET])
+        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'FRANCE'})
         self.assertEqual(4, Town.objects.count())
         self.assertTown(Town.objects.get(zipcode='01190'), zipcode='01190', name='Ozan', slug='ozan', longitude=0.0, latitude=0.0)
         self.assertTown(Town.objects.get(zipcode='01630'), zipcode='01630', name='Péron', slug='peron', longitude=5.93333, latitude=46.2)
@@ -49,7 +49,7 @@ class PopulatorTestCase(GeoLocationBaseTestCase):
         self.assertTown(Town.objects.get(zipcode='17150'), zipcode='17150', name='Saint-Bonnet-sur-Gironde', slug='saint-bonnet-sur-gironde', longitude=-0.666667, latitude=45.35)
 
     def test_populate_invalid_ignored(self):
-        self.populator.populate_towns([self.OZAN, self.PERON, self.INVALID, self.ACOUA])
+        self.populator.populate_towns([self.OZAN, self.PERON, self.INVALID, self.ACOUA], {'country': 'FRANCE'})
         self.assertEqual(3, Town.objects.count())
         self.assertTown(Town.objects.get(zipcode='01190'), zipcode='01190', name='Ozan', slug='ozan', longitude=4.91667, latitude=46.3833)
         self.assertTown(Town.objects.get(zipcode='01630'), zipcode='01630', name='Péron', slug='peron', longitude=5.93333, latitude=46.2)
@@ -90,7 +90,7 @@ class PopulatorTestCase(GeoLocationBaseTestCase):
 
     def test_create_geoaddress_with_town(self):
         self.login()
-        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET])
+        self.populator.populate_towns([self.OZAN, self.PERON, self.ACOUA, self.STBONNET], {'country': 'FRANCE'})
 
         orga = Organisation.objects.create(name='Orga 1', user=self.user)
 

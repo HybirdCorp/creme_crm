@@ -74,9 +74,11 @@ class _MapBlock(Block):
 
         return choices
 
-    def get_addresses(self, entity):
-        return Address.objects.filter(object_id=entity.id).select_related('geoaddress')
-
+    def get_addresses_as_dict(self, entity):
+        return [address_as_dict(address)
+                    for address in Address.objects.filter(object_id=entity.id)
+                                                  .select_related('geoaddress')
+               ]
 
 class PersonsMapsBlock(_MapBlock):
     id_           = Block.generate_id('persons', 'geolocation')
@@ -86,11 +88,11 @@ class PersonsMapsBlock(_MapBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        addresses = self.get_addresses(entity)
+        addresses = [address for address in self.get_addresses_as_dict(entity) if address.get('content')]
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            entity_addresses=addresses,
-                                                            geoaddresses=encode_json([address_as_dict(address) for address in addresses]),
+                                                            addresses=addresses,
+                                                            geoaddresses=encode_json(addresses),
                                                            )
                            )
 
@@ -115,7 +117,7 @@ class WhoisAroundMapsBlock(_MapBlock):
     dependencies  = (Address, GeoAddress,)
     id_           = Block.generate_id('whoisarround', 'geolocation')
     verbose_name  = _(u'Around this address')
-    template_name = 'geolocation/templatetags/block_persons_who_is_arround_map.html'
+    template_name = 'geolocation/templatetags/block_persons_neighbours_map.html'
     target_ctypes = (Contact, Organisation)
 
     # Specific use case
@@ -128,7 +130,7 @@ class WhoisAroundMapsBlock(_MapBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        addresses = self.get_addresses(entity)
+        addresses = self.get_addresses_as_dict(entity)
         #address_filters = self.get_filter_choices(Contact, Organisation)
         address_filters = self.get_filter_choices(context['user'], Contact, Organisation)
 
@@ -137,7 +139,7 @@ class WhoisAroundMapsBlock(_MapBlock):
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                     address_filters=address_filters,
                     radius=get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS),
-                    ref_addresses=[address for address in addresses if address.geoaddress.latitude],
+                    ref_addresses=addresses,
                    )
         return self._render(btc)
 

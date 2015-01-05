@@ -1,4 +1,4 @@
-{% load i18n creme_block geolocation %}
+{% load i18n creme_block %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
         new creme.geolocation.AddressesBlock($('#block_persons_filters-geolocation'));
@@ -16,13 +16,13 @@
             <td class="block-geoaddress-header">
                 <span class="block-geoaddress-counter">{% trans "No address from" %}</span>&nbsp;
                 <select class="block-geoaddress-filter">
-                    {% for groupname, choices in address_filters %}
+                {% for groupname, choices in address_filters %}
                     <optgroup label="{{groupname}}">
-                        {% for value, label in choices %}
+                    {% for value, label in choices %}
                         <option value='{{value}}'>{{label}}</option>
-                        {% endfor %}
-                    </optgroup>
                     {% endfor %}
+                    </optgroup>
+                {% endfor %}
                 </select>
              </td>
         </tr>

@@ -135,8 +135,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 if (!marker) {
                     var marker = marker_manager.Marker({
                         address: address,
-                        position: position,
-                        title: options.address.name
+                        position: position
                     });
                 } else {
                     marker.setPosition(position);
@@ -152,7 +151,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 }
             } else {
                 if (Object.isFunc(options.fail)) {
-                    options.fail(_("Could't find any matching location"));
+                    options.fail(gettext("Could't find any matching location"));
                 }
             }
         });
@@ -181,7 +180,7 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
     {
         this.geocode({
             address:  address,
-            data:     {address: address.address},
+            data:     {address: address.content},
             fail:     options.fail,
             callback: options.done
         });
@@ -270,7 +269,7 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
         var address = options.address;
 
         options.position = options.position || new google.maps.LatLng(address.latitude, address.longitude);
-        options.draggable = (options.draggable || address.draggable) ? true : false;
+        options.title = '%s\n%s'.format(address.owner, address.title || address.content)
 
         var marker = new google.maps.Marker(options);
         this.register(marker);

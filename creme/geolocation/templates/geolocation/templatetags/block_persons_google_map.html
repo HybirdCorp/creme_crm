@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_block geolocation %}
+{% load i18n creme_core_tags creme_block %}
 <script type='text/javascript'>
     creme.geolocation.ready(function() {
         new creme.geolocation.PersonsBlock($('#block_persons-geolocation'), {{geoaddresses|safe}});
@@ -13,27 +13,29 @@
         <tr class="content">
             <td class="block-geoaddress-header">
                 <div class="block-geoaddress-items">
-                    {% for address in entity_addresses %}
-                    <div class="block-geoaddress-item item-selected" data-addressid="{{address.id}}">
-                        <input type="checkbox" value="{{address.id}}" checked></input>
+                {% for address in addresses %}
+                    <div class="block-geoaddress-item {% if address.is_billing %}item-selected{% endif %}" data-addressid="{{address.id}}">
+                        <input type="checkbox" value="{{address.id}}" {% if address.is_billing %}checked{% endif %}></input>
                         <div class="block-geoaddress-label">
-                            {% if address.name %}
-                            <span class="block-geoaddress-title">{{address.name}}</span>
-                            <span class="block-geoaddress-content">{{address}}</span>
-                            {% else %}
-                            <span class="block-geoaddress-title">{{address}}</span>
-                            {% endif %}
+                        {% if address.content and address.title %}
+                            <span class="block-geoaddress-title">{{address.title}}</span>
+                            <span class="block-geoaddress-content">{{address.content}}</span>
+                        {% else %}
+                            <span class="block-geoaddress-title">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</span>
+                        {% endif %}
+                        {% if address.latitude %}
                             <span class="block-geoaddress-position">
-                                {% if address.geoaddress.latitude %}{{address.geoaddress|format_location}}{% endif %}
+                            {{address.latitude|format:"%3.6f"}}, {{address.longitude|format:"%3.6f"}}
                             </span>
+                        {% endif %}
                         </div>
                         <a class="block-geoaddress-reset" data-addressid="{{address.id}}">
                             {% trans 'Retrieve location' %}
                         </a>
                     </div>
-                    {% empty %}
-                        {% trans 'No address defined for now' %}
-                    {% endfor %}
+                {% empty %}
+                    {% trans 'No address defined for now' %}
+                {% endfor %}
                 </div>
             </td>
         </tr>
