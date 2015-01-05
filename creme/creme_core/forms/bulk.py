@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import re
-
 from functools import partial
+import re
 
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
@@ -31,7 +30,7 @@ from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import model_to_dict, ModelMultipleChoiceField
 from django.forms.widgets import Select
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 
@@ -54,8 +53,8 @@ _BULK_FIELD_WIDGETS = {
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-%d'
 
-#TODO : staticmethod ??
-#TODO: remove this when whe have a EntityForeignKey with the right model field that does the job.
+#todo : staticmethod ??
+#todo: remove this when whe have a EntityForeignKey with the right model field that does the job.
 # def _get_choices(model_field, user):
 #     form_field = model_field.formfield()
 #     choices = ()
@@ -174,7 +173,7 @@ _CUSTOMFIELD_FORMAT = 'customfield-%d'
 #                 field_value = field_value[0]
 # 
 #             form_field = model_field.get_formfield(None)
-#             #form_field.initial = field_value #TODO: useful ??
+#             #form_field.initial = field_value #todo: useful ??
 #             cleaned_value = form_field.clean(form_field.widget.value_from_datadict(self.data, self.files, 'field_value'))
 # 
 #             if cleaned_value and issubclass(field_klass, CustomFieldEnum):
@@ -292,27 +291,29 @@ class BulkFieldSelectWidget(Select):
 
 class BulkForm(CremeForm):
     class FieldDoesNotExist(Exception):
-        def __init__(self, *args, **kwargs):
-            Exception.__init__(self, *args, **kwargs)
+        pass
+        #def __init__(self, *args, **kwargs):
+            #Exception.__init__(self, *args, **kwargs)
 
     def __init__(self, model, field_name, user, entities, is_bulk, **kwargs):
         super(BulkForm, self).__init__(user, **kwargs)
-
         self.is_bulk = is_bulk
         self.field_name = field_name
         self.entities = entities
 
-        fields = self.fields
-
-        url = '/creme_core/entity/edit/bulk/%s/%s/field/%%s' % (ContentType.objects.get_for_model(model).pk,
-                                                                ','.join(str(e.pk) for e in self.entities))
+        url = '/creme_core/entity/edit/bulk/%s/%s/field/%%s' % (
+                    ContentType.objects.get_for_model(model).pk,
+                    ','.join(str(e.pk) for e in self.entities)
+                )
 
         if is_bulk:
-            fields['_bulk_fieldname'] = ChoiceField(choices=self._bulk_model_field_choices(model, url),
-                                                    label=_(u"Field to update"),
-                                                    initial=url % field_name,
-                                                    widget=BulkFieldSelectWidget,
-                                                    required=False)
+            self.fields['_bulk_fieldname'] = ChoiceField(
+                            choices=self._bulk_model_field_choices(model, url),
+                            label=_(u"Field to update"),
+                            initial=url % field_name,
+                            widget=BulkFieldSelectWidget,
+                            required=False,
+                        )
 
     def _bulk_formfield(self, model, field_name, user, instance=None):
         model_field, is_custom = self._bulk_model_field(model, field_name)
@@ -388,19 +389,26 @@ class BulkForm(CremeForm):
 
         if isinstance(model_field, ForeignKey):
             if issubclass(related_to, CremeEntity):
-                form_field = CreatorEntityField(model=related_to, label=form_field.label, required=form_field.required)
+                form_field = CreatorEntityField(model=related_to, label=form_field.label,
+                                                required=form_field.required,
+                                               )
             else:
                 form_field = CreatorModelChoiceField(queryset=related_to.objects.all(),
                                                      label=form_field.label,
-                                                     required=form_field.required)
+                                                     required=form_field.required,
+                                                    )
         elif isinstance(model_field, ManyToManyField):
             if issubclass(related_to, CremeEntity):
-                form_field = MultiCreatorEntityField(model=related_to, label=form_field.label, required=form_field.required)
+                form_field = MultiCreatorEntityField(model=related_to,
+                                                     label=form_field.label,
+                                                     required=form_field.required,
+                                                    )
             else:
                 form_field = ModelMultipleChoiceField(label=form_field.label,
                                                       queryset=related_to.objects.all(),
                                                       required=form_field.required,
-                                                      widget=UnorderedMultipleChoiceWidget)
+                                                      widget=UnorderedMultipleChoiceWidget,
+                                                     )
 
         return form_field
 
@@ -444,13 +452,18 @@ class BulkForm(CremeForm):
         if not hasattr(error, 'message_dict'):
             return {NON_FIELD_ERRORS: error.messages}
 
-        fields = {field.name: field for field in (entity._meta.fields + entity._meta.many_to_many)}
+        fields = {field.name: field
+                    for field in (entity._meta.fields + entity._meta.many_to_many)
+                 }
         messages = []
 
         for key, value in error.message_dict.iteritems():
             field = fields.get(key)
             message = ''.join(value) if isinstance(value, (list, tuple)) else value
-            messages.append(u'%s : %s' % (ugettext(field.verbose_name), message) if field is not None else message)
+            messages.append(u'%s : %s' % (ugettext(field.verbose_name), message)
+                            if field is not None else
+                            message
+                           )
 
         return {NON_FIELD_ERRORS: messages}
 
