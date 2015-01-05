@@ -19,39 +19,78 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext
+from django.forms.fields import CharField
+from django.utils.translation import ugettext as _, ngettext
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import EntityFilter
 
 
 class ReportFilterBulkForm(BulkDefaultEditForm):
     def __init__(self, model, field_name=None, user=None, entities=(), is_bulk=False, **kwargs):
-        super(ReportFilterBulkForm, self).__init__(model, field_name=field_name, user=user, entities=entities, is_bulk=is_bulk, **kwargs)
+        super(ReportFilterBulkForm, self).__init__(model, field_name=field_name,
+                                                   user=user, entities=entities,
+                                                   is_bulk=is_bulk, **kwargs
+                                                  )
 
         filter_field = self.fields['field_value']
-        filter_field.empty_label = ugettext(u'All')
+        filter_field.empty_label = _(u'All')
 
         first_ct = entities[0].ct if entities else None
         self._has_same_report_ct = all(e.ct == first_ct for e in entities)
+        self._uneditable_ids = set()
 
         if self._has_same_report_ct:
-            filter_field.queryset = filter_field.queryset.filter(entity_type=first_ct)
+            user = self.user
+            filter_field.queryset = EntityFilter.get_for_user(user, first_ct)
+
+            self._uneditable_ids = uneditable_ids = {e.id for e in entities
+                                                        if e.filter and not e.filter.can_view(user)[0]
+                                                    }
+
+            if uneditable_ids:
+                length = len(uneditable_ids)
+
+                if length == len(entities):
+                    self.fields['field_value'] = CharField(label=filter_field.label,
+                                                           required=False, widget=Label,
+                                                           initial=ngettext('The filter cannot be changed because it is private.',
+                                                                            'The filters cannot be changed because they are private.',
+                                                                            length
+                                                                           ),
+                                                          )
+                else:
+                    self.fields['beware'] = CharField(label=_('Beware !'),
+                                                      required=False, widget=Label,
+                                                      initial=ngettext('The filter of %s report cannot be changed because it is private.',
+                                                                       'The filters of %s reports cannot be changed because they are private.',
+                                                                       length
+                                                                      ) % length,
+                                                     )
         else:
-            filter_field.help_text = ugettext(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts).")
+            filter_field.help_text = _(u"Filter field can only be updated when "
+                                       u"reports target the same type of entities (e.g: only contacts)."
+                                      )
             filter_field.widget = Label(empty_label=u'')
             filter_field.value = None
 
     def clean(self):
         if not self._has_same_report_ct:
-            raise ValidationError(ugettext(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts)."))
+            raise ValidationError(_(u"Filter field can only be updated when reports "
+                                    u"target the same type of entities (e.g: only contacts)."
+                                   )
+                                 )
 
         return super(ReportFilterBulkForm, self).clean()
 
     def _bulk_clean_entity(self, entity, **values):
-        filter = values.get('filter')
+        if entity.id in self._uneditable_ids:
+            raise ValidationError(_('The filter cannot be changed because it is private.'))
 
-        if filter and entity.ct != filter.entity_type:
-            raise ValidationError(ugettext(u'Select a valid choice. That choice is not one of the available choices.'))
+        efilter = values.get('filter')
+
+        if efilter and entity.ct != efilter.entity_type:
+            raise ValidationError(_(u'Select a valid choice. That choice is not one of the available choices.'))
 
         return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, **values)

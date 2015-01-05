@@ -307,8 +307,22 @@ class HeaderFilterForm(CremeModelForm):
         cdata = self.cleaned_data
 
         if not self._errors:
-            if cdata.get('is_private') and not cdata.get('user'):
-                self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
+            is_private = cdata.get('is_private', False)
+
+            if is_private:
+                owner = cdata.get('user')
+
+                if not owner:
+                    self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
+                else:
+                    req_user = self.user
+
+                    if not req_user.is_staff:
+                        if owner.is_team:
+                            if req_user.id not in owner.teammates:
+                                self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
+                        elif owner != req_user:
+                            self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
 
         return cdata
 

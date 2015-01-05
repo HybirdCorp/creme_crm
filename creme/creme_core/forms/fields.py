@@ -23,7 +23,7 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from re import compile as compile_re
-#import warnings
+import warnings
 
 from django.core.validators import validate_email
 from django.contrib.contenttypes.models import ContentType
@@ -959,6 +959,7 @@ class FilteredEntityTypeField(JSONField):
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label #TODO: setter property ??
         self.ctypes = ctypes
+        self.user = None
 
     def _build_empty_value(self):
         return None, None
@@ -1014,7 +1015,15 @@ class FilteredEntityTypeField(JSONField):
             efilter = None
         else:
             try:
-                efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
+                if self.user:
+                    efilter = EntityFilter.get_for_user(self.user, ct) \
+                                          .get(pk=efilter_pk)
+                else:
+                    warnings.warn("FilteredEntityTypeField.clean(): 'user' attribute has not been set (so privacy cannot be checked)",
+                                  DeprecationWarning
+                                 )
+
+                    efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
             except EntityFilter.DoesNotExist:
                 raise ValidationError(self.error_messages['invalidefilter'])
 

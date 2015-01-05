@@ -10,7 +10,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     #from django.utils.datastructures import SortedDict as OrderedDict
-    from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _, ngettext
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
     from django.utils.timezone import now
@@ -76,19 +76,24 @@ class ReportTestCase(BaseReportsTestCase):
         self.robb = create_contact(first_name='Robb',   last_name='Stark', user=self.other_user)
         self.aria = create_contact(first_name='Aria',   last_name='Stark', image=self.aria_face)
 
-        self.efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True)
-        self.efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                         operator=EntityFilterCondition.IEQUALS,
-                                                                         name='last_name', values=[self.ned.last_name]
-                                                                        )
-                                    ])
+        self.efilter = EntityFilter.create('test-filter', 'Starks', Contact, is_custom=True,
+                                           conditions=[EntityFilterCondition.build_4_field(
+                                                            model=Contact,
+                                                            operator=EntityFilterCondition.IEQUALS,
+                                                            name='last_name',
+                                                            values=[self.ned.last_name],
+                                                        ),
+                                                      ],
+                                           )
 
     def _build_image_report(self):
         img_report = Report.objects.create(user=self.user, name="Report on images",
                                            ct=ContentType.objects.get_for_model(Image),
                                           )
 
-        create_field = partial(Field.objects.create, report=img_report, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(Field.objects.create, report=img_report,
+                               selected=False, sub_report=None, type=RFT_FIELD,
+                              )
         create_field(name="name",        order=1)
         create_field(name="description", order=2)
 
@@ -99,7 +104,9 @@ class ReportTestCase(BaseReportsTestCase):
                                             ct=ContentType.objects.get_for_model(Organisation),
                                            )
 
-        create_field = partial(Field.objects.create, report=orga_report, selected=False, sub_report=None, type=RFT_FIELD)
+        create_field = partial(Field.objects.create, report=orga_report,
+                               selected=False, sub_report=None, type=RFT_FIELD,
+                              )
         create_field(name="name",              order=1)
         create_field(name="legal_form__title", order=2)
 
@@ -213,18 +220,28 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
+        #------
         hf_orga = HeaderFilter.create(pk='test_hf-orga', name='name', model=Organisation)
         efilter = EntityFilter.create('test-filter', 'Bad filter', Organisation, is_custom=True)
         response = post(hf_orga.id, efilter.id)
         self.assertFormError(response, 'form', 'hf',     msg)
         self.assertFormError(response, 'form', 'filter', msg)
 
+        #------
         hf_priv = HeaderFilter.create(pk='test_hf-private', name='name', model=Contact,
                                       is_private=True, user=self.other_user,
                                       is_custom=True,
                                      )
         response = post(hf_priv.id, '')
         self.assertFormError(response, 'form', 'hf', msg)
+
+        #------
+        ef_priv = EntityFilter.create('test-private_filter', 'Private filter',
+                                      Contact, is_custom=True,
+                                      user=self.other_user, is_private=True,
+                                     )
+        response = post('', ef_priv.id)
+        self.assertFormError(response, 'form', 'filter', msg)
 
     def test_createview04(self):
         "No HeaderFilter -> no column"
@@ -243,104 +260,184 @@ class ReportTestCase(BaseReportsTestCase):
         report = self.get_object_or_fail(Report, name=name)
         self.assertFalse(report.columns)
 
-    def test_report_editview(self):
-        self.login()
+    def test_editview01(self):
+        user = self.login()
 
         name = 'my report'
         report = self._create_report(name)
-        url = '/reports/report/edit/%s' % report.id
+        url = report.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = name.title()
+        efilter = EntityFilter.create('test-filter', 'Filter', Contact, is_custom=True,
+                                      is_private=True, user=user,
+                                     )
         response = self.client.post(url, follow=True, 
-                                    data={'user': self.user.pk,
+                                    data={'user': user.pk,
                                           'name': name,
+                                          'filter': efilter.id,
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(name, self.refresh(report).name)
 
-    def test_report_inneredit_filter(self):
+        report = self.refresh(report)
+        self.assertEqual(name,    report.name)
+        self.assertEqual(efilter, report.filter)
+
+    def test_editview02(self):
+        "Cannot edit the 'filter' field when its a private filter which belongs to another user"
         self.login()
 
-        contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
-        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                           operator=EntityFilterCondition.IEQUALS,
-                                                                           name='last_name', values=['Mihana']
-                                                                           )
-                                      ])
+        ef_priv = EntityFilter.create('test-private_filter', 'Private filter',
+                                      Contact, is_custom=True,
+                                      user=self.other_user, is_private=True,
+                                     )
+        report = Report.objects.create(name='Report', user=self.user, filter=ef_priv,
+                                       ct=ContentType.objects.get_for_model(Contact),
+                                      )
 
-        orga_filter = EntityFilter.create('test-filter2', 'Mihana house', Organisation, is_custom=True)
-        orga_filter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                        operator=EntityFilterCondition.IEQUALS,
-                                                                        name='name', values=['Mihana']
-                                                                   )
-                                   ])
-
-        reportA = self._create_report('A')
-        self.assertIsNone(reportA.filter)
-
-        url = self.build_inneredit_url(reportA, 'filter')
-        response = self.assertGET200(url)
-        self.assertContains(response, 'Mihana family')
-        self.assertNotContains(response, 'Mihana house') # excluded from filter choices because report targets a Contact.
-
-        response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
+        ef_pub = EntityFilter.create('test-public_filter', 'Public filter',
+                                     Contact, is_custom=True,
+                                    )
+        response = self.client.post(report.get_edit_absolute_url(), follow=True, 
+                                    data={'user': self.user.pk,
+                                          'name': 'Report edited',
+                                          'filter': ef_pub.id, #should not be used
+                                         }
+                                   )
         self.assertNoFormError(response)
+        self.assertEqual(ef_priv, self.refresh(report).filter)
 
-        reportA = self.refresh(reportA)
-        self.assertEqual(reportA.filter.pk, contact_filter.pk)
-
-    def test_report_bulkedit_filter_same_ctypes(self):
+    def test_report_inneredit_filter01(self):
         self.login()
 
-        contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
-        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                           operator=EntityFilterCondition.IEQUALS,
-                                                                           name='last_name', values=['Mihana']
-                                                                           )
-                                      ])
-        orga_filter = EntityFilter.create('test-filter2', 'Mihana house', Organisation, is_custom=True)
-        orga_filter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
-                                                                        operator=EntityFilterCondition.IEQUALS,
-                                                                        name='name', values=['Mihana']
-                                                                        )
-                                   ])
+        create_ef = partial(EntityFilter.create, is_custom=True)
+        contact_filter = create_ef('test-filter1', 'Mihana family', Contact)
+        orga_filter    = create_ef('test-filter2', 'Mihana house',  Organisation)
+        private_filter = create_ef('test-filter3', 'XXX',           Contact,
+                                   is_private=True, user=self.other_user
+                                  )
 
-        reportA = self._create_report('A')
-        reportB = self._create_report('B')
+        report = self._create_report('A')
+        self.assertIsNone(report.filter)
 
-        url = self.build_bulkedit_url([reportA, reportB], 'filter')
+        url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
-        self.assertContains(response, 'Mihana family')
-        self.assertNotContains(response, 'Mihana house')
+        self.assertContains(response, contact_filter.name)
+        self.assertNotContains(response, orga_filter.name) # excluded from filter choices because report targets a Contact.
+        self.assertNotContains(response, private_filter.name)
+
+        response = self.client.post(url, data={'field_value': contact_filter.pk})
+        self.assertNoFormError(response)
+        self.assertEqual(contact_filter, self.refresh(report).filter)
+
+    def test_report_inneredit_filter02(self):
+        "Private filter to another user -> cannot edit"
+        self.login()
+        other_user = self.other_user
+
+        efilter = EntityFilter.create('test-filter', 'Mihana family', Contact,
+                                      is_custom=True, is_private=True, user=other_user,
+                                     )
+        report = Report.objects.create(user=other_user, name="Other's report",
+                                       ct=efilter.entity_type, filter=efilter,
+                                      )
+
+        url = self.build_inneredit_url(report, 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response,
+                            ngettext('The filter cannot be changed because it is private.',
+                                     'The filters cannot be changed because they are private.',
+                                     1
+                                    )
+                           )
+
+        response = self.assertPOST200(url, data={'field_value': ''})
+        self.assertFormError(response, 'form', None,
+                             _('The filter cannot be changed because it is private.')
+                            )
+        self.assertEqual(efilter, self.refresh(report).filter)
+
+    def test_report_bulkedit_filter01(self):
+        "Reports are related to the same ctype -> OK"
+        self.login()
+
+        create_ef = partial(EntityFilter.create, is_custom=True)
+        contact_filter = create_ef('test-filter1', 'Mihana family', Contact)
+        orga_filter    = create_ef('test-filter2', 'Mihana house',  Organisation)
+
+        report_1 = self._create_report('Filter #1')
+        report_2 = self._create_report('Filter #2')
+
+        url = self.build_bulkedit_url([report_1, report_2], 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response, contact_filter.name)
+        self.assertNotContains(response, orga_filter.name)
 
         response = self.client.post(url, data={'field_value': contact_filter.pk})
         self.assertNoFormError(response)
 
-        self.assertEqual(self.refresh(reportA).filter, contact_filter)
-        self.assertEqual(self.refresh(reportB).filter, contact_filter)
+        self.assertEqual(self.refresh(report_1).filter, contact_filter)
+        self.assertEqual(self.refresh(report_2).filter, contact_filter)
 
-    def test_report_bulkedit_filter_different_ctypes(self):
+    def test_report_bulkedit_filter02(self):
+        "Reports are related to different ctypes -> error"
         self.login()
 
         contact_filter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
-        contact_filter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                           operator=EntityFilterCondition.IEQUALS,
-                                                                           name='last_name', values=['Mihana']
-                                                                           )
-                                      ])
 
-        reportA = self._create_report('A')
-        reportB = self._create_simple_organisations_report('B')
+        report_1 = self._create_report('Contact report')
+        report_2 = self._create_simple_organisations_report('Orga report')
 
-        url = self.build_bulkedit_url([reportA, reportB], 'filter')
+        url = self.build_bulkedit_url([report_1, report_2], 'filter')
         response = self.assertGET200(url)
-        self.assertContains(response, _(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts)."))
+        self.assertContains(response,
+                            _(u"Filter field can only be updated when reports "
+                              u"target the same type of entities (e.g: only contacts)."
+                             )
+                           )
 
         response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
         self.assertFormError(response, 'form', None,
-                             _(u"Filter field can only be updated when reports target the same type of entities (e.g: only contacts)."))
+                             _(u"Filter field can only be updated when reports "
+                               u"target the same type of entities (e.g: only contacts)."
+                              )
+                            )
+
+    def test_report_bulkedit_filter03(self):
+        "Some filters are not visible (private) -> errors"
+        user = self.login()
+        other_user = self.other_user
+
+        create_ef = partial(EntityFilter.create, is_custom=True, model=Contact)
+        efilter1 = create_ef('test-filter1', name='Filter #1')
+        efilter2 = create_ef('test-filter2', name='Filter #2', is_private=True, user=other_user)
+        efilter3 = create_ef('test-filter3', name='Filter #3', is_private=True, user=user)
+
+        report_1 = self._create_report('Filter #1', efilter=efilter1)
+        report_2 = self._create_report('Filter #2')
+        report_3 = Report.objects.create(user=other_user, name="Other's report",
+                                         ct=efilter2.entity_type, filter=efilter2,
+                                        )
+
+        url = self.build_bulkedit_url([report_1, report_2, report_3], 'filter')
+        response = self.assertGET200(url)
+        self.assertContains(response, efilter1.name)
+        self.assertContains(response, efilter3.name)
+        self.assertNotContains(response, efilter2.name)
+        self.assertContains(response,
+                            ngettext('The filter of %s report cannot be changed because it is private.',
+                                     'The filters of %s reports cannot be changed because they are private.',
+                                     1
+                                    ) % 1
+                           )
+
+        response = self.client.post(url, data={'field_value': efilter3.pk})
+        self.assertNoFormError(response)
+
+        self.assertEqual(efilter3, self.refresh(report_1).filter)
+        self.assertEqual(efilter3, self.refresh(report_2).filter)
+        self.assertEqual(efilter2, self.refresh(report_3).filter) #no change
 
     def test_listview(self):
         self.login()
@@ -362,12 +459,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.IEQUALS,
-                                                                    name='last_name', values=['Mihana'],
-                                                                   )
-                               ])
-
         report = self._create_report('My awesome report', efilter)
 
         url = '/creme_core/entity_filter/delete'
@@ -535,8 +626,9 @@ class ReportTestCase(BaseReportsTestCase):
                                      )
 
         self.assertFormError(response, 'form', 'date_filter',
-                             [_(u"Select a valid choice. %(value)s is not one of the available choices.") % {'value': 'unknown'}
-                             ]
+                             _(u"Select a valid choice. %(value)s is not one of the available choices.") % {
+                                    'value': 'unknown',
+                                }
                             )
 
     def test_export_filter_form03(self):

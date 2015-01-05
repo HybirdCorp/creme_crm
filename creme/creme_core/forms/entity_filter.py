@@ -29,6 +29,7 @@ from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelD
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
+from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
@@ -970,7 +971,9 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
         filter_ids = set() #the queries on EntityFilter are grouped.
 
         for entry in data:
-            kwargs    = {'rtype': self._clean_rtype(entry), 'has': self.clean_value(entry, 'has', bool)}
+            kwargs = {'rtype': self._clean_rtype(entry),
+                      'has': self.clean_value(entry, 'has', bool),
+                     }
             filter_id = self.clean_value(entry, 'filter', str)
 
             if filter_id:
@@ -980,7 +983,10 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            filters = {f.id: f for f in EntityFilter.objects.filter(pk__in=filter_ids)}
+            #filters = {f.id: f for f in EntityFilter.objects.filter(pk__in=filter_ids)}
+            filters = {f.id: f for f in EntityFilter.get_for_user(self.user)
+                                                    .filter(pk__in=filter_ids)
+                      }
 
             if len(filters) != len(filter_ids):
                 raise ValidationError(self.error_messages['invalidfilter'])
@@ -1057,7 +1063,8 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         return [build(subfilter) for subfilter in super(SubfiltersConditionsField, self).clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
-        qs = EntityFilter.objects.filter(entity_type=ctype)
+        #qs = EntityFilter.objects.filter(entity_type=ctype)
+        qs = EntityFilter.get_for_user(self.user, ctype)
 
         if efilter:
             qs = qs.exclude(pk__in=efilter.get_connected_filter_ids())
@@ -1106,12 +1113,17 @@ class _EntityFilterForm(CremeModelForm):
 
     class Meta:
         model = EntityFilter
+        #TODO: use 'help_texts' (django 1.6)
 
     def __init__(self, *args, **kwargs):
         super(_EntityFilterForm, self).__init__(*args, **kwargs)
-        user_field = self.fields['user']
+        fields = self.fields
+
+        user_field = fields['user']
         user_field.empty_label = _(u'All users')
         user_field.help_text   = _(u'All users can see this filter, but only the owner can edit or delete it')
+
+        fields['is_private'].help_text = _(u'A private filter can only be used by its owner (or the teammates if the owner is a team)')
 
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data
@@ -1125,8 +1137,25 @@ class _EntityFilterForm(CremeModelForm):
     def clean(self):
         cdata = super(_EntityFilterForm, self).clean()
 
-        if not self._errors and not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
-            raise ValidationError(ugettext(u'The filter must have at least one condition.'))
+        if not self._errors:
+            if not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
+                raise ValidationError(ugettext(u'The filter must have at least one condition.'))
+
+            is_private = cdata.get('is_private', False)
+            owner      = cdata.get('user')
+            req_user   = self.user
+
+            if not req_user.is_staff and is_private and owner:
+                if owner.is_team:
+                    if req_user.id not in owner.teammates:
+                        self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+                elif owner != req_user:
+                    self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+
+            try:
+                self.instance.check_privacy(self.get_cleaned_conditions(), is_private, owner)
+            except EntityFilter.PrivacyError as e:
+                raise ValidationError(e)
 
         return cdata
 
@@ -1147,12 +1176,16 @@ class EntityFilterCreateForm(_EntityFilterForm):
         ct = self._entity_type
 
         instance.is_custom = True
-        #instance.entity_type = ct
 
         super(EntityFilterCreateForm, self).save(commit=False, *args, **kwargs)
-        generate_string_id_and_save(EntityFilter, [instance], 'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model))
+        generate_string_id_and_save(EntityFilter, [instance],
+                                    'creme_core-userfilter_%s-%s' % (ct.app_label, ct.model),
+                                   )
 
-        instance.set_conditions(self.get_cleaned_conditions(), check_cycles=False)
+        instance.set_conditions(self.get_cleaned_conditions(),
+                                check_cycles=False,  # there cannot be a cycle because we are creating the filter right now
+                                check_privacy=False, # already checked in clean()
+                               )
 
         return instance
 
@@ -1170,6 +1203,7 @@ class EntityFilterEditForm(_EntityFilterForm):
 
         if not instance.is_custom:
             del fields['name']
+            del fields['is_private']
 
     def clean(self):
         cdata = super(EntityFilterEditForm, self).clean()
@@ -1188,6 +1222,8 @@ class EntityFilterEditForm(_EntityFilterForm):
 
     def save(self, *args, **kwargs):
         instance = super(EntityFilterEditForm, self).save(*args, **kwargs)
-        instance.set_conditions(self.cleaned_data['all_conditions'], check_cycles=False)
+        instance.set_conditions(self.cleaned_data['all_conditions'],
+                                check_cycles=False, check_privacy=False, #already checked in clean()
+                               )
 
         return instance

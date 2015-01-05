@@ -160,7 +160,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
                          POST_get('sort_order', current_lvs.sort_order),
                         )
 
-    entity_filters = EntityFilterList(ct)
+    entity_filters = EntityFilterList(ct, request.user)
     efilter = _select_entityfilter(request, entity_filters, current_lvs.entity_filter_id)
     current_lvs.entity_filter_id = efilter.id if efilter else None
 

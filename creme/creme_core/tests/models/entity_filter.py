@@ -6,12 +6,15 @@ try:
     from logging import info
 
     from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
+    from django.db.models.query import QuerySet
     from django.utils.timezone import now
 
     from creme import __version__
 
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import *
+    from creme.creme_core.models.entity_filter import EntityFilterList
     from ..base import CremeTestCase
 
     from creme.documents.models import Document, Folder
@@ -118,8 +121,9 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(name,  efilter.name)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertIsNone(efilter.user)
-        self.assertIs(efilter.use_or,    False)
-        self.assertIs(efilter.is_custom, False)
+        self.assertIs(efilter.use_or,     False)
+        self.assertIs(efilter.is_custom,  False)
+        self.assertIs(efilter.is_private, False)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -137,13 +141,16 @@ class EntityFiltersTestCase(CremeTestCase):
         name = 'Nerv'
         model = Organisation
         user = self.user
-        efilter = EntityFilter.create(pk, name, model, user=user, use_or=True, is_custom=True)
+        efilter = EntityFilter.create(pk, name, model, user=user, use_or=True,
+                                      is_custom=True, is_private=True,
+                                     )
         self.assertEqual(pk,    efilter.id)
         self.assertEqual(name,  efilter.name)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertEqual(user,  efilter.user)
         self.assertTrue(efilter.use_or)
         self.assertTrue(efilter.is_custom)
+        self.assertTrue(efilter.is_private)
 
         self.assertFalse(efilter.conditions.all())
 
@@ -154,6 +161,72 @@ class EntityFiltersTestCase(CremeTestCase):
         owner = efilter.user
         self.assertTrue(owner.is_superuser)
         self.assertFalse(owner.is_staff)
+
+    def test_create_subfilters_n_private(self):
+        """Private sub-filters
+            - must belong to the same user
+            - OR to one one his teams
+        """
+        user = self.user
+        other_user = self.other_user
+
+        team = User.objects.create(username='TeamTitan', is_team=True)
+        team.teammates = [user, other_user]
+
+        other_team = User.objects.create(username='A-Team', is_team=True)
+        other_team.teammates = [other_user]
+
+        def create_subfilter(idx, owner):
+            return EntityFilter.create('creme_core-subfilter%s' % idx, 'Misato', model=Contact,
+                                        user=owner, is_private=True, is_custom=True,
+                                        conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Contact,
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        name='first_name', values=['Misato'],
+                                                    ),
+                                                   ],
+                                       )
+        subfilter1 = create_subfilter(1, other_user)
+        subfilter2 = create_subfilter(2, user)
+        subfilter3 = create_subfilter(3, other_team)
+        subfilter4 = create_subfilter(4, team)
+
+        conds = [EntityFilterCondition.build_4_field(
+                            model=Contact,
+                            operator=EntityFilterCondition.EQUALS,
+                            name='last_name', values=['Katsuragi'],
+                        ),
+                     ]
+
+        with self.assertRaises(EntityFilter.PrivacyError):
+            EntityFilter.create('creme_core-filter1', 'Misato Katsuragi', model=Contact,
+                                is_custom=True,
+                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter1)],
+                               )
+
+        with self.assertRaises(EntityFilter.PrivacyError):
+            EntityFilter.create('creme_core-filter2', 'Misato Katsuragi', model=Contact,
+                                user=user, is_private=True, is_custom=True,
+                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter1)],
+                               )
+
+        with self.assertNoException():
+            EntityFilter.create('creme_core-filter3', 'Misato Katsuragi', model=Contact,
+                                user=user, is_private=True, is_custom=True,
+                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter2)],
+                               )
+
+        with self.assertRaises(EntityFilter.PrivacyError):
+            EntityFilter.create('creme_core-filter4', 'Misato Katsuragi', model=Contact,
+                                user=user, is_private=True, is_custom=True,
+                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter3)],
+                               )
+
+        with self.assertNoException():
+            EntityFilter.create('creme_core-filter5', 'Misato Katsuragi', model=Contact,
+                                user=user, is_private=True, is_custom=True,
+                                conditions=conds + [EntityFilterCondition.build_4_subfilter(subfilter4)],
+                               )
 
     def test_get_latest_version(self):
         base_pk = 'creme_core-testfilter'
@@ -398,6 +471,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_create_errors(self):
         "Invalid chars in PK"
+
         def create_filter(pk):
             return EntityFilter.create(pk, 'Nerv member', Contact, is_custom=True)
 
@@ -407,8 +481,33 @@ class EntityFiltersTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             create_filter('creme_core-test_filter1]')
 
+        with self.assertRaises(ValueError):
+            create_filter('creme_core-test_filter#1')
+
         #with self.assertRaises(ValueError):
-            #create_filter('creme_core-test_filter#1')
+            #create_filter('creme_core-test_filter&1')
+
+        with self.assertRaises(ValueError):
+            create_filter('creme_core-test_filter?1')
+
+        #Private + no user => error
+        with self.assertRaises(ValueError):
+            return EntityFilter.create('creme_core-test_filter', 'Nerv member',
+                                       Contact, is_custom=True, is_private=True,
+                                      )
+
+        #Private + not is_custom => error
+        with self.assertRaises(ValueError):
+            return EntityFilter.create('creme_core-test_filter', 'Nerv member',
+                                       Contact, is_custom=False,
+                                       is_private=True, user=self.user,
+                                       conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Contact,
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        name='last_name', values=['Ikari'],
+                                                    ),
+                                                  ],
+                                      )
 
     def test_ct_cache(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact, is_custom=True)
@@ -425,10 +524,11 @@ class EntityFiltersTestCase(CremeTestCase):
         #self.assertEqual(len(self.contacts), Contact.objects.count())
 
         efilter = EntityFilter.create('test-filter01', 'Ikari', Contact,
-                                      conditions=[EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.EQUALS,
-                                                                    name='last_name', values=['Ikari'],
-                                                                   ),
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Contact,
+                                                        operator=EntityFilterCondition.EQUALS,
+                                                        name='last_name', values=['Ikari'],
+                                                    ),
                                                  ],
                                      )
         self.assertEqual(1, efilter.conditions.count())
@@ -1987,3 +2087,202 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                         values=['__currentuser__']
                                                                        )
                                    ])
+
+    def test_get_for_user(self):
+        user = self.user
+        create_ef = partial(EntityFilter.create, name='Misatos',
+                            model=Contact,
+                            conditions=[EntityFilterCondition.build_4_field(
+                                                model=Contact,
+                                                operator=EntityFilterCondition.EQUALS,
+                                                name='first_name', values=['Misato'],
+                                            ),
+                                       ],
+                           )
+
+        ef1 = create_ef(pk='test-ef_contact1')
+        ef2 = create_ef(pk='test-ef_contact2', user=user)
+        ef3 = create_ef(pk='test-ef_orga', model=Organisation, name='NERV',
+                        conditions=[EntityFilterCondition.build_4_field(
+                                            model=Organisation,
+                                            operator=EntityFilterCondition.IEQUALS,
+                                            name='name', values=['NERV'],
+                                        ),
+                                   ],
+                       )
+        ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
+        ef5 = create_ef(pk='test-ef_contact4', user=self.other_user,
+                        is_private=True, is_custom=True,
+                       )
+
+        efilters = EntityFilter.get_for_user(user, self.contact_ct)
+        self.assertIsInstance(efilters, QuerySet)
+
+        efilters_set = set(efilters)
+        self.assertIn(ef1, efilters_set)
+        self.assertIn(ef2, efilters_set)
+        self.assertIn(ef4, efilters_set)
+
+        self.assertNotIn(ef3, efilters_set)
+        self.assertNotIn(ef5, efilters_set)
+
+        #----
+        orga_ct = ContentType.objects.get_for_model(Organisation)
+        orga_efilters_set = set(EntityFilter.get_for_user(user, orga_ct))
+        self.assertIn(ef3, orga_efilters_set)
+
+        self.assertNotIn(ef1, orga_efilters_set)
+        self.assertNotIn(ef2, orga_efilters_set)
+        self.assertNotIn(ef4, orga_efilters_set)
+        self.assertNotIn(ef5, orga_efilters_set)
+
+        #----
+        persons_efilters_set = set(EntityFilter.get_for_user(user, (self.contact_ct, orga_ct)))
+        self.assertIn(ef1, persons_efilters_set)
+        self.assertIn(ef3, persons_efilters_set)
+
+        self.assertEqual(persons_efilters_set,
+                         set(EntityFilter.get_for_user(user, [self.contact_ct, orga_ct]))
+                        )
+
+    def test_filterlist01(self):
+        user = self.user
+        create_ef = partial(EntityFilter.create, name='Misatos',
+                            model=Contact,
+                            conditions=[EntityFilterCondition.build_4_field(
+                                                model=Contact,
+                                                operator=EntityFilterCondition.EQUALS,
+                                                name='first_name', values=['Misato'],
+                                            ),
+                                       ]
+                           )
+
+        ef1 = create_ef(pk='test-ef_contact1')
+        ef2 = create_ef(pk='test-ef_contact2', user=user)
+        ef3 = create_ef(pk='test-ef_orga', model=Organisation, name='NERV',
+                        conditions=[EntityFilterCondition.build_4_field(
+                                            model=Organisation,
+                                            operator=EntityFilterCondition.IEQUALS,
+                                            name='name', values=['NERV'],
+                                        ),
+                                   ]
+                       )
+        ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
+
+        ct = self.contact_ct
+        efl = EntityFilterList(ct, user)
+        self.assertIn(ef1, efl)
+        self.assertIn(ef2, efl)
+        self.assertIn(ef4, efl)
+        self.assertEqual(ef1, efl.select_by_id(ef1.id))
+        self.assertEqual(ef2, efl.select_by_id(ef2.id))
+        self.assertEqual(ef2, efl.select_by_id('unknown_id', ef2.id))
+
+        self.assertEqual(ef1.can_view(user), (True, 'OK'))
+        self.assertEqual(ef1.can_view(user, ct), (True, 'OK'))
+
+        self.assertEqual(ef3.can_view(user, ct), (False, 'Invalid entity type'))
+        self.assertNotIn(ef3, efl)
+
+    def test_filterlist02(self):
+        "Private filters + not super user (+ team management)"
+        self.client.logout()
+
+        super_user = self.other_user
+        other_user = self.user
+
+        logged = self.client.login(username=super_user.username, password=self.password)
+        self.assertTrue(logged)
+
+        role = self.role
+        role.allowed_apps = ['persons']
+        role.save()
+
+        teammate = User.objects.create(username='fulbertc',
+                                       email='fulbnert@creme.org', role=role,
+                                       first_name='Fulbert', last_name='Creme',
+                                      )
+
+        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        tt_team.teammates = [super_user, teammate]
+
+        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team.teammates = [other_user]
+
+        conditions = [EntityFilterCondition.build_4_field(
+                            model=Contact,
+                            operator=EntityFilterCondition.EQUALS,
+                            name='first_name', values=['Misato'],
+                        ),
+                     ]
+
+        def create_ef(id, **kwargs):
+            return EntityFilter.create(pk='test-ef_contact%s' % id,
+                                       name='Filter #%s' % id,
+                                       model=Contact, conditions=conditions,
+                                       **kwargs
+                                      )
+
+        ef01 = create_ef(1)
+        ef02 = create_ef(2,  user=super_user)
+        ef03 = create_ef(3,  user=other_user)
+        ef04 = create_ef(4,  user=tt_team)
+        ef05 = create_ef(5,  user=a_team)
+        ef06 = create_ef(6,  user=super_user, is_private=True, is_custom=True)
+        ef07 = create_ef(7,  user=tt_team,    is_private=True, is_custom=True)
+        ef08 = create_ef(8,  user=other_user, is_private=True, is_custom=True)
+        ef09 = create_ef(9,  user=a_team,     is_private=True, is_custom=True)
+        ef10 = create_ef(10, user=teammate,   is_private=True, is_custom=True)
+
+        self.assertEqual(ef01.can_view(super_user), (True, 'OK'))
+        self.assertIs(ef08.can_view(super_user)[0], False)
+
+        efl = EntityFilterList(self.contact_ct, super_user)
+        self.assertIn(ef01, efl)
+        self.assertIn(ef02, efl)
+        self.assertIn(ef03, efl)
+        self.assertIn(ef04, efl)
+        self.assertIn(ef05, efl)
+        self.assertIn(ef06, efl)
+        self.assertIn(ef07, efl)
+        self.assertNotIn(ef08, efl)
+        self.assertNotIn(ef09, efl)
+        self.assertNotIn(ef10, efl)
+
+    def test_filterlist03(self):
+        "Staff user -> can see all filters"
+        user = self.user
+        user.is_staff = True
+        user.save()
+
+        other_user = self.other_user
+
+        conditions = [EntityFilterCondition.build_4_field(
+                            model=Contact,
+                            operator=EntityFilterCondition.EQUALS,
+                            name='first_name', values=['Misato'],
+                        ),
+                     ]
+
+        def create_ef(id, **kwargs):
+            return EntityFilter.create(pk='test-ef_contact%s' % id,
+                                       name='Filter #%s' % id,
+                                       model=Contact, conditions=conditions,
+                                       **kwargs
+                                      )
+
+
+        ef1 = create_ef(1)
+
+        #ef2 = create_ef(2,  user=user) #cannot be built
+        with self.assertRaises(ValueError):
+            create_ef(2, user=user)
+
+        ef3 = create_ef(3, user=other_user)
+        ef4 = create_ef(4, user=other_user, is_private=True, is_custom=True) #<= this,one can not be seen by not staff users
+
+        efl = EntityFilterList(self.contact_ct, user)
+        self.assertIn(ef1, efl)
+        #self.assertIn(ef2, efl)
+        self.assertIn(ef3, efl)
+        self.assertIn(ef4, efl)

@@ -89,7 +89,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(count, form.read_objects_count)
         self.assertEqual(0,     len(form.process_errors))
 
-    def test_batching_lower01(self): # & use ct
+    def test_batching_lower01(self):
+        "Lower OP & use CT"
         self.login()
 
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -153,7 +154,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('Kanji',    contact.first_name)
         self.assertEqual('SASAHARA', contact.last_name)
 
-    def test_several_actions_error(self): #several times tye same field
+    def test_several_actions_error(self):
+        "Several times the same field"
         self.login()
 
         name = 'first_name'
@@ -165,10 +167,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'actions',
-                             [_(u"The field '%s' can not be used twice.") % _('First name')]
+                             _(u"The field '%s' can not be used twice.") % _('First name')
                             )
 
-    def test_with_filter(self):
+    def test_with_filter01(self):
         self.login()
 
         create_orga = partial(Organisation.objects.create, user=self.user)
@@ -207,15 +209,43 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertEqual(2, form.modified_objects_count)
 
+    def test_with_filter02(self):
+        "Private filters (which belong to other users) are forbidden"
+        self.login()
+
+        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
+                                      Organisation, is_custom=True,
+                                      is_private=True, user=self.other_user,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.CONTAINS,
+                                                        name='name', values=['club'],
+                                                    ),
+                                                 ],
+                                     )
+
+        response = self.assertPOST200(self.build_url(Organisation), follow=True,
+                                    data={'filter':  efilter.id,
+                                          'actions': self.format_str1 % {
+                                                            'name':     'name',
+                                                            'operator': 'lower',
+                                                            'value':    '',
+                                                        },
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'filter',
+                             _('Select a valid choice. That choice is not one of the available choices.')
+                            )
+
     def test_use_edit_perm(self):
         self.login(is_superuser=False, allowed_apps=['persons'])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |\
-                        EntityCredentials.LINK | EntityCredentials.UNLINK, #no  CHANGE
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
+                        EntityCredentials.LINK | EntityCredentials.UNLINK, #no CHANGE
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |\
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
                         EntityCredentials.LINK | EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
@@ -255,7 +285,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         name='description',
                                                         values=[description],
                                                     )
-                                                 ]
+                                                 ],
                                       )
 
         first_name = 'Kanako'

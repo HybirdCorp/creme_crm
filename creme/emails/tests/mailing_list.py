@@ -256,19 +256,27 @@ class MailingListsTestCase(_EmailsTestCase):
                      ]
         expected_ids = {recipients[0].id, recipients[1].id}
 
-        efilter = EntityFilter.create('test-filter01', 'Has email', Organisation, is_custom=True,
-                                     conditions=[EntityFilterCondition.build_4_field(
-                                                        model=Organisation,
-                                                        operator=EntityFilterCondition.ISEMPTY,
-                                                        name='email', values=[False],
-                                                    ),
-                                                ],
-                                     )
+        create_ef = partial(EntityFilter.create, name='Has email',
+                            model=Organisation, is_custom=True,
+                            conditions=[EntityFilterCondition.build_4_field(
+                                            model=Organisation,
+                                            operator=EntityFilterCondition.ISEMPTY,
+                                            name='email', values=[False],
+                                        ),
+                                       ]
+                            )
+        priv_efilter = create_ef(pk='test-filter_priv', is_private=True, user=self.other_user)
+
+        efilter = create_ef(pk='test-filter')
         self.assertEqual(expected_ids, {c.id for c in efilter.filter(Organisation.objects.all())})
 
-        response = self.client.post('/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id,
-                                    data={'filters': efilter.id}
-                                   )
+        url = '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
+        response = self.assertPOST200(url, data={'filters': priv_efilter.id})
+        self.assertFormError(response, 'form', 'filters',
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                            )
+
+        response = self.client.post(url, data={'filters': efilter.id})
         self.assertNoFormError(response)
         self.assertEqual(expected_ids, {c.id for c in mlist.organisations.all()})
 

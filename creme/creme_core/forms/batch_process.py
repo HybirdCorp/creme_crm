@@ -137,7 +137,9 @@ class BatchActionsField(JSONField):
 
 
 class BatchProcessForm(CremeForm):
-    filter  = ModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
+    filter  = ModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(),
+                               empty_label=_(u'All'), required=False,
+                              )
     actions = BatchActionsField(label=_(u'Actions'))
 
     _modified_objects_count = 0
@@ -147,7 +149,8 @@ class BatchProcessForm(CremeForm):
         super(BatchProcessForm, self).__init__(*args, **kwargs)
         ct = self.initial['content_type']
         fields = self.fields
-        fields['filter'].queryset = EntityFilter.objects.filter(entity_type=ct)
+        #fields['filter'].queryset = EntityFilter.objects.filter(entity_type=ct)
+        fields['filter'].queryset = EntityFilter.get_for_user(self.user, ct)
         fields['actions'].model = self._entity_type = ct.model_class()
 
         self.process_errors = LimitedList(50)

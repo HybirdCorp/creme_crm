@@ -64,7 +64,8 @@ class AddPersonsFromFilterForm(CremeForm): #private class ???
         self.messaging_list = entity
 
         ct = ContentType.objects.get_for_model(self.person_model)
-        self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
+        #self.fields['filters'].queryset = EntityFilter.objects.filter(entity_type=ct)
+        self.fields['filters'].queryset = EntityFilter.get_for_user(self.user, ct)
 
     def get_persons_m2m(self):
         raise NotImplementedError

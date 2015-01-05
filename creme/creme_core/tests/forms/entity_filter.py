@@ -868,8 +868,10 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"has": true}]')
 
     def test_unknown_filter(self):
-        clean = RelationSubfiltersConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidfilter', clean,
+        user = self.login()
+        field = RelationSubfiltersConditionsField(model=Contact)
+        field.user = user
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidfilter', field.clean,
                                         '[{"rtype": "%(rtype)s", "has": false, "ctype": %(ct)s, "filter": "%(filter)s"}]' % {
                                                 'rtype':  self.rtype01.id,
                                                 'ct':     ContentType.objects.get_for_model(Contact).id,
@@ -878,11 +880,15 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
                                        )
 
     def test_ok(self):
+        user = self.login()
+
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(Contact)
         ct_orga    = get_ct(Organisation)
 
         field = RelationSubfiltersConditionsField(model=Contact)
+        field.user = user
+
         conditions = field.clean('[{"rtype": "%(rtype01)s", "has": true,  "ctype": %(ct_contact)s, "filter":"%(filter01)s"},'
                                  ' {"rtype": "%(rtype02)s", "has": false, "ctype": %(ct_orga)s,    "filter":"%(filter02)s"}]' % {
                                         'rtype01':    self.rtype01.id,

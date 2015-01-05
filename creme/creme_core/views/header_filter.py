@@ -121,5 +121,4 @@ def get_for_ctype(request, ct_id):
     if not user.has_perm(ct.app_label): #TODO: helper in auth.py ??
         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
 
-    #return list(HeaderFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
-    return list(HeaderFilter.get_for_ctype(ct, user).values_list('id', 'name'))
+    return list(HeaderFilter.get_for_user(user, ct).values_list('id', 'name'))
