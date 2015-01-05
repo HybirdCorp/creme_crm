@@ -422,21 +422,28 @@ class ReportExportPreviewFilterForm(CremeForm):
 
     def _date_field_choices(self, report):
         return chain([("", _(u"None"))],
-                     [(field.name, field.verbose_name) for field in report.ct.model_class()._meta.fields if is_date_field(field)])
+                     [(field.name, field.verbose_name)
+                        for field in report.ct.model_class()._meta.fields
+                            if is_date_field(field)
+                     ],
+                    )
 
     def _backend_choices(self):
-        return [(backend.id, backend.verbose_name) for backend in export_backend_registry.iterbackends()]
+        return [(backend.id, backend.verbose_name)
+                    for backend in export_backend_registry.iterbackends()
+               ]
 
     def clean(self):
         cleaned_data = super(ReportExportPreviewFilterForm, self).clean()
-        date_field = cleaned_data.get('date_field')
-        date_filter = cleaned_data.get('date_filter')
 
-        if not date_field:
-            return cleaned_data
+        if cleaned_data.get('date_field'):
+            date_filter = cleaned_data.get('date_filter')
 
-        if not date_filter or not any(date_filter.get_dates(now())):
-            raise ValidationError(_(u"If you chose a Date field, and select «customized» you have to specify a start date and/or an end date."))
+            if not date_filter or not any(date_filter.get_dates(now())):
+                raise ValidationError(_(u"If you chose a Date field, and select «customized» "
+                                        u"you have to specify a start date and/or an end date."
+                                       )
+                                     )
 
         return cleaned_data
 
