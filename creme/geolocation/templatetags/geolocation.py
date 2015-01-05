@@ -23,16 +23,6 @@ from django.utils.translation import ungettext
 
 register = Library()
 
-
-@register.inclusion_tag('geolocation/templatetags/googleapi.html', takes_context=True)
-def load_googleapi_once(context):
-    if context.get('google_loaded_once', False):
-        context['google_loaded'] = True
-
-    context['google_loaded_once'] = True
-
-    return context
-
 @register.filter
 def format_distance(value):
     if value < 1000:
@@ -40,7 +30,3 @@ def format_distance(value):
 
     value = value / 1000.0
     return ungettext('%(distance).1f Km', '%(distance).1f Km', value) % {'distance': value}
-
-@register.filter
-def format_location(location):
-    return '%3.6f, %3.6f' % (location.latitude, location.longitude)

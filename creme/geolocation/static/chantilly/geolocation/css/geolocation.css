@@ -1,3 +1,7 @@
+.block-geoaddress-header {
+    padding: 2px;
+}
+
 .block-geoaddress-items {
     display: -webkit-box;
     display: -webkit-flex;
@@ -67,8 +71,9 @@
 }
 
 .block-geoaddress-item .block-geoaddress-reset {
+    color: #777;
     margin-right: 4px;
-    align-self: center;
+    align-self: top;
     cursor: pointer;
 }
 

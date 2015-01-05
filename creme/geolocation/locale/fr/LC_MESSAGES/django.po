@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-09 14:24+0100\n"
+"POT-Creation-Date: 2014-12-19 14:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +20,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: blocks.py:50
+#: blocks.py:64
 msgid "Maps"
 msgstr "Cartes"
 
-#: blocks.py:67
+#: blocks.py:81
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: blocks.py:83
+#: blocks.py:97
 msgid "Around this address"
 msgstr "Autour de cette adresse"
 
@@ -36,24 +36,24 @@ msgstr "Autour de cette adresse"
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: models.py:40 models.py:48
+#: models.py:39 models.py:47
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:41 models.py:132
+#: models.py:40 models.py:132
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:42 models.py:133
+#: models.py:41 models.py:133
 msgid "Longitude"
 msgstr "Longitude"
 
-#: models.py:43
+#: models.py:42
 #, fuzzy
 msgid "Is this marker draggable in maps ?"
 msgstr "Ce curseur peut-il être déplacé ?"
 
-#: models.py:44
+#: models.py:43
 #, fuzzy
 msgid "Geocoded from address ?"
 msgstr "Géolocalisé à partir de l'adresse ?"
@@ -81,7 +81,17 @@ msgstr "Ville"
 #: setting_keys.py:28
 #, python-format
 msgid "Maximum distance to find neighbours in meters, default %(default)s m."
-msgstr "Distance maximale pour trouver des voisins en mètres, par défaut %(default)s m."
+msgstr ""
+"Distance maximale pour trouver des voisins en mètres, par défaut %(default)s "
+"m."
+
+#: utils.py:63
+msgid "Billing address"
+msgstr "Addresse de facturation"
+
+#: utils.py:66
+msgid "Shipping address"
+msgstr "Addresse de livraison"
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:10
 #: templates/geolocation/templatetags/block_persons_google_map.html:9
@@ -89,73 +99,53 @@ msgid "Map"
 msgstr "Carte"
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:17
-#, fuzzy
 msgid "No address from"
-msgstr "Aucune adresse enregistrée pour le moment"
+msgstr "Aucune adresse"
 
-#: templates/geolocation/templatetags/block_persons_filters_google_map.html:20
-#: templates/geolocation/templatetags/block_persons_filters_google_map.html:22
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:21
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:23
-msgid "Contacts"
-msgstr "Contacts"
-
-#: templates/geolocation/templatetags/block_persons_filters_google_map.html:27
-#: templates/geolocation/templatetags/block_persons_filters_google_map.html:29
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:28
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:30
-msgid "Organisations"
-msgstr "Sociétés"
-
-#: templates/geolocation/templatetags/block_persons_google_map.html:27
+#: templates/geolocation/templatetags/block_persons_google_map.html:33
 msgid "Retrieve location"
 msgstr "Trouver la position"
 
-#: templates/geolocation/templatetags/block_persons_google_map.html:31
+#: templates/geolocation/templatetags/block_persons_google_map.html:37
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:10
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:13
 msgid "Arround this place"
 msgstr "Autour de ce lieu"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:17
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:20
 msgid "None of"
-msgstr "Aucune des adresses des"
+msgstr "Aucune adresse de"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:19
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:22
 msgid "Locations"
-msgstr "Lieux"
+msgstr "Tous les contacts et sociétés"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:35
-msgid "are neighbours of"
-msgstr "sont voisines de "
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:31
+msgid "around"
+msgstr "autour de"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:40
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:36
 msgid "No geolocated address for now"
 msgstr "Aucune adresse géolocalisée pour le moment"
 
-#: templates/geolocation/templatetags/block_persons_who_is_arround_map.html:44
+#: templates/geolocation/templatetags/block_persons_neighbours_map.html:40
 #, python-format
 msgid "within a radius of %(radius_distance)s."
 msgstr "dans un rayon de %(radius_distance)s."
 
-#: templatetags/geolocation.py:39
+#: templatetags/geolocation.py:29
 #, python-format
 msgid "%(distance)d meter"
 msgid_plural "%(distance)d meters"
 msgstr[0] "%(distance)d mètre"
 msgstr[1] "%(distance)d mètres"
 
-#: templatetags/geolocation.py:42
+#: templatetags/geolocation.py:32
 #, python-format
 msgid "%(distance).1f Km"
 msgid_plural "%(distance).1f Km"
 msgstr[0] "%(distance).1f Km"
 msgstr[1] "%(distance).1f Km"
 
-#~ msgid "Filter"
-#~ msgstr "Filtres"
-
-#~ msgid "Could't find any matching location"
-#~ msgstr "Aucune position corresondante n'a pu être trouvée"

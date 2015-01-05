@@ -23,21 +23,21 @@
                     {% for groupname, choices in address_filters %}
                     <optgroup label="{{groupname}}">
                         {% for value, label in choices %}
-                        <option value='{{value}}'>{{label}}</option>
+                            <option value='{{value}}'>{{label}}</option>
                         {% endfor %}
                     </optgroup>
                     {% endfor %}
                 </select>
-                &nbsp;{% trans "are neighbours of" %}&nbsp;
+                &nbsp;{% trans "around" %}&nbsp;
                 <select class="block-geoaddress-source">
                     {% for address in ref_addresses %}
-                        <option value='{{address.id}}'>{% if address.name %}{{address.name}}{% else %}{{address}}{% endif %}</option>
+                        <option value='{{address.id}}'>{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</option>
                     {% empty %}
                         <option value='' disabled>{% trans 'No geolocated address for now' %}</option>
                     {% endfor %}
                 </select>&nbsp;
                 {% with radius|format_distance as radius_distance %}
-                {% blocktrans %}within a radius of {{radius_distance}}.{% endblocktrans %}
+                    {% blocktrans %}within a radius of {{radius_distance}}.{% endblocktrans %}
                 {% endwith %}
             </td>
         </tr>

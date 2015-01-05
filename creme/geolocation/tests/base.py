@@ -6,7 +6,7 @@ try:
 
     from creme.persons.models.address import Address
 
-    from ..models import GeoAddress
+    from ..models import GeoAddress, Town
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -15,6 +15,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'persons')
+        Town.objects.all().delete()
 
     def assertModelInstance(self, instance, klass, **kwargs):
         self.assertIsInstance(instance, klass)
@@ -37,7 +38,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
                                          city=town,
                                          department=zipcode[:2],
                                          state=None,
-                                         country='FRANCE',
+                                         country='',
                                          owner=owner
                                         )
 
@@ -52,10 +53,10 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def create_billing_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.billing_address = self.create_address(owner, address, zipcode, town, geoloc)
         owner.save()
-        return owner.billing_address
+        return Address.objects.get(pk=owner.billing_address.pk)
 
     def create_shipping_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.shipping_address = self.create_address(owner, address, zipcode, town, geoloc)
         owner.save()
-        return owner.shipping_address
+        return Address.objects.get(pk=owner.shipping_address.pk)
 

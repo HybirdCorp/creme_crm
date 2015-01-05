@@ -54,8 +54,8 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
             if (address.geocoded) {
                 controller.marker_manager.Marker({
                     address: address,
-                    visible: false,
-                    title:   address.name
+                    draggable: true,
+                    visible: false
                 });
             } else {
                 controller.findLocation(address, {
@@ -65,8 +65,8 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
                     fail: function(data) {
                         controller.marker_manager.Marker({
                             address: address,
-                            visible: false,
-                            title: address.name
+                            draggable: true,
+                            visible: false
                         });
                     }
                 });
@@ -105,7 +105,8 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         this.addressItem(address_id).toggleClass('item-selected', status);
     },
 
-    _onRefreshLocation: function(event) {
+    _onRefreshLocation: function(event)
+    {
         var self         = this;
         var controller   = this._controller;
 
@@ -171,8 +172,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
             if (controller.isAddressLocated(address)) {
                 controller.marker_manager.Marker({
                     address:   address,
-                    draggable: false,
-                    title:     address.name,
+                    draggable: address.draggable,
                     redirect:  address.url
                 });
             }
@@ -260,7 +260,6 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
                 sourceMarker = controller.marker_manager.Marker({
                                                              address: source,
                                                              draggable: false,
-                                                             title: source.name,
                                                              icon: {
                                                                  path: google.maps.SymbolPath.CIRCLE,
                                                                  scale: 5
@@ -297,7 +296,6 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
                     marker = controller.marker_manager.Marker({
                                                                 address:   address,
                                                                 draggable: false,
-                                                                title:     address.name,
                                                                 redirect:  address.url
                                                               });
                 }
@@ -333,7 +331,7 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
 
     _showCount: function(count)
     {
-        var content = !count ? gettext('None of') : ngettext('%0$d of', '%0$d of', count).format(count);
-        $('.block-geoaddress-counter', this._block).html(content);
+        var counter = !count ? gettext('None of') : ngettext('%0$d of', '%0$d of', count).format(count);
+        $('.block-geoaddress-counter', this._block).html(counter);
     }
 });
