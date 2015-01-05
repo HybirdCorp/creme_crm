@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-25 15:02+0100\n"
+"POT-Creation-Date: 2014-12-18 16:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -96,47 +96,47 @@ msgstr "Lister les commerciaux"
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
-#: populate.py:49
+#: populate.py:53
 msgid "has sold"
 msgstr "a vendu"
 
-#: populate.py:50
+#: populate.py:54
 msgid "has been sold by"
 msgstr "a été vendu par"
 
-#: populate.py:51
+#: populate.py:55
 msgid "completes a goal of the commercial action"
 msgstr "remplit un but de l'action commerciale"
 
-#: populate.py:52
+#: populate.py:56
 msgid "is completed thanks to"
 msgstr "est remplie grace à"
 
-#: populate.py:54
+#: populate.py:59
 msgid "is a salesman"
 msgstr "est un commercial"
 
-#: populate.py:56
+#: populate.py:62
 msgid "Phone calls"
 msgstr "Appels téléphoniques"
 
-#: populate.py:56
+#: populate.py:62
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:56
+#: populate.py:62
 msgid "Demo"
 msgstr "Démo"
 
-#: populate.py:101
+#: populate.py:67
 msgid "Com Action view"
 msgstr "Vue d'Action Com"
 
-#: populate.py:107
+#: populate.py:73
 msgid "Strategy view"
 msgstr "Vue de stratégie"
 
-#: populate.py:110
+#: populate.py:76
 msgid "Objective pattern view"
 msgstr "Vue de Modèle d'objectif"
 
@@ -154,40 +154,44 @@ msgstr ""
 "des sociétés. (Dans le cas contraire, afficher également celles des "
 "responsables, employés et opportunités reliées à la société)"
 
-#: forms/act.py:33 models/act.py:64
+#: forms/act.py:34 models/act.py:64
 msgid "Start"
 msgstr "Début"
 
-#: forms/act.py:34 models/act.py:65
+#: forms/act.py:35 models/act.py:65
 msgid "Due date"
 msgstr "Échéance"
 
-#: forms/act.py:41 forms/act.py:104
+#: forms/act.py:42 forms/act.py:119
 msgid "Entity counting"
 msgstr "Comptage de fiche"
 
-#: forms/act.py:42 forms/act.py:105
+#: forms/act.py:43 forms/act.py:120
 msgid "Do not count entity"
 msgstr "Ne pas compter de resource"
 
-#: forms/act.py:54
+#: forms/act.py:56
 msgid "Integer value the counter has to reach"
 msgstr "Valeur entière que le compteur doit atteindre"
 
-#: forms/act.py:69
+#: forms/act.py:65
+msgid "The filter cannot be changed because it is private."
+msgstr "Le filtre ne peut pas être changé car il est privé."
+
+#: forms/act.py:84
 msgid "Pattern"
 msgstr "Modèle"
 
-#: forms/act.py:85
+#: forms/act.py:100
 msgid "Number of won opportunities"
 msgstr "Nombre d'opportunités remportées"
 
-#: forms/act.py:107 models/act.py:248
+#: forms/act.py:122 models/act.py:248
 #: templates/commercial/templatetags/block_components.html:20
 msgid "Success rate"
 msgstr "Taux de réussite"
 
-#: forms/act.py:108
+#: forms/act.py:123
 msgid "Percentage of success"
 msgstr "Pourcentage de réussite"
 

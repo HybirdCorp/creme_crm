@@ -444,7 +444,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf3 = create_hf(pk='test-hf_contact', model=Contact, name='Contact view')
         hf4 = create_hf(pk='test-hf_orga3', user=self.other_user)
 
-        hfl = HeaderFilterList(self.orga_ct, user)
+        ct = self.orga_ct
+        hfl = HeaderFilterList(ct, user)
         self.assertIn(hf1, hfl)
         self.assertIn(hf2, hfl)
         self.assertIn(hf4, hfl)
@@ -452,6 +453,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(hf2, hfl.select_by_id(hf2.id))
         self.assertEqual(hf2, hfl.select_by_id('unknown_id', hf2.id))
 
+        self.assertEqual(hf1.can_view(user), (True, 'OK'))
+        self.assertEqual(hf1.can_view(user, ct), (True, 'OK'))
+
+        self.assertEqual(hf3.can_view(user, ct), (False, 'Invalid entity type'))
         self.assertNotIn(hf3, hfl)
 
     def test_filterlist02(self):
@@ -521,12 +526,16 @@ class HeaderFiltersTestCase(CremeTestCase):
                                       )
 
         hf1 = create_hf(1)
-        hf2 = create_hf(2,  user=user)
+
+        #hf2 = create_hf(2,  user=user)
+        with self.assertRaises(ValueError):
+            create_hf(2,  user=user)
+
         hf3 = create_hf(3,  user=other_user)
         hf4 = create_hf(4,  user=other_user, is_private=True, is_custom=True) #<= this,one can not be seen by not staff users
 
         hfl = HeaderFilterList(self.orga_ct, user)
         self.assertIn(hf1, hfl)
-        self.assertIn(hf2, hfl)
+        #self.assertIn(hf2, hfl)
         self.assertIn(hf3, hfl)
         self.assertIn(hf4, hfl)

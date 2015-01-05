@@ -34,30 +34,31 @@ from django.db.models.signals import pre_delete
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, ngettext
 from django.utils.timezone import now
 
 from ..global_info import get_global_info
 from ..utils import update_model_instance
-from ..utils.meta import is_date_field, FieldInfo #get_model_field_info
 from ..utils.date_range import date_range_registry
 from ..utils.dates import make_aware_dt, date_2_dict
+from ..utils.meta import is_date_field, FieldInfo #get_model_field_info
 from .relation import RelationType, Relation
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
 
-logger = logging.getLogger(__name__)
 
-#def date_2_dict(d): #move to utils ???
-    #return {'year': d.year, 'month': d.month, 'day': d.day}
+logger = logging.getLogger(__name__)
 
 
 class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's as a cache.
     """
-    def __init__(self, content_type):
-        super(EntityFilterList, self).__init__(EntityFilter.objects.filter(entity_type=content_type))
+    #def __init__(self, content_type):
+        #super(EntityFilterList, self).__init__(EntityFilter.objects.filter(entity_type=content_type))
+        #self._selected = None
+    def __init__(self, content_type, user):
+        super(EntityFilterList, self).__init__(EntityFilter.get_for_user(user, content_type))
         self._selected = None
 
     @property
@@ -114,11 +115,13 @@ class EntityFilter(Model): #CremeModel ???
     #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)
+    is_private  = BooleanField(pgettext_lazy('creme_core-entity_filter', u'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
     creation_label = _('Add a filter')
     _conditions_cache = None
     _connected_filter_cache = None
+    _subfilter_conditions_cache = None
 
     _VARIABLE_MAP = {
             EntityFilterVariable.CURRENT_USER: _CurrentUserVariable()
@@ -134,6 +137,9 @@ class EntityFilter(Model): #CremeModel ???
         pass
 
     class DependenciesError(Exception):
+        pass
+
+    class PrivacyError(Exception):
         pass
 
     def __unicode__(self):
@@ -171,13 +177,16 @@ class EntityFilter(Model): #CremeModel ???
         return self.can_edit(user)
 
     def can_edit(self, user):
-        #if not self.is_custom:
-            #return (False, ugettext(u"This filter can't be edited/deleted"))
+        assert not user.is_team
 
         if not self.user_id: #all users allowed
             return (True, 'OK')
 
-        if user.is_superuser:
+        if user.is_staff:
+            return (True, 'OK')
+
+        #if user.is_superuser:
+        if user.is_superuser and not self.is_private:
             return (True, 'OK')
 
         if not user.has_perm(self.entity_type.app_label):
@@ -190,11 +199,18 @@ class EntityFilter(Model): #CremeModel ???
         elif user.id in self.user.teammates: #TODO: move in a User method ??
             return (True, 'OK')
 
-        return (False, ugettext(u"You are not allowed to edit/delete this filter"))
+        return (False, ugettext(u"You are not allowed to view/edit/delete this filter"))
+
+    def can_view(self, user, content_type=None):
+        if content_type and content_type != self.entity_type:
+            return (False, 'Invalid entity type')
+
+        return self.can_edit(user)
 
     def check_cycle(self, conditions):
+        assert self.id
+
         #Ids of EntityFilters that are referenced by these conditions
-        #ref_filter_ids = set(filter(None, (cond._get_subfilter_id() for cond in conditions)))
         ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
 
         if self.id in ref_filter_ids:
@@ -202,6 +218,120 @@ class EntityFilter(Model): #CremeModel ???
 
         if self.get_connected_filter_ids() & ref_filter_ids: #TODO: method intersection not null
             raise EntityFilter.CycleError(ugettext(u'There is a cycle with a subfilter.'))
+
+    def _check_privacy_parent_filters(self, is_private, owner):
+        if not self.id:
+            return # cannot have a parent because we are creating the filter
+
+        if not is_private:
+            return # public children filters cannot cause problem to their parents
+
+        for cond in self._iter_parent_conditions():
+            parent_filter = cond.filter
+
+            if not parent_filter.is_private:
+                raise EntityFilter.PrivacyError(
+                            ugettext(u'This filter cannot be private because '
+                                     u'it is a sub-filter for the public filter "%s"'
+                                    ) % parent_filter.name
+                        )
+
+            if owner.is_team:
+                parent_user = parent_filter.user
+
+                if parent_filter.user.is_team:
+                    if parent_filter.user != owner:
+                        raise EntityFilter.PrivacyError(
+                                    ugettext(u'This filter cannot be private and belong to this team '
+                                             u'because it is a sub-filter for the filter "%(filter)s" '
+                                             u'which belongs to the team "%(team)s".'
+                                            ) % {'filter': parent_filter.name,
+                                                 'team':   parent_filter.user,
+                                                }
+                                )
+                elif parent_filter.user.id not in owner.teammates:
+                    raise EntityFilter.PrivacyError(
+                                ugettext(u'This filter cannot be private and belong to this team '
+                                         u'because it is a sub-filter for the filter "%(filter)s" '
+                                         u'which belongs to the user "%(user)s" (who is not a member of this team).'
+                                        ) % {'filter': parent_filter.name,
+                                             'user':   parent_filter.user,
+                                            }
+                            )
+            else:
+                if not parent_filter.can_view(owner)[0]:
+                    raise EntityFilter.PrivacyError(
+                                ugettext(u'This filter cannot be private because '
+                                         u'it is a sub-filter for a private filter of another user.'
+                                        )
+                            )
+
+                if parent_filter.user.is_team:
+                    raise EntityFilter.PrivacyError(
+                                ugettext(u'This filter cannot be private and belong to a user '
+                                         u'because it is a sub-filter for the filter "%s" which belongs to a team.'
+                                        ) % parent_filter.name
+                            )
+
+    def _check_privacy_sub_filters(self, conditions, is_private, owner):
+        #TODO: factorise
+        ref_filter_ids = {sf_id for sf_id in (cond._get_subfilter_id() for cond in conditions) if sf_id}
+
+        if is_private:
+            if not owner:
+                raise EntityFilter.PrivacyError(ugettext(u'A private filter must be assigned to a user/team.'))
+
+            if owner.is_team:
+                # All the teammate should have the permission to see the sub-filters,
+                # so they have to be public or belong to the team.
+                invalid_filter_names = EntityFilter.objects \
+                                                   .filter(pk__in=ref_filter_ids, is_private=True) \
+                                                   .exclude(user=owner) \
+                                                   .values_list('name', flat=True)
+
+                if invalid_filter_names:
+                    raise EntityFilter.PrivacyError(
+                                ngettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                                         u' So this private sub-filter cannot be chosen: %s',
+                                         u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                                         u' So these private sub-filters cannot be chosen: %s',
+                                         len(invalid_filter_names)
+                                        ) % u', '.join(invalid_filter_names)
+                            )
+            else:
+                invalid_filter_names = EntityFilter.objects \
+                                                   .filter(pk__in=ref_filter_ids, is_private=True) \
+                                                   .exclude(user__in=[owner] + owner.teams) \
+                                                   .values_list('name', flat=True)
+
+                if invalid_filter_names:
+                    raise EntityFilter.PrivacyError(
+                                ngettext(u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                         u' So this private sub-filter cannot be chosen: %s',
+                                         u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                         u' So these private sub-filters cannot be chosen: %s',
+                                         len(invalid_filter_names)
+                                        ) % u', '.join(invalid_filter_names)
+                            )
+        else:
+            invalid_filter_names = EntityFilter.objects \
+                                               .filter(pk__in=ref_filter_ids, is_private=True) \
+                                               .values_list('name', flat=True)
+
+            if invalid_filter_names:
+                # All user can see this filter, so all user should have the permission
+                # to see the subfilters too ; so they have to be public (is_private=False)
+                raise EntityFilter.PrivacyError(
+                            ngettext(u'Your filter must be private in order to use this private sub-filter: %s',
+                                     u'Your filter must be private in order to use these private sub-filters: %s',
+                                     len(invalid_filter_names)
+                                    ) % u', '.join(invalid_filter_names)
+                        )
+
+    def check_privacy(self, conditions, is_private, owner):
+        "@raises EntityFilter.PrivacyError"
+        self._check_privacy_sub_filters(conditions, is_private, owner)
+        self._check_privacy_parent_filters(is_private, owner)
 
     #@staticmethod
     #def create(pk, name, model, is_custom=False, user=None, use_or=False):
@@ -215,17 +345,32 @@ class EntityFilter(Model): #CremeModel ???
 
         #return ef
     @staticmethod
-    def create(pk, name, model, is_custom=False, user=None, use_or=False, conditions=()):
+    def create(pk, name, model, is_custom=False, user=None, use_or=False,
+               is_private=False, conditions=(),
+              ):
         """Creation helper ; useful for populate.py scripts.
         @param user Can be None (ie: 'All users'), a User instance, or the string
                     'admin', which means 'the first admin user'.
         """
-        forbidden = {'[', ']'}
+        forbidden = {'[', ']', '#', '?'} #'&'
 
         if any((c in forbidden) for c in pk):
             raise ValueError('EntityFilter.create(): invalid character in "pk" (forbidden: %s)' % forbidden)
 
-        if user == 'admin':
+        if is_private:
+            if not user:
+                raise ValueError('EntityFilter.create(): a private filter must belong to a User.')
+
+            if not is_custom:
+                # It should not be useful to create a private EntityFilter (so it
+                # belongs to a user) which cannot be deleted.
+                raise ValueError('EntityFilter.create(): a private filter must be custom.')
+
+        if isinstance(user, User):
+            if user.is_staff:
+                # Staff users cannot be owner in order to stay 'invisible'.
+                raise ValueError('EntityFilter.create(): the owner cannot be a staff user.')
+        elif user == 'admin':
             user_qs = User.objects.order_by('id')
             try:
                 user = user_qs.filter(is_superuser=True, is_staff=False)[0]
@@ -243,9 +388,11 @@ class EntityFilter(Model): #CremeModel ???
             except EntityFilter.DoesNotExist:
                 ef = EntityFilter.objects.create(pk=pk, name=name, is_custom=is_custom,
                                                  user=user, use_or=use_or, entity_type=ct,
+                                                 is_private=is_private,
                                                 )
             else:
                 if ef.entity_type != ct:
+                    # Changing the ContentType would create mess in related Report for example.
                     raise ValueError('You cannot change the entity type of an existing filter')
 
                 if not ef.is_custom:
@@ -307,14 +454,7 @@ class EntityFilter(Model): #CremeModel ???
         return ef
 
     def delete(self):
-        pk = self.id
-        parents = set(unicode(cond.filter)
-                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_SUBFILTER,
-                                                                                   EntityFilterCondition.EFC_RELATION_SUBFILTER
-                                                                                  )
-                                                                        )
-                            if cond._get_subfilter_id() == pk
-                     )
+        parents = {unicode(cond.filter) for cond in self._iter_parent_conditions()}
 
         if parents:
             raise EntityFilter.DependenciesError(ugettext(u'You can not delete this filter, because it is used as subfilter by : %s') % \
@@ -326,6 +466,26 @@ class EntityFilter(Model): #CremeModel ???
     def filter(self, qs, user=None):
         #distinct is useful with condition on m2m that can retrieve several times the same Entity
         return qs.filter(self.get_q(user)).distinct()
+
+    def _get_subfilter_conditions(self):
+        sfc = self._subfilter_conditions_cache
+
+        if sfc is None:
+            self._subfilter_conditions_cache = sfc = \
+                EntityFilterCondition.objects.filter(Q(type=EntityFilterCondition.EFC_SUBFILTER,
+                                                       filter__entity_type=self.entity_type,
+                                                      ) |
+                                                     Q(type=EntityFilterCondition.EFC_RELATION_SUBFILTER)
+                                                    )
+
+        return sfc
+
+    def _iter_parent_conditions(self):
+        pk = self.id 
+
+        for cond in self._get_subfilter_conditions():
+            if cond._get_subfilter_id() == pk:
+                yield cond
 
     def get_connected_filter_ids(self):
         #NB: 'level' means a level of filters connected to this filter :
@@ -339,18 +499,34 @@ class EntityFilter(Model): #CremeModel ???
         self._connected_filter_cache = connected = level_ids = {self.id}
 
         #Sub-filters conditions
-        sf_conds = [(cond, cond._get_subfilter_id())
-                        for cond in EntityFilterCondition.objects.filter(type__in=(EntityFilterCondition.EFC_SUBFILTER,
-                                                                                   EntityFilterCondition.EFC_RELATION_SUBFILTER
-                                                                                  )
-                                                                        )
-                   ]
+        sf_conds = [(cond, cond._get_subfilter_id()) for cond in self._get_subfilter_conditions()]
 
         while level_ids:
             level_ids = {cond.filter_id for cond, filter_id in sf_conds if filter_id in level_ids}
             connected.update(level_ids)
 
         return connected
+
+    @staticmethod
+    def get_for_user(user, content_type=None):
+        """Get the EntityFilter queryset corresponding of filters which a user can see.
+        @param user A User instance.
+        @param content_type None (means 'for all ContentTypes').
+                            A ContentType instance (means 'filters related to this CT').
+                            An iterable of ContentType instances (means 'filters related to these CT').
+        """
+        assert not user.is_team
+
+        qs = EntityFilter.objects.all()
+
+        if content_type:
+            qs = qs.filter(entity_type=content_type) if isinstance(content_type, ContentType) else \
+                 qs.filter(entity_type__in=content_type)
+
+        return qs if user.is_staff else \
+               qs.filter(Q(is_private=False) |
+                         Q(is_private=True, user__in=[user] + user.teams)
+                        )
 
     def get_q(self, user=None):
         query = Q()
@@ -387,9 +563,13 @@ class EntityFilter(Model): #CremeModel ???
 
         return self._conditions_cache
 
-    def set_conditions(self, conditions, check_cycles=True):
+    #def set_conditions(self, conditions, check_cycles=True):
+    def set_conditions(self, conditions, check_cycles=True, check_privacy=True):
         if check_cycles:
             self.check_cycle(conditions)
+
+        if check_privacy:
+            self.check_privacy(conditions, self.is_private, owner=self.user)
 
         old_conditions = EntityFilterCondition.objects.filter(filter=self).order_by('id')
         conds2del = []

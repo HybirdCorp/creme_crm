@@ -90,7 +90,7 @@ def edit(request, efilter_id):
         efilter_form = EntityFilterEditForm(user=user, instance=efilter)
         cancel_url = request.META.get('HTTP_REFERER')
 
-    return render(request, 'creme_core/entity_filter_form.html', #TODO: rename the template
+    return render(request, 'creme_core/entity_filter_form.html',
                   {'form': efilter_form,
                    'cancel_url': cancel_url,
                    'submit_label': _('Save the modified filter'),
@@ -143,13 +143,12 @@ def get_content_types(request, rtype_id):
 @jsonify
 def get_for_ctype(request, ct_id, include_all=False):
     ct = get_ct_or_404(ct_id)
+    user = request.user
 
-    if not request.user.has_perm(ct.app_label): #TODO: helper in auth.py ??
+    if not user.has_perm(ct.app_label): #TODO: helper in auth.py ??
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
-    #return list(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
     choices = [('', _(u'All'))] if include_all else []
-
-    choices.extend(EntityFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
+    choices.extend(EntityFilter.get_for_user(user, ct).values_list('id', 'name'))
 
     return choices

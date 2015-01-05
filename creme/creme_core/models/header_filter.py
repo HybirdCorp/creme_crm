@@ -41,7 +41,7 @@ class HeaderFilterList(list):
         #super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type))
         #self._selected = None
     def __init__(self, content_type, user):
-        super(HeaderFilterList, self).__init__(HeaderFilter.get_for_ctype(content_type, user))
+        super(HeaderFilterList, self).__init__(HeaderFilter.get_for_user(user, content_type))
         self._selected = None
 
     @property
@@ -74,7 +74,7 @@ class HeaderFilter(Model): #CremeModel ???
     user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
     entity_type = CTypeForeignKey(editable=False)
     is_custom   = BooleanField(blank=False, default=True, editable=False) #'False' means: cannot be deleted (to be sure that a ContentTypehas always at least one existing HeaderFilter)
-    is_private  = BooleanField(pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
+    is_private  = BooleanField(pgettext_lazy('creme_core-header_filter', u'Is private?'), default=False) #'True' means: can only be viewed (and so edited/deleted) by its owner.
     json_cells  = TextField(editable=False, null=True) #TODO: JSONField ? CellsField ?
 
     creation_label = _('Add a view')
@@ -133,7 +133,7 @@ class HeaderFilter(Model): #CremeModel ???
         if user.is_staff:
             return (True, 'OK')
 
-        if not self.is_private and user.is_superuser:
+        if user.is_superuser and not self.is_private:
             return (True, 'OK')
 
         if not user.has_perm(self.entity_type.app_label):
@@ -147,6 +147,12 @@ class HeaderFilter(Model): #CremeModel ???
             return (True, 'OK')
 
         return (False, ugettext(u"You are not allowed to edit/delete this view"))
+
+    def can_view(self, user, content_type=None):
+        if content_type and content_type != self.entity_type:
+            return (False, 'Invalid entity type')
+
+        return self.can_edit(user)
 
     #@staticmethod
     #def create(pk, name, model, is_custom=False, user=None, cells_desc=()):
@@ -191,12 +197,18 @@ class HeaderFilter(Model): #CremeModel ???
         """
         from ..core.entity_cell import EntityCell
 
+        if user and user.is_staff:
+            # Staff users cannot be owner in order to stay 'invisible'.
+            raise ValueError('HeaderFilter.create(): the owner cannot be a staff user.')
+
         if is_private:
             if not user:
-                raise ValueError('A private filter must belong to a User.')
+                raise ValueError('HeaderFilter.create(): a private filter must belong to a User.')
 
             if not is_custom:
-                raise ValueError('A private filter must be custom.')
+                # It should not be useful to create a private HeaderFilter (so it
+                # belongs to a user) which cannot be deleted.
+                raise ValueError('HeaderFilter.create(): a private filter must be custom.')
 
         try:
             hf = HeaderFilter.objects.get(pk=pk)
@@ -252,10 +264,13 @@ class HeaderFilter(Model): #CremeModel ???
         self._dump_cells(cells)
 
     @staticmethod
-    def get_for_ctype(content_type, user):
+    def get_for_user(user, content_type=None):
         assert not user.is_team
 
-        qs = HeaderFilter.objects.filter(entity_type=content_type)
+        qs = HeaderFilter.objects.all()
+
+        if content_type:
+            qs = qs.filter(entity_type=content_type)
 
         return qs if user.is_staff else \
                qs.filter(Q(is_private=False) |

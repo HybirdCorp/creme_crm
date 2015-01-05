@@ -94,7 +94,7 @@ def get_info_fields(request, ct_id):
     return ModelFieldEnumerator(model).filter(viewable=True).choices(**kwargs)
 
 
-@login_required
+#@login_required
 # def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and add_relations_bulk?
 #     user = request.user
 #     model    = get_ct_or_404(ct_id).model_class()

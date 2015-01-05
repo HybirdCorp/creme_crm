@@ -44,9 +44,6 @@ class ActTestCase(CommercialBaseTestCase):
     def _build_create_related_entity_url(self, objective):
         return '/commercial/objective/%s/create_entity' % objective.id
 
-    def _build_edit_url(self, act):
-        return '/commercial/act/edit/%s' % act.id
-
     def _build_incr_url(self, objective):
         return '/commercial/objective/%s/incr' % objective.id
 
@@ -128,7 +125,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_edit(self):
         act = self.create_act()
-        url = self._build_edit_url(act)
+        url = act.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = 'Act#1'
@@ -167,7 +164,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment()
-        response = self.assertPOST200(self._build_edit_url(act), follow=True,
+        response = self.assertPOST200(act.get_edit_absolute_url(), follow=True,
                                       data={'user':            self.user.pk,
                                             'name':            'Act#1',
                                             'start':           '2011-11-20',
@@ -237,7 +234,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(phase,   opp.sales_phase)
         self.assertEqual(target,  opp.target)
         self.assertEqual(emitter, opp.emitter)
-        
+
         self.assertRelationCount(1, opp, REL_SUB_COMPLETE_GOAL, act)
 
     def test_add_objective01(self):
@@ -302,22 +299,36 @@ class ActTestCase(CommercialBaseTestCase):
         "Count with EntityFilter"
         act = self.create_act()
         ct = ContentType.objects.get_for_model(Organisation)
-        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        pub_efilter  = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        priv_efilter = EntityFilter.create('test-filter_priv01', 'Acme', Organisation,
+                                           is_custom=True, is_private=True, user=self.other_user,
+                                          )
+
         name  = 'Objective#3'
         counter_goal = 2
-        response = self.client.post(self._build_addobjective_url(act),
-                                    data={'name':            name,
-                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
-                                          'counter_goal':    counter_goal,
-                                         }
-                                   )
+
+        def post(efilter):
+            return self.client.post(self._build_addobjective_url(act),
+                                        data={'name':            name,
+                                              'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                              'counter_goal':    counter_goal,
+                                             }
+                                    )
+
+        response = post(priv_efilter)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'entity_counting',
+                             _(u'This filter is invalid.')
+                            )
+
+        response = post(pub_efilter)
         self.assertNoFormError(response)
 
         objective = self.get_object_or_fail(ActObjective, act=act, name=name)
         self.assertEqual(0,            objective.counter)
         self.assertEqual(counter_goal, objective.counter_goal)
         self.assertEqual(ct,           objective.ctype)
-        self.assertEqual(efilter,      objective.filter)
+        self.assertEqual(pub_efilter,  objective.filter)
 
     def test_add_objectives_from_pattern01(self):
         "No component"
@@ -399,23 +410,23 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(61,  objective11.counter_goal) # 33% -> 20 * 3,3
         self.assertEqual(200, objective12.counter_goal) # 10% -> 20 * 10
 
-    def test_edit_objective(self):
+    def test_edit_objective01(self):
         act = self.create_act()
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertEqual(1, objective.counter_goal)
 
-        #url = '/commercial/objective/%s/edit' % objective.id
         url = objective.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = 'OBJ_NAME'
-        ct = ContentType.objects.get_for_model(Organisation)
         efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        ct = efilter.entity_type
         counter_goal = 3
-        response = self.client.post(url, data={'name':            name,
-                                               'entity_counting': self._build_ctypefilter_field(ct, efilter),
-                                               'counter_goal':    counter_goal,
-                                              }
+        response = self.client.post(url,
+                                    data={'name':            name,
+                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'counter_goal':    counter_goal,
+                                         }
                                    )
         self.assertNoFormError(response)
 
@@ -424,6 +435,34 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(counter_goal, objective.counter_goal)
         self.assertEqual(ct,           objective.ctype)
         self.assertEqual(efilter,      objective.filter)
+
+    def test_edit_objective02(self):
+        "Private filter"
+        priv_efilter = EntityFilter.create('test-filter_priv01', 'Acme (private)', Organisation,
+                                           is_custom=True, is_private=True, user=self.other_user,
+                                          )
+        act = self.create_act()
+        objective = ActObjective.objects.create(act=act, name='OBJ#1', counter_goal=3,
+                                                ctype=priv_efilter.entity_type,
+                                                filter=priv_efilter,
+                                               )
+
+        name = 'New name'
+        pub_efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+        counter_goal = 4
+        response = self.client.post(objective.get_edit_absolute_url(),
+                                    data={'name':            name,
+                                          #should not be used
+                                          'entity_counting': self._build_ctypefilter_field(pub_efilter.entity_type, pub_efilter),
+                                          'counter_goal':    counter_goal,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        objective = self.refresh(objective)
+        self.assertEqual(name,         objective.name)
+        self.assertEqual(counter_goal, objective.counter_goal)
+        self.assertEqual(priv_efilter, objective.filter) #<===
 
     def test_delete_objective(self):
         act = self.create_act()

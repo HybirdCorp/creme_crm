@@ -6,12 +6,14 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.forms.base import FieldTestCase
-    from creme.creme_core.forms.fields import (JSONField, GenericEntityField, MultiGenericEntityField,
-                                               RelationEntityField, MultiRelationEntityField,
-                                               CreatorEntityField, MultiCreatorEntityField,
-                                               FilteredEntityTypeField)
+    from creme.creme_core.forms.fields import (JSONField,
+            GenericEntityField, MultiGenericEntityField,
+            RelationEntityField, MultiRelationEntityField,
+            CreatorEntityField, MultiCreatorEntityField,
+            FilteredEntityTypeField)
     from creme.creme_core.utils import creme_entity_content_types
-    from creme.creme_core.models import CremeProperty, CremePropertyType, RelationType, EntityFilter
+    from creme.creme_core.models import (CremeProperty, CremePropertyType,
+            RelationType, EntityFilter)
     from creme.creme_core.constants import REL_SUB_HAS
 
     from creme.persons.models import Organisation, Contact
@@ -1613,6 +1615,10 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         cls.ct_contact = get_ct(Contact)
         cls.ct_orga    = get_ct(Organisation)
 
+    def setUp(self):
+        super(FilteredEntityTypeFieldTestCase, self).setUp()
+        self.login()
+
     def test_clean_empty_required(self):
         clean = FilteredEntityTypeField(required=True).clean
         self.assertFieldValidationError(FilteredEntityTypeField, 'required', clean, None)
@@ -1705,14 +1711,30 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                         self.format_str % (self.ct_contact.id, efilter.id)
                                        )
 
+    def test_clean_private_filter(self):
+        "Private invisible filter -> no user"
+        efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True,
+                                      user=self.other_user, is_private=True,
+                                     )
+        field = FilteredEntityTypeField()
+        field.user = self.user
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
+                                        field.clean,
+                                        self.format_str % (self.ct_contact.id, efilter.id)
+                                       )
+
     def test_clean_void(self):
         field = FilteredEntityTypeField(required=False)
+        field.user = self.user
+
         self.assertEqual((None, None), field.clean(self.format_str % ('', '')))
         self.assertEqual((None, None), field.clean('{"ctype": "0", "efilter": null}'))
 
     def test_clean_only_ctype01(self):
         "All element of this ContentType are allowed"
         field = FilteredEntityTypeField()
+        field.user = self.user
+
         self.assertEqual((self.ct_contact, None),
                          field.clean(self.format_str % (self.ct_contact.id, ''))
                         )
@@ -1723,6 +1745,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         ct_orga    = self.ct_orga
 
         field = FilteredEntityTypeField([ct_contact, ct_orga.id])
+        field.user = self.user
+
         self.assertEqual((ct_contact, None),
                          field.clean(self.format_str % (ct_contact.id, ''))
                         )
@@ -1732,7 +1756,35 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_with_filter01(self):
         efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True)
+
         field = FilteredEntityTypeField()
+        field.user = self.user
+
+        ct = self.ct_contact
+        self.assertEqual((ct, efilter),
+                         field.clean(self.format_str % (ct.id, efilter.id))
+                        )
+
+    def test_clean_with_filter02(self):
+        "Private visible filter"
+        user = self.user
+        efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True,
+                                      user=user, is_private=True,
+                                     )
+        field = FilteredEntityTypeField()
+        field.user = user
+        ct = self.ct_contact
+        self.assertEqual((ct, efilter),
+                         field.clean(self.format_str % (ct.id, efilter.id))
+                        )
+
+    def test_clean_with_filter03(self):
+        "Private invisible filter -> no user (deprecated)"
+        efilter = EntityFilter.create('test-filter01', 'John', Contact, is_custom=True,
+                                      user=self.other_user, is_private=True,
+                                     )
+        field = FilteredEntityTypeField()
+        #field.user = user # <====
         ct = self.ct_contact
         self.assertEqual((ct, efilter),
                          field.clean(self.format_str % (ct.id, efilter.id))

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-19 11:24+0100\n"
+"POT-Creation-Date: 2014-12-19 22:39+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,64 +57,64 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: core/graph.py:101 core/graph.py:425
+#: core/graph.py:114 core/graph.py:538
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:107 core/graph.py:221
+#: core/graph.py:120 core/graph.py:253
 msgid "the field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:124
+#: core/graph.py:137
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:247 core/graph.py:455
+#: core/graph.py:307 core/graph.py:598
 msgid "By days"
 msgstr "Par jours"
 
-#: core/graph.py:266 core/graph.py:469
+#: core/graph.py:326 core/graph.py:612
 msgid "By months"
 msgstr "Par mois"
 
-#: core/graph.py:283 core/graph.py:482
+#: core/graph.py:343 core/graph.py:625
 msgid "By years"
 msgstr "Par années"
 
-#: core/graph.py:323 core/graph.py:493
+#: core/graph.py:383 core/graph.py:635
 msgid "By X days"
 msgstr "Par X jours"
 
-#: core/graph.py:359
+#: core/graph.py:472
 msgid "By values"
 msgstr "Par valeurs"
 
-#: core/graph.py:378
+#: core/graph.py:491
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
-#: core/graph.py:387
+#: core/graph.py:500
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:532
+#: core/graph.py:719
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:605 forms/blocks.py:79
+#: core/graph.py:792 forms/blocks.py:79
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
 
-#: core/graph.py:635
+#: core/graph.py:822
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:645
+#: core/graph.py:832
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:676
+#: core/graph.py:863
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
@@ -172,11 +172,30 @@ msgstr "Relations"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/bulk.py:33 forms/report.py:143
+#: forms/bulk.py:38 forms/report.py:147
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:41 forms/bulk.py:47
+#: forms/bulk.py:58 forms/bulk.py:89 forms/report.py:155
+msgid "The filter cannot be changed because it is private."
+msgid_plural "The filters cannot be changed because they are private."
+msgstr[0] "Le filtre ne peut pas être changé car il est privé."
+msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
+
+#: forms/bulk.py:64
+msgid "Beware !"
+msgstr "Attention !"
+
+#: forms/bulk.py:66
+#, python-format
+msgid "The filter of %s report cannot be changed because it is private."
+msgid_plural ""
+"The filters of %s reports cannot be changed because they are private."
+msgstr[0] "Le filtre de %s rapport ne peut pas être changé car il est privé."
+msgstr[1] ""
+"Le filtre de %s rapports ne peut pas être changé car ils sont privés."
+
+#: forms/bulk.py:72 forms/bulk.py:80
 msgid ""
 "Filter field can only be updated when reports target the same type of "
 "entities (e.g: only contacts)."
@@ -185,7 +204,7 @@ msgstr ""
 "type de fiche (ex: seulement les contacts)."
 
 # from creme_core
-#: forms/bulk.py:55 forms/report.py:110 forms/report.py:114
+#: forms/bulk.py:94 forms/report.py:112 forms/report.py:117
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 
@@ -263,11 +282,11 @@ msgstr ""
 "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est disponible) "
 "vous devez cocher 'Effectuer un comptage à la place des valeurs calculées ?'"
 
-#: forms/report.py:93
+#: forms/report.py:94
 msgid "Existing view"
 msgstr "Vue existante"
 
-#: forms/report.py:94
+#: forms/report.py:95
 msgid ""
 "If you select a view of list, the columns of the report will be copied from "
 "it."
@@ -275,36 +294,36 @@ msgstr ""
 "Si vous sélectionnez une vue de liste, les colonnes du rapport seront "
 "copiées depuis celle-ci."
 
-#: forms/report.py:96 models/report.py:40
+#: forms/report.py:97 models/report.py:40
 #: templates/reports/frags/report_preview_format.html:15
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/report.py:148
+#: forms/report.py:161
 msgid "Sub-report linked to the column"
 msgstr "Sous-rapport lié à la colonne"
 
-#: forms/report.py:259
+#: forms/report.py:272
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/report.py:397 templates/reports/frags/date_filter_form.html:8
+#: forms/report.py:410 templates/reports/frags/date_filter_form.html:8
 msgid "Extension"
 msgstr "Extension"
 
-#: forms/report.py:398
+#: forms/report.py:411
 msgid "Date field"
 msgstr "Champ date"
 
-#: forms/report.py:399
+#: forms/report.py:412
 msgid "Date filter"
 msgstr "Filtre temporel"
 
-#: forms/report.py:411
+#: forms/report.py:424
 msgid "None"
 msgstr "Aucun"
 
-#: forms/report.py:426
+#: forms/report.py:439
 msgid ""
 "If you chose a Date field, and select «customized» you have to specify a "
 "start date and/or an end date."

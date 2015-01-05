@@ -13,6 +13,7 @@ try:
             HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
             CustomField, CustomFieldEnumValue)
     from creme.creme_core.models.header_filter import HeaderFilterList
+    from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.utils import safe_unicode
     from creme.creme_core.tests.base import skipIfNotInstalled
     from .base import ViewsTestCase
@@ -124,10 +125,13 @@ class ListViewTestCase(ViewsTestCase):
         with self.assertNoException():
             ctxt = response.context
             hfilters = ctxt['header_filters']
+            efilters = ctxt['entity_filters']
             orgas_page = ctxt['entities']
 
         self.assertIsInstance(hfilters, HeaderFilterList)
         self.assertIn(hf, hfilters)
+
+        self.assertIsInstance(efilters, EntityFilterList)
 
         with self.assertNoException():
             sel_hf = hfilters.selected

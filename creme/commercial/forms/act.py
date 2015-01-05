@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,10 +21,11 @@
 from math import ceil
 
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import ModelChoiceField, IntegerField
+from django.forms import ModelChoiceField, IntegerField, CharField
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
 from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityTypeField
+from creme.creme_core.forms.widgets import Label
 
 from ..models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
 
@@ -45,6 +46,7 @@ class ObjectiveForm(CremeModelForm):
     class Meta:
         model = ActObjective
         #fields = ('name', 'counter_goal')
+        #TODO: use help_texts (django 1.6)
 
     def __init__(self, entity, *args, **kwargs):
         super(ObjectiveForm, self).__init__(*args, **kwargs)
@@ -55,12 +57,25 @@ class ObjectiveForm(CremeModelForm):
 
         instance = self.instance
         if instance.pk: #edition
-            fields['entity_counting'].initial = instance.ctype_id, instance.filter_id
+            efilter = instance.filter
+
+            if efilter and not efilter.can_view(self.user)[0]:
+                fields['ec_label'] = CharField(label=fields['entity_counting'].label,
+                                               required=False, widget=Label,
+                                               initial=_('The filter cannot be changed because it is private.'),
+                                              )
+                del fields['entity_counting']
+            else:
+                fields['entity_counting'].initial = instance.ctype_id, instance.filter_id
 
     def save(self, *args, **kwargs):
         instance = self.instance
         instance.act = self.act
-        instance.ctype, instance.filter = self.cleaned_data['entity_counting']
+        #instance.ctype, instance.filter = self.cleaned_data['entity_counting']
+
+        ct_n_filter = self.cleaned_data.get('entity_counting')
+        if ct_n_filter:
+            instance.ctype, instance.filter = ct_n_filter
 
         return super(ObjectiveForm, self).save(*args, **kwargs)
 

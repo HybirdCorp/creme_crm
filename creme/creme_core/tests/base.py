@@ -78,7 +78,7 @@ class _CremeTestCase(object):
 
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
               creatable_models=None, admin_4_apps=()):
-        password = 'test'
+        self.password = password = 'test'
 
         superuser = User(username='kirika', email='kirika@noir.jp',
                          first_name='Kirika', last_name='Yumura',

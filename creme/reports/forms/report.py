@@ -26,7 +26,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import commit_on_success
-from django.forms.fields import ChoiceField
+from django.forms.fields import ChoiceField, CharField
 from django.forms.util import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
@@ -37,6 +37,7 @@ from creme.creme_core.core.entity_cell import (EntityCell, EntityCellRegularFiel
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.header_filter import EntityCellsField, EntityCellsWidget
 from creme.creme_core.forms.fields import AjaxModelChoiceField, CreatorEntityField, DateRangeField
+from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import HeaderFilter, EntityFilter
 from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
@@ -107,11 +108,12 @@ class ReportCreateForm(CremeEntityForm):
             hf = get_data('hf')
 
             #if hf and hf.entity_type != ct:
-            if hf and not HeaderFilter.get_for_ctype(ct, self.user).filter(id=hf.id).exists():
+            if hf and not hf.can_view(self.user, ct)[0]:
                 self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
 
             efilter = get_data('filter')
-            if efilter and efilter.entity_type != ct:
+            #if efilter and efilter.entity_type != ct:
+            if efilter and not efilter.can_view(self.user, ct)[0]:
                 self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
 
         return cleaned_data
@@ -140,9 +142,19 @@ class ReportEditForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super(ReportEditForm, self).__init__(*args, **kwargs)
-        filter_f = self.fields['filter']
+        fields = self.fields
+        filter_f = fields['filter']
         filter_f.empty_label = ugettext(u'All')
         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
+
+        efilter = self.instance.filter
+
+        if efilter and not efilter.can_view(self.user)[0]:
+            fields['filter_label'] = CharField(label=fields['filter'].label,
+                                               required=False, widget=Label,
+                                               initial=_('The filter cannot be changed because it is private.'),
+                                              )
+            del fields['filter']
 
 
 class LinkFieldToReportForm(CremeForm):

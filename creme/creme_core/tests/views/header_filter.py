@@ -162,6 +162,58 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertGET200(uri)
 
+    def test_create04(self):
+        "Cannot create a private filter for another user (but OK with one of our teams)"
+        user = self.login()
+
+        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team.teammates = [user, self.other_user]
+
+        a_team = User.objects.create(username='A-team', is_team=True)
+        a_team.teammates = [self.other_user]
+
+        name = 'DefaultHeaderFilter'
+
+        def post(owner):
+            return self.assertPOST200(self._build_add_url(self.contact_ct), follow=True,
+                                      data={'name': name,
+                                            'user': owner.id,
+                                            'is_private': 'on',
+                                            'cells': 'regular_field-first_name',
+                                            }
+                                     )
+
+
+        response = post(self.other_user)
+        msg = _('A private view of list must belong to you (or one of your teams).')
+        self.assertFormError(response, 'form', 'user', msg)
+
+        response = post(a_team)
+        self.assertFormError(response, 'form', 'user', msg)
+
+        response = post(my_team)
+        self.assertNoFormError(response)
+        self.get_object_or_fail(HeaderFilter, name=name)
+
+    def test_create05(self):
+        "A staff  user can create a private filter for another user"
+        user = self.login(is_staff=True)
+        name = 'DefaultHeaderFilter'
+
+        def post(owner):
+            return self.assertPOST200(self._build_add_url(self.contact_ct), follow=True,
+                                      data={'name': name,
+                                            'user': owner.id,
+                                            'is_private': 'on',
+                                            'cells': 'regular_field-first_name',
+                                           },
+                                     )
+
+
+        response = post(self.other_user)
+        self.assertNoFormError(response)
+        self.get_object_or_fail(HeaderFilter, name=name)
+
     #def test_edit01(self):
         #"Not editable"
         #self.login()
@@ -270,16 +322,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertGET403(self._build_edit_url(hf))
 
     def test_edit07(self):
-        "Staff users can edit all HeaderFilters"
-        self.login(is_staff=True)
-
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
-                                 model=Contact, is_custom=True,
-                                 is_private=True, user=self.other_user,
-                                )
-        self.assertGET200(self._build_edit_url(hf))
-
-    def test_edit08(self):
         "Private filter -> cannot be edited by another user (even a super-user)"
         self.login()
 
@@ -289,8 +331,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                 )
         self.assertGET403(self._build_edit_url(hf))
 
-    def test_edit09(self):
-        "Staff users can edit all HeaderFilters"
+    def test_edit08(self):
+        "Staff users can edit all HeaderFilters + private filters must be assigned"
         self.login(is_staff=True)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -311,7 +353,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                              _('A private view of list must be assigned to a user/team.')
                             )
 
-    def test_edit10(self):
+    def test_edit09(self):
         "Not custom filter cannot be private"
         self.login()
 
