@@ -22,14 +22,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.core.setting_key import setting_key_registry
 
 from .models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
 from .blocks import blocks_list, EntityEmailBlock
 from .buttons import entityemail_link_button
-
+from .setting_keys import emailcampaign_sender
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
 creme_registry.register_app('emails', _(u'Emails'), '/emails')
+
+setting_key_registry.register(emailcampaign_sender)
 
 reg_item = creme_menu.register_app ('emails', '/emails/').register_item
 reg_item('/emails/',                 _(u'Portal of emails'),                   'emails')

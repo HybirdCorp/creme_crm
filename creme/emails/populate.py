@@ -27,7 +27,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.blocks import (properties_block, relations_block,
         customfields_block, history_block)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import (RelationType, SearchConfigItem,
+from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem, HeaderFilter)
 
 from creme.persons.models import Organisation, Contact
@@ -37,7 +37,7 @@ from .blocks import *
 from .buttons import entityemail_link_button
 from .constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
         REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
-
+from .setting_keys import emailcampaign_sender
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_MAIL_RECEIVED).exists()
 
+        SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
 
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
                             (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))

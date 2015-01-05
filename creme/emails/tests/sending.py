@@ -11,6 +11,9 @@ try:
     from django.utils.timezone import now, make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.models import SetCredentials, SettingValue
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+
     from creme.persons.models import Contact, Organisation
 
     from .base import _EmailsTestCase
@@ -19,6 +22,7 @@ try:
             EmailTemplate, MailingList, LightWeightEmail)
     from ..models.sending import (SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED,
             SENDING_STATE_DONE, SENDING_STATE_PLANNED)
+    from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,14 +31,109 @@ __all__ = ('SendingsTestCase',)
 
 
 class SendingsTestCase(_EmailsTestCase):
-    def setUp(self):
-        self.login()
-
     def _load_or_fail(self, data):
         with self.assertNoException():
             return loads(data.encode('utf-8'))
 
+    def _build_add_url(self, campaign):
+        return '/emails/campaign/%s/sending/add' % campaign.id
+
+    def repopulate_email(self):
+        SettingValue.objects.filter(key_id=SETTING_EMAILCAMPAIGN_SENDER).delete()
+        self.populate('emails')
+
+    def test_sender_setting01(self):
+        self.repopulate_email()
+        self.login()
+        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
+        template = EmailTemplate.objects.create(user=self.user, name='name',
+                                                subject='SUBJECT', body='BODY')
+
+        url = self._build_add_url(camp)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            sender = response.context['form'].fields['sender']
+
+        self.assertIsNone(sender.initial)
+        sender_email = 'vicious@reddragons.mrs'
+        self.assertNoFormError(self.client.post(url, data={'sender':   sender_email,
+                                                           'type':     SENDING_TYPE_IMMEDIATE,
+                                                           'template': template.id,
+                                                          }
+                                               )
+                              )
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            sender = response.context['form'].fields['sender']
+
+        self.assertEqual(sender_email, sender.initial)
+
+        response = self.assertPOST200(url, data={'sender':   u"another_email@address.com",
+                                                 'type':     SENDING_TYPE_IMMEDIATE,
+                                                 'template': template.id,
+                                                }
+                                     )
+        self.assertFormError(response, 'form', 'sender',
+                             _(u"You are not allowed to modify the sender address, please contact your administrator."))
+
+    def test_sender_setting02(self):
+        self.repopulate_email()
+        self.login(is_superuser=False,
+                   allowed_apps=('emails',),
+                   creatable_models=(EmailSending, EmailCampaign)
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.DELETE |
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK |
+                                            EntityCredentials.CHANGE,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
+        template = EmailTemplate.objects.create(user=self.user, name='name',
+                                                subject='SUBJECT', body='BODY')
+
+        url = self._build_add_url(camp)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            sender = response.context['form'].fields['sender']
+
+        self.assertEqual(
+            _(u"No sender email address has been configured, please contact your administrator."),
+            sender.initial)
+        sender_email = 'vicious@reddragons.mrs'
+
+        response = self.client.post(url, data={'sender':   sender_email,
+                                               'type':     SENDING_TYPE_IMMEDIATE,
+                                               'template': template.id,
+                                              }
+                                   )
+        self.assertFormError(response, 'form', 'sender',
+                             _(u"You are not allowed to modify the sender address, please contact your administrator."))
+
+        sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
+        sender_setting.value = sender_email
+        sender_setting.save()
+
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            sender = response.context['form'].fields['sender']
+
+        self.assertEqual(sender_email, sender.initial)
+
+        self.assertNoFormError(self.client.post(url, data={'sender':   sender_email,
+                                                           'type':     SENDING_TYPE_IMMEDIATE,
+                                                           'template': template.id,
+                                                          }
+                                               )
+                              )
+
     def test_create01(self):
+        self.login()
         # We create voluntarily duplicates (recipients that have same addresses
         # than Contact/Organisation, MailingList that contain the same addresses)
         # EmailSending should not contain duplicates.
@@ -100,7 +199,7 @@ class SendingsTestCase(_EmailsTestCase):
         body    = 'BODYYYYYYYYYYY'
         template = EmailTemplate.objects.create(user=self.user, name='name', subject=subject, body=body)
 
-        url = '/emails/campaign/%s/sending/add' % camp.id
+        url = self._build_add_url(camp)
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
@@ -154,6 +253,7 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_create02(self):
         "Test template"
+        self.login()
         user = self.user
         first_name = 'Spike'
         last_name  = 'Spiegel'
@@ -173,7 +273,7 @@ class SendingsTestCase(_EmailsTestCase):
         template = EmailTemplate.objects.create(user=user, name='name', subject=subject,
                                                 body=body, body_html=body_html,
                                                )
-        response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
+        response = self.client.post(self._build_add_url(camp),
                                     data = {'sender':   'vicious@reddragons.mrs',
                                             'type':     SENDING_TYPE_IMMEDIATE,
                                             'template': template.id,
@@ -204,6 +304,7 @@ class SendingsTestCase(_EmailsTestCase):
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Command + outbox"
+        self.login()
         user = self.user
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
@@ -221,7 +322,7 @@ class SendingsTestCase(_EmailsTestCase):
         mlist.organisations.add(orga1, orga2)
 
         sender = 'vicious@reddragons.mrs'
-        response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
+        response = self.client.post(self._build_add_url(camp),
                                     data = {'sender':   sender,
                                             'type':     SENDING_TYPE_IMMEDIATE,
                                             'template': template.id,
@@ -256,6 +357,7 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_create04(self):
         "Test deferred"
+        self.login()
         user = self.user
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
@@ -270,7 +372,7 @@ class SendingsTestCase(_EmailsTestCase):
                 'template': template.id,
                }
 
-        post = partial(self.client.post, '/emails/campaign/%s/sending/add' % camp.id)
+        post = partial(self.client.post, self._build_add_url(camp))
         self.assertNoFormError(post(data=dict(data,
                                               #sending_date=sending_date.strftime('%Y-%m-%d'), #future: OK
                                               #hour=sending_date.hour,

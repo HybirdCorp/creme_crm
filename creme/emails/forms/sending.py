@@ -18,22 +18,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from pickle import dumps
 
-from django.forms import TypedChoiceField, IntegerField
-from django.forms.util import ErrorList
+from django.forms import TypedChoiceField, IntegerField, EmailField
+from django.forms.util import ErrorList, ValidationError
 from django.template import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.models import SettingValue
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
 
-from ..constants import MAIL_STATUS_NOTSENT
+from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
 from ..models import EmailTemplate
 from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
 
 
+logger = logging.getLogger(__name__)
+
+
 class SendingCreateForm(CremeModelForm):
+    sender       = EmailField(label=_(u"Sender address"))
     type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
     template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
     sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
@@ -50,6 +56,37 @@ class SendingCreateForm(CremeModelForm):
     def __init__(self, entity, *args, **kwargs):
         super(SendingCreateForm, self).__init__(*args, **kwargs)
         self.campaign = entity
+        self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
+
+        try:
+            sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
+        except SettingValue.DoesNotExist:
+            sender_setting = None
+            logger.critical('SettingValue with key=%s cannot be found !'
+                            ' ("creme_populate" command has not been runned correctly)',
+                            SETTING_EMAILCAMPAIGN_SENDER
+                        )
+            raise
+
+        sender_field = self.fields['sender']
+        self.can_edit_sender_value = can_edit_sender_value = not sender_setting.value and can_admin_emails
+        if not can_edit_sender_value:
+            sender_field.widget.attrs['readonly'] = True
+
+        if not sender_setting.value:
+            if not can_admin_emails:
+                sender_field.initial = _(u"No sender email address has been configured, please contact your administrator.")
+        else:
+            sender_field.help_text = _(u"Only an administrator can modify the sender address.")
+            sender_field.initial = sender_setting.value
+
+        self.sender_setting = sender_setting
+
+    def clean_sender(self):
+        sender_value = self.cleaned_data.get('sender')
+        if not self.can_edit_sender_value and sender_value != self.sender_setting.value:
+            raise ValidationError(ugettext(u"You are not allowed to modify the sender address, please contact your administrator."))
+        return sender_value
 
     def clean(self):
         cleaned_data = super(SendingCreateForm, self).clean()
@@ -75,17 +112,24 @@ class SendingCreateForm(CremeModelForm):
 
     def save(self):
         instance = self.instance
+        cleaned_data = self.cleaned_data
+        sender_setting = self.sender_setting
 
         instance.campaign = self.campaign
         instance.state = SENDING_STATE_PLANNED
 
-        template = self.cleaned_data['template']
+        template = cleaned_data['template']
         instance.subject   = template.subject
         instance.body      = template.body
         instance.body_html = template.body_html
         instance.signature = template.signature
 
         super(SendingCreateForm, self).save()
+
+        sender_address = cleaned_data['sender']
+        if self.can_edit_sender_value:
+            sender_setting.value = sender_address
+            sender_setting.save()
 
         # M2M need a pk -> after save
         attachments = instance.attachments
