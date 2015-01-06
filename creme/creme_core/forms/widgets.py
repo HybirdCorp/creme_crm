@@ -176,12 +176,13 @@ class ActionButtonList(Widget):
 
 
 class PolymorphicInput(TextInput):
-    class Model(object):
-        def __init__(self, name='', widget=DynamicInput, attrs=None, **kwargs):
-            self.name = name
-            self.kwargs = kwargs
-            self.attrs = attrs
-            self.widget = widget
+#Removed on 6 january 2015
+#    class Model(object):
+#        def __init__(self, name='', widget=DynamicInput, attrs=None, **kwargs):
+#            self.name = name
+#            self.kwargs = kwargs
+#            self.attrs = attrs
+#            self.widget = widget
 
     def __init__(self, attrs=None, key='', *args):
         super(PolymorphicInput, self).__init__(attrs)
@@ -270,12 +271,13 @@ class ChainedInput(TextInput):
     HORIZONTAL = 'hbox'
     VERTICAL = 'vbox'
 
-    class Model(object):
-        def __init__(self, name='', widget=DynamicSelect, attrs=None, **kwargs):
-            self.name = name
-            self.kwargs = kwargs
-            self.attrs = attrs
-            self.widget = widget
+#Removed on 6 january 2015
+#    class Model(object):
+#        def __init__(self, name='', widget=DynamicSelect, attrs=None, **kwargs):
+#            self.name = name
+#            self.kwargs = kwargs
+#            self.attrs = attrs
+#            self.widget = widget
 
     def __init__(self, attrs=None, *args):
         super(ChainedInput, self).__init__(attrs)
@@ -289,14 +291,16 @@ class ChainedInput(TextInput):
 
         context = widget_render_context('ui-creme-chainedselect', attrs,
                                         style=attrs.pop('style', ''),
-                                        selects=self._render_inputs(attrs))
+                                        selects=self._render_inputs(attrs),
+                                       )
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
-        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
-                                %(input)s
-                                %(selects)s
-                            </div>""" % context)
+        return mark_safe(u'<div class="%(css)s" style="%(style)s" widget="%(typename)s">'
+                            u'%(input)s'
+                            u'%(selects)s'
+                         u'</div>' % context
+                        )
 
     def set_inputs(self, *args):
         for input in args:
@@ -313,20 +317,23 @@ class ChainedInput(TextInput):
 
     def _render_inputs(self, attrs):
         direction = attrs.get('direction', ChainedInput.HORIZONTAL)
-        output = ['<ul class="ui-layout %s">' % direction]
+        output = [u'<ul class="ui-layout %s">' % direction]
 
-        output.extend('<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
+        output.extend(u'<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
                          for name, input in self.inputs
                      )
 
         if attrs.pop('reset', True):
-            output.append("""<li>
-                                 <img class="reset" src="%s" alt="%s" title="%s"></img>
-                             </li>""" % (media_url('images/delete_22.png'), _(u'Reset'), _(u'Reset'))) #TODO: call '_()' once...
+            output.append(u'<li>'
+                              u'<img class="reset" src="%(url)s" alt="%(title)s" title="%(title)s" />'
+                          u'</li>' % {'url':   media_url('images/delete_22.png'),
+                                      'title': _(u'Reset'),
+                                     }
+                         )
 
-        output.append('</ul>')
+        output.append(u'</ul>')
 
-        return '\n'.join(output)
+        return u'\n'.join(output)
 
 
 class SelectorList(TextInput):
