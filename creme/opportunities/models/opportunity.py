@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.core.exceptions import ValidationError
 from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL, Sum, BooleanField)
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 #from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
@@ -57,7 +57,7 @@ class SalesPhase(CremeModel):
     name  = CharField(_(u"Name"), max_length=100, blank=False, null=False)
     #order = PositiveIntegerField(_(u"Order"), default=1, editable=False).set_tags(viewable=False)
     order = BasicAutoField(_('Order')) #.set_tags(viewable=False)
-    won   = BooleanField(_(u'Won'), default=False)
+    won   = BooleanField(pgettext_lazy('opportunities-sales_phase', u"Won"), default=False)
 
     def __unicode__(self):
         return self.name
