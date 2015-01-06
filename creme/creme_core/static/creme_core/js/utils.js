@@ -581,7 +581,9 @@ creme.utils.submitNReload = function(form, reload_url, options) {
 */
 
 creme.utils.handleResearch = function(target_node_id, from) {
-    var research =  $('[name=research]', from).val();
+    console.warn('creme.utils.handleResearch() functions is deprecated. Use creme.utils.decorateSearchResult() instead.');
+
+    var research = $('[name=research]', from).val();
 
     $.ajax({
         url: '/creme_core/search',
@@ -607,7 +609,7 @@ creme.utils.handleResearch = function(target_node_id, from) {
                     })
                 .wrap($('<mark/>'));
 
-            // we update the title ; this is done on client isde because pagination is done in the template rendering
+            // we update the title ; this is done on client side because pagination is done in the template rendering
             // and we want to avoid making the count() queries twice.
             var total = 0;
             root.find('[search-count]').each(function() {
@@ -621,6 +623,28 @@ creme.utils.handleResearch = function(target_node_id, from) {
         complete: function() {
             document.title = gettext("Search results…");
         }
+    });
+}
+
+creme.utils.decorateSearchResult = function(research) {
+    $('.search_results').each(function() {
+        var root = $(this);
+
+        //highlight the word that we are searching
+        research = research.toLowerCase();
+        root.find('.search_result')
+            .contents()
+            .filter(function() { return $(this).text().toLowerCase().indexOf(research) >= 0; })
+            .wrap($('<mark/>'));
+
+        // we update the title ; this is done on client side because pagination is done in the template rendering
+        // and we want to avoid making the count() queries twice.
+        var total = 0;
+        root.find('[search-count]').each(function() {
+            total += parseInt(this.getAttribute('search-count'));
+        });
+        root.find('#search_results_title')
+            .text(ngettext('Search results: %d entity', 'Search results: %d entities', total).format(total));
     });
 }
 

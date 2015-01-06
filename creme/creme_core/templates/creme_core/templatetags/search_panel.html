@@ -1,25 +1,29 @@
-{% load i18n %}{% load creme_core_tags %}
+{% load i18n creme_core_tags %}
+{% comment %}
 <script type="text/javascript">
     $(document).ready(function() {
         $('div.research_box input[name=research]').bind('keydown', function(e) {
                 if (e.keyCode == '13') {
-                    {% comment %}$(this).parent().find('[type=button]').click(); //TODO: do not work (ajaxSend is strangely not called, so a CRSF problem occurs){% endcomment %}
+                    // $(this).parent().find('[type=button]').click(); //TODO: do not work (ajaxSend is strangely not called, so a CRSF problem occurs)
                     creme.utils.handleResearch('{{target_node_id}}', $(this).parent('span').parent('.research_box'));
                 }
              });
     });
 </script>
+{% endcomment %}
 <div class="research_box">
-    <span>
-        {% trans "Search" as img_title %}<img border="0" title="{{img_title}}" alt="{{img_title}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
-        <select name="ct_id">
-            <option value="">{% trans "All" %}</option>
-            <option disabled>------</option>
-            {% for ct in content_types %}
-                <option value="{{ct.id}}">{{ct.verbose_name}}</option>
-            {% endfor %}
-        </select>
-        <input type="text" name="research" />
-        <input type="button" value="{% trans "Research" %}" onclick="creme.utils.handleResearch('{{target_node_id}}', $(this).parent('span').parent('.research_box'));"/>
-    </span>
+    <form method="GET" action="/creme_core/search">
+        <span>
+            {% trans "Search" as img_title %}<img border="0" title="{{img_title}}" alt="{{img_title}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
+            <select name="ct_id">
+                <option value="">{% trans "All" %}</option>
+                <option disabled>------</option>
+                {% for ct in content_types %}
+                    <option value="{{ct.id}}">{{ct.verbose_name}}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="research" />
+            <input type="submit" value="{% trans "Research" %}" /> {% comment %} onclick="creme.utils.handleResearch('{{target_node_id}}', $(this).parent('span').parent('.research_box'));"{% endcomment %}
+        </span>
+    </form>
 </div>

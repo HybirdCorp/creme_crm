@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,43 +62,57 @@ class InnerTemplateVar(object):
 
 
 #-------------------------------------------------------------------------------
-_COLSPAN_ARG = 'colspan='
+_BLOCK_HEADER_RE = compile_re(r'colspan=(?P<colspan>.*?)(\scollapsable=(?P<collapsable>.+))?$')
 
-@register.tag(name="get_block_header")#TODO: 'templatize' colspan argument
+@register.tag(name="get_block_header")
 def do_block_header(parser, token):
     """Eg:{% get_block_header colspan=8 %}
             <th class="label">My title</th>
+          {% end_get_block_header %}
+
+          {% get_block_header colspan=my_var collapsable=False %}
+            <th class="label">My other title</th>
           {% end_get_block_header %}
     """
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
-        raise TemplateSyntaxError("%r tag requires arguments" % token.contents.split()[0])
+        raise TemplateSyntaxError("%r tag requires 1 or 2 arguments" % token.contents.split()[0])
 
-    if not arg.startswith(_COLSPAN_ARG):
-        raise TemplateSyntaxError("%r tag argument is on the model: %s12" % (tag_name, _COLSPAN_ARG))
+    search = _BLOCK_HEADER_RE.search(arg)
+    if not search:
+        raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
-    raw_colspan = arg[len(_COLSPAN_ARG):]
+    groupdict = search.groupdict()
 
+    raw_colspan = groupdict['colspan']
     try:
         colspan = TemplateLiteral(parser.compile_filter(raw_colspan), raw_colspan)
+    except Exception as e:
+        raise TemplateSyntaxError(str(e))
+
+    raw_collapsable = groupdict.get('collapsable') or '1'
+    try: #TODO: factorise
+        collapsable = TemplateLiteral(parser.compile_filter(raw_collapsable), raw_collapsable)
     except Exception as e:
         raise TemplateSyntaxError(str(e))
 
     nodelist = parser.parse(('end_get_block_header',))
     parser.delete_first_token()
 
-    return HeaderNode(nodelist, colspan)
+    return HeaderNode(nodelist, colspan, collapsable)
 
 class HeaderNode(TemplateNode):
-    def __init__(self, nodelist, colspan):
+    def __init__(self, nodelist, colspan, collapsable):
         self.header_tpl = get_template('creme_core/templatetags/widgets/block_header.html')
         self.nodelist = nodelist
         self.colspan  = colspan
+        self.collapsable = collapsable
 
     def render(self, context):
         context['content'] = self.nodelist.render(context)
         context['colspan'] = self.colspan.eval(context)
+        context['class']   = 'collapser' if self.collapsable.eval(context) else ''
 
         return self.header_tpl.render(context)
 

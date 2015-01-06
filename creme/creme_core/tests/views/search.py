@@ -25,7 +25,8 @@ class SearchViewTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'creme_core')
+        #cls.populate('creme_config', 'creme_core')
+        cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         QuerysetBlock.page_size = 10
@@ -61,7 +62,8 @@ class SearchViewTestCase(ViewsTestCase):
         if ct_id is not None:
             data['ct_id'] = ct_id
 
-        return self.client.post('/creme_core/search', data=data)
+        #return self.client.post('/creme_core/search', data=data)
+        return self.client.get('/creme_core/search', data=data)
 
     def test_search01(self):
         self.login()
