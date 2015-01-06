@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,9 +22,9 @@
 from time import time
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.template.context import RequestContext
-from django.template.loader import render_to_string
+from django.shortcuts import render
 from django.utils.translation import ugettext as _, ungettext
 
 from ..auth.decorators import login_required
@@ -98,12 +98,14 @@ class FoundEntitiesBlock(QuerysetBlock):
         return self._render(btc)
 
 
-#TODO: GET method ??
 @login_required
 def search(request):
-    post_get = request.POST.get
-    research = post_get('research')
-    ct_id    = post_get('ct_id')
+    #post_get = request.POST.get
+    #research = post_get('research')
+    #ct_id    = post_get('ct_id')
+    GET_get = request.GET.get
+    research = GET_get('research')
+    ct_id    = GET_get('ct_id')
 
     t_ctx   = {}
     models  = []
@@ -142,13 +144,7 @@ def search(request):
     t_ctx['models'] = [model._meta.verbose_name for model in models]
     t_ctx['blocks'] = blocks
 
-    return HttpResponse(render_to_string('creme_core/search_results.html', t_ctx,
-                                         context_instance=RequestContext(request),
-                                        )
-                       )
-#Not ajax version :
-#    return render_to_response("creme_core/generics/search_results.html", t_ctx, context_instance=RequestContext(request))
-
+    return render(request, 'creme_core/search_results.html', t_ctx)
 
 @login_required
 @jsonify

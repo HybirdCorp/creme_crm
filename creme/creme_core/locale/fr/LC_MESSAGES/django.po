@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2014 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*" -i "templates/creme_core/tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-18 16:21+0100\n"
+"POT-Creation-Date: 2015-01-05 18:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: blocks.py:76 forms/bulk.py:355 models/custom_field.py:64
+#: blocks.py:76 forms/bulk.py:356 models/custom_field.py:64
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:7
 msgid "Custom fields"
@@ -280,7 +280,7 @@ msgstr "Filtre"
 #: templates/creme_core/templatetags/listview_columns_header.html:11
 #: templates/creme_core/templatetags/listview_columns_header.html:18
 #: templates/creme_core/templatetags/listview_entityfilters.html:8
-#: templates/creme_core/templatetags/search_panel.html:17
+#: templates/creme_core/templatetags/search_panel.html:19
 #: views/entity_filter.py:137 views/entity_filter.py:151
 msgid "All"
 msgstr "Tout"
@@ -289,11 +289,11 @@ msgstr "Tout"
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:354 templates/creme_core/entity_cells_widget.html:15
+#: forms/bulk.py:355 templates/creme_core/entity_cells_widget.html:15
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/bulk.py:472
+#: forms/bulk.py:485
 msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
@@ -919,8 +919,8 @@ msgid "No choice available."
 msgstr "Aucun choix disponible."
 
 #: forms/widgets.py:902 models/search.py:72
-#: templates/creme_core/search_results.html:12
-#: templates/creme_core/templatetags/search_panel.html:15
+#: templates/creme_core/search_results.html:18
+#: templates/creme_core/templatetags/search_panel.html:17
 msgid "Search"
 msgstr "Recherche"
 
@@ -1956,11 +1956,15 @@ msgstr "Aucune erreur lors de l'import."
 msgid "Merge"
 msgstr "Fusionner"
 
-#: templates/creme_core/search_results.html:28
+#: templates/creme_core/search_results.html:4
+msgid "Search results"
+msgstr "Resultats de recherche"
+
+#: templates/creme_core/search_results.html:34
 msgid "Your search : "
 msgstr "Votre recherche : "
 
-#: templates/creme_core/search_results.html:29
+#: templates/creme_core/search_results.html:35
 msgid "Concerned types : "
 msgstr "Types concernés : "
 
@@ -2062,7 +2066,7 @@ msgid "Clean the search"
 msgstr "Effacer la recherche"
 
 #: templates/creme_core/frags/list_view_content.html:78
-#: templates/creme_core/templatetags/search_panel.html:24
+#: templates/creme_core/templatetags/search_panel.html:26
 msgid "Research"
 msgstr "Rechercher"
 
@@ -2834,11 +2838,11 @@ msgstr "Il manque une propriété compatible pour la fiche objet avec l'id=%s"
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour la fiche avec l'id=%s"
 
-#: views/search.py:115
+#: views/search.py:117
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
-#: views/search.py:117
+#: views/search.py:119
 #, python-format
 msgid "Please enter at least %s characters"
 msgstr "Veuillez entrer au moins %s caractères"
@@ -2963,9 +2967,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Blocks to display"
 #~ msgstr "Blocs à afficher"
-
-#~ msgid "Search results"
-#~ msgstr "Resultats de recherche"
 
 #~ msgid "Call"
 #~ msgstr "Appeler"

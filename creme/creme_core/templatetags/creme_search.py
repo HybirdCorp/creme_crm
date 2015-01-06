@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,18 +28,20 @@ from ..utils.unicode_collation import collator
 register = template.Library()
 
 @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
-def get_search_panel(context, target_node_id='sub_content'):
+#def get_search_panel(context, target_node_id='sub_content'):
+def get_search_panel(context):
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
-                      'verbose_name': model._meta.verbose_name,
+                      'verbose_name': unicode(model._meta.verbose_name),
                      } for model in creme_registry.iter_entity_models()
                     ]
     sort_key = collator.sort_key
     content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
-    context.update({
-            'content_types':  content_types,
-            'target_node_id': target_node_id, #Ajax version / set your target html node's id
-        })
+    #context.update({
+            #'content_types':  content_types,
+            #'target_node_id': target_node_id, #Ajax version / set your target html node's id
+        #})
+    context['content_types'] = content_types
 
     return context
