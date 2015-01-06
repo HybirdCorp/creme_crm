@@ -407,6 +407,33 @@ class UserTestCase(CremeTestCase):
                                 }
                             )
 
+    def test_create11(self):
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        username = 'deunan'
+        password = 'password'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'username':     username,
+                                          'password_1':   password,
+                                          'password_2':   password,
+                                          'first_name':   'Deunan',
+                                          'last_name':    'Knut',
+                                          'email':        'd.knut@eswat.ol',
+                                          'is_superuser': True,
+                                          'role':         self.role.id, # <==
+                                          'organisation': orga.id,
+                                          'relation':     REL_SUB_EMPLOYED_BY,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        user = self.get_object_or_fail(User, username=username)
+        self.assertTrue(user.is_superuser)
+        self.assertIsNone(user.role)
+
     def test_edit01(self):
         self.login()
 
@@ -505,17 +532,30 @@ class UserTestCase(CremeTestCase):
         "Common user without role"
         self.login()
 
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        other_user = self.other_user
+        role = other_user.role
+        self.assertIsNotNone(role)
 
-        url = self._build_edit_url(user.id)
+        url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-                                    data={'is_superuser': False}
+                                    data={'is_superuser': ''},
                                    )
-        self.assertFormError(response, 'form', 'role', 
+        self.assertFormError(response, 'form', 'role',
                              _(u"Choose a role or set superuser status to 'True'.")
                             )
+
+        response = self.client.post(url, follow=True,
+                                    data={'is_superuser': 'on',
+                                          'role':         role.id,
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        other_user = self.refresh(other_user)
+        self.assertTrue(other_user.is_superuser)
+        self.assertIsNone(other_user.role)
 
     def test_change_password01(self):
         self.login()

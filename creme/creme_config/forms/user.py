@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,10 +80,11 @@ class UserAddForm(CremeModelForm):
 
     def clean_role(self):
         cleaned_data = self.cleaned_data
-
         role = cleaned_data['role']
 
-        if not cleaned_data.get('is_superuser') and not role:
+        if cleaned_data.get('is_superuser', False):
+            role = None
+        elif not role:
             raise ValidationError(ugettext(u"Choose a role or set superuser status to 'True'."))
 
         return role
@@ -136,10 +137,11 @@ class UserEditForm(CremeModelForm):
 
     def clean_role(self):
         cleaned_data = self.cleaned_data
-
         role = cleaned_data['role']
 
-        if not cleaned_data.get('is_superuser') and not role:
+        if cleaned_data.get('is_superuser', False):
+            role = None
+        elif not role:
             raise ValidationError(ugettext(u"Choose a role or set superuser status to 'True'."))
 
         return role
