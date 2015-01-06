@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import logging
 
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation
@@ -113,9 +113,9 @@ class Populator(BasePopulator):
         if not already_populated:
             create_sphase = SalesPhase.objects.create
             create_sphase(name=_(u"Forthcoming"),       order=1)
-            create_sphase(name=_(u"Abandoned"),         order=4)
-            won  = create_sphase(name=_(u"Won"),        order=5, won=True)
-            lost = create_sphase(name=_(u"Lost"),       order=6)
+            create_sphase(name=pgettext('opportunities-sales_phase', u"Abandoned"),   order=4)
+            won  = create_sphase(name=pgettext('opportunities-sales_phase', u"Won"),  order=5, won=True)
+            lost = create_sphase(name=pgettext('opportunities-sales_phase', u"Lost"), order=6)
             create_sphase(name=_(u"Under negotiation"), order=3)
             create_sphase(name=_(u"In progress"),       order=2)
         #else:
