@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_queryset reports_tags %}
 
-{% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
+{% block page_title %}{% blocktrans %}Preview {{object}}{% endblocktrans %} - {% endblock %}
 
 {% block extrahead %}
     {{block.super}}
