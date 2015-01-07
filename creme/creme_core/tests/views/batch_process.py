@@ -10,6 +10,7 @@ try:
 
     from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui import bulk_update_registry
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
 
     from creme.persons.models import Organisation, Contact
@@ -131,6 +132,29 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                             'value':    '',
                                                         },
                                            }
+                                     )
+        self.assertFormError(response, 'form', 'actions',
+                             _(u"This field is invalid with this model."),
+                            )
+
+    def test_validation_error02(self):
+        "Field is not inner editable -> invalid"
+        self.autodiscover()
+        self.login()
+
+        fname = 'siren'
+        self.assertFalse(bulk_update_registry.is_updatable(
+                                Organisation, fname, exclude_unique=False,
+                            )
+                        )
+
+        response = self.assertPOST200(self.build_url(Organisation), follow=True,
+                                            data={'actions': self.format_str1 % {
+                                                                    'name':     fname,
+                                                                    'operator': 'lower',
+                                                                    'value':    '',
+                                                                },
+                                                 }
                                      )
         self.assertFormError(response, 'form', 'actions',
                              _(u"This field is invalid with this model."),
