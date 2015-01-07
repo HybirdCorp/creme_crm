@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 import logging
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
@@ -26,13 +27,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from ..core.batch_process import batch_operator_manager, BatchAction
+from ..gui import bulk_update_registry
 from ..models import CremeEntity, EntityFilter, EntityCredentials
 from ..utils.chunktools import iter_as_slices
 from ..utils.collections import LimitedList
 from .base import CremeForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
-
 
 logger = logging.getLogger(__name__)
 
@@ -85,10 +86,17 @@ class BatchActionsField(JSONField):
         self._model = model
         self._fields = fields = {}
         managed_fields = tuple(batch_operator_manager.managed_fields)
+        updatable = partial(bulk_update_registry.is_updatable,
+                            model=model, exclude_unique=False,
+                           )
+        get_form = bulk_update_registry.status(model).get_form
 
         for field in model._meta.fields:
             if field.editable and isinstance(field, managed_fields):
-                fields[field.name] = field
+                fname = field.name
+
+                if updatable(field_name=fname) and get_form(fname) is None: #not a specific form (ie: specific busness logic) #TODO: test
+                    fields[field.name] = field
 
         self._build_widget()
 
