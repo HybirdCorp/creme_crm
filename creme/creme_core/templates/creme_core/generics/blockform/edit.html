@@ -4,10 +4,10 @@
 
 {% block page_title %}
     {% if object %}
-        - {% blocktrans %}Edit «{{object}}»{% endblocktrans %}
+        {% blocktrans %}Edit «{{object}}»{% endblocktrans %}
     {% else %}
-        - {% trans "Edit" %}
-    {% endif %}
+        {% trans "Edit" %}
+    {% endif %} - 
 {% endblock %}
 
 {% block content %}

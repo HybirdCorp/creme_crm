@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% block page_title %} - {{title}}{% endblock %}
+{% block page_title %}{{title}} - {% endblock %}
 
 {% block content %}
     {% with form=wizard.form steps=wizard.steps %}
