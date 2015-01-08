@@ -8,7 +8,8 @@ try:
     from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import SetCredentials, RelationType, CremePropertyType, CremeProperty
+    from creme.creme_core.models import (SetCredentials, RelationType, Relation,
+            CremePropertyType, CremeProperty)
 
     from creme.documents.models import Document
 
@@ -744,6 +745,67 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         task = self.get_object_or_fail(Activity, title=title)
         self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga1)
         self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga2)
+
+    def test_import_with_update(self):
+        "No duplicated Subjects/participants"
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
+        participant2 = create_contact(first_name='Aoi',     last_name='Kunieda')
+
+        subject = Organisation.objects.create(user=user, name='Ishiyama')
+
+        create_act = partial(Activity.objects.create, user=user,
+                             type_id=ACTIVITYTYPE_MEETING,
+                             sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+                            )
+        act1 = create_act(title='Fight against demons#1')
+        act2 = create_act(title='Fight against demons#2')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=act1, type_id=REL_OBJ_PART_2_ACTIVITY,  object_entity=participant1)
+        create_rel(subject_entity=act2, type_id=REL_OBJ_ACTIVITY_SUBJECT, object_entity=subject)
+
+        place = 'Hell'
+        lines = [(act1.title, participant1.first_name, participant1.last_name, subject.name, place),
+                 (act2.title, '',                      participant2.last_name, subject.name, ''),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Activity),
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              key_fields=['title'],
+
+                                              type_selector=self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                                      ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                                     ),
+
+                                              participants_mode=1, #search with 1 or 2 columns
+                                              participants_first_name_colselect=2,
+                                              participants_last_name_colselect=3,
+
+                                              subjects_colselect=4,
+
+                                              place_colselect=5,
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        act1 = self.refresh(act1)
+        self.assertEqual(place, act1.place)
+        #self.assertEqual(ACTIVITYTYPE_MEETING, act1.type_id)
+        #self.assertEqual(ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
+
+        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1) #<- not 2
+        self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act1, REL_OBJ_ACTIVITY_SUBJECT, subject)
+
+        act2 = self.refresh(act2)
+        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertRelationCount(1, act2, REL_OBJ_ACTIVITY_SUBJECT, subject) #<- not 2
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"

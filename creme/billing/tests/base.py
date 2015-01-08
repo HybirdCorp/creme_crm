@@ -11,8 +11,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import (RelationType, Currency, Vat, SettingValue,
-            CremePropertyType, CremeProperty, BlockDetailviewLocation)
+    from creme.creme_core.models import (RelationType, Relation, Currency, Vat,
+            SettingValue, CremePropertyType, CremeProperty, BlockDetailviewLocation)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT
 
     from creme.persons.models import Contact, Organisation, Address
@@ -323,6 +323,74 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         self.assertIsNotNone(imp_target4)
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
         self.assertEqual(imp_target4.get_real_entity(), target4)
+
+    def _aux_test_csv_import_update(self, model, status_model):
+        user = self.user
+        create_orga = partial(Organisation.objects.create, user=user)
+
+        source1 = create_orga(name='Nerv')
+        source2 = create_orga(name='Seele')
+
+        target1 = create_orga(name='Acme1')
+        target2 = create_orga(name='Acme2')
+
+        def_status = status_model.objects.all()[0]
+        bdoc = model.objects.create(user=user, name='Billdoc #1', status=def_status)
+
+        #TODO: copy the API of Opportunities
+        create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
+        create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
+        create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
+
+        number = 'B0001'
+        doc = self._build_csv_doc([(bdoc.name, number, source2.name, target2.name)])
+        response = self.client.post(self._build_import_url(model),
+                                    data = {'step':     1,
+                                            'document': doc.id,
+
+                                            'user': user.id,
+                                            'key_fields': ['name'],
+
+                                            'name_colselect':   1,
+                                            'number_colselect': 2,
+
+                                            'issuing_date_colselect':    0,
+                                            'expiration_date_colselect': 0,
+
+                                            'status_colselect': 0,
+                                            'status_defval':    def_status.pk,
+
+                                            'discount_colselect': 0,
+                                            'discount_defval':    '0',
+
+                                            'currency_colselect': 0,
+                                            'currency_defval':    Currency.objects.all()[0].pk,
+
+                                            'acceptation_date_colselect': 0,
+
+                                            'comment_colselect':         0,
+                                            'additional_info_colselect': 0,
+                                            'payment_terms_colselect':   0,
+                                            'payment_type_colselect':    0,
+
+                                            'source_persons_organisation_colselect': 3,
+                                            'source_persons_organisation_create':    True,
+                                            'target_persons_organisation_colselect': 4,
+                                            'target_persons_organisation_create':    True,
+                                            'target_persons_contact_colselect':      0,
+                                            #'target_persons_contact_create':         True,
+                                           }
+                                   )
+        self.assertNoFormError(response)
+
+        bdoc = self.refresh(bdoc)
+        self.assertEqual(number, bdoc.number)
+
+        self.assertRelationCount(1, bdoc, REL_SUB_BILL_ISSUED, source2)
+        self.assertRelationCount(0, bdoc, REL_SUB_BILL_ISSUED, source1)
+
+        self.assertRelationCount(1, bdoc, REL_SUB_BILL_RECEIVED, target2)
+        self.assertRelationCount(0, bdoc, REL_SUB_BILL_RECEIVED, target1)
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase):

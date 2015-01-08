@@ -207,7 +207,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         position_ids = list(Position.objects.values_list('id', flat=True))
         sector_ids   = list(Sector.objects.values_list('id', flat=True))
 
-        ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cure in her suit')
+        ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cute in her suit')
 
         employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
                                        ('persons-object_employed_by',  'employs')
@@ -829,6 +829,18 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.login()
         user = self.user
 
+        create_contact = partial(Contact.objects.create, user=user)
+        shinji = create_contact(first_name='Shinji', last_name='Ikari')
+        gendo  = create_contact(first_name='Gendo',  last_name='Ikari')
+
+        loves = RelationType.create(('test-subject_loving', 'is loving'),
+                                    ('test-object_loving',  'is loved by')
+                                   )[0]
+
+        create_ptype = CremePropertyType.create
+        ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
+        ptype2 = create_ptype(str_pk='test-blue_haired', text='Has blue hairs')
+
         rei_info   = {'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111'}
         asuka_info = {'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222'}
 
@@ -837,6 +849,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                             defaults={'user': user},
                                            )[0]
         self.assertNotEqual(rei_info['phone'], rei.phone)
+
+        #This relation & this property should not be duplicated
+        Relation.objects.create(subject_entity=rei, type=loves, object_entity=shinji, user=user)
+        CremeProperty.objects.create(type=ptype1, creme_entity=rei)
 
         #Should not be modified, even is 'first_name' is searched
         rei2 = Contact.objects.get_or_create(first_name=rei_info['first_name'],
@@ -860,6 +876,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                               first_name_colselect=1,
                                               last_name_colselect=2,
                                               phone_colselect=3,
+                                              property_types=[ptype1.id, ptype2.id],
+                                              fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                              ' {"rtype":"%s","ctype":"%s","entity":"%s"}]'% (
+                                                            loves.id, shinji.entity_type_id, shinji.id,
+                                                            loves.id, gendo.entity_type_id,  gendo.id,
+                                                        ),
                                              ),
                                    )
         self.assertNoFormError(response)
@@ -873,7 +895,14 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(1, form.updated_objects_count)
 
         self.assertEqual(count + 1, Contact.objects.count())
-        self.assertEqual(rei_info['phone'], self.refresh(rei).phone)
+
+        rei = self.refresh(rei)
+        self.assertEqual(rei_info['phone'], rei.phone)
+        self.assertRelationCount(1, rei, loves.id, gendo)
+        self.assertRelationCount(1, rei, loves.id, shinji) #<== not 2 !
+        self.get_object_or_fail(CremeProperty, type=ptype2, creme_entity=rei.id)
+        self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=rei.id) #<= not 2 !
+
         self.assertIsNone(self.refresh(rei2).phone)
         self.get_object_or_fail(Contact, **asuka_info)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, EntityExtractorField
 from creme.creme_core.models import Relation
+from creme.creme_core.utils import find_first
 
 from creme.persons.models import Contact, Organisation
 
@@ -35,7 +36,7 @@ def get_import_form_builder(header_dict, choices):
     class InvoiceLVImportForm(ImportForm4CremeEntity):
         source = EntityExtractorField([(Organisation, 'name')], choices, label=_('Source organisation'))
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
-                                      choices, label=_('Target')
+                                      choices, label=_('Target'),
                                      )
 
         #class Meta:
@@ -52,12 +53,31 @@ def get_import_form_builder(header_dict, choices):
 
             target, err_msg  = cdata['target'].extract_value(line, user)
             append_error(line, err_msg, instance)
-
+ 
             create_rel = partial(Relation.objects.create, subject_entity=instance,
                                  user=instance.user,
                                 )
-            create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
-            create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+            #TODO: move this intelligence in models.Base.save() (see regular Forms)
+            if not cdata['key_fields']:
+                create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
+                create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+            else: # update mode
+                relations = Relation.objects.filter(subject_entity=instance.pk,
+                                                    type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)
+                                                   )
+
+                issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
+                received_relation = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_RECEIVED), None)
+
+                if issued_relation.object_entity_id != source:
+                    issued_relation.delete()
+                    create_rel(type_id=REL_SUB_BILL_ISSUED, object_entity=source)
+
+                if received_relation.object_entity_id != target:
+                    received_relation.delete()
+                    create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
 
             instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
             instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
