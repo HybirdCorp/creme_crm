@@ -660,19 +660,36 @@ def get_csv_form_builder(header_dict, choices):
             super(ActivityCSVImportForm, self)._post_instance_creation(instance, line)
 
             cdata = self.cleaned_data
+            user = instance.user
             participant_ids = set()
+
+            if cdata['key_fields']: # update mode
+                #TODO: improve get_participant_relations() (not retrieve real entities)
+                participant_ids.update(Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY,
+                                                               object_entity=instance.id,
+                                                              )
+                                                       .values_list('subject_entity', flat=True)
+                                      )
+                create_sub_rel = partial(Relation.objects.get_or_create, object_entity=instance,
+                                         type_id=REL_SUB_ACTIVITY_SUBJECT,
+                                         defaults={'user': user},
+                                        )
+            else:
+                create_sub_rel = partial(Relation.objects.create, object_entity=instance,
+                                         type_id=REL_SUB_ACTIVITY_SUBJECT, user=user,
+                                        ) 
 
             def add_participant(participant):
                 if not participant.id in participant_ids:
                     Relation.objects.create(subject_entity=participant,
                                             type_id=REL_SUB_PART_2_ACTIVITY,
-                                            object_entity=instance, user=instance.user,
+                                            object_entity=instance, user=user,
                                            )
                     participant_ids.add(participant.id)
 
             if cdata['my_participation']:
                 #add_participant(Contact.objects.get(is_user=instance.user))
-                add_participant(instance.user.linked_contact)
+                add_participant(user.linked_contact)
                 instance.calendars.add(cdata['my_calendar'])
 
             for participant in self.user_participants:
@@ -696,10 +713,6 @@ def get_csv_form_builder(header_dict, choices):
                 self.append_error(line, err_msg, instance)
 
             for subject in subjects:
-                Relation.objects.create(subject_entity=subject,
-                                        type_id=REL_SUB_ACTIVITY_SUBJECT,
-                                        object_entity=instance, user=instance.user,
-                                       )
-
+                create_sub_rel(subject_entity=subject)
 
     return ActivityCSVImportForm

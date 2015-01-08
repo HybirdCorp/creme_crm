@@ -152,3 +152,6 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_csv_import(self):
         self._aux_test_csv_import(SalesOrder, SalesOrderStatus)
+
+    def test_csv_import_update(self):
+        self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)

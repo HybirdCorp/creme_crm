@@ -729,6 +729,10 @@ class InvoiceTestCase(_BillingTestCase):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus)
 
+    def test_csv_import_update(self):
+        self.login()
+        self._aux_test_csv_import_update(Invoice, InvoiceStatus)
+
 
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self): #setUpClass does not work here

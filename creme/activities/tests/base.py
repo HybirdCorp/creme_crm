@@ -16,7 +16,7 @@ class _ActivitiesTestCase(CremeTestCase):
     #def login(self, is_superuser=True, other_is_owner=False):
     def login(self, is_superuser=True, other_is_owner=False,
               allowed_apps=('activities', 'persons'), **kwargs):
-        super(_ActivitiesTestCase, self).login(is_superuser,
+        return super(_ActivitiesTestCase, self).login(is_superuser,
                                                #allowed_apps=['activities', 'persons'],
                                                allowed_apps=allowed_apps,
                                                **kwargs

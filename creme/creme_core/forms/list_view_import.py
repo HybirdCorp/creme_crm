@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1224,7 +1224,9 @@ class ImportForm4CremeEntity(ImportForm):
     def _post_instance_creation(self, instance, line):
         cdata = self.cleaned_data
         user = instance.user
+        update_mode = bool(self.cleaned_data['key_fields'])
 
+        # Custom Fields -------
         for cfield in self.cfields:
             try:
                 value, err_msg = cdata[_CUSTOM_NAME % cfield.id].extract_value(line)
@@ -1236,10 +1238,21 @@ class ImportForm4CremeEntity(ImportForm):
                 elif value is not None:
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
-        for prop_type in cdata['property_types']:
-            CremeProperty(type=prop_type, creme_entity=instance).save()
+        # Properties -----
+        create_prop = partial(CremeProperty.objects.create if not update_mode else
+                              CremeProperty.objects.get_or_create,
+                              creme_entity=instance,
+                             )
 
-        create_relation = partial(Relation.objects.create, user=user, subject_entity=instance)
+        for prop_type in cdata['property_types']:
+            create_prop(type=prop_type)
+
+        # Relationships -----
+        create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
+                          if not update_mode else \
+                          partial(Relation.objects.get_or_create, subject_entity=instance,
+                                  defaults={'user': user},
+                                 )
 
         for rtype, entity in cdata['fixed_relations']:
             create_relation(type=rtype, object_entity=entity)
