@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,9 +51,8 @@ class Populator(BasePopulator):
 
 
         #TODO: pk string + is_custom=False ??
-        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=_(u"Documents related to entities"))
-        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=_(u"Documents received by email"))
-
+        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=unicode(DOCUMENTS_FROM_ENTITIES_NAME))
+        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
 
         if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
             Folder.objects.create(user=User.objects.get(pk=1), title="Creme", category=entities_cat,

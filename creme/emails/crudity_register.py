@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,8 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
+from creme.documents.constants import (REL_OBJ_RELATED_2_DOC,
+        DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME)
 from creme.documents.models import Document, Folder, FolderCategory
 
 from creme.crudity.backends.models import CrudityBackend
@@ -53,11 +54,25 @@ class EntityEmailBackend(CrudityBackend):
             current_user = CreateEmailInput.get_owner(True, sender=email.senders[0])
 
         current_user_id = current_user.id
-        folder_cat, created = FolderCategory.objects.get_or_create(pk=DOCUMENTS_FROM_EMAILS)
-        folder, created = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {'username': current_user.username},
-                                                       user=current_user,
-                                                       category=folder_cat,
-                                                      )
+        cat_name = unicode(DOCUMENTS_FROM_EMAILS_NAME)
+
+        try:
+            folder_cat = FolderCategory.objects.get(name=cat_name)
+        except FolderCategory.DoesNotExist:
+            try:
+                folder_cat = FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS)
+            except FolderCategory.DoesNotExist:
+                folder_cat = FolderCategory.objects.create(pk=DOCUMENTS_FROM_EMAILS,
+                                                           name=cat_name,
+                                                          )
+
+        folder = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {
+                                                            'username': current_user.username,
+                                                        },
+                                              defaults={'user': current_user,
+                                                        'category': folder_cat,
+                                                       }
+                                             )[0]
 
         mail = EntityEmail(status=MAIL_STATUS_SYNCHRONIZED_WAITING,
                            body=email.body.encode('utf-8'),
