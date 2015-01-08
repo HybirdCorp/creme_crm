@@ -9,6 +9,9 @@ try:
     from creme.creme_core.models import SettingValue
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
+    from creme.documents.models import FolderCategory, Folder
+
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from creme.crudity.fetchers.pop import PopEmail
     from creme.crudity.models import History
@@ -26,10 +29,18 @@ class EmailsCrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('crudity')
+        cls.populate('documents', 'crudity')
 
     def setUp(self):
         self.login()
+        self._category_to_restore = None
+
+    def tearDown(self):
+        cat = self._category_to_restore
+
+        if cat is not None:
+            FolderCategory.objects.filter(name=cat.name).delete()
+            cat.save()
 
     cfg = {
             #"fetcher": "email",
@@ -112,6 +123,53 @@ class EmailsCrudityTestCase(CremeTestCase):
 
         history = self.get_object_or_fail(History, entity=e_email.id)
         self.assertEqual(other_user, history.user) #<== not 'user' !
+
+    def test_create_with_deleted_category01(self):
+        "Create category if it has been deleted"
+        self._category_to_restore = old_cat = self.get_object_or_fail(FolderCategory, pk=DOCUMENTS_FROM_EMAILS)
+        old_cat.delete()
+
+        user = self.user
+        other_user = self.other_user
+
+        backend = EntityEmailBackend(self.cfg)
+        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
+                         senders=[other_user.email], ccs=[user.email],
+                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
+                        )
+        backend.fetcher_fallback(email, user)
+        self.get_object_or_fail(EntityEmail, subject=email.subject)
+
+        cat = self.get_object_or_fail(FolderCategory, pk=DOCUMENTS_FROM_EMAILS)
+        self.assertEqual(DOCUMENTS_FROM_EMAILS_NAME, cat.name)
+
+    def test_create_with_deleted_category02(self):
+        "Create category if it has been deleted, and another one created with the same name"
+        user = self.user
+        other_user = self.other_user
+
+        backend = EntityEmailBackend(self.cfg)
+        email = PopEmail(body='Hi', body_html='<i>Hi</i>', subject='Test email crudity',
+                         senders=[other_user.email], ccs=[user.email],
+                         tos=['natsuki.hagiwara@ichigo.jp', 'kota.ochiai@ichigo.jp'],
+                        )
+        backend.fetcher_fallback(email, user)
+        self.get_object_or_fail(EntityEmail, subject=email.subject)
+
+        folder = self.get_object_or_fail(Folder, title=_(u"%(username)s's files received by email") % {
+                                                                'username': user.username,
+                                                            },
+                                        )
+
+        self._category_to_restore = old_cat = folder.category
+        old_cat.delete()
+        self.assertIsNone(self.refresh(folder).category)
+
+        FolderCategory.objects.create(name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
+
+        email.subject += '#2'
+        backend.fetcher_fallback(email, user)
+        self.get_object_or_fail(EntityEmail, subject=email.subject)
 
     #TODO: authorize_senders return False
     #TODO: attachments
