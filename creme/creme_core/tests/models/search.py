@@ -17,7 +17,14 @@ __all__ = ('SearchConfigTestCase', )
 class SearchConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
+        cls._sci_backup = list(SearchConfigItem.objects.all())
         SearchConfigItem.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        CremeTestCase.tearDownClass()
+        SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def test_create_if_needed01(self):
         self.assertEqual(0, SearchConfigItem.objects.count())
@@ -31,6 +38,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_item.user)
         self.assertEqual('first_name,last_name', sc_item.field_names)
         self.assertIs(sc_item.all_fields, False)
+        self.assertIs(sc_item.disabled, False)
 
         sfields = sc_item.searchfields
         self.assertEqual(2, len(sfields))
@@ -76,6 +84,14 @@ class SearchConfigTestCase(CremeTestCase):
         sfields = sc_item.searchfields
         self.assertEqual(1, len(sfields))
         self.assertEqual('first_name', sfields[0].name)
+
+    def test_create_if_needed05(self):
+        "Disabled"
+        self.login()
+
+        sc_item = SearchConfigItem.create_if_needed(Organisation, [], disabled=True)
+        self.assertTrue(sc_item.disabled)
+        self.assertFalse(sc_item.field_names)
 
     def test_allfields01(self):
         "True"
@@ -154,3 +170,10 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item.searchfields = ['invalid']
         sc_item.save()
         self.assertIsNone(self.refresh(sc_item).field_names)
+
+    def test_searchfields_setter04(self):
+        "Fields + disabled"
+        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'],
+                                                    disabled=True,
+                                                   )
+        self.assertEqual(['name', 'phone'], [sf.name for sf in sc_item.searchfields])

@@ -136,6 +136,8 @@ def search(request):
                             #'entities': entities,
                            #}
                           #)
+
+        models = list(searcher.models) # remove disabled models
         blocks.extend(FoundEntitiesBlock(searcher, model, research, user) for model in models)
 
     #t_ctx['total'] = total

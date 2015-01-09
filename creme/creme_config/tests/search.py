@@ -48,13 +48,17 @@ class SearchConfigTestCase(CremeTestCase):
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
-        self.assertIsNone(sc_items[0].user)
+
+        sc_item = sc_items[0]
+        self.assertIsNone(sc_item.user)
+        self.assertFalse(sc_item.disabled)
 
     def test_add02(self):
         "Unique congiguration"
-        post = partial(self.client.post, self.ADD_URL, data={'content_type': self.ct_contact.id,
-                                                             'user':         self.other_user.id,
-                                                            }
+        post = partial(self.client.post, self.ADD_URL,
+                       data={'content_type': self.ct_contact.id,
+                             'user':         self.other_user.id,
+                            },
                       )
         self.assertNoFormError(post())
 
@@ -87,8 +91,8 @@ class SearchConfigTestCase(CremeTestCase):
             if f_field_name == field_name:
                 self.fail(field_name + ' in choices')
 
-    def _edit_config(self, url, sci, names_indexes):
-        data = {}
+    def _edit_config(self, url, sci, names_indexes, disabled=''):
+        data = {'disabled': disabled}
         names = []
 
         for order, (name, index) in enumerate(names_indexes, start=1):
@@ -100,7 +104,11 @@ class SearchConfigTestCase(CremeTestCase):
 
         response = self.client.post(url, data=data)
         self.assertNoFormError(response)
-        self.assertEqual(names, [sf.name for sf in self.refresh(sci).searchfields])
+
+        sci = self.refresh(sci)
+        self.assertEqual(names, [sf.name for sf in sci.searchfields])
+
+        return sci
 
     def test_edit01(self):
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
@@ -119,7 +127,8 @@ class SearchConfigTestCase(CremeTestCase):
         self._find_field_index(fields, 'civility__title')
         self.assertNoChoice(fields, 'birthday')
 
-        self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        sci = self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
+        self.assertFalse(sci.disabled)
 
     def test_edit02(self):
         "Other CT + user + exclude BooleanField"
@@ -140,8 +149,22 @@ class SearchConfigTestCase(CremeTestCase):
 
         self._edit_config(url, sci, ((fname1, index1), (fname2, index2)))
 
-    @skipIfNotInstalled('creme.recurrents')
     def test_edit03(self):
+        "Disabled"
+        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
+        url = self._build_edit_url(sci)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields['fields']
+
+        fname1 = 'first_name'
+        index1 = self._find_field_index(fields, fname1)
+        sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
+        self.assertTrue(sci.disabled)
+
+    @skipIfNotInstalled('creme.recurrents')
+    def test_edit04(self):
         "Exclude DateperiodField"
         from creme.recurrents.models import RecurrentGenerator
 

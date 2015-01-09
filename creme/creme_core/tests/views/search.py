@@ -25,16 +25,24 @@ class SearchViewTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
         #cls.populate('creme_config', 'creme_core')
         cls.populate('creme_core')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
         QuerysetBlock.page_size = 10
 
+        cls._sci_backup = list(SearchConfigItem.objects.all())
+        SearchConfigItem.objects.all().delete()
+
     @classmethod
     def tearDownClass(cls):
+        ViewsTestCase.tearDownClass()
+
         del QuerysetBlock.page_size
         assert QuerysetBlock.page_size #in PaginatedBlock
+
+        SearchConfigItem.objects.bulk_create(cls._sci_backup)
 
     def _build_contacts(self):
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -42,8 +50,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.alan  = create_contact(first_name='Alan',  last_name='Cox')
         self.linus2 = create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
 
-    def _setup_contacts(self):
-        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
+    def _setup_contacts(self, disabled=False):
+        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'], disabled=disabled)
         self._build_contacts()
 
     def _setup_orgas(self):
@@ -136,8 +144,8 @@ class SearchViewTestCase(ViewsTestCase):
         context = response.context
         #self.assertEqual(2, context['total'])
 
-        contacts_result = None
-        orgas_result    = None
+        #contacts_result = None
+        #orgas_result    = None
 
         #for result in context['results']:
             #model = result['model']
@@ -223,6 +231,26 @@ class SearchViewTestCase(ViewsTestCase):
 
         response = self._search('very smart', self.contact_ct_id)
         self.assertNotContains(response, linus.get_absolute_url())
+
+    def test_search07(self):
+        "Disabled"
+        self.login()
+        self._setup_contacts(disabled=True)
+        self._setup_orgas()
+
+        response = self._search('cox')
+        context = response.context
+
+        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
+        self.assertContains(response, self.coxco.get_absolute_url())
+        self.assertNotContains(response, self.linusfo.get_absolute_url())
+
+        self.assertNotContains(response, ' id="%s' % self.CONTACT_BLOCKID)
+        self.assertNotContains(response, self.alan.get_absolute_url())
+
+        vnames = {unicode(vname) for vname in context['models']}
+        self.assertIn(_('Organisation'), vnames)
+        self.assertNotIn(_('Contact'), vnames)
 
     def test_reload_block(self):
         self.login()
