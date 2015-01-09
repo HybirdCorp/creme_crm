@@ -2670,6 +2670,10 @@ msgstr "Aujourd'hui"
 msgid "Tomorrow"
 msgstr "Demain"
 
+#: utils/date_range.py: 284
+msgid "Is not empty"
+msgstr "N'est pas vide"
+
 #: views/batch_process.py:72
 msgid "Run"
 msgstr "Exécuter"
@@ -2970,9 +2974,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Call"
 #~ msgstr "Appeler"
-
-#~ msgid "Is not empty"
-#~ msgstr "N'est pas vide"
 
 #~ msgid "Begin date"
 #~ msgstr "Date de début"

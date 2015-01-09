@@ -238,10 +238,12 @@ class PolymorphicInput(TextInput):
 class DateRangeSelect(TextInput):
     def __init__(self, attrs=None):
         super(DateRangeSelect, self).__init__(attrs)
+        self.choices = self.range_choices()
 
+    def range_choices(self):
         choices = [('', _("Customized"))]
         choices.extend(date_range_registry.choices())
-        self.choices = choices
+        return choices
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
@@ -265,6 +267,13 @@ class DateRangeSelect(TextInput):
                                <span class="daterange-inputs"> %(from)s%(start)s&nbsp;%(to)s%(end)s</span>
                             </span>""" % context
                         )
+
+
+class NullableDateRangeSelect(DateRangeSelect):
+    def range_choices(self):
+        choices = [('', _("Customized"))]
+        choices.extend(date_range_registry.choices(exclude_empty=False))
+        return choices
 
 
 class ChainedInput(TextInput):

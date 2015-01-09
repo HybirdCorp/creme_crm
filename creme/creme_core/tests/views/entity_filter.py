@@ -25,7 +25,7 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 class EntityFilterViewsTestCase(ViewsTestCase):
     FIELDS_CONDS_FMT       = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
-    DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
+    DATE_FIELDS_CONDS_FMT  = '[{"field": {"name": "%(name)s", "type": "date"}, "range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}}]'
     CFIELDS_CONDS_FMT      = '[{"field": {"id": "%(cfield)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
     DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
     RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": 0, "entity": null}]'
