@@ -789,23 +789,40 @@ class EntityFilterCondition(Model):
     ISEMPTY         = 21
     RANGE           = 22
 
+    _FIELDTYPES_ALL  = {'string',
+                        'enum', 'enum__null',
+                        'number', 'number__null',
+                        'date', 'date__null',
+                        'boolean', 'boolean__null',
+                        'fk', 'fk__null',
+                        'user', 'user__null',
+                       }
+
+    _FIELDTYPES_ORDERABLE = {'number', 'number__null',
+                             'date', 'date__null',
+                            }
+
+    _FIELDTYPES_RELATED = {'fk', 'fk__null',
+                           'enum', 'enum__null',
+                          }
+
     _OPERATOR_MAP = {
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact',
-                                                accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'boolean', 'fk', 'user')),
+                                                accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
             IEQUALS:         _ConditionOperator(_(u'Equals (case insensitive)'),              '%s__iexact',
                                                 accept_subpart=False, allowed_fieldtypes=('string',)),
             EQUALS_NOT:      _ConditionOperator(_(u"Does not equal"),                         '%s__exact',
-                                                exclude=True, accept_subpart=False, allowed_fieldtypes=('string', 'enum', 'number', 'date', 'fk', 'user')),
+                                                exclude=True, accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
             IEQUALS_NOT:     _ConditionOperator(_(u"Does not equal (case insensitive)"),      '%s__iexact',
                                                 exclude=True, accept_subpart=False, allowed_fieldtypes=('string',)),
             CONTAINS:        _ConditionOperator(_(u"Contains"),                               '%s__contains', allowed_fieldtypes=('string',)),
             ICONTAINS:       _ConditionOperator(_(u"Contains (case insensitive)"),            '%s__icontains', allowed_fieldtypes=('string',)),
             CONTAINS_NOT:    _ConditionOperator(_(u"Does not contain"),                       '%s__contains', exclude=True, allowed_fieldtypes=('string',)),
             ICONTAINS_NOT:   _ConditionOperator(_(u"Does not contain (case insensitive)"),    '%s__icontains', exclude=True, allowed_fieldtypes=('string',)),
-            GT:              _ConditionOperator(_(u">"),                                      '%s__gt', allowed_fieldtypes=('number', 'date',)),
-            GTE:             _ConditionOperator(_(u">="),                                     '%s__gte', allowed_fieldtypes=('number', 'date',)),
-            LT:              _ConditionOperator(_(u"<"),                                      '%s__lt', allowed_fieldtypes=('number', 'date',)),
-            LTE:             _ConditionOperator(_(u"<="),                                     '%s__lte', allowed_fieldtypes=('number', 'date',)),
+            GT:              _ConditionOperator(_(u">"),                                      '%s__gt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            GTE:             _ConditionOperator(_(u">="),                                     '%s__gte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            LT:              _ConditionOperator(_(u"<"),                                      '%s__lt', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
+            LTE:             _ConditionOperator(_(u"<="),                                     '%s__lte', allowed_fieldtypes=_FIELDTYPES_ORDERABLE),
             STARTSWITH:      _ConditionOperator(_(u"Starts with"),                            '%s__startswith', allowed_fieldtypes=('string',)),
             ISTARTSWITH:     _ConditionOperator(_(u"Starts with (case insensitive)"),         '%s__istartswith', allowed_fieldtypes=('string',)),
             STARTSWITH_NOT:  _ConditionOperator(_(u"Does not start with"),                    '%s__startswith', exclude=True, allowed_fieldtypes=('string',)),
@@ -814,7 +831,7 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk', 'user', 'enum', 'number', 'boolean')), #TODO: all types should be allowed ('date' fields are annoying at the moment)
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk__null', 'user__null', 'enum__null', 'boolean__null')),
             RANGE:           _RangeOperator(_(u"Range")),
         }
 

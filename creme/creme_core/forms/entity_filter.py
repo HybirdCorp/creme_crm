@@ -28,6 +28,7 @@ from django.contrib.auth.models import User
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
+from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -123,7 +124,7 @@ class FieldConditionWidget(ChainedInput):
             field_attrs['autocomplete'] = True
 
         operator_attrs = dict(field_attrs,
-                              filter='context.field && item.value ? item.value.types.indexOf(context.field.type) !== -1 : true',
+                              filter='context.field && item.value ? item.value.types.split(" ").indexOf(context.field.type) !== -1 : true',
                               dependencies='field',
                              )
         self.add_dselect('field',    options=self._build_fieldchoices(fields), attrs=field_attrs)
@@ -133,22 +134,22 @@ class FieldConditionWidget(ChainedInput):
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
-        pinput.add_dselect('^enum.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                           '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs)
-
-        pinput.add_dselect('^user.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+        pinput.add_dselect('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+                           '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs,
+                          )
+        pinput.add_dselect('^user(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                            '/creme_core/enumerable/userfilter/json', attrs=field_attrs,
                           )
-        pinput.add_input('fk.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+        pinput.add_input('^fk(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                          EntitySelector, content_type='${field.ctype}', attrs={'auto': False},
                         )
-        pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
+        pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
                          DateRangeSelect, attrs={'auto': False},
                         )
-        pinput.add_input('^boolean.*',
+        pinput.add_input('^boolean(__null)?.*',
                          DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
                         )
-        pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
+        pinput.add_input('(string|.*__null).(%d)$' % EntityFilterCondition.ISEMPTY,
                          DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -173,7 +174,7 @@ class FieldConditionWidget(ChainedInput):
             choice_label = field.verbose_name
             choice_value = {'name': name, 'type': FieldConditionWidget.field_choicetype(field)}
 
-        if choice_value['type'] in ('enum', 'fk'):
+        if choice_value['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
             choice_value['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
 
         return category, (json.dumps(choice_value), choice_label)
@@ -192,23 +193,25 @@ class FieldConditionWidget(ChainedInput):
 
     @staticmethod
     def field_choicetype(field):
-        if isinstance(field, ModelForeignKey):
+        isnull = '__null' if getattr(field, 'null', False) else ''
+
+        if isinstance(field, ModelRelatedField):
             if issubclass(field.rel.to, User):
-                return 'user'
+                return 'user' + isnull
 
-            if issubclass(field.rel.to, CremeEntity):
-                return 'fk'
+            if field.get_tag('enumerable'):
+                return 'enum' + isnull
 
-            return 'enum'
+            return 'fk' + isnull
 
         if isinstance(field, ModelDateField):
-            return 'date'
+            return 'date' + isnull
 
         if isinstance(field, (ModelIntegerField, ModelFloatField, ModelDecimalField)):
-            return 'number'
+            return 'number' + isnull
 
         if isinstance(field, ModelBooleanField):
-            return 'boolean'
+            return 'boolean' + isnull
 
         return 'string'
 
@@ -269,6 +272,15 @@ class DateFieldsConditionsWidget(SelectorList):
 # 
 #         super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 class CustomFieldConditionWidget(FieldConditionWidget):
+    _CHOICETYPES = {
+        CustomField.INT:        'number__null',
+        CustomField.FLOAT:      'number__null',
+        CustomField.DATETIME:   'date__null',
+        CustomField.BOOL:       'boolean__null',
+        CustomField.ENUM:       'enum__null',
+        CustomField.MULTI_ENUM: 'enum__null',
+    }
+
     def _build_fieldchoice(self, name, customfield):
         choice_label = customfield.name
         choice_value = {'id':   customfield.id,
@@ -279,16 +291,16 @@ class CustomFieldConditionWidget(FieldConditionWidget):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_dselect('^enum.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+        pinput.add_dselect('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                            '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
                           )
-        pinput.add_input('^date.%d$' % EntityFilterCondition.RANGE,
+        pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
                          DateRangeSelect, attrs={'auto': False},
                         )
-        pinput.add_input('^boolean.*',
+        pinput.add_input('^boolean(__null)?.*',
                          DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
                         )
-        pinput.add_input('.(%d)$' % EntityFilterCondition.ISEMPTY,
+        pinput.add_input('(string|.*__null)?.(%d)$' % EntityFilterCondition.ISEMPTY,
                          DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
                         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -296,22 +308,8 @@ class CustomFieldConditionWidget(FieldConditionWidget):
         return pinput
 
     @staticmethod
-    def customfield_choicetype(field): #TODO: use a dict...
-        type = field.field_type
-
-        if type in (CustomField.INT, CustomField.FLOAT):
-            return 'number'
-
-        if type == CustomField.BOOL:
-            return 'boolean'
-
-        if type == CustomField.DATETIME:
-            return 'date'
-
-        if type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-            return 'enum'
-
-        return 'string'
+    def customfield_choicetype(field):
+        return CustomFieldConditionWidget._CHOICETYPES.get(field.field_type, 'string')
 
     @staticmethod
     def customfield_rname_choicetype(value):
@@ -470,7 +468,7 @@ class RegularFieldsConditionsField(_ConditionsField):
             field = self._fields[condition.name][-1]
             field_entry = {'name': condition.name, 'type': field_choicetype(field)}
 
-            if field_entry['type'] in ('enum', 'fk'):
+            if field_entry['type'] in EntityFilterCondition._FIELDTYPES_RELATED:
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
 
             dicts.append({'field':    field_entry,
