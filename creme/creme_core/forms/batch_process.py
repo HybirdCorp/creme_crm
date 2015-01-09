@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
 from functools import partial
 import logging
 
@@ -31,6 +32,7 @@ from ..gui import bulk_update_registry
 from ..models import CremeEntity, EntityFilter, EntityCredentials
 from ..utils.chunktools import iter_as_slices
 from ..utils.collections import LimitedList
+from ..utils.unicode_collation import collator
 from .base import CremeForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
@@ -84,7 +86,7 @@ class BatchActionsField(JSONField):
     @model.setter
     def model(self, model):
         self._model = model
-        self._fields = fields = {}
+        fields = []
         managed_fields = tuple(batch_operator_manager.managed_fields)
         updatable = partial(bulk_update_registry.is_updatable,
                             model=model, exclude_unique=False,
@@ -96,8 +98,12 @@ class BatchActionsField(JSONField):
                 fname = field.name
 
                 if updatable(field_name=fname) and get_form(fname) is None: #not a specific form (ie: specific busness logic) #TODO: test
-                    fields[field.name] = field
+                    fields.append((field.name, field))
 
+        sort_key = collator.sort_key
+        fields.sort(key=lambda c: sort_key(unicode(c[1].verbose_name)))
+
+        self._fields = OrderedDict(fields)
         self._build_widget()
 
     def _create_widget(self):
