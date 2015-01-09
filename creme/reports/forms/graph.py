@@ -41,13 +41,23 @@ from ..models.graph import ReportGraph
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
 
+# TODO : TEMPORARY HACK. Toggle fields with an inline onchange script is a bit ugly.
+class AbscissaGroupBySelect(Select):
+    def build_attrs(self, extra_attrs=None, **kwargs):
+        types = ','.join("'%d'" % t for t in (RGT_CUSTOM_RANGE, RGT_RANGE))
+
+        attrs = super(AbscissaGroupBySelect, self).build_attrs(extra_attrs, **kwargs)
+        attrs['onchange'] = "creme.reports.toggleDaysField($(this), [%s]);" % types
+        return attrs
+
+
 class ReportGraphForm(CremeEntityForm):
     chart             = ChoiceField(label=_(u'Chart type'), choices=report_chart_registry.choices())
     abscissa_field    = ChoiceField(label=_(u'Abscissa field'), choices=(),
                                     widget=DependentSelect(target_id='id_abscissa_group_by'),
                                    ) #TODO: DependentSelect is kept until *Selector widgets accept optgroup
     abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(),
-                                        widget=Select(attrs={'id': 'id_abscissa_group_by'}),
+                                        widget=AbscissaGroupBySelect(attrs={'id': 'id_abscissa_group_by'}),
                                        ) #TODO: coerce to int
     aggregate         = ChoiceField(label=_(u'Ordinate aggregate'), required=False,
                                    choices=[(agg.name, agg.title) for agg in field_aggregation_registry.itervalues()],
@@ -115,11 +125,11 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
 
         #Ordinate -----------------------------------------------------------
-        #aggfield_choices = ModelFieldEnumerator(model, deep=0) \
-                                #.filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
-                                        #viewable=True
-                                       #) \
-                                #.choices()
+#         aggfield_choices = ModelFieldEnumerator(model, deep=0) \
+#                                 .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
+#                                         viewable=True
+#                                         ) \
+#                                 .choices()
         aggfields = [field_info[0]
                         for field_info in ModelFieldEnumerator(model, deep=0)
                                             .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
