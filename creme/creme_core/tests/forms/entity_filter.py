@@ -226,6 +226,24 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [str(value)]}, condition.decoded_value)
 
+    def test_choicetypes(self):
+        """field choice types"""
+        self.autodiscover()
+        self.populate('persons')
+
+        field_choicetype = FieldConditionWidget.field_choicetype
+        get_field = Contact._meta.get_field_by_name
+
+        self.assertEqual(field_choicetype(get_field('civility')[0]), 'enum__null')
+
+        self.assertEqual(field_choicetype(get_field('birthday')[0]), 'date__null')
+        self.assertEqual(field_choicetype(get_field('created')[0]),  'date')
+
+        self.assertEqual(field_choicetype(get_field('billing_address')[0]),  'fk__null')
+
+        self.assertEqual(field_choicetype(get_field('user')[0]),     'user')
+        self.assertEqual(field_choicetype(get_field('is_user')[0]),  'user__null')
+
 #     def test_ok02(self):
 #         "ISEMPTY -> boolean"
 #         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -401,6 +419,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield_int = CustomField.objects.create(name='Size', content_type=ct, field_type=CustomField.INT)
         self.cfield_bool = CustomField.objects.create(name='Valid', content_type=ct, field_type=CustomField.BOOL)
         self.cfield_str = CustomField.objects.create(name='Name', content_type=ct, field_type=CustomField.STR)
+        self.cfield_date = CustomField.objects.create(name='Date', content_type=ct, field_type=CustomField.DATETIME)
+        self.cfield_float = CustomField.objects.create(name='Number', content_type=ct, field_type=CustomField.FLOAT)
 
         self.cfield_enum = CustomField.objects.create(name='Enum', content_type=ct, field_type=CustomField.ENUM)
         create_evalue = CustomFieldEnumValue.objects.create
@@ -544,6 +564,20 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual({'operator': operator, 'rname': 'customfieldstring', 'value': u''},
                          condition.decoded_value
                         )
+
+    def test_customfield_choicetype(self):
+        """custom field choice types"""
+        self.autodiscover()
+        self.populate('persons')
+
+        field_choicetype = CustomFieldConditionWidget.customfield_choicetype
+
+        self.assertEqual(field_choicetype(self.cfield_enum), 'enum__null')
+        self.assertEqual(field_choicetype(self.cfield_date), 'date__null')
+        self.assertEqual(field_choicetype(self.cfield_bool),  'boolean__null')
+        self.assertEqual(field_choicetype(self.cfield_int),   'number__null')
+        self.assertEqual(field_choicetype(self.cfield_float), 'number__null')
+
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
