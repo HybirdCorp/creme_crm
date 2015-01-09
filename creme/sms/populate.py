@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,8 +52,10 @@ class Populator(BasePopulator):
                  )
 
 
-        SearchConfigItem.create_if_needed(SMSCampaign, ['name'])
-        SearchConfigItem.create_if_needed(MessagingList, ['name'])
+        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf(SMSCampaign, ['name'])
+        create_searchconf(MessagingList, ['name'])
+        create_searchconf(MessageTemplate, ['name', 'subject', 'body'])
 
 
         if not BlockDetailviewLocation.config_exists(SMSCampaign): # NB: no straightforward way to test that this populate script has not been already runned

@@ -21,6 +21,7 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
+from ..core.search import Searcher
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
 
@@ -33,7 +34,10 @@ def get_search_panel(context):
     get_ct = ContentType.objects.get_for_model
     content_types = [{'id':           get_ct(model).id,
                       'verbose_name': unicode(model._meta.verbose_name),
-                     } for model in creme_registry.iter_entity_models()
+                     #} for model in creme_registry.iter_entity_models()
+                     } for model in Searcher(creme_registry.iter_entity_models(),
+                                             context['user'],
+                                            ).models
                     ]
     sort_key = collator.sort_key
     content_types.sort(key=lambda k: sort_key(k['verbose_name']))

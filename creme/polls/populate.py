@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,8 +61,10 @@ class Populator(BasePopulator):
                  )
 
 
-        SearchConfigItem.create_if_needed(PollForm,  ['name'])
-        SearchConfigItem.create_if_needed(PollReply, ['name'])
+        create_searchconf = SearchConfigItem.create_if_needed
+        create_searchconf(PollForm,     ['name'])
+        create_searchconf(PollReply,    ['name'])
+        create_searchconf(PollCampaign, ['name'])
 
 
         if not PollType.objects.exists(): # NB: no straightforward way to test that this populate script has not been already runned

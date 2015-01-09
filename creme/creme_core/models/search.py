@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,11 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.db import models
-from django.db.models import TextField, ForeignKey, Q, FieldDoesNotExist #PositiveIntegerField, CharField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist #PositiveIntegerField, CharField
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -57,13 +58,14 @@ class SearchConfigItem(CremeModel):
     content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
 #    role         = ForeignKey(UserRole, verbose_name=_(u"Related role"), null=True) #TODO: To be done ?
     user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
+    disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
     field_names  = TextField(null=True) #Do not this field directly; use 'searchfields' property
 
     _searchfields = None
     #EXCLUDED_FIELDS_TYPES = frozenset(['DateTimeField', 'DateField', 'FileField', 'ImageField'])
     EXCLUDED_FIELDS_TYPES = [models.DateTimeField, models.DateField,
                              models.FileField, models.ImageField,
-                             models.BooleanField, models.NullBooleanField,
+                             BooleanField, models.NullBooleanField,
                              DatePeriodField, #TODO: JSONField ?
                             ]
 
@@ -142,13 +144,17 @@ class SearchConfigItem(CremeModel):
         return self._get_modelfields_choices(self.content_type.model_class())
 
     @staticmethod
-    def create_if_needed(model, fields, user=None):
+    def create_if_needed(model, fields, user=None, disabled=False):
         """Create a config item & its fields if one does not already exists.
         SearchConfigItem.create_if_needed(SomeDjangoModel, ['YourEntity_field1', 'YourEntity_field2', ..])
         @param fields Sequence of strings representing field names.
+        @param user auth.models.User instance (or None, for default configuration).
+        @param disabled Boolean
         """
         ct = ContentType.objects.get_for_model(model)
-        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user)
+        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user,
+                                                              defaults={'disabled': disabled},
+                                                             )
 
         if created:
             sci._build_searchfields(model, fields)
@@ -158,12 +164,31 @@ class SearchConfigItem(CremeModel):
     @staticmethod
     def get_4_model(model, user):
         "Get the SearchConfigItem instance corresponding to the given model"
+        warnings.warn("SearchConfigItem.get_4_model() method is deprecated; use SearchConfigItem.get_4_models() instead",
+                      DeprecationWarning
+                     )
+
         ct = ContentType.objects.get_for_model(model)
         sc_items = SearchConfigItem.objects.filter(content_type=ct) \
                                            .filter(Q(user=user) | Q(user__isnull=True)) \
                                            .order_by('-user')[:1] #config of the user has higher priority than default one
 
         return sc_items[0] if sc_items else SearchConfigItem(content_type=ct)
+
+    @staticmethod
+    def get_4_models(models, user):
+        "Get the SearchConfigItem instances corresponding to the given models (generator)."
+        get_ct = ContentType.objects.get_for_model
+        ctypes = [get_ct(model) for model in models]
+        sc_items = {sci.content_type: sci
+                        for sci in SearchConfigItem.objects
+                                                   .filter(content_type__in=ctypes)
+                                                   .filter(Q(user=user) | Q(user__isnull=True))
+                                                   .order_by('user') #config of the user has higher priority than the default one
+                   }
+
+        for ctype in ctypes:
+            yield sc_items.get(ctype) or SearchConfigItem(content_type=ctype)
 
 #class SearchField(CremeModel):
     #field              = CharField(_(u"Field"), max_length=100)

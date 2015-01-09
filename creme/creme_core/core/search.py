@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,9 @@ from ..models import SearchConfigItem
 
 class Searcher(object):
     def __init__(self, models, user):
-        #TODO: regroup queries
-        get_search_conf = SearchConfigItem.get_4_model
-        self._search_map = {model: get_search_conf(model, user).searchfields
-                                for model in models
+        self._search_map = {sci.content_type.model_class(): sci.searchfields
+                                for sci in SearchConfigItem.get_4_models(models, user)
+                                    if not sci.disabled
                            }
 
     #def _build_query(self, research, fields, is_or=True):
@@ -49,6 +48,10 @@ class Searcher(object):
         "Get the list of SearchFields instances used to search in 'model'"
         return self._search_map[model]
 
+    @property
+    def models(self):
+        return self._search_map.iterkeys()
+
     def search(self, model, research):
         """Return the models which fields contain the wanted value.
         @param model Class inheriting django.db.Model (CremeEntity)
@@ -57,8 +60,7 @@ class Searcher(object):
         """
         searchfields = self.get_fields(model)
 
-        #return model.objects.filter(is_deleted=False) \
-                            #.filter(self._build_query(research, searchfields)) \
-                            #.distinct()
+        assert searchfields is not None # search on a disabled model ?
+
         return model.objects.filter(self._build_query(research, searchfields)) \
                             .distinct()
