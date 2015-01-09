@@ -54,13 +54,15 @@
 			//grab the ths and the handles and bind them 
 			el.delegate(o.items, 'mousedown.' + self.widgetEventPrefix, function(e){
 
-				var $handle = $(this),
-					elementOffsetTop = self.element.position().top;
+				var $handle = $(this);
+				var elementOffsetTop = self.element.position().top;
+				var elementOffsetLeft = 0;
 
 				// Hybird FIX - need to account for the scrollTop of the append target: if the target is not the page body,
 				// and it is scrolled down to show the overflow (if the widget is used a popup window for example) 
 				if (o.appendTarget[0] != document.body) {
 					elementOffsetTop += o.appendTarget[0].scrollTop;
+					elementOffsetLeft += o.appendTarget[0].scrollLeft;
 				}
 
 				//make sure we are working with a th instead of a handle
@@ -71,19 +73,16 @@
 					e.currentTarget = $handle.closest('th')[0]
 				}
 
-
-			self.getCol( $handle.index() )
-					.attr( 'tabindex', -1 )
-	                .focus()
-					.disableSelection()
-					.css({
-	                    top: elementOffsetTop,
-	                    //need to account for the scroll left of the append target, other wise the display will be off by that many pix
-	                    left: ( self.currentColumnCollectionOffset.left + o.appendTarget[0].scrollLeft )
-					})
-	                .appendTo( o.appendTarget )
-
-
+    			self.getCol( $handle.index() )
+    					.attr( 'tabindex', -1 )
+    	                .focus()
+    					.disableSelection()
+    					.css({
+    	                    top: elementOffsetTop,
+    	                    //need to account for the scroll left of the append target, other wise the display will be off by that many pix
+    	                    left: (self.currentColumnCollectionOffset.left + elementOffsetLeft)
+    					})
+    	                .appendTo( o.appendTarget );
 
 				self._mousemoveHandler( e );
 				//############
