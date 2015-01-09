@@ -42,8 +42,8 @@ def expand_sparse_iterator(sparse_iterator, default_value):
     yield current_value
 
     for next_index, next_value in sparse_iterator:
-        for times in xrange(abs(current_index - next_index) - 1):
-             yield default_value
+        for _times in xrange(abs(current_index - next_index) - 1):
+            yield default_value
         yield next_value
         current_index = next_index
 

@@ -56,8 +56,7 @@
                                 style="margin:0px;padding:0px;border:0px;">
                                 <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
                                 <ul class="ui-layout hbox" style="padding:2px;">
-                                    {% comment %}{% get_report_chart_selectors %}{% endcomment %}
-                                    {% include 'reports/templatetags/report_chart_selectors.html' %}
+                                    {% report_chart_selector graph %}
                                     <li class="ui-creme-chainedselect-item" style="float:right;">
                                         {% if admin_perm %}
                                             <button onclick="creme.blocks.form('/reports/graph/{{graph.id}}/block/add', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
@@ -78,9 +77,9 @@
                                         plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}"
                                         plot-name="${graph}"
                                         style="width:100%;margin:0px;padding:0px;border:0px;">
-                                                <script name="histogram" type="text/json">{% report_small_barchart_json graph %}</script>
-                                                <script name="pie" type="text/json">{% report_piechart_json graph %}</script>
-                                                <script name="tube" type="text/json">{% report_tubechart_json graph 2 %}</script>
+                                        {% for name, chart in report_charts %}
+                                            <script name="{{name}}" type="text/json">{% report_chart_json graph chart %}</script>
+                                        {% endfor %}
                                         <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot"
                                             savable="false" style="height:300px;padding:5px;border:0px;" format="creme.graphael.BargraphData">
                                         </div>

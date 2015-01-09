@@ -358,6 +358,10 @@ msgstr "Jours"
 msgid "Make a count instead of aggregate?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
+#: models/graph.py:45
+msgid "Chart type"
+msgstr "Type de graphique"
+
 #: models/graph.py:47
 msgid "Add a report's graph"
 msgstr "Ajouter un graphique de rapport"

@@ -4,7 +4,7 @@
     "title": {
         "text":       "<b>{{rgraph}}</b>",
         "textColor":  "black",
-        "fontSize":   "13pt",
+        "fontSize":   {% if is_small %}"12pt"{% else %}"13pt"{% endif %},
         "renderer":   "jqplot.DivTitleRenderer"
     },
     "seriesDefaults": {
@@ -26,18 +26,29 @@
         "xaxis": {
             "renderer": "jqplot.CategoryAxisRenderer",
             "ticks": [],
+            {% if is_small %}
             "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "angle": -30,
+                "fontSize": "9pt",
+                "textColor":  "black"
+            },
+            {% else %}
+            "tickRenderer": "jqplot.AxisTickRenderer",
             "tickOptions": {
                 "textColor":  "black",
                 "fontSize":   "9pt"
             },
+            {% endif %}
             {% comment %}"label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",{% endcomment %}
             "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.type %} - {{rgraph.hand.verbose_name}}{% if rgraph.days %} ({{rgraph.days}}){% endif %}{% endif %}",
             "labelOptions": {
-                {% if plotXAxisAngle %}"angle": {{plotXAxisAngle}},{% endif %}
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
                 "textColor":  "black"
+                {% if plotXAxisAngle and not is_small %}
+                "angle": {{plotXAxisAngle}},
+                {% endif %}
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },

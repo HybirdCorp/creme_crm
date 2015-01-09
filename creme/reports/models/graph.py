@@ -20,11 +20,10 @@
 
 import logging
 
-from django.db.models import (PositiveIntegerField, CharField, BooleanField,
-        ForeignKey, FieldDoesNotExist)
+from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
-from creme.creme_core.models import CremeEntity, RelationType, InstanceBlockConfigItem
+from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
 #from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
 from ..constants import RFT_RELATION, RFT_FIELD
@@ -43,6 +42,7 @@ class ReportGraph(CremeEntity):
     type     = PositiveIntegerField(_(u'Type')) #see RGT_*
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
     is_count = BooleanField(_(u'Make a count instead of aggregate?')) #TODO: 'count' function instead ???
+    chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
     creation_label = _("Add a report's graph")
 
