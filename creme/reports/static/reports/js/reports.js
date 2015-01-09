@@ -307,3 +307,11 @@ creme.reports.PreviewController = creme.component.Component.sub({
         creme.utils.goTo(this._downloadUrl.format($('form', this._header).serialize()));
     }
 });
+
+// TODO : TEMPORARY HACK !
+creme.reports.toggleDaysField = function(operator, types) {
+    var is_visible = operator.val() && types && types.indexOf(operator.val()) !== -1;
+    var days_field = $(operator).parents('.block-form:first').find('[name=\"days\"]');
+
+    days_field.parents('tr:first').toggleClass('hidden', !is_visible);
+};
