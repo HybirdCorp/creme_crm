@@ -26,7 +26,7 @@
         "show": true,
         "renderer": "jqplot.EnhancedLegendRenderer",
         "rendererOptions": {
-            {% if legend_rows %}"numberRows": {{legend_rows}},{% endif %}
+            "numberRows": {% if is_small %}2{% else %}1{% endif %},
             "disableIEFading": false,
             "fontSize": {% if legend_rows > 1 %}"8pt"{% else %}"9pt"{% endif %}
         },

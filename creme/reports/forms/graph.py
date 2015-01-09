@@ -39,9 +39,10 @@ from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RE
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
 from ..models.graph import ReportGraph
 from ..report_aggregation_registry import field_aggregation_registry
-
+from ..report_chart_registry import report_chart_registry
 
 class ReportGraphForm(CremeEntityForm):
+    chart             = ChoiceField(label=_(u'Chart type'), choices=report_chart_registry.choices())
     abscissa_field    = ChoiceField(label=_(u'Abscissa field'), choices=(),
                                     widget=DependentSelect(target_id='id_abscissa_group_by'),
                                    ) #TODO: DependentSelect is kept until *Selector widgets accept optgroup
@@ -171,7 +172,7 @@ class ReportGraphForm(CremeEntityForm):
             widget.source_val = get_data('abscissa_field')
             widget.target_val = get_data('abscissa_group_by')
         elif instance.pk is not None:
-            ordinate, sep, aggregate    = instance.ordinate.rpartition('__')
+            ordinate, __, aggregate    = instance.ordinate.rpartition('__')
             fields['aggregate'].initial = aggregate
             aggregate_field_f.initial   = ordinate
             abscissa_field_f.initial    = instance.abscissa

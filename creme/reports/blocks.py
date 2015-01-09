@@ -25,7 +25,7 @@ from creme.creme_core.gui.block import Block, QuerysetBlock
 
 #from .core.graph import fetch_graph_from_instance_block
 from .models import Report, Field, ReportGraph
-
+from .report_chart_registry import report_chart_registry
 
 class ReportFieldsBlock(Block):
     id_           = Block.generate_id('reports', 'fields')
@@ -60,6 +60,7 @@ class ReportGraphsBlock(QuerysetBlock):
                                 context,
                                 ReportGraph.objects.filter(report=report),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                report_charts=report_chart_registry,
                                 #is_ajax=context['request'].is_ajax(),
                                 #user_can_admin_report=context['user'].has_perm('reports.can_admin'),
                                )
@@ -103,6 +104,7 @@ class ReportGraphBlock(Block):
                                 volatile_column=fetcher.verbose_volatile_column,
                                 instance_block_id=self.instance_block_id,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                report_charts=report_chart_registry,
                                )
                            )
 
@@ -122,6 +124,7 @@ class ReportGraphBlock(Block):
                                 error=fetcher.error,
                                 volatile_column=fetcher.verbose_volatile_column,
                                 instance_block_id=self.instance_block_id,
+                                report_charts=report_chart_registry,
                                )
                            )
 

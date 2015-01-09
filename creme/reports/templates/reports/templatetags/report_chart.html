@@ -3,8 +3,7 @@
 <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
     <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
     <ul class="ui-layout hbox" style="padding:2px;">
-        {% comment %}{% get_report_chart_selectors %}{% endcomment %}
-        {% include 'reports/templatetags/report_chart_selectors.html' %}
+        {% report_chart_selector object %}
     </ul>
     {% include 'reports/frags/graph_errors.html' with hand=object.hand %}
     <div chained-name="plot" class="ui-creme-chainedselect-item">
@@ -12,9 +11,9 @@
              plot-data-url="/reports/graph/fetch_graph/{{object.id}}/${sort}"
              plot-name="${graph}"
              style="width:100%;">
-                    <script name="histogram" type="text/json">{% report_barchart_json object %}</script>
-                    <script name="pie" type="text/json">{% report_piechart_json object %}</script>
-                    <script name="tube" type="text/json">{% report_tubechart_json object %}</script>
+                {% for name, chart in report_charts %} 
+                    <script name="{{name}}" type="text/json">{% report_chart_json object chart %}</script>
+                {% endfor %}
             <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" 
                  savable="true" style="height:300px;padding:5px 10px 5px 5px;border:0px;" format="creme.graphael.BargraphData">
             </div>

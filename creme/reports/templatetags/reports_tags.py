@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import Library
+from django.template import Library, loader
 #from django.db.models.fields.related import ForeignKey, ManyToManyField
 #from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -35,41 +35,52 @@ from django.template import Library
 
 register = Library()
 
-#@register.filter(name="is_field_is_linkable")
-#def is_linkable(field, ct):
-    #field_infos = get_model_field_info(ct.model_class(), field.name)
-    ##registred_models = creme_registry.iter_entity_models()
-    #registred_models = frozenset(creme_registry.iter_entity_models())
+# @register.filter(name="is_field_is_linkable")
+# def is_linkable(field, ct):
+#     field_infos = get_model_field_info(ct.model_class(), field.name)
+#     #registred_models = creme_registry.iter_entity_models()
+#     registred_models = frozenset(creme_registry.iter_entity_models())
+# 
+#     #todo: any(...)
+#     for field_dict in field_infos:
+#         if isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and \
+#         field_dict.get('model') in registred_models:
+#             return True
+# 
+#     return False
 
-    ##todo: any(...)
-    #for field_dict in field_infos:
-        #if isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and \
-           #field_dict.get('model') in registred_models:
-            #return True
+@register.simple_tag(takes_context=True)
+def report_chart_json(context, rgraph, chart, is_small=False):
+    return loader.render_to_string(chart.template,
+                                   {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
+                                   context_instance=None)
 
-    #return False
-
-@register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
-def report_barchart_json(context, rgraph):
+@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
+def report_chart_selector(context, rgraph):
     context['rgraph'] = rgraph
     return context
 
-@register.inclusion_tag('reports/plot/small_barchart.json', takes_context=True)
-def report_small_barchart_json(context, rgraph):
-    context['rgraph'] = rgraph
-    return context
-
-@register.inclusion_tag('reports/plot/piechart.json', takes_context=True)
-def report_piechart_json(context, rgraph, legend_rows=None):
-    context['rgraph'] = rgraph
-    context['legend_rows'] = legend_rows
-    return context
-
-@register.inclusion_tag('reports/plot/tubechart.json', takes_context=True)
-def report_tubechart_json(context, rgraph, legend_rows=1):
-    context['rgraph'] = rgraph
-    context['legend_rows'] = legend_rows
-    return context
+# @register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
+# def report_barchart_json(context, rgraph):
+#     context['rgraph'] = rgraph
+#     return context
+# 
+# @register.inclusion_tag('reports/plot/small_barchart.json', takes_context=True)
+# def report_small_barchart_json(context, rgraph):
+#     context['rgraph'] = rgraph
+#     return context
+# 
+# @register.inclusion_tag('reports/plot/piechart.json', takes_context=True)
+# def report_piechart_json(context, rgraph, legend_rows=None):
+#     context['rgraph'] = rgraph
+#     context['legend_rows'] = legend_rows
+#     return context
+# 
+# @register.inclusion_tag('reports/plot/tubechart.json', takes_context=True)
+# def report_tubechart_json(context, rgraph, legend_rows=1):
+#     context['rgraph'] = rgraph
+#     context['legend_rows'] = legend_rows
+#     return context
 
 #@register.inclusion_tag('reports/templatetags/report_chart.html', takes_context=True)
 #def get_report_chart(context, report):

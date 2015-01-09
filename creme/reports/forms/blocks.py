@@ -86,11 +86,11 @@ class GraphInstanceBlockForm(CremeForm):
         kwargs = {}
 
         if volatile_column:
-           link_type, link_val = volatile_column.split('-', 1)
+            link_type, link_val = volatile_column.split('-', 1)
 
-           if link_type == 'fk':
+            if link_type == 'fk':
                 kwargs['volatile_field'] = link_val
-           else:
+            else:
                 kwargs['volatile_rtype'] = self._rtypes[link_val]
 
         try:

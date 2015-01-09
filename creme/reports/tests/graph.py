@@ -29,7 +29,11 @@ try:
     from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder # fetch_graph_from_instance_block
     from ..models import Field, Report, ReportGraph
-    from ..constants import *
+
+    from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK,
+                             RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK,
+                             RFT_FIELD, RFT_RELATION,
+                            )
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -161,6 +165,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                'abscissa_field':    abscissa,
                                                'abscissa_group_by': gtype,
                                                'is_count':          True,
+                                               'chart':             'barchart',
                                               })
         self.assertNoFormError(response)
 
@@ -218,6 +223,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
             data = {'user': self.user.pk,
                     'name':              name,
                     'abscissa_group_by': gtype,
+                    'chart':             'barchart',
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -281,10 +287,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
         name = 'My Graph #1'
         abscissa = 'sector'
         self.assertNoFormError(self.client.post(url,
-                                                data={'user': self.user.pk, #TODO: report.user used instead ??
-                                                      'name':             name,
-                                                      'abscissa_field':   abscissa,
-                                                      'abscissa_group_by': RGT_FK,
+                                                data={'user':               self.user.pk, #TODO: report.user used instead ??
+                                                      'name':               name,
+                                                      'abscissa_field':     abscissa,
+                                                      'abscissa_group_by':  RGT_FK,
+                                                      'chart':             'barchart',
                                                       #'is_count': True, #useless
                                                     }
                                                )
@@ -304,10 +311,11 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         def post(abscissa):
             return self.client.post(url, data={'user': self.user.pk,
-                    'name':              name,
-                    'abscissa_field':    abscissa,
-                    'abscissa_group_by': gtype,
-                    'is_count':          True,
+                    'name':               name,
+                    'abscissa_field':     abscissa,
+                    'abscissa_group_by':  gtype,
+                    'is_count':           True,
+                    'chart':             'barchart',
                    })
 
         fname = 'staff_size'
@@ -341,6 +349,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     'abscissa_group_by': gtype,
                     'aggregate_field':   ordinate,
                     'aggregate':         'max',
+                    'chart':             'barchart',
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -386,6 +395,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     'abscissa_group_by': gtype,
                     'aggregate_field':   ordinate,
                     'aggregate':       'max',
+                    'chart':             'barchart',
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -451,13 +461,13 @@ class ReportGraphTestCase(BaseReportsTestCase):
             ord_choices = fields['aggregate_field'].choices
 
         self.assertEqual(3, len(abs_choices))
-        #self.assertEqual((_('Custom fields'),
-                          #[(cf_enum.id, cf_enum.name),
-                           #(cf_dt.id,   cf_dt.name),
-                          #]
-                         #),
-                         #abs_choices[2]
-                        #)
+#         self.assertEqual((_('Custom fields'),
+#                           [(cf_enum.id, cf_enum.name),
+#                            (cf_dt.id,   cf_dt.name),
+#                           ]
+#                          ),
+#                          abs_choices[2]
+#                         )
         cf_choice = abs_choices[2]
         self.assertEqual(_('Custom fields'), cf_choice[0])
         self.assertEqual({(cf_enum.id, cf_enum.name),
@@ -479,6 +489,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                'abscissa_field':    cf_id,
                                                'abscissa_group_by': gtype,
                                                'is_count':          True,
+                                               'chart':             'barchart',
                                               }
                                    )
 
@@ -510,6 +521,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'is_count':          True,
+                    'chart':             'barchart',
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -558,6 +570,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'is_count':          True,
+                    'chart':             'barchart',
                    }
             data.update(**kwargs)
             return self.client.post(url, data=data)
@@ -608,6 +621,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                'abscissa_field':    abscissa,
                                                'abscissa_group_by': gtype,
                                                'is_count':          True,
+                                               'chart':             'barchart',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -644,6 +658,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                                'abscissa_group_by': gtype,
                                                'aggregate_field':   'total_vat',
                                                'aggregate':         'avg',
+                                               'chart':             'barchart',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -697,7 +712,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         # DESC ---------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
         self.assertEqual(list(reversed(x_asc)), x_desc)
-        self.assertEqual([1, fmt % hand.id], y_asc[x_asc.index(hand.title)])
+        self.assertEqual([1, fmt % hand.id], y_desc[x_desc.index(hand.title)])
 
     def test_fetch_with_fk_02(self):
         "Aggregate"
@@ -1388,7 +1403,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
         self.assertEqual(x_asc, x_desc)
-        self.assertEqual(y_asc, y_asc)
+        self.assertEqual(y_asc, y_desc)
 
     def test_fetch_by_relation02(self):
         "Aggregate"
@@ -1437,7 +1452,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         #DESC ----------------------------------------------------------------
         x_desc, y_desc = rgraph.fetch(order='DESC')
         self.assertEqual(x_asc, x_desc)
-        self.assertEqual(y_asc, y_asc)
+        self.assertEqual(y_asc, y_desc)
 
     def test_fetch_by_relation03(self):
         "Aggregate ordinate with custom field"
