@@ -271,12 +271,31 @@ class TomorrowRange(DateRange):
                )
 
 
+class EmptyRange(DateRange):
+    name = 'empty'
+    verbose_name = _(u'Is empty')
+
+    def get_q_dict(self, field, now):
+        return {'%s__isnull' % field: True}
+
+
+class NotEmptyRange(DateRange):
+    name = 'not_empty'
+    verbose_name = _(u'Is not empty')
+
+    def get_q_dict(self, field, now):
+        return {'%s__isnull' % field: False}
+
 class DateRangeRegistry(object):
     def __init__(self, *dranges):
         self._ranges = OrderedDict()
         self.register(*dranges)
 
-    def choices(self):
+    def choices(self, exclude_empty=True):
+        if exclude_empty:
+            empties = frozenset((EmptyRange.name, NotEmptyRange.name))
+            return ((key, range) for key, range in self._ranges.iteritems() if key not in empties)
+
         return self._ranges.iteritems()
 
     def register(self, *dranges):
@@ -310,5 +329,5 @@ date_range_registry = DateRangeRegistry(PreviousYearRange(), CurrentYearRange(),
                                         PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
                                         PreviousMonthRange(), CurrentMonthRange(), NextMonthRange(),
                                         YesterdayRange(), TodayRange(), TomorrowRange(),
-                                        FutureRange(), PastRange(),
+                                        FutureRange(), PastRange(), EmptyRange(), NotEmptyRange(),
                                        )

@@ -332,3 +332,16 @@ class DateRangeTestCase(CremeTestCase):
                                             .get_q_dict(field='modified', now=today)
                         )
 
+    def test_empty(self):
+        date_range = date_range_registry.get_range(name='empty')
+        self.assertIsNotNone(date_range)
+        self.assertEqual({'created__isnull': True},
+                         date_range.get_q_dict(field='created', now=now())
+                        )
+
+    def test_not_empty(self):
+        date_range = date_range_registry.get_range(name='not_empty')
+        self.assertIsNotNone(date_range)
+        self.assertEqual({'created__isnull': False},
+                         date_range.get_q_dict(field='created', now=now())
+                        )

@@ -1582,6 +1582,28 @@ class EntityFiltersTestCase(CremeTestCase):
                                      )
         self.assertExpectedFiltered(efilter, Document, [doc2.id])
 
+    def test_date_field_empty(self):
+        efilter = EntityFilter.create('test-filter01', name='Birthday is null', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_date(
+                                                            model=Contact, name='birthday',
+                                                            date_range='empty',
+                                                           ),
+                                                 ],
+                                     )
+
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'asuka', 'shinji', exclude=True))
+
+    def test_date_field_not_empty(self):
+        efilter = EntityFilter.create('test-filter01', name='Birthday is null', model=Contact,
+                                      conditions=[EntityFilterCondition.build_4_date(
+                                                            model=Contact, name='birthday',
+                                                            date_range='not_empty',
+                                                           ),
+                                                 ],
+                                     )
+
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'asuka', 'shinji'))
+
     def test_build_date(self):
         "Errors"
         self.assertRaises(EntityFilterCondition.ValueError,

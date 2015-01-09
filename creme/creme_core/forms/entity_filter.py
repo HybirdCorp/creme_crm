@@ -45,7 +45,7 @@ from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
         EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect,
-        DynamicSelect, PolymorphicInput, CremeRadioSelect)
+        DynamicSelect, PolymorphicInput, CremeRadioSelect, NullableDateRangeSelect)
 
 
 TRUE = 'true'
@@ -228,10 +228,15 @@ class FieldConditionWidget(ChainedInput):
 class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, fields, attrs=None, enabled=True):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'datatype': 'json'}
 
         chained_input.add_dselect('field', options=self._build_fieldchoices(fields), attrs=attrs)
-        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
+
+        pinput = PolymorphicInput(key='${field.type}', attrs=attrs)
+        pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=attrs)
+        pinput.add_input('daterange', DateRangeSelect, attrs=attrs)
+
+        chained_input.add_input('range', pinput, attrs=attrs)
 
         super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
@@ -242,11 +247,14 @@ class DateFieldsConditionsWidget(SelectorList):
         if subfield is not None:
             category = field.verbose_name
             choice_label = u'[%s] - %s' % (category, subfield.verbose_name) #TODO: factorise
+            is_null = subfield.null
         else:
             category = ''
             choice_label = field.verbose_name
+            is_null = field.null
 
-        return category, (name, choice_label)
+        choice_value = {'name': name, 'type': 'daterange__null' if is_null else 'daterange'}
+        return category, (json.dumps(choice_value), choice_label)
 
     #TODO: factorise (see FieldConditionWidget)
     def _build_fieldchoices(self, fields):
@@ -295,7 +303,7 @@ class CustomFieldConditionWidget(FieldConditionWidget):
                            '/creme_core/enumerable/custom/${field.id}/json', attrs=field_attrs,
                           )
         pinput.add_input('^date(__null)?.%d$' % EntityFilterCondition.RANGE,
-                         DateRangeSelect, attrs={'auto': False},
+                         NullableDateRangeSelect, attrs={'auto': False},
                         )
         pinput.add_input('^boolean(__null)?.*',
                          DynamicSelect, options=((TRUE, _("True")), (FALSE, _("False"))), attrs=field_attrs,
@@ -327,7 +335,7 @@ class DateCustomFieldsConditionsWidget(SelectorList):
         attrs = {'auto': False}
 
         chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
-        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
+        chained_input.add_input('range', NullableDateRangeSelect, attrs=attrs)
 
         super(DateCustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
@@ -620,7 +628,9 @@ class DateFieldsConditionsField(_ConditionsField):
         return (range_type, start, end)
 
     def _clean_field_name(self, entry):
-        fname = self.clean_value(entry, 'field', str)
+        clean_value = self.clean_value
+        fname = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidfield'),
+                            'name', str, required_error_key='invalidfield')
 
         if not fname in self._fields:
             raise ValidationError(self.error_messages['invalidfield'])
