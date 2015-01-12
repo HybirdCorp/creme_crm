@@ -101,12 +101,12 @@ def _build_extrafilter(request, extra_filter=None):
     return json_q_filter, filter
 
 def _select_entityfilter(request, entity_filters, default_filter):
-    filter = request.GET.get('filter')
+    efilter_id = request.GET.get('filter')
 
-    if not filter:
-        filter = request.POST.get('filter', default_filter)
+    if not efilter_id:
+        efilter_id = request.POST.get('filter', default_filter)
 
-    return entity_filters.select_by_id(filter)
+    return entity_filters.select_by_id(efilter_id)
 
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',

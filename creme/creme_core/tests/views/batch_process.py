@@ -28,14 +28,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        cls.populate('creme_core', 'persons')
 
         get_ct = ContentType.objects.get_for_model
-        cls.orga_ct_id    = get_ct(Organisation).id
+        cls.orga_ct       = get_ct(Organisation)
         cls.contact_ct_id = get_ct(Contact).id
 
     def build_url(self, model):
-        return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
+        #return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
+        return '/creme_core/list_view/batch_process/%s?list_url=%s' % (
                         ContentType.objects.get_for_model(model).id,
                         model.get_lv_absolute_url(),
                      )
@@ -55,7 +56,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_fields = set(response.context['form'].fields['actions']._fields.iterkeys())
+            form = response.context['form']
+            orga_fields = set(form.fields['actions']._fields.iterkeys())
+
+        self.assertEqual({'content_type': self.orga_ct,
+                          'filter': None,
+                         },
+                         form.initial
+                        )
 
         self.assertIn('name', orga_fields)
         self.assertIn('capital', orga_fields)
@@ -81,7 +89,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             back_url = response.context['back_url']
             form = response.context['form']
 
-        self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), back_url)
+        #self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), back_url)
+        self.assertEqual(Organisation.get_lv_absolute_url(), back_url)
 
         self.assertIs(Organisation, form.entity_type)
 
@@ -115,7 +124,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             back_url = response.context['back_url']
             form = response.context['form']
 
-        self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), back_url)
+        #self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), back_url)
+        self.assertEqual(Contact.get_lv_absolute_url(), back_url)
 
         self.assertIs(Contact, form.entity_type)
         self.assertFalse(form.process_errors)
@@ -159,6 +169,28 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertFormError(response, 'form', 'actions',
                              _(u"This field is invalid with this model."),
                             )
+
+    def test_select_efilter(self):
+        self.login()
+        efilter = EntityFilter.create('test-filter01', 'Contains "club"',
+                                      Organisation, is_custom=True,
+                                      conditions=[EntityFilterCondition.build_4_field(
+                                                        model=Organisation,
+                                                        operator=EntityFilterCondition.CONTAINS,
+                                                        name='name', values=['club'],
+                                                    ),
+                                                 ],
+                                     )
+
+        # we set the current list view state
+        self.assertGET200(Organisation.get_lv_absolute_url(), data={'filter': efilter.id})
+
+        response = self.assertGET200(self.build_url(Organisation))
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(efilter.id, form.initial['filter'])
 
     def test_several_actions(self):
         "'upper' + 'title' operators"
@@ -383,7 +415,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         "Organisation CT, other category of operator"
         self.login()
 
-        response = self.assertGET200(self.build_ops_url(self.orga_ct_id, 'capital'))
+        response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
 
         json_data = simplejson.loads(response.content)
         self.assertIn(['add_int', _('Add')], json_data)

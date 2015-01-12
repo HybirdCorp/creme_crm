@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,29 +25,16 @@ from django.utils.translation import ugettext as _
 from ..auth.decorators import login_required
 from ..core.batch_process import batch_operator_manager
 from ..forms.batch_process import BatchProcessForm
-#from .generic import add_entity
+from ..gui.listview import ListViewState
 from ..utils import get_ct_or_404, jsonify
-
 
 @login_required
 def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
-    #if not request.user.has_perm(ct.app_label):
     if not user.has_perm(ct.app_label): #TODO: factorise
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
-
-    #try: #todo: factorise
-        #callback_url = ct.model_class().get_lv_absolute_url()
-    #except AttributeError:
-        #debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
-        #callback_url = '/'
-
-    #return add_entity(request, BatchProcessForm, callback_url,
-                      #template='creme_core/batch_process.html',
-                      #extra_initial={'content_type': ct},
-                     #)
 
     if request.method == 'POST':
         POST = request.POST
@@ -64,7 +51,20 @@ def batch_process(request, ct_id):
 
         cancel_url = POST.get('cancel_url')
     else:
-        bp_form = BatchProcessForm(user=user, initial={'content_type': ct})
+        efilter_id = None
+        list_url = request.GET.get('list_url')
+
+        if list_url:
+            lvs = ListViewState.get_state(request, url=list_url)
+
+            if lvs:
+                efilter_id = lvs.entity_filter_id
+
+        bp_form = BatchProcessForm(user=user,
+                                   initial={'content_type': ct,
+                                            'filter': efilter_id,
+                                           }
+                                  )
         cancel_url = request.META.get('HTTP_REFERER')
 
     return render(request, 'creme_core/batch_process.html',
