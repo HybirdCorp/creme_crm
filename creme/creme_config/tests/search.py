@@ -163,14 +163,31 @@ class SearchConfigTestCase(CremeTestCase):
         sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
         self.assertTrue(sci.disabled)
 
-    @skipIfNotInstalled('creme.recurrents')
+    @skipIfNotInstalled('creme.billing')
     def test_edit04(self):
+        "Fields with 'choices' are not valid"
+        from creme.billing.models import Line
+
+        fname = 'discount_unit'
+        mfield = Line._meta.get_field(fname)
+        self.assertTrue(mfield.choices)
+
+        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(Line))
+        response = self.assertGET200(self._build_edit_url(sci))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields['fields']
+
+        self._find_field_index(fields, 'comment')
+        self.assertNoChoice(fields, fname)
+
+    @skipIfNotInstalled('creme.recurrents')
+    def test_edit05(self):
         "Exclude DateperiodField"
         from creme.recurrents.models import RecurrentGenerator
 
         sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(RecurrentGenerator))
-        url = self._build_edit_url(sci)
-        response = self.assertGET200(url)
+        response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():
             fields = response.context['form'].fields['fields']

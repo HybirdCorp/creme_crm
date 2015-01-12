@@ -92,7 +92,7 @@ class SearchConfigItem(CremeModel):
         #.exclude(lambda f, depth: f.get_internal_type() in excluded)
         return ModelFieldEnumerator(model, deep=1) \
                 .filter(viewable=True) \
-                .exclude(lambda f, depth: isinstance(f, excluded)) \
+                .exclude(lambda f, depth: isinstance(f, excluded) or f.choices) \
                 .choices()
 
     def _build_searchfields(self, model, fields, save=True):
