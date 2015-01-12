@@ -37,9 +37,17 @@ __all__ = ('CSVExportViewsTestCase',)
 class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config', 'persons')
         cls.ct = ct = ContentType.objects.get_for_model(Contact)
+
+        cls._hf_backup = list(HeaderFilter.objects.filter(entity_type=ct))
         HeaderFilter.objects.filter(entity_type=ct).delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        ViewsTestCase.tearDownClass()
+        HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def _build_hf_n_contacts(self):
         user = self.user
@@ -63,17 +71,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                         for first_name, last_name in [('Spike', 'Spiegel'),
                                                       ('Jet', 'Black'),
                                                       ('Faye', 'Valentine'),
-                                                      ('Edward', 'Wong')
+                                                      ('Edward', 'Wong'),
                                                      ]
                    }
 
-        #create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots)
         create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots,
                              object_entity=organisations['Bebop']
                             )
-        #create_rel(subject_entity=contacts['Jet'],   object_entity=bebop)
-        #create_rel(subject_entity=contacts['Spike'], object_entity=bebop)
-        #create_rel(subject_entity=contacts['Spike'], object_entity=swordfish)
         create_rel(subject_entity=contacts['Jet'])
         create_rel(subject_entity=contacts['Spike'])
         create_rel(subject_entity=contacts['Spike'], object_entity=organisations['Swordfish'])
