@@ -197,7 +197,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create05(self):
         "A staff  user can create a private filter for another user"
-        user = self.login(is_staff=True)
+        self.login(is_staff=True)
         name = 'DefaultHeaderFilter'
 
         def post(owner):

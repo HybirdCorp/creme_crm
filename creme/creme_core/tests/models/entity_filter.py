@@ -1568,7 +1568,7 @@ class EntityFiltersTestCase(CremeTestCase):
         folder2 = create_folder(title='New folder')
 
         create_doc = partial(Document.objects.create, user=self.user)
-        doc1 = create_doc(title='Doc#1', folder=folder1)
+        create_doc(title='Doc#1', folder=folder1)
         doc2 = create_doc(title='Doc#2', folder=folder2)
 
         Folder.objects.filter(pk=folder1.id).update(created=folder1.created - timedelta(days=4*31))

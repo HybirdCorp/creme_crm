@@ -13,12 +13,10 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
     from django.core.serializers.json import simplejson
-    from django.utils.formats import date_format
-    from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from ..base import skipIfNotInstalled
+    #from ..base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import *
     from creme.creme_core.models.auth import User
