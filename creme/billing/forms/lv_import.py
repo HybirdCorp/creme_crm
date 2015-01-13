@@ -20,16 +20,34 @@
 
 from functools import partial
 
+from django.forms.fields import BooleanField
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, EntityExtractorField
 from creme.creme_core.models import Relation
-from creme.creme_core.utils import find_first
+from creme.creme_core.utils import find_first, update_model_instance
 
 from creme.persons.models import Contact, Organisation
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
+
+
+def _copy_or_update_address(source, dest, attr_name, addr_name):
+    change = True
+
+    source_addr = getattr(source, attr_name, None)
+    dest_addr   = getattr(dest,   attr_name, None)
+
+    if dest_addr is None:
+        setattr(dest, attr_name, copy_or_create_address(source_addr, source, addr_name))
+    elif source_addr is None:
+        name = unicode(addr_name)
+        setattr(dest, attr_name, Address.objects.create(name=name, owner=owner, address=name))
+    else:
+        change = update_model_instance(dest_addr, **dict(source_addr.info_fields))
+
+    return change
 
 
 def get_import_form_builder(header_dict, choices):
@@ -38,6 +56,13 @@ def get_import_form_builder(header_dict, choices):
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
                                       choices, label=_('Target'),
                                      )
+
+        override_billing_addr  = BooleanField(label=_('Update the billing address'), required=False,
+                                              help_text=_('In update mode, update the billing address from the target.')
+                                             )
+        override_shipping_addr = BooleanField(label=_('Update the shipping address'), required=False,
+                                             help_text=_('In update mode, update the shipping address from the target.')
+                                            )
 
         #class Meta:
             #exclude = ('billing_address', 'shipping_address')
@@ -62,6 +87,10 @@ def get_import_form_builder(header_dict, choices):
             if not cdata['key_fields']:
                 create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
                 create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+                instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
+                instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+                instance.save()
             else: # update mode
                 relations = Relation.objects.filter(subject_entity=instance.pk,
                                                     type__in=(REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED)
@@ -78,10 +107,20 @@ def get_import_form_builder(header_dict, choices):
                     received_relation.delete()
                     create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
+                b_change = s_change = False
 
-            instance.billing_address  = copy_or_create_address(target.billing_address,  instance, _(u'Billing address'))
-            instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
-            instance.save()
+                if cdata['override_billing_addr']:
+                    b_change = _copy_or_update_address(
+                            target, instance, 'billing_address', _(u'Billing address'),
+                        )
+
+                if cdata['override_shipping_addr']:
+                    s_change = _copy_or_update_address(
+                            target, instance, 'shipping_address', _(u'Shipping address'),
+                        )
+
+                if b_change or s_change:
+                    instance.save()
 
 
     return InvoiceLVImportForm

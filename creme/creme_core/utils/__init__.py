@@ -107,6 +107,8 @@ def update_model_instance(obj, **fields): #TODO: django 1.5: save only modified 
     if save:
         obj.save()
 
+    return save
+
 def jsonify(func):
     def _aux(*args, **kwargs):
         status = 200

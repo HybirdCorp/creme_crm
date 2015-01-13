@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,12 @@
 ################################################################################
 
 from future_builtins import filter
+import warnings
 
-from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
-from django.db.models.signals import post_delete
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
+from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
+from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, CremeModel
@@ -66,19 +67,26 @@ class Address(CremeModel):
     _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
     def __nonzero__(self): #used by forms to detect empty addresses
-        #return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)
-        return any(fvalue for fname, fvalue in self._get_info_fields())
+        return any(fvalue for fname, fvalue in self.info_fields)
 
     def _get_info_fields(self):
-        for fname in self._INFO_FIELD_NAMES:
-            yield fname, getattr(self, fname)
+        warnings.warn("Address._get_info_fields() method is deprecated ; use Address.info_fields instead",
+                      DeprecationWarning
+                     )
+
+        return self.info_fields
 
     def clone(self, entity):
         """Returns a new cloned (saved) address for a (saved) entity"""
         return Address.objects.create(object_id=entity.id,
                                       content_type=ContentType.objects.get_for_model(entity),
-                                      **dict(self._get_info_fields())
+                                      **dict(self.info_fields)
                                      )
+
+    @property
+    def info_fields(self):
+        for fname in self._INFO_FIELD_NAMES:
+            yield fname, getattr(self, fname)
 
 
 #TODO: with a real ForeignKey can not we remove these handlers ??
