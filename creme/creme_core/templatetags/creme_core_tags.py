@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,22 +19,19 @@
 ################################################################################
 
 import logging
-#from time import mktime
 from json import dumps as json_dump
 from re import compile as compile_re
 from types import GeneratorType
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist
-#from django import template
-from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode # Token
+from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
 #from django.utils.safestring import mark_safe
 from django.utils.simplejson import dumps
 #from django.utils.translation import ugettext_lazy as _
 
-#from mediagenerator.templatetags.media import include_media
 from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
@@ -90,14 +87,6 @@ def get_meta_value(obj, key, default=''):
     except:
         return default
 
-#@register.filter(name="get_list_object_of_specific_relations")
-#def get_related_entities(entity, relation_type_id):
-    #return entity.get_related_entities(relation_type_id)
-
-#@register.filter
-#def get_extra_field_value(object, field_name):
-    #return object.__getattribute__(field_name)() #todo: use getattr() ??
-
 @register.filter(name="get_tag")
 def get_fieldtag(field, tag):
     """eg: {% if field|get_tag:'viewable' %}"""
@@ -112,14 +101,6 @@ def get_field_verbose_name(model_or_entity, field_name):
         logger.debug('Exception in get_field_verbose_name(): %s', e)
         return 'INVALID FIELD'
 
-#@register.filter
-#def is_date_gte(date1, date2):
-    #return date1.replace(hour=0, minute=0, second=0, microsecond=0) >= date2.replace(hour=0, minute=0, second=0, microsecond=0)
-
-#@register.filter
-#def is_date_lte(date1, date2):
-    #return date1.replace(hour=0, minute=0, second=0, microsecond=0) <= date2.replace(hour=0, minute=0, second=0, microsecond=0)
-
 @register.filter
 def is_none(obj):
     return obj is None
@@ -131,16 +112,6 @@ def is_entity(obj):
 @register.filter
 def is_relation(obj):
     return isinstance(obj, Relation)
-
-#@register.filter
-#def in_day(date1, day_in):
-    #beg = day_in.replace(hour=0, minute=0, second=0, microsecond=0)
-    #end = day_in.replace(hour=23, minute=59, second=59, microsecond=999999)
-    #return is_date_gte(date1, beg) and is_date_lte(date1, end)
-
-#@register.filter
-#def range_timestamp(date1, date2):
-    #return abs(mktime(date2.timetuple()) - mktime(date1.timetuple()))
 
 #@register.filter(name="lt")
 #def lt(object1, object2):
@@ -401,12 +372,6 @@ class HasPermToNode(TemplateNode):
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
     return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
-
-#@register.tag
-#def include_creme_media(parser, token):
-    #contents = token.split_contents()
-    #contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
-    #return include_media(parser, Token(token.token_type, ' '.join(contents)))
 
 @register.tag(name='include_creme_media')
 def do_include_creme_media(parser, token):

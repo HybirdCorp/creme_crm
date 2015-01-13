@@ -18,16 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
-from itertools import chain
 from collections import defaultdict
+from itertools import chain
 import logging
+import os
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import Model, CharField, BooleanField, FileField #ForeignKey, Manager
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
 from ..core.function_field import FunctionFieldsManager
 from .fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey, CTypeForeignKey

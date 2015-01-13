@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,14 +51,6 @@ class EmailCampaign(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return "/emails/campaigns"
-
-    #def delete(self):
-        ## Avoid problem with HistoryLine (beware: useless with SQlite, but not other engine)
-        #for sending in self.sendings_set.all():
-            ##sending.mails_set.all().delete() #todo: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
-            #sending.delete()
-
-        #super(EmailCampaign, self).delete()
 
     def all_recipients(self):
         #merge all the mailing_lists and their children

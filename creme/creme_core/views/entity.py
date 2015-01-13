@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from collections import defaultdict
 import logging
 
@@ -28,11 +27,7 @@ from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
-#from django.core import serializers
 #from django.utils.encoding import smart_unicode
-#from django.utils.formats import date_format
-#from django.utils.simplejson import JSONEncoder
-#from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
@@ -44,10 +39,12 @@ from ..gui.bulk_update import bulk_update_registry
 from ..models import CremeEntity, EntityCredentials #CustomField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.meta import ModelFieldEnumerator
-from ..views.generic import inner_popup, list_view_popup_from_widget
 from ..views.decorators import POST_only
+from ..views.generic import inner_popup, list_view_popup_from_widget
+
 
 logger = logging.getLogger(__name__)
+
 
 @login_required
 @jsonify
@@ -66,7 +63,6 @@ def get_creme_entities_repr(request, entities_ids):
             } for e_id, entity in ((e_id, entities.get(e_id)) for e_id in e_ids)
                 if entity is not None
            ]
-
 
 #TODO: bake the result in HTML instead of ajax view ??
 @jsonify
@@ -134,71 +130,6 @@ def get_info_fields(request, ct_id):
 #                        reload=False,
 #                        delegate_reload=True,
 #                       )
-
-#Commented on 25/01/2014
-#todo: use jsonify (and remove Exception handling)
-#todo: why POST ???
-#@login_required
-#def get_fields(request):
-    #"""@return Fields for a model [('field1', 'field1_verbose_name'),...]"""
-    #POST = request.POST
-
-    #try:
-        #model = get_ct_or_404(int(get_from_POST_or_404(POST, 'ct_id'))).model_class()
-        #deep  = int(POST.get('deep', 1))
-    #except ValueError as e:
-        #msg    = str(e)
-        #status = 400
-    #except Http404 as e:
-        #msg    = str(e)
-        #status = 404
-    #else:
-        ##msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
-        #msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True) #todo: use deep ??
-                                       #.filter(viewable=True)
-                                       #.choices()
-                                  #)
-        #status = 200
-
-    #return HttpResponse(msg, mimetype="text/javascript", status=status)
-
-#Commented on 25/01/2014
-#todo: use jsonify (and remove Exception handling)
-#@login_required
-#def _get_ct_info(request, generator):
-    #try:
-        #ct = get_ct_or_404(int(get_from_POST_or_404(request.POST, 'ct_id')))
-    #except ValueError as e:
-        #status = 400
-        #msg    = str(e)
-    #except Http404 as e:
-        #status = 404
-        #msg    = str(e)
-    #else:
-        #status = 200
-        #msg    = JSONEncoder().encode(generator(ct))
-
-    #return HttpResponse(msg, mimetype="text/javascript", status=status)
-
-#Commented on 25/01/2014
-#@login_required
-#def get_custom_fields(request):
-    #"@return Custom fields for a model [('cfield1_id', 'cfield1_name'), ...]"
-    #return _get_ct_info(request,
-                        #lambda ct: list(CustomField.objects.filter(content_type=ct)
-                                                           #.values_list('id', 'name')
-                                       #)
-                       #)
-
-#Commented on 25/01/2014
-#@login_required
-#def get_function_fields(request):
-    #"""@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
-    #return _get_ct_info(request,
-                        #lambda ct: [(f_field.name, unicode(f_field.verbose_name)) 
-                                        #for f_field in ct.model_class().function_fields
-                                   #]
-                       #)
 
 # @login_required
 # @jsonify
