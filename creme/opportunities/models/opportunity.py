@@ -28,7 +28,6 @@ from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL, Sum, BooleanField)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
-#from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
 from creme.creme_core.models.fields import BasicAutoField
@@ -39,8 +38,6 @@ from creme.persons.models import Contact, Organisation
 from creme.persons.workflow import transform_target_into_prospect
 
 from creme.products.models import Product, Service
-
-#from creme.billing.models import Invoice, SalesOrder, Quote
 
 from ..constants import *
 
@@ -70,8 +67,7 @@ class SalesPhase(CremeModel):
 
 
 class Origin(CremeModel):
-    name        = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
-    #description = TextField(_(u"Description"))
+    name = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
 
     def __unicode__(self):
         return self.name
@@ -110,11 +106,6 @@ class Opportunity(CremeEntity):
         verbose_name_plural = _(u'Opportunities')
         ordering = ('name',)
 
-    #def __init__(self, *args, **kwargs):
-        #super(Opportunity, self).__init__(*args, **kwargs)
-
-        #self._linked_activities = None
-
     def __unicode__(self):
         return self.name
 
@@ -152,16 +143,6 @@ class Opportunity(CremeEntity):
 
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
-
-    #@staticmethod
-    #def use_current_quote():
-        #try:
-            #use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
-        #except SettingValue.DoesNotExist:
-            #logger.debug("Populate opportunities is not loaded")
-            #use_current_quote = False
-
-        #return use_current_quote
 
     def get_total(self):
         if self.made_sales:
@@ -218,35 +199,6 @@ class Opportunity(CremeEntity):
                                       relations__type=REL_SUB_RESPONSIBLE,
                                      )
 
-    ##todo: test
-    #def get_quotes(self):
-        ##todo: filter deleted ?? what about current quote behaviour ??
-        #return Quote.objects.filter(relations__object_entity=self.id,
-                                    #relations__type=REL_SUB_LINKED_QUOTE,
-                                   #)
-
-    #def get_current_quote_ids(self):
-        #ct        = ContentType.objects.get_for_model(Quote)
-        #return Relation.objects.filter(object_entity=self.id,
-                                       #type=REL_SUB_CURRENT_DOC,
-                                       #subject_entity__entity_type=ct,
-                                      #) \
-                               #.values_list('subject_entity_id', flat=True)
-
-    ##todo: test
-    #def get_salesorder(self):
-        #return SalesOrder.objects.filter(is_deleted=False,
-                                         #relations__object_entity=self.id,
-                                         #relations__type=REL_SUB_LINKED_SALESORDER,
-                                        #)
-
-    ##todo: test
-    #def get_invoices(self):
-        #return Invoice.objects.filter(is_deleted=False,
-                                      #relations__object_entity=self.id,
-                                      #relations__type=REL_SUB_LINKED_INVOICE,
-                                     #)
-
     @property
     def emitter(self):
         if not self._opp_emitter:
@@ -277,13 +229,6 @@ class Opportunity(CremeEntity):
                 self._opp_target = organisation
         else:
             self._opp_target = organisation
-
-    #def update_sales(self):
-        #quotes = Quote.objects.filter(id__in=self.get_current_quote_ids,
-                                      #total_no_vat__isnull=False)
-        #self.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        #self.made_sales = quotes.filter(status__won=True).aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        #self.save()
 
     @commit_on_success
     def save(self, *args, **kwargs):

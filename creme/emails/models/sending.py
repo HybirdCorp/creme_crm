@@ -86,10 +86,6 @@ class EmailSending(CremeModel):
     def __unicode__(self):
         return ugettext(u"Sending of <%(campaign)s> on %(date)s") % {'campaign': self.campaign, 'date': self.sending_date}
 
-    #def delete(self):
-        #self.mails_set.all().delete() #use CremeModel delete() ??
-        #super(EmailSending, self).delete()
-
     def get_mails(self):
         return self.mails_set.all()
 

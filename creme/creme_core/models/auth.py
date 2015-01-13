@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from collections import defaultdict
 import logging
 from operator import or_ as or_op
 
@@ -167,17 +166,6 @@ class UserRole(Model):
             queryset = queryset.none()
 
         return queryset
-
-    #@staticmethod
-    #def populate_setcreds(roles):
-        #role_ids = set(role.id for role in roles)
-        #creds_by_role = defaultdict(list)
-
-        #for setcreds in SetCredentials.objects.filter(role__in=role_ids):
-            #creds_by_role[setcreds.role_id].append(setcreds)
-
-        #for role in roles:
-            #role._setcredentials = creds_by_role[role.id]
 
 
 class SetCredentials(Model):

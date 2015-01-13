@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,25 +18,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import datetime
 from itertools import chain
 #import warnings
 
-#from django.contrib.contenttypes.models import ContentType
-from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
-        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer) #FileInput
-from django.forms.util import flatatt
-from django.utils.html import conditional_escape, escape
-from django.utils.translation import ugettext as _
-from django.utils.encoding import force_unicode
-from django.utils.simplejson.encoder import JSONEncoder
-from django.utils.safestring import mark_safe
-#from django.utils.formats import date_format
-#from django.core.validators import EMPTY_VALUES
 from django.conf import settings
+#from django.contrib.contenttypes.models import ContentType
+from django.forms.util import flatatt
+from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
+        TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer)
+from django.utils.encoding import force_unicode
+from django.utils.html import conditional_escape, escape
+from django.utils.safestring import mark_safe
+from django.utils.simplejson.encoder import JSONEncoder
+from django.utils.translation import ugettext as _
 
-from ..utils.media import creme_media_themed_url as media_url
 from ..utils.date_range import date_range_registry
+from ..utils.media import creme_media_themed_url as media_url
 
 
 def widget_render_input(renderer, widget, name, value, context, **kwargs):
@@ -573,55 +570,6 @@ class CalendarWidget(TextInput):
                                                                format=dateformat),
                               })
 
-        #be carefull: JS and python date format should be equal (here: date == "yy-mm-dd")
-#        if isinstance(value, datetime):
-#            # TODO cremedatetimefield is not working properly for the moment
-#            self.default_help_text = settings.DATE_FORMAT_VERBOSE
-#            value = value.date()
-#
-##        value = date_format(value, 'DATE_FORMAT') if value is not None else None
-#        attrs = self.build_attrs(attrs, name=name)
-#
-#        date_format_js = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
-#        dates_js = {
-#            'dd': 'd.getDate()',
-#            'mm': '(d.getMonth()+1)',
-#            'yy': 'd.getFullYear()',
-#        }
-#
-#        cmd_js = []
-#        for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
-#            cmd_js.append(dates_js.get(f))
-#
-#        return mark_safe(u"""<div class="ui-creme-calendarpicker">
-#                %(help_text)s
-#                <br/>
-#                <ul class="ui-layout hbox">
-#                    <li>%(input)s</li>
-#                    <li>
-#                        <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
-#                            %(today_label)s
-#                        </button>
-#                    </li>
-#                </ul>
-#            </div>
-#            <script type="text/javascript">
-#                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", 
-#                                         showOn: "button", 
-#                                         buttonText: "%(img_text)s",
-#                                         buttonImage: "%(img_url)s", 
-#                                         buttonImageOnly: true });
-#            </script>""" % {
-#                    'input':           super(CalendarWidget, self).render(name, value, attrs),
-#                    'id':              attrs['id'],
-#                    'today_label':     _(u"Today"),
-#                    'date_format_js':  date_format_js,
-#                    'today_js':        ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
-#                    'help_text':       self.default_help_text,
-#                    'img_url':         media_url('images/icon_calendar.gif'),
-#                    'img_text':        _(u'Calendar')
-#                  })
-
 #TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(Select):
     def __init__(self, target_id, attrs=None, choices=()):
@@ -667,28 +615,6 @@ class DependentSelect(Select):
             </script>
             %(input)s
         """ % {'input':super(DependentSelect, self).render(name, value, attrs, choices), 'id': id})
-
-
-#class UploadedFileWidget(FileInput):
-    #def __init__(self, attrs=None):
-        #super(UploadedFileWidget, self).__init__(attrs)
-
-    #def render(self, name, value, attrs=None):
-        #visual=''
-        #attrs = self.build_attrs(attrs, name=name)
-
-        #if value not in EMPTY_VALUES:
-            #visual = """
-            #<a href="/download_file/%(url)s">
-                #<img src="%(media_url)s%(url)s" alt="%(url)s"/>
-            #</a>""" % {
-                    #'url': value,
-                    #'media_url': settings.MEDIA_URL
-                #}
-            #attrs['type'] = 'hidden'
-
-        #input = super(UploadedFileWidget, self).render(name, value, attrs)
-        #return mark_safe(input + visual)
 
 
 class TinyMCEEditor(Textarea):
@@ -748,13 +674,6 @@ class ColorPickerWidget(TextInput):
         context = widget_render_context('ui-creme-jqueryplugin', attrs)
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
-#
-#        return mark_safe("""<script type="text/javascript">
-#                    $(document).ready(function() { $("#%(id)s").gccolor()});
-#                </script>%(input)s""" % {
-#                    'id':    attrs['id'],
-#                    'input': super(ColorPickerWidget, self).render(name, value, attrs),
-#                })
 
 
 #class ListViewWidget(TextInput):
@@ -929,25 +848,6 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
 
     def _render_body(self, attrs, filtertype):
         return '<ul class="checklist-content %s %s"></ul>' % (filtertype or '', self.columntype)
-
-# TODO : remove it !
-# class UnorderedMultipleChoiceWidget(SelectMultiple):
-#     def render(self, name, value, attrs=None, choices=()):
-#         attrs = self.build_attrs(attrs, name=name)
-# 
-#         reduced = attrs.get('reduced', 'false')
-#         assert reduced in ('true', 'false')
-# 
-#         return mark_safe(u"""%(select)s
-#                      <script type="text/javascript">
-#                         $(document).ready(function() {
-#                             creme.forms.toUnorderedMultiSelect('%(id)s', %(reduced)s);
-#                         });
-#                      </script>""" % {
-#                         'select':  super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
-#                         'id':      attrs['id'],
-#                         'reduced': reduced,
-#                      })
 
 
 class OrderedMultipleChoiceWidget(SelectMultiple):
