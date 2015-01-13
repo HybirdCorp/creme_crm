@@ -324,7 +324,9 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
         self.assertEqual(imp_target4.get_real_entity(), target4)
 
-    def _aux_test_csv_import_update(self, model, status_model):
+    def _aux_test_csv_import_update(self, model, status_model,
+                                    override_billing_addr=False, override_shipping_addr=False,
+                                   ):
         user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
 
@@ -341,6 +343,25 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         create_rel = partial(Relation.objects.create, subject_entity=bdoc, user=user)
         create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source1)
         create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target1)
+
+        create_addr = Address.objects.create
+        target2.billing_address  = b_addr1 = create_addr(owner=target2, name='BillingAddr1',
+                                                         address='Temple of sand', city='Suna',
+                                                        )
+        target2.shipping_address = s_addr1 = create_addr(owner=target2, name='ShippingAddr1',
+                                                        address='Temple of fire', city='Konoha',
+                                                       )
+        target2.save()
+
+        bdoc.billing_address  = b_addr2 = create_addr(owner=bdoc, name='BillingAddr22',
+                                                      address='Temple of rain', city='Kiri',
+                                                     )
+        bdoc.shipping_address = s_addr2 = create_addr(owner=bdoc, name='ShippingAddr2',
+                                                      address='Temple of ligthning', city='Kumo',
+                                                     )
+        bdoc.save()
+
+        addr_count = Address.objects.count()
 
         number = 'B0001'
         doc = self._build_csv_doc([(bdoc.name, number, source2.name, target2.name)])
@@ -379,6 +400,9 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                                             'target_persons_organisation_create':    True,
                                             'target_persons_contact_colselect':      0,
                                             #'target_persons_contact_create':         True,
+
+                                            'override_billing_addr':  'on' if override_billing_addr else '',
+                                            'override_shipping_addr': 'on' if override_shipping_addr else '',
                                            }
                                    )
         self.assertNoFormError(response)
@@ -391,6 +415,24 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
 
         self.assertRelationCount(1, bdoc, REL_SUB_BILL_RECEIVED, target2)
         self.assertRelationCount(0, bdoc, REL_SUB_BILL_RECEIVED, target1)
+
+        b_addr = bdoc.billing_address
+        self.assertIsNotNone(b_addr)
+        self.assertEqual(bdoc, b_addr.owner)
+
+        s_addr = bdoc.shipping_address
+        self.assertIsNotNone(s_addr)
+        self.assertEqual(bdoc, s_addr.owner)
+
+        expected_b_addr = b_addr1 if override_billing_addr else b_addr2
+        self.assertEqual(expected_b_addr.address, b_addr.address)
+        self.assertEqual(expected_b_addr.city,    b_addr.city)
+
+        expected_s_addr = s_addr1 if override_shipping_addr else s_addr2
+        self.assertEqual(expected_s_addr.address, s_addr.address)
+        self.assertEqual(expected_s_addr.city,    s_addr.city)
+
+        self.assertEqual(addr_count, Address.objects.count()) #no new Address should be created
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase):

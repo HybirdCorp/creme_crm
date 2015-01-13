@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,19 +23,16 @@ import logging
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import Relation # Currency
 from creme.creme_core.forms import (CremeEntityForm, CremeDateField,
-                                    GenericEntityField, CreatorEntityField)
+        GenericEntityField, CreatorEntityField)
 from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
-#from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-
-#from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.persons.models import Organisation, Address, Contact
 
-from ..models import Line # AdditionalInformation, PaymentTerms
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import Line
 
 
 logger = logging.getLogger(__name__)
@@ -57,11 +54,6 @@ def first_managed_orga_id():
 
 
 class BaseEditForm(CremeEntityForm):
-    #currency = CreatorModelChoiceField(label=_(u'Currency'), queryset=Currency.objects.all(), initial=DEFAULT_CURRENCY_PK)
-
-    #additional_info  = CreatorModelChoiceField(label=_(u'Additional Information'), queryset=AdditionalInformation.objects.all(), required=False, initial=None)
-    #payment_terms    = CreatorModelChoiceField(label=_(u'Payment Terms'), queryset=PaymentTerms.objects.all(), required=False, initial=None)
-
     source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
     target = GenericEntityField(label=_(u"Target"), models=[Organisation, Contact]) #, required=True
 
@@ -72,20 +64,11 @@ class BaseEditForm(CremeEntityForm):
                 ('orga_n_address', _(u'Organisations'), ['source', 'target']), #TODO: rename
             )
 
-    #class Meta:
-        #exclude = CremeEntityForm.Meta.exclude + ('billing_address', 'shipping_address')
-
     def __init__(self, *args, **kwargs):
         super(BaseEditForm, self).__init__(*args, **kwargs)
         self.issued_relation   = None
         self.received_relation = None
         self.old_user_id = self.instance.user_id
-
-        #user = self.user
-        #self.fields['currency'].user = user
-        #self.fields['additional_info'].user = user
-        #self.fields['payment_terms'].user = user
-        #self.fields['source'].user = user
 
         pk = self.instance.pk
 
@@ -147,24 +130,7 @@ class BaseEditForm(CremeEntityForm):
 
         instance = super(BaseEditForm, self).save()
 
-        #if self.issued_relation:
-            #self.issued_relation.update_links(object_entity=source, save=True)
-        #else:
-            #Relation.objects.create(subject_entity=instance,
-                                    #type_id=REL_SUB_BILL_ISSUED,
-                                    #object_entity=source,
-                                    #user=user
-                                   #)
         self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source) #TODO: move this intelligence in models.Base.save()
-
-        #if self.received_relation:
-            #self.received_relation.update_links(object_entity=target, save=True)
-        #else:
-            #Relation.objects.create(subject_entity=instance,
-                                    #type_id=REL_SUB_BILL_RECEIVED,
-                                    #object_entity=target,
-                                    #user=user
-                                   #)
         self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
         #TODO: do this in model/with signal to avoid errors ???

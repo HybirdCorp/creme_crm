@@ -729,9 +729,19 @@ class InvoiceTestCase(_BillingTestCase):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus)
 
-    def test_csv_import_update(self):
+    def test_csv_import_update01(self):
         self.login()
-        self._aux_test_csv_import_update(Invoice, InvoiceStatus)
+        self._aux_test_csv_import_update(Invoice, InvoiceStatus,
+                                         override_billing_addr=False,
+                                         override_shipping_addr=True,
+                                        )
+
+    def test_csv_import_update02(self):
+        self.login()
+        self._aux_test_csv_import_update(Invoice, InvoiceStatus,
+                                         override_billing_addr=True,
+                                         override_shipping_addr=False,
+                                        )
 
 
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
