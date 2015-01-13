@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2009-2014  Hybird
+ Copyright (C) 2009-2015  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -17,59 +17,19 @@
  *******************************************************************************/
 
 creme.blocks = {
-    //__registeredBlocks: {},
     collapsed_class:    'collapsed',
     hide_fields_class:  'hide_empty_fields',
     status_stave_delay: 500
 };
 
-/*
-creme.blocks.register = function(block_id) {
-    var $block = $(block_id);
-
-    if ($block.size() == 1) {
-        this.__registeredBlocks[block_id] = $block;
-    } else {
-        console.log('creme.blocks.register::block_id is not unique:' + block_id);
-    }
-};
-
-creme.blocks.get_block = function(block_id) {
-    return this.__registeredBlocks[block_id];
-};
-*/
-
 creme.blocks.reload = function(url) {
-//     creme.ajax.query(url, {backend: {sync: true, dataType: 'json'}})
     creme.ajax.query(url, {backend: {sync: false, dataType: 'json'}})
-//               .onStart(creme.utils.showPageLoadOverlay)
               .onDone(function(event, data) {
                   data.forEach(function(entry) {
                       creme.blocks.fill($('[id="' + entry[0] + '"]'), $(entry[1]));
                   });
                })
-//               .onComplete(creme.utils.hidePageLoadOverlay)
               .start();
-    /*
-    $.ajax({
-        url:        url,
-        async:      false,
-        type:       "GET",
-        dataType:   "json",
-        cache:      false, // ??
-        beforeSend: function() {creme.utils.loading('loading', false);},
-        success:    function(data) {
-                        for (var i = 0; i < data.length; ++i) {
-                            var block_data    = data[i];                  // tuple: (block_name, block_html)
-                            var block         = $('#' + block_data[0])
-                            var block_content = $(block_data[1]);         // 'compile' to DOM
-
-                            creme.blocks.fill(block, block_content);
-                        }
-                    },
-        complete:   function() {creme.utils.loading('loading', true);}
-    });
-    */
 };
 
 creme.blocks.fill = function(block, content) {
@@ -274,14 +234,6 @@ creme.blocks.bindEvents = function(root) {
             console.warn('unable to initialize block', block.attr('id'), ':', e);
         }
     });
-
-    /*
-    var __registeredBlocks = this.__registeredBlocks;
-
-    for (var i in __registeredBlocks) {
-        creme.blocks.initialize(__registeredBlocks[i]);
-    }
-    */
 };
 
 creme.blocks.scrollToError = function(block) {

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+/*
+ * Requires : creme declaration
+ */
+
 creme.exports = creme.exports || {};
 
 creme.exports.exportAs = function(url, formats) {
@@ -29,66 +33,3 @@ creme.exports.exportAs = function(url, formats) {
                       window.location.href = url.format(data);
                   }).open();
 }
-
-/*
- * Requires : jQuery lib, creme declaration
- */
-
-/*
-creme._export = {}; //TODO: rename 'export'
-
-//TODO: move to billing ??
-creme._export.select_one = function(evt, a) {
-    evt.preventDefault();
-
-    var current_href = $(a).attr('href');
-    var me = this;
-
-    this.okDialogHandler = function(ui) {
-        current_href = current_href.replace('%s', $(ui).find('select').val());
-        $(ui).dialog("destroy");
-        $(ui).remove();
-        window.location.href = current_href;
-    }
-
-    var $select = $('<select></select>');
-    //Make dynamics values
-    //$select.append($('<option></option>').val("odt").text("Document open-office (ODT)"));
-    $select.append($('<option></option>').val("pdf").text(gettext("Pdf file (PDF)")));
-
-    var buttons = {};
-    buttons[gettext("Ok")] = function() {me.okDialogHandler($(this))}
-
-    creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
-}
-
-creme._export.selectBackend = function(evt, data, a) {
-    evt.preventDefault();
-
-    var me = this;
-    var current_href = $(a).attr('href');
-
-    this.destroyOkDialog = function(ui) {
-        $(ui).dialog("destroy");
-        $(ui).remove();
-    }
-    this.okDialogHandler = function(ui) {
-        var new_href = current_href.replace('%s', $(ui).find('select').val());
-        me.destroyOkDialog(ui);
-        window.location.href = new_href;
-    }
-
-    if (!data.length) {
-        var $select = creme.forms.Select.fill($('<select/>'), [['', 'No backend found']], '');
-        var okAction = function() {me.destroyOkDialog($(this))}
-    } else {
-        var $select = creme.forms.Select.fill($('<select/>'), data, data[0][0]);
-        var okAction = function() {me.okDialogHandler($(this))}
-    }
-
-    var buttons = {};
-    buttons[gettext("Ok")] = okAction;
-
-    creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
-}
-*/

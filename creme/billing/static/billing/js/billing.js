@@ -263,8 +263,6 @@ creme.billing.checkDiscount = function(element) {
     var unit_price      = parseFloat($('input[name*=unit_price]',parent_tr).val());
     var quantity        = parseInt($('input[name*=quantity]', parent_tr).val());
 
-//    console.log('prix unitaire : ' + unit_price + ", quantité : " + quantity + ", remise globale ? " + total_discount + ", remise : " + discount_value + ", discount unit : " + discount_unit);
-
     if (!creme.billing.checkPercent(element) && discount_unit == 1) {
         return false;
     }
@@ -332,8 +330,6 @@ creme.billing.validateInput = function(input) {
     }
 
     input.attr('isvalid', isvalid);
-
-//     isvalid ? input.removeClass('td_error') : input.addClass('td_error');
     input.toggleClass('td_error', !isvalid);
 
     return isvalid;
@@ -347,7 +343,7 @@ creme.billing.initializeForm = function(element) {
         element.removeAttr('form_modified');
     });
 
-    // bind twice because of double init of blocks, seems to not coz no problem
+    // bind twice because of double init of blocks, seems to not cause a problem
     creme.billing.inputs(element).bind('change', function() {
         var item = creme.billing.serializeInput($(this), false);
         var changed = item !== undefined && ('' + item.value !== $(this).attr('initial'));

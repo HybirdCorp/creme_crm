@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2013  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,24 +23,6 @@ creme.color.HEXtoRGB = function(hex) {//Extracted from gccolor-1.0.3 plugin
     var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);
     return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
 };
-
-// XXX: commented the 13th october 2013
-// creme.utils.RGBtoHSB = function(rgb) {
-//     var hsb = {};
-//     hsb.b = Math.max(Math.max(rgb.r, rgb.g), rgb.b);
-//     hsb.s = (hsb.b <= 0) ? 0 : Math.round(100 * (hsb.b - Math.min(Math.min(rgb.r, rgb.g), rgb.b)) / hsb.b);
-//     hsb.b = Math.round((hsb.b / 255) * 100);
-//     if((rgb.r == rgb.g) && (rgb.g == rgb.b)) hsb.h = 0;
-//     else if(rgb.r >= rgb.g && rgb.g >= rgb.b) hsb.h = 60 * (rgb.g - rgb.b) / (rgb.r - rgb.b);
-//     else if(rgb.g >= rgb.r && rgb.r >= rgb.b) hsb.h = 60  + 60 * (rgb.g - rgb.r) / (rgb.g - rgb.b);
-//     else if(rgb.g >= rgb.b && rgb.b >= rgb.r) hsb.h = 120 + 60 * (rgb.b - rgb.r) / (rgb.g - rgb.r);
-//     else if(rgb.b >= rgb.g && rgb.g >= rgb.r) hsb.h = 180 + 60 * (rgb.b - rgb.g) / (rgb.b - rgb.r);
-//     else if(rgb.b >= rgb.r && rgb.r >= rgb.g) hsb.h = 240 + 60 * (rgb.r - rgb.g) / (rgb.b - rgb.g);
-//     else if(rgb.r >= rgb.b && rgb.b >= rgb.g) hsb.h = 300 + 60 * (rgb.r - rgb.b) / (rgb.r - rgb.g);
-//     else hsb.h = 0;
-//     hsb.h = Math.round(hsb.h);
-//     return hsb;
-// };
 
 creme.color.luminance = function(r, g, b) {
     r = Math.pow (r / 255, 2.2);

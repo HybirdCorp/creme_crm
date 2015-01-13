@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -427,47 +427,8 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     }
 
     if (reduced === true)
-    	toggleRow();
+        toggleRow();
 }
-
-/*
-creme.forms.toUnorderedMultiSelect = function(select_id, reduced) {
-    function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
-        $select.find('option').each(function(i) {
-            var $this   = $(this);
-            var label   = $this.html(); //NB not "$this.text()" because it unexcapes html (so can cause xss)
-            var li_name = $this.attr('value');
-
-            if ($this.is(':selected')) {
-                addAvailableLi(label, li_name, true);
-                addChosenLi(label, li_name);
-            } else {
-                addAvailableLi(label, li_name, false);
-            }
-        });
-    }
-
-    function refreshSelect($select, $chosen) {
-        var chosenMap = {};
-
-        $chosen.find('li').each(function(i) {
-            chosenMap[$(this).attr('name')] = true;
-        });
-
-        $select.find('option').each(function(i) {
-            var is_selected = chosenMap[$(this).attr('value')];
-
-            if (is_selected != undefined) {
-                $(this).attr('selected', 'selected');
-            } else {
-                $(this).removeAttr('selected');
-            }
-        });
-    }
-
-    creme.forms._toDualColumnMultiSelect(select_id, false, buildColumns, refreshSelect, reduced);
-}
-*/
 
 creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     function buildColumns($table, addAvailableLi, addChosenLi) {

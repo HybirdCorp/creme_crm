@@ -65,7 +65,7 @@ creme.activities.calendar.filterEvents = function(widget, calendar, events) {
         var calendarEvents = events.filter (function (event) {
           return calendar == event.calendar;
         });
-      
+
         widget.fullCalendar ('addEventSource', calendarEvents);
     }
 
