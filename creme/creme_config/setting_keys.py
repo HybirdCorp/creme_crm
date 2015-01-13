@@ -2,7 +2,7 @@
 
 from functools import partial
 
-from django.utils.translation import ugettext_lazy as _
+#from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.setting_key import SettingKey
 

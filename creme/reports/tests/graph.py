@@ -7,7 +7,6 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.utils.timezone import now
     from django.utils.translation import ugettext as _, pgettext
 
     from creme.creme_core.models import (RelationType, Relation,

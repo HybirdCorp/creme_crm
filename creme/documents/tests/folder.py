@@ -108,7 +108,7 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertEqual(_(u"List of %s") % Folder._meta.verbose_name_plural, title)
 
         with self.assertRaises(KeyError):
-            sub_title = context['list_sub_title']
+            context['list_sub_title']
 
     def test_listview02(self):
         "With parent constraint"

@@ -429,12 +429,13 @@ class ListViewTestCase(ViewsTestCase):
         create_contact(first_name='Faye',   last_name='Valentine', address='B')
         create_contact(first_name='Edward', last_name='Wong', address='A')
 
-        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
-                                 cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
-                                             (EntityCellRegularField, {'name': 'last_name'}),
-                                             (EntityCellRegularField, {'name': 'first_name'}),
-                                             (EntityCellRegularField, {'name': 'billing_address'}),
-                                            ],)
+        HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact,
+                            cells_desc=[(EntityCellRegularField, {'name': 'civility'}),
+                                        (EntityCellRegularField, {'name': 'last_name'}),
+                                        (EntityCellRegularField, {'name': 'first_name'}),
+                                        (EntityCellRegularField, {'name': 'billing_address'}),
+                                       ],
+                           )
 
         url = Contact.get_lv_absolute_url()
         # for the filter to prevent an issue when HeaderFiltersTestCase is launched before this test

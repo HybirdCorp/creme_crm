@@ -84,7 +84,8 @@ def add_type(request):
     #return add_entity(request, CremePropertyTypeAddForm)
 
     if request.method == 'POST':
-        form = CremePropertyTypeAddForm(user=request.user, data=request.POST)
+        POST = request.POST
+        form = CremePropertyTypeAddForm(user=request.user, data=POST)
 
         if form.is_valid():
             ptype = form.save()
@@ -113,7 +114,8 @@ def edit_type(request, ptype_id):
         raise Http404("Can't edit a standard PropertyType")
 
     if request.method == 'POST':
-        form = CremePropertyTypeEditForm(ptype, user=request.user, data=request.POST)
+        POST = request.POST
+        form = CremePropertyTypeEditForm(ptype, user=request.user, data=POST)
 
         if form.is_valid():
             form.save()

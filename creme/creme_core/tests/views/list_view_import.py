@@ -599,7 +599,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                        )
         self.assertEqual([spear], list(get_cf_values(cf_menum, kanu).value.all()))
 
-        ryubi = get_contact(3)
+        #ryubi = get_contact(3)
         self.assertEqual(2, CustomFieldEnumValue.objects.filter(custom_field=cf_enum).count()) #not '' choice
 
         self.assertEqual(0, len(response.context['form'].import_errors))

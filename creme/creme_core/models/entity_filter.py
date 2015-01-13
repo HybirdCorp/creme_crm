@@ -237,7 +237,7 @@ class EntityFilter(Model): #CremeModel ???
                         )
 
             if owner.is_team:
-                parent_user = parent_filter.user
+                #parent_user = parent_filter.user
 
                 if parent_filter.user.is_team:
                     if parent_filter.user != owner:

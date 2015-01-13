@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+#from django.utils.translation import ugettext as _
 
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SettingValue, BlockDetailviewLocation, BlockPortalLocation
 from creme.creme_core.utils import create_if_needed
 
 from .blocks import alerts_block, memos_block, todos_block, messages_block
-from .constants import PRIO_IMP_PK, USERMESSAGE_PRIORITIES, MIN_HOUR_4_TODO_REMINDER
+from .constants import PRIO_IMP_PK, USERMESSAGE_PRIORITIES
 from .models import UserMessagePriority
 from .setting_keys import todo_reminder_key
 

@@ -467,7 +467,8 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
         block_id = 'block_creme_core-misc_tagged_entities'
-        response = self.assertGET200(url_fmt % (ptype.id, block_id))
+        #response =
+        self.assertGET200(url_fmt % (ptype.id, block_id))
 
         #with self.assertNoException():
             #result = simplejson.loads(response.content)

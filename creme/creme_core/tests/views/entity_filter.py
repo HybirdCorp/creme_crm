@@ -989,9 +989,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login()
 
         efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
-                                       conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+        EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+                            conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
+                           )
 
         response = self._aux_edit_subfilter(efilter1)
         self.assertNoFormError(response)
@@ -1004,10 +1004,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True,
                                        is_private=True, user=user,
                                       )
-        efilter2 = EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
-                                       is_private=True, user=user,
-                                       conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
-                                      )
+        EntityFilter.create('test-filter02', 'Filter 02', Contact, is_custom=True,
+                            is_private=True, user=user,
+                            conditions=[EntityFilterCondition.build_4_subfilter(efilter1)],
+                           )
 
         response = self._aux_edit_subfilter(efilter1)
         self.assertNoFormError(response)

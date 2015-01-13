@@ -341,9 +341,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertFalse(hasattr(message, 'alternatives'))
         self.assertFalse(message.attachments)
         self.assertEqual([self.user.email],
-                         [recipient for message in messages
-                                    for recipient in message.recipients()
-                         ]
+                         [recipient for msg in messages for recipient in msg.recipients()]
                         )
 
     def test_command02(self):
