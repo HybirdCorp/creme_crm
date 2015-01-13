@@ -1,11 +1,6 @@
-/*
- * Requires : jQuery
- *            creme.utils.js
- */
-
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +15,11 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
+
+/*
+ * Requires : jQuery
+ *            creme.utils.js
+ */
 
 //Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
 $('html').ajaxSend(function(event, xhr, settings) {
@@ -160,108 +160,6 @@ creme.ajax.reloadContent = function($target, target_url) {
         }
     });
 };
-
-/*
- * creme.ajax.iframeSubmit($('#myform'), function(data) {
-             console.log(data) // result html content (body of iframe)
-      });
- */
-/*
-creme.ajax.iframeSubmit = function(form, success_cb, pop_options) {
-    var delay = 1;
-    var id = new Date().getTime()
-    var iframe = $('<iframe style="position:absolute;top:-1000px;left:-1000px;"><html><head></head><body></body></html></iframe>').attr('id', id).appendTo($('body'))
-
-    setTimeout(function() {
-        var submit = creme.ajax.iframePopulate(iframe, form, pop_options);
-        submit.trigger('click');
-
-        iframe.load(function() {
-            success_cb($(this).contents().find('body').html());
-            iframe.remove();
-        });
-    }, delay);
-};
-*/
-
-/*
-creme.ajax.iframePopulate = function(iframe, form, options) {
-    var iform = $('<form>').attr('action', options['action']||form.attr('action'))
-                           .attr('method', 'post')
-                           .attr('enctype', form.attr('enctype'));
-
-    $('input, textarea', form).each(function() {
-        iform.append($(this).clone().text($(this).val()));
-    });
-
-    $('select', form).each(function() {
-        iform.append($(this).clone().val($(this).val()).change());
-    });
-
-        $('[name=whoami]').each(function(){
-            iform.append($(this).clone().text($(this).val()));
-        });
-
-    iframe.contents().find('body').append(iform);
-
-    return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
-};
-*/
-
-/*
-creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
-    var delay = 100;
-    
-    // build iframe with unique id
-    var id = new Date().getTime();
-    var iframe = $('<iframe src="javascript:false;" style="display:none;"><html><head></head><body></body></html></iframe>');
-    iframe.attr('id', id).attr('name', id).appendTo($('body'));
-
-    // specific iframe for IE
-    if ($.browser.msie) {
-        iframe.attr('src', "javascript:'<html></html>';").attr('target', '_blank');
-    }
-
-    // add custom action if needed
-    var form_action = form.attr('action');
-    form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
-
-    // iframe response callback
-    var iframe_success_cb = function(event) {
-        if ($.browser.msie) {
-            success_cb(iframe.contents().find('body').clone(true).html(), event);
-        } else {
-            success_cb(iframe.contents().find('body').html(), event);
-        }
-
-        form.attr('action', form_action);
-        iframe.remove();
-    };
-
-    // iframe error callback
-    var iframe_error_cb = function(event) {
-        iframe.unbind('error', iframe_error_cb);
-
-        error_cb(event);
-        form.attr('action', form_action);
-        iframe.remove();
-    };
-
-    window.setTimeout(function() {
-        iframe.bind('load', iframe_success_cb);
-        iframe.bind('error', iframe_success_cb);
-
-        var submit = creme.ajax.iframeRedirect(iframe, form);
-        submit.trigger('click');
-
-    }, delay);
-};
-
-creme.ajax.iframeRedirect = function(iframe, form) {
-    var iform = form.attr('target', iframe.attr('name'));
-    return $('<input type="submit" name="submit" value="1" id="submit" style="display:none"/>').appendTo(iform);
-};
-*/
 
 creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
