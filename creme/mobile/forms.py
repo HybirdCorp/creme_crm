@@ -56,7 +56,7 @@ class EmailInput(Input):
 
 
 class MobileContactCreateForm(ContactQuickForm):
-    is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False)
+    is_favorite = BooleanField(label=pgettext_lazy('mobile-contact', u'Is favorite'), required=False)
 
     class Meta(ContactQuickForm.Meta):
         fields = ('last_name', 'first_name', 'phone', 'mobile', 'email')
@@ -96,7 +96,7 @@ class MobileContactCreateForm(ContactQuickForm):
 
 
 class MobileOrganisationCreateForm(CremeModelForm):
-    is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', 'Is favorite'), required=False)
+    is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', u'Is favorite'), required=False)
 
     class Meta:
         model = Organisation

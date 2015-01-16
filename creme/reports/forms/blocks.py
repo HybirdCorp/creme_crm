@@ -76,7 +76,7 @@ class GraphInstanceBlockForm(CremeForm):
         if not choices:
             choices.append(('', _('No available choice')))
         else:
-            choices.insert(0, ('', pgettext_lazy('reports-volatile_choice', 'None')))
+            choices.insert(0, ('', pgettext_lazy('reports-volatile_choice', u'None')))
 
         return choices
 

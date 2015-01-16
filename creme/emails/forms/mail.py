@@ -162,7 +162,7 @@ class EntityEmailForm(CremeEntityForm):
 
 class TemplateSelectionForm(CremeForm):
     step     = IntegerField(widget=HiddenInput, initial=1)
-    template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate)
+    template = CreatorEntityField(label=pgettext_lazy('emails', u'Template'), model=EmailTemplate)
 
 
 class EntityEmailFromTemplateForm(EntityEmailForm):

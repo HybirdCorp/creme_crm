@@ -39,12 +39,12 @@ class TemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
 
-    creation_label = pgettext_lazy('billing', 'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
+    creation_label = pgettext_lazy('billing', u'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
 
     class Meta:
         app_label = 'billing'
-        verbose_name = pgettext_lazy('billing', 'Template')
-        verbose_name_plural = pgettext_lazy('billing', 'Templates')
+        verbose_name = pgettext_lazy('billing', u'Template')
+        verbose_name_plural = pgettext_lazy('billing', u'Templates')
 
     def get_absolute_url(self):
         return "/billing/template/%s" % self.id
