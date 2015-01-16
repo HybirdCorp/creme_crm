@@ -408,6 +408,8 @@ class ProjectsTestCase(CremeTestCase):
         title = 'Head'
         duration = 55
         tstatus  = TaskStatus.objects.all()[1]
+        atype = ACTIVITYTYPE_MEETING
+        stype = ACTIVITYSUBTYPE_MEETING_MEETING
         response = self.client.post(url, follow=True,
                                     data={'user':     self.user.id,
                                           'title':    title,
@@ -415,6 +417,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  tstatus.id,
+                                          'type_selector': self._build_type_value(atype, stype),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -423,37 +426,39 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
         self.assertEqual(tstatus,  task.tstatus)
+        self.assertEqual(atype,    task.type_id)
+        self.assertEqual(stype,    task.sub_type_id)
 
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
         self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
-    def test_task_editview02(self):
-        "Meeting type"
-        self.login()
+    #def test_task_editview02(self):
+        #"Meeting type"
+        #self.login()
 
-        atype = ACTIVITYTYPE_MEETING
-        task = self.create_task(self.create_project('Eva01')[0],
-                                'Title', atype=atype,
-                                sub_type=ACTIVITYSUBTYPE_MEETING_MEETING,
-                               )
+        #atype = ACTIVITYTYPE_MEETING
+        #task = self.create_task(self.create_project('Eva01')[0],
+                                #'Title', atype=atype,
+                                #sub_type=ACTIVITYSUBTYPE_MEETING_MEETING,
+                               #)
 
-        stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
-        response = self.client.post('/projects/task/edit/%s' % task.id, follow=True, #TODO: factorise
-                                    data={'user':     self.user.id,
-                                          'title':    'Head',
-                                          'start':    '2013-5-16',
-                                          'end':      '2013-6-17',
-                                          'duration': 60,
-                                          'tstatus':  TaskStatus.objects.all()[1].id,
-                                          'sub_type': stype,
-                                         }
-                                   )
-        self.assertNoFormError(response)
+        #stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
+        #response = self.client.post('/projects/task/edit/%s' % task.id, follow=True, #TODO: factorise
+                                    #data={'user':     self.user.id,
+                                          #'title':    'Head',
+                                          #'start':    '2013-5-16',
+                                          #'end':      '2013-6-17',
+                                          #'duration': 60,
+                                          #'tstatus':  TaskStatus.objects.all()[1].id,
+                                          ##'sub_type': stype,
+                                         #}
+                                   #)
+        #self.assertNoFormError(response)
 
-        task = self.refresh(task)
-        self.assertEqual(atype, task.type_id)
-        self.assertEqual(stype, task.sub_type_id)
+        #task = self.refresh(task)
+        #self.assertEqual(atype, task.type_id)
+        #self.assertEqual(stype, task.sub_type_id)
 
     def test_task_editview_popup01(self):
         "Popup version"
@@ -466,6 +471,8 @@ class ProjectsTestCase(CremeTestCase):
 
         title = 'Head'
         duration = 55
+        atype = ACTIVITYTYPE_MEETING
+        stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
         response = self.client.post(url, follow=True,
                                     data={'user':     self.user.id,
                                           'title':    title,
@@ -473,6 +480,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  TaskStatus.objects.all()[0].id,
+                                          'type_selector': self._build_type_value(atype, stype),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -480,6 +488,8 @@ class ProjectsTestCase(CremeTestCase):
         task = self.refresh(task)
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
+        self.assertEqual(atype,    task.type_id)
+        self.assertEqual(stype,    task.sub_type_id)
 
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)

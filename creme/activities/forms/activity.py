@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,19 +22,19 @@ from datetime import datetime, time, timedelta
 from functools import partial
 import logging
 
+from django.contrib.auth.models import User
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.fields import ChoiceField # DateTimeField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
 
-from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import (CremeDateTimeField, CremeTimeField,
         MultiCreatorEntityField, MultiGenericEntityField)
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.utils.dates import make_aware_dt
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
@@ -64,7 +64,8 @@ class _ActivityForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
+        #exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
+        exclude = CremeEntityForm.Meta.exclude + ('type', 'sub_type')
 
     def __init__(self, *args, **kwargs):
         super(_ActivityForm, self).__init__(*args, **kwargs)
@@ -194,8 +195,10 @@ class ActivityEditForm(_ActivityForm):
         instance = self.instance
 
         type_f = fields['type_selector']
-        type_f.types = ActivityType.objects.filter(pk=instance.type_id)
         type_f.initial = (instance.type_id, instance.sub_type_id)
+
+        if self.instance.type_id == ACTIVITYTYPE_INDISPO:
+            type_f.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
 
         if instance.floating_type == NARROW:
             start = self._localize(instance.start)

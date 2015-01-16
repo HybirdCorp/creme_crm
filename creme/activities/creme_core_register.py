@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from creme.creme_core.registry import creme_registry
 from .blocks import block_list
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT
+from .forms.activity_type import BulkEditTypeForm
 from .forms.lv_import import get_csv_form_builder
 from .models import Activity
 from .setting_keys import review_key, auto_subjects_key
@@ -54,7 +55,11 @@ button_registry.register(add_activity_button, add_meeting_button, add_phonecall_
 
 icon_registry.register(Activity, 'images/calendar_%(size)s.png')
 
-bulk_update_registry.register(Activity, exclude=['start', 'end', 'busy', 'is_all_day', 'sub_type'])
+bulk_update_registry.register(Activity, exclude=('start', 'end', 'busy', 'is_all_day'),
+                              innerforms={'type':     BulkEditTypeForm,
+                                          'sub_type': BulkEditTypeForm,
+                                         }
+                             )
 
 import_form_registry.register(Activity, get_csv_form_builder)
 

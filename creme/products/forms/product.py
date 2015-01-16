@@ -23,8 +23,8 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.forms.bulk import BulkForm
 
 from ..models import Product
+from .fields import CategoryField
 from .base import _BaseCreateForm, _BaseEditForm
-from creme.products.forms.fields import CategoryField
 
 
 class ProductCreateForm(_BaseCreateForm):
