@@ -274,8 +274,9 @@ DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his ema
 #GEOLOCATION ####################################################################
 # Files containing towns with their location.
 # It can be an url or a local file. zip files are also supported.
-GEOLOCATION_TOWNS = (('https://bitbucket.org/hybird/geolocation/raw/c86561a7843f37679c39229d06b9c800ed74743f/villes_france.csv',
-                      {'country': 'France'}),)
+GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
+                      {'country': 'France'}),
+                    )
 #GEOLOCATION [END] ##############################################################
 
 #LOGS ##########################################################################
