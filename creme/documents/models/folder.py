@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,13 @@ class Folder(CremeEntity):
     """Folder: contains Documents"""
     title         = CharField(_(u'Title'), max_length=100, unique=True)
     description   = TextField(_(u'Description'), null=True, blank=True)
-    parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'), blank=True, null=True, related_name='parent_folder_set')
-    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set', on_delete=SET_NULL)
+    parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
+                               blank=True, null=True, related_name='parent_folder_set',
+                              )
+    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
+                               blank=True, null=True, on_delete=SET_NULL,
+                               related_name='folder_category_set',
+                              )
 
     allowed_related = CremeEntity.allowed_related | {'document'}
     creation_label = _('Add a folder')
@@ -65,7 +70,11 @@ class Folder(CremeEntity):
 
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
-        self.title = truncate_str(source.title, max_length, suffix=' (%s %08x)' % (ugettext(u"Copy"), randint(0, MAXINT)))
+        self.title = truncate_str(source.title, max_length,
+                                  suffix=' (%s %08x)' % (ugettext(u"Copy"),
+                                                         randint(0, MAXINT),
+                                                        )
+                                 )
 
         while Folder.objects.filter(title=self.title).exists():
             self._pre_save_clone(source)
@@ -88,5 +97,3 @@ class Folder(CremeEntity):
             parents.extend(self.parent_folder.get_parents())
 
         return parents
-
-
