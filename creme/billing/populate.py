@@ -102,23 +102,25 @@ class Populator(BasePopulator):
             create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  order=2)
 
 
-        def create_invoice_status(pk, name, order, is_custom=True):
-            istatus = create_if_needed(InvoiceStatus, {'pk': pk}, name=name, is_custom=is_custom, order=order)
-            return istatus if istatus.name == name else None
+        #def create_invoice_status(pk, name, order, is_custom=True):
+            #istatus = create_if_needed(InvoiceStatus, {'pk': pk}, name=name, is_custom=is_custom, order=order)
+            #return istatus if istatus.name == name else None
+        def create_invoice_status(pk, name, order, **kwargs):
+            create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
         create_invoice_status(1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False) #default status
         create_invoice_status(2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False)
         if not already_populated:
-            create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3)
-            resulted = \
+            create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True)
+            #resulted = \
             create_invoice_status(4, pgettext('billing-invoice', 'Resulted'),        order=5)
-            create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4)
+            create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True)
             create_invoice_status(6, _('Collection'),                                order=7)
-            resulted_collection = \
+            #resulted_collection = \
             create_invoice_status(7, _('Resulted collection'),                       order=6)
             create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
-        else:
-            resulted = resulted_collection = None #not really useful
+        #else:
+            #resulted = resulted_collection = None #not really useful
 
 
         create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
@@ -126,6 +128,56 @@ class Populator(BasePopulator):
             create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', 'Issued'),      order=2)
             create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', 'Consumed'),    order=3)
             create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), order=4)
+
+
+        EntityFilter.create(
+                'billing-invoices_unpaid', name=_(u"Invoices unpaid"),
+                model=Invoice, user='admin',
+                conditions=[EntityFilterCondition.build_4_field(
+                                    model=Invoice,
+                                    operator=EntityFilterCondition.EQUALS,
+                                    name='status__pending_payment', values=[True],
+                                ),
+                            ],
+            )
+        EntityFilter.create(
+                'billing-invoices_unpaid_late', name=_(u"Invoices unpaid and late"),
+                model=Invoice, user='admin',
+                conditions=[EntityFilterCondition.build_4_field(
+                                    model=Invoice,
+                                    operator=EntityFilterCondition.EQUALS,
+                                    name='status__pending_payment', values=[True],
+                                ),
+                            EntityFilterCondition.build_4_date(
+                                    model=Invoice,
+                                    name='expiration_date', date_range='in_past',
+                                ),
+                            ],
+            )
+        current_year_invoice_filter = EntityFilter.create(
+                'billing-current_year_invoices', name=_(u"Current year invoices"),
+                model=Invoice, user='admin',
+                conditions=[EntityFilterCondition.build_4_date(
+                                    model=Invoice,
+                                    name='issuing_date', date_range='current_year',
+                                ),
+                           ],
+            )
+        current_year_unpaid_invoice_filter = EntityFilter.create(
+                'billing-current_year_unpaid_invoices',
+                name=_(u"Current year and unpaid invoices"),
+                model=Invoice, user='admin',
+                conditions=[EntityFilterCondition.build_4_date(
+                                    model=Invoice,
+                                    name='issuing_date', date_range='current_year',
+                                ),
+                            EntityFilterCondition.build_4_field(
+                                    model=Invoice,
+                                    operator=EntityFilterCondition.EQUALS,
+                                    name='status__pending_payment', values=[True],
+                                ),
+                           ],
+            )
 
 
         def create_hf(hf_pk, name, model, status=True):
@@ -192,32 +244,32 @@ class Populator(BasePopulator):
                             )
 
 
-            if resulted and resulted_collection:
-                EntityFilter.create('billing-invoices_unpaid', name=_(u"Invoices unpaid"),
-                                    model=Invoice, user='admin',
-                                    conditions=[EntityFilterCondition.build_4_field(
-                                                      model=Invoice,
-                                                      operator=EntityFilterCondition.EQUALS_NOT,
-                                                      name='status',
-                                                      values=[resulted.pk, resulted_collection.pk],
-                                                  ),
-                                               ],
-                                   )
+            #if resulted and resulted_collection:
+                #EntityFilter.create('billing-invoices_unpaid', name=_(u"Invoices unpaid"),
+                                    #model=Invoice, user='admin',
+                                    #conditions=[EntityFilterCondition.build_4_field(
+                                                      #model=Invoice,
+                                                      #operator=EntityFilterCondition.EQUALS_NOT,
+                                                      #name='status',
+                                                      #values=[resulted.pk, resulted_collection.pk],
+                                                  #),
+                                               #],
+                                   #)
 
-                EntityFilter.create('billing-invoices_unpaid_late', name=_(u"Invoices unpaid and late"),
-                                    model=Invoice, user='admin',
-                                    conditions=[EntityFilterCondition.build_4_field(
-                                                      model=Invoice,
-                                                      operator=EntityFilterCondition.EQUALS_NOT,
-                                                      name='status',
-                                                      values=[resulted.pk, resulted_collection.pk],
-                                                  ),
-                                                EntityFilterCondition.build_4_date(
-                                                    model=Invoice,
-                                                    name='expiration_date', date_range='in_past',
-                                                  ),
-                                               ],
-                                    )
+                #EntityFilter.create('billing-invoices_unpaid_late', name=_(u"Invoices unpaid and late"),
+                                    #model=Invoice, user='admin',
+                                    #conditions=[EntityFilterCondition.build_4_field(
+                                                      #model=Invoice,
+                                                      #operator=EntityFilterCondition.EQUALS_NOT,
+                                                      #name='status',
+                                                      #values=[resulted.pk, resulted_collection.pk],
+                                                  #),
+                                                #EntityFilterCondition.build_4_date(
+                                                    #model=Invoice,
+                                                    #name='expiration_date', date_range='in_past',
+                                                  #),
+                                               #],
+                                    #)
 
 
             create_bmi = ButtonMenuItem.create_if_needed
@@ -275,9 +327,14 @@ class Populator(BasePopulator):
 
             if 'creme.reports' in settings.INSTALLED_APPS:
                 logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
-                self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
+                #self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
+                self.create_reports(rt_sub_bill_received,
+                                    current_year_invoice_filter,
+                                    current_year_unpaid_invoice_filter,
+                                   )
 
-    def create_reports(self, rt_sub_bill_received, resulted, resulted_collection):
+    #def create_reports(self, rt_sub_bill_received, resulted, resulted_collection):
+    def create_reports(self, rt_sub_bill_received, current_year_invoice_filter, current_year_unpaid_invoice_filter):
         from functools import partial
 
         from django.contrib.auth.models import User
@@ -293,32 +350,32 @@ class Populator(BasePopulator):
         invoice_ct = ContentType.objects.get_for_model(Invoice)
         admin = User.objects.get(pk=1)
 
-        current_year_invoice_filter = EntityFilter.create(
-                'billing-current_year_invoices',
-                _(u"Current year invoices"),
-                Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_date(model=Invoice,
-                                                               name='issuing_date',
-                                                               date_range='current_year',
-                                                              ),
-                           ],
-            )
+        #current_year_invoice_filter = EntityFilter.create(
+                #'billing-current_year_invoices',
+                #_(u"Current year invoices"),
+                #Invoice, user='admin',
+                #conditions=[EntityFilterCondition.build_4_date(model=Invoice,
+                                                               #name='issuing_date',
+                                                               #date_range='current_year',
+                                                              #),
+                           #],
+            #)
 
-        current_year_unpaid_invoice_filter = EntityFilter.create(
-                'billing-current_year_unpaid_invoices',
-                _(u"Current year and unpaid invoices"),
-                Invoice, user='admin',
-                conditions=[EntityFilterCondition.build_4_date(model=Invoice,
-                                                               name='issuing_date',
-                                                               date_range='current_year',
-                                                              ),
-                            EntityFilterCondition.build_4_field(model=Invoice,
-                                                                operator=EntityFilterCondition.EQUALS_NOT,
-                                                                name='status',
-                                                                values=[resulted.pk, resulted_collection.pk],
-                                                               ),
-                           ],
-            )
+        #current_year_unpaid_invoice_filter = EntityFilter.create(
+                #'billing-current_year_unpaid_invoices',
+                #_(u"Current year and unpaid invoices"),
+                #Invoice, user='admin',
+                #conditions=[EntityFilterCondition.build_4_date(model=Invoice,
+                                                               #name='issuing_date',
+                                                               #date_range='current_year',
+                                                              #),
+                            #EntityFilterCondition.build_4_field(model=Invoice,
+                                                                #operator=EntityFilterCondition.EQUALS_NOT,
+                                                                #name='status',
+                                                                #values=[resulted.pk, resulted_collection.pk],
+                                                               #),
+                           #],
+            #)
 
 
         def create_report_columns(report):
