@@ -28,11 +28,8 @@ from creme.creme_core.models import EntityFilter
 
 
 class ReportFilterBulkForm(BulkDefaultEditForm):
-    def __init__(self, model, field_name=None, user=None, entities=(), is_bulk=False, **kwargs):
-        super(ReportFilterBulkForm, self).__init__(model, field_name=field_name,
-                                                   user=user, entities=entities,
-                                                   is_bulk=is_bulk, **kwargs
-                                                  )
+    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
+        super(ReportFilterBulkForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
 
         filter_field = self.fields['field_value']
         filter_field.empty_label = _(u'All')

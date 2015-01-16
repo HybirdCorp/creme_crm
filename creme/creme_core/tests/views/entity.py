@@ -761,7 +761,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         response = self.assertPOST200(url, data={'field_value': ''})
         self.assertFormError(response, 'form', 'field_value', _(u'This field is required.'))
 
-    def test_regular_field05(self):
+    def test_regular_field_not_editable(self):
         self.login()
 
         fname = 'position'
@@ -769,7 +769,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         unemployed = Position.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
-        self.assertPOST403(url, data={'field_value': unemployed.id})
+        self.assertPOST(400, url, data={'field_value': unemployed.id})
 
     def test_regular_field06(self):
         self.login()
@@ -1182,7 +1182,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         self.assertGET403(self.build_inneredit_url(mario, 'first_name'))
 
-    def test_regular_field_04(self):
+    def test_regular_field_not_editable(self):
         "Not editable"
         self.login()
 
@@ -1190,10 +1190,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertFalse(mario._meta.get_field('is_user').editable)
 
         url = self.build_inneredit_url(mario, 'is_user')
-        self.assertGET403(url)
-        self.assertPOST403(url, data={'field_value': self.other_user.id,
-                                     }
-                          )
+        self.assertGET(400, url)
+        self.assertPOST(400, url, data={'field_value': self.other_user.id,})
 
     def test_regular_field_many2many(self):
         self.login()
