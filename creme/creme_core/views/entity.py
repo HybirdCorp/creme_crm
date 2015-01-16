@@ -25,7 +25,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 #from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
@@ -33,9 +33,9 @@ from django.utils.translation import ugettext as _
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..forms import CremeEntityForm
-from ..forms.bulk import BulkDefaultEditForm, BulkForm
+from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-from ..gui.bulk_update import bulk_update_registry
+from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..models import CremeEntity, EntityCredentials #CustomField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from ..utils.meta import ModelFieldEnumerator
@@ -247,16 +247,11 @@ def inner_edit_field(request, ct_id, id, field_name):
     if not _bulk_has_perm(entity, user):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
 
-    bulk_status = bulk_update_registry.status(model)
-
-    field_name = field_name if field_name is not None else bulk_status.updatables().next().name
-    form_class = bulk_status.get_form(field_name, BulkDefaultEditForm)
-
     try:
+        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
+
         if request.method == 'POST':
-            form = form_class(model=model,
-                              field_name=field_name,
-                              entities=[entity],
+            form = form_class(entities=[entity],
                               user=user,
                               data=request.POST,
                              )
@@ -264,13 +259,11 @@ def inner_edit_field(request, ct_id, id, field_name):
             if form.is_valid():
                 form.save()
         else:
-            form = form_class(model=model,
-                              field_name=field_name,
-                              entities=[entity],
+            form = form_class(entities=[entity],
                               user=user,
                              )
-    except BulkForm.FieldDoesNotExist as e:
-        raise Http404(e)
+    except (FieldDoesNotExist, FieldNotAllowed):
+        return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited' % field_name))
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
@@ -291,16 +284,14 @@ def bulk_edit_field(request, ct_id, id, field_name):
     if not filtered:
         raise PermissionDenied(_(u'You are not allowed to edit these entities'))
 
-    bulk_status = bulk_update_registry.status(model)
-
-    field_name = field_name if field_name is not None else bulk_status.updatables().next().name
-    form_class = bulk_status.get_form(field_name, BulkDefaultEditForm)
+    if field_name is None:
+        field_name = bulk_update_registry.get_default_field(model).name
 
     try:
+        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
+
         if request.method == 'POST':
-            form = form_class(model=model,
-                              field_name=field_name,
-                              entities=filtered,
+            form = form_class(entities=filtered,
                               user=user,
                               data=request.POST,
                               is_bulk=True,
@@ -313,14 +304,12 @@ def bulk_edit_field(request, ct_id, id, field_name):
                                'title': _(u'Multiple update'),
                               },)
         else:
-            form = form_class(model=model,
-                              field_name=field_name,
-                              entities=filtered,
+            form = form_class(entities=filtered,
                               user=user,
                               is_bulk=True,
                              )
-    except BulkForm.FieldDoesNotExist as e:
-        raise Http404(e)
+    except (FieldDoesNotExist, FieldNotAllowed):
+        return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited' % field_name))
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,

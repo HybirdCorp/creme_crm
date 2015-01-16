@@ -22,10 +22,9 @@ from functools import partial
 import re
 
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.exceptions import ValidationError
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import model_to_dict, ModelMultipleChoiceField
@@ -35,12 +34,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from ..models import fields, CremeEntity
-from ..models.custom_field import CustomField, CustomFieldValue, CustomFieldMultiEnum
+from ..models.custom_field import CustomField, CustomFieldValue
 from ..gui.bulk_update import bulk_update_registry
 
 from .base import CremeForm
-from .fields import DatePeriodField, CreatorEntityField, MultiCreatorEntityField
-from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, DatePeriodWidget
+from .fields import CreatorEntityField, MultiCreatorEntityField
+from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget
 
 # TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
 _BULK_FIELD_WIDGETS = {
@@ -283,99 +282,75 @@ _CUSTOMFIELD_FORMAT = 'customfield-%d'
 #             instance.save()
 
 class BulkFieldSelectWidget(Select):
-    def render(self, name, value, attrs=None, choices=()):
-        attrs = attrs or {}
+    def build_attrs(self, extra_attrs=None, **kwargs):
+        attrs = super(BulkFieldSelectWidget, self).build_attrs(extra_attrs, **kwargs)
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
-        return super(BulkFieldSelectWidget, self).render(name, value, attrs, choices)
-
+        return attrs
 
 class BulkForm(CremeForm):
-    class FieldDoesNotExist(Exception):
-        pass
-        #def __init__(self, *args, **kwargs):
-            #Exception.__init__(self, *args, **kwargs)
-
-    def __init__(self, model, field_name, user, entities, is_bulk, **kwargs):
+    def __init__(self, field, user, entities, is_bulk, parent_field=None, **kwargs):
         super(BulkForm, self).__init__(user, **kwargs)
+        is_subfield = parent_field is not None
+
         self.is_bulk = is_bulk
-        self.field_name = field_name
+        self.is_subfield = is_subfield
+        self.is_custom = isinstance(field, CustomField)
+
+        self.field_name = field.name if not self.is_custom else 'customfield-%d' % field.pk
+        self.model_field = field
+        self.model_parent_field = parent_field
         self.entities = entities
 
-        url = '/creme_core/entity/edit/bulk/%s/%s/field/%%s' % (
-                    ContentType.objects.get_for_model(model).pk,
-                    ','.join(str(e.pk) for e in self.entities)
-                )
-
         if is_bulk:
-            self.fields['_bulk_fieldname'] = ChoiceField(
-                            choices=self._bulk_model_field_choices(model, url),
-                            label=_(u"Field to update"),
-                            initial=url % field_name,
-                            widget=BulkFieldSelectWidget,
-                            required=False,
-                        )
+            choices_model = parent_field.model if is_subfield else field.model
+            choices = self._bulk_model_choices(choices_model, entities)
+            initial = self._bulk_url(choices_model, parent_field.name + '__' + self.field_name if is_subfield else self.field_name, entities)
 
-    def _bulk_formfield(self, model, field_name, user, instance=None):
-        model_field, is_custom = self._bulk_model_field(model, field_name)
+            self.fields['_bulk_fieldname'] = ChoiceField(choices=choices,
+                                                         label=_(u"Field to update"),
+                                                         initial=initial,
+                                                         widget=BulkFieldSelectWidget,
+                                                         required=False)
 
-        if model_field is None:
-            raise FieldDoesNotExist(u"The field %s.%s doesn't exist" % (model._meta.verbose_name, field_name))
+    def _bulk_url(self, model, fieldname, entities):
+        return '/creme_core/entity/edit/bulk/%s/%s/field/%s' % (ContentType.objects.get_for_model(model).pk,
+                                                                ','.join(str(e.pk) for e in entities),
+                                                                 fieldname)
 
-        bulk_status = bulk_update_registry.status(model)
+    def _bulk_formfield(self, user, instance=None):
+        if self.is_custom:
+            return self._bulk_custom_formfield(self.model_field, instance)
 
-        if not bulk_status.is_updatable(model_field, exclude_unique=False):
-            raise PermissionDenied(u'The field %s.%s is not editable' % (model._meta.verbose_name, field_name))
+        return self._bulk_updatable_formfield(self.model_field, user, instance)
 
-        if is_custom:
-            form_field = self._bulk_custom_formfield(model_field, instance)
-        else:
-            form_field = self._bulk_updatable_formfield(model_field, user, instance)
+    def _bulk_model_choices(self, model, entities):
+        sort_key = lambda k: ugettext(k[1]) if isinstance(k[1], basestring) else ugettext(k[0])
+        sort = partial(sorted, key=sort_key)
 
-        return model_field, form_field, is_custom
+        regular_fields = bulk_update_registry.regular_fields(model, expand=True)
+        custom_fields = bulk_update_registry.custom_fields(model)
 
-    def _bulk_model_customfields(self, model):
-        if not hasattr(self, '_bulk_cfields_cache'):
-            cfields = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model))
-            self._bulk_cfields_cache = {cf.pk: cf for cf in cfields}
+        url = self._bulk_url(model, '%s', entities)
 
-        return self._bulk_cfields_cache
+        choices = []
+        sub_choices = []
 
-    def _bulk_model_field_default(self, model):
-        first = list(bulk_update_registry.status(model).updatables())[:1]
-        return first[0].name if first else None
+        for field, subfields in regular_fields:
+            if not subfields:
+                choices.append((url % unicode(field.name), unicode(field.verbose_name)))
+            else:
+                sub_choices.append((unicode(field.verbose_name),
+                                    sort((url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name)) for subfield in subfields),
+                                   )
+                                  )
 
-    def _bulk_model_field_choices(self, model, url):
-        bulk_status = bulk_update_registry.status(model)
+        if custom_fields:
+            choices.append((ugettext(u"Custom fields"),
+                            sort((url % (_CUSTOMFIELD_FORMAT % field.id), field.name) for field in custom_fields)
+                           )
+                          )
 
-        sort = partial(sorted, key=lambda k: ugettext(k[1]))
-        regular_fields = bulk_status.updatables()
-        custom_fields = self._bulk_model_customfields(model)
-
-        return (
-            (ugettext(u"Regular fields"), sort((url % unicode(field.name), unicode(field.verbose_name)) for field in regular_fields)),
-            (ugettext(u"Custom fields"),  sort((url % (_CUSTOMFIELD_FORMAT % field.id), field.name) for field in custom_fields.itervalues())),
-          )
-
-    def _bulk_model_field(self, model, field_name, cfields_cache=None, instance=None):
-        field = None
-        matches = _CUSTOMFIELD_PATTERN.match(field_name)
-
-        if matches is not None:
-            customfield_id = int(matches.group('id'))
-            field = cfields_cache.get(customfield_id) if cfields_cache else None
-
-            if field is None:
-                field = CustomField.objects.get(pk=customfield_id)
-
-                if cfields_cache:
-                    cfields_cache[customfield_id] = field
-
-            return field, True
-
-        try:
-            return model._meta.get_field(field_name), False
-        except FieldDoesNotExist:
-            return None, False
+        return choices + sub_choices
 
     def _bulk_custom_formfield(self, model_field, instance=None):
         if instance is not None:
@@ -422,27 +397,38 @@ class BulkForm(CremeForm):
 
         form_field.user = user
 
+        if instance and self.is_subfield:
+            instance = getattr(instance, self.model_parent_field.name)
+
         if instance:
             form_field.initial = model_to_dict(instance, [model_field.name])[model_field.name]
 
         return form_field
 
-    def _bulk_clean_entity(self, entity, **values):
+    def _bulk_clean_entity(self, entity, values):
         for key, value in values.iteritems():
             setattr(entity, key, value)
 
         entity.full_clean()
         return entity
 
-    def _bulk_clean_entities(self, entities, **values):
+    def _bulk_clean_subfield(self, entity, values):
+        instance = getattr(entity, self.model_parent_field.name)
+
+        if instance is None:
+            raise ValidationError(ugettext(u'The field %s is empty') % self.model_parent_field.verbose_name)
+
+        return self._bulk_clean_entity(instance, values)
+
+    def _bulk_clean_entities(self, entities, values):
         invalid_entities = []
         cleaned_entities = []
-        clean = self._bulk_clean_entity
+        clean = self._bulk_clean_subfield if self.is_subfield else self._bulk_clean_entity
+        clean = partial(clean, values=values)
 
         for entity in entities:
             try:
-                clean(entity, **values)
-                cleaned_entities.append(entity)
+                cleaned_entities.append(clean(entity))
             except ValidationError as e:
                 invalid_entities.append((entity, e))
 
@@ -469,11 +455,11 @@ class BulkForm(CremeForm):
 
 
 class BulkDefaultEditForm(BulkForm):
-    def __init__(self, model, field_name=None, user=None, entities=(), is_bulk=False, **kwargs):
-        super(BulkDefaultEditForm, self).__init__(model, field_name, user, entities, is_bulk, **kwargs)
+    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
+        super(BulkDefaultEditForm, self).__init__(field, user, entities, is_bulk, **kwargs)
 
         instance = entities[0] if not is_bulk else None
-        self.model_field, form_field, self.is_custom = self._bulk_formfield(model, field_name, user, instance)
+        form_field = self._bulk_formfield(user, instance)
 
         self.fields['field_value'] = form_field
 
@@ -504,7 +490,7 @@ class BulkDefaultEditForm(BulkForm):
         values = {self.field_name: cleaned_data.get('field_value')}
 
         # update attribute <field_name> of each instance of entity and filter valid ones. 
-        self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, **values)
+        self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, values)
 
 #         if not self.is_bulk and self.bulk_invalid_entities:
 #             self._errors[self.field_name] = self.error_class(self.bulk_invalid_entities[0][1].messages)
