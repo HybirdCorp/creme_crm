@@ -163,66 +163,76 @@ class _BulkUpdateRegistry(object):
 
         return bulk
 
-    def get_default_field(self, model):
-        status = self.status(model)
-        return sorted(status.regular_fields.values(), key=lambda f: ugettext(f.verbose_name))[0]
+    def get_default_field(self, model, exclude_expandable=False):
+        fields = self.regular_fields(model, exclude_expandable=exclude_expandable)
+        return fields[0]
 
-    def get_field(self, model, field_name):
+    def get_field(self, model, field_name, exclude_expandable=False):
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
         field = status.get_field(field_basename)
 
-        if field and subfield_name and status.is_expandable(field):
-            field = self.get_field(field.rel.to, subfield_name)
+        if status.is_expandable(field):
+            if subfield_name:
+                field = self.get_field(field.rel.to, subfield_name, exclude_expandable)
+            elif exclude_expandable:
+                raise FieldNotAllowed(u"The field %s is not editable" % (field.name))
 
         return field
 
-    def get_form(self, model, field_name, default=None):
+    def get_form(self, model, field_name, default=None, exclude_expandable=False):
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
         field = status.get_field(field_basename)
 
-        if subfield_name and status.is_expandable(field):
-            substatus = self.status(field.rel.to)
-            subfield = substatus.get_field(subfield_name)
-            form = substatus.get_form(subfield_name, default)
+        if status.is_expandable(field):
+            if subfield_name:
+                substatus = self.status(field.rel.to)
+                subfield = substatus.get_field(subfield_name)
+                form = substatus.get_form(subfield_name, default)
 
-            return partial(form,
-                           field=subfield,
-                           parent_field=field) if form else None
+                return partial(form,
+                               field=subfield,
+                               parent_field=field) if form else None
+            elif exclude_expandable:
+                raise FieldNotAllowed(u"The field %s is not editable" % (field.name))
 
         form = status.get_form(field_basename, default)
         return partial(form, field=field) if form else None
 
-    def is_updatable(self, model, field_name, exclude_unique=True):
+    def is_updatable(self, model, field_name, exclude_unique=True, exclude_expandable=False):
         try:
-            field = self.get_field(model, field_name)
+            field = self.get_field(model, field_name, exclude_expandable)
         except (FieldDoesNotExist, FieldNotAllowed):
             return False
 
         return not (exclude_unique and field.unique)
 
-    def regular_fields(self, model, expand=False, exclude_unique=True):
+    def regular_fields(self, model, expand=False, exclude_unique=True, exclude_expandable=False):
         sort_key = collator.sort_key
 
         status = self.status(model)
         fields = status.allowed_regular_fields.values()
+        is_expandable = status.is_expandable
 
         if exclude_unique:
             fields = [field for field in fields if not field.unique]
 
         if expand is True:
             related_fields = self.regular_fields
-            is_expandable = status.is_expandable
 
             fields = [(field, related_fields(model=field.rel.to, exclude_unique=exclude_unique) if is_expandable(field) else None)
-                      for field in fields]
+                         for field in fields
+                     ]
 
-            return sorted(fields, key=lambda f: sort_key(f[0].name))
+            return sorted(fields, key=lambda f: sort_key(f[0].verbose_name))
 
-        return sorted(fields, key=lambda f: sort_key(f.name))
+        if exclude_expandable:
+            fields = [field for field in fields if not is_expandable(field)]
+
+        return sorted(fields, key=lambda f: sort_key(f.verbose_name))
 
     def custom_fields(self, model):
         sort_key = collator.sort_key

@@ -324,9 +324,6 @@ class BulkForm(CremeForm):
         return self._bulk_updatable_formfield(self.model_field, user, instance)
 
     def _bulk_model_choices(self, model, entities):
-        sort_key = lambda k: ugettext(k[1]) if isinstance(k[1], basestring) else ugettext(k[0])
-        sort = partial(sorted, key=sort_key)
-
         regular_fields = bulk_update_registry.regular_fields(model, expand=True)
         custom_fields = bulk_update_registry.custom_fields(model)
 
@@ -340,13 +337,13 @@ class BulkForm(CremeForm):
                 choices.append((url % unicode(field.name), unicode(field.verbose_name)))
             else:
                 sub_choices.append((unicode(field.verbose_name),
-                                    sort((url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name)) for subfield in subfields),
+                                    [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name)) for subfield in subfields],
                                    )
                                   )
 
         if custom_fields:
             choices.append((ugettext(u"Custom fields"),
-                            sort((url % (_CUSTOMFIELD_FORMAT % field.id), field.name) for field in custom_fields)
+                            [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name) for field in custom_fields]
                            )
                           )
 
@@ -401,7 +398,7 @@ class BulkForm(CremeForm):
             instance = getattr(instance, self.model_parent_field.name)
 
         if instance:
-            form_field.initial = model_to_dict(instance, [model_field.name])[model_field.name]
+            form_field.initial = getattr(instance, model_field.name)
 
         return form_field
 

@@ -1282,12 +1282,28 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertNoFormError(response)
         self.assertEqual(value, self.get_cf_values(cfield, self.refresh(mario)).value)
 
-    def test_related_field(self):
+    def test_related_subfield_missing(self):
         self.login()
         orga = self.create_orga()
-        address = Address.objects.create(owner=orga, name='adress 1')
 
-        url = self.build_inneredit_url(address, 'city')
+        url = self.build_inneredit_url(orga, 'billing_address__city')
+        self.assertGET200(url)
+
+        billing_address_field = Organisation._meta.get_field_by_name('billing_address')[0]
+
+        city = 'Marseille'
+        response = self.client.post(url, data={'field_value': city,
+                                              }
+                                   )
+        self.assertFormError(response, 'form', None, _(u'The field %s is empty') % billing_address_field.verbose_name)
+
+    def test_related_subfield(self):
+        self.login()
+        orga = self.create_orga()
+        orga.billing_address = Address.objects.create(owner=orga, name='address 1')
+        orga.save()
+
+        url = self.build_inneredit_url(orga, 'billing_address__city')
         self.assertGET200(url)
 
         city = 'Marseille'
@@ -1295,7 +1311,16 @@ class InnerEditTestCase(_BulkEditTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(city, self.refresh(address).city)
+        self.assertEqual(city, self.refresh(orga).billing_address.city)
+
+    def test_related_field(self):
+        self.login()
+        orga = self.create_orga()
+        orga.billing_address = Address.objects.create(owner=orga, name='address 1')
+        orga.save()
+
+        url = self.build_inneredit_url(orga, 'billing_address')
+        self.assertGET(400, url)
 
     def test_other_field_validation_error(self):
         self.login()
