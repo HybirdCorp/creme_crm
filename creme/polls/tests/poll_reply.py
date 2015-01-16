@@ -766,12 +766,12 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform1)
 
-        self.assertPOST403('/creme_core/entity/edit/inner/%s/%s/field/%s' % (
+        self.assertPOST(400, '/creme_core/entity/edit/inner/%s/%s/field/%s' % (
                                         preply.entity_type_id, preply.id, 'pform'),
-                           data={'entities_lbl': [unicode(preply)],
-                                 'field_value':  pform2.id,
-                                }
-                          )
+                        data={'entities_lbl': [unicode(preply)],
+                              'field_value':  pform2.id,
+                             }
+                       )
         self.assertEqual(pform1, self.refresh(preply).pform)
 
     def test_listview(self):

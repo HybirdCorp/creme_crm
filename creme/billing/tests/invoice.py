@@ -381,8 +381,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(name, self.refresh(invoice).name)
 
         #Addresses should not be editable
-        self.assertGET403(build_url('billing_address'))
-        self.assertGET403(build_url('shipping_address'))
+        self.assertGET(400, build_url('billing_address'))
+        self.assertGET(400, build_url('shipping_address'))
 
     def test_generate_number01(self):
         self.login()

@@ -10,8 +10,9 @@ try:
 
     from creme.creme_core.models.custom_field import CustomField
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
-    from creme.creme_core.forms.bulk import BulkDefaultEditForm, _CUSTOMFIELD_FORMAT
-
+    from creme.creme_core.forms.bulk import BulkDefaultEditForm
+    from creme.creme_core.utils.unicode_collation import collator
+    
     from creme.persons.models import Contact, Organisation, Address
 
     from creme.media_managers.models import Image
@@ -27,6 +28,10 @@ __all__ = ('BulkUpdateRegistryTestCase',)
 class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
         self.bulk_update_registry = _BulkUpdateRegistry()
+
+    def sortFields(self, fields):
+        sort_key = collator.sort_key
+        return sorted(fields, key=lambda f: sort_key(f.verbose_name))
 
     def test_bulk_update_registry01(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Organisation)
@@ -138,7 +143,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         expected = [field for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
                         if field.editable and not field.unique
                    ]
-        self.assertListEqual(sorted(expected, key=lambda f: f.name),
+        self.assertListEqual(self.sortFields(expected),
                              bulk_update_registry.regular_fields(Contact))
 
     def test_regular_fields_ignore(self):
@@ -153,8 +158,23 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         expected = [field for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
                         if field.editable
                    ]
-        self.assertListEqual(sorted(expected, key=lambda f: f.name),
+        self.assertListEqual(self.sortFields(expected),
                              bulk_update_registry.regular_fields(Contact, exclude_unique=False))
+
+    def test_regular_fields_exclude_expandables(self):
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Contact, fields=['billing_address'])
+        billing_address_field = Contact._meta.get_field_by_name('billing_address')[0]
+
+        fields = [field for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
+                        if field.editable and not field.unique
+                   ]
+
+        self.assertListEqual(self.sortFields(fields + [billing_address_field]),
+                             bulk_update_registry.regular_fields(Contact))
+
+        self.assertListEqual(self.sortFields(fields),
+                             bulk_update_registry.regular_fields(Contact, exclude_expandable=True))
 
     def test_regular_fields_expanded(self):
         bulk_update_registry = self.bulk_update_registry
@@ -167,8 +187,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         fields = bulk_update_registry.regular_fields(Contact, expand=True)
 
-        self.assertListEqual(sorted(expected_names + expanded_names), [field[0].name for field in fields])
-        self.assertListEqual(expanded_names, [field.name for field, sub in fields if sub is not None])
+        self.assertListEqual(sorted(expected_names + expanded_names), sorted([field[0].name for field in fields]))
+        self.assertListEqual(sorted(expanded_names), sorted([field.name for field, sub in fields if sub is not None]))
 
         fields_dict = {field[0].name: field for field in fields}
 
@@ -177,7 +197,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                              ]
 
         billing_fields = fields_dict['billing_address'][1]
-        self.assertListEqual(sorted(sub_expected_names), [field.name for field in billing_fields])
+        self.assertListEqual(sorted(sub_expected_names), sorted([field.name for field in billing_fields]))
 
     def test_regular_subfield(self):
         bulk_update_registry = self.bulk_update_registry
@@ -186,6 +206,30 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         zipcode_field = Address._meta.get_field_by_name('zipcode')[0]
         self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
         self.assertEqual(zipcode_field, bulk_update_registry.get_field(Address, 'zipcode'))
+
+    def test_default_field(self):
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Contact, fields=['billing_address'])
+
+        billing_address_field = Contact._meta.get_field_by_name('billing_address')[0]
+
+        expected = self.sortFields([field for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
+                                        if field.editable and not field.unique
+                                   ] + [billing_address_field]
+                                  )[0]
+
+        self.assertEqual(expected.name, bulk_update_registry.get_default_field(Contact).name)
+
+    def test_default_field_exclude_expandable(self):
+        bulk_update_registry = self.bulk_update_registry
+        bulk_update_registry.register(Contact, fields=['billing_address'])
+
+        expected = self.sortFields([field for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
+                                        if field.editable and not field.unique
+                                   ]
+                                  )[0]
+
+        self.assertEqual(expected.name, bulk_update_registry.get_default_field(Contact, exclude_expandable=True).name)
 
     def test_custom_fields(self):
         bulk_update_registry = self.bulk_update_registry
@@ -203,7 +247,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         regular_fields = bulk_update_registry.regular_fields(Contact)
         custom_fields  = bulk_update_registry.custom_fields(Contact)
 
-        self.assertListEqual(sorted(regular_names), [field.name for field in regular_fields])
+        self.assertListEqual(sorted(regular_names), sorted([field.name for field in regular_fields]))
         self.assertListEqual(sorted(custom_names), [field.name for field in custom_fields])
 
         CustomField.objects.create(name='C', content_type=contact_ct, field_type=CustomField.BOOL)
@@ -214,7 +258,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         regular_fields = bulk_update_registry.regular_fields(Contact)
         custom_fields  = bulk_update_registry.custom_fields(Contact)
 
-        self.assertListEqual(sorted(regular_names), [field.name for field in regular_fields])
+        self.assertListEqual(sorted(regular_names), sorted([field.name for field in regular_fields]))
         self.assertListEqual(sorted(custom_names), [field.name for field in custom_fields])
 
     def test_custom_fields_ignore(self):
@@ -280,7 +324,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='minutes'))
         self.assertEquals(_ActivityInnerEdit, bulk_update_registry.status(Activity).get_form('minutes'))
         self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('minutes'))
-
 
     def test_subfield_innerforms(self):
         self.login()
