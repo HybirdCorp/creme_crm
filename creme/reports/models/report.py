@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,9 @@ logger = logging.getLogger(__name__)
 class Report(CremeEntity):
     name   = CharField(_(u'Name of the report'), max_length=100)
     ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
-    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True, on_delete=PROTECT)
+    filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'),
+                        blank=True, null=True, on_delete=PROTECT,
+                       ).set_null_label(_(u'No filter'))
 
     creation_label = _('Add a report')
     _columns = None
