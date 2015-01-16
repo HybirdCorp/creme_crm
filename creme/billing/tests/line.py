@@ -32,8 +32,9 @@ class LineTestCase(_BillingTestCase):
 
     @classmethod
     def setUpClass(cls):
-        #cls.populate('creme_core', 'creme_config', 'products', 'billing')
-        cls.populate('creme_config', 'products', 'billing')
+        ##cls.populate('creme_core', 'creme_config', 'products', 'billing')
+        #cls.populate('creme_config', 'products', 'billing')
+        cls.populate('products', 'billing')
 
     def test_add_product_lines01(self):
         "Multiple adding"
@@ -59,9 +60,7 @@ class LineTestCase(_BillingTestCase):
         invoice = self.refresh(invoice) #refresh lines cache
         self.assertEqual(2, len(invoice.product_lines))
 
-        lines = invoice.product_lines
-        line0 = lines[0]
-        line1 = lines[1]
+        line0, line1 = invoice.product_lines
         self.assertEqual(quantity,        line0.quantity)
         self.assertEqual(quantity,        line1.quantity)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
@@ -71,6 +70,8 @@ class LineTestCase(_BillingTestCase):
 
         self.assertEqual(Decimal('3.2'), invoice.total_no_vat) # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat) # 3.2 * 1.07 = 3.38
+
+        self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
 
     # def test_add_product_lines02(self):
     #     "On-the-fly"
