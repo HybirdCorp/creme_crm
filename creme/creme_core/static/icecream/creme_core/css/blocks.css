@@ -6,16 +6,16 @@
     padding: 0;
 
     border-spacing: 0px;
-    
+
     /*margin-left: 5px; problem with address blocks in contact form */
     margin-bottom: 10px;
 
 /*    border: 1px solid #548295;*/
     border: 1px solid #ccc;
     border-radius: 0; /* disable rounded corners forced by .ui-corner-all hardcoded in the html templates */
-    
+
     background: white;
-    
+
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
        -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.15);
             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
@@ -228,6 +228,10 @@ th_info {
     width: 70%;
 /*    text-align: right;*/
     text-align: left;
+}
+
+.td_info.right_align { /* eg: total block in billing */
+    text-align: right;
 }
 
 .th_info_4_columns {

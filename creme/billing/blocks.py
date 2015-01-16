@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.forms.models import modelformset_factory
 #from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
@@ -144,13 +145,21 @@ class CreditNoteBlock(QuerysetBlock):
                            )
 
 
-class TotalBlock(SimpleBlock):
+class TotalBlock(Block):
     id_                 = SimpleBlock.generate_id('billing', 'total')
     dependencies        = (ProductLine, ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
     verbose_name        = _(u'Total')
     template_name       = 'billing/templatetags/block_total.html'
     target_ctypes       = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ??
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(
+                                    context,
+                                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                                    cell_class=getattr(settings, 'CSS_NUMBER_LISTVIEW', ''),
+                                )
+                           )
 
 
 class TargetBlock(SimpleBlock):
