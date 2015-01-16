@@ -112,6 +112,10 @@
     text-align: left;
 }
 
+.td_info.right_align { /* eg: total block in billing */
+    text-align: right;
+}
+
 .th_info_4_columns {
     max-width: 15%;
     width: 15%;
