@@ -72,7 +72,7 @@ class Contact(CremeEntity):
                                  blank=True, null=True, related_name='related_contact',
                                  on_delete=SET_NULL, editable=False
                                 ).set_tags(clonable=False, enumerable=False) \
-                                 .set_null_label(pgettext_lazy('persons-is_user', 'None'))
+                                 .set_null_label(pgettext_lazy('persons-is_user', u'None'))
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 

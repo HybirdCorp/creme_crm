@@ -31,7 +31,7 @@ INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
-BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
+BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', u'Open')),
                (CLOSED_PK,      _('Closed')),
                (INVALID_PK,     _('Invalid')),
                (DUPLICATED_PK,  _('Duplicated')),

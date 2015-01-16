@@ -49,7 +49,7 @@ SENDING_TYPE_DEFERRED  = 2
 
 SENDING_TYPES = {
                     SENDING_TYPE_IMMEDIATE: _(u"Immediate"),
-                    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
+                    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', u'Deferred'),
                 }
 
 SENDING_STATE_DONE       = 1
@@ -58,9 +58,9 @@ SENDING_STATE_PLANNED    = 3
 SENDING_STATE_ERROR      = 4
 
 SENDING_STATES = {
-                    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
+                    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', u'Done'),
                     SENDING_STATE_INPROGRESS: _(u"In progress"),
-                    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
+                    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', u'Planned'),
                     SENDING_STATE_ERROR:      _(u"Error during sending"),
                  }
 
