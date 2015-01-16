@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,16 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.forms.fields import CharField
+from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
 
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.bulk import BulkDefaultEditForm #BulkForm
 from creme.creme_core.forms.fields import DurationField, JSONField
-from creme.creme_core.forms.widgets import ChainedInput
+from creme.creme_core.forms.widgets import ChainedInput, Label
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
+from ..constants import ACTIVITYTYPE_INDISPO
 from ..models import ActivityType, ActivitySubType
 
 
@@ -131,3 +134,40 @@ class ActivityTypeField(JSONField):
     def types(self, types):
         self._types = types
         self._build_widget()
+
+
+class BulkEditTypeForm(BulkDefaultEditForm):
+    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
+        super(BulkEditTypeForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
+        self.fields['field_value'] = type_selector = \
+                    ActivityTypeField(label=_(u'Type'),
+                                      types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
+                                     )
+        self._mixed_indispo = False
+        indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
+
+        if indispo_count:
+            if indispo_count == len(entities): # all entities are indisponibilities, so we propose to change the sub-type
+                type_selector.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
+            else:
+                self._mixed_indispo = True
+                self.fields['beware'] = CharField(
+                        label=_('Beware !'),
+                        required=False, widget=Label,
+                        initial=ngettext('The type of %s activity cannot be changed because it is an indisponibility.',
+                                         'The type of %s activities cannot be changed because they are indisponibilities.',
+                                         indispo_count
+                                        ) % indispo_count,
+                    )
+
+        if not is_bulk:
+            first = entities[0]
+            type_selector.initial = (first.type_id, first.sub_type_id)
+
+    def _bulk_clean_entity(self, entity, values):
+        if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
+            raise ValidationError(ugettext('The type of an indisponibility cannot be changed.'))
+
+        entity.type, entity.sub_type = values.get(self.field_name)
+
+        return entity

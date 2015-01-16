@@ -586,7 +586,7 @@ def get_csv_form_builder(header_dict, choices):
         subjects = SubjectsExtractorField(choices, label=_('Subjects (organisations only)'), required=False)
 
         class Meta:
-            exclude = ('sub_type', 'busy')
+            exclude = ('type', 'sub_type', 'busy')
 
         blocks = ImportForm4CremeEntity.blocks.new(
                             ('participants',   _(u'Participants & subjects'),

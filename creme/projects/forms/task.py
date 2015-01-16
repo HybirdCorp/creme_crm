@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,11 +46,13 @@ from ..models import ProjectTask
 class _TaskForm(CremeEntityForm):
     start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
     end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
+    type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
 
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
-        #exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'calendars', 'type', 'project', 'order', 'status', 'parent_tasks')
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'minutes', 'status')
+        ##exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'calendars', 'type', 'project', 'order', 'status', 'parent_tasks')
+        #exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'minutes', 'status')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'minutes', 'status', 'type', 'sub_type')
 
     def __init__(self, *args, **kwargs):
         super(_TaskForm, self).__init__(*args, **kwargs)
@@ -71,12 +73,18 @@ class _TaskForm(CremeEntityForm):
 
         return cleaned_data
 
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.type, instance.sub_type = self.cleaned_data['type_selector']
+
+        return super(_TaskForm, self).save(*args, **kwargs)
+
 
 class TaskEditForm(_TaskForm):
-    sub_type = ModelChoiceField(label=_('Activity type'), queryset=ActivitySubType.objects.none(), required=False)
+    #sub_type = ModelChoiceField(label=_('Activity type'), queryset=ActivitySubType.objects.none(), required=False)
     #sub_type = CreatorModelChoiceField(label=_('Activity type'), required=False, 
                                         #queryset=ActivitySubType.objects.none(),
-                                        #) TODO
+                                        #)
 
     #blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'sub_type', 'start',
                                                                         #'end', 'busy', 'tstatus', 'description', 'place']),
@@ -89,12 +97,13 @@ class TaskEditForm(_TaskForm):
         super(TaskEditForm, self).__init__(*args, **kwargs)
 
         instance = self.instance
-        self.fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
+        #self.fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
+        self.fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
         self.participants = instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
 
 
 class TaskCreateForm(_TaskForm):
-    type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
+    #type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
     parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
     participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
                                                    queryset=User.objects.filter(is_staff=False),
@@ -107,11 +116,11 @@ class TaskCreateForm(_TaskForm):
                                                                         #'parent_tasks', 'participating_users']),
                                 #)
 
-    class Meta(_TaskForm.Meta):
-        #exclude = _TaskForm.Meta.exclude + ('project', 'order', 'type', 'calendars', 'is_all_day',
-                                            #'parent_tasks', 'floating_type', 'minutes', 'status', 'sub_type',
-                                            #)
-        exclude = _TaskForm.Meta.exclude + ('sub_type',)
+    #class Meta(_TaskForm.Meta):
+        ##exclude = _TaskForm.Meta.exclude + ('project', 'order', 'type', 'calendars', 'is_all_day',
+                                            ##'parent_tasks', 'floating_type', 'minutes', 'status', 'sub_type',
+                                            ##)
+        #exclude = _TaskForm.Meta.exclude + ('sub_type',)
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
@@ -137,7 +146,7 @@ class TaskCreateForm(_TaskForm):
 
         instance.project = project
         instance.order   = project.attribute_order_task()
-        instance.type, instance.sub_type = self.cleaned_data['type_selector']
+        #instance.type, instance.sub_type = self.cleaned_data['type_selector']
 
         super(TaskCreateForm, self).save(*args, **kwargs)
 

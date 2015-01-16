@@ -69,7 +69,7 @@ class ProductTestCase(_ProductsTestCase):
                                           'description':  description,
                                           'unit_price':   unit_price,
                                           'unit':         "anything",
-                                          'sub_category': self._cat_field(cat, sub_cat)
+                                          'sub_category': self._cat_field(cat, sub_cat),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -136,7 +136,9 @@ class ProductTestCase(_ProductsTestCase):
 
         response = post(img_1, img_3)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _(u"Some entities are not linkable: %s") % img_3)
+        self.assertFormError(response, 'form', 'images',
+                             _(u"Some entities are not linkable: %s") % img_3,
+                            )
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
@@ -152,7 +154,7 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.all()[0]
         product = Product.objects.create(user=self.user, name=name, description='A fake god',
                                          unit_price=Decimal('1.23'), code=code,
-                                         category=sub_cat.category, sub_category=sub_cat
+                                         category=sub_cat.category, sub_category=sub_cat,
                                         )
         url = product.get_edit_absolute_url()
         response = self.assertGET200(url)
@@ -246,10 +248,11 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(cat,     product.category)
 
     def test_edit_inner_category(self):
-        self.login()
+        user = self.login()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
-        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
+        product = Product.objects.create(user=user, name='Eva00',
+                                         description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category, sub_category=sub_cat
                                         )
@@ -258,7 +261,13 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url, data={'sub_category': '{"category":%d,"subcategory":%d}' % (next_sub_cat.category.pk, next_sub_cat.pk)})
+        response = self.client.post(url,
+                                    data={'sub_category': '{"category":%d,"subcategory":%d}' % (
+                                                                next_sub_cat.category.pk,
+                                                                next_sub_cat.pk,
+                                                            )
+                                         }
+                                   )
         self.assertNoFormError(response)
 
         product = self.refresh(product)
@@ -269,7 +278,8 @@ class ProductTestCase(_ProductsTestCase):
         self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
+        product = Product.objects.create(user=self.user, name='Eva00',
+                                         description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category, sub_category=sub_cat
                                         )
@@ -281,22 +291,25 @@ class ProductTestCase(_ProductsTestCase):
         response = self.client.post(url,
                                     data={'sub_category': '{"category":%d,"subcategory":%d}' % (
                                                                 sub_cat.category_id,
-                                                                next_sub_cat.pk
+                                                                next_sub_cat.pk,
                                                             )
                                          }
                                    )
-        self.assertFormError(response, 'form', 'sub_category', _(u"This sub-category causes constraint error."))
+        self.assertFormError(response, 'form', 'sub_category',
+                             _(u"This sub-category causes constraint error.")
+                            )
 
         product = self.refresh(product)
         self.assertEqual(sub_cat, product.sub_category)
         self.assertEqual(sub_cat.category, product.category)
 
     def test_edit_bulk_category(self):
-        self.login()
+        user = self.login()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
         create_product = partial(Product.objects.create,
-                                 user=self.user, description='A fake god', unit_price=Decimal('1.23'),
+                                 user=user, description='A fake god',
+                                 unit_price=Decimal('1.23'),
                                  category=sub_cat.category, sub_category=sub_cat
                                 )
 
@@ -307,8 +320,14 @@ class ProductTestCase(_ProductsTestCase):
         self.assertGET200(url)
 
         next_sub_cat = SubCategory.objects.order_by('category')[1]
-        response = self.client.post(url, {'_bulk_fieldname': url,
-                                          'sub_category': '{"category":%d, "subcategory":%d}' % (next_sub_cat.category.pk, next_sub_cat.pk)})
+        response = self.client.post(url,
+                                    {'_bulk_fieldname': url,
+                                     'sub_category': '{"category":%d, "subcategory":%d}' % (
+                                                            next_sub_cat.category.pk,
+                                                            next_sub_cat.pk,
+                                                        )
+                                    }
+                                   )
         self.assertNoFormError(response)
 
         product = self.refresh(product)
@@ -320,11 +339,12 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product2.category)
 
     def test_edit_bulk_category_invalid(self):
-        self.login()
+        user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
         create_product = partial(Product.objects.create,
-                                 user=self.user, description='A fake god', unit_price=Decimal('1.23'),
+                                 user=user, description='A fake god',
+                                 unit_price=Decimal('1.23'),
                                  category=sub_cat.category, sub_category=sub_cat
                                 )
 
@@ -404,7 +424,9 @@ class ProductTestCase(_ProductsTestCase):
 
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _(u"Some entities are not linkable: %s") % img_4)
+        self.assertFormError(response, 'form', 'images',
+                             _(u"Some entities are not linkable: %s") % img_4,
+                            )
 
         response = post(img_1, img_2)
         self.assertNoFormError(response)
@@ -424,7 +446,8 @@ class ProductTestCase(_ProductsTestCase):
         img_2 = self.create_image(ident=2, user=user)
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
+        product = Product.objects.create(user=self.user, name='Eva00',
+                                         description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
