@@ -19,35 +19,70 @@ __all__ = ('FolderTestCase',)
 
 
 class FolderTestCase(_DocumentsTestCase):
+    ADD_URL  = '/documents/folder/add'
     LIST_URL = '/documents/folders'
 
     def setUp(self):
         super(FolderTestCase, self).setUp()
         self.login()
 
-    def test_createview(self):
-        url = '/documents/folder/add'
+    def test_createview01(self):
+        "No parent folder"
+        url = self.ADD_URL
         self.assertGET200(url)
 
         title = 'Test folder'
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
-        parent      = Folder.objects.all()[0]
-        category    = FolderCategory.objects.all()[0]
+        category = FolderCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={'user':          self.user.pk,
-                                          'title':         title,
-                                          'description':   description,
-                                          'parent_folder': parent.id,
-                                          'category':      category.id,
+                                    data={'user':        self.user.pk,
+                                          'title':       title,
+                                          'description': description,
                                          }
                                    )
         self.assertNoFormError(response)
 
-        with self.assertNoException():
-            folder = Folder.objects.get(title=title)
+        folder = self.get_object_or_fail(Folder, title=title)
+        self.assertEqual(description, folder.description)
+        self.assertIsNone(folder.parent_folder)
+        self.assertIsNone(folder.category)
 
+    def test_createview02(self):
+        "Parent folder"
+        user = self.user
+        url = self.ADD_URL
+
+        category = FolderCategory.objects.all()[0]
+        parent_title = 'Test parent folder'
+        self.assertFalse(Folder.objects.filter(title=parent_title).exists())
+
+        parent = Folder.objects.create(user=user, title=parent_title, category=category)
+
+        title = 'Test folder'
+        self.assertFalse(Folder.objects.filter(title=title).exists())
+
+        description = 'Test description'
+        data = {'user':          user.pk,
+                'title':         title,
+                'description':   description,
+                'parent_folder': parent.id,
+               }
+
+        bad_cat = FolderCategory.objects.exclude(id=category.id)[0]
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data, category=bad_cat.id),
+                                     )
+        self.assertFormError(response, 'form', 'category',
+                             _(u"Folder's category must be the same than its parent's one: %s") %
+                                    category
+                            )
+
+        response = self.client.post(url, follow=True, data=dict(data, category=category.id))
+        self.assertNoFormError(response)
+
+        folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
@@ -55,20 +90,19 @@ class FolderTestCase(_DocumentsTestCase):
     def test_editview(self):
         title = u'Test folder'
         description = 'Test description'
-        category = FolderCategory.objects.all()[0]
         folder = Folder.objects.create(title=title,
                                        description=description,
                                        parent_folder=None,
-                                       category=category,
                                        user=self.user,
                                       )
 
-        url = '/documents/folder/edit/%s' % folder.id
+        url = folder.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       += u' edited'
         description = description.upper()
         parent      = Folder.objects.all()[0]
+        category = parent.category
         response = self.client.post(url, follow=True,
                                     data={'user':          self.user.pk,
                                           'title':         title,
@@ -90,7 +124,7 @@ class FolderTestCase(_DocumentsTestCase):
         category = FolderCategory.objects.all()[0]
 
         create_folder = partial(Folder.objects.create, user=user,
-                                parent_folder=None, category=category
+                                parent_folder=None, category=category,
                                )
         folder1 = create_folder(title='PDF', description='Contains PDF files')
         folder2 = create_folder(title='SVG', description='Contains SVG files')

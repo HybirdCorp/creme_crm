@@ -207,7 +207,7 @@ class BaseReportsTestCase(CremeTestCase):
             self.sony.pk:     [],
         }
 
-        sales_phase = SalesPhase.objects.get_or_create(name="Forthcoming")[0]
+        sales_phase = SalesPhase.objects.create(name="Money is coming")
 
         def _create_opportunity(name, reference, emitter=None):
             return Opportunity.objects.create(user=user, name=name, reference=reference,
