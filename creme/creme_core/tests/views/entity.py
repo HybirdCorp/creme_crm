@@ -1253,32 +1253,30 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         class _InnerEditName(BulkDefaultEditForm):
-            def _bulk_clean_entity(self, entity, **values):
-                entity = BulkDefaultEditForm._bulk_clean_entity(self, entity, **values)
+            def _bulk_clean_entity(self, entity, values):
+                entity = BulkDefaultEditForm._bulk_clean_entity(self, entity, values)
                 raise ValidationError('invalid name')
 
         bulk_update_registry.register(Contact, innerforms={'last_name': _InnerEditName})
 
         mario = self.create_contact()
         url = self.build_inneredit_url(mario, 'last_name')
-
         self.assertGET200(url)
-        response = self.assertPOST200(url, data={'field_value': 'luigi'}
-                                      )
 
+        response = self.assertPOST200(url, data={'field_value': 'luigi'})
         self.assertFormError(response, 'form', None, 'invalid name')
 
     def test_custom_field(self):
         self.login()
         mario = self.create_contact()
-        cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type, field_type=CustomField.STR)
+        cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type,
+                                            field_type=CustomField.STR,
+                                           )
         url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT % cfield.id)
         self.assertGET200(url)
 
         value = 'hihi'
-        response = self.client.post(url, data={'field_value': value,
-                                              }
-                                   )
+        response = self.client.post(url, data={'field_value': value})
         self.assertNoFormError(response)
         self.assertEqual(value, self.get_cf_values(cfield, self.refresh(mario)).value)
 
@@ -1295,7 +1293,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.post(url, data={'field_value': city,
                                               }
                                    )
-        self.assertFormError(response, 'form', None, _(u'The field %s is empty') % billing_address_field.verbose_name)
+        self.assertFormError(response, 'form', None,
+                             _(u'The field %s is empty') % billing_address_field.verbose_name
+                            )
 
     def test_related_subfield(self):
         self.login()
@@ -1307,9 +1307,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET200(url)
 
         city = 'Marseille'
-        response = self.client.post(url, data={'field_value': city,
-                                              }
-                                   )
+        response = self.client.post(url, data={'field_value': city})
         self.assertNoFormError(response)
         self.assertEqual(city, self.refresh(orga).billing_address.city)
 
@@ -1325,21 +1323,29 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_other_field_validation_error(self):
         self.login()
         empty_user = User.objects.create_user('empty')
-        empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+        empty_contact = Contact.objects.create(user=self.user, first_name="",
+                                               last_name="", is_user=empty_user,
+                                              )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': 'Bros'})
-        self.assertFormError(response, 'form', None, _('This Contact is related to a user and must have a first name.'))
+        self.assertFormError(response, 'form', None,
+                             _('This Contact is related to a user and must have a first name.')
+                            )
 
     def test_both_edited_field_and_field_validation_error(self):
         self.login()
         empty_user = User.objects.create_user('empty')
-        empty_contact = Contact.objects.create(user=self.user, first_name="", last_name="", is_user=empty_user)
+        empty_contact = Contact.objects.create(user=self.user, first_name="",
+                                               last_name="", is_user=empty_user,
+                                              )
 
         url = self.build_inneredit_url(empty_contact, 'last_name')
         self.assertGET200(url)
 
         response = self.client.post(url, data={'field_value': ''})
-        self.assertFormError(response, 'form', 'field_value', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u'This field is required.')
+                            )

@@ -81,13 +81,13 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
 
         return super(ReportFilterBulkForm, self).clean()
 
-    def _bulk_clean_entity(self, entity, **values):
+    def _bulk_clean_entity(self, entity, values):
         if entity.id in self._uneditable_ids:
             raise ValidationError(_('The filter cannot be changed because it is private.'))
 
-        efilter = values.get('filter')
+        #efilter = values.get('filter')
 
-        if efilter and entity.ct != efilter.entity_type:
-            raise ValidationError(_(u'Select a valid choice. That choice is not one of the available choices.'))
+        #if efilter and entity.ct != efilter.entity_type:
+            #raise ValidationError(_(u'Select a valid choice. That choice is not one of the available choices.'))
 
-        return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, **values)
+        return super(ReportFilterBulkForm, self)._bulk_clean_entity(entity, values)
