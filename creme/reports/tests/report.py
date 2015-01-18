@@ -13,6 +13,7 @@ try:
     from django.utils.translation import ugettext as _, ngettext
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
+    from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.unittest.case import skipIf
     #from django.core.serializers.json import simplejson
@@ -327,6 +328,11 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertNotContains(response, orga_filter.name) # excluded from filter choices because report targets a Contact.
         self.assertNotContains(response, private_filter.name)
 
+        response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        self.assertFormError(response, 'form', 'field_value',
+                             _('Select a valid choice. That choice is not one of the available choices.')
+                            )
+
         response = self.client.post(url, data={'field_value': contact_filter.pk})
         self.assertNoFormError(response)
         self.assertEqual(contact_filter, self.refresh(report).filter)
@@ -346,10 +352,11 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
         self.assertContains(response,
-                            ngettext('The filter cannot be changed because it is private.',
-                                     'The filters cannot be changed because they are private.',
-                                     1
-                                    )
+                            escape(ngettext('The filter cannot be changed because it is private.',
+                                            'The filters cannot be changed because they are private.',
+                                            1
+                                           )
+                                  )
                            )
 
         response = self.assertPOST200(url, data={'field_value': ''})
@@ -374,6 +381,11 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertContains(response, contact_filter.name)
         self.assertNotContains(response, orga_filter.name)
 
+        response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        self.assertFormError(response, 'form', 'field_value',
+                             _('Select a valid choice. That choice is not one of the available choices.')
+                            )
+
         response = self.client.post(url, data={'field_value': contact_filter.pk})
         self.assertNoFormError(response)
 
@@ -392,9 +404,10 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_bulkedit_url([report_1, report_2], 'filter')
         response = self.assertGET200(url)
         self.assertContains(response,
-                            _(u"Filter field can only be updated when reports "
-                              u"target the same type of entities (e.g: only contacts)."
-                             )
+                            escape(_(u"Filter field can only be updated when reports "
+                                     u"target the same type of entities (e.g: only contacts)."
+                                   )
+                                  )
                            )
 
         response = self.assertPOST200(url, data={'field_value': contact_filter.pk})
@@ -426,10 +439,11 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertContains(response, efilter3.name)
         self.assertNotContains(response, efilter2.name)
         self.assertContains(response,
-                            ngettext('The filter of %s report cannot be changed because it is private.',
-                                     'The filters of %s reports cannot be changed because they are private.',
-                                     1
-                                    ) % 1
+                            escape(ngettext('The filter of %s report cannot be changed because it is private.',
+                                            'The filters of %s reports cannot be changed because they are private.',
+                                            1
+                                           ) % 1
+                                  )
                            )
 
         response = self.client.post(url, data={'field_value': efilter3.pk})
