@@ -674,7 +674,7 @@ msgstr "Unité de remise"
 
 #: models/line.py:68
 msgid "Total discount ?"
-msgstr "Type de remise"
+msgstr "Remise totale ?"
 
 #: models/line.py:69 templates/billing/frags/generic_billing_line_frag.html:11
 msgid "VAT"
