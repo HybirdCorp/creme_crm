@@ -204,7 +204,7 @@ class TeamEditForm(TeamCreateForm):
 
 class UserAssignationForm(CremeForm):
     to_user = ModelChoiceField(label=_(u"Choose a user to transfer to"),
-                               queryset=User.objects.none()
+                               queryset=User.objects.none(),
                               )
 
     def __init__(self, user, *args, **kwargs):
