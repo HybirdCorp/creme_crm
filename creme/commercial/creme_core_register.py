@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,14 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.core.setting_key import setting_key_registry
-from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
+from creme.creme_core.gui import (creme_menu, block_registry, button_registry,
+        icon_registry, bulk_update_registry)
 from creme.creme_core.registry import creme_registry
 
 from .blocks import blocks_list
 from .buttons import complete_goal_button
-from .models import Act, ActObjectivePattern, Strategy
+from .models import (Act, ActObjectivePattern, Strategy,
+        ActObjectivePatternComponent, MarketSegmentDescription)
 from .setting_keys import notification_key, orga_approaches_key
 
 
@@ -50,6 +52,9 @@ reg_item('/commercial/salesman/add', _(u'Add a salesman'), 'persons.add_contact'
 block_registry.register(*blocks_list)
 
 button_registry.register(complete_goal_button)
+
+bulk_update_registry.register(ActObjectivePatternComponent, exclude=['success_rate']) #TODO: min_value/max_value constraint in the model... )
+bulk_update_registry.register(MarketSegmentDescription, exclude=['segment']) #TODO: special form for segment
 
 reg_icon = icon_registry.register
 reg_icon(Act,                 'images/commercial_%(size)s.png')

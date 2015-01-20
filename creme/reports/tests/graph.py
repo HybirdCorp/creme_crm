@@ -29,10 +29,9 @@ try:
     from ..core.graph import ListViewURLBuilder # fetch_graph_from_instance_block
     from ..models import Field, Report, ReportGraph
 
-    from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK,
-                             RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK,
-                             RFT_FIELD, RFT_RELATION,
-                            )
+    from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
+            RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
+            RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -159,12 +158,13 @@ class ReportGraphTestCase(BaseReportsTestCase):
         name = 'My Graph #1'
         abscissa = 'sector'
         gtype = RGT_FK
+        chart = 'barchart'
         response = self.client.post(url, data={'user': self.user.pk, #TODO: report.user used instead ??
                                                'name':              name,
                                                'abscissa_field':    abscissa,
                                                'abscissa_group_by': gtype,
                                                'is_count':          True,
-                                               'chart':             'barchart',
+                                               'chart':             chart,
                                               })
         self.assertNoFormError(response)
 
@@ -173,6 +173,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(abscissa,  rgraph.abscissa)
         self.assertEqual('',        rgraph.ordinate)
         self.assertEqual(gtype,     rgraph.type)
+        self.assertEqual(chart,     rgraph.chart)
         self.assertIsNone(rgraph.days)
         self.assertIs(rgraph.is_count, True)
 
@@ -393,7 +394,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                     'name':              name,
                     'abscissa_group_by': gtype,
                     'aggregate_field':   ordinate,
-                    'aggregate':       'max',
+                    'aggregate':         'max',
                     'chart':             'barchart',
                    }
             data.update(**kwargs)
@@ -2138,7 +2139,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                                             type=RGT_RANGE, days=1,
                                             ordinate='capital__sum',
                                             is_count=False,
-                                            )
+                                           )
 
         interval_day_count = 300
         entities_per_day = 5
@@ -2157,3 +2158,33 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(len(x), interval_day_count)
         self.assertEqual(len(y), interval_day_count)
         self.assertEqual(sum((value for value, _ in y)), interval_day_count * entities_per_day * 100)
+
+    def test_inneredit(self):
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name='capital per month of creation',
+                                            abscissa='created',
+                                            ordinate='capital__sum',
+                                            type=RGT_MONTH, is_count=False,
+                                            chart='barchart',
+                                           )
+
+        build_url = self.build_inneredit_url
+        url = build_url(rgraph, 'name')
+        self.assertGET200(url)
+
+        name = rgraph.name.title()
+        response = self.client.post(url, data={'entities_lbl': [unicode(rgraph)],
+                                               'field_value':  name,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(name, self.refresh(rgraph).name)
+
+        self.assertGET(400, build_url(rgraph, 'report'))
+        self.assertGET(400, build_url(rgraph, 'abscissa'))
+        self.assertGET(400, build_url(rgraph, 'ordinate'))
+        self.assertGET(400, build_url(rgraph, 'type'))
+        self.assertGET(400, build_url(rgraph, 'days'))
+        self.assertGET(400, build_url(rgraph, 'is_count'))
+        self.assertGET(400, build_url(rgraph, 'chart'))

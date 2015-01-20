@@ -46,6 +46,7 @@ class ReportChartRegistry(object):
     def choices(self):
         return [(chart.name, chart.label) for chart in self._charts.itervalues()]
 
+
 report_chart_registry = ReportChartRegistry()
 report_chart_registry.register(ReportChart('barchart',  _(u'Histogram')))
 report_chart_registry.register(ReportChart('piechart',  _(u'Pie')))

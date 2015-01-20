@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,13 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
+        icon_registry, bulk_update_registry)
 from creme.creme_core.core.setting_key import setting_key_registry
 
-from .models import EmailCampaign, MailingList, EmailTemplate, EntityEmail
 from .blocks import blocks_list, EntityEmailBlock
 from .buttons import entityemail_link_button
+from .models import EmailCampaign, MailingList, EmailTemplate, EntityEmail, EmailSending
 from .setting_keys import emailcampaign_sender
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)
@@ -56,5 +57,6 @@ reg_icon(MailingList,   'images/email_%(size)s.png')
 reg_icon(EmailCampaign, 'images/email_%(size)s.png')
 reg_icon(EmailTemplate, 'images/email_%(size)s.png')
 
-bulk_update_registry.register(MailingList, exclude=('children', 'contacts', 'organisations',))
+bulk_update_registry.register(MailingList,   exclude=('children', 'contacts', 'organisations',))
 bulk_update_registry.register(EmailCampaign, exclude=('mailing_lists',))
+bulk_update_registry.register(EmailSending,  exclude=('sender', 'type', 'sending_date')) #TODO: tags modifiable=False ??

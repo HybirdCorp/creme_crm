@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
-from .models import PollForm, PollReply, PollCampaign
+from .models import PollForm, PollReply, PollCampaign, PollFormLine
 from .blocks import block_list
 
 
@@ -46,4 +46,5 @@ reg_icon(PollForm,     'images/poll_%(size)s.png')
 reg_icon(PollReply,    'images/poll_%(size)s.png')
 reg_icon(PollCampaign, 'images/poll_%(size)s.png')
 
-bulk_update_registry.register(PollReply, exclude=['person'])
+bulk_update_registry.register(PollReply,    exclude=['person'])
+bulk_update_registry.register(PollFormLine, exclude=['type'])

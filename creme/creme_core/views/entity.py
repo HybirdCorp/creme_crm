@@ -21,8 +21,8 @@
 from collections import defaultdict
 import logging
 
-from django.core.exceptions import PermissionDenied
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
 from django.forms.models import modelform_factory
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
@@ -202,7 +202,7 @@ def search_and_view(request):
         try:
             ct = ContentType.objects.get_by_natural_key(*model_id.split('-'))
         except (ContentType.DoesNotExist, TypeError):
-            raise Http404(u'These model does not exist: %s' % model_id)
+            raise Http404(u'This model does not exist: %s' % model_id)
 
         if not has_perm(ct.app_label):
             raise PermissionDenied(_(u"You are not allowed to access to this app"))
@@ -213,7 +213,7 @@ def search_and_view(request):
             models.append(model)
 
     if not models:
-        raise Http404(u'No valid models')
+        raise Http404(u'No valid model')
 
     for model in models:
         query = Q()
@@ -242,7 +242,7 @@ def _bulk_has_perm(entity, user):
 def inner_edit_field(request, ct_id, id, field_name):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
-    entity = get_object_or_404(model, pk=id)
+    entity = get_object_or_404(model, pk=id) #TODO: rename (& 'entities' arg too ?) because not always an entity...
 
     if not _bulk_has_perm(entity, user):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
@@ -251,17 +251,12 @@ def inner_edit_field(request, ct_id, id, field_name):
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm, exclude_expandable=True)
 
         if request.method == 'POST':
-            form = form_class(entities=[entity],
-                              user=user,
-                              data=request.POST,
-                             )
+            form = form_class(entities=[entity], user=user, data=request.POST)
 
             if form.is_valid():
                 form.save()
         else:
-            form = form_class(entities=[entity],
-                              user=user,
-                             )
+            form = form_class(entities=[entity], user=user)
     except (FieldDoesNotExist, FieldNotAllowed):
         return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited' % field_name))
 

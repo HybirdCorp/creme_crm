@@ -28,7 +28,10 @@ except Exception as e:
 
 class _BillingTestCaseMixin(object):
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
-        super(_BillingTestCaseMixin, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'], *args, **kwargs)
+        return super(_BillingTestCaseMixin, self).login(is_superuser,
+                                                        allowed_apps=allowed_apps or ['billing'],
+                                                        *args, **kwargs
+                                                       )
 
     def assertAddressContentEqual(self, address1, address2): #TODO: move in persons ??
         self.assertIsInstance(address1, Address)

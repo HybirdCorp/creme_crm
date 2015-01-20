@@ -131,7 +131,9 @@ class PaymentInformation(CremeModel):
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
-    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'), related_name='PaymentInformationOrganisation_set')
+    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'),
+                                       related_name='PaymentInformationOrganisation_set',
+                                      )
 
     def __unicode__(self):
         return self.name

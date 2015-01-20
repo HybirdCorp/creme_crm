@@ -185,3 +185,21 @@ class PaymentInformationTestCase(_BillingTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(invoice).payment_info)
+
+    def test_inneredit(self):
+        organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
+        pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
+
+        build_url = self.build_inneredit_url
+        url =  build_url(pi, 'name')
+        self.assertGET200(url)
+
+        name = pi.name + ' (default)'
+        response = self.client.post(url, data={'entities_lbl': [unicode(pi)],
+                                               'field_value':  name,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(name, self.refresh(pi).name)
+
+        self.assertGET(400, build_url(pi, 'organisation'))

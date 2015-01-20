@@ -197,7 +197,8 @@ class LineEditForm(CremeModelWithUserForm):
                                 )
 
     class Meta:
-        exclude = ('total_discount', 'discount_unit') #TODO: remove when total_discount is removed from Line..
+        #exclude = ('total_discount', 'discount_unit') #todo: remove when total_discount is removed from Line..
+        exclude = ()
 
     def __init__(self, user, related_document=None, *args, **kwargs):
         super(LineEditForm, self).__init__(user=user, *args, **kwargs)

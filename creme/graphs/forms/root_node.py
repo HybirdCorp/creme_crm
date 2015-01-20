@@ -60,7 +60,8 @@ class EditRootNodeForm(CremeModelForm):
 
     class Meta:
         model = RootNode
-        exclude = ('graph', 'entity')
+        #exclude = ('graph', 'entity')
+        exclude = ()
 
     def __init__(self, entity, *args, **kwargs): #NB only useful for the generic view edit_related_to_entity()
         super(EditRootNodeForm, self).__init__(*args, **kwargs)

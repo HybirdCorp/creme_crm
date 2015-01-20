@@ -19,9 +19,11 @@ __all__ = ('StrategyTestCase',)
 
 
 class StrategyTestCase(CommercialBaseTestCase):
-    def _create_segment_desc(self, strategy, name):
+    def _create_segment_desc(self, strategy, name, product=''):
         self.assertPOST200('/commercial/strategy/%s/add/segment/' % strategy.id,
-                           data={'name': name}
+                           data={'name': name,
+                                 'product': product,
+                                }
                           )
         return strategy.segment_info.get(segment__name=name)
 
@@ -630,6 +632,25 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual({individual.id},
                          {cat.segment_desc_id for cat in cats}
                         )
+
+    def test_inneredit_segmentdesc(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        segment_desc = self._create_segment_desc(strategy, 'Industry', product='green powder')
+
+        build_url = self.build_inneredit_url
+        url =  build_url(segment_desc, 'product')
+        self.assertGET200(url)
+
+        product = segment_desc.product.title()
+        response = self.client.post(url, data={'entities_lbl': [unicode(segment_desc)],
+                                               'field_value':  product,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(product, self.refresh(segment_desc).product)
+
+        self.assertGET(400, build_url(segment_desc, 'strategy'))
+        self.assertGET(400, build_url(segment_desc, 'segment'))
 
     def test_reload_assets_matrix(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')

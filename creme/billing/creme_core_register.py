@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
-        icon_registry, import_form_registry, smart_columns_registry) #bulk_update_registry
+        icon_registry, import_form_registry, smart_columns_registry, bulk_update_registry)
 
 from .blocks import block_list, BillingBlock
 from .buttons import button_list
@@ -31,7 +31,7 @@ from .constants import REL_SUB_BILL_RECEIVED
 from .function_fields import hook_organisation
 from .forms.lv_import import get_import_form_builder
 from .models import (Invoice, Quote, SalesOrder, CreditNote, TemplateBase,
-        Line, ServiceLine, ProductLine) #Base
+        Line, ServiceLine, ProductLine, PaymentInformation) #Base
 from .setting_keys import payment_info_key
 
 
@@ -72,7 +72,8 @@ reg_import_form(Invoice,    get_import_form_builder)
 reg_import_form(Quote,      get_import_form_builder)
 reg_import_form(SalesOrder, get_import_form_builder)
 
-#bulk_update_registry.register(TemplateBase, exclude=['status_id', 'ct', 'base_ptr'])
+bulk_update_registry.register(Line, exclude=['on_the_fly_item'])
+bulk_update_registry.register(PaymentInformation, exclude=['organisation']) #TODO: tags modifiable=False ??
 
 setting_key_registry.register(payment_info_key)
 

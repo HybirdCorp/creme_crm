@@ -485,3 +485,13 @@ class PropertyViewsTestCase(ViewsTestCase):
         #self.assertGET404(url_fmt % (ptype.id, 'invalid_blockid'))
         #self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-invalidmodel'))
         #self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-civility'))
+
+    def test_inneredit(self):
+        user = self.login()
+        ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text='hairy')
+        entity = CremeEntity.objects.create(user=user)
+        prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
+
+        build_url = self.build_inneredit_url
+        self.assertGET(400, build_url(prop, 'type'))
+        self.assertGET(400, build_url(prop, 'creme_entity'))

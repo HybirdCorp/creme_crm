@@ -64,10 +64,14 @@ class Line(CremeEntity):
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
     #TODO: remove total_discount & add a choice to discount_unit (see EditForm)
     #TODO: null=False ???
-    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
-    total_discount  = BooleanField(_('Total discount ?'))
+    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, editable=False,
+                                           choices=DISCOUNT_UNIT.items(), default=PERCENT_PK,
+                                          )
+    total_discount  = BooleanField(_('Total discount ?'), editable=False)
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
-    type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False).set_tags(viewable=False)
+    type            = IntegerField(_(u'Type'), blank=False, null=False,
+                                   choices=LINE_TYPES.items(), editable=False,
+                                  ).set_tags(viewable=False)
 
     function_fields = CremeEntity.function_fields.new(_LineTypeField())
     creation_label = _('Add a line')
