@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,14 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.auth.decorators import superuser_required
+from creme.creme_core.auth.decorators import (login_required, permission_required,
+        superuser_required)
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.views.decorators import POST_only
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
 from ..forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
-                          TeamCreateForm, TeamEditForm, UserAssignationForm)
+        TeamCreateForm, TeamEditForm, UserAssignationForm)
 
 
 @login_required
@@ -73,9 +73,10 @@ def edit_team(request, user_id):
     return edit_model_with_popup(request,
                                  {'pk':       user_id,
                                   'is_team':  True,
-                                  'is_staff': False},
-                                 User,
-                                 TeamEditForm)
+                                  'is_staff': False,
+                                 },
+                                 User, TeamEditForm,
+                                )
 
 @login_required
 @superuser_required
@@ -83,7 +84,6 @@ def delete(request, user_id):
     """Delete a User (who can be a Team). Objects linked to this User are
     linked to a new User.
     """
-
     user = request.user
 
     if int(user_id) == user.id:
@@ -109,8 +109,6 @@ def delete(request, user_id):
 @superuser_required
 @POST_only
 def deactivate(request, user_id):
-    """Deactivate a user
-    """
     user = request.user
 
     if int(user_id) == user.id:
@@ -131,8 +129,6 @@ def deactivate(request, user_id):
 @superuser_required
 @POST_only
 def activate(request, user_id):
-    """Deactivate a user
-    """
     user_to_activate = get_object_or_404(User, pk=user_id)
 
     if user_to_activate.is_staff and not request.user.is_staff:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.models import User
 from django.db.models import CharField, BooleanField
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeModel
@@ -125,3 +128,13 @@ class Calendar(CremeModel):
             Calendar.objects.filter(user=self.user, is_default=True) \
                             .exclude(id=self.id) \
                             .update(is_default=False)
+
+
+@receiver(pre_delete, sender=User)
+def _transfer_default_calendar(sender, instance, **kwargs):
+    # NB: when a User is deleted, his Calendars are given to another User, who
+    #     has at this moment 2 default Calendars. When get_user_default_calendar()
+    #     fixes the problem, the Calendar chosen to be the default one can be
+    #     different from the original default Calendar (ie: the default Calendar
+    #     of this User can change 'silently').
+    Calendar.objects.filter(user=instance, is_default=True).update(is_default=False)
