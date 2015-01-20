@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,10 +27,11 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
+from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
+from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
 
 from creme.persons.models import Contact
 
@@ -170,9 +171,24 @@ def edit(request, activity_id):
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
-    return view_real_entity(request, activity_id, '/activities/activity',
-                            'activities/view_activity.html',
-                           )
+    #return view_real_entity(request, activity_id, '/activities/activity',
+                            #'activities/view_activity.html',
+                           #)
+
+    #TODO: create a generic view ? add this featue to _the_ generic detailview ??
+    entity = get_object_or_404(Activity, pk=activity_id)
+    real_entity = entity.get_real_entity()
+
+    if entity is not real_entity and \
+       entity.get_absolute_url() != real_entity.get_absolute_url():
+        return redirect(real_entity)
+
+    request.user.has_perm_to_view_or_die(real_entity)
+    LastViewedItem(request, real_entity)
+
+    return render(request, 'activities/view_activity.html',
+                  {'object': real_entity, 'path': '/activities/activity'},
+                 )
 
 @login_required
 @permission_required('activities')

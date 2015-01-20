@@ -216,6 +216,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, ranma,               REL_SUB_ACTIVITY_SUBJECT,  act)
         self.assertRelationCount(1, dojo,                REL_SUB_LINKED_2_ACTIVITY, act)
 
+        self.assertRedirects(response, act.get_absolute_url())
+        self.assertTemplateUsed(response, 'activities/view_activity.html')
+
     def test_createview02(self):
         "Credentials errors"
         #self.login(is_superuser=False, other_is_owner=True)
