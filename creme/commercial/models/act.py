@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -244,7 +244,9 @@ class ActObjectivePatternComponent(CremeModel):
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
     #ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
     ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
-    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'), null=True, blank=True, on_delete=PROTECT, editable=False)
+    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'),
+                              null=True, blank=True, on_delete=PROTECT, editable=False,
+                             )
     success_rate = PositiveIntegerField(_(u'Success rate')) #smallinteger ??
 
     _children_cache = None

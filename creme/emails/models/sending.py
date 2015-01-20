@@ -67,16 +67,20 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
-    campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Related campaign'), related_name='sendings_set')
+    campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Related campaign'),
+                               related_name='sendings_set', editable=False,
+                              )
     type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))
     sending_date  = DateTimeField(_(u"Sending date of emails"))
-    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"))
+    state         = PositiveSmallIntegerField(verbose_name=_(u"Sending state"), editable=False) #TODO: choices ?
 
-    subject     = CharField(_(u'Subject'), max_length=100)
-    body        = TextField(_(u"Body"))
-    body_html   = TextField(_(u"Body (HTML)"), null=True, blank=True)
-    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
-    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+    subject     = CharField(_(u'Subject'), max_length=100, editable=False)
+    body        = TextField(_(u"Body"), editable=False)
+    body_html   = TextField(_(u"Body (HTML)"), null=True, blank=True, editable=False)
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
+                             blank=True, null=True, editable=False,
+                            )
+    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
 
     class Meta:
         app_label = "emails"
@@ -164,9 +168,11 @@ class LightWeightEmail(_Email):
     """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
-    id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
-    sending          = ForeignKey(EmailSending, verbose_name=_(u"Related sending"), related_name='mails_set')
-    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails')
+    id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH, editable=False)
+    sending          = ForeignKey(EmailSending, verbose_name=_(u"Related sending"),
+                                  related_name='mails_set', editable=False,
+                                 )
+    recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails', editable=False)
 
     class Meta:
         app_label = "emails"

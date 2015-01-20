@@ -357,8 +357,7 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_create04(self):
         "Test deferred"
-        self.login()
-        user = self.user
+        user = self.login()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
 
@@ -398,3 +397,24 @@ class SendingsTestCase(_EmailsTestCase):
                                  ),
                              'form', 'sending_date', _(u"Sending date must be is the future")
                             )
+
+    def test_inneredit(self):
+        user = self.login()
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
+        sending  = EmailSending.objects.create(campaign=camp, type=SENDING_TYPE_IMMEDIATE,
+                                               sending_date=now(), state=SENDING_STATE_PLANNED,
+                                              )
+
+        build_url = self.build_inneredit_url
+        self.assertGET(400, build_url(sending, 'campaign'))
+        self.assertGET(400, build_url(sending, 'state'))
+        self.assertGET(400, build_url(sending, 'subject'))
+        self.assertGET(400, build_url(sending, 'body'))
+        self.assertGET(400, build_url(sending, 'body_html'))
+        self.assertGET(400, build_url(sending, 'signature'))
+        self.assertGET(400, build_url(sending, 'attachments'))
+
+        self.assertGET(400, build_url(sending, 'sender'))
+        self.assertGET(400, build_url(sending, 'type'))
+        self.assertGET(400, build_url(sending, 'sending_date'))

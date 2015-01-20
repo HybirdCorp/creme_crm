@@ -151,9 +151,9 @@ class Graph(CremeEntity):
 
 
 class RootNode(CremeModel):
-    graph          = ForeignKey(Graph, related_name='roots')
-    entity         = ForeignKey(CremeEntity)
-    relation_types = ManyToManyField(RelationType)
+    graph          = ForeignKey(Graph, related_name='roots', editable=False)
+    entity         = ForeignKey(CremeEntity, editable=False)
+    relation_types = ManyToManyField(RelationType, editable=False) #TODO: editable=False is only to avoid inner edition with an ugly widget
 
     class Meta:
         app_label = 'graphs'

@@ -297,7 +297,7 @@ class Strategy(CremeEntity):
 
 
 class MarketSegmentDescription(CremeModel):
-    strategy  = ForeignKey(Strategy, related_name='segment_info')
+    strategy  = ForeignKey(Strategy, related_name='segment_info', editable=False)
     segment   = ForeignKey(MarketSegment)
     product   = TextField(_(u'Product'), blank=True, null=True)
     place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
@@ -334,7 +334,7 @@ class MarketSegmentDescription(CremeModel):
 
 class CommercialAsset(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-    strategy = ForeignKey(Strategy, related_name='assets')
+    strategy = ForeignKey(Strategy, related_name='assets', editable=False)
 
     class Meta:
         app_label = "commercial"
@@ -367,7 +367,7 @@ class CommercialAssetScore(CremeModel):
 
 class MarketSegmentCharm(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-    strategy = ForeignKey(Strategy, related_name='charms')
+    strategy = ForeignKey(Strategy, related_name='charms', editable=False)
 
     class Meta:
         app_label = "commercial"

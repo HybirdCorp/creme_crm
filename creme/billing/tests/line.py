@@ -1005,6 +1005,33 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(invoice.total_no_vat, discount_zero)
         self.assertEqual(invoice.total_vat, discount_zero)
 
+    def test_inneredit(self):
+        user = self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        pline = ProductLine.objects.create(user=user, unit_price=Decimal("10"),
+                                           vat_value=Vat.get_default_vat(),
+                                           related_document=invoice,
+                                           on_the_fly_item='Flyyyyy',
+                                           comment='I believe',
+                                          )
+
+        build_url = self.build_inneredit_url
+        url = build_url(pline, 'comment')
+        self.assertGET200(url)
+
+        comment = pline.comment + ' I can flyyy'
+        response = self.client.post(url, data={'entities_lbl': [unicode(pline)],
+                                               'field_value':  comment,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(comment, self.refresh(pline).comment)
+
+        self.assertGET(400, build_url(pline, 'on_the_fly_item'))
+        self.assertGET(400, build_url(pline, 'total_discount'))
+        self.assertGET(400, build_url(pline, 'discount_unit'))
+
     def test_search_functionfield(self):
         "LineTypeField"
         self.login()
