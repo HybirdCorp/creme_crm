@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -145,6 +145,9 @@ def get_listview_columns_header(context):
                                       )
 
                     _build_select_search_widget(widget_ctx, search_value, choices)
+            elif field.choices:
+                # NB: not tested with grouped choices
+                _build_select_search_widget(widget_ctx, search_value, field.choices)
             elif isinstance(field, BooleanField):
                 _build_bool_search_widget(widget_ctx, search_value)
             #elif isinstance(field, DatePeriodField): #todo: JSONField ? 'searchable' tag

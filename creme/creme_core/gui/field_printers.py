@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,6 +76,12 @@ def print_image(entity, fval, user, field): #TODO: rename print_image_html
                 'url':  fval.url,
                 'size': image_size(fval),
             }
+
+def print_integer(entity, fval, user, field):
+    if field.choices: #TODO: manage 'choices' for other types...
+        return getattr(entity, 'get_%s_display' % field.name)()
+
+    return fval
 
 def print_boolean(entity, fval, user, field): #TODO: rename print_boolean_html
     return bool_as_html(fval)
@@ -196,6 +202,7 @@ def print_text_html(entity, fval, user, field):
 class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = ClassKeyedMap([
+                    (models.IntegerField,       print_integer),
                     (models.BooleanField,       print_boolean),
 
                     (models.DateField,          print_date),
@@ -216,6 +223,7 @@ class _FieldPrintersRegistry(object):
                 default=simple_print,
             )
         self._csv_printers = ClassKeyedMap([
+                    (models.IntegerField,       print_integer),
                     (models.BooleanField,       print_boolean_csv),
 
                     (models.DateField,          print_date),

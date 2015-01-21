@@ -8,7 +8,7 @@ try:
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
-    #from django.utils.translation import ugettext as _
+    from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
@@ -38,11 +38,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core', 'creme_config', 'persons')
-        cls.ct = ct = ContentType.objects.get_for_model(Contact)
+        apps = ['creme_core', 'creme_config', 'persons']
+        if 'creme.billing' in settings.INSTALLED_APPS:
+            apps.append('billing')
 
-        cls._hf_backup = list(HeaderFilter.objects.filter(entity_type=ct))
-        HeaderFilter.objects.filter(entity_type=ct).delete()
+        cls.populate(*apps)
+        cls.ct = ContentType.objects.get_for_model(Contact)
+
+        cls._hf_backup = list(HeaderFilter.objects.all())
+        HeaderFilter.objects.all().delete()
 
     @classmethod
     def tearDownClass(cls):
@@ -93,7 +97,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                  EntityCellRelation(rtype=rtype_pilots),
                  #TODO: EntityCellCustomField
                  EntityCellFunctionField(func_field=Contact.function_fields.get('get_pretty_properties')),
-               ]
+                ]
         HeaderFilter.create(pk='test-hf_contact', name='Contact view',
                             model=Contact, cells_desc=cells,
                            )
@@ -204,7 +208,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export04(self):
         "Credential"
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
+        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         self.role.exportable_ctypes = [self.ct]
 
         self._build_hf_n_contacts()
@@ -213,8 +217,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         bebop = organisations['Bebop']
         bebop.user = self.other_user
         bebop.save()
-        self.assertFalse(self.user.has_perm_to_view(bebop))
-        self.assertTrue(self.user.has_perm_to_view(organisations['Swordfish']))
+        self.assertFalse(user.has_perm_to_view(bebop))
+        self.assertTrue(user.has_perm_to_view(organisations['Swordfish']))
 
         response = self.assertGET200(self._build_url(self.ct),
                                      data={'list_url': self._set_listview_state()}
@@ -255,10 +259,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export06(self):
         "FK field on CremeEntity"
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
+        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
         self.role.exportable_ctypes = [self.ct]
-
-        user = self.user
 
         create_img = Image.objects.create
         spike_face = create_img(name='Spike face', user=self.other_user, description="Spike's selfie")
@@ -294,14 +296,14 @@ class CSVExportViewsTestCase(ViewsTestCase):
         "M2M field on CremeEntities"
         from creme.emails.models import EmailCampaign, MailingList
 
-        self.login()
+        user = self.login()
 
-        create_camp = partial(EmailCampaign.objects.create, user=self.user)
+        create_camp = partial(EmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Camp#1')
         camp2 = create_camp(name='Camp#2')
         create_camp(name='Camp#3')
 
-        create_ml = partial(MailingList.objects.create, user=self.user)
+        create_ml = partial(MailingList.objects.create, user=user)
         camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
         camp2.mailing_lists = [create_ml(name='ML#3')]
 
@@ -344,3 +346,63 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(it.next(), ["", "Wong", "Edward", "", "is a girl"])
         self.assertEqual(it.next(), ["", "Yumura", "Kirika", "", ""])
         self.assertRaises(StopIteration, it.next)
+
+    def test_print_integer01(self):
+        "No choices"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        for name, capital in (('Bebop', 1000), ('Swordfish', 20000)):
+            create_orga(name=name, capital=capital)
+
+        build = partial(EntityCellRegularField.build, model=Organisation)
+        HeaderFilter.create(pk='test-hf_orga', name='Organisation view',
+                            model=Organisation,
+                            cells_desc=[build(name='name'), build(name='capital')],
+                           )
+
+        lv_url = self._set_listview_state(model=Organisation)
+        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(Organisation)),
+                                     data={'list_url': lv_url}, follow=True,
+                                    )
+
+        lines = {force_unicode(line) for line in response.content.splitlines()}
+        self.assertIn(u'"Bebop","1000"', lines)
+        self.assertIn(u'"Swordfish","20000"', lines)
+
+    #NB: we need a field with a 'choices' attr
+    @skipIfNotInstalled('creme.billing')
+    def test_print_integer02(self):
+        "Choices"
+        user = self.login()
+
+        from datetime import date
+
+        from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine
+        from creme.billing.constants import DISCOUNT_PERCENT, DISCOUNT_LINE_AMOUNT
+
+        invoice = Invoice.objects.create(user=user, name='Invoice',
+                                         expiration_date=date(year=2012, month=12, day=15),
+                                         status=InvoiceStatus.objects.all()[0]
+                                        )
+
+        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
+        create_pline(on_the_fly_item='Fly1', discount_unit=DISCOUNT_PERCENT)
+        create_pline(on_the_fly_item='Fly2', discount_unit=DISCOUNT_LINE_AMOUNT)
+
+        build = partial(EntityCellRegularField.build, model=Line)
+        HeaderFilter.create(pk='test-hf_pline', name='ProductLine view',
+                            model=Line,
+                            cells_desc=[build(name='on_the_fly_item'),
+                                        build(name='discount_unit'),
+                                       ],
+                           )
+
+        lv_url = self._set_listview_state(model=Line) # NB: 'Line' because ProductLine.get_lv_absolute_url() == Line.get_lv_absolute_url()
+        response = self.assertGET200(self._build_url(ContentType.objects.get_for_model(ProductLine)),
+                                     data={'list_url': lv_url}, follow=True,
+                                    )
+
+        lines = {force_unicode(line) for line in response.content.splitlines()}
+        self.assertIn(u'"Fly1","%s"' % _(u'Percent'), lines)
+        self.assertIn(u'"Fly2","%s"' % _(u'Amount'), lines)

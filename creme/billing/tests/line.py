@@ -1034,9 +1034,7 @@ class LineTestCase(_BillingTestCase):
 
     def test_search_functionfield(self):
         "LineTypeField"
-        self.login()
-        user = self.user
-
+        user = self.login()
         invoice = Invoice.objects.create(user=user, name='Invoice',
                                          expiration_date=date(year=2012, month=12, day=15),
                                          status=InvoiceStatus.objects.all()[0],

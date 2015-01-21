@@ -7,9 +7,9 @@ try:
 
     from ..base import CremeTestCase
     from creme.creme_core.core.entity_cell import EntityCellCustomField
-    from creme.creme_core.models import CustomField, CustomFieldEnumValue
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.forms.header_filter import EntityCellRegularField
+    from creme.creme_core.models import CustomField, CustomFieldEnumValue
     from creme.creme_core.utils.meta import FieldInfo
 
     from creme.persons.models import Organisation
@@ -38,8 +38,8 @@ class CremeListViewTagsTestCase(CremeTestCase):
         swordfish = create_orga(name='Swordfish')
 
         cfield = CustomField.objects.create(content_type=bebop.entity_type,
-                                           field_type=CustomField.ENUM,
-                                          )
+                                            field_type=CustomField.ENUM,
+                                           )
 
         heavy_name = 'Heavy'
         create_evalue = CustomFieldEnumValue.objects.create
