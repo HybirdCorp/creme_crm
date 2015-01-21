@@ -24,9 +24,8 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.related import ForeignKey
-from django.utils.translation import ugettext
 
-from creme.creme_core.models.custom_field import CustomField
+from creme.creme_core.models import CremeModel, CustomField 
 from creme.creme_core.utils.unicode_collation import collator
 
 class FieldNotAllowed(Exception):
@@ -39,22 +38,22 @@ class _BulkUpdateRegistry(object):
             self.ignore = ignore
 
             self.excludes = set()
-            self.fields = set()
+            self.expandables = set()
 
             self._innerforms = {}
             self._regularfields = {}
-            self._customfields = {}
+
+        def _reset_cache(self):
+            self._regularfields = {}
 
         def is_expandable(self, field):
-            return isinstance(field, ForeignKey) and not field.get_tag('enumerable')
+            if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
+                return False
 
-        def is_allowed(self, field):
-            fieldname = field.name
+            return issubclass(field.rel.to, CremeModel) or field.name in self.expandables
 
-            if isinstance(field, CustomField) or field.editable:
-                return fieldname not in self.excludes
-
-            return fieldname in self.fields
+        def is_updatable(self, field):
+            return field.editable or isinstance(field, CustomField)
 
         @property
         def regular_fields(self):
@@ -65,14 +64,21 @@ class _BulkUpdateRegistry(object):
                 return self._regularfields
 
             regular_fields = chain(self._model._meta.fields, self._model._meta.many_to_many)
-            self._regularfields = {field.name: field for field in regular_fields}
+            self._regularfields = {field.name: field
+                                      for field in regular_fields if field.name not in self.excludes
+                                  }
 
             return self._regularfields
 
         @property
-        def allowed_regular_fields(self):
-            is_allowed = self.is_allowed
-            return {key: field for key, field in self.regular_fields.iteritems() if is_allowed(field)}
+        def updatable_regular_fields(self):
+            is_updatable = self.is_updatable
+            return {key: field for key, field in self.regular_fields.iteritems() if is_updatable(field)}
+
+        @property
+        def expandable_regular_fields(self):
+            is_expandable = self.is_expandable
+            return {key: field for key, field in self.regular_fields.iteritems() if is_expandable(field)}
 
         @property
         def custom_fields(self):
@@ -96,11 +102,22 @@ class _BulkUpdateRegistry(object):
             else:
                 field = self.regular_fields.get(name)
 
-                if field and not self.is_allowed(field):
+                if field and not self.is_updatable(field):
                     raise FieldNotAllowed(u"The field %s.%s is not editable" % (self._model._meta.verbose_name, name))
 
             if field is None:
                 raise FieldDoesNotExist(u"The field %s.%s doesn't exist" % (self._model._meta.verbose_name, name))
+
+            return field
+
+        def get_expandable_field(self, name):
+            field = self.regular_fields.get(name)
+
+            if field is None:
+                raise FieldDoesNotExist(u"The field %s.%s doesn't exist" % (self._model._meta.verbose_name, name))
+
+            if not self.is_expandable(field):
+                raise FieldNotAllowed(u"The field %s.%s is not expandable" % (self._model._meta.verbose_name, name))
 
             return field
 
@@ -118,14 +135,14 @@ class _BulkUpdateRegistry(object):
 
         return bulk
 
-    def register(self, model, exclude=None, fields=None, innerforms=None):
+    def register(self, model, exclude=None, expandables=None, innerforms=None):
         bulk = self._get_or_create_status(model)
 
         if exclude:
             bulk.excludes.update(set(exclude))
 
-        if fields:
-            bulk.fields.update(set(fields))
+        if expandables:
+            bulk.expandables.update(set(expandables))
 
         if innerforms:
             bulk._innerforms.update(dict(innerforms))
@@ -136,17 +153,18 @@ class _BulkUpdateRegistry(object):
                 # registered subclass inherits exclusions of new model 
                 if issubclass(old_model, model):
                     old_bulk.excludes.update(bulk.excludes)
-                    old_bulk.fields.update(bulk.fields)
+                    old_bulk.expandables.update(bulk.expandables)
 
                 # new model inherits exclusions and custom forms of registered superclass
                 if issubclass(model, old_model):
                     bulk.excludes.update(old_bulk.excludes)
-                    bulk.fields.update(old_bulk.fields)
+                    bulk.expandables.update(old_bulk.expandables)
 
                     merged_innerforms = dict(old_bulk._innerforms)
                     merged_innerforms.update(bulk._innerforms)
                     bulk._innerforms = merged_innerforms
 
+        bulk._reset_cache()
         return bulk
 
     def ignore(self, model):
@@ -163,76 +181,80 @@ class _BulkUpdateRegistry(object):
 
         return bulk
 
-    def get_default_field(self, model, exclude_expandable=False):
-        fields = self.regular_fields(model, exclude_expandable=exclude_expandable)
+    def get_default_field(self, model):
+        fields = self.regular_fields(model)
         return fields[0]
 
-    def get_field(self, model, field_name, exclude_expandable=False):
+    def get_field(self, model, field_name):
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
-        field = status.get_field(field_basename)
-
-        if status.is_expandable(field):
-            if subfield_name:
-                field = self.get_field(field.rel.to, subfield_name, exclude_expandable)
-            elif exclude_expandable:
-                raise FieldNotAllowed(u"The field %s is not editable" % (field.name))
+        if subfield_name:
+            parent_field = status.get_expandable_field(field_basename)
+            field = self.get_field(parent_field.rel.to, subfield_name)
+        else:
+            field = status.get_field(field_basename)
 
         return field
 
-    def get_form(self, model, field_name, default=None, exclude_expandable=False):
+    def get_form(self, model, field_name, default=None):
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
+        if subfield_name:
+            field = status.get_expandable_field(field_basename)
+            substatus = self.status(field.rel.to)
+            subfield = substatus.get_field(subfield_name)
+            form = substatus.get_form(subfield_name, default)
+
+            return partial(form,
+                           field=subfield,
+                           parent_field=field) if form else None
+
         field = status.get_field(field_basename)
-
-        if status.is_expandable(field):
-            if subfield_name:
-                substatus = self.status(field.rel.to)
-                subfield = substatus.get_field(subfield_name)
-                form = substatus.get_form(subfield_name, default)
-
-                return partial(form,
-                               field=subfield,
-                               parent_field=field) if form else None
-            elif exclude_expandable:
-                raise FieldNotAllowed(u"The field %s is not editable" % (field.name))
-
         form = status.get_form(field_basename, default)
         return partial(form, field=field) if form else None
 
-    def is_updatable(self, model, field_name, exclude_unique=True, exclude_expandable=False):
+    def is_updatable(self, model, field_name, exclude_unique=True):
         try:
-            field = self.get_field(model, field_name, exclude_expandable)
+            field = self.get_field(model, field_name)
         except (FieldDoesNotExist, FieldNotAllowed):
             return False
 
         return not (exclude_unique and field.unique)
 
-    def regular_fields(self, model, expand=False, exclude_unique=True, exclude_expandable=False):
+    def is_expandable(self, model, field_name, exclude_unique=True):
+        try:
+            field = self.status(model).get_expandable_field(field_name)
+        except (FieldDoesNotExist, FieldNotAllowed):
+            return False
+
+        return not (exclude_unique and field.unique)
+
+    def regular_fields(self, model, expand=False, exclude_unique=True):
         sort_key = collator.sort_key
 
         status = self.status(model)
-        fields = status.allowed_regular_fields.values()
-        is_expandable = status.is_expandable
+        is_updatable = status.is_updatable
+
+        fields = status.regular_fields.values()
 
         if exclude_unique:
             fields = [field for field in fields if not field.unique]
 
         if expand is True:
             related_fields = self.regular_fields
+            is_expandable = status.is_expandable
 
-            fields = [(field, related_fields(model=field.rel.to, exclude_unique=exclude_unique) if is_expandable(field) else None)
-                         for field in fields
+            field_states = [(field, is_expandable(field), is_updatable(field)) for field in fields]
+
+            fields = [(field, related_fields(model=field.rel.to, exclude_unique=exclude_unique) if expandable else None)
+                         for field, expandable, updatable in field_states if expandable or updatable
                      ]
 
             return sorted(fields, key=lambda f: sort_key(f[0].verbose_name))
 
-        if exclude_expandable:
-            fields = [field for field in fields if not is_expandable(field)]
-
-        return sorted(fields, key=lambda f: sort_key(f.verbose_name))
+        return sorted(filter(is_updatable, fields), key=lambda f: sort_key(f.verbose_name))
 
     def custom_fields(self, model):
         sort_key = collator.sort_key

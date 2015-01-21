@@ -385,7 +385,6 @@ class RegularFieldEditorNode(TemplateNode):
         context['updatable'] = bulk_update_registry.is_updatable(model,
                                                                  field_name,
                                                                  exclude_unique=False,
-                                                                 exclude_expandable=True
                                                                 )
 
     def render(self, context):
@@ -419,7 +418,6 @@ class EntityCellEditorNode(RegularFieldEditorNode):
             context['updatable'] = bulk_update_registry.is_updatable(instance.__class__,
                                                                      field_name,
                                                                      exclude_unique=False,
-                                                                     exclude_expandable=True
                                                                     )
         elif isinstance(cell, EntityCellCustomField):
             context['field'] = 'customfield-%s' % cell.value
