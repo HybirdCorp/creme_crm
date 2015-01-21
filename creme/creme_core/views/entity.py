@@ -248,7 +248,7 @@ def inner_edit_field(request, ct_id, id, field_name):
         raise PermissionDenied(_(u'You are not allowed to edit this entity'))
 
     try:
-        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm, exclude_expandable=True)
+        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
             form = form_class(entities=[entity], user=user, data=request.POST)
@@ -280,10 +280,10 @@ def bulk_edit_field(request, ct_id, id, field_name):
         raise PermissionDenied(_(u'You are not allowed to edit these entities'))
 
     if field_name is None:
-        field_name = bulk_update_registry.get_default_field(model, exclude_expandable=True).name
+        field_name = bulk_update_registry.get_default_field(model).name
 
     try:
-        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm, exclude_expandable=True)
+        form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
             form = form_class(entities=filtered,

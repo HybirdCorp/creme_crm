@@ -766,6 +766,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         fname = 'position'
         bulk_update_registry.register(Contact, exclude=[fname, ])
+        self.assertFalse(bulk_update_registry.is_updatable(Contact, 'position'))
 
         unemployed = Position.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=fname)
