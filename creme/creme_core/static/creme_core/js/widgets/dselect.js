@@ -93,7 +93,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         var chosen_options = $.extend({
             multiple: options.multiple !== undefined,
-            sortable: options.sortable !== undefined
+            sortable: options.sortable !== undefined,
+            search_contains: true
         }, chosen_options)
 
         this._autocomplete = new creme.component.Chosen(chosen_options);
