@@ -98,9 +98,9 @@
                     <th class="{% if cell.key == list_view_state.sort_field %}sorted {% if list_view_state.sort_order == '-' %} reverse{% endif %}{% endif %} column{% if cell.key in research_cellkeys %} search{% endif %}{% if cell.sortable %} sortable{% endif %} cl_lv">
                         <button type="button" {% if cell.sortable %}title="{% blocktrans with cell.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.lv_widget.handleSort('#sort_field', '#sort_order', '{{cell.key}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             <div>
-                                <span class="lv-sort-toggle-flag ui-icon ui-icon-triangle-1-{% if list_view_state.sort_order == '-' %}n{% else %}s{% endif %}">&nbsp;</span>
+                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == '-' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                                 <span class="lv-sort-toggle-title">{{cell.title}}</span>
-                                <span class="lv-sort-toggle-flag ui-icon ui-icon-triangle-1-{% if list_view_state.sort_order == '-' %}n{% else %}s{% endif %}">&nbsp;</span>
+                                <span class="lv-sort-toggle-flag ui-icon {% if list_view_state.sort_order == '-' %}ui-icon-triangle-1-s{% else %}ui-icon-triangle-1-n{% endif %}">&nbsp;</span>
                             </div>
                         </button>
                     </th>
