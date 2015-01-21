@@ -34,10 +34,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config')
+        ViewsTestCase.setUpClass()
+        #cls.populate('creme_config')
 
-        EntityFilterCondition.objects.all().delete()
-        EntityFilter.objects.all().delete()
+        #EntityFilterCondition.objects.all().delete()
+        #EntityFilter.objects.all().delete()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)
@@ -149,9 +150,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         self.assertEqual('', cf_f.initial)
         self.assertEqual('', dcf_f.initial)
-        self.assertEqual([subfilter.id], [f.id for f in sb_f.queryset])
+        #self.assertEqual([subfilter.id], [f.id for f in sb_f.queryset])
         #self.assertEqual(_('(Only integers, strings and decimals for now)'), cf_f.help_text)
         self.assertEqual('', dcf_f.help_text)
+
+        subfilter_ids = {f.id for f in sb_f.queryset}
+        self.assertIn(subfilter.id, subfilter_ids)
+        self.assertNotIn(relsubfilfer.id, subfilter_ids)
 
         name = 'Filter 03'
         field_operator = EntityFilterCondition.CONTAINS
