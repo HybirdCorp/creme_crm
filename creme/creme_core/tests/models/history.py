@@ -461,7 +461,7 @@ about this fantastic animation studio."""
         ptype.save()
         self.assertEqual([_(u'Delete property “%s”') % ptype.text], hline.verbose_modifications)
 
-    def test_add_relation(self):
+    def test_add_relation01(self):
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
         rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -505,6 +505,34 @@ about this fantastic animation studio."""
         relation.delete(); rtype.delete()
         self.assertDoesNotExist(rtype)
         self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
+
+    def test_add_relation02(self):
+        "Create the relation using the 'object' relation type"
+        user = self.user
+        nerv = Organisation.objects.create(user=user, name='Nerv')
+        rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        olds_ids = list(HistoryLine.objects.values_list('id', flat=True))
+
+        rtype, srtype = RelationType.create(('test-subject_works5', 'is employed'),
+                                            ('test-object_works5',  'employs')
+                                           )
+        relation = Relation.objects.create(user=user, subject_entity=nerv, object_entity=rei, type=srtype)
+
+
+        hlines = list(HistoryLine.objects.exclude(id__in=olds_ids).order_by('id'))
+        self.assertEqual(2, len(hlines))
+
+        hline = hlines[-2]
+        self.assertEqual(rei.id,            hline.entity.id)
+        self.assertEqual(TYPE_RELATION,     hline.type)
+        self.assertEqual([rtype.id],        hline.modifications)
+
+        hline_sym = hlines[-1]
+        self.assertEqual(nerv.id,           hline_sym.entity.id)
+        self.assertEqual(TYPE_SYM_RELATION, hline_sym.type)
+        self.assertEqual([srtype.id],       hline_sym.modifications)
+
+        self.assertEqual(hline_sym.id, hline.related_line.id)
 
     def test_delete_relation(self):
         user = self.user
@@ -664,6 +692,7 @@ about this fantastic animation studio."""
         - DecimalField
         """
         from creme.billing.models import Invoice, InvoiceStatus, ProductLine
+        self.populate('billing')
 
         old_count = HistoryLine.objects.count()
         user = self.user
@@ -677,15 +706,19 @@ about this fantastic animation studio."""
                                           )
 
         hlines = self._get_hlines()
-        self.assertEqual(old_count + 2,     len(hlines))
-        self.assertEqual(TYPE_CREATION,     hlines[-2].type)
-        self.assertEqual(TYPE_AUX_CREATION, hlines[-1].type)
+        self.assertEqual(old_count + 4,     len(hlines))
+        self.assertEqual(TYPE_CREATION,     hlines[-4].type)
+        self.assertEqual(TYPE_AUX_CREATION, hlines[-3].type)
+        self.assertEqual(TYPE_RELATION,     hlines[-2].type) # relation between Line & Invoice
+        self.assertEqual(TYPE_SYM_RELATION, hlines[-1].type) # idem
+
+        old_count += 4
 
         pline.quantity = Decimal('2')
         pline.save()
 
         hlines = self._get_hlines()
-        self.assertEqual(old_count + 3, len(hlines))
+        self.assertEqual(old_count + 1, len(hlines))
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
 
