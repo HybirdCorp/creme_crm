@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,11 @@
 from functools import partial
 import logging
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.util import ErrorList
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
@@ -172,7 +172,22 @@ class SubjectCreateForm(CremeForm):
         self.fields['subjects'].allowed_models = [ct.model_class() for ct in rtype.subject_ctypes.all()]
 
     def clean_subjects(self):
-        return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
+        subjects = self.cleaned_data['subjects']
+
+        #TODO: remove when the field manage 'qfilter'
+        already_subjects = {r.object_entity_id
+                                for r in self.activity.get_subject_relations(real_entities=False)
+                           }
+        duplicates = [subject for subject in subjects if subject.id in already_subjects]
+
+        if duplicates:
+            raise ValidationError(ungettext(u'This entity is already a subject: %s',
+                                            u'These entities are already subjects: %s',
+                                            len(duplicates)
+                                           ) % (u', '.join(unicode(e) for e in duplicates))
+                                 )
+
+        return validate_linkable_entities(subjects, self.user)
 
     def save(self):
         create_relation = partial(Relation.objects.create, type=self.rtype,

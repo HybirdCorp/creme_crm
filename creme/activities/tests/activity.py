@@ -1691,11 +1691,22 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         uri = self._buid_add_subjects_url(activity)
         self.assertGET200(uri)
-        self.assertNoFormError(self.client.post(uri, data={'subjects': self._relation_field_value(orga)}))
+
+        data = {'subjects': self._relation_field_value(orga)}
+        self.assertNoFormError(self.client.post(uri, data=data))
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT)
         self.assertEqual(1, len(relations))
         self.assertEqual(orga.id, relations[0].object_entity_id)
+
+        # avoid duplicates
+        response = self.assertPOST200(uri, data=data)
+        self.assertFormError(response, 'form', 'subjects',
+                             ungettext(u'This entity is already a subject: %s',
+                                       u'These entities are already subjects: %s',
+                                       1
+                                      ) % orga
+                            )
 
     def test_add_subjects02(self):
         "Credentials error with the activity"
