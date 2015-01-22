@@ -10,7 +10,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     #from django.utils.datastructures import SortedDict as OrderedDict
-    from django.utils.translation import ugettext as _, ngettext
+    from django.utils.translation import ugettext as _, ungettext
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
     from django.utils.html import escape
@@ -352,10 +352,10 @@ class ReportTestCase(BaseReportsTestCase):
         url = self.build_inneredit_url(report, 'filter')
         response = self.assertGET200(url)
         self.assertContains(response,
-                            escape(ngettext('The filter cannot be changed because it is private.',
-                                            'The filters cannot be changed because they are private.',
-                                            1
-                                           )
+                            escape(ungettext('The filter cannot be changed because it is private.',
+                                             'The filters cannot be changed because they are private.',
+                                             1
+                                            )
                                   )
                            )
 
@@ -439,10 +439,10 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertContains(response, efilter3.name)
         self.assertNotContains(response, efilter2.name)
         self.assertContains(response,
-                            escape(ngettext('The filter of %s report cannot be changed because it is private.',
-                                            'The filters of %s reports cannot be changed because they are private.',
-                                            1
-                                           ) % 1
+                            escape(ungettext('The filter of %s report cannot be changed because it is private.',
+                                             'The filters of %s reports cannot be changed because they are private.',
+                                             1
+                                            ) % 1
                                   )
                            )
 
