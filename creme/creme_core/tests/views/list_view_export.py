@@ -352,7 +352,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
-        for name, capital in (('Bebop', 1000), ('Swordfish', 20000)):
+        for name, capital in (('Bebop', 1000), ('Swordfish', 20000), ('Redtail', None)):
             create_orga(name=name, capital=capital)
 
         build = partial(EntityCellRegularField.build, model=Organisation)
@@ -369,6 +369,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         lines = {force_unicode(line) for line in response.content.splitlines()}
         self.assertIn(u'"Bebop","1000"', lines)
         self.assertIn(u'"Swordfish","20000"', lines)
+        self.assertIn(u'"Redtail",""', lines)
 
     #NB: we need a field with a 'choices' attr
     @skipIfNotInstalled('creme.billing')

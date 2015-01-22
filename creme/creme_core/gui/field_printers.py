@@ -81,7 +81,7 @@ def print_integer(entity, fval, user, field):
     if field.choices: #TODO: manage 'choices' for other types...
         return getattr(entity, 'get_%s_display' % field.name)()
 
-    return fval
+    return fval if fval is not None else ''
 
 def print_boolean(entity, fval, user, field): #TODO: rename print_boolean_html
     return bool_as_html(fval)
