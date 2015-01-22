@@ -7,7 +7,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
     from django.core.serializers.json import simplejson
-    from django.utils.translation import ugettext as _, ngettext
+    from django.utils.translation import ugettext as _, ungettext
 
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
@@ -549,10 +549,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = post('')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', None,
-                             ngettext(u'Your filter must be private in order to use this private sub-filter: %s',
-                                      u'Your filter must be private in order to use these private sub-filters: %s',
-                                      2
-                                     ) % ('%s, %s' % (subfilter2.name, subfilter1.name))
+                             ungettext(u'Your filter must be private in order to use this private sub-filter: %s',
+                                       u'Your filter must be private in order to use these private sub-filters: %s',
+                                       2
+                                      ) % ('%s, %s' % (subfilter2.name, subfilter1.name))
                             )
 
         response = post('on')
@@ -614,12 +614,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         response = post(subfilter3)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', None,
-                             ngettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                      u' So this private sub-filter cannot be chosen: %s',
-                                      u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
-                                      u' So these private sub-filters cannot be chosen: %s',
-                                      1
-                                     ) % subfilter3.name
+                             ungettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                                       u' So this private sub-filter cannot be chosen: %s',
+                                       u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                                       u' So these private sub-filters cannot be chosen: %s',
+                                       1
+                                      ) % subfilter3.name
                             )
 
         response = post(subfilter1, subfilter2)

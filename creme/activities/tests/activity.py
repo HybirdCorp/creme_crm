@@ -8,7 +8,7 @@ try:
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _, ngettext
+    from django.utils.translation import ugettext as _, ungettext
     from django.contrib.contenttypes.models import ContentType
     #from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now, get_current_timezone, make_naive
@@ -1248,10 +1248,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         url = self.build_bulkedit_url([activity1, activity2], 'type')
         response = self.assertGET200(url)
         self.assertContains(response,
-                            escape(ngettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
-                                     u'The type of %s activities cannot be changed because they are indisponibilities.',
-                                     1
-                                    ) % 1
+                            escape(ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
+                                             u'The type of %s activities cannot be changed because they are indisponibilities.',
+                                             1
+                                            ) % 1
                                   )
                            )
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
-from django.utils.translation import ugettext as _, ngettext
+from django.utils.translation import ugettext as _, ungettext
 
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.widgets import Label
@@ -52,18 +52,18 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
                 if length == len(entities):
                     self.fields['field_value'] = CharField(label=filter_field.label,
                                                            required=False, widget=Label,
-                                                           initial=ngettext('The filter cannot be changed because it is private.',
-                                                                            'The filters cannot be changed because they are private.',
-                                                                            length
-                                                                           ),
+                                                           initial=ungettext('The filter cannot be changed because it is private.',
+                                                                             'The filters cannot be changed because they are private.',
+                                                                             length
+                                                                            ),
                                                           )
                 else:
                     self.fields['beware'] = CharField(label=_('Beware !'),
                                                       required=False, widget=Label,
-                                                      initial=ngettext('The filter of %s report cannot be changed because it is private.',
-                                                                       'The filters of %s reports cannot be changed because they are private.',
-                                                                       length
-                                                                      ) % length,
+                                                      initial=ungettext('The filter of %s report cannot be changed because it is private.',
+                                                                        'The filters of %s reports cannot be changed because they are private.',
+                                                                        length
+                                                                       ) % length,
                                                      )
         else:
             filter_field.help_text = _(u"Filter field can only be updated when "

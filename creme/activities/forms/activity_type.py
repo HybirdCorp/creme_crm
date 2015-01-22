@@ -20,7 +20,7 @@
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
-from django.utils.translation import ugettext_lazy as _, ugettext, ngettext
+from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm #BulkForm
@@ -154,10 +154,10 @@ class BulkEditTypeForm(BulkDefaultEditForm):
                 self.fields['beware'] = CharField(
                         label=_('Beware !'),
                         required=False, widget=Label,
-                        initial=ngettext('The type of %s activity cannot be changed because it is an indisponibility.',
-                                         'The type of %s activities cannot be changed because they are indisponibilities.',
-                                         indispo_count
-                                        ) % indispo_count,
+                        initial=ungettext(u'The type of %s activity cannot be changed because it is an indisponibility.',
+                                          u'The type of %s activities cannot be changed because they are indisponibilities.',
+                                          indispo_count
+                                         ) % indispo_count,
                     )
 
         if not is_bulk:

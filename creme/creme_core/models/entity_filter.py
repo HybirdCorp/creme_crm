@@ -34,7 +34,7 @@ from django.db.models.signals import pre_delete
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
-from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, ngettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, ungettext
 from django.utils.timezone import now
 
 from ..global_info import get_global_info
@@ -291,7 +291,7 @@ class EntityFilter(Model): #CremeModel ???
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
-                                ngettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
+                                ungettext(u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
                                          u' So this private sub-filter cannot be chosen: %s',
                                          u'A private filter which belongs to a team can only use public sub-filters & private sub-filters which belong to this team.'
                                          u' So these private sub-filters cannot be chosen: %s',
@@ -306,7 +306,7 @@ class EntityFilter(Model): #CremeModel ???
 
                 if invalid_filter_names:
                     raise EntityFilter.PrivacyError(
-                                ngettext(u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
+                                ungettext(u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
                                          u' So this private sub-filter cannot be chosen: %s',
                                          u'A private filter which can use public sub-filters, & private sub-filters which belong to the same user and his teams.'
                                          u' So these private sub-filters cannot be chosen: %s',
@@ -322,7 +322,7 @@ class EntityFilter(Model): #CremeModel ???
                 # All user can see this filter, so all user should have the permission
                 # to see the subfilters too ; so they have to be public (is_private=False)
                 raise EntityFilter.PrivacyError(
-                            ngettext(u'Your filter must be private in order to use this private sub-filter: %s',
+                            ungettext(u'Your filter must be private in order to use this private sub-filter: %s',
                                      u'Your filter must be private in order to use these private sub-filters: %s',
                                      len(invalid_filter_names)
                                     ) % u', '.join(invalid_filter_names)
