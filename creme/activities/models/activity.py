@@ -119,8 +119,12 @@ END:VEVENT
     def get_participant_relations(self):
         return self.get_relations(REL_OBJ_PART_2_ACTIVITY, real_obj_entities=True)
 
-    def get_subject_relations(self):
-        return self.get_relations(REL_OBJ_ACTIVITY_SUBJECT, real_obj_entities=True)
+    def get_subject_relations(self, real_entities=True):
+        """Get the list of models.Relation instances which link the Activity
+        with its subjects.
+        @param real_entities Retrieve (efficiently) the real entities which are related.
+        """
+        return self.get_relations(REL_OBJ_ACTIVITY_SUBJECT, real_obj_entities=real_entities)
 
     def get_linkedto_relations(self):
         return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
