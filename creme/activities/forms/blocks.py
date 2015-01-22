@@ -169,7 +169,10 @@ class SubjectCreateForm(CremeForm):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = entity
         self.rtype = rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)
-        self.fields['subjects'].allowed_models = [ct.model_class() for ct in rtype.subject_ctypes.all()]
+        ctypes = rtype.subject_ctypes.all()
+        subjects_f = self.fields['subjects']
+        subjects_f.allowed_models = [ct.model_class() for ct in ctypes]
+        subjects_f.initial = [[(ctypes[0].pk, None)]]
 
     def clean_subjects(self):
         subjects = self.cleaned_data['subjects']
