@@ -22,7 +22,7 @@ import re
 from collections import defaultdict
 
 from django.contrib.auth.models import User
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, RegexField
 from django.forms.util import ValidationError, ErrorList
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -39,8 +39,18 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 
 #_get_ct = ContentType.objects.get_for_model
 
-#TODO: see django.contrib.auth.forms.UserCreationForm
+#TODO: inherit from django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
+    # NB: field copied from django.contrib.auth.forms.UserCreationForm
+    username = RegexField(label=_("Username"), max_length=30, regex=r'^[\w.@+-]+$',
+                          help_text=_("Required. 30 characters or fewer. Letters, "
+                                      "digits and @/./+/-/_ only."
+                                     ),
+                          error_messages={'invalid': _("This value may contain only letters, "
+                                                       "numbers and @/./+/-/_ characters."
+                                                      ),
+                                         },
+                         )
     password_1   = CharField(label=_('Password'), min_length=6, widget=PasswordInput())
     password_2   = CharField(label=_('Confirm password'), min_length=6, widget=PasswordInput())
     role         = ModelChoiceField(label=_('Role'), required=False,
@@ -58,16 +68,16 @@ class UserAddForm(CremeModelForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser', 'role')
 
-    def clean_username(self):
-        username = self.cleaned_data['username']
+    #def clean_username(self):
+        #username = self.cleaned_data['username']
 
-        if not re.match("^(\w)[\w-]*$", username):
-            raise ValidationError(ugettext(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                            "hyphen and underscores are allowed (but not as first character)."
-                                           )
-                                 )
+        #if not re.match("^(\w)[\w-]*$", username):
+            #raise ValidationError(ugettext(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
+                                            #"hyphen and underscores are allowed (but not as first character)."
+                                           #)
+                                 #)
 
-        return username
+        #return username
 
     #def clean_password_2(self):
         #cleaned_data = self.cleaned_data
