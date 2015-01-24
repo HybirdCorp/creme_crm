@@ -289,7 +289,13 @@ class ActObjectivesBlock(QuerysetBlock):
 class RelatedOpportunitiesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
     dependencies  = (Relation, Opportunity)
-    relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
+    # NB: the relation_type_deps is commented because it avoid the RelationsBlock
+    #     to display the entities link with this RelationType, so when they are
+    #     Opportunities these entities are not displayed at all on the detailview
+    # => Problem the block is not reloaded when a Relationship is created from
+    #    the RelationsBlock....
+    # TODO: improve the block dependencies system
+    #relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     verbose_name  = _(u'Opportunities related to a Commercial Action')
     template_name = 'commercial/templatetags/block_opportunities.html'
     target_ctypes = (Act,)
