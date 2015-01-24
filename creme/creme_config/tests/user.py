@@ -112,7 +112,7 @@ class UserTestCase(CremeTestCase):
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     def test_create02(self):
-        "Not superuser"
+        "Not superuser ; special chars in username"
         self.login()
 
         role = UserRole(name='Mangaka')
@@ -130,7 +130,7 @@ class UserTestCase(CremeTestCase):
 
         #ce_count = CremeEntity.objects.count()
 
-        username = 'deunan'
+        username = 'dknut@eswat.ol'
         password = 'password'
         first_name = 'Deunan'
         last_name = u'Knut'
@@ -140,7 +140,7 @@ class UserTestCase(CremeTestCase):
                                           'password_2':   password,
                                           'first_name':   first_name,
                                           'last_name':    last_name,
-                                          'email':        'dknut@eswat.ol',
+                                          'email':        username,
                                           'role':         role.id,
                                           #'contact':      contact.id,
                                           'organisation': orga.id,
@@ -286,11 +286,11 @@ class UserTestCase(CremeTestCase):
                                           'relation':     REL_SUB_MANAGES,
                                          }
                                    )
-
         self.assertFormError(response, 'form', 'username',
-                             _(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                "hyphen and underscores are allowed (but not as first character)."
-                              )
+                             #_(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
+                                #"hyphen and underscores are allowed (but not as first character)."
+                              #)
+                             _("This value may contain only letters, numbers and @/./+/-/_ characters.")
                             )
 
     #def test_create07(self):
@@ -333,7 +333,6 @@ class UserTestCase(CremeTestCase):
                                           'relation':     REL_SUB_MANAGES,
                                          }
                                    )
-
         self.assertFormError(response, 'form', 'role', 
                              _(u"Choose a role or set superuser status to 'True'.")
                             )
