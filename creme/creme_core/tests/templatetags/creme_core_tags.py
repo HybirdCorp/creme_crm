@@ -224,7 +224,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_get_field_editor06(self):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Amestris')
-        bulk_update_registry.register(Organisation, exclude=['siren'],)
+        bulk_update_registry.register(Organisation, exclude=['siren'])
 
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}") # not editable
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}") # not editable

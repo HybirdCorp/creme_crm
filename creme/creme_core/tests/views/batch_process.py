@@ -147,28 +147,29 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                              _(u"This field is invalid with this model."),
                             )
 
-    def test_validation_error02(self):
-        "Field is not inner editable -> invalid"
-        self.autodiscover()
-        self.login()
-
-        fname = 'siren'
-        self.assertFalse(bulk_update_registry.is_updatable(
-                                Organisation, fname, exclude_unique=False,
-                            )
-                        )
-
-        response = self.assertPOST200(self.build_url(Organisation), follow=True,
-                                            data={'actions': self.format_str1 % {
-                                                                    'name':     fname,
-                                                                    'operator': 'lower',
-                                                                    'value':    '',
-                                                                },
-                                                 }
-                                     )
-        self.assertFormError(response, 'form', 'actions',
-                             _(u"This field is invalid with this model."),
-                            )
+# TODO: uncomment when a model has a field with batchable type and not inner editable (maybe a test model)
+#    def test_validation_error02(self):
+#        "Field is not inner editable -> invalid"
+#        self.autodiscover()
+#        self.login()
+#
+#        fname = 'siren'
+#        self.assertFalse(bulk_update_registry.is_updatable(
+#                                Organisation, fname, exclude_unique=False,
+#                            )
+#                        )
+#
+#        response = self.assertPOST200(self.build_url(Organisation), follow=True,
+#                                            data={'actions': self.format_str1 % {
+#                                                                    'name':     fname,
+#                                                                    'operator': 'lower',
+#                                                                    'value':    '',
+#                                                                },
+#                                                 }
+#                                     )
+#        self.assertFormError(response, 'form', 'actions',
+#                             _(u"This field is invalid with this model."),
+#                            )
 
     def test_select_efilter(self):
         self.login()

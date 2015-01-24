@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,7 @@ reg_merge_form = merge_form_registry.register
 reg_merge_form(Contact,      get_merge_form_builder)
 reg_merge_form(Organisation, get_merge_form_builder)
 
-bulk_update_registry.register(Organisation, exclude=['siren'])
+bulk_update_registry.register(Organisation) # exclude=['siren']
 bulk_update_registry.register(Contact)
 
 smart_columns_registry.register_model(Contact).register_field('first_name') \

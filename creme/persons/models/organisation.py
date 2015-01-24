@@ -85,17 +85,17 @@ class Organisation(CremeEntity):
     # TODO override validate method of this custom model field to fix validation error display in forms (global -> field)
     # TODO modify the bulk update registry to manage empty or unique fields using instance of this futur custom model field ??
 
-    # TODO Validation error is displayed twice in the global errors block
-    def clean(self, *args, **kwargs):
-        super(Organisation, self).clean(*args, **kwargs)
-        siren = self.siren
-        if siren:
-            qs = Organisation.objects.filter(siren=siren)
-            self_pk = self.pk
-            if self_pk:
-                qs = qs.exclude(pk=self_pk)
-            if qs.exists():
-                raise ValidationError(ugettext(u"This siren already exists and must be unique !"))
+#    # todo Validation error is displayed twice in the global errors block
+#    def clean(self, *args, **kwargs):
+#        super(Organisation, self).clean(*args, **kwargs)
+#        siren = self.siren
+#        if siren:
+#            qs = Organisation.objects.filter(siren=siren)
+#            self_pk = self.pk
+#            if self_pk:
+#                qs = qs.exclude(pk=self_pk)
+#            if qs.exists():
+#                raise ValidationError(ugettext(u"This siren already exists and must be unique !"))
 
     def get_absolute_url(self):
         return "/persons/organisation/%s" % self.id
