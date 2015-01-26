@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -87,9 +87,9 @@ class Reminder(object):
 
         model = self.model
         dt_now = now().replace(microsecond=0, second=0)
-        reminder_filter = partial(DateReminder.objects.filter,
-                                  model_content_type=ContentType.objects.get_for_model(model),
-                                 )
+        #reminder_filter = partial(DateReminder.objects.filter,
+                                  #model_content_type=ContentType.objects.get_for_model(model),
+                                 #)
 
         #for instance in model.objects.filter(self.get_Q_filter()):
             #if not reminder_filter(model_id=instance.id).exists():
