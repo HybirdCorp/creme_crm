@@ -118,8 +118,9 @@ class Opportunity(CremeEntity):
                 raise ValidationError(ugettext('Target is required.'))
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA],
-                                                subject_entity=self):
+        #for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA],
+                                                #subject_entity=self):
+        for relation in self.relations.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA]):
             relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):

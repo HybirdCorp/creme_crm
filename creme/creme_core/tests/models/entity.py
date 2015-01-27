@@ -316,12 +316,28 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(CremeEntity.DoesNotExist, CremeEntity.objects.get, id=ce.id)
 
     def test_delete02(self):
-        "Can't delete entities linked by a relation"
+        "Can delete entities linked by a not internal relation"
         self._setUpClone()
-        ce1 = CremeEntity.objects.create(user=self.user)
-        ce2 = CremeEntity.objects.create(user=self.user)
+        user = self.user
+        ce1 = CremeEntity.objects.create(user=user)
+        ce2 = CremeEntity.objects.create(user=user)
 
-        Relation.objects.create(user=self.user, type=self.rtype1, subject_entity=ce1, object_entity=ce2)
+        Relation.objects.create(user=user, type=self.rtype1, subject_entity=ce1, object_entity=ce2)
+
+        with self.assertNoException():
+            ce1.delete()
+
+        self.assertDoesNotExist(ce1)
+        self.assertStillExists(ce2) 
+
+    def test_delete03(self):
+        "Can't delete entities linked by an internal relation"
+        self._setUpClone()
+        user = self.user
+        ce1 = CremeEntity.objects.create(user=user)
+        ce2 = CremeEntity.objects.create(user=user)
+
+        Relation.objects.create(user=user, type=self.rtype3, subject_entity=ce1, object_entity=ce2)
 
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
