@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,10 @@ from itertools import chain
 from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import Relation
+#from creme.creme_core.models import Relation
 
 from creme.activities.models import Activity
-from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, NARROW
+from creme.activities.constants import NARROW #REL_SUB_PART_2_ACTIVITY
 
 from ..constants import COMPLETED_PK, CANCELED_PK
 from .project import Project
@@ -57,9 +57,9 @@ class ProjectTask(Activity):
         super(ProjectTask, self).__init__(*args, **kwargs)
         self.floating_type = NARROW
 
-    def _pre_delete(self):
-        for relation in Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY, object_entity=self):
-            relation._delete_without_transaction()
+    #def _pre_delete(self):
+        #for relation in Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY, object_entity=self):
+            #relation._delete_without_transaction()
 
     def get_absolute_url(self):
         return "/projects/task/%s" % self.id

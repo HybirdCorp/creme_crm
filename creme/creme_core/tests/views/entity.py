@@ -11,6 +11,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
     from django.core.exceptions import ValidationError
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
@@ -19,7 +20,7 @@ try:
     #from ..base import skipIfNotInstalled
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import *
-    from creme.creme_core.models.auth import User
+    from creme.creme_core.models import history
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
@@ -256,30 +257,83 @@ class EntityViewsTestCase(ViewsTestCase):
         entity = Organisation.objects.create(user=self.other_user, name='Nerv')
 
         self.assertPOST403(self._build_delete_url(entity))
-        self.get_object_or_fail(Organisation, pk=entity.id)
+        #self.get_object_or_fail(Organisation, pk=entity.id)
+        self.assertStillExists(entity)
 
-    def test_delete_entity04(self):#TODO: detect dependencies when trashing ??
-        "Dependencies problem"
-        self.login()
+    def test_delete_entity04(self):
+        "Relations (not internal ones) & properties are deleted correctly"
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.other_user, is_deleted=True)
-        entity01 = create_orga(name='Nerv')
+        create_orga = partial(Organisation.objects.create, user=user)
+        entity01 = create_orga(name='Nerv', is_deleted=True)
+        entity02 = create_orga(name='Seele')
+        entity03 = create_orga(name='Neo tokyo')
+
+        create_rtype = RelationType.create
+        rtype1 = create_rtype(('test-subject_linked', 'is linked to'),
+                              ('test-object_linked',  'is linked to'),
+                              is_custom=True,
+                             )[0]
+        rtype2 = create_rtype(('test-subject_provides', 'provides'),
+                              ('test-object_provides',  'provided by'),
+                              is_custom=False,
+                             )[0]
+        creat_rel = partial(Relation.objects.create, user=user, subject_entity=entity01)
+        rel1 = creat_rel(type=rtype1, object_entity=entity02)
+        rel2 = creat_rel(type=rtype2, object_entity=entity03)
+        rel3 = creat_rel(type=rtype2, object_entity=entity03, subject_entity=entity02)
+
+        ptype = CremePropertyType.create(str_pk='test-prop_eva', text='has eva')
+        create_prop = partial(CremeProperty.objects.create, type=ptype)
+        prop1 = create_prop(creme_entity=entity01)
+        prop2 = create_prop(creme_entity=entity02)
+
+        hlines_ids = list(HistoryLine.objects.values_list('id', flat=True))
+        self.assertPOST200(self._build_delete_url(entity01), follow=True)
+
+        self.assertDoesNotExist(entity01)
+        self.assertStillExists(entity02)
+        self.assertStillExists(entity03)
+
+        self.assertDoesNotExist(rel1)
+        self.assertDoesNotExist(rel2)
+        self.assertStillExists(rel3)
+
+        self.assertDoesNotExist(prop1)
+        self.assertStillExists(prop2)
+
+        self.assertEqual({history.TYPE_RELATION_DEL, history.TYPE_SYM_REL_DEL,
+                          history.TYPE_PROP_DEL, history.TYPE_DELETION,
+                         },
+                         set(HistoryLine.objects.exclude(id__in=hlines_ids)
+                                                .values_list('type', flat=True)
+                            )
+                        )
+
+    def test_delete_entity05(self):#TODO: detect dependencies when trashing ??
+        "Dependencies problem (with internal Relations)"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        entity01 = create_orga(name='Nerv', is_deleted=True)
         entity02 = create_orga(name='Seele')
 
-        rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
-                                            ('test-object_linked',  'is linked to')
-                                           )
-        Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
+        rtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                    ('test-object_linked',  'is linked to'),
+                                    is_internal=True,
+                                   )[0]
+        Relation.objects.create(user=user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.assertPOST403(self._build_delete_url(entity01))
+        response = self.assertPOST403(self._build_delete_url(entity01), follow=True)
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertEqual(2, Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        self.assertStillExists(entity01)
+        self.assertStillExists(entity02)
 
-    def test_delete_entity05(self):
-        "is_deleted=False -> trash"
-        self.login()
+    def test_delete_entity06(self):
+        "is_deleted=False -> trash (AJAX version)"
+        user = self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        entity = Organisation.objects.create(user=user, name='Nerv')
         self.assertPOST200(self._build_delete_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         with self.assertNoException():
@@ -289,9 +343,9 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_delete_entities01(self):
         "NB: for the deletion of auxiliary entities => see billing app"
-        self.login()
+        user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         entity01, entity02 = (create_entity() for i in xrange(2))
         entity03, entity04 = (create_entity(is_deleted=True) for i in xrange(2))
 
@@ -308,9 +362,9 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertStillExists(entity04)
 
     def test_delete_entities02(self):
-        self.login()
+        user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         entity01, entity02 = (create_entity() for i in xrange(2))
 
         self.assertPOST404(self.DEL_ENTITIES_URL,
@@ -323,10 +377,10 @@ class EntityViewsTestCase(ViewsTestCase):
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
     def test_delete_entities03(self):
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
-        allowed   = CremeEntity.objects.create(user=self.user)
+        allowed   = CremeEntity.objects.create(user=user)
 
         self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '%s,%s,' % (forbidden.id, allowed.id)})
         #self.assertFalse(CremeEntity.objects.filter(pk=allowed.id))
@@ -356,9 +410,9 @@ class EntityViewsTestCase(ViewsTestCase):
         #self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
     def test_trash_view(self):
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         entity1 = create_orga(name='Nerv', is_deleted=True)
         entity2 = create_orga(name='Seele')
 
@@ -370,17 +424,17 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_restore_entity01(self):
         "No trashed"
-        self.login()
+        user = self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        entity = Organisation.objects.create(user=user, name='Nerv')
         url = self._build_restore_url(entity)
         self.assertGET404(url)
         self.assertPOST404(url)
 
     def test_restore_entity02(self):
-        self.login()
+        user = self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
+        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
         url = self._build_restore_url(entity)
 
         self.assertGET404(url)
@@ -390,7 +444,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertFalse(entity.is_deleted)
 
     def test_restore_entity03(self):
-        self.login()
+        user = self.login()
 
         entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
         self.assertPOST200(self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -399,9 +453,8 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertFalse(entity.is_deleted)
 
     def test_empty_trash01(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
+        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
 
-        user = self.user
         create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
         contact2 = create_contact(first_name='Holo',     last_name='Wolf')
@@ -421,20 +474,23 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertStillExists(contact3)
 
     def test_empty_trash02(self):
-        self.login()
+        "Dependencies problem"
+        user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user, is_deleted=True)
+        create_entity = partial(CremeEntity.objects.create, user=user, is_deleted=True)
         entity01 = create_entity()
         entity02 = create_entity()
         entity03 = create_entity() #not linked => can be deleted
 
-        rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
-                                            ('test-object_linked',  'is linked to')
-                                           )
-        Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
+        rtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                    ('test-object_linked',  'is linked to'),
+                                    is_internal=True,
+                                   )[0]
+        Relation.objects.create(user=user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
         self.assertPOST(409, self.EMPTY_TRASH_URL)
-        self.assertEqual(2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        self.assertStillExists(entity01)
+        self.assertStillExists(entity02)
         self.assertDoesNotExist(entity03)
 
     def test_get_info_fields01(self):
@@ -485,9 +541,9 @@ class EntityViewsTestCase(ViewsTestCase):
                         )
 
     def test_clone01(self):
-        self.login()
+        user = self.login()
         url = self.CLONE_URL
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        mario = Contact.objects.create(user=user, first_name="Mario", last_name="Bros")
 
         self.assertPOST200(url, data={'id': mario.id}, follow=True)
         self.assertPOST404(url, data={})
@@ -537,7 +593,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, entity.get_absolute_url())
 
     def test_search_and_view01(self):
-        self.login()
+        user = self.login()
 
         phone = '123456789'
         url = self.SEARCHNVIEW_URL
@@ -547,7 +603,7 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         onizuka = create_contact(first_name='Eikichi', last_name='Onizuka')
         create_contact(first_name='Ryuji', last_name='Danma', phone='987654', mobile=phone)
         self.assertGET404(url, data=data)
@@ -557,7 +613,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view02(self):
-        self.login()
+        user = self.login()
 
         phone = '999999999'
         url = self.SEARCHNVIEW_URL
@@ -567,13 +623,13 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         onizuka  = create_contact(first_name='Eikichi', last_name='Onizuka', mobile=phone)
         create_contact(first_name='Ryuji', last_name='Danma', phone='987654')
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view03(self):
-        self.login()
+        user = self.login()
 
         phone = '696969'
         url = self.SEARCHNVIEW_URL
@@ -583,11 +639,11 @@ class EntityViewsTestCase(ViewsTestCase):
                }
         self.assertGET404(url, data=data)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         onizuka = create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
         create_contact(first_name='Ryuji',   last_name='Danma',   phone='987654')
 
-        onibaku = Organisation.objects.create(user=self.user, name='Onibaku', phone=phone)
+        onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone)
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
         onizuka.mobile = phone
@@ -596,17 +652,17 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_search_and_view04(self):
         "Errors"
-        self.login()
+        user = self.login()
 
         url = self.SEARCHNVIEW_URL
         base_data = {'models': 'persons-contact,persons-organisation',
                      'fields': 'mobile,phone',
                      'value':  '696969',
                     }
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         create_contact(first_name='Eikichi', last_name='Onizuka', mobile='55555')
         create_contact(first_name='Ryuji',   last_name='Danma', phone='987654')
-        Organisation.objects.create(user=self.user, name='Onibaku', phone='54631357')
+        Organisation.objects.create(user=user, name='Onibaku', phone='54631357')
 
         self.assertGET404(url, data=dict(base_data, models='foo-bar'))
         self.assertGET404(url, data=dict(base_data, models='foobar'))
@@ -615,8 +671,9 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertGET404(url, data=dict(base_data), fields='')
         self.assertGET404(url, data=dict(base_data, models='persons-civility')) #not CremeEntity
 
-    def test_search_and_view05(self): #creds
-        self.login(is_superuser=False)
+    def test_search_and_view05(self):
+        "Credntials"
+        user = self.login(is_superuser=False)
         self.role.allowed_apps = ['creme_core', 'persons']
         self.role.save()
 
@@ -626,10 +683,11 @@ class EntityViewsTestCase(ViewsTestCase):
                 'fields': 'phone,mobile',
                 'value':  phone,
                }
-        user = self.user
+
         create_contact = Contact.objects.create
         onizuka = create_contact(user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone) #phone Ok and but not readable
         ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') #phone KO
+
         onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone) #phone Ok and readable
 
         has_perm = user.has_perm_to_view
@@ -640,7 +698,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_search_and_view06(self):
         "App credentials"
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
         self.role.allowed_apps = ['creme_core'] #not 'persons'
         self.role.save()
 
@@ -649,7 +707,7 @@ class EntityViewsTestCase(ViewsTestCase):
                 'fields': 'phone',
                 'value':  phone,
                }
-        Contact.objects.create(user=self.user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
+        Contact.objects.create(user=user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
         self.assertGET403(self.SEARCHNVIEW_URL, data=data)
 
 

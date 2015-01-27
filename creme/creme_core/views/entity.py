@@ -397,9 +397,8 @@ def trash(request):
 @login_required
 @POST_only
 def empty_trash(request):
-
     user = request.user
-    errors = []
+    errors = [] #TODO: LimitedList
 
     #NB: we do not use delete() method of queryset in order to send signals
     for entity in EntityCredentials.filter(user,
@@ -417,6 +416,13 @@ def empty_trash(request):
             errors.append(_(u'"%s" can not be deleted because of its dependencies.') %
                             entity.allowed_unicode(user)
                          )
+        except Exception as e:
+            logger.exception('Error when trying to empty the trash')
+            errors.append(_(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
+                                'entity': entity.allowed_unicode(user),
+                                'error':  e,
+                            }
+                         )
 
     #TODO: factorise ??
     if not errors:
@@ -424,7 +430,8 @@ def empty_trash(request):
         message = _('Operation successfully completed')
     else:
         status = 409
-        message = _('The following entities cannot be deleted') + '<ul>' + '\n'.join('<li>' + msg + '</li>' for msg in errors) + '</ul>'
+        message = _('The following entities cannot be deleted') + \
+                 u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
 
     return HttpResponse(message, mimetype='text/javascript', status=status)
 
@@ -463,7 +470,7 @@ def _delete_entity(user, entity):
         if not user.has_perm_to_change(related):
             return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
 
-        entity.relations.exclude(type__is_internal=True).delete()
+        #entity.relations.exclude(type__is_internal=True).delete()
         #entity.properties.all().delete()
         trash = False
     else:
@@ -483,7 +490,14 @@ def _delete_entity(user, entity):
                     entity.allowed_unicode(user),
                 {'protected_objects': e.args[1]},
                )
-
+    except Exception as e:
+        logger.exception('Error when trying to empty the trash')
+        return (400,
+                _(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
+                        'entity': entity.allowed_unicode(user),
+                        'error':  e,
+                    }
+               )
 
 @login_required
 def delete_entities(request):
@@ -535,6 +549,7 @@ def delete_entity(request, entity_id):
 
         if code == 404: raise Http404(msg)
         #if code == 403: raise PermissionDenied(msg)
+        #TODO: 400 => ConflictError ??
 
         #if request.is_ajax():
             #return HttpResponse(smart_unicode(msg), mimetype='text/javascript', status=code)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,9 +69,10 @@ class CremeModel(Model):
         with transaction.commit_manually(): #TODO: commit_on_success
             try:
                 if _delete_files:
-                    file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name))) \
-                                   for field in chain(self._meta.fields, self._meta.many_to_many) \
-                                   if issubclass(field.__class__, FileField)]
+                    file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
+                                    for field in chain(self._meta.fields, self._meta.many_to_many)
+                                        if issubclass(field.__class__, FileField) #TODO: isinstance(field, FileField)
+                                  ]
 
                 self._delete_without_transaction()
                 transaction.commit()

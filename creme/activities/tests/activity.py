@@ -327,7 +327,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, type=type_id, title=title)
         self.assertEqual(status, act.status)
-        
+
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2013, month=3, day=26, hour=12, minute=10), act.start)
         self.assertEqual(create_dt(year=2013, month=3, day=27, hour=12, minute=25), act.end)
@@ -1129,6 +1129,42 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity.type_id)
         self.assertEqual(subtype, activity.sub_type)
 
+    def test_delete01(self):
+        "Cannot delete a participant"
+        user = self.login()
+
+        activity = self._create_meeting()
+        musashi = Contact.objects.create(user=user, first_name='Musashi',
+                                         last_name='Miyamoto', is_deleted=True,
+                                        )
+        rel = Relation.objects.create(user=user, subject_entity=musashi,
+                                      type_id=REL_SUB_PART_2_ACTIVITY,
+                                      object_entity=activity,
+                                     )
+
+        self.assertPOST403('/creme_core/entity/delete/%s' % musashi.id, follow=True)
+        self.assertStillExists(musashi)
+        self.assertStillExists(activity)
+        self.assertStillExists(rel)
+
+    def test_delete02(self):
+        "Relations REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted"
+        user = self.login()
+
+        activity = self._create_meeting()
+        activity.trash()
+
+        musashi = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
+        rel = Relation.objects.create(user=user, subject_entity=musashi,
+                                      type_id=REL_SUB_PART_2_ACTIVITY,
+                                      object_entity=activity,
+                                     )
+
+        self.assertPOST200('/creme_core/entity/delete/%s' % activity.id, follow=True)
+        self.assertDoesNotExist(activity)
+        self.assertDoesNotExist(rel)
+        self.assertStillExists(musashi)
+
     def _aux_inner_edit_type(self, field_name):
         "Type (& subtype)"
         user = self.login()
@@ -1532,7 +1568,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_participants01(self):
         self.login()
-
         activity = self._create_meeting()
 
         create_contact = partial(Contact.objects.create, user=self.user)

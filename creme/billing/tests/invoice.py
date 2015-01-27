@@ -12,8 +12,9 @@ try:
 
     from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency, Vat # CremeProperty
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
+    from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+            SetCredentials, Currency, Vat) # CremeProperty
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # REL_SUB_HAS
 
     from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
@@ -752,7 +753,10 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
 
     def test_delete01(self):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
+        service_line = ServiceLine.objects.create(user=self.user,
+                                                  related_document=invoice,
+                                                  on_the_fly_item='Flyyyyy',
+                                                 )
 
         b_addr = invoice.billing_address
         self.assertIsInstance(b_addr, Address)
@@ -764,11 +768,10 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         self.assertDoesNotExist(invoice)
         self.assertDoesNotExist(service_line)
 
-        #with self.assertNoException():
-            #Organisation.objects.get(pk=source.pk)
-            #Organisation.objects.get(pk=target.pk)
-        self.get_object_or_fail(Organisation, pk=source.pk)
-        self.get_object_or_fail(Organisation, pk=target.pk)
+        #self.get_object_or_fail(Organisation, pk=source.pk)
+        #self.get_object_or_fail(Organisation, pk=target.pk)
+        self.assertStillExists(source)
+        self.assertStillExists(target)
 
         self.assertDoesNotExist(b_addr)
         self.assertDoesNotExist(s_addr)
@@ -782,7 +785,12 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
 
         #This relation prohibits the deletion of the invoice
         ce = CremeEntity.objects.create(user=user)
-        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=user)
+        #rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=user)
+        rtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                    ('test-object_linked',  'is linked to'),
+                                    is_internal=True,
+                                   )[0]
+        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type=rtype, user=user)
 
         self.assertRaises(ProtectedError, invoice.delete)
 
