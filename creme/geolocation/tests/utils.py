@@ -9,7 +9,9 @@ try:
     from ..constants import DEFAULT_SEPARATING_NEIGHBOURS
     from ..setting_keys import NEIGHBOURHOOD_DISTANCE
 
+    from ..models import GeoAddress
     from ..utils import get_setting, address_as_dict, addresses_from_persons, location_bounding_box
+
     from .base import GeoLocationBaseTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -30,10 +32,13 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                                   owner=u'Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
+                                  is_complete=True,
                                   latitude=43.299991,
                                   longitude=5.364832,
                                   draggable=True,
                                   geocoded=False,
+                                  status_label='',
+                                  status=GeoAddress.COMPLETE,
                                   url=orga.get_absolute_url()), address_as_dict(address))
 
     def test_address_as_dict_empty_billing_shipping(self):
@@ -48,10 +53,13 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                                   owner=u'Orga 1',
                                   is_shipping=False,
                                   is_billing=True,
+                                  is_complete=True,
                                   latitude=43.299991,
                                   longitude=5.364832,
                                   draggable=True,
                                   geocoded=False,
+                                  status_label='',
+                                  status=GeoAddress.COMPLETE,
                                   url=orga.get_absolute_url()), address_as_dict(address))
 
         address = self.create_shipping_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
@@ -61,11 +69,14 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                                   title=_(u'Shipping address'),
                                   owner=u'Orga 1',
                                   is_shipping=True,
+                                  is_complete=True,
                                   is_billing=False,
                                   latitude=43.299991,
                                   longitude=5.364832,
                                   draggable=True,
                                   geocoded=False,
+                                  status_label='',
+                                  status=GeoAddress.COMPLETE,
                                   url=orga.get_absolute_url()), address_as_dict(address))
 
     def test_address_as_dict_empty(self):
@@ -80,10 +91,13 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                                   owner=u'Orga 1',
                                   is_shipping=False,
                                   is_billing=False,
+                                  is_complete=True,
                                   latitude=43.299991,
                                   longitude=5.364832,
                                   draggable=True,
                                   geocoded=False,
+                                  status_label='',
+                                  status=GeoAddress.COMPLETE,
                                   url=orga.get_absolute_url()), address_as_dict(address))
 
     def test_addresses_from_persons(self):

@@ -57,8 +57,38 @@ creme.geolocation.ready = function(callback) {
     });
 };
 
+creme.geolocation.LocationStatus = {
+    UNDEFINED: 0,
+    MANUAL:    1,
+    PARTIAL:   2,
+    COMPLETE:  3
+};
+
 creme.geolocation.GoogleMapController = creme.component.Component.sub({
-    _init_: function (map_container) {
+    MAPSTYLES: [
+        {
+            id: 'creme',
+            label: gettext('Map'),
+            style: [
+                {
+                    stylers: [
+                         {hue: "#94c6db"},
+                         {weight: 2}
+                    ]
+                },
+                {
+                    featureType: "road",
+                    elementType: "geometry",
+                    stylers: [
+                      { visibility: "simplified" }
+                    ]
+                }
+            ]
+        }
+    ],
+
+    _init_: function (map_container)
+    {
         this.defaultZoomValue = 12;
         this.defaultLat = 48;
         this.defaultLn = 2;
@@ -69,16 +99,22 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         this.geocoder = new google.maps.Geocoder();
         this.marker_manager = new creme.geolocation.GoogleMapMarkerManager(this);
         this.shape_manager = new creme.geolocation.GoogleMapShapeRegistry(this);
-        this.map = new google.maps.Map(map_container,
-                                       {zoom: this.defaultZoomValue,
-                                        mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'creme_custom']});
 
-        this.map.mapTypes.set(
-            'creme_custom', new google.maps.StyledMapType(
-                                [{"stylers": [{"hue":"#94c6db" },
-                                 {"weight":2}]},{}],
-                                 {name: "Map"}));
-        this.map.setMapTypeId('creme_custom');
+        var mapStyleIds = this.MAPSTYLES.map(function(style) {return style.id})
+                                        .concat(google.maps.MapTypeId.SATELLITE);
+
+        var map = this.map = new google.maps.Map(map_container, {
+                                                     zoom: this.defaultZoomValue,
+                                                     mapTypeControlOptions: {
+                                                         mapTypeIds: mapStyleIds
+                                                     }
+                                                 });
+
+        this.MAPSTYLES.forEach(function(style) {
+            map.mapTypes.set(style.id, new google.maps.StyledMapType(style.style, {name: style.label}));
+        });
+
+        map.setMapTypeId(mapStyleIds[0]);
 
         this.adjustMap();
     },
@@ -117,10 +153,24 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
         }
     },
 
+    _isPartialMatch: function(results)
+    {
+        if (results.length > 1)
+            return true;
+
+        var match = results[0]
+
+        if (match.partial_match === false)
+            return false;
+
+        return match.address_components.length < 7;
+    },
+
     geocode: function(options)
     {
         var marker_manager = this.marker_manager;
         var saveLocation = this.saveLocation.bind(this);
+        var isPartialMatch = this._isPartialMatch.bind(this);
 
         this.geocoder.geocode(options.data, function(results, status) {
             var address = options.address;
@@ -131,11 +181,18 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 var result   = results[0];
 
                 var position = result.geometry.location;
+                var isPartial = isPartialMatch(results);
+                var location_status = creme.geolocation.LocationStatus.COMPLETE;
+
+                if (isPartial) {
+                    location_status = creme.geolocation.LocationStatus.PARTIAL;
+                }
 
                 if (!marker) {
                     var marker = marker_manager.Marker({
-                        address: address,
-                        position: position
+                        address:   address,
+                        draggable: options.draggable,
+                        position:  position
                     });
                 } else {
                     marker.setPosition(position);
@@ -144,34 +201,34 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
                 saveLocation(marker, {
                                  address: address,
                                  initial_position: options.initial_position
-                             }, true);
+                             }, true, location_status);
 
                 if (Object.isFunc(options.callback)) {
-                    options.callback(marker, result);
+                    options.callback(marker, result, location_status);
                 }
             } else {
                 if (Object.isFunc(options.fail)) {
-                    options.fail(gettext("Could't find any matching location"));
+                    options.fail(gettext("No matching location"));
                 }
             }
         });
     },
 
-    saveLocation: function (marker, options, coded)
+    saveLocation: function (marker, options, geocoded, status)
     {
         var self = this;
 
         creme.ajax.query('/geolocation/set_address_info/%s'.format(options.address.id), {}, {
-                             latitude: marker.position.lat(),
+                             latitude:  marker.position.lat(),
                              longitude: marker.position.lng(),
-                             draggable: marker.draggable,
-                             geocoded: coded
+                             geocoded:  geocoded,
+                             status:    status
                          })
                   .onFail(function() {
                               marker.setPosition(options.initial_position);
                           })
                   .onDone(function() {
-                              self._events.trigger('save-location', [options.address, marker])
+                              self._events.trigger('save-location', [options.address, marker, status])
                           })
                   .post();
     },
@@ -179,10 +236,11 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
     findLocation: function (address, options)
     {
         this.geocode({
-            address:  address,
-            data:     {address: address.content},
-            fail:     options.fail,
-            callback: options.done
+            address:   address,
+            draggable: options.draggable,
+            data:      {address: address.content},
+            fail:      options.fail,
+            callback:  options.done
         });
     },
 
@@ -192,6 +250,10 @@ creme.geolocation.GoogleMapController = creme.component.Component.sub({
 
     isAddressLocated: function(address) {
         return address && !Object.isNone(address.latitude) && !Object.isNone(address.longitude);
+    },
+
+    resize: function() {
+        google.maps.event.trigger(this.map, 'resize');
     }
 });
 
@@ -290,7 +352,7 @@ creme.geolocation.GoogleMapMarkerManager = creme.component.Component.sub({
                               });
 
             google.maps.event.addListener(marker, 'dragend', function() {
-                                  saveLocation(marker, options, true);
+                                  saveLocation(marker, options, true, creme.geolocation.LocationStatus.MANUAL);
                               });
         }
 

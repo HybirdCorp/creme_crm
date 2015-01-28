@@ -19,23 +19,30 @@
 
 creme.geolocation = creme.geolocation || {};
 
-//TODO : load map in collapsed block
-
 creme.geolocation.PersonsBlock = creme.component.Component.sub({
+    STATUS_LABELS: {
+        0: gettext("Not localized"),
+        1: gettext("Manual location"),
+        2: gettext("Partially matching location"),
+        3: ''
+    },
+
     _init_: function(block, addresses)
     {
         var self = this;
 
         this._block = block;
-        this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
+        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
         this._addresses = addresses;
 
         $('.block-geoaddress-item .block-geoaddress-reset', block).click(this._onRefreshLocation.bind(this));
 
         addresses.forEach(this._geocodeAddress.bind(this));
 
-        this._controller.on('save-location', function(event, address, marker) {
+        this._controller.on('save-location', function(event, address, marker, status) {
             self._showPosition(address.id, marker);
+            self._showStatus(address.id, status);
+
             block.trigger('block-geoaddress-location', [address, marker])
         });
 
@@ -43,6 +50,13 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
                                                                       self._toggleLocation($(this).val(), $(this).is(':checked'));
                                                                   })
                                                                  .change(this._onToggleLocation.bind(this));
+
+        block.bind('creme-table-collapse', function(e, status) {
+            if (status.action == 'show') {
+                controller.resize();
+                controller.adjustMap();
+            }
+        });
     },
 
     _geocodeAddress: function(address)
@@ -51,33 +65,19 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         var controller = this._controller;
 
         if (controller.isAddressLocated(address)) {
-            if (address.geocoded) {
-                controller.marker_manager.Marker({
-                    address: address,
-                    draggable: true,
-                    visible: false
-                });
-            } else {
-                controller.findLocation(address, {
-                    done: function(marker) {
-                        controller.marker_manager.hideAll();
-                    },
-                    fail: function(data) {
-                        controller.marker_manager.Marker({
-                            address: address,
-                            draggable: true,
-                            visible: false
-                        });
-                    }
-                });
-            }
+            controller.marker_manager.Marker({
+                address: address,
+                draggable: true,
+                visible: false
+            });
         } else {
             controller.findLocation(address, {
+                draggable: true,
                 done: function(marker) {
                     controller.marker_manager.hideAll();
                 },
                 fail: function(data) {
-                    self._showError(address.id, data);
+                    self._showStatus(address.id, data);
                 }
             });
         }
@@ -87,14 +87,24 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         return $('.block-geoaddress-item[data-addressid="' + address_id + '"]', this._block);
     },
 
-    _showError: function(address_id, content) {
-        this.addressItem(address_id).find('.block-geoaddress-error').html(content);
+    _showStatus: function(address_id, status)
+    {
+        var item = this.addressItem(address_id);
+        var is_complete = (status == creme.geolocation.LocationStatus.COMPLETE);
+
+        item.find('.block-geoaddress-status').html(this.STATUS_LABELS[status]);
+        item.find('.block-geoaddress-action').toggleClass('block-geoaddress-iscomplete', is_complete);
     },
 
     _showPosition: function(address_id, marker)
     {
-        var content = '%3.6f, %3.6f'.format(marker.position.lat(),
+        var content = '';
+
+        if (!Object.isEmpty(marker)) {
+            content = '%3.6f, %3.6f'.format(marker.position.lat(),
                                             marker.position.lng());
+        }
+
         // result.formatted_address
         this.addressItem(address_id).find('.block-geoaddress-position').html(content);
     },
@@ -116,11 +126,12 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
         if (marker)
         {
             this._controller.findLocation(marker.address, {
-                                 done: function(marker, result) {
+                                 done: function(marker, result, status) {
                                      controller.adjustMap();
                                  },
-                                 fail: function(data) {
-                                     self._showError(address_id, data);
+                                 fail: function(status) {
+                                     self._showPosition(address_id)
+                                     self._showStatus(address_id, status);
                                  }
                              });
         }
@@ -135,12 +146,19 @@ creme.geolocation.PersonsBlock = creme.component.Component.sub({
 creme.geolocation.AddressesBlock = creme.component.Component.sub({
     _init_: function(block)
     {
-        this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
+        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
         var filterSelector = this._filterSelector = $('.block-geoaddress-filter', block);
 
         filterSelector.change(this._onFilterChange.bind(this));
 
         this._updateFilter(filterSelector.val());
+
+        block.bind('creme-table-collapse', function(e, status) {
+            if (status.action == 'show') {
+                controller.resize();
+                controller.adjustMap();
+            }
+        });
     },
 
     _queryAddresses: function(filter, listeners)
@@ -172,7 +190,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
             if (controller.isAddressLocated(address)) {
                 controller.marker_manager.Marker({
                     address:   address,
-                    draggable: address.draggable,
+                    draggable: false,
                     redirect:  address.url
                 });
             }
@@ -216,7 +234,7 @@ creme.geolocation.AddressesBlock = creme.component.Component.sub({
 creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
     _init_: function(block, radius)
     {
-        this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
+        var controller = this._controller = new creme.geolocation.GoogleMapController($('.block-geoaddress-canvas', block).get(0));
         this._radius = radius;
         this._block = block;
 
@@ -224,6 +242,13 @@ creme.geolocation.PersonsNeighborhoodBlock = creme.component.Component.sub({
         this._filterSelector = $('.block-geoaddress-filter', block).change(this._onChange.bind(this));
 
         this._onChange();
+
+        block.bind('creme-table-collapse', function(e, status) {
+            if (status.action == 'show') {
+                controller.resize();
+                controller.shape_manager.adjustMap('NeighbourhoodCircle');
+            }
+        });
     },
 
     _queryNeighbours: function(address, filter)

@@ -23,15 +23,20 @@
                         {% else %}
                             <span class="block-geoaddress-title">{% if address.title %}{{address.title}}{% else %}{{address.content}}{% endif %}</span>
                         {% endif %}
-                        {% if address.latitude %}
-                            <span class="block-geoaddress-position">
-                            {{address.latitude|format:"%3.6f"}}, {{address.longitude|format:"%3.6f"}}
-                            </span>
-                        {% endif %}
                         </div>
-                        <a class="block-geoaddress-reset" data-addressid="{{address.id}}">
-                            {% trans 'Retrieve location' %}
-                        </a>
+                        <div class="block-geoaddress-action {% if address.is_complete %}block-geoaddress-iscomplete{% endif %}">
+                            <a class="block-geoaddress-reset" data-addressid="{{address.id}}">
+                                {% trans 'Retrieve location' %}
+                            </a>
+                            <span class="block-geoaddress-position">
+                            {% if address.latitude %}
+                                {{address.latitude|format:"%3.6f"}}, {{address.longitude|format:"%3.6f"}}
+                            {% endif %}
+                            </span>
+                            <span class="block-geoaddress-status">
+                            {{address.status_label}}
+                            </span>
+                        </div>
                     </div>
                 {% empty %}
                     {% trans 'No address defined for now' %}

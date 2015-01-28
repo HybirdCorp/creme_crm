@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-19 14:59+0100\n"
+"POT-Creation-Date: 2015-01-22 14:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,46 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: static/geolocation/js/block.js:24
+msgid "Not localized"
+msgstr "Non localisé"
+
+#: static/geolocation/js/block.js:25
+msgid "Manual location"
+msgstr "Localisation manuelle"
+
+#: static/geolocation/js/block.js:26
+msgid "Partially matching location"
+msgstr "Localisation incomplète"
+
 # "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 # "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-#: static/geolocation/js/block.js:208
+#: static/geolocation/js/block.js:228
 msgid "No address from"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:208
+#: static/geolocation/js/block.js:228
 msgid "%0$d address from"
 msgid_plural "%0$d addresses from"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/block.js:332
+#: static/geolocation/js/block.js:359
 msgid "None of"
 msgstr "Aucune adresse de"
 
-#: static/geolocation/js/block.js:332
+#: static/geolocation/js/block.js:359
 msgid "%0$d of"
 msgid_plural "%0$d of"
 msgstr[0] "%0$d adresse de"
 msgstr[1] "%0$d adresses de"
 
-#: static/geolocation/js/geolocation.js:154
-msgid "Could't find any matching location"
+#: static/geolocation/js/geolocation.js:71
+msgid "Map"
+msgstr "Plan"
+
+#: static/geolocation/js/geolocation.js:210
+msgid "No matching location"
 msgstr "Non localisé"
 
 #~ msgid "is neighbour of"

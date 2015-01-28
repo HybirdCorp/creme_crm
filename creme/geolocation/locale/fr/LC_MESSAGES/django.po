@@ -4,13 +4,11 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 # django-admin.py makemessages -l fr -e html -i "migrations/*"
-#
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-19 14:59+0100\n"
+"POT-Creation-Date: 2015-01-22 14:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: blocks.py:64
+#: blocks.py:85
 msgid "Maps"
 msgstr "Cartes"
 
-#: blocks.py:81
+#: blocks.py:102
 msgid "Maps By Filter"
 msgstr "Cartes par filtre"
 
-#: blocks.py:97
+#: blocks.py:119
 msgid "Around this address"
 msgstr "Autour de cette adresse"
 
@@ -36,45 +34,64 @@ msgstr "Autour de cette adresse"
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: models.py:39 models.py:47
+#: models.py:46
+msgid "Not localized"
+msgstr "Non localisé"
+
+#: models.py:47
+msgid "Manual location"
+msgstr "Localisation manuelle"
+
+#: models.py:48
+msgid "Partially matching location"
+msgstr "Localisation incomplète"
+
+#: models.py:52 models.py:61
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:40 models.py:132
+#: models.py:53 models.py:162
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:41 models.py:133
+#: models.py:54 models.py:163
 msgid "Longitude"
 msgstr "Longitude"
 
-#: models.py:42
-#, fuzzy
+#: models.py:55
 msgid "Is this marker draggable in maps ?"
 msgstr "Ce curseur peut-il être déplacé ?"
 
-#: models.py:43
-#, fuzzy
+#: models.py:56
 msgid "Geocoded from address ?"
 msgstr "Géolocalisé à partir de l'adresse ?"
 
-#: models.py:128
+#: models.py:57
+msgctxt "geolocation"
+msgid "Status"
+msgstr "Statut"
+
+#: models.py:73
+msgid "No matching location"
+msgstr "Non localisé"
+
+#: models.py:158
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:129
+#: models.py:159
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:130
+#: models.py:160
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:131
+#: models.py:161
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:137
+#: models.py:167
 msgid "Town"
 msgstr "Ville"
 
@@ -85,11 +102,11 @@ msgstr ""
 "Distance maximale pour trouver des voisins en mètres, par défaut %(default)s "
 "m."
 
-#: utils.py:63
+#: utils.py:66
 msgid "Billing address"
 msgstr "Addresse de facturation"
 
-#: utils.py:66
+#: utils.py:69
 msgid "Shipping address"
 msgstr "Addresse de livraison"
 
@@ -102,11 +119,11 @@ msgstr "Carte"
 msgid "No address from"
 msgstr "Aucune adresse"
 
-#: templates/geolocation/templatetags/block_persons_google_map.html:33
+#: templates/geolocation/templatetags/block_persons_google_map.html:30
 msgid "Retrieve location"
-msgstr "Trouver la position"
+msgstr "Localiser"
 
-#: templates/geolocation/templatetags/block_persons_google_map.html:37
+#: templates/geolocation/templatetags/block_persons_google_map.html:43
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
@@ -148,4 +165,3 @@ msgid "%(distance).1f Km"
 msgid_plural "%(distance).1f Km"
 msgstr[0] "%(distance).1f Km"
 msgstr[1] "%(distance).1f Km"
-
