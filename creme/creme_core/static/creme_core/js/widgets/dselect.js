@@ -260,14 +260,39 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._updateAutocomplete();
     },
 
+    // TODO : find a more generic way for this !
+    _valMultiple: function(element, value)
+    {
+        if (value === undefined) {
+            return element.val();
+        }
+
+        if (value !== null)
+        {
+            var selections = creme.utils.JSON.clean(value, value.split(','));
+            var value = selections.map(function(item) {return typeof item !== 'string' ? $.toJSON(item) : item;});
+
+            element.val(value);
+            this._onSelectionChange(element);
+        }
+    },
+
     val: function(element, value)
     {
-        if (value === undefined)
+        if (this.options.multiple) {
+            return this._valMultiple(element, value);
+        }
+
+        if (value === undefined) {
             return element.val();
+        }
 
-        var old = element.val();
+        var previous = this.val(element);
 
-        if (value !== null && typeof value !== 'string') {
+        if (previous === value)
+            return this;
+
+		if (value !== null && typeof value !== 'string') {
             value = $.toJSON(value);
         }
 
