@@ -62,7 +62,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         var self = this;
         var converter = this._converter = options.datatype === 'json' ? function(data) {return creme.widget.cleanval(data, null)} : undefined;
-        var initial = creme.model.ChoiceRenderer.parse(element, converter);
+        var initial = creme.model.ChoiceGroupRenderer.parse(element, converter);
 
         this._model_onchange_cb = function() {
             self._onModelChange(element);
@@ -76,7 +76,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._filtered = new creme.model.Filter(this._model);
         this._filtered.bind(['remove', 'clear', 'reset', 'add'], this._model_onchange_cb);
 
-        this._renderer = new creme.model.ChoiceRenderer(element, this._filtered);
+        this._renderer = new creme.model.ChoiceGroupRenderer(element, this._filtered);
     },
 
     _init_autocomplete: function(element, options)
@@ -123,7 +123,17 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _modelConverter: function(data)
     {
         return data ? data.map(function(entry) {
-            return Array.isArray(entry) ? {value: entry[0], label: entry[1]} : {value: entry, label: '' + entry};
+            if (Array.isArray(entry)) {
+                if (entry.length > 2) {
+                    return {value: entry[0], label: entry[1], group: entry[2]};
+                } else {
+                    return {value: entry[0], label: entry[1]};
+                }
+            } else if (entry.value && entry.label) {
+                return entry;
+            } else {
+                return {value: entry, label: '' + entry}
+            };
         }) : [];
     },
 
