@@ -108,7 +108,7 @@ class DynamicSelectOptions(object):
         if not self.label:
             return output
 
-        return u"""<span class="ui-creme-dselectlabel">%s</span>%s""" % (self.label, output)
+        return u'<span class="ui-creme-dselectlabel">%s</span>%s' % (self.label, output)
 
 
 class DynamicSelect(Select, DynamicSelectOptions):
