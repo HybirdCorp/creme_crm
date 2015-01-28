@@ -33,26 +33,29 @@ from creme.persons.models import Address
 # TODO : handle case of empty address name 
 def address_as_dict(address):
     geoaddress = address.geoaddress
-    title = address_title(address)
-    content = unicode(address)
-    owner = address.owner
+    title      = address_title(address)
+    content    = unicode(address)
+    owner      = address.owner
     address_id = address.id
 
-    is_billing = owner.billing_address_id == address_id
+    is_billing  = owner.billing_address_id == address_id
     is_shipping = owner.shipping_address_id == address_id
 
     return {
-            'id': address_id,
-            'content': content,
-            'owner': unicode(owner),
-            'title': title,
-            'is_billing': is_billing,
-            'is_shipping': is_shipping,
-            'latitude': geoaddress.latitude,
-            'longitude': geoaddress.longitude,
-            'draggable': geoaddress.draggable,
-            'geocoded': geoaddress.geocoded,
-            'url': owner.get_absolute_url(),
+            'id':           address_id,
+            'content':      content,
+            'owner':        unicode(owner),
+            'title':        title,
+            'is_billing':   is_billing,
+            'is_shipping':  is_shipping,
+            'is_complete':  geoaddress.is_complete,
+            'status':       geoaddress.status,
+            'status_label': geoaddress.get_status_display(),
+            'latitude':     geoaddress.latitude,
+            'longitude':    geoaddress.longitude,
+            'draggable':    geoaddress.draggable,
+            'geocoded':     geoaddress.geocoded,
+            'url':          owner.get_absolute_url(),
            }
 
 def address_title(address):

@@ -22,25 +22,39 @@ from itertools import izip, chain, groupby
 
 from django.db import transaction
 from django.db.models import (Model, FloatField, BooleanField,
-                              OneToOneField, CharField, SlugField)
+    OneToOneField, CharField, SlugField, SmallIntegerField)
+
 from django.db.models.signals import post_save, post_delete
 from django.db.models.query_utils import Q
 from django.dispatch.dispatcher import receiver
 from django.template.defaultfilters import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _, pgettext
 
 from creme.creme_core.utils.chunktools import iter_as_slices
+from creme.creme_core.utils import update_model_instance
 from creme.persons.models import Address
 
 from .utils import location_bounding_box
 
-
 class GeoAddress(Model):
+    UNDEFINED  = 0
+    MANUAL     = 1
+    PARTIAL    = 2
+    COMPLETE   = 3
+
+    STATUS_LABELS = {
+        UNDEFINED: _('Not localized'),
+        MANUAL:    _("Manual location"),
+        PARTIAL:   _("Partially matching location"),
+        COMPLETE:  '',
+    }
+
     address = OneToOneField(Address, verbose_name=_(u"Address"))
     latitude = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
     longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180,
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
     geocoded = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
+    status = SmallIntegerField(verbose_name=pgettext('geolocation', u'Status'), choices=STATUS_LABELS.items(), default=UNDEFINED)
 
     class Meta:
         app_label = 'geolocation'
@@ -49,6 +63,10 @@ class GeoAddress(Model):
     def __init__(self, *args, **kwargs):
         super(GeoAddress, self).__init__(*args, **kwargs)
         self._neighbours = {}
+
+    @property
+    def is_complete(self):
+        return self.status == self.COMPLETE
 
     @classmethod
     def populate_geoaddress(cls, address):
@@ -62,7 +80,8 @@ class GeoAddress(Model):
             else:
                 geoaddress = cls.objects.create(address=address,
                                                 latitude=town.latitude,
-                                                longitude=town.longitude)
+                                                longitude=town.longitude,
+                                                status=GeoAddress.PARTIAL)
 
         return geoaddress
 
@@ -84,9 +103,7 @@ class GeoAddress(Model):
             towns = Town.search_all([geo.address for geo in chain(create, update)])
 
             for geoaddress, town in izip(chain(create, update), towns):
-                if town is not None:
-                    geoaddress.latitude = town.latitude
-                    geoaddress.longitude = town.longitude
+                geoaddress.set_town_position(town)
 
             GeoAddress.objects.bulk_create(create)
 
@@ -94,12 +111,18 @@ class GeoAddress(Model):
                 for geoaddress in update:
                     geoaddress.save(force_update=True)
 
-    def update(self, latitude, longitude, draggable, geocoded):
-        self.latitude = latitude
-        self.longitude = longitude
-        self.draggable = draggable
-        self.geocoded = geocoded
-        self.save()
+    def set_town_position(self, town):
+        if town is not None:
+            self.latitude = town.latitude
+            self.longitude = town.longitude
+            self.status = GeoAddress.PARTIAL
+        else:
+            self.latitude = None
+            self.longitude = None
+            self.status = GeoAddress.UNDEFINED
+
+    def update(self, **kwargs):
+        update_model_instance(self, **kwargs)
 
     def neighbours(self, distance):
         neighbours = self._neighbours.get(distance)
@@ -122,6 +145,9 @@ class GeoAddress(Model):
                                  .exclude(address__object_id=self.address.object_id)\
                                  .filter(latitude__range=(upper_left[0], lower_right[0]),
                                          longitude__range=(upper_left[1], lower_right[1]))
+
+    def __unicode__(self):
+        return u'GeoAddress(lat=%s, lon=%s, status=%s)' % (self.latitude, self.longitude, self.status)
 
 
 class Town(Model):
@@ -216,9 +242,7 @@ def _update_geoaddresses(sender, instance, **kwargs):
 
     town = Town.search(instance)
 
-    if town is not None:
-        geoaddress.latitude = town.latitude
-        geoaddress.longitude = town.longitude
-
+    geoaddress.set_town_position(town)
     geoaddress.save()
+
     transaction.savepoint_commit(sid)

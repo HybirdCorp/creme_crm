@@ -44,6 +44,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
 
         if geoloc is not None:
             latitude, longitude = geoloc
+            address.geoaddress.status = GeoAddress.COMPLETE
             address.geoaddress.latitude = latitude
             address.geoaddress.longitude = longitude
             address.geoaddress.save()

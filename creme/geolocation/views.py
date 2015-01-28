@@ -40,7 +40,6 @@ from .utils import address_as_dict, addresses_from_persons, get_setting
 
 
 @login_required
-#@permission_required('geolocation')
 @permission_required('persons')
 @POST_only
 def set_address_info(request, address_id):
@@ -51,8 +50,9 @@ def set_address_info(request, address_id):
 
     data = {'latitude':  get('latitude'),
             'longitude': get('longitude'),
-            'draggable': get('draggable'),
-            'geocoded':  get('geocoded'),}
+            'geocoded':  get('geocoded').lower() == 'true',
+            'status':    get('status')
+           }
 
     try:
         address.geoaddress.update(**data)
@@ -62,7 +62,6 @@ def set_address_info(request, address_id):
     return HttpResponse()
 
 @login_required
-#@permission_required('geolocation')
 @permission_required('persons')
 @jsonify
 def get_addresses_from_filter(request, filter_id):
@@ -81,7 +80,6 @@ def get_addresses_from_filter(request, filter_id):
     return {'addresses': [address_as_dict(address) for address in addresses]}
 
 @login_required
-#@permission_required('geolocation')
 @permission_required('persons')
 @jsonify
 def get_neighbours(request, address_id, filter_id):

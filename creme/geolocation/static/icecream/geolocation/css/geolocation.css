@@ -45,7 +45,7 @@
     display: -ms-flexbox;
     display: flex;
 
-    align-self: center;
+    align-self: top;
     flex-grow: 1;
 
     -webkit-box-orient: vertical;
@@ -56,25 +56,51 @@
 }
 
 .block-geoaddress-item .block-geoaddress-title {
+    margin-bottom: 4px;
 }
 
 .block-geoaddress-item .block-geoaddress-content {
-    opacity: 0.6;
+    color: #777;
     font-size: 11px;
     font-style: italic;
 }
 
-.block-geoaddress-item .block-geoaddress-position {
-    opacity: 0.6;
-    font-size: 11px;
-    font-style: italic;
+.block-geoaddress-item .block-geoaddress-action {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+
+    margin-right: 4px;
+    text-align: right;
+
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
 }
 
 .block-geoaddress-item .block-geoaddress-reset {
     color: #777;
-    margin-right: 4px;
-    align-self: top;
+    margin-bottom: 4px;
     cursor: pointer;
+}
+
+.block-geoaddress-item .block-geoaddress-iscomplete .block-geoaddress-reset {
+    display: none;
+}
+
+.block-geoaddress-item .block-geoaddress-position {
+    color: #777;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.block-geoaddress-item .block-geoaddress-status {
+    color: #777;
+    font-size: 11px;
+    font-style: italic;
 }
 
 .block-geoaddress-canvas {
