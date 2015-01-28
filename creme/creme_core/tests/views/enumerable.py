@@ -7,7 +7,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import ViewsTestCase
-    from creme.creme_core.models import CustomField, CustomFieldEnumValue
+    from creme.creme_core.models import (CustomField, CustomFieldEnumValue,
+                                         EntityFilter, EntityFilterCondition)
+    from creme.creme_core.utils.unicode_collation import collator
 
     from creme.persons.models import Contact, Civility
 except Exception as e:
@@ -64,6 +66,39 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url)
         self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
 
+    def test_model_entityfilter(self):
+        self.login()
+
+        sort_key = collator.sort_key
+        key = lambda e: sort_key(e[2] + e[1])
+
+        # create at least one filter
+        efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.EQUALS,
+                                                                    name='first_name', values=['Misato']
+                                                                   )
+                               ])
+
+        efilter_private = EntityFilter.create('test-filter02', 'Filter 02', Contact, user=self.user, is_custom=True, is_private=True)
+        efilter_private.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                            operator=EntityFilterCondition.EQUALS,
+                                                                            name='first_name', values=['Misato']
+                                                                            )
+                               ])
+
+        url = self._build_enum_url(EntityFilter)
+        response = self.assertGET200(url)
+        self.assertEqual(sorted([[f.id,
+                                  '%s [%s]%s' % (f.name, unicode(f.entity_type), (' (%s)' % unicode(f.user) if f.is_private else '')),
+                                  unicode(f.entity_type)
+                                 ] for f in EntityFilter.objects.all()
+                                ],
+                                key=key
+                               ),
+                         json.loads(response.content)
+                        )
+
     def test_userfilter_list(self):
         self.login()
 
@@ -94,4 +129,6 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertEquals([[eva00.id, eva00.value],
                            [eva01.id, eva01.value],
                            [eva02.id, eva02.value]
-                          ], json.loads(response.content))
+                          ],
+                          json.loads(response.content))
+

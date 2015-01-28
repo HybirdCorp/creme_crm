@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required
-from creme.creme_core.models import CustomFieldEnumValue, CustomField
+from creme.creme_core.models import CustomFieldEnumValue, CustomField, EntityFilter
 from creme.creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.utils.unicode_collation import collator
 
 from creme.creme_config.registry import config_registry, NotRegisteredInConfig
 
@@ -38,7 +39,18 @@ def json_list_enumerable(request, ct_id):
     ct = get_ct_or_404(ct_id)
     model = ct.model_class()
 
-    if model is not User:
+    if issubclass(model, EntityFilter):
+        sort_key = collator.sort_key
+        key = lambda e: sort_key(e[2] + e[1])
+
+        return sorted([(filter.pk,
+                        '%s [%s]%s' % (filter.name, unicode(filter.entity_type), (' (%s)' % unicode(filter.user) if filter.is_private else '')),
+                        unicode(filter.entity_type),
+                       ) for filter in EntityFilter.objects.all()
+                      ],
+                      key=key)
+
+    if not issubclass(model, User):
         app_name = ct.app_label
 
         if not request.user.has_perm(app_name):
