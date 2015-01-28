@@ -806,6 +806,13 @@ class EntityFilterCondition(Model):
                            'enum', 'enum__null',
                           }
 
+    _FIELDTYPES_NULLABLE = {'string',
+                            'fk__null',
+                            'user__null',
+                            'enum__null',
+                            'boolean__null'
+                           }
+
     _OPERATOR_MAP = {
             EQUALS:          _ConditionOperator(_(u'Equals'),                                 '%s__exact',
                                                 accept_subpart=False, allowed_fieldtypes=_FIELDTYPES_ALL),
@@ -831,7 +838,7 @@ class EntityFilterCondition(Model):
             IENDSWITH:       _ConditionOperator(_(u"Ends with (case insensitive)"),           '%s__iendswith', allowed_fieldtypes=('string',)),
             ENDSWITH_NOT:    _ConditionOperator(_(u"Does not end with"),                      '%s__endswith', exclude=True, allowed_fieldtypes=('string',)),
             IENDSWITH_NOT:   _ConditionOperator(_(u"Does not end with (case insensitive)"),   '%s__iendswith', exclude=True, allowed_fieldtypes=('string',)),
-            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=('string', 'fk__null', 'user__null', 'enum__null', 'boolean__null')),
+            ISEMPTY:         _IsEmptyOperator(_(u"Is empty"), allowed_fieldtypes=_FIELDTYPES_NULLABLE),
             RANGE:           _RangeOperator(_(u"Range")),
         }
 

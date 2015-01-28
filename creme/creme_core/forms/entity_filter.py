@@ -45,7 +45,7 @@ from .base import CremeModelForm
 from .fields import JSONField
 from .widgets import (Label, DynamicInput, SelectorList, ChainedInput,
         EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect,
-        DynamicSelect, PolymorphicInput, CremeRadioSelect, NullableDateRangeSelect)
+        DynamicSelect, DynamicSelectMultiple, PolymorphicInput, CremeRadioSelect, NullableDateRangeSelect)
 
 
 TRUE = 'true'
@@ -134,9 +134,11 @@ class FieldConditionWidget(ChainedInput):
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
 
-        pinput.add_dselect('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
-                           '/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs,
-                          )
+        pinput.add_input('^enum(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
+                         widget=DynamicSelectMultiple,
+                         url='/creme_core/enumerable/${field.ctype}/json', attrs=field_attrs,
+                        )
+
         pinput.add_dselect('^user(__null)?.(%d|%d)$' % (EntityFilterCondition.EQUALS, EntityFilterCondition.EQUALS_NOT),
                            '/creme_core/enumerable/userfilter/json', attrs=field_attrs,
                           )
@@ -509,7 +511,12 @@ class RegularFieldsConditionsField(_ConditionsField):
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
         else:
-            values = [v for v in clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',') if v]
+            if entry is not None and isinstance(entry.get('value'), list):
+                values = clean_value(entry, 'value', list, required_error_key='invalidvalue')
+            else:
+                values = clean_value(entry, 'value', unicode, required_error_key='invalidvalue').split(',')
+
+            values = [v for v in values if v]
 
         return operator, values
 
@@ -571,9 +578,9 @@ class DateFieldsConditionsField(_ConditionsField):
         self._build_widget()
 
     def _create_widget(self):
-        #return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
-                                          #enabled=len(self._fields) > 0
-                                         #)
+#         return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
+#                                           enabled=len(self._fields) > 0
+#                                          )
         return DateFieldsConditionsWidget(self._fields,
                                           #enabled=len(self._fields) > 0 TODO ?
                                          )

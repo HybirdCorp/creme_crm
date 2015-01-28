@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
-    from django.utils.simplejson import loads as jsonloads
+    from django.utils.simplejson import loads as jsonloads, dumps as json_encode
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.forms.entity_filter import *
@@ -20,6 +20,12 @@ __all__ = ('RegularFieldsConditionsFieldTestCase', 'DateFieldsConditionsFieldTes
 
 class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     CONDITION_FIELD_JSON_FMT = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+        cls.autodiscover()
+        cls.populate('persons')
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
@@ -115,8 +121,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_fk_id(self):
         """FK field with invalid id"""
-        self.autodiscover()
-        self.populate('persons')
 
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.EQUALS
@@ -149,6 +153,44 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_iequals_condition_multiple_as_string(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.IEQUALS
+        name = 'first_name'
+        faye_name = 'Faye'
+        ed_name = 'Ed'
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    '"' + faye_name + ',' + ed_name + '"',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(name,                            condition.name)
+        self.assertEqual({'operator': operator, 'values': [faye_name, ed_name]}, condition.decoded_value)
+
+    def test_iequals_condition_multiple_as_list(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.IEQUALS
+        name = 'first_name'
+        faye_name = 'Faye'
+        ed_name = 'Ed'
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    json_encode([faye_name, ed_name]),
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(name,                            condition.name)
+        self.assertEqual({'operator': operator, 'values': [faye_name, ed_name]}, condition.decoded_value)
 
     def test_isempty_condition(self): #ISEMPTY -> boolean
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -206,8 +248,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_fk(self):
         """FK field"""
-        self.autodiscover()
-        self.populate('persons')
 
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.EQUALS
@@ -226,10 +266,44 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [str(value)]}, condition.decoded_value)
 
+    def test_multiple_fk_as_string(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'civility'
+        values = [c.pk for c in Civility.objects.all()]
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    '"' + ','.join(str(v) for v in values) + '"',
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [str(v) for v in values]}, condition.decoded_value)
+
+    def test_multiple_fk_as_list(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        operator = EntityFilterCondition.EQUALS
+        name = 'civility'
+        values = [str(c.pk) for c in Civility.objects.all()]
+        conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
+                                 'operator': operator,
+                                 'name':     name,
+                                 'value':    json_encode(values),
+                             }
+                          )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [str(v) for v in values]}, condition.decoded_value)
+
     def test_choicetypes(self):
         """field choice types"""
-        self.autodiscover()
-        self.populate('persons')
 
         field_choicetype = FieldConditionWidget.field_choicetype
         get_field = Contact._meta.get_field_by_name
