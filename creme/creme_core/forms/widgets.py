@@ -86,19 +86,12 @@ class DynamicInput(TextInput):
     #is_hidden = True
 
 
-class DynamicSelect(Select):
-    def __init__(self, attrs=None, options=None, url='', label=None):
-        super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
-        self.url = url
-        self.label = label
-        self.from_python = None
-
-        if not options:
+class DynamicSelectOptions(object):
+    def _set_options(self, options):
+        if options is None:
             self.options = ()
-        elif callable(options):
-            self.options = options
         else:
-            self.options = list(options)
+            self.options = options
 
     def _get_options(self):
         return list(self.options()) if callable(self.options) else self.options
@@ -109,7 +102,22 @@ class DynamicSelect(Select):
 
     @choices.setter
     def choices(self, choices):
-        self.options = choices
+        self._set_options(choices)
+
+    def render_label(self, output, label):
+        if not self.label:
+            return output
+
+        return u"""<span class="ui-creme-dselectlabel">%s</span>%s""" % (self.label, output)
+
+
+class DynamicSelect(Select, DynamicSelectOptions):
+    def __init__(self, attrs=None, options=None, url='', label=None):
+        super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
+        self.url = url
+        self.label = label
+        self.from_python = None
+        self.choices = options
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
@@ -118,10 +126,25 @@ class DynamicSelect(Select):
         value = self.from_python(value) if self.from_python is not None else value
         output = widget_render_input(Select.render, self, name, value, context, url=self.url)
 
-        if not self.label:
-            return mark_safe(output)
+        return mark_safe(self.render_label(output, self.label))
 
-        return mark_safe(u"""<span class="ui-creme-dselectlabel">%s</span>%s""" % (self.label, output))
+
+class DynamicSelectMultiple(SelectMultiple, DynamicSelectOptions):
+    def __init__(self, attrs=None, options=None, url='', label=None):
+        super(DynamicSelectMultiple, self).__init__(attrs, ()) #TODO: options or ()
+        self.url = url
+        self.label = label
+        self.from_python = None
+        self.choices = options
+
+    def render(self, name, value, attrs=None, choices=()):
+        attrs = self.build_attrs(attrs, name=name)
+        context = widget_render_context('ui-creme-dselect', attrs)
+
+        value = self.from_python(value) if self.from_python is not None else value
+        output = widget_render_input(SelectMultiple.render, self, name, value, context, url=self.url, multiple='multiple')
+
+        return mark_safe(self.render_label(output, self.label))
 
 
 class ActionButtonList(Widget):

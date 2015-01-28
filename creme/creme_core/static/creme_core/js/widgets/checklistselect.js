@@ -226,7 +226,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         var previous = this.val(element);
         var selections = creme.utils.JSON.clean(value, []);
-        var value = value.map(function(item) {return typeof item !== 'string' ? $.toJSON(item) : item;});
+        var value = selections.map(function(item) {return typeof item !== 'string' ? $.toJSON(item) : item;});
 
         if (previous === value)
             return this;
