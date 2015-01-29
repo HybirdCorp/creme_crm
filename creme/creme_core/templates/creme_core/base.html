@@ -9,7 +9,7 @@
     <script type='text/javascript'>
         var THEME_NAME = "{{ THEME_NAME }}";
     </script>
-    <!-- 
+    <!--
         Firebug for browsers without plugin/extension :
             - uncomment the following script
             - add debug="true" to <html> tag
@@ -86,34 +86,34 @@
 
             $("#menu_expanded").width($('.fg-menu-container').outerWidth());
 
-            $('.pinmenu').toggle(
-             //Pin / Fixer le menu
-             function() {
+            //Pin / Fixer le menu
+            var onPin = function() {
                 $(this).attr('src', '{% creme_media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 resizePageElements($("#menu_expanded").outerWidth(), true);
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
-             },
-             //Unpin / Rendre le menu flottant
-             function() {
+            };
+            //Unpin / Rendre le menu flottant
+            var onUnpin = function() {
                 $(this).attr('src', '{% creme_media_url "images/pin.png" %}');
                 activeEventsMenu();
                 resizePageElements($("#menu_collapse").outerWidth(), false);
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
-             }
-            );
+            };
 
-           if($.cookie('menu_creme') == 'expanded') {
-                $('.pinmenu').attr('src', '{% creme_media_url "images/unpin.png" %}');
+            if ($.cookie('menu_creme') == 'expanded') {
+                $('.pinmenu').toggle(onUnpin, onPin)
+                             .attr('src', '{% creme_media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
-                $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth(), true));
-                $("#menu_collapse").hide('fast');
-           } else {
-               $('.pinmenu').attr('src', '{% creme_media_url "images/pin.png" %}');
-               activeEventsMenu();
-               $("#menu_expanded").hide('slow');
-               $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth(), false));
-           }
+                $("#menu_expanded").show(resizePageElements($("#menu_expanded").outerWidth(), true));
+                $("#menu_collapse").hide();
+            } else {
+                $('.pinmenu').toggle(onPin, onUnpin)
+                             .attr('src', '{% creme_media_url "images/pin.png" %}');
+                activeEventsMenu();
+                $("#menu_expanded").hide();
+                $("#menu_collapse").show(resizePageElements($("#menu_collapse").outerWidth(), false));
+            }
       });
     </script>
     {% block extrahead %}{% endblock %}
