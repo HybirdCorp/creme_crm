@@ -59,7 +59,7 @@ class CategoryFieldTestCase(FieldTestCase):
         self.assertEqual(2, len(cat_input))
         self.assertEqual('category', cat_input[0])
 
-        self.assertEqual([(cat.id, cat.name)], cat_input[1].options)
+        self.assertEqual([(cat.id, cat.name)], cat_input[1].choices)
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')
