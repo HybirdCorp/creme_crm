@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 22-10-2014 pour la version 1.5 de Creme
+:Version: 29-01-2015 pour la version 1.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -332,8 +332,7 @@ Dans ``views/``, nous créons alors le fichier ``beaver.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.contrib.auth.decorators import login_required, permission_required
-
+    from creme.creme_core.auth.decorators import login_required, permission_required
     from creme.creme_core.views import generic
 
     from creme.beavers.models import Beaver
@@ -543,11 +542,11 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.management.commands.creme_populate import BasePopulator
     from creme.creme_core.models import HeaderFilter, SearchConfigItem
     from creme.creme_core.utils import create_or_update as create
-    from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-    from .models import *
+    from .models import Beaver
 
 
     class Populator(BasePopulator):
@@ -612,7 +611,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2011-03-26 13:29+0100\n"
+    "POT-Creation-Date: 2015-01-29 13:29+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -665,7 +664,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2011-03-26 13:29+0100\n"
+    "POT-Creation-Date: 2015-01-29 13:29+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -819,9 +818,9 @@ des constantes : ::
 Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
 
     [...]
-    from creme.beavers.constants import STATUS_HEALTHY, STATUS_SICK
+    from .constants import STATUS_HEALTHY, STATUS_SICK
+    from .models import Beaver, Status
 
-    [...]
 
     def populate(self):
         [...]
@@ -978,8 +977,8 @@ une convention) : ::
 
     from creme.creme_core.gui.button_menu import Button
 
-    from creme.beavers.models import Beaver
-    from creme.beavers.constants import STATUS_HEALTHY, STATUS_SICK
+    from .constants import STATUS_HEALTHY, STATUS_SICK
+    from .models import Beaver
 
 
     class CreateTicketButton(Button):
@@ -1044,7 +1043,7 @@ de ``beavers/creme_core_register.py`` : ::
 
     from creme.creme_core.gui.button_menu import button_registry
 
-    from creme.beavers.buttons import create_ticket_button
+    from .buttons import create_ticket_button
 
     button_registry.register(create_ticket_button)
 
@@ -1077,7 +1076,7 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
 
     from creme.tickets.forms.ticket import TicketCreateForm
 
-    from creme.beavers.models import Beaver
+    from ..models import Beaver
 
 
     @login_required
@@ -1262,9 +1261,29 @@ faut ensuite générer la migration South ; dans notre exemple nous avons modifi
    de cette manière.
 
 
+Import de fichiers CSV
+~~~~~~~~~~~~~~~~~~~~~~
+
+[TODO]
+
+
+Fusion de 2 fiches
+~~~~~~~~~~~~~~~~~~
+
+[TODO]
+
+
 Liste des différents services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- Vous pouvez personnaliser l'affichage des champs des modèles (vue détaillée,
+  vue en liste) gràce à ``creme_core.gui.field_printers.field_printers_registry``.
+- Vous pouvez enregistrer des algorithmes de rappel par e-mail via
+  ``creme_core.core.reminder.reminder_registry``.
+- Vous pouvez enregistrer de nouvelles périodicité dans
+  ``creme_core.utils.date_period.date_period_registry``.
+- Vous pouvez enregistrer de nouveaux intervalles de temps dans
+  ``creme_core.utils.date_range.date_range_registry``.
 - L'app *billing* permet d'enregistrer des algorithmes de génération de numéros
   de facture. Regardez le fichier ``billing/billing_register.py``.
 - L'app *recurrents* permet de générer des objets de manière récurrente. Regardez
@@ -1298,17 +1317,17 @@ Créez un fichier ``beavers/tests.py`` : ::
 
         from .models import Beaver, Status
     except Exception as e:
-        print 'Error in <%s>: %s' % (__name__, e)
+        print('Error in <%s>: %s' % (__name__, e))
 
 
     class BeaverTestCase(CremeTestCase):
         @classmethod
         def setUpClass(cls):
             CremeTestCase.setUpClass()
-            cls.populate('creme_config', 'beavers')
+            cls.populate('creme_core', 'beavers')
 
     def test_createview(self):
-        self.login()
+        user = self.login()
 
         self.assertEqual(0, Beaver.objects.count())
         url = '/beavers/beaver/add'
@@ -1317,7 +1336,7 @@ Créez un fichier ``beavers/tests.py`` : ::
         name   = 'Hector'
         status = Status.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={'user':     self.user.pk,
+                                    data={'user':     user.pk,
                                           'name':     name,
                                           'birthday': '2008-6-7',
                                           'status':   status.id,
