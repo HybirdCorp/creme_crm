@@ -77,9 +77,9 @@ test('creme.widget.CheckListSelect.create (delegate)', function() {
     equal(1, widget.delegate._delegate(element).length);
     equal(false, widget.disabled());
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"1",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12'},
@@ -101,9 +101,9 @@ test('creme.widget.CheckListSelect.create (disabled)', function() {
     equal(1, widget.delegate._delegate(element).length);
     equal(true, widget.disabled());
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"1",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:true},
@@ -124,9 +124,9 @@ test('creme.widget.CheckListSelect.create (initial value)', function() {
     equal(element.hasClass('widget-ready'), true);
     equal(false, widget.disabled());
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"1",  help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"1",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
 
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
@@ -147,8 +147,8 @@ test('creme.widget.CheckListSelect.disable', function() {
     equal(element.hasClass('widget-ready'), true);
     equal(false, widget.disabled());
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:false},
@@ -158,8 +158,8 @@ test('creme.widget.CheckListSelect.disable', function() {
 
     equal(true, widget.disabled());
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
 
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', disabled:true},
@@ -176,9 +176,9 @@ test('creme.widget.CheckListSelect.val', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
@@ -187,9 +187,9 @@ test('creme.widget.CheckListSelect.val', function() {
 
     widget.val(["12", "5"]);
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
@@ -206,9 +206,9 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
@@ -217,9 +217,9 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
 
     $('input[type="checkbox"][value="12"]', widget.content()).attr('checked', true).change();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false},
@@ -229,9 +229,9 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
     $('input[type="checkbox"][value="12"]', widget.content()).attr('checked', false).change();
     $('input[type="checkbox"][value="5"]', widget.content()).attr('checked', true).change();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
@@ -257,9 +257,9 @@ test('creme.widget.CheckListSelect.selectAll', function() {
 
     widget.selectAll();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:true},
@@ -286,9 +286,9 @@ test('creme.widget.CheckListSelect.selectAll (disabled options)', function() {
 
     widget.selectAll();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:true},
-               {label:'item2', value:"78", help: undefined, disabled:true, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:true, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:true},
                             {label:'item2', value:'78', selected:false, disabled:true},
@@ -316,9 +316,9 @@ test('creme.widget.CheckListSelect.unselectAll', function() {
 
     widget.unselectAll();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},
@@ -346,9 +346,9 @@ test('creme.widget.CheckListSelect.reset', function() {
 
     widget.reset();
 
-    deepEqual([{label:'item1', value:"12", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item2', value:"78", help: undefined, disabled:false, visible:true, tags:[], selected:false},
-               {label:'item3', value:"5",  help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
+    deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
+               {label:'item3', value:"5",  group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false}], widget.model().all());
     assertCheckListEntries(widget.content(),
                            [{label:'item1', value:'12', selected:false},
                             {label:'item2', value:'78', selected:false},

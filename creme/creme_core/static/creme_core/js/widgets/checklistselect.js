@@ -89,7 +89,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     {
         var counter = $('.checklist-selection-count', element);
         var comparator = function(a, b) {return creme.utils.compareTo(a.value, b);}
-        var indices = this._controller.model().indicesOf(this.val(element) || [], comparator);
+        var indices = this._model.indicesOf(this.val(element) || [], comparator);
 
         this._selections.select(indices);
     },
@@ -154,7 +154,9 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
                   .model(filtered)
                   .redraw();
 
-        input.bind('change', function() {self._updateViewSelection(element);});
+        input.bind('change', function() {
+                       self._updateViewSelection(element);
+                   });
 
         /*
         if ($.browser.msie)
