@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+from types import GeneratorType
 #import warnings
 
 from django.conf import settings
@@ -90,6 +91,8 @@ class DynamicSelectOptions(object):
     def _set_options(self, options):
         if options is None:
             self.options = ()
+        elif isinstance(options, GeneratorType):
+            self.options = list(options)
         else:
             self.options = options
 
