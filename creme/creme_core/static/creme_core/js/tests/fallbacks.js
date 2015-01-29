@@ -648,3 +648,9 @@ test('fallbacks.String.isSpace', function() {
     equal('\t'.isSpace(), true);
     equal('\t   \t'.isSpace(), true);
 });
+
+test('fallbacks.String.removeDiacritics', function() {
+    equal(''.removeDiacritics(), '');
+    equal('Éé'.removeDiacritics(), 'Ee');
+    equal('åkà ! çétÔwîÂrg.'.removeDiacritics(), 'aka ! cetOwiArg.');
+});
