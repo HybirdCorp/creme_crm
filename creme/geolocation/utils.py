@@ -30,13 +30,16 @@ from creme.creme_core.models import SettingValue
 
 from creme.persons.models import Address
 
-# TODO : handle case of empty address name 
+
 def address_as_dict(address):
-    geoaddress = address.geoaddress
+    from .models import GeoAddress
+
     title      = address_title(address)
     content    = unicode(address)
     owner      = address.owner
     address_id = address.id
+
+    geoaddress = GeoAddress.get_geoaddress(address)
 
     is_billing  = owner.billing_address_id == address_id
     is_shipping = owner.shipping_address_id == address_id

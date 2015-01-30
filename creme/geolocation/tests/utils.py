@@ -4,7 +4,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models.setting_value import SettingValue
-    from creme.persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact, Address
 
     from ..constants import DEFAULT_SEPARATING_NEIGHBOURS
     from ..setting_keys import NEIGHBOURHOOD_DISTANCE
@@ -100,6 +100,31 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                                   status=GeoAddress.COMPLETE,
                                   url=orga.get_absolute_url()), address_as_dict(address))
 
+    def test_address_as_dict_missing_geoaddress(self):
+        self.login()
+
+        orga = Organisation.objects.create(name='Orga 1', user=self.user)
+        address = self.create_address(orga, address='', zipcode='', town='', geoloc=(43.299991, 5.364832))
+        GeoAddress.objects.filter(address=address).delete()
+        address = Address.objects.filter(pk=address.pk).select_related('geoaddress').get()
+
+        self.assertIsNone(address.geoaddress)
+
+        self.assertDictEqual(dict(id=address.pk,
+                                  content=u'',
+                                  title=u'',
+                                  owner=u'Orga 1',
+                                  is_shipping=False,
+                                  is_billing=False,
+                                  is_complete=False,
+                                  latitude=None,
+                                  longitude=None,
+                                  draggable=True,
+                                  geocoded=False,
+                                  status_label=_('Not localized'),
+                                  status=GeoAddress.UNDEFINED,
+                                  url=orga.get_absolute_url()), address_as_dict(address))
+
     def test_addresses_from_persons(self):
         self.login()
 
@@ -119,8 +144,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         self.assertListEqual(list(addresses_from_persons(Contact.objects.all(), self.user)),
                              [contact_address])
 
-        self.assertListEqual(list(addresses_from_persons(Organisation.objects.all(), self.user)),
-                             [orga_address, orga2_address])
+        self.assertListEqual(sorted(list(addresses_from_persons(Organisation.objects.all(), self.user)), key=lambda a: a.pk),
+                             sorted([orga_address, orga2_address], key=lambda a: a.pk))
 
     def test_get_setting(self):
         self.assertIsNone(get_setting('unknown'))

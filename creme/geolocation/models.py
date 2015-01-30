@@ -69,19 +69,25 @@ class GeoAddress(Model):
         return self.status == self.COMPLETE
 
     @classmethod
+    def get_geoaddress(cls, address):
+        try:
+            geoaddress = address.geoaddress
+        except GeoAddress.DoesNotExist:
+            geoaddress = None
+
+        if geoaddress is None:
+            geoaddress = GeoAddress(address=address)
+
+        return geoaddress
+
+    @classmethod
     def populate_geoaddress(cls, address):
         try:
             geoaddress = address.geoaddress
         except GeoAddress.DoesNotExist:
-            town = Town.search(address)
-
-            if town is None:
-                geoaddress = cls.objects.create(address=address)
-            else:
-                geoaddress = cls.objects.create(address=address,
-                                                latitude=town.latitude,
-                                                longitude=town.longitude,
-                                                status=GeoAddress.PARTIAL)
+            geoaddress = GeoAddress(address=address)
+            geoaddress.set_town_position(Town.search(address))
+            geoaddress.save()
 
         return geoaddress
 
