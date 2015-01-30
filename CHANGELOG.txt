@@ -1,3 +1,266 @@
+== Version 1.5 ==
+
+  Users side :
+  ------------
+    # Mobile, a new app. It provides 3 views which are specifically adapted to the cellphones.
+        - The 'Home' page displays the Activities in progress and the Activities of the days.
+        - The 'Directory' page displays the favorite Contacts and Organisations (and their employees).
+        - The 'Activities' page displays the delayed phone calls, the activities without date and the activities planned the next day.
+        - You can search Contacts & Organisations, and create them.
+        - When you click on a phone number, and come back to the browser at the end of the call, a workflow panel allows you to
+          create a phonecall Activity (if it did not exist) and set its status.
+        - The (alternative) login view is on the URL '/mobile/login/'.
+    # Geolocation, a new app. It adds some geolocation features for the Contact and Organisation addresses.
+      For the time being, it uses only GoogleMaps service. 3 new blocks are available :
+        - "Maps" shows the location(s) of a Contact/Organisation in a map by using their addresses ; the latitude and the longitude can be manually dragged on the map.
+        - "Maps By Filter" shows the locations of all Contacts or Organisations for a given filter.
+        - "Around this address" shows all the neighbours of a selected address ; the neighbours can be filtered.
+    # A detail view for the PropertyTypes, which shows the tagged entities, has been added.
+    # The inner/bulk edition has been improved :
+        - The widgets are the same the full form ones, and so :
+            - The creator widgets are now used with configurable models (eg: Invoice.status).
+            - The ForeignKeys to CremeEntities are now well managed (eg: Contat.image).
+            - The ManyToManyFields are now supported (eg: Image.categories).
+        - The form of a specific field can be customized in order to manage correctly its business logic (see 'Apps' section).
+        - The support of related sub-fields (eg: Contact.billing_address__city) has been added.
+    # List view :
+        - The quick search on properties is now possible.
+        - The natural ordering of the models is now applied as default for listview (eg: Organisation are ordered by their name).
+          When a column is selected for ordering, both column order and default order are applied.
+    # EntityFilters :
+        - They can now be private ; it means that they can only be used by their owner.
+        - The conditions on FK fields (eg: Invoice.status) can now use a multi-selection.
+        - The Empty/NotEmpty operators are enabled only when a field can be null.
+        - The Date fields (regular & custom ones) now supports the Empty/NotEmpty operators.
+        - The EntityFilters created by the 'populate' scripts (ie: not custom) are now editable (but not deletable, and their name is not editable); their are versionned too.
+          Their owner is now the first super-user (in order not all users can edit them).
+          The versionning means that when a populate script is run again, if the script tries to create a filter which already exists (ie: its PK exists) :
+            - if the new version would have the same conditions, the name of the existing filter is updated (in order to fix a potential typo).
+            - if the conditions are different, a new filter with the old one PK as base for its own PK (plus a version mark) is created ; the name is versionned too.
+    # Listviews Views (HeaderFilters) :
+        - They can now be private ; it means that they can only be used by their owner.
+        - The Views created by the 'populate' scripts (ie: not custom) are now editable (but not deletable).
+          So, when the scripts are run again, the existing Views are not modified anymore (in order to keep the modifications of the users).
+    # Global search :
+        - The view uses now the GET method, so back button works well now.
+        - The results blocks are now paginated.
+        - The search on a model can be disabled in creme_config.
+    # The CSV import can now set the CustomFields values.
+    # You can now create an Entity "on the fly" with the multi-select widget for Entities.
+    # A User and its related Contact are now synchonised (ie: first_name, last_name & email remain equal).
+    # The autocompletion has been added to several forms, to select a content type or a relationship type.
+    # The non mandatory instances are not re-created anymore when the command 'creme_populate' is run.
+    # The ordering of models has been improved: lots of models are now ordered by name/title.
+    # Apps :
+        * Reports :
+            - A Report can (again) be created with no column.
+            - The download form has been improved.
+            - The graphs can save a default chart (bar, pie, tube...) for their next rendering.
+            - The number of queries computing the graph data has been reduced.
+            - The field Report.filter can now be inner-edited.
+            - The "volatile" links have been improved :
+                - Their name is always up to date & localized.
+                - When a link becomes invalid, the error is displayed in creme_config.
+                - They can be any valid/compatible relationship/FK, and not only the ones which correspond to a column of the related Report.
+            - The export view now uses GET parameters, so it can be bookmarked for example.
+        * Activities :
+            - The type of an Activity can now be edited (and not only its sub-type).
+            - The Organisations of the participants can be automatically added as subjects (it can be configured and it is enabled by default).
+            - The Activities can now be imported (ie: CSV/Excel files).
+        * Persons:
+            - You can now merge 2 Contacts if one of them is a user (but not 2).
+            - A field 'order' has been added to StaffSize.
+            - The field Organisation.siren is not unique anymore.
+        * Creme_config :
+            - You can not link an existing Contact when you create a User anymore.
+            - SettingKey & SettingValue :
+                - The values have a prettier display in their block (eg: 'True' is now a localized "Yes").
+                - The descriptions are correctly localized.
+            - The permissions for the views which configure RelationTypes, PropertyTypes, Blocks... have changed from 'creme_config.can_admin' to 'creme_core.can_admin'.
+              The related portals do not need specific permissions anymore.
+        * Commercial :
+            - Commercial action :
+                - A counted entity can be directly created with a quick form, from the objectives block.
+                - A linked opportunity can be directly created from the 'Related opportunities' block.
+        * Recurrents :
+            - The field RecurrentGenerator.periodicity is now a DatePeriodField. It allows more accurate periodicity :
+              for example, you can set a real 'monthly' period, which is not equal to 30 days.
+            - The wizard form is now closer to other forms.
+        * Emails :
+            - The available sender address of the EmailCampaigns is now stored in a SettingValue.
+        * Billing :
+            - CSV import: in update mode, you can choose to update or not the addresses from the target.
+        * Products :
+            - The fields Product.category & Product.sub_category can now be inner-edited.
+        * Assistants :
+            - The minimum hour for reminder is now configurable by the users (via a SettingKey/Value).
+        * Tickets :
+            - A field 'order' has been added to Priority, Criticity & Status.
+        * Projects:
+            - A field 'order' has been added to ProjectStatus & TaskStatus.
+
+  Developpers side :
+  ------------------
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - creme_core.utils.meta.get_model_field_info() (see FieldInfo)
+            - creme_core.utils.meta.get_verbose_field_name() (see FieldInfo)
+            - creme_core.utils.meta.get_date_fields()
+            - HeaderFilter.can_edit_or_delete() (use can_edit()/can_delete() methods instead)
+            - EntityFilter.can_edit_or_delete() (use can_edit()/can_delete() methods instead)
+            - CremeEntity.get_real_entity_by_id()
+            - creme_core.models.lock.mutexify()
+            - Apps :
+                * Persons :
+                    - Contact.get_user_contact_or_mock().
+                    - Address._get_info_fields() (use Address.info_fields instead).
+                * Creme_config:
+                    - The auto increment of 'order' field in creme_config is deprecated (use a BasicAutoField instead).
+        # A new model field has been added: BasicAutoField ; it's a PositiveIntegerField which uses an autoincremented value when no value is given
+        # A new class, FieldInfo, has been added in order to replace the function get_model_field_info().
+        # 2 new SettingKey types have been added : HOUR, EMAIL.
+        # A new DatePeriod system has been added (with a related model & form fields).
+        # A new decorator for the view is available : creme.creme_core.auth.decorators.permission_required
+          It raises a 403 error (django.contrib.auth.decorators.permission_required redirects to login).
+          Notice that login_required is available in creme.creme_core.auth.decorators too.
+        # The database mutex tools have been improved :
+            - A new decorator has been added : creme.creme_core.models.lock.mutex_autolock.
+            - A new Context Manager (for "with" statement) has been added : creme.creme_core.models.lock.MutexAutoLock.
+        # The logging configuration has been improved. See LOGGING* properties in settings.py for more information.
+        # A new assertion, assertDatetimesAlmostEqual(), is available.
+        # The ForeignKeys have 2 new methods : get_null_label() & set_null_label(). The null_label allows a pretty display of null values.
+        # The file 'requirements.txt' has been cleaned, and the recommended versions of these packages
+          have been upgraded: Pillow, xlrd, south, pycrypto & restkit.
+        # Apps :
+            * Reports :
+                - A registry for types of charts (which allows to add custom ones) has been created.
+
+    Breaking changes :
+    ------------------
+        # Python 2.7 is now the only supported version.
+        # Deprecated stuffes which have been removed :
+            - The function creme_core.utils.Q_creme_entity_content_types().
+            - Two methods in Opportunity: get_target() & get_source().
+            - All the deprecated credentials methods in CremeEntity :.
+                - can_change() & can_change_or_die()
+                - can_delete() & can_delete_or_die()
+                - can_link() & can_link_or_die()
+                - can_unlink() & can_unlink_or_die()
+                - can_view() & can_view_or_die()
+                - populate_credentials()
+            - The form fields _EntityField/CremeEntityField/MultiCremeEntityField and the associated widget ListViewWidget.
+            - JavaScript:
+                - creme.utils.simpleConfirm()
+                - creme.utils.postNReload()
+        # The 'user' argument was removed from several methods :
+            - Relation.populate_real_object_entities()
+            - CremeEntity.populate_relations()
+            - EntityCell.populate_entities()
+            - HeaderFilter.populate_entities()
+        # The method CremeEntity.get_edit_absolute_url() now returns '' (and not an invalid URL anymore) which means 'No edition' ;
+          the base templates/templatetags use this official behaviour (view_entity.html, {% get_edit_button ... %}).
+        # _BulkUpdateRegistry.register() args have changed. It is not anymore a list of tuples (model, list_of_field_names),
+          but now it allows to register only a model at once, an optionnal list of field names, and an optional dict of custom forms.
+        # ManyToManyFields are now inner-editable by default ; so you have to manage them with bulk_update_registry.register(MyModel, ...)
+          if it causes a businness logic problem (by excluding them, or adding a custom form for them).
+        # SettingKey & SettingValue :
+            - The SettingKey class is not a model anymore ; the SettingKey instances should be created
+              in a setting_keys.py file and registered in your creme_core_register.py (see setting_key_registry).
+            - The model SettingValue :
+                - It has moved to creme_core (creme_core.models.setting_value.py).
+                - The field  'key' (ForeignKey) has been replaced by a 'key_id' field (CharField) ;
+                  so you could have to change some of your queries (eg: '.filter(key=MY_KEY)' --> '.filter(key_id=MY_KEY)').
+        # HeaderFilter.create() :
+            - It does not modify an existing HeaderFilter anymore.
+            - The owner cannot be a staff user.
+        # EntityFilter.create() :
+            - If the argument 'is_custom' is False, you have to give the conditions as argument too (this is a new argument) ;
+              a new filter is created if the conditions (or the 'use_or' field) are different ; if there are identitical, the name is updated.
+            - The owner cannot be a staff user anymore.
+            - The characters '[]' are now forbidden in the PK (ValueError).
+            - The 'ct' & the 'is_custom' value can not be changed if there is already an existing filter (ValueError).
+        # _FieldPrintersRegistry :
+            - The functions registered as field printers take now an additional 'field' argument.
+            - The attributes css_default_listview & css_default_header_listview have been removed.
+            - The method get_listview_css_class_for_field() & get_header_listview_css_class_for_field() can not take 'None' as argument anymore.
+        # Templatetags :
+            - 'enumerate' has been removed.
+            - 'print_boolean' always returns a boolean widget (it does not check if the argument is a boolean anymore).
+        # CSV import : ImportForm._post_instance_creation() takes now an additional argument 'updated'.
+        # Reminders :
+            - The Reminder class has changed :
+                - The attribute 'id_' has been renamed 'id'.
+                - The attribute 'model_' has been renamed 'model'.
+            - The models which can be reminded must have a boolean field called 'reminded' (so assistants.ToDo & assistants.Alert have been updated).
+        # The class creme.creme_core.core.entity_cell.EntityCellRegularField has changed : the property 'field_info' returns now a FieldInfo instance.
+        # The variable settings.SHOW_HELP has been removed.
+        # Apps :
+            * Recurrents :
+                - The forms given to the registry must take a new 'ct' argument ; the 'initial' argument is not set anymore.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+        # The view creme_core.views.clean.clean() has been removed.
+        # The old bulk edition URLs have been removed :
+            /creme_core/bulk_update/[...]
+            /creme_core/edit/[...]/[...]/field/[...]
+          Use now:
+            bulk edition : /creme_core/edit/bulk/[...]/[...]/field/[...]
+            inner edition : /creme_core/edit/inner/[...]/[...]/field/[...]
+        # The old bulk widget URL has been removed : /creme_core/get_widget/[...]
+        # The bulk edition forms EntitiesBulkUpdateForm & EntityInnerEditForm have been removed
+          and replaced by BulkForm and BulkDefaultEditForm.
+        # The useless template file creme_core/templatetags/widgets/block_listview_field_editor.html has been removed.
+        # The listview popup URL /creme_core/lv_popup/[...] has been changed to /creme_core/list_view/popup/[...].
+        # The model SearchField has been removed, & replaced by the new TextField SearchConfigItem.field_names.
+        # The attribute ImportForm4CremeEntity.columns4dynrelations has been removed (there is an ImportForm.choices attribute instead).
+        # The HeaderFilterList's constructor takes now a mandatory 'user' argument.
+        # The EntityFilterList's constructor takes now a mandatory 'user' argument.
+        # Global search :
+            - The view ('/creme_core/search') uses now the GET method and returns a complete page.
+            - The method SearchConfigItem.get_4_model() is deprecated; use SearchConfigItem.get_4_models() instead.
+            - The templatetag {% get_search_panel %} does not take argument anymore.
+            - The JavaScript function creme.utils.handleResearch() is deprecated.
+        # The view creme_core.views.enumerable.json_list_enumerable() returns now tuples (id, label, group) for EntityFilter (instead of tuples (id, label) ).
+        # The inner classes PolymorphicInput.Model & ChainedInput.Model have been removed.
+        # The method Relation._collect_sub_objects() has been removed.
+        # JavaScript :
+            - The function creme.lv_widget.init_widget() has been removed.
+            - The methods creme.lv_widget.handleSelection() and creme.lv_widget.delete_a_value() are now deprecated.
+            - Move some methods from utils.js to block.js :
+                - creme.utils.tableExpandState -> creme.blocks.tableExpandState
+                - creme.utils.tableIsCollapsed -> creme.blocks.tableIsCollapsed
+                - creme.utils.tableExpand      -> creme.blocks.tableExpand
+                - creme.utils.bindTableToggle  -> creme.blocks.bindTableToggle
+        # Apps :
+            * Reports :
+                - The ReportField has change, in order to separate the aggregates on regular fields & custom fields.
+                    - RFT_AGGREGATE has been replaced by RFT_AGG_FIELD.
+                    - RFT_AGG_CUSTOM has been added.
+                - The form report.DateReportFilterForm has been removed.
+                - The export URLs have changed :
+                    /reports/report/preview/[...] became /reports/export/preview/[...]
+                    /reports/report/export/[...]/[...] became /reports/export/filter/[...]
+                - The function reports.core.graph.fetch_graph_from_instance_block has been replaced by the static method ReportGraph.get_fetcher_from_instance_block().
+                - The templatetags report_[barchart|piechart|tubechart]_json have been replaced by the generic one report_chart_json.
+            * Opportunities :
+                - In the forms.lv_import module, SalesPhaseExtractor, SalesPhaseExtractorWidget & SalesPhaseExtractorField have been removed.
+            * Assistants :
+                - The field ToDo.has_deadline has been removed.
+            * Activesync :
+                - The function create_or_update_function() has been renamed create_or_update_position().
+                - The class wbxml.Accessor has been removed.
+            * Recurrents :
+                - The field RecurrentGenerator.periodicity is now a DatePeriodField.
+                - The fields RecurrentGenerator.ct & RecurrentGenerator.template are not editable anymore.
+                - The fields RecurrentGenerator.first_generation & RecurrentGenerator.last_generation are not nullable anymore.
+                - The Periodicity model has been removed.
+                - The method RecurrentRegistry.get_all_templates() has been replaced by the property RecurrentRegistry.ctypes.
+                - The deprecated wizard-view function has been replaced by a class based view.
+
+
 == Version 1.4 ==
 
   Users side :
@@ -84,7 +347,7 @@
   Developpers side :
   ------------------
     Non breaking changes :
-    ------------------
+    ----------------------
         # A new field tag has been created : 'enumerable'. When a ForeignKey is tagged as enumerable, it means that the related model
           can be enumerated, ie there are a limited number of instances. Eg : persons.models.Position are enumerable, but not persons.models.Address.
         # JavaScript :
