@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 from django.utils.html import escape
 
 from creme.creme_core.auth.decorators import login_required, permission_required
@@ -152,7 +152,7 @@ def link_to_person(request, person_id):
 #TODO: do this job in template instead ??
 def _format_previous_answered_question(preply_id, line, style):
     if not line.applicable:
-        answer = ugettext('N/A')
+        answer = pgettext('polls', u'N/A')
     elif isinstance(line.poll_line_type, MultiEnumPollLineType): #TODO: isinstance(answer, list) ??
         answer = u", ".join(escape(choice) for choice in line.answer)
     else:

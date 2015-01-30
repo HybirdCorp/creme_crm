@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
-    campaign      = ForeignKey(EmailCampaign, verbose_name=_(u'Related campaign'),
+    campaign      = ForeignKey(EmailCampaign, verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
     type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))

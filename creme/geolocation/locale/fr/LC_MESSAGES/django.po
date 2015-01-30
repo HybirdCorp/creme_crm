@@ -1,18 +1,16 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FR LOCALISATION OF 'GEOLOCATION' APP
+# Copyright (C) 2015 Hybird
+# This file is distributed under the same license as the Creme package.
 #
-# django-admin.py makemessages -l fr -e html -i "migrations/*"
+# > django-admin.py makemessages -l fr -e html -i "migrations/*"
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-22 14:37+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2015-01-30 17:45+0100\n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -34,15 +32,15 @@ msgstr "Autour de cette adresse"
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: models.py:46
+#: models.py:46 tests/utils.py:124
 msgid "Not localized"
 msgstr "Non localisé"
 
-#: models.py:47
+#: models.py:47 tests/models.py:278
 msgid "Manual location"
 msgstr "Localisation manuelle"
 
-#: models.py:48
+#: models.py:48 tests/models.py:269
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
@@ -50,11 +48,11 @@ msgstr "Localisation incomplète"
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:53 models.py:162
+#: models.py:53 models.py:164
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:54 models.py:163
+#: models.py:54 models.py:165
 msgid "Longitude"
 msgstr "Longitude"
 
@@ -71,27 +69,23 @@ msgctxt "geolocation"
 msgid "Status"
 msgstr "Statut"
 
-#: models.py:73
-msgid "No matching location"
-msgstr "Non localisé"
-
-#: models.py:158
+#: models.py:160
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:159
+#: models.py:161
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:160
+#: models.py:162
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:161
+#: models.py:163
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:167
+#: models.py:169
 msgid "Town"
 msgstr "Ville"
 
@@ -102,13 +96,13 @@ msgstr ""
 "Distance maximale pour trouver des voisins en mètres, par défaut %(default)s "
 "m."
 
-#: utils.py:66
+#: utils.py:69 tests/utils.py:52
 msgid "Billing address"
-msgstr "Addresse de facturation"
+msgstr "Adresse de facturation"
 
-#: utils.py:69
+#: utils.py:72 tests/utils.py:69
 msgid "Shipping address"
-msgstr "Addresse de livraison"
+msgstr "Adresse de livraison"
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:10
 #: templates/geolocation/templatetags/block_persons_google_map.html:9
@@ -117,13 +111,13 @@ msgstr "Carte"
 
 #: templates/geolocation/templatetags/block_persons_filters_google_map.html:17
 msgid "No address from"
-msgstr "Aucune adresse"
+msgstr "Aucune adresse de"
 
-#: templates/geolocation/templatetags/block_persons_google_map.html:30
+#: templates/geolocation/templatetags/block_persons_google_map.html:29
 msgid "Retrieve location"
 msgstr "Localiser"
 
-#: templates/geolocation/templatetags/block_persons_google_map.html:43
+#: templates/geolocation/templatetags/block_persons_google_map.html:42
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"
 
@@ -136,7 +130,7 @@ msgid "None of"
 msgstr "Aucune adresse de"
 
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:22
-msgid "Locations"
+msgid "All the Contacts and Organisations"
 msgstr "Tous les contacts et sociétés"
 
 #: templates/geolocation/templatetags/block_persons_neighbours_map.html:31
@@ -165,3 +159,11 @@ msgid "%(distance).1f Km"
 msgid_plural "%(distance).1f Km"
 msgstr[0] "%(distance).1f Km"
 msgstr[1] "%(distance).1f Km"
+
+#: tests/blocks.py:58 tests/blocks.py:91
+msgid "Contacts"
+msgstr ""
+
+#: tests/models.py:272
+msgid "No matching location"
+msgstr "Non localisé"

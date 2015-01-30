@@ -19,13 +19,13 @@
             <td class="block-geoaddress-header">
                 <span class="block-geoaddress-counter">{% trans "None of" %}</span>&nbsp;
                 <select class="block-geoaddress-filter">
-                    <option value="">{% trans "Locations" %}</option>
+                    <option value="">{% trans "All the Contacts and Organisations" %}</option>
                     {% for groupname, choices in address_filters %}
-                    <optgroup label="{{groupname}}">
-                        {% for value, label in choices %}
-                            <option value='{{value}}'>{{label}}</option>
-                        {% endfor %}
-                    </optgroup>
+                        <optgroup label="{{groupname}}">
+                            {% for value, label in choices %}
+                                <option value='{{value}}'>{{label}}</option>
+                            {% endfor %}
+                        </optgroup>
                     {% endfor %}
                 </select>
                 &nbsp;{% trans "around" %}&nbsp;

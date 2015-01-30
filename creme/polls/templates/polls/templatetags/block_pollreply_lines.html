@@ -51,7 +51,7 @@
                     </td>
                     <td class="{{row_color}}" style="{% print_node_css style node %}">
                         {% if not node.applicable %}
-                            <em>{% trans "N/A" %}<em>
+                            <em>{% trans "N/A" context "polls" %}<em>
                         {% else %}{% if node.type == 101 %}{% comment %}MULTI_ENUM{% endcomment %}
                             <ul>{% for item in node.answer %}<li>{{item}}</li>{% endfor %}</ul>
                         {% else %}

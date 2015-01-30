@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,16 +19,15 @@
 ################################################################################
 
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
-                              PositiveIntegerField, PositiveSmallIntegerField,
-                              ForeignKey, PROTECT, SET_NULL)
-from django.utils.translation import ugettext_lazy as _, ugettext
+        PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL)
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
 from .base import _PollLine
+from .campaign import PollCampaign
 from .poll_type import PollType
 from .poll_form import PollForm, PollFormLine
-from .campaign import PollCampaign
 
 
 class PollReply(CremeEntity):
@@ -36,7 +35,7 @@ class PollReply(CremeEntity):
     pform       = ForeignKey(PollForm, verbose_name=_(u'Related form'),
                              editable=False, on_delete=PROTECT,
                             )
-    campaign    = ForeignKey(PollCampaign, verbose_name=_(u'Related campaign'),
+    campaign    = ForeignKey(PollCampaign, verbose_name=pgettext_lazy('polls', u'Related campaign'),
                              on_delete=PROTECT, null=True, blank=True, #editable=False,
                             )
     person      = ForeignKey(CremeEntity, verbose_name=_(u'Person who filled'),
