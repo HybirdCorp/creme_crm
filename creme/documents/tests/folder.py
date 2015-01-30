@@ -35,7 +35,7 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
-        category = FolderCategory.objects.all()[0]
+        #category = FolderCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
                                     data={'user':        self.user.pk,
                                           'title':       title,

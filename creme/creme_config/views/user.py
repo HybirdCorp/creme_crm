@@ -23,8 +23,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.auth.decorators import (login_required, permission_required,
-        superuser_required)
+from creme.creme_core.auth.decorators import login_required, superuser_required #permission_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup

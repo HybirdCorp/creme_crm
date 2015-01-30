@@ -446,7 +446,7 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_restore_entity03(self):
         user = self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
+        entity = Organisation.objects.create(user=user, name='Nerv', is_deleted=True)
         self.assertPOST200(self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         entity = self.get_object_or_fail(Organisation, pk=entity.pk)

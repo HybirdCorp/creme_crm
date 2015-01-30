@@ -401,7 +401,7 @@ class SendingsTestCase(_EmailsTestCase):
     def test_inneredit(self):
         user = self.login()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
+        #template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
         sending  = EmailSending.objects.create(campaign=camp, type=SENDING_TYPE_IMMEDIATE,
                                                sending_date=now(), state=SENDING_STATE_PLANNED,
                                               )

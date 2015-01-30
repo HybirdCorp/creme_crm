@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import re
+#import re
 from collections import defaultdict
 
 from django.contrib.auth.models import User

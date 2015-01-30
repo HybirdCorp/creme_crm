@@ -21,7 +21,7 @@
 from functools import partial
 
 from django.contrib.auth.models import User
-from django.forms import DateTimeField, ValidationError, ModelMultipleChoiceField, ModelChoiceField
+from django.forms import DateTimeField, ValidationError, ModelMultipleChoiceField # ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm #FieldBlockManager
@@ -36,7 +36,7 @@ from creme.persons.models import Contact
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
 from creme.activities.forms.activity_type import ActivityTypeField
-from creme.activities.models import Calendar, ActivitySubType
+from creme.activities.models import Calendar # ActivitySubType
 from creme.activities.utils import check_activity_collisions
 
 from ..models import ProjectTask
