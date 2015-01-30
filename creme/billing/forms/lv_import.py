@@ -27,7 +27,7 @@ from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, Enti
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first, update_model_instance
 
-from creme.persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation # Address
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
@@ -39,11 +39,13 @@ def _copy_or_update_address(source, dest, attr_name, addr_name):
     source_addr = getattr(source, attr_name, None)
     dest_addr   = getattr(dest,   attr_name, None)
 
-    if dest_addr is None:
+    if dest_addr is None: #should not happen
         setattr(dest, attr_name, copy_or_create_address(source_addr, source, addr_name))
     elif source_addr is None:
-        name = unicode(addr_name)
-        setattr(dest, attr_name, Address.objects.create(name=name, owner=owner, address=name))
+        #name = unicode(addr_name)
+        #setattr(dest, attr_name, Address.objects.create(name=name, owner=dest, address=name))
+        # should we empty the fields of the Address ?
+        pass
     else:
         change = update_model_instance(dest_addr, **dict(source_addr.info_fields))
 
@@ -61,14 +63,14 @@ def get_import_form_builder(header_dict, choices):
                                               help_text=_('In update mode, update the billing address from the target.')
                                              )
         override_shipping_addr = BooleanField(label=_('Update the shipping address'), required=False,
-                                             help_text=_('In update mode, update the shipping address from the target.')
-                                            )
+                                              help_text=_('In update mode, update the shipping address from the target.')
+                                             )
 
         #class Meta:
             #exclude = ('billing_address', 'shipping_address')
 
-        def _post_instance_creation(self, instance, line):
-            super(InvoiceLVImportForm, self)._post_instance_creation(instance, line)
+        def _post_instance_creation(self, instance, line, updated):
+            super(InvoiceLVImportForm, self)._post_instance_creation(instance, line, updated)
             cdata = self.cleaned_data
             user = self.user
 
@@ -84,7 +86,8 @@ def get_import_form_builder(header_dict, choices):
                                 )
 
             #TODO: move this intelligence in models.Base.save() (see regular Forms)
-            if not cdata['key_fields']:
+            #if not cdata['key_fields']:
+            if not updated:
                 create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
                 create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
 
@@ -98,6 +101,9 @@ def get_import_form_builder(header_dict, choices):
 
                 issued_relation   = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_ISSUED), None)
                 received_relation = find_first(relations, (lambda r: r.type_id == REL_SUB_BILL_RECEIVED), None)
+
+                assert issued_relation is not None
+                assert received_relation is not None
 
                 if issued_relation.object_entity_id != source:
                     issued_relation.delete()

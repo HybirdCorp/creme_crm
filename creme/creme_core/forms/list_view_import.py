@@ -1032,7 +1032,8 @@ class ImportForm(CremeModelForm):
 
         return document
 
-    def _post_instance_creation(self, instance, line): # overload me
+    #def _post_instance_creation(self, instance, line): # overload me
+    def _post_instance_creation(self, instance, line, updated): # overload me
         pass
 
     def _pre_instance_save(self, instance, line): # overload me
@@ -1126,7 +1127,7 @@ class ImportForm(CremeModelForm):
                 else:
                     self.imported_objects_count += 1
 
-                self._post_instance_creation(instance, line)
+                self._post_instance_creation(instance, line, updated)
 
                 for m2m in self._meta.model._meta.many_to_many:
                     extractor = get_cleaned(m2m.name)  # can be a regular_field ????
@@ -1221,10 +1222,11 @@ class ImportForm4CremeEntity(ImportForm):
 
         return extractors
 
-    def _post_instance_creation(self, instance, line):
+    #def _post_instance_creation(self, instance, line):
+    def _post_instance_creation(self, instance, line, updated):
         cdata = self.cleaned_data
         user = instance.user
-        update_mode = bool(self.cleaned_data['key_fields'])
+        #update_mode = bool(self.cleaned_data['key_fields'])
 
         # Custom Fields -------
         for cfield in self.cfields:
@@ -1239,7 +1241,8 @@ class ImportForm4CremeEntity(ImportForm):
                     CustomFieldValue.save_values_for_entities(cfield, [instance], value)
 
         # Properties -----
-        create_prop = partial(CremeProperty.objects.create if not update_mode else
+        #create_prop = partial(CremeProperty.objects.create if not update_mode else
+        create_prop = partial(CremeProperty.objects.create if not updated else
                               CremeProperty.objects.get_or_create,
                               creme_entity=instance,
                              )
@@ -1248,8 +1251,10 @@ class ImportForm4CremeEntity(ImportForm):
             create_prop(type=prop_type)
 
         # Relationships -----
+        #create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
+                          #if not update_mode else \
         create_relation = partial(Relation.objects.create, user=user, subject_entity=instance) \
-                          if not update_mode else \
+                          if not updated else \
                           partial(Relation.objects.get_or_create, subject_entity=instance,
                                   defaults={'user': user},
                                  )
