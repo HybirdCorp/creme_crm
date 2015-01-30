@@ -30,6 +30,10 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def assertGeoAddress(self, instance, **kwargs):
         self.assertModelInstance(instance, GeoAddress, **kwargs)
 
+    def assertListAddressAsDict(self, addresses, expected):
+        key = lambda a: a['id']
+        self.assertListEqual(sorted(addresses, key=key), sorted(expected, key=key))
+
     def create_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         address = Address.objects.create(name=address,
                                          address=address,
