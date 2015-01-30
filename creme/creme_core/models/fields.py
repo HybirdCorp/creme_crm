@@ -176,7 +176,7 @@ class EntityCTypeForeignKey(CTypeForeignKey):
 
 
 class BasicAutoField(PositiveIntegerField):
-    """BasicAutoField is A PositiveIntegerField which use an autoincremented
+    """BasicAutoField is a PositiveIntegerField which uses an autoincremented
     value when no value is given.
 
     Notice that that the method is really simple, so the limits are :
