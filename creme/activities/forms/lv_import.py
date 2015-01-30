@@ -656,14 +656,15 @@ def get_csv_form_builder(header_dict, choices):
             else:
                 instance.floating_type = FLOATING
 
-        def _post_instance_creation(self, instance, line):
-            super(ActivityCSVImportForm, self)._post_instance_creation(instance, line)
+        def _post_instance_creation(self, instance, line, updated):
+            super(ActivityCSVImportForm, self)._post_instance_creation(instance, line, updated)
 
             cdata = self.cleaned_data
             user = instance.user
             participant_ids = set()
 
-            if cdata['key_fields']: # update mode
+            #if cdata['key_fields']: # update mode
+            if updated:
                 #TODO: improve get_participant_relations() (not retrieve real entities)
                 participant_ids.update(Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY,
                                                                object_entity=instance.id,

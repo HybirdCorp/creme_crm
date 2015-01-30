@@ -744,6 +744,17 @@ class InvoiceTestCase(_BillingTestCase):
                                          override_shipping_addr=False,
                                         )
 
+    def test_csv_import_update03(self):
+        self.login()
+        self._aux_test_csv_import_update(Invoice, InvoiceStatus,
+                                         target_billing_address=False,
+                                         override_billing_addr=True,
+                                        )
+
+    def test_csv_import_update04(self):
+        self.login()
+        self._aux_test_csv_import(Invoice, InvoiceStatus, update=True)
+
 
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self): #setUpClass does not work here
