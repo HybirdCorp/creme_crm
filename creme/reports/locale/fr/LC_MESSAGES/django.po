@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-14 17:19+0100\n"
+"POT-Creation-Date: 2015-01-30 11:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -24,16 +24,16 @@ msgstr "Colonnes du rapport"
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: creme_core_register.py:30 models/report.py:50
+#: creme_core_register.py:31 models/report.py:50
 #: templates/reports/portal.html:4
 msgid "Reports"
 msgstr "Rapports"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "Portal of reports"
 msgstr "Portail des rapports"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All reports"
 msgstr "Liste des rapports"
 
@@ -57,15 +57,15 @@ msgstr "Maximum"
 msgid "Sum"
 msgstr "Somme"
 
-#: report_chart_registry.py:50
+#: report_chart_registry.py:51
 msgid "Histogram"
 msgstr "Histogramme"
 
-#: report_chart_registry.py:51
+#: report_chart_registry.py:52
 msgid "Pie"
 msgstr "Camembert"
 
-#: report_chart_registry.py:52
+#: report_chart_registry.py:53
 msgid "Tube"
 msgstr "Barres empilées 100%"
 
@@ -184,21 +184,21 @@ msgstr "Relations"
 msgid "No available choice"
 msgstr "Aucun choix disponible"
 
-#: forms/bulk.py:38 forms/report.py:147
+#: forms/bulk.py:35 forms/report.py:147
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:58 forms/bulk.py:89 forms/report.py:155
+#: forms/bulk.py:55 forms/bulk.py:86 forms/report.py:155
 msgid "The filter cannot be changed because it is private."
 msgid_plural "The filters cannot be changed because they are private."
 msgstr[0] "Le filtre ne peut pas être changé car il est privé."
 msgstr[1] "Les filtres ne peuvent pas être changés car ils sont privés."
 
-#: forms/bulk.py:64
+#: forms/bulk.py:61
 msgid "Beware !"
 msgstr "Attention !"
 
-#: forms/bulk.py:66
+#: forms/bulk.py:63
 #, python-format
 msgid "The filter of %s report cannot be changed because it is private."
 msgid_plural ""
@@ -207,18 +207,13 @@ msgstr[0] "Le filtre de %s rapport ne peut pas être changé car il est privé."
 msgstr[1] ""
 "Le filtre de %s rapports ne peut pas être changé car ils sont privés."
 
-#: forms/bulk.py:72 forms/bulk.py:80
+#: forms/bulk.py:69 forms/bulk.py:77
 msgid ""
 "Filter field can only be updated when reports target the same type of "
 "entities (e.g: only contacts)."
 msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
-
-# from creme_core
-#: forms/bulk.py:94 forms/report.py:112 forms/report.py:117
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
 
 #: forms/graph.py:55 models/graph.py:45
 msgid "Chart type"
@@ -314,6 +309,11 @@ msgstr ""
 #: templates/reports/frags/report_preview_format.html:15
 msgid "Filter"
 msgstr "Filtre"
+
+# from creme_core
+#: forms/report.py:112 forms/report.py:117
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
 
 #: forms/report.py:161
 msgid "Sub-report linked to the column"
@@ -458,7 +458,8 @@ msgid "Preview"
 msgstr "Aperçu"
 
 #: templates/reports/preview_report.html:55
-msgid "Download"
+#: templates/reports/view_report.html:10
+msgid "Download CSV"
 msgstr "Télécharger CSV"
 
 #: templates/reports/preview_report.html:63
@@ -468,7 +469,7 @@ msgstr "Aperçu des %(limit_to)s premières fiches"
 
 #: templates/reports/reports_hands_widget.html:7
 msgid "Related entities"
-msgstr "Fiches relatives"
+msgstr "Fiches associées"
 
 #: templates/reports/reports_hands_widget.html:20
 msgid "Aggregated values"
@@ -505,10 +506,6 @@ msgstr "Aperçu du rapport : '%(object)s'"
 #, python-format
 msgid "Download «%(object)s»"
 msgstr "Télécharger «%(object)s»"
-
-#: templates/reports/view_report.html:10
-msgid "Download CSV"
-msgstr "Télécharger CSV"
 
 #: templates/reports/frags/date_filter_form.html:22
 msgid "Temporal filters"
@@ -722,6 +719,9 @@ msgstr "Liaison de la colonne <%s>"
 #, python-format
 msgid "Edit columns of <%s>"
 msgstr "Modifier les colonnes de <%s>"
+
+#~ msgid "Download"
+#~ msgstr "Télécharger CSV"
 
 #~ msgid "Related graph"
 #~ msgstr "Graphique relatif"

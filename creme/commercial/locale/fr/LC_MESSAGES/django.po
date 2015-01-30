@@ -725,9 +725,10 @@ msgstr "Ajouter une opportunité liée"
 msgid "Sales phase"
 msgstr ""
 
+# translated in 'opportunities'
 #: templates/commercial/templatetags/block_opportunities.html:22
 msgid "Estimated sales"
-msgstr "CA espéré"
+msgstr ""
 
 #: templates/commercial/templatetags/block_opportunities.html:23
 msgid "Made sales"

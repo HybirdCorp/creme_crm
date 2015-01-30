@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
         CreatorEntityField, MultiGenericEntityField, MultiCreatorEntityField)
@@ -40,7 +40,7 @@ from ..models import PollForm, PollReply, PollCampaign
 class PollRepliesCreateForm(CremeForm):
     user     = ModelChoiceField(label=_(u'User'), queryset=User.objects.filter(is_staff=False), required=True)
     name     = CharField(label=_(u'Name'), required=True)
-    campaign = CreatorEntityField(label=_(u'Related campaign'), model=PollCampaign, required=False)
+    campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'), model=PollCampaign, required=False)
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)
     persons  = MultiGenericEntityField(label=_(u'Persons who filled'), required=False,
                                         models=[Organisation, Contact],

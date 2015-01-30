@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'MOBILE' APP
-# Copyright (C) 2014 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i tests.py
@@ -168,7 +168,7 @@ msgstr "Mobile"
 
 #: templates/mobile/add_contact.html:77
 msgid "Email address"
-msgstr "Adresse email"
+msgstr "Adresse e-mail"
 
 # Already in persons
 #: templates/mobile/add_contact.html:85
@@ -491,7 +491,7 @@ msgstr "Cette fiche est une favorie pour %s utilisateur"
 msgid "This entity is a favorite for %s users"
 msgstr "Cette fiche est une favorie pour %s utilisateurs"
 
-#Already in creme_core
+# Already in creme_core
 #: templates/mobile/templatetags/block_favorite.html:17
 msgid "Link"
 msgstr ""
