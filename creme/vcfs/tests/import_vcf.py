@@ -348,7 +348,8 @@ END:VCARD""" % {'first_name': first_name,
                 'last_name':  last_name,
                 'long_name':  first_name + last_name + ' (& Fumika)',
                }
-        response = self._post_step0(content)
+        #response =
+        self._post_step0(content)
 
         #with self.assertNoException():
             #fields = response.context['form'].fields

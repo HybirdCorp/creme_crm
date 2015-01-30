@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
+#from functools import partial
 import logging
 
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import commit_on_success
 from django.utils.timezone import now
 

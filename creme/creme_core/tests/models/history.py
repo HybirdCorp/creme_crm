@@ -516,8 +516,7 @@ about this fantastic animation studio."""
         rtype, srtype = RelationType.create(('test-subject_works5', 'is employed'),
                                             ('test-object_works5',  'employs')
                                            )
-        relation = Relation.objects.create(user=user, subject_entity=nerv, object_entity=rei, type=srtype)
-
+        Relation.objects.create(user=user, subject_entity=nerv, object_entity=rei, type=srtype)
 
         hlines = list(HistoryLine.objects.exclude(id__in=olds_ids).order_by('id'))
         self.assertEqual(2, len(hlines))

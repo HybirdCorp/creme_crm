@@ -10,7 +10,7 @@ try:
 
     from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.gui import bulk_update_registry
+    #from creme.creme_core.gui import bulk_update_registry
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
 
     from creme.persons.models import Organisation, Contact

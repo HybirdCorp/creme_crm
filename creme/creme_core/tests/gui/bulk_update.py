@@ -4,14 +4,12 @@ try:
     from itertools import chain
     from functools import partial
 
-    from django.db.models.fields import FieldDoesNotExist
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase, skipIfNotInstalled
-
-    from creme.creme_core.models.custom_field import CustomField
-    from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
     from creme.creme_core.forms.bulk import BulkDefaultEditForm
+    from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
+    from creme.creme_core.models.custom_field import CustomField
     from creme.creme_core.utils.unicode_collation import collator
 
     from creme.persons.models import Contact, Organisation, Address
