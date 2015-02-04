@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +24,19 @@ from django.db import transaction
 from django.db.models import (Model, FloatField, BooleanField,
     OneToOneField, CharField, SlugField, SmallIntegerField)
 
-from django.db.models.signals import post_save, post_delete
 from django.db.models.query_utils import Q
+from django.db.models.signals import post_save, post_delete
 from django.dispatch.dispatcher import receiver
 from django.template.defaultfilters import slugify
-from django.utils.translation import ugettext as _, pgettext
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
-from creme.creme_core.utils.chunktools import iter_as_slices
 from creme.creme_core.utils import update_model_instance
+from creme.creme_core.utils.chunktools import iter_as_slices
+
 from creme.persons.models import Address
 
 from .utils import location_bounding_box
+
 
 class GeoAddress(Model):
     UNDEFINED  = 0
@@ -49,16 +51,19 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-    address = OneToOneField(Address, verbose_name=_(u"Address"))
-    latitude = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
+    address   = OneToOneField(Address, verbose_name=_(u"Address"))
+    latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
     longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180,
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
-    geocoded = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
-    status = SmallIntegerField(verbose_name=pgettext('geolocation', u'Status'), choices=STATUS_LABELS.items(), default=UNDEFINED)
+    geocoded  = BooleanField(verbose_name=_(u'Geocoded from address ?'), default=False)
+    status    = SmallIntegerField(verbose_name=pgettext_lazy('geolocation', u'Status'),
+                                  choices=STATUS_LABELS.items(), default=UNDEFINED,
+                                 )
 
     class Meta:
         app_label = 'geolocation'
         verbose_name = _(u'Address')
+        verbose_name_plural = _(u'Addresses')
 
     def __init__(self, *args, **kwargs):
         super(GeoAddress, self).__init__(*args, **kwargs)
@@ -157,16 +162,17 @@ class GeoAddress(Model):
 
 
 class Town(Model):
-    name = CharField(_(u'Name of the town'), max_length=100, blank=False, null=False)
-    slug = SlugField(_(u'Slugified name of the town'), max_length=100, blank=False, null=False)
-    zipcode = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
-    country = CharField(_(u"Country"), max_length=40, blank=True, null=True)
-    latitude = FloatField(verbose_name=_(u"Latitude"))
+    name      = CharField(_(u'Name of the town'), max_length=100, blank=False, null=False)
+    slug      = SlugField(_(u'Slugified name of the town'), max_length=100, blank=False, null=False)
+    zipcode   = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
+    country   = CharField(_(u"Country"), max_length=40, blank=True, null=True)
+    latitude  = FloatField(verbose_name=_(u"Latitude"))
     longitude = FloatField(verbose_name=_(u"Longitude"))
 
     class Meta:
         app_label = 'geolocation'
         verbose_name = _(u'Town')
+        verbose_name_plural = _(u'Towns')
 
     def __unicode__(self):
         return u"%s %s %s" % (self.zipcode, self.name, self.country)
@@ -200,8 +206,10 @@ class Town(Model):
     @classmethod
     def search_all(cls, addresses):
         candidates = list(Town.objects.filter(Q(zipcode__in=(a.zipcode for a in addresses if a.zipcode)) |
-                                              Q(slug__in=(slugify(a.city) for a in addresses if a.city)))
-                                      .order_by('zipcode'))
+                                              Q(slug__in=(slugify(a.city) for a in addresses if a.city))
+                                             )
+                                      .order_by('zipcode')
+                         )
 
         cities = {key: list(c) for key, c in groupby(candidates, lambda c: c.slug)}
         zipcodes = {key: list(c) for key, c in groupby(candidates, lambda c: c.zipcode)}
@@ -223,6 +231,7 @@ class Town(Model):
                 towns = filter(lambda c: c.slug == slug, towns)[:1]
 
             yield towns[0] if len(towns) == 1 else None
+
 
 @receiver(post_delete, sender=Address)
 def _dispose_geoaddresses(sender, instance, **kwargs):
