@@ -118,6 +118,7 @@ class GeoAddress(Model):
 
             GeoAddress.objects.bulk_create(create)
 
+            # TODO: only if has changed
             with transaction.commit_on_success():
                 for geoaddress in update:
                     geoaddress.save(force_update=True)

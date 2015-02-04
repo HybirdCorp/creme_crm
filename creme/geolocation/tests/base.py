@@ -43,7 +43,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
                                          department=zipcode[:2],
                                          state=None,
                                          country='',
-                                         owner=owner
+                                         owner=owner,
                                         )
 
         if geoloc is not None:
@@ -58,7 +58,7 @@ class GeoLocationBaseTestCase(CremeTestCase):
     def create_billing_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.billing_address = self.create_address(owner, address, zipcode, town, geoloc)
         owner.save()
-        return Address.objects.get(pk=owner.billing_address.pk)
+        return Address.objects.get(pk=owner.billing_address.pk) # TODO: WTF ?!!
 
     def create_shipping_address(self, owner, address='13 rue du yahourt', zipcode='13008', town='Marseille', geoloc=None):
         owner.shipping_address = self.create_address(owner, address, zipcode, town, geoloc)
