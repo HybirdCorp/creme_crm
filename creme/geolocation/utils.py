@@ -84,14 +84,18 @@ def addresses_from_persons(queryset, user):
 
     # get address ids which owner without billing nor shipping
     address_ids = {owner: pk for owner, pk in
-                   addresses.filter(object_id__in=entities.filter(billing_address__isnull=True, shipping_address__isnull=True)\
-                                                          .values_list('pk', flat=True))
-                            .order_by('-pk')
-                            .values_list('object_id', 'pk')}
+                        addresses.filter(object_id__in=entities.filter(billing_address__isnull=True,
+                                                                  shipping_address__isnull=True,
+                                                                 )
+                                                               .values_list('pk', flat=True)
+                                        )
+                                 .order_by('-pk')
+                                 .values_list('object_id', 'pk')
+                  }
 
     # merge ids
     address_ids.update(billing_shipping_ids)
-    return addresses.filter(pk__in=address_ids.itervalues())
+    return addresses.filter(pk__in=address_ids.itervalues()) # TODO: select_related('geoaddress') ??
 
 # TODO : move it to creme_core
 def get_setting(key, default=None):
