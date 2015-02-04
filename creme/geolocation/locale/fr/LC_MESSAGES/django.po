@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-30 17:45+0100\n"
+"POT-Creation-Date: 2015-02-04 11:43+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -32,62 +32,70 @@ msgstr "Autour de cette adresse"
 msgid "Geolocation"
 msgstr "Géolocalisation"
 
-#: models.py:46 tests/utils.py:124
+#: models.py:47 tests/utils.py:124
 msgid "Not localized"
 msgstr "Non localisé"
 
-#: models.py:47 tests/models.py:278
+#: models.py:48 tests/models.py:278
 msgid "Manual location"
 msgstr "Localisation manuelle"
 
-#: models.py:48 tests/models.py:269
+#: models.py:49 tests/models.py:269
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-#: models.py:52 models.py:61
+#: models.py:53 models.py:64
 msgid "Address"
 msgstr "Adresse"
 
-#: models.py:53 models.py:164
+#: models.py:54 models.py:168
 msgid "Latitude"
 msgstr "Latitude"
 
-#: models.py:54 models.py:165
+#: models.py:55 models.py:169
 msgid "Longitude"
 msgstr "Longitude"
 
-#: models.py:55
+#: models.py:56
 msgid "Is this marker draggable in maps ?"
 msgstr "Ce curseur peut-il être déplacé ?"
 
-#: models.py:56
+#: models.py:57
 msgid "Geocoded from address ?"
 msgstr "Géolocalisé à partir de l'adresse ?"
 
-#: models.py:57
+#: models.py:58
 msgctxt "geolocation"
 msgid "Status"
 msgstr "Statut"
 
-#: models.py:160
+#: models.py:65
+msgid "Addresses"
+msgstr "Adresses"
+
+#: models.py:164
 msgid "Name of the town"
 msgstr "Nom de la ville"
 
-#: models.py:161
+#: models.py:165
 msgid "Slugified name of the town"
 msgstr "Nom normalisé de la ville"
 
-#: models.py:162
+#: models.py:166
 msgid "Zip code"
 msgstr "Code postal"
 
-#: models.py:163
+#: models.py:167
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:169
+#: models.py:173
 msgid "Town"
 msgstr "Ville"
+
+#: models.py:174
+msgid "Towns"
+msgstr "Villes"
 
 #: setting_keys.py:28
 #, python-format
