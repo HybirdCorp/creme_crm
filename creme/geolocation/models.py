@@ -253,7 +253,7 @@ def _update_geoaddresses(sender, instance, **kwargs):
         geoaddress = instance.geoaddress
     except GeoAddress.DoesNotExist:
         transaction.savepoint_rollback(sid)
-        geoaddress = GeoAddress(address=instance)
+        instance.geoaddress = geoaddress = GeoAddress(address=instance)
         sid = transaction.savepoint()
 
     town = Town.search(instance)
