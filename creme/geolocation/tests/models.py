@@ -29,12 +29,27 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
 
     def test_create(self):
         town = self.marseille2
-        address = self.create_address(self.orga,  address='La Major', zipcode=town.zipcode, town=town.name)
-        self.assertGeoAddress(address.geoaddress, address=address,
+        address = self.create_address(self.orga,  address='La Major',
+                                      zipcode=town.zipcode, town=town.name,
+                                     )
+
+        with self.assertNoException():
+            geoaddress = address.geoaddress
+
+        self.assertGeoAddress(geoaddress, address=address,
                               latitude=town.latitude, longitude=town.longitude,
                               draggable=True, geocoded=False,
                               status=GeoAddress.PARTIAL,
                              )
+
+    def test_cache(self):
+        town = self.marseille2
+        address = self.create_address(self.orga,  address='La Major',
+                                      zipcode=town.zipcode, town=town.name,
+                                     )
+
+        with self.assertNumQueries(0):
+            geoaddress = address.geoaddress
 
     def test_create_empty_address(self):
         address = Address.objects.create(owner=self.orga)
