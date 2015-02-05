@@ -51,7 +51,7 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(Address, verbose_name=_(u"Address"))
+    address   = OneToOneField(Address, verbose_name=_(u"Address"), primary_key=True)
     latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
     longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180,
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
