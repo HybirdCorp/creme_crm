@@ -169,6 +169,7 @@ class TrashBlock(QuerysetBlock):
     verbose_name  = _(u'Trash')
     template_name = 'creme_core/templatetags/block_trash.html'
     page_size     = 25
+    permission    = None # NB: the template uses credentials
 
     def detailview_display(self, context):
         btc = self.get_block_template_context(context,
