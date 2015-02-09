@@ -22,15 +22,15 @@ from itertools import repeat
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.http import Http404
 from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
-        CreatorEntityField, MultiGenericEntityField, MultiCreatorEntityField)
-from creme.creme_core.forms.validators import validate_editable_entities
+        CreatorEntityField, MultiCreatorEntityField,
+        GenericEntityField, MultiGenericEntityField)
+from creme.creme_core.forms.validators import validate_editable_entities, validate_linkable_entity
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.forms.validators import validate_linkable_entity
 
 from creme.persons.models import Contact, Organisation
 
@@ -135,9 +135,27 @@ class PollRepliesCreateForm(CremeForm):
 
 
 class PollReplyEditForm(CremeEntityForm):
+    # TODO: improve the model in order to get these right fields/widgets automatically
+    campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'),
+                                  model=PollCampaign, required=False,
+                                 )
+    # TODO: rename it 'person' when initial works well + remove from exclude + remove save()
+    related_person   = GenericEntityField(label=_(u'Person who filled'),
+                                          required=False,
+                                          models=[Organisation, Contact],
+                                         )
+
     class Meta:
         model = PollReply
-        exclude = ('pform',)
+        exclude = ('pform', 'person')
+
+    def __init__(self, *args, **kwargs):
+        super(PollReplyEditForm, self).__init__(*args, **kwargs)
+        self.fields['related_person'].initial = self.instance.person
+
+    def save(self, *args, **kwargs):
+        self.instance.person = self.cleaned_data['related_person']
+        return super(PollReplyEditForm, self).save(*args, **kwargs)
 
 
 class PersonAddRepliesForm(CremeForm):

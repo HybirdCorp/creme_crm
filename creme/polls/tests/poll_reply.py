@@ -17,7 +17,7 @@ try:
     from creme.activities.models import Activity, ActivityType
 
     from .base import _PollsTestCase
-    from ..models import (PollType,
+    from ..models import (PollType, PollCampaign,
         PollForm,  PollFormSection,  PollFormLine,  PollFormLineCondition,
         PollReply, PollReplySection, PollReplyLine, PollReplyLineCondition)
     from ..core import PollLineType
@@ -706,7 +706,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.login()
         self.assertGET404(self._build_preply_from_person_url(self._create_activity()))
 
-    def test_editview(self):
+    def test_editview01(self):
         user = self.login()
         ptype1, ptype2, ptype3 = PollType.objects.all()[:3]
 
@@ -721,7 +721,7 @@ class PollRepliesTestCase(_PollsTestCase):
         name = 'reply#1'
         preply = PollReply.objects.create(user=user, pform=pform1, type=ptype1, name=name)
 
-        url = '/polls/poll_reply/edit/%s' % preply.id
+        url = preply.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = name.title()
@@ -739,6 +739,31 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(pform1, preply.pform) #not changed
         self.assertEqual(ptype1, preply.type)  #not changed
         self.assertFalse(preply.lines.all())
+        self.assertIsNone(preply.campaign)
+        self.assertIsNone(preply.person)
+
+    def test_editview02(self):
+        "Edit campaign & person"
+        user = self.login()
+        pform  = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
+
+        camp = PollCampaign.objects.create(user=user, name='Camp#1')
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        response = self.client.post(preply.get_edit_absolute_url(), follow=True,
+                                    data={'user':     user.id,
+                                          'name':     preply.name,
+                                          'campaign': camp.id,
+                                          'related_person': '{"ctype": %s, "entity": %s}' % (
+                                                                leina.entity_type_id, leina.id,
+                                                            )
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        preply = self.refresh(preply)
+        self.assertEqual(camp,  preply.campaign)
+        self.assertEqual(leina, preply.person.get_real_entity())
 
     def test_inneredit01(self):
         user = self.login()
