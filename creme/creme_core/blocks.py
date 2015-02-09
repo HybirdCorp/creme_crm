@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -170,6 +170,7 @@ class TrashBlock(QuerysetBlock):
     template_name = 'creme_core/templatetags/block_trash.html'
     page_size     = 25
     permission    = None # NB: the template uses credentials
+    configurable  = False # TODO: allows on home page ?
 
     def detailview_display(self, context):
         btc = self.get_block_template_context(context,
