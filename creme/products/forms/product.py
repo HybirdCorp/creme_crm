@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,10 +49,9 @@ class ProductInnerEditCategory(BulkForm):
         self.fields['sub_category'] = sub_category
 
     def save(self, *args, **kwargs):
-        entities = self.entities
         sub_category = self.cleaned_data['sub_category']
 
-        for entity in entities:
+        for entity in self.entities:
             entity.category = sub_category.category
             entity.sub_category = sub_category
             entity.save()

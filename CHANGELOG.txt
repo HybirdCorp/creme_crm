@@ -98,6 +98,8 @@
             - A field 'order' has been added to Priority, Criticity & Status.
         * Projects:
             - A field 'order' has been added to ProjectStatus & TaskStatus.
+        * Polls :
+            - The field PollReply.person can now be inner-edited.
 
   Developpers side :
   ------------------

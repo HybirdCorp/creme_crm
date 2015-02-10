@@ -24,6 +24,7 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from .models import PollForm, PollReply, PollCampaign, PollFormLine
+from .forms.poll_reply import InnerEditPersonForm
 from .blocks import block_list
 
 
@@ -46,5 +47,7 @@ reg_icon(PollForm,     'images/poll_%(size)s.png')
 reg_icon(PollReply,    'images/poll_%(size)s.png')
 reg_icon(PollCampaign, 'images/poll_%(size)s.png')
 
-bulk_update_registry.register(PollReply,    exclude=['person'])
+bulk_update_registry.register(PollReply, #exclude=['person']
+                              innerforms={'person': InnerEditPersonForm},
+                             )
 bulk_update_registry.register(PollFormLine, exclude=['type'])

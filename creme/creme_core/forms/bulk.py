@@ -21,10 +21,10 @@
 from functools import partial
 import re
 
-from django.db import models
-from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models.fields.related import ForeignKey, RelatedField, ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.forms.models import ModelMultipleChoiceField #model_to_dict
@@ -33,9 +33,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 
+from ..gui.bulk_update import bulk_update_registry
 from ..models import fields, CremeEntity
 from ..models.custom_field import CustomField, CustomFieldValue
-from ..gui.bulk_update import bulk_update_registry
 
 from .base import CremeForm
 from .fields import CreatorEntityField, MultiCreatorEntityField
@@ -287,6 +287,7 @@ class BulkFieldSelectWidget(Select):
         attrs['onchange'] = 'creme.dialog.redirect($(this).val(), $(this));'
         return attrs
 
+
 class BulkForm(CremeForm):
     def __init__(self, field, user, entities, is_bulk, parent_field=None, **kwargs):
         super(BulkForm, self).__init__(user, **kwargs)
@@ -304,18 +305,24 @@ class BulkForm(CremeForm):
         if is_bulk:
             choices_model = parent_field.model if is_subfield else field.model
             choices = self._bulk_model_choices(choices_model, entities)
-            initial = self._bulk_url(choices_model, parent_field.name + '__' + self.field_name if is_subfield else self.field_name, entities)
+            initial = self._bulk_url(choices_model,
+                                     parent_field.name + '__' + self.field_name if is_subfield else self.field_name,
+                                     entities,
+                                    )
 
             self.fields['_bulk_fieldname'] = ChoiceField(choices=choices,
                                                          label=_(u"Field to update"),
                                                          initial=initial,
                                                          widget=BulkFieldSelectWidget,
-                                                         required=False)
+                                                         required=False,
+                                                        )
 
     def _bulk_url(self, model, fieldname, entities):
-        return '/creme_core/entity/edit/bulk/%s/%s/field/%s' % (ContentType.objects.get_for_model(model).pk,
-                                                                ','.join(str(e.pk) for e in entities),
-                                                                 fieldname)
+        return '/creme_core/entity/edit/bulk/%s/%s/field/%s' % (
+                    ContentType.objects.get_for_model(model).pk,
+                    ','.join(str(e.pk) for e in entities),
+                    fieldname,
+                )
 
     def _bulk_formfield(self, user, instance=None):
         if self.is_custom:
@@ -337,13 +344,17 @@ class BulkForm(CremeForm):
                 choices.append((url % unicode(field.name), unicode(field.verbose_name)))
             else:
                 sub_choices.append((unicode(field.verbose_name),
-                                    [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name)) for subfield in subfields],
+                                    [(url % unicode(field.name + '__' + subfield.name), unicode(subfield.verbose_name))
+                                        for subfield in subfields
+                                    ],
                                    )
                                   )
 
         if custom_fields:
             choices.append((ugettext(u"Custom fields"),
-                            [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name) for field in custom_fields]
+                            [(url % (_CUSTOMFIELD_FORMAT % field.id), field.name)
+                                for field in custom_fields
+                            ]
                            )
                           )
 
@@ -475,7 +486,7 @@ class BulkDefaultEditForm(BulkForm):
 
         cleaned_data = super(BulkDefaultEditForm, self).clean()
 
-        # in bulk mode get all entities, only the first one elsewhere 
+        # in bulk mode get all entities, only the first one elsewhere
         entities = self.entities if self.is_bulk else self.entities[:1]
 
         # skip model clean step for customfields
@@ -486,7 +497,7 @@ class BulkDefaultEditForm(BulkForm):
 
         values = {self.field_name: cleaned_data.get('field_value')}
 
-        # update attribute <field_name> of each instance of entity and filter valid ones. 
+        # update attribute <field_name> of each instance of entity and filter valid ones.
         self.bulk_cleaned_entities, self.bulk_invalid_entities = self._bulk_clean_entities(entities, values)
 
 #         if not self.is_bulk and self.bulk_invalid_entities:
