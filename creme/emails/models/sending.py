@@ -22,12 +22,12 @@ import logging
 from pickle import loads
 from time import sleep
 
+from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
 from django.core.mail import send_mail, get_connection
 from django.template import Template, Context
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
 
 from creme.creme_core.models import CremeModel, CremeEntity

@@ -498,7 +498,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         email = self._create_email(MAIL_STATUS_NOTSENT)
 
-        EmailsSendCommand().handle(verbosity=0)
+        EmailsSendCommand().execute(verbosity=0)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -511,7 +511,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         email = self._create_email(MAIL_STATUS_SENDINGERROR)
 
-        EmailsSendCommand().handle(verbosity=0)
+        EmailsSendCommand().execute(verbosity=0)
 
         messages = mail.outbox
         self.assertEqual(1, len(messages))
@@ -523,7 +523,7 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_command03(self):
         self.login()
         self._create_email(MAIL_STATUS_SENT)
-        EmailsSendCommand().handle(verbosity=0)
+        EmailsSendCommand().execute(verbosity=0)
 
         self.assertFalse(mail.outbox)
 

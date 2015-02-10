@@ -331,7 +331,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
         self.assertFalse(django_mail.outbox)
 
-        EmailsSendCommand().handle(verbosity=0)
+        EmailsSendCommand().execute(verbosity=0)
 
         with self.assertNoException():
             sending = camp.sendings_set.all()[0]

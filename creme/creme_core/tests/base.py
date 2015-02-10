@@ -116,7 +116,7 @@ class _CremeTestCase(object):
 
     @classmethod
     def populate(cls, *args):
-        PopulateCommand().handle(*args, verbosity=0)
+        PopulateCommand().execute(*args, verbosity=0)
 
     @staticmethod
     def autodiscover():

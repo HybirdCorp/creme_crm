@@ -328,7 +328,7 @@ class TodoTestCase(AssistantsTestCase):
         create_todo(title='Todo#3')
         todo4 = create_todo(title='Todo#4', deadline=now_value, is_ok=True)
 
-        ReminderCommand().handle(verbosity=0)
+        ReminderCommand().execute(verbosity=0)
 
         reminders = DateReminder.objects.exclude(id__in=reminder_ids)
         self.assertEqual(1, len(reminders))
@@ -368,7 +368,7 @@ class TodoTestCase(AssistantsTestCase):
                             title='Todo#1', deadline=now_value,
                            )
 
-        ReminderCommand().handle(verbosity=0)
+        ReminderCommand().execute(verbosity=0)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
 
     def test_reminder03(self):
@@ -393,7 +393,7 @@ class TodoTestCase(AssistantsTestCase):
 
         EmailBackend.send_messages = send_messages
 
-        ReminderCommand().handle(verbosity=0)
+        ReminderCommand().execute(verbosity=0)
 
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())

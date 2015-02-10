@@ -276,7 +276,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 last_generation=None,
                                                )
 
-        GenDocsCommand().handle(verbosity=0)
+        GenDocsCommand().execute(verbosity=0)
 
         new_tickets = Ticket.objects.all()
         self.assertEqual(1, len(new_tickets))
@@ -301,7 +301,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                           last_generation=now_value - timedelta(days=6),
                                          )
 
-        GenDocsCommand().handle(verbosity=0)
+        GenDocsCommand().execute(verbosity=0)
         self.assertFalse(Ticket.objects.all())
 
     @skipIfNotInstalled('creme.tickets')
@@ -316,7 +316,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                                                 last_generation=now_value - timedelta(days=7),
                                                )
 
-        GenDocsCommand().handle(verbosity=0)
+        GenDocsCommand().execute(verbosity=0)
         self.assertEqual(1, Ticket.objects.count())
 
         gen = self.refresh(gen)
