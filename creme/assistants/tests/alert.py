@@ -203,7 +203,7 @@ class AlertTestCase(AssistantsTestCase):
         create_alert(title='Alert#3', is_validated=True)
 
         def remind():
-            ReminderCommand().handle(verbosity=0)
+            ReminderCommand().execute(verbosity=0)
 
         remind()
         reminders = DateReminder.objects.exclude(id__in=reminder_ids)

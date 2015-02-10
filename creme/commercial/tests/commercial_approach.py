@@ -301,7 +301,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertContains(response, ' id="%s"' % approaches_block.id_)
 
     def _send_mails(self):
-        EmailsSendCommand().handle(verbosity=0)
+        EmailsSendCommand().execute(verbosity=0)
 
     def _build_orgas(self):
         user = self.user

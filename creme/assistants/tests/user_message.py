@@ -97,7 +97,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(2, len(messages))
         self.assertEqual({user01, user02}, {msg.recipient for msg in messages})
 
-        UserMessagesSendCommand().handle(verbosity=0)
+        UserMessagesSendCommand().execute(verbosity=0)
 
         messages = mail.outbox
         self.assertEqual(len(messages), 2)

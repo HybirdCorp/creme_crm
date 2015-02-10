@@ -28,7 +28,7 @@ LOCK_NAME = "sending_emails"
 #NB: python manage.py emails_send
 
 class Command(BaseCommand):
-    help = "Send all unsended mails that have to be."
+    help = "Send all unsent mails that have to be."
 
     def handle(self, *args, **options):
         from creme.creme_core.models.lock import Mutex, MutexLockedException

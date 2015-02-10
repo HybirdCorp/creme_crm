@@ -204,7 +204,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         self.assertEqual(200, response.status_code)
 
     def test_actions_fetch03(self):
-        self._aux_test_actions_fetch(lambda: SyncCommand().handle(verbosity=0))
+        self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
 
     #def test_actions_delete(self): TODO
     #def test_actions_reload(self): TODO
