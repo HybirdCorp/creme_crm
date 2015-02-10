@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.forms import (CremeForm, CremeEntityForm,
         CreatorEntityField, MultiCreatorEntityField,
         GenericEntityField, MultiGenericEntityField)
+from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.validators import validate_editable_entities, validate_linkable_entity
 from creme.creme_core.forms.widgets import Label
 
@@ -232,3 +233,17 @@ class PollReplyFillForm(CremeForm):
         line.answer = answer
 
         line.save()
+
+
+class InnerEditPersonForm(BulkDefaultEditForm):
+    def __init__(self, field, user=None, entities=(), is_bulk=False, **kwargs):
+        super(InnerEditPersonForm, self).__init__(field, user, entities, is_bulk, **kwargs)
+        person_field = GenericEntityField(label=_(u'Person who filled'),
+                                          required=False,
+                                          models=[Organisation, Contact],
+                                         )
+
+        if not is_bulk:
+            person_field.initial = entities[0].person
+
+        self.fields['field_value'] = person_field

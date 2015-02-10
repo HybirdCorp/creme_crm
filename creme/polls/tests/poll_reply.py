@@ -770,7 +770,7 @@ class PollRepliesTestCase(_PollsTestCase):
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
-        url = '/creme_core/entity/edit/inner/%s/%s/field/%s' % (preply.entity_type_id, preply.id, 'name')
+        url = self.build_inneredit_url(preply, 'name')
         self.assertGET200(url)
 
         name = preply.name + ' (edited)'
@@ -791,13 +791,32 @@ class PollRepliesTestCase(_PollsTestCase):
 
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform1)
 
-        self.assertPOST(400, '/creme_core/entity/edit/inner/%s/%s/field/%s' % (
-                                        preply.entity_type_id, preply.id, 'pform'),
+        self.assertPOST(400, self.build_inneredit_url(preply, 'pform'),
                         data={'entities_lbl': [unicode(preply)],
                               'field_value':  pform2.id,
                              }
                        )
         self.assertEqual(pform1, self.refresh(preply).pform)
+
+    def test_inneredit03(self):
+        "Inner edition: 'person' field"
+        user = self.login()
+
+        pform  = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
+
+        url = self.build_inneredit_url(preply, 'person')
+        self.assertGET200(url)
+
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        response = self.client.post(url, data={'entities_lbl': [unicode(preply)],
+                                               'field_value':  '{"ctype": %s, "entity": %s}' % (
+                                                                    leina.entity_type_id, leina.id,
+                                                                ),
+                                              },
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(leina, self.refresh(preply).person.get_real_entity())
 
     def test_listview(self):
         user = self.login()
