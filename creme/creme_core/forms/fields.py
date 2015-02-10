@@ -226,7 +226,7 @@ class GenericEntityField(JSONField):
     value_type = dict
 
     def __init__(self, models=None, autocomplete=False, *args, **kwargs):
-        super(GenericEntityField, self).__init__(models, *args, **kwargs)
+        super(GenericEntityField, self).__init__(*args, **kwargs)
         self._autocomplete = autocomplete
         self.allowed_models = models
 
@@ -592,7 +592,7 @@ class CreatorEntityField(JSONField):
     value_type = int
 
     def __init__(self, model=None, q_filter=None, create_action_url=None, *args, **kwargs):
-        super(CreatorEntityField, self).__init__(model, *args, **kwargs)
+        super(CreatorEntityField, self).__init__(*args, **kwargs)
         self._model = model
         self._user = None
         self._create_action_url = create_action_url
