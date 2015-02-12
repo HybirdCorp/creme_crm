@@ -92,6 +92,7 @@
             - CSV import: in update mode, you can choose to update or not the addresses from the target.
         * Products :
             - The fields Product.category & Product.sub_category can now be inner-edited.
+            - The summary (used in the Relationships form for example) does not display the images anymore.
         * Assistants :
             - The minimum hour for reminder is now configurable by the users (via a SettingKey/Value).
         * Tickets :
