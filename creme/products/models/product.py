@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,11 +67,14 @@ class Product(CremeEntity):
         """url for list_view """
         return "/products/products"
 
-    def get_entity_summary(self, user):
-        if not user.has_perm_to_view(self):
-            return self.allowed_unicode(user)
-
-        summary = "%s<br />" % escape(self.name)
-        summary += print_many2many(self, self.images, user) #TODO: use a carroussel ?
-
-        return mark_safe(summary)
+# Hum the images list could be annoying if huge (it is used in selection widget;
+# eg: Relationships creation) ; so we disable the summary.
+# TODO: brainstorm about the several kinds of summaries we need.
+#    def get_entity_summary(self, user):
+#        if not user.has_perm_to_view(self):
+#            return self.allowed_unicode(user)
+#
+#        summary = "%s<br />" % escape(self.name)
+#        summary += print_many2many(self, self.images, user, None) #todo: use a carroussel ?
+#
+#        return mark_safe(summary)
