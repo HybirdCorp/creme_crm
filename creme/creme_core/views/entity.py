@@ -31,7 +31,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
-from ..core.exceptions import ConflictError
+from ..core.exceptions import ConflictError, SpecificProtectedError
 from ..forms import CremeEntityForm
 from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
@@ -484,6 +484,13 @@ def _delete_entity(user, entity):
             entity.trash()
         else:
             entity.delete()
+    except SpecificProtectedError as e:
+        return (400,
+                u'%s %s' % (
+                    _(u'"%s" can not be deleted.') % entity.allowed_unicode(user),
+                    e.args[0],
+                  ),
+               )
     except ProtectedError as e:
         return (400,
                 _(u'"%s" can not be deleted because of its dependencies.') %

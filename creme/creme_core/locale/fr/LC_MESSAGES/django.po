@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-30 22:05+0100\n"
+"POT-Creation-Date: 2015-02-12 11:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -26,7 +26,7 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: blocks.py:76 forms/bulk.py:345 models/custom_field.py:64
+#: blocks.py:76 forms/bulk.py:354 models/custom_field.py:64
 #: templates/creme_core/entity_cells_widget.html:60
 #: templates/creme_core/templatetags/block_customfields.html:7
 msgid "Custom fields"
@@ -285,16 +285,16 @@ msgstr "Filtre"
 msgid "All"
 msgstr "Tout"
 
-#: forms/bulk.py:310
+#: forms/bulk.py:314
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:416
+#: forms/bulk.py:427
 #, python-format
 msgid "The field %s is empty"
 msgstr "Le champ %s est vide"
 
-#: forms/bulk.py:468
+#: forms/bulk.py:479
 msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
@@ -2748,19 +2748,19 @@ msgstr ""
 "des vieilles fiches seront automatiquement disponibles dans la nouvelle "
 "fiche fusionnée."
 
-#: views/entity.py:416 views/entity.py:489 views/entity_filter.py:114
+#: views/entity.py:416 views/entity.py:496 views/entity_filter.py:114
 #, python-format
 msgid "\"%s\" can not be deleted because of its dependencies."
-msgstr "\"%s\" ne peut être effacé à cause de ses dépendances."
+msgstr "\"%s\" ne peut être supprimé à cause de ses dépendances."
 
-#: views/entity.py:421 views/entity.py:496
+#: views/entity.py:421 views/entity.py:503
 #, python-format
 msgid "\"%(entity)s\" deletion caused an unexpected error [%(error)s]."
 msgstr ""
 "La suppression de \"%(entity)s\" a provoqué une erreur inattendue "
 "[%(error)s]."
 
-#: views/entity.py:430 views/entity.py:532 views/relation.py:272
+#: views/entity.py:430 views/entity.py:539 views/relation.py:272
 #: views/relation.py:385
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
@@ -2783,11 +2783,16 @@ msgstr "%s n'utilise pas la vue de suppression générique."
 msgid "%s : <b>Permission denied</b>,"
 msgstr "%s : <b>Permission refusée</b>,"
 
-#: views/entity.py:511
+#: views/entity.py:490
+#, python-format
+msgid "\"%s\" can not be deleted."
+msgstr "\"%s\" ne peut être supprimé."
+
+#: views/entity.py:518
 msgid "No selected entities"
 msgstr "Aucune fiche séléctionnée"
 
-#: views/entity.py:521 views/relation.py:354
+#: views/entity.py:528 views/relation.py:354
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s fiche(s) n'existe(nt) pas ou plus"
