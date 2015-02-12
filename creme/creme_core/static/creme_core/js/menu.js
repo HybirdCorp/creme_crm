@@ -45,16 +45,41 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
     });
 };
 
-creme.menu.NavIt = function(trigger_selector, options) {
-    $(trigger_selector).NavIt(options || {});
+creme.menu.NavIt = function(trigger_selector, options, listeners) {
+    var options = options || {};
 
+    $(trigger_selector).NavIt(options);
     $(trigger_selector).find('a').click(function(e) {
+        e.preventDefault();
+        
         var $a = $(this);
         var confirm   = $a.hasClass('confirm');
-        var post      = $a.hasClass('post');
+        var action    = $a.hasClass('post') ? 'post' : 'get';
         var ajax      = $a.hasClass('ajax');
-        var list_view = $a.hasClass('lv_reload');
+        var url       = $a.attr('href');
+        var listeners = listeners || {};
 
+        if (ajax)
+        {
+            var queryOptions = $.extend({action:action}, options.queryOptions || {}); 
+
+            if (confirm) {
+                creme.utils.confirmAjaxQuery(url, queryOptions)
+                           .on(listeners).start();
+            } else {
+                creme.utils.ajaxQuery(url, queryOptions)
+                           .on(listeners).start();
+            }
+        }
+        else
+        {
+            if (confirm) {
+                creme.utils.confirmBeforeGo(url, ajax, opts);
+            } else {
+                creme.utils.goTo(url);
+            }
+        }
+        /*
         var opts = {
             type: (post)? "POST": "GET"
         }
@@ -82,11 +107,11 @@ creme.menu.NavIt = function(trigger_selector, options) {
             creme.utils.confirmBeforeGo($a.attr('href'), ajax, opts);
         } else {
             creme.utils.goTo($a.attr('href'));
-        }
+        }*/
 
     });
 };
 
-creme.menu.HNavIt = function(trigger_selector, options) {
-    creme.menu.NavIt(trigger_selector, $.extend({ArrowSideOnRight: false}, options));
+creme.menu.HNavIt = function(trigger_selector, options, listeners) {
+    creme.menu.NavIt(trigger_selector, $.extend({ArrowSideOnRight: false}, options || {}), listeners);
 }
