@@ -207,24 +207,18 @@ class FolderTestCase(_DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
-    def _create_folder_2_delete(self):
-        return Folder.objects.create(user=self.user, title='PDF',
-                                     description='Contains PDF files',
-                                     parent_folder=None,
-                                     category=FolderCategory.objects.all()[0],
-                                     is_deleted=True,
-                                    )
-
     def test_deleteview01(self):
         "No doc inside"
-        folder = self._create_folder_2_delete()
+        folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
+        folder.trash()
+
         response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         self.assertDoesNotExist(folder)
         self.assertRedirects(response, self.LIST_URL)
 
     def test_deleteview02(self):
         "A doc inside protect from deletion"
-        folder = self._create_folder_2_delete()
+        folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
 
         title = 'Boring title'
         self._create_doc(title, folder=folder, description='Boring description too',
@@ -234,8 +228,10 @@ class FolderTestCase(_DocumentsTestCase):
         doc = self.get_object_or_fail(Document, title=title)
         self.assertEqual(folder, doc.folder)
 
+        folder.trash()
+
         self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
-        self.get_object_or_fail(Folder, pk=folder.pk)
+        self.assertStillExists(folder)
 
     #@override_settings(BLOCK_SIZE=max(4, settings.BLOCK_SIZE))
     def test_block(self):

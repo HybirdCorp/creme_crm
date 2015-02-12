@@ -35,8 +35,11 @@ from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, Docu
 @permission_required('documents')
 @permission_required('documents.add_document')
 def add(request):
+    folder = get_first_or_None(Folder)
+
     return add_entity(request, DocumentCreateForm,
-                      extra_initial={'folder': get_first_or_None(Folder)},
+                      #extra_initial={'folder': get_first_or_None(Folder)}, # TODO: uncomment when CreatorEntityField can be initialized with instance..
+                      extra_initial={'folder': folder.id if folder else None},
                       extra_template_dict={'submit_label': _('Save the document')},
                      )
 

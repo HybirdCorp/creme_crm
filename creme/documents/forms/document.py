@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,11 @@
 import logging
 
 #from django.forms import CharField
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_model
 #from creme.creme_core.forms.widgets import UploadedFileWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -35,8 +37,17 @@ from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
 
 logger = logging.getLogger(__name__)
 
+# TODO: uncomment when form field for Folder is naturally CreatorEntityField
+#class DocumentCreateForm(CremeEntityForm):
+#    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+#
+#    class Meta(CremeEntityForm.Meta):
+#        model = Document
+#
+#    def clean_filedata(self):
+#        return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
 
-class DocumentCreateForm(CremeEntityForm):
+class _DocumentBaseForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Document
 
@@ -44,7 +55,12 @@ class DocumentCreateForm(CremeEntityForm):
         return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
 
 
+class DocumentCreateForm(_DocumentBaseForm):
+    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
+
+
 class DocumentEditForm(CremeEntityForm):
+    folder = CreatorEntityField(label=_(u'Folder'), model=Folder)
     #filedata = CharField(required=False, widget=UploadedFileWidget)
 
     class Meta(CremeEntityForm.Meta):
@@ -54,10 +70,13 @@ class DocumentEditForm(CremeEntityForm):
 
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
-
-class RelatedDocumentCreateForm(DocumentCreateForm):
-    class Meta(DocumentCreateForm.Meta):
-        exclude = DocumentCreateForm.Meta.exclude + ('folder', )
+# TODO: see above
+#class RelatedDocumentCreateForm(DocumentCreateForm):
+#    class Meta(DocumentCreateForm.Meta):
+#        exclude = DocumentCreateForm.Meta.exclude + ('folder', )
+class RelatedDocumentCreateForm(_DocumentBaseForm):
+    class Meta(_DocumentBaseForm.Meta):
+        exclude = _DocumentBaseForm.Meta.exclude + ('folder', )
 
     def __init__(self, *args, **kwargs):
         super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
