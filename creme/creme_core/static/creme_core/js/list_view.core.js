@@ -230,6 +230,18 @@
                         }
                     );
                 }
+
+                // Firefox keeps the checked state of inputs on simple page reloads
+                // we could 1) incorporate those pre-selected rows into our initial selected_ids set
+                //          2) force all checkboxes to be unchecked by default. Either in js here, or
+                //             possibly in HTML (maybe by using lone inputs instead of having them in a <form>)
+                this.clearRowSelection = function() {
+                    $(opts.selected_rows).val('');
+
+                    self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
+                              opts.all_boxes_selector)
+                        .attr('checked', false);
+                }
                 /******************************************************/
 
                 /***************** Check all boxes part *****************/
@@ -355,11 +367,11 @@
                 }
 
                 this.init = function() {
+                    this.clearRowSelection();
                     this.enableEvents();
                 }
 
                 this.init();
-
             } else {
                 if($.isFunction(this[options])) this[options].apply(this, args);
             }
