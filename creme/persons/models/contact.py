@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,14 @@ import warnings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
-        DateField, EmailField, ProtectedError, URLField, SET_NULL)
+        DateField, EmailField, URLField, SET_NULL) #ProtectedError
 from django.db.models.signals import post_save
 from django.db.transaction import commit_on_success
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
+from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CremeEntity, Language #, CremeEntityManager
 from creme.creme_core.models.fields import PhoneField
 from creme.creme_core.utils import update_model_instance
@@ -111,7 +112,10 @@ class Contact(CremeEntity):
 
     def _check_deletion(self):
         if self.is_user is not None:
-            raise ProtectedError(ugettext(u'A user is associated with this contact.'), [self])
+            #raise ProtectedError(ugettext(u'A user is associated with this contact.'), [self])
+            raise SpecificProtectedError(ugettext(u'A user is associated with this contact.'),
+                                         [self]
+                                        )
 
     def clean(self):
         if self.is_user_id:
