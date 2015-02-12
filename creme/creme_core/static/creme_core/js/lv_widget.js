@@ -217,7 +217,7 @@ creme.lv_widget.deleteSelectedLines = function(list) {
     }
 
     var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {}, {ids: selection.join(',')});
-    query.onDone(function(event, data) {list.list_view('reload');});
+    query.onComplete(function(event, data) {list.list_view('reload');});
 
     return query.start();
 }
