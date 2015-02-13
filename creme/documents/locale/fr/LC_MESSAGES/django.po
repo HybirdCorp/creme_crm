@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-13 14:53+0100\n"
+"POT-Creation-Date: 2015-02-13 16:09+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -32,19 +32,19 @@ msgstr "Documents crées à partir des fiches"
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
-#: creme_core_register.py:32 models/document.py:41
+#: creme_core_register.py:34 models/document.py:41
 msgid "Documents"
 msgstr "Documents"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:37
 msgid "Portal of documents"
 msgstr "Portail des documents"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:38
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:40
 msgid "All folders"
 msgstr "Lister les classeurs"
 
@@ -83,18 +83,23 @@ msgstr ""
 msgid "Folder"
 msgstr "Classeur"
 
-#: forms/folder.py:31 models/folder.py:40
+#: forms/folder.py:32 models/folder.py:40
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: forms/folder.py:45
+#: forms/folder.py:46
 msgid "The parent's category will be copied if you do not select one."
 msgstr "La catégorie du parent sera copiée si vous n'en choisissez aucune."
 
-#: forms/folder.py:65
+#: forms/folder.py:66 forms/folder.py:100
 #, python-format
 msgid "This folder is one of the child folders of «%(folder)s»"
 msgstr "Ce classeur est un des classeurs enfant de «%(folder)s»"
+
+#: forms/folder.py:94
+#, python-format
+msgid "«%(folder)s» cannot be its own parent"
+msgstr "«%(folder)s» ne peut pas être son propre parent"
 
 #: models/document.py:31 models/folder.py:38
 msgid "Title"

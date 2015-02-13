@@ -188,6 +188,96 @@ class FolderTestCase(_DocumentsTestCase):
                             )
         self.assertIsNone(self.refresh(folder1).parent_folder)
 
+    def test_inneredit_parent01(self):
+        cat1, cat2 = FolderCategory.objects.all()[:2]
+
+        create_folder = partial(Folder.objects.create, user=self.user,
+                                description=u'Test description',
+                               )
+        folder1 = create_folder(title=u'Test folder#1', category=cat1)
+        folder2 = create_folder(title=u'Test folder#2', category=cat2)
+
+        url = self.build_inneredit_url(folder1, 'parent_folder')
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'field_value': folder2.pk})
+        self.assertNoFormError(response)
+
+        folder1 = self.refresh(folder1)
+        self.assertEqual(folder2, folder1.parent_folder)
+        self.assertEqual(cat1,    folder1.category)
+
+    def test_inneredit_parent02(self):
+        "The category of the parent is copied if there is none"
+        cat = FolderCategory.objects.all()[0]
+
+        create_folder = partial(Folder.objects.create, user=self.user,
+                                description=u'Test description',
+                               )
+        folder1 = create_folder(title=u'Test folder#1')
+        folder2 = create_folder(title=u'Test folder#2', category=cat)
+
+        response = self.client.post(self.build_inneredit_url(folder1, 'parent_folder'),
+                                    data={'field_value': folder2.pk}
+                                   )
+        self.assertNoFormError(response)
+
+        folder1 = self.refresh(folder1)
+        self.assertEqual(folder2, folder1.parent_folder)
+        self.assertEqual(cat,     folder1.category)
+
+    def test_inneredit_parent03(self):
+        "Loops"
+        create_folder = partial(Folder.objects.create, user=self.user,
+                                description=u'Test description',
+                               )
+        folder1 = create_folder(title=u'Test folder#1')
+        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
+
+        url = self.build_inneredit_url(folder1, 'parent_folder')
+        response = self.assertPOST200(url, data={'field_value': folder3.id})
+        self.assertFormError(response, 'form', None, #'field_value',
+                             _(u'This folder is one of the child folders of «%(folder)s»') % {
+                                    'folder': folder1,
+                                  }
+                            )
+
+        #-----
+        response = self.client.post(url, data={'field_value': folder1.pk})
+        self.assertNoFormError(response)
+        self.assertIsNone(self.refresh(folder1).parent_folder)
+
+    def test_bulkedit_parent(self):
+        create_folder = partial(Folder.objects.create, user=self.user,
+                                description=u'Test description',
+                               )
+        folder1 = create_folder(title=u'Test folder#1')
+        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
+        folder4 = create_folder(title=u'Test folder#4')
+
+        url = self.build_bulkedit_url([folder1, folder3, folder4], 'parent_folder')
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'field_value': folder3.pk})
+        self.assertContains(response,
+                            _(u'This folder is one of the child folders of «%(folder)s»') % {
+                                    'folder': folder1,
+                                  },
+                            1
+                           )
+        self.assertContains(response,
+                            _(u'«%(folder)s» cannot be its own parent') % {
+                                    'folder': folder3,
+                                  },
+                            1
+                           )
+
+        self.assertIsNone(self.refresh(folder1).parent_folder)
+        self.assertEqual(folder2, self.refresh(folder3).parent_folder)
+        self.assertEqual(folder3, self.refresh(folder4).parent_folder)
+
     def test_listview01(self):
         user = self.user
         category = FolderCategory.objects.all()[0]
