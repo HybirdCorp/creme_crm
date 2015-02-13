@@ -21,8 +21,9 @@ CREME_ROOT = dirname(abspath(__file__))
 
 MANAGERS = ADMINS
 
-# NB: it's recommended to use a database engine that supports transactions.
-#'OPTIONS': {'init_command': 'SET storage_engine=INNODB'}#Example to use a transaction engine in mysql
+# NB: it's recommended to :
+#   - use a database engine that supports transactions (ie: not MyISAM for MySQL, which uses now INNODB by default).
+#   - configurate your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
