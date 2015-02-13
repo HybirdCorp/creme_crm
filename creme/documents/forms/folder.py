@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,25 +19,48 @@
 ################################################################################
 
 from django.forms import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.fields import CreatorEntityField
 
 from ..models import Folder
 
 
 class FolderForm(CremeEntityForm):
+    parent_folder = CreatorEntityField(label=_(u'Parent folder'), model=Folder, required=False)
+
     class Meta(CremeEntityForm.Meta):
         model = Folder
 
+    def __init__(self, *args, **kwargs):
+        super(FolderForm, self).__init__(*args, **kwargs)
+        pk = self.instance.id
+        if pk:
+            # TODO: remove direct children too ??
+            self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
+
     def clean_category(self):
         cleaned_data = self.cleaned_data
-        parent_folder_data = cleaned_data['parent_folder']
+        #parent_folder_data = cleaned_data['parent_folder']
+        parent_folder_data = cleaned_data.get('parent_folder')
         category_data      = cleaned_data['category']
 
         if parent_folder_data is not None and parent_folder_data.category != category_data:
-            raise ValidationError(_(u"Folder's category must be the same than its parent's one: %s") % 
+            raise ValidationError(ugettext(u"Folder's category must be the same than its parent's one: %s") %
                                     parent_folder_data.category
                                  )
 
         return category_data
+
+    def clean_parent_folder(self):
+        parent_folder = self.cleaned_data['parent_folder']
+        folder = self.instance
+
+        if folder.pk and parent_folder and folder.already_in_children(parent_folder.id):
+            raise ValidationError(ugettext(u'This folder is one of the child folders of %(folder)s') % {
+                                    'folder': folder,
+                                  }
+                                 )
+
+        return parent_folder

@@ -87,7 +87,7 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
 
-    def test_editview(self):
+    def test_editview01(self):
         title = u'Test folder'
         description = 'Test description'
         folder = Folder.objects.create(title=title,
@@ -118,6 +118,49 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
+
+    def test_editview02(self):
+        "A folder cannot be its own parent"
+        user = self.user
+        folder = Folder.objects.create(title=u'Test folder',
+                                       description=u'Test description',
+                                       parent_folder=None,
+                                       user=user,
+                                      )
+
+        response = self.client.post(folder.get_edit_absolute_url(), follow=True,
+                                    data={'user':          user.pk,
+                                          'title':         folder.title,
+                                          'description':   folder.description,
+                                          'parent_folder': folder.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertIsNone(self.refresh(folder).parent_folder)
+
+    def test_editview03(self):
+        "A folder cannot be the parent of one of its parents"
+        user = self.user
+        create_folder = partial(Folder.objects.create, user=user,
+                                description=u'Test description',
+                               )
+        folder1 = create_folder(title=u'Test folder#1')
+        folder2 = create_folder(title=u'Test folder#2', parent_folder=folder1)
+        folder3 = create_folder(title=u'Test folder#3', parent_folder=folder2)
+
+        response = self.assertPOST200(folder1.get_edit_absolute_url(), follow=True,
+                                      data={'user':          user.pk,
+                                            'title':         folder1.title,
+                                            'description':   folder1.description,
+                                            'parent_folder': folder3.id,
+                                            }
+                                    )
+        self.assertFormError(response, 'form', 'parent_folder',
+                             _(u'This folder is one of the child folders of %(folder)s') % {
+                                    'folder': folder1,
+                                  }
+                            )
+        self.assertIsNone(self.refresh(folder1).parent_folder)
 
     def test_listview01(self):
         user = self.user
