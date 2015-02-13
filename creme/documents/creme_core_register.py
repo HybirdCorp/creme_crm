@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,13 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry, quickforms_registry
+from creme.creme_core.gui import (creme_menu, block_registry, icon_registry,
+        bulk_update_registry, quickforms_registry)
 
-from .models import Document, Folder
 from .blocks import folder_docs_block, linked_docs_block
 from .forms.quick import DocumentQuickForm
+from .forms.folder import ParentFolderBulkForm
+from .models import Document, Folder
 
 
 creme_registry.register_entity_models(Document, Folder)
@@ -44,6 +46,7 @@ reg_icon = icon_registry.register
 reg_icon(Document, 'images/document_%(size)s.png')
 reg_icon(Folder,   'images/document_%(size)s.png')
 
+bulk_update_registry.register(Folder, innerforms={'parent_folder': ParentFolderBulkForm})
 bulk_update_registry.register(Document, exclude=['filedata'])
 
 quickforms_registry.register(Document, DocumentQuickForm)

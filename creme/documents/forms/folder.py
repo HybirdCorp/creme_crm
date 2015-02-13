@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import ValidationError
+from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import CreatorEntityField
 
 from ..models import Folder
@@ -73,5 +74,35 @@ class FolderForm(CremeEntityForm):
         instance = self.instance
         if not instance.category and instance.parent_folder:
             instance.category = instance.parent_folder.category
-        
+
         return super(FolderForm, self).save(*args, **kwargs)
+
+
+class ParentFolderBulkForm(BulkDefaultEditForm):
+    def __init__(self, field, user, entities, is_bulk=False, **kwargs):
+        super(ParentFolderBulkForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
+
+        if len(entities) == 1:
+            # TODO: like above -> remove direct children too ??
+            self.fields['field_value'].q_filter = {'~id__in': [entities[0].pk]}
+
+    def _bulk_clean_entity(self, entity, values):
+        parent_folder = values.get('parent_folder')
+
+        if parent_folder:
+            if parent_folder == entity:
+                raise ValidationError(ugettext(u'«%(folder)s» cannot be its own parent') % {
+                                            'folder': entity,
+                                        }
+                                    )
+
+            if entity.already_in_children(parent_folder.id):
+                raise ValidationError(ugettext(u'This folder is one of the child folders of «%(folder)s»') % {
+                                            'folder': entity,
+                                        }
+                                    )
+
+            if not entity.category:
+                entity.category = parent_folder.category
+
+        return super(ParentFolderBulkForm, self)._bulk_clean_entity(entity, values)

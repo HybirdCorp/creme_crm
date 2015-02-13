@@ -752,7 +752,10 @@ class BulkEditTestCase(_BulkEditTestCase):
 
     def _build_contact_url(self, field_name, *contact_ids):
         url = '/creme_core/entity/edit/bulk/%(ct)s/%(id)s/field/%(field)s'
-        return url % {'ct': self.contact_ct.id, 'id': ','.join(str(id) for id in contact_ids), 'field': field_name}
+        return url % {'ct': self.contact_ct.id,
+                      'id': ','.join(str(id) for id in contact_ids),
+                      'field': field_name,
+                     }
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -870,7 +873,6 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
-    #TODO: uncomment this test when image is bulk-updatable once again
     def test_regular_field09(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
 
@@ -888,7 +890,9 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         url = self._build_contact_url('image', mario.id, luigi.id)
         response = self.assertPOST200(url, data={'field_value': unallowed.id,})
-        self.assertFormError(response, 'form', 'field_value', [_(u"You can't view this value, so you can't set it.")])
+        self.assertFormError(response, 'form', 'field_value',
+                             _(u"You can't view this value, so you can't set it.")
+                            )
 
         self.client.post(url, data={'field_value': allowed.id,})
         self.assertNotEqual(allowed, self.refresh(mario).image)
@@ -945,7 +949,8 @@ class BulkEditTestCase(_BulkEditTestCase):
         url = self.build_bulkedit_url([image, image2], 'categories')
         response = self.client.post(url, data={'field_value': [categories[0].pk, 12]})
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'Select a valid choice. %s is not one of the available choices.') % 12)
+                             _(u'Select a valid choice. %s is not one of the available choices.') % 12
+                            )
 
         image = self.refresh(image)
         image2 = self.refresh(image2)
