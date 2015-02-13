@@ -70,22 +70,48 @@ class FolderTestCase(_DocumentsTestCase):
                 'parent_folder': parent.id,
                }
 
-        bad_cat = FolderCategory.objects.exclude(id=category.id)[0]
-        response = self.assertPOST200(url, follow=True,
-                                      data=dict(data, category=bad_cat.id),
-                                     )
-        self.assertFormError(response, 'form', 'category',
-                             _(u"Folder's category must be the same than its parent's one: %s") %
-                                    category
-                            )
+#        bad_cat = FolderCategory.objects.exclude(id=category.id)[0]
+#        response = self.assertPOST200(url, follow=True,
+#                                      data=dict(data, category=bad_cat.id),
+#                                     )
+#        self.assertFormError(response, 'form', 'category',
+#                             _(u"Folder's category must be the same than its parent's one: %s") %
+#                                    category
+#                            )
 
-        response = self.client.post(url, follow=True, data=dict(data, category=category.id))
+#        response = self.client.post(url, follow=True, data=dict(data, category=category.id))
+        other_cat = FolderCategory.objects.exclude(id=category.id)[0]
+        response = self.client.post(url, follow=True, data=dict(data, category=other_cat.id))
         self.assertNoFormError(response)
 
         folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
-        self.assertEqual(category,    folder.category)
+#        self.assertEqual(category,    folder.category)
+        self.assertEqual(other_cat,   folder.category)
+
+    def test_createview03(self):
+        "Parent folder's' category is copied if no category"
+        user = self.user
+
+        category = FolderCategory.objects.all()[0]
+        parent_title = 'Test parent folder'
+        self.assertFalse(Folder.objects.filter(title=parent_title).exists())
+
+        parent = Folder.objects.create(user=user, title=parent_title, category=category)
+
+        title = 'Test folder'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'description':   'Test description',
+                                          'parent_folder': parent.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        folder = self.get_object_or_fail(Folder, title=title)
+        self.assertEqual(category, folder.category)
 
     def test_editview01(self):
         title = u'Test folder'
@@ -156,7 +182,7 @@ class FolderTestCase(_DocumentsTestCase):
                                             }
                                     )
         self.assertFormError(response, 'form', 'parent_folder',
-                             _(u'This folder is one of the child folders of %(folder)s') % {
+                             _(u'This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder1,
                                   }
                             )

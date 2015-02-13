@@ -35,32 +35,43 @@ class FolderForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super(FolderForm, self).__init__(*args, **kwargs)
+        fields = self.fields
         pk = self.instance.id
         if pk:
             # TODO: remove direct children too ??
-            self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
+            fields['parent_folder'].q_filter = {'~id__in': [pk]}
 
-    def clean_category(self):
-        cleaned_data = self.cleaned_data
-        #parent_folder_data = cleaned_data['parent_folder']
-        parent_folder_data = cleaned_data.get('parent_folder')
-        category_data      = cleaned_data['category']
+        #TODO: django 1.6: use Meta.help_texts
+        fields['category'].help_text = _(u"The parent's category will be copied if you do not select one.")
 
-        if parent_folder_data is not None and parent_folder_data.category != category_data:
-            raise ValidationError(ugettext(u"Folder's category must be the same than its parent's one: %s") %
-                                    parent_folder_data.category
-                                 )
-
-        return category_data
+#    def clean_category(self):
+#        cleaned_data = self.cleaned_data
+#        #parent_folder_data = cleaned_data['parent_folder']
+#        parent_folder_data = cleaned_data.get('parent_folder')
+#        category_data      = cleaned_data['category']
+#
+#        if parent_folder_data is not None and parent_folder_data.category != category_data:
+#            raise ValidationError(ugettext(u"Folder's category must be the same than its parent's one: %s") %
+#                                    parent_folder_data.category
+#                                 )
+#
+#        return category_data
 
     def clean_parent_folder(self):
         parent_folder = self.cleaned_data['parent_folder']
         folder = self.instance
 
         if folder.pk and parent_folder and folder.already_in_children(parent_folder.id):
-            raise ValidationError(ugettext(u'This folder is one of the child folders of %(folder)s') % {
+            raise ValidationError(ugettext(u'This folder is one of the child folders of «%(folder)s»') % {
                                     'folder': folder,
                                   }
                                  )
 
         return parent_folder
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        if not instance.category and instance.parent_folder:
+            instance.category = instance.parent_folder.category
+        
+        return super(FolderForm, self).save(*args, **kwargs)
