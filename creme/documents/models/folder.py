@@ -38,7 +38,8 @@ class Folder(CremeEntity):
     title         = CharField(_(u'Title'), max_length=100, unique=True)
     description   = TextField(_(u'Description'), null=True, blank=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
-                               blank=True, null=True, related_name='parent_folder_set',
+                               blank=True, null=True,
+                               related_name='parent_folder_set', #TODO: rename 'children'
                               )
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'),
                                blank=True, null=True, on_delete=SET_NULL,
@@ -76,6 +77,7 @@ class Folder(CremeEntity):
                                                         )
                                  )
 
+        # TODO: atomic
         while Folder.objects.filter(title=self.title).exists():
             self._pre_save_clone(source)
 
@@ -90,10 +92,26 @@ class Folder(CremeEntity):
                                 )#TODO: Ajaxify this
         return actions
 
+    def already_in_children(self, other_folder_id):
+        #children = self.children.all() TODO
+        children = self.parent_folder_set.all()
+
+        for child in children:
+            if child.id == other_folder_id:
+                return True
+
+        for child in children:
+            if child.already_in_children(other_folder_id):
+                return True
+
+        return False
+
     def get_parents(self):
         parents = []
-        if self.parent_folder:
-            parents.append(self.parent_folder)
-            parents.extend(self.parent_folder.get_parents())
+        parent = self.parent_folder
+
+        if parent:
+            parents.append(parent)
+            parents.extend(parent.get_parents())
 
         return parents
