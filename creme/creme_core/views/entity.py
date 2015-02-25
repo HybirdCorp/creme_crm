@@ -286,29 +286,23 @@ def bulk_edit_field(request, ct_id, id, field_name):
         form_class = bulk_update_registry.get_form(model, field_name, BulkDefaultEditForm)
 
         if request.method == 'POST':
-            form = form_class(entities=filtered,
-                              user=user,
-                              data=request.POST,
-                              is_bulk=True,
-                             )
+            form = form_class(entities=filtered, user=user, data=request.POST, is_bulk=True)
 
             if form.is_valid():
                 form.save()
                 return render(request, 'creme_core/frags/bulk_process_report.html',
                               {'form':  form,
                                'title': _(u'Multiple update'),
-                              },)
-        else:
-            form = form_class(entities=filtered,
-                              user=user,
-                              is_bulk=True,
+                              },
                              )
+        else:
+            form = form_class(entities=filtered, user=user, is_bulk=True)
     except (FieldDoesNotExist, FieldNotAllowed):
         return HttpResponseBadRequest(_(u'The field "%s" doesn\'t exist or cannot be edited' % field_name))
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Multiple update')
+                        'title': _(u'Multiple update'),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
