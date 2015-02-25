@@ -31,7 +31,7 @@ LOCK_NAME = "entity_emails_send"
 #NB: python manage.py entity_emails_send
 
 class Command(BaseCommand):
-    help = "Send all unsended mails that have to be."
+    help = "Send all unsent mails that have to be."
 
     def handle(self, *args, **options):
         try:
