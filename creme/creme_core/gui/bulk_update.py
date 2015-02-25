@@ -34,6 +34,12 @@ class FieldNotAllowed(Exception):
 
 
 class _BulkUpdateRegistry(object):
+    """Registry which stores what fields of entities models can or cannot be
+    edited via the inner/bulk edition system, and if they use a specific form.
+
+    For the app writers, only the register() method should be useful. Call it in
+    your creme_core_register.py with the global 'bulk_update_registry' instance.
+    """
     class ModelBulkStatus(object):
         def __init__(self, model, ignore=False):
             self._model = model
@@ -159,7 +165,25 @@ class _BulkUpdateRegistry(object):
 
         return bulk_status
 
+    def _merge_innerforms(self, parent_status, child_status):
+        merged_innerforms = dict(parent_status._innerforms)
+        merged_innerforms.update(child_status._innerforms)
+
+        child_status._innerforms = merged_innerforms
+
     def register(self, model, exclude=None, expandables=None, innerforms=None):
+        """Register a CremeEntity class.
+        @param exclude A sequence of field names (ie: strings) indicating
+                       fields should not be inner-editable.
+        @param expandables A sequence of field names corresponding to ForeignKeys
+                           with inner-editable sub-fields (the FK must have the
+                           tag 'enumerable' too). It is only useful for
+                           FK related to models which are not inheriting CremeModel.
+        @param innerforms A dict with items (field_name, form_class) which provides
+                          some specific forms to use. The form_class should inherit
+                          from creme.creme_core.forms.bulk.BulkForm
+                          (generally BulkDefaultEditForm is a good choice).
+        """
         bulk_status = self._get_or_create_status(model)
 
         if exclude:
@@ -175,19 +199,16 @@ class _BulkUpdateRegistry(object):
         # manage child and parent classes
         for other_model, other_status in self._status.iteritems():
             if other_model is not model:
-                # registered subclass inherits exclusions of new model
                 if issubclass(other_model, model):
+                    # registered subclass inherits exclusions of new model
                     other_status.excludes.update(bulk_status.excludes)
                     other_status.expandables.update(bulk_status.expandables)
-
-                # new model inherits exclusions and custom forms of registered superclass
-                if issubclass(model, other_model):
+                    self._merge_innerforms(parent_status=bulk_status, child_status=other_status)
+                elif issubclass(model, other_model):
+                    # new model inherits exclusions and custom forms of registered superclass
                     bulk_status.excludes.update(other_status.excludes)
                     bulk_status.expandables.update(other_status.expandables)
-
-                    merged_innerforms = dict(other_status._innerforms)
-                    merged_innerforms.update(bulk_status._innerforms)
-                    bulk_status._innerforms = merged_innerforms
+                    self._merge_innerforms(parent_status=other_status, child_status=bulk_status)
 
         bulk_status._reset_cache()
 

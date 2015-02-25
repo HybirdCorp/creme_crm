@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from itertools import chain
     from functools import partial
+    from itertools import chain
 
     from django.contrib.contenttypes.models import ContentType
 
@@ -24,6 +24,7 @@ except Exception as e:
 __all__ = ('BulkUpdateRegistryTestCase',)
 
 
+# TODO: test register(..., expandables=[..])    (we need test model feature)
 class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
         self.bulk_update_registry = _BulkUpdateRegistry()
@@ -285,47 +286,91 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_bulk_updatable(field_name='start'))
         self.assertEquals(_ActivityInnerStart, bulk_update_registry.status(Activity).get_form('start'))
 
-    def test_innerforms_inherit(self):
+    def test_innerforms_inherit01(self):
+        "Inheritance : registering parent first"
         bulk_update_registry = self.bulk_update_registry
         is_bulk_updatable = bulk_update_registry.is_updatable
+        status = bulk_update_registry.status
 
         class SubActivity(Activity):
             pass
 
-        class _ActivityInnerEdit(BulkDefaultEditForm):
+        class _ActivityInnerEditForm(BulkDefaultEditForm):
             pass
 
         class _SubActivityInnerEdit(BulkDefaultEditForm):
             pass
 
         bulk_update_registry.register(Activity, exclude=['type'],
-                                      innerforms={'start': _ActivityInnerEdit, 'minutes': _ActivityInnerEdit}
+                                      innerforms={'start': _ActivityInnerEditForm,
+                                                  'minutes': _ActivityInnerEditForm,
+                                                 }
                                      )
         bulk_update_registry.register(SubActivity, exclude=['type'],
-                                      innerforms={'end': _SubActivityInnerEdit, 'minutes': _SubActivityInnerEdit}
+                                      innerforms={'end': _SubActivityInnerEdit,
+                                                  'minutes': _SubActivityInnerEdit,
+                                                 }
                                      )
 
         self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
         self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
-        self.assertIsNone(bulk_update_registry.status(Activity).get_form('type'))
-        self.assertIsNone(bulk_update_registry.status(SubActivity).get_form('type'))
+        self.assertIsNone(status(Activity).get_form('type'))
+        self.assertIsNone(status(SubActivity).get_form('type'))
 
         # subclass inherits inner forms from base class
         self.assertTrue(is_bulk_updatable(model=Activity, field_name='start'))
         self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
-        self.assertEquals(_ActivityInnerEdit, bulk_update_registry.status(Activity).get_form('start'))
-        self.assertEquals(_ActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('start'))
+        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('start'))
+        self.assertEquals(_ActivityInnerEditForm, status(SubActivity).get_form('start'))
 
         # base class ignore changes of inner form made for subclass
         self.assertTrue(is_bulk_updatable(model=Activity, field_name='end'))
         self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='end'))
-        self.assertIsNone(bulk_update_registry.status(Activity).get_form('end'))
-        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('end'))
+        self.assertIsNone(status(Activity).get_form('end'))
+        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('end'))
 
         # subclass force bulk form for field
         self.assertTrue(is_bulk_updatable(model=Activity, field_name='minutes'))
         self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='minutes'))
-        self.assertEquals(_ActivityInnerEdit, bulk_update_registry.status(Activity).get_form('minutes'))
+        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('minutes'))
+        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('minutes'))
+
+    def test_innerforms_inherit02(self):
+        "Inheritance : registering child first"
+        bulk_update_registry = self.bulk_update_registry
+        is_bulk_updatable = bulk_update_registry.is_updatable
+
+        class SubActivity(Activity):
+            pass
+
+        class _ActivityInnerEditForm(BulkDefaultEditForm):
+            pass
+
+        class _SubActivityInnerEdit(BulkDefaultEditForm):
+            pass
+
+        bulk_update_registry.register(SubActivity,
+                                      innerforms={'end': _SubActivityInnerEdit,
+                                                  'minutes': _SubActivityInnerEdit,
+                                                 }
+                                     )
+        bulk_update_registry.register(Activity, exclude=['type'],
+                                      innerforms={'start': _ActivityInnerEditForm,
+                                                  'minutes': _ActivityInnerEditForm,
+                                                 }
+                                     )
+
+        self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
+        self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
+
+        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
+        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('start'))
+        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(SubActivity).get_form('start'))
+
+        self.assertIsNone(bulk_update_registry.status(Activity).get_form('end'))
+        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('end'))
+
+        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('minutes'))
         self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('minutes'))
 
     def test_subfield_innerforms(self):
