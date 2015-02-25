@@ -259,7 +259,7 @@ msgstr "Ce champ n'existe pas dans ce type de fiche."
 #: forms/batch_process.py:71
 #, python-format
 msgid "The field '%s' can not be used twice."
-msgstr "Le champ '%s' ne peut pas être utilise deux fois."
+msgstr "Le champ '%s' ne peut pas être utilisé deux fois."
 
 #: forms/batch_process.py:72 forms/entity_filter.py:426
 #: forms/entity_filter.py:674
