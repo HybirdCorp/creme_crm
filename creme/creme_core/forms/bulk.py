@@ -41,6 +41,7 @@ from .base import CremeForm
 from .fields import CreatorEntityField, MultiCreatorEntityField
 from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget
 
+
 # TODO : should remove this list and use some hooks in model fields or in bulk registry to retrieve bulk widgets
 _BULK_FIELD_WIDGETS = {
     models.DateField:                 CalendarWidget(),
@@ -303,7 +304,8 @@ class BulkForm(CremeForm):
         self.entities = entities
 
         if is_bulk:
-            choices_model = parent_field.model if is_subfield else field.model
+            #choices_model = parent_field.model if is_subfield else field.model
+            choices_model = parent_field.model if is_subfield else entities[0].__class__
             choices = self._bulk_model_choices(choices_model, entities)
             initial = self._bulk_url(choices_model,
                                      parent_field.name + '__' + self.field_name if is_subfield else self.field_name,
