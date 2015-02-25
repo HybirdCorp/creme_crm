@@ -94,7 +94,9 @@ class MappingTestCase(CremeTestCase):
         organisation = Organisation.objects.create(name='Hybird', user=user)
 
         employed_by = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)
-        Relation.objects.create(subject_entity=contact, type=employed_by, object_entity=organisation)
+        Relation.objects.create(subject_entity=contact, type=employed_by,
+                                object_entity=organisation, user=user,
+                               )
 
         #fulbert_serialized = 
         self._open_n_read(join(self.xml_path, 'contact', 'fulbert.xml'))
