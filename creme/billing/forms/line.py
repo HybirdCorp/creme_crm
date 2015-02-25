@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,9 @@
 
 from decimal import Decimal
 
-from django.forms import ModelChoiceField, TypedChoiceField, DecimalField, ValidationError, TextInput, Textarea
+from django.db.transaction import commit_on_success
+from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
+        ValidationError, TextInput, Textarea)
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import Relation, Vat
@@ -276,10 +278,14 @@ class AddToCatalogForm(CremeForm):
             raise ValidationError(ugettext(u'You are not allowed to create this entity'))
 
         if not self.line.on_the_fly_item:
-            raise ValidationError(ugettext(u'You are not allowed to add this item to the catalog because it is not on the fly'))
+            raise ValidationError(ugettext(u'You are not allowed to add this item '
+                                           u'to the catalog because it is not on the fly'
+                                          )
+                                 )
 
         return super(AddToCatalogForm, self).clean()
 
+    @commit_on_success
     def save(self, *args, **kwargs):
         sub_category = self.cleaned_data['sub_category']
         line = self.line
@@ -300,4 +306,5 @@ class AddToCatalogForm(CremeForm):
         Relation.objects.create(subject_entity=line,
                                 type_id=REL_SUB_LINE_RELATED_ITEM,
                                 object_entity=item,
-                                user=self.user)
+                                user=self.user,
+                               )

@@ -144,7 +144,9 @@ def add_to_catalog(request, line_id):
     request.user.has_perm_to_create_or_die(related_item_class)
 
     if request.method == 'POST':
-        form = AddToCatalogForm(line=line, related_item_class=related_item_class, user=request.user, data=request.POST)
+        form = AddToCatalogForm(line=line, related_item_class=related_item_class,
+                                user=request.user, data=request.POST,
+                               )
 
         if form.is_valid():
             form.save()
