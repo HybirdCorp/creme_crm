@@ -20,11 +20,11 @@
 
 from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, ManyToManyField, PROTECT
 from django.utils.translation import ugettext_lazy as _
-from django.utils.html import escape
-from django.utils.safestring import mark_safe
+#from django.utils.html import escape
+#from django.utils.safestring import mark_safe
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.gui.field_printers import print_many2many
+#from creme.creme_core.gui.field_printers import print_many2many
 
 from creme.media_managers.models import Image
 
