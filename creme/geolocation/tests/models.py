@@ -428,7 +428,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
 
         geoaddress.status = GeoAddress.UNDEFINED
         self.assertEqual(geoaddress.get_status_display(),
-                         _('No matching location')
+                         _('Not localized')
                         )
 
         geoaddress.status = GeoAddress.COMPLETE
