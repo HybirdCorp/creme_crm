@@ -228,7 +228,8 @@ class UserSettingsTestCase(CremeTestCase):
     def _aux_test_sync_view_error(self, url):
         self.login()
 
-        response = self.client.post('/activesync/user_settings',
+        #response =
+        self.client.post('/activesync/user_settings',
                                     data={'url':            url,
                                           'ssl':            '1',
                                           'login':          'fulbert',

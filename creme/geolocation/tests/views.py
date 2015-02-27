@@ -9,7 +9,7 @@ try:
     from creme.creme_core.models.auth import SetCredentials
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
 
-    from creme.persons.models import Organisation, Contact, Address
+    from creme.persons.models import Organisation, Contact # Address
 
     from ..models import GeoAddress, Town
     from ..utils import address_as_dict
