@@ -170,16 +170,17 @@ class CrudityBackend(object):
                 data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
             elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
-                filename, blob = field_value#should be pre-processed by the input
+                filename, blob = field_value #should be pre-processed by the input
                 upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')#TODO: 'image' bof bof...
 
                 if user is None:
                     shift_user_id = data.get('user_id')
                     if shift_user_id is None:
                         try:
-                            shift_user_id = User.objects.filter(is_superuser=True)#Not as the default value of data.get because a query is always done even the default value is not necessary
-                        except User.DoesNotExist: #TODO: WTF filter does not raise DoesNotExist !!!
-                            continue#There is really nothing we can do
+                            shift_user_id = User.objects.filter(is_superuser=True)[0].id #Not as the default value of data.get because a query is always done even the default value is not necessary
+                        #except User.DoesNotExist: #todo: WTF filter does not raise DoesNotExist !!!
+                        except IndexError:
+                            continue #There is really nothing we can do
                 else:
                     shift_user_id = user.id
 
