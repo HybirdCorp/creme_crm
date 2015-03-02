@@ -38,7 +38,6 @@ from ..models import RecurrentGenerator
 #def add(request):
     #return _wizard(request)
 
-#TODO: creds
 class RecurrentGeneratorWizard(SessionWizardView):
     template_name = 'creme_core/generics/blockform/add_wizard.html'
 
