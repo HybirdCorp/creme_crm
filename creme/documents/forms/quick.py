@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from os import path
 
-from creme.creme_core.forms.base import CremeModelWithUserForm, CremeEntityForm
+from creme.creme_core.forms.base import CremeModelWithUserForm # CremeEntityForm
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from ..models import Document
@@ -28,13 +28,18 @@ from ..utils import get_csv_folder_or_create
 
 
 class DocumentQuickForm(CremeModelWithUserForm):
-    class Meta(CremeEntityForm.Meta):
+ #   class Meta(CremeEntityForm.Meta):
+    class Meta:
         model = Document
-        exclude = ('description', 'title')
+#        exclude = ('description', 'title')
+        fields = ('user', 'filedata', 'folder')
 
     def clean_filedata(self):
         # TODO : return tuple with a pretty name for uploaded file
-        return str(handle_uploaded_file(self.cleaned_data['filedata'], path=['upload', 'documents']))
+        return str(handle_uploaded_file(self.cleaned_data['filedata'],
+                                        path=['upload', 'documents'],
+                                       )
+                  )
 
     def save(self, *args, **kwargs):
         self.instance.title = path.basename(self.cleaned_data['filedata'])
@@ -42,9 +47,12 @@ class DocumentQuickForm(CremeModelWithUserForm):
 
 
 class DocumentWidgetQuickForm(DocumentQuickForm):
-    class Meta(CremeEntityForm.Meta):
+#    class Meta(CremeEntityForm.Meta):
+#        model = Document
+#        exclude = ('description', 'title', 'folder')
+    class Meta:
         model = Document
-        exclude = ('description', 'title', 'folder')
+        fields = ('user', 'filedata')
 
     def __init__(self, folder=None, user=None, *args, **kwargs):
         super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
@@ -58,9 +66,9 @@ class DocumentWidgetQuickForm(DocumentQuickForm):
 
 
 class CSVDocumentWidgetQuickForm(DocumentWidgetQuickForm):
-    class Meta(CremeEntityForm.Meta):
-        model = Document
-        exclude = ('description', 'title', 'folder')
+#    class Meta(CremeEntityForm.Meta):
+#        model = Document
+#        exclude = ('description', 'title', 'folder')
 
     def __init__(self, user=None, *args, **kwargs):
         super(DocumentWidgetQuickForm, self).__init__(user=user, *args, **kwargs)
