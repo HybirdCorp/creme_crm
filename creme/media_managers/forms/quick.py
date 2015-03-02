@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,8 @@
 ################################################################################
 
 import logging
-import shutil
-
 from os.path import join, split
+import shutil
 
 from creme.creme_core.forms import CremeModelWithUserForm
 from creme.creme_core.views.file_handling import handle_uploaded_file
@@ -34,7 +33,8 @@ logger = logging.getLogger(__name__)
 class ImageQuickForm(CremeModelWithUserForm):
     class Meta:
         model = Image
-        exclude = ('description', 'height', 'width', 'categories')
+        #exclude = ('description', 'height', 'width', 'categories')
+        fields = ('user', 'name', 'image')
 
     def __init__(self, categories=None, user=None, *args, **kwargs):
         super(ImageQuickForm, self).__init__(user=user, *args, **kwargs)
@@ -57,7 +57,7 @@ class ImageQuickForm(CremeModelWithUserForm):
 
         try:
             shutil.move(upload_path, image_path)
-        except IOError, e:
+        except IOError as e:
             logger.debug('IOError in %s: %s', self.__class__, e)
         else:
             instance.image = join('upload', 'images', image_filename) #Not dst_path! chrooted?
