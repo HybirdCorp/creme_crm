@@ -32,6 +32,7 @@ from ..models import Project, ProjectTask
 
 
 @login_required
+@permission_required('projects')
 @permission_required('projects.add_projecttask')
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
