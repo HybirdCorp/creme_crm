@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,7 +108,7 @@ class CremeExchangeMapping(CremeModel):
 
 class CremeClient(CremeModel):
     user               = ForeignKey(User, verbose_name=u'Assigned to', unique=True)
-    client_id          = CharField(u'Creme Client ID',   max_length=32,  default=lambda :generate_guid(), unique=True)
+    client_id          = CharField(u'Creme Client ID',   max_length=32,  default=generate_guid, unique=True)
     policy_key         = CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
     folder_sync_key    = CharField(u'Last folder sync key', max_length=200, default=None, blank=True, null=True)
