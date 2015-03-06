@@ -112,7 +112,11 @@ input.dperiod-value {
 }
 
 .li_merge_entity1, .li_merge_entity2, .li_merge_result {
-    width: 31%;
+    width: 30%;
+}
+
+.li_merge_button {
+    max-width: 5%;
 }
 
 form .table_detail_view .merge_entity1 {
