@@ -326,6 +326,9 @@ def merge(request, entity1_id, entity2_id):
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
     entity2 = get_object_or_404(CremeEntity, pk=entity2_id)
 
+    if entity1.id == entity2.id:
+        raise ConflictError('You can not merge an entity with itself.')
+
     if entity1.entity_type_id != entity2.entity_type_id:
         #raise Http404('You can not merge entities of different types.')
         raise ConflictError('You can not merge entities of different types.')

@@ -26,7 +26,8 @@ __all__ = ('MergeViewsTestCase', )
 class MergeViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons') #'persons' for HeaderFilter
+        #cls.populate('creme_core', 'creme_config', 'persons') #'persons' for HeaderFilter
+        cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
 
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id
@@ -36,9 +37,9 @@ class MergeViewsTestCase(ViewsTestCase):
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
 
     def test_select_entity_for_merge01(self):
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
         orga03 = create_orga(name='Manga Club')
@@ -55,7 +56,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge02(self):
         "View credentials"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(
                 role=self.role,
@@ -63,25 +64,25 @@ class MergeViewsTestCase(ViewsTestCase):
                 set_type=SetCredentials.ESET_OWN
             )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
-        self.assertFalse(self.user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))
 
     def test_select_entity_for_merge03(self):
         "Edit credentials"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
-        self.assertTrue(self.user.has_perm_to_view(orga))
-        self.assertFalse(self.user.has_perm_to_change(orga))
+        self.assertTrue(user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_change(orga))
         self.assertGET403(self._build_select_url(orga))
 
     def test_merge01(self):
         "2 Organisations"
-        self.login()
+        user = self.login()
 
         rtype = RelationType.create(('test-subject_member', 'is a member of'),
                                     ('test-object_member',  'has as a member')
@@ -91,7 +92,6 @@ class MergeViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_manga', text='Manga related')
         ptype02 = create_ptype(str_pk='test-prop_anime', text='Anime related')
 
-        user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken',   description='Otaku band.',   phone='8787878')
         orga02 = create_orga(name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
@@ -204,13 +204,12 @@ class MergeViewsTestCase(ViewsTestCase):
     #TODO: we need an other Entity with a M2M to test the fusion of M2M fields (language is now uneditable)
     def test_merge02(self):
         "2 Contacts, M2M, foreign key to CremeEntities"
-        self.login()
+        user = self.login()
 
         image1 = self.create_image(ident=1)
         image2 = self.create_image(ident=2)
         self.create_image(ident=3) #image3 should not be proposed by the form
 
-        user = self.user
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
@@ -268,9 +267,9 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge03(self):
         "Initial values come in priority from the last edited entity"
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
@@ -287,11 +286,11 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge04(self):
         "Nullable foreign key to CremeEntities"
-        self.login()
+        user = self.login()
 
         image = self.create_image()
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
@@ -306,7 +305,7 @@ class MergeViewsTestCase(ViewsTestCase):
                         )
 
     def test_merge_customfields(self):
-        self.login()
+        user = self.login()
 
         create_cf = partial(CustomField.objects.create, field_type=CustomField.INT,
                             content_type=ContentType.objects.get_for_model(Contact),
@@ -319,7 +318,6 @@ class MergeViewsTestCase(ViewsTestCase):
         enum_val1_1 = create_evalue(custom_field=cf_03, value='Club Manga')
         create_evalue(custom_field=cf_03, value='Club Anime')
 
-        user = self.user
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
@@ -400,18 +398,17 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_error01(self):
         "Try to merge 2 entities with different types"
-        self.login()
+        user = self.login()
 
-        user = self.user
         orga = Organisation.objects.create(user=user, name='Genshiken')
         contact = Contact.objects.create(user=user, first_name='Chika', last_name='Ogiue')
 
         self.assertGET409(self.build_merge_url(orga, contact))
 
     def test_error02(self):
-        self.login()
+        "Required fields"
+        user = self.login()
 
-        user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
@@ -427,11 +424,18 @@ class MergeViewsTestCase(ViewsTestCase):
                                             'name_merged': '', #<======
                                            }
                                      )
-        self.assertFormError(response, 'form', 'user', [_(u'This field is required.')])
-        self.assertFormError(response, 'form', 'name', [_(u'This field is required.')])
+        self.assertFormError(response, 'form', 'user', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'name', _(u'This field is required.'))
+
+    def test_error03(self):
+        "Try to merge an entity with itself (by forging the URL)"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Genshiken')
+        self.assertGET409(self.build_merge_url(orga, orga))
 
     def test_perm01(self):
-        self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(
                 role=self.role,
@@ -439,7 +443,6 @@ class MergeViewsTestCase(ViewsTestCase):
                 set_type=SetCredentials.ESET_OWN
             )
 
-        user = self.user
         create_orga = Organisation.objects.create
         orga01 = create_orga(user=user,            name='Genshiken')
         orga02 = create_orga(user=self.other_user, name='Gen-shi-ken')
