@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-22 14:54+0100\n"
+"POT-Creation-Date: 2015-03-10 15:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -363,7 +363,7 @@ msgstr ""
 "Les sociétés des participants seront ajoutées automatiquement en tant que "
 "sujets"
 
-#: forms/activity.py:331 forms/lv_import.py:637
+#: forms/activity.py:331 forms/blocks.py:137 forms/lv_import.py:637
 msgid "If you participate, you have to choose one of your calendars."
 msgstr "Si vous participez, vous devez choisir un de vos calendriers."
 
@@ -430,10 +430,6 @@ msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 #: forms/blocks.py:52
 msgid "On which of my calendar this activity will appear?"
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
-
-#: forms/blocks.py:137
-msgid "If you participe, you have to choose one of your calendars."
-msgstr "Si vous participez, vous devez choisir un de vos calendrier"
 
 #: forms/blocks.py:184
 #, python-format
