@@ -4,18 +4,19 @@ try:
     from datetime import datetime, date, time # timedelta
     from functools import partial
 
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
     from django.forms.util import ValidationError
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.html import escape
-    from django.utils.translation import ugettext as _, ungettext
-    from django.contrib.contenttypes.models import ContentType
-    #from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now, get_current_timezone, make_naive
+    from django.utils.translation import ugettext as _, ungettext
+    #from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter, SettingValue
     from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter, SettingValue
     from creme.creme_core.utils import create_or_update
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
@@ -254,7 +255,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'start':               '2011-2-22',
                                             'my_participation':    True,
                                             'my_calendar':         my_calendar.pk,
-                                            'participating_users': other_user.pk,
+                                            'participating_users': [other_user.pk],
                                             'other_participants':  '[%d]' % genma.id,
                                             'subjects':            self._relation_field_value(akane),
                                             'linked_entities':     self._relation_field_value(dojo),
@@ -476,6 +477,44 @@ class ActivityTestCase(_ActivitiesTestCase):
         #better in a teardown method...
         sv.value = True
         sv.save()
+
+    def test_createview12(self):
+        "Teams are not allowed as participants"
+        user = self.login()
+        activity = self._create_meeting()
+
+        create_user = User.objects.create
+        musashi = create_user(username='musashi', first_name='Musashi',
+                              last_name='Miyamoto', email='musashi@miyamoto.jp',
+                             )
+        kojiro  = create_user(username='kojiro', first_name='Kojiro',
+                              last_name='Sasaki', email='kojiro@sasaki.jp',
+                             )
+
+        team = create_user(username='Samurais', is_team=True, role=None)
+        team.teammates = [musashi, kojiro, user] #TODO: user + my_participation !!!!!!
+
+        title = 'Fight !!'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                    data={'user':  user.pk,
+                                          'title': title,
+                                          'start': '2015-03-10',
+                                          'my_participation':    True,
+                                          'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                          'participating_users': [team.id],
+                                          'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                                     ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                                                    ),
+                                         }
+                                     )
+        self.assertNoFormError(response)
+
+        act = self.get_object_or_fail(Activity, title=title)
+        relations = Relation.objects.filter(subject_entity=act.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(3, len(relations))
+        self.assertEqual({musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
+                         {r.object_entity.get_real_entity() for r in relations}
+                        )
 
     def test_createview_errors01(self):
         user = self.login()
@@ -760,7 +799,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                                                           ),
                                           'start':               '2010-1-10',
                                           'start_time':          '17:30:00',
-                                          'participating_users': other_user.pk,
+                                          'participating_users': [other_user.pk],
                                          }
                                     )
         self.assertNoFormError(response)
@@ -1643,7 +1682,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         response = self.assertPOST200(add_url, follow=True,
                                       data={'my_participation':    True,
                                             'my_calendar':         Calendar.get_user_default_calendar(logged.is_user).pk,
-                                            'participating_users': other.is_user_id,
+                                            'participating_users': [other.is_user_id],
                                             'participants':        '[%d]' % contact3.pk,
                                            }
                                      )
@@ -1716,6 +1755,36 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(3, len(relations))
         self.assertEqual(set(ids + (self.user.related_contact.all()[0].id,)),
                          {r.object_entity_id for r in relations}
+                        )
+
+    def test_participants07(self):
+        "When Teams are not select, their teammates are participants"
+        user = self.login()
+        activity = self._create_meeting()
+
+        create_user = User.objects.create
+        musashi = create_user(username='musashi', first_name='Musashi',
+                              last_name='Miyamoto', email='musashi@miyamoto.jp',
+                             )
+        kojiro  = create_user(username='kojiro', first_name='Kojiro',
+                              last_name='Sasaki', email='kojiro@sasaki.jp',
+                             )
+
+        team = create_user(username='Samurais', is_team=True, role=None)
+        team.teammates = [musashi, kojiro, user]
+
+        response = self.client.post(self._buid_add_participants_url(activity),
+                                    data={'my_participation':    True,
+                                          'my_calendar':         Calendar.get_user_default_calendar(user).pk,
+                                          'participating_users': [team.id, kojiro.id],
+                                         },
+                                   )
+        self.assertNoFormError(response)
+
+        relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
+        self.assertEqual(3, len(relations))
+        self.assertEqual({musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
+                         {r.object_entity.get_real_entity() for r in relations}
                         )
 
     def test_add_subjects01(self):

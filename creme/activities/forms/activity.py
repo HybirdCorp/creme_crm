@@ -69,7 +69,8 @@ class _ActivityForm(CremeEntityForm):
 
     def __init__(self, *args, **kwargs):
         super(_ActivityForm, self).__init__(*args, **kwargs)
-        self.participants = [] #all Contacts who participate: me, other users, other contacts
+#        self.participants = [] #all Contacts who participate: me, other users, other contacts
+        self.participants = set() #all Contacts who participate: me, other users, other contacts
 
         duration_field = self.fields.get('duration')
         if duration_field:
@@ -219,9 +220,24 @@ class _ActivityCreateForm(_ActivityForm):
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
 
+    #TODO: factorise with ParticipantCreateForm
     def clean_participating_users(self):
-        users = self.cleaned_data['participating_users']
-        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+#        users = self.cleaned_data['participating_users']
+#        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+#        return users
+        users = set()
+
+        for user in self.cleaned_data['participating_users']:
+            if not user.is_team:
+                users.add(user)
+            else:
+                users.update(user.teammates.itervalues())
+
+        self.participants.update(validate_linkable_entities(Contact.objects.filter(is_user__in=users),
+                                                            self.user,
+                                                           )
+                                )
+
         return users
 
     def save(self, *args, **kwargs):
@@ -301,20 +317,15 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         if my_participation:
             user = self.user
-
-            #try:
-                #user_contact = Contact.objects.get(is_user=user)
-            #except Contact.DoesNotExist:
-                #logger.warn('No Contact linked to this user: %s', user)
-            #else:
-                #self.participants.append(validate_linkable_entity(user_contact, user))
-            self.participants.append(validate_linkable_entity(user.linked_contact, user))
+#            self.participants.append(validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 
     def clean_other_participants(self):
         participants = self.cleaned_data['other_participants']
-        self.participants.extend(validate_linkable_entities(participants, self.user))
+#        self.participants.extend(validate_linkable_entities(participants, self.user))
+        self.participants.update(validate_linkable_entities(participants, self.user))
         return participants
 
     def clean_subjects(self):

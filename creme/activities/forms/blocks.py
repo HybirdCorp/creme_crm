@@ -61,7 +61,8 @@ class ParticipantCreateForm(CremeForm):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
 
         self.activity = entity
-        self.participants = []
+#        self.participants = []
+        self.participants = set()
 
         user = self.user
         user_pk = user.pk
@@ -103,7 +104,18 @@ class ParticipantCreateForm(CremeForm):
         return validate_linkable_entities(self.cleaned_data['participants'], self.user)
 
     def clean_participating_users(self):
-        return validate_linkable_entities(Contact.objects.filter(is_user__in=self.cleaned_data['participating_users']),
+#        return validate_linkable_entities(Contact.objects.filter(is_user__in=self.cleaned_data['participating_users']),
+#                                          self.user,
+#                                         )
+        users = set()
+
+        for user in self.cleaned_data['participating_users']:
+            if not user.is_team:
+                users.add(user)
+            else:
+                users.update(user.teammates.itervalues())
+
+        return validate_linkable_entities(Contact.objects.filter(is_user__in=users),
                                           self.user,
                                          )
 
@@ -113,14 +125,8 @@ class ParticipantCreateForm(CremeForm):
 
         if my_participation:
             user = self.user
-
-            #try:
-                #user_contact = Contact.objects.get(is_user=user)
-            #except Contact.DoesNotExist:
-                #logger.warn('No Contact linked to this user: %s', user)
-            #else:
-                #self.participants.append(validate_linkable_entity(user_contact, user))
-            self.participants.append(validate_linkable_entity(user.linked_contact, user))
+#            self.participants.append(validate_linkable_entity(user.linked_contact, user))
+            self.participants.add(validate_linkable_entity(user.linked_contact, user))
 
         return my_participation
 
@@ -129,7 +135,8 @@ class ParticipantCreateForm(CremeForm):
 
         if not self._errors:
             activity = self.activity
-            extend_participants = self.participants.extend
+#            extend_participants = self.participants.extend
+            extend_participants = self.participants.update
             extend_participants(cleaned_data['participating_users'])
             extend_participants(cleaned_data['participants'])
 

@@ -67,6 +67,7 @@
             - The type of an Activity can now be edited (and not only its sub-type).
             - The Organisations of the participants can be automatically added as subjects (it can be configured and it is enabled by default).
             - The Activities can now be imported (ie: CSV/Excel files).
+            - When a team is selected to be a participant, its teammates participate.
         * Persons:
             - You can now merge 2 Contacts if one of them is a user (but not 2).
             - A field 'order' has been added to StaffSize.
@@ -251,6 +252,9 @@
                 - The templatetags report_[barchart|piechart|tubechart]_json have been replaced by the generic one report_chart_json.
             * Opportunities :
                 - In the forms.lv_import module, SalesPhaseExtractor, SalesPhaseExtractorWidget & SalesPhaseExtractorField have been removed.
+            * Activities :
+                - _ActivityForm.participants is now a set (it was a list).
+                - ParticipantCreateForm.participants is now a set too.
             * Assistants :
                 - The field ToDo.has_deadline has been removed.
             * Activesync :
