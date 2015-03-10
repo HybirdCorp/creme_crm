@@ -141,7 +141,7 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participants'])
 
             if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
-                self.errors['my_calendar'] = ErrorList([ugettext(u"If you participe, you have to choose one of your calendars.")])
+                self.errors['my_calendar'] = ErrorList([ugettext(u"If you participate, you have to choose one of your calendars.")])
 
             collisions = check_activity_collisions(activity.start, activity.end,
                                                    self.participants, busy=activity.busy,
