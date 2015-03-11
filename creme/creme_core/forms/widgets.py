@@ -812,12 +812,11 @@ class UnorderedMultipleChoiceWidget(SelectMultiple):
 
         return super(UnorderedMultipleChoiceWidget, self).render_option(selected_choices, option_value, option_label)
 
-
     def render(self, name, value, attrs=None, choices=()):
         if not self.choices:
             return _('No choice available.')
 
-        count = len(self.choices)
+        count = self._choice_count()
         attrs = self.build_attrs(attrs, name=name)
         filtertype = self._build_filtertype(count)
         input = SelectMultiple.render(self, name, value, {'class': 'ui-creme-input'}, choices);
@@ -835,6 +834,9 @@ u"""<div class="%(css)s" style="%(style)s" widget="%(typename)s">
     %(header)s
     %(body)s
 </div>""" % context)
+
+    def _choice_count(self):
+        return sum(len(c[1]) if isinstance(c[1], (list, tuple)) else 1 for c in self.choices)
 
     def _build_filtertype(self, count):
         if self.filtertype:
