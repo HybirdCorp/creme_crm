@@ -94,7 +94,7 @@ class CTITestCase(CremeTestCase):
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
         self.assertIn(unicode(contact), pcall.title)
-        self.assert_(pcall.description)
+        self.assertTrue(pcall.description)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
         self.assertEqual(STATUS_IN_PROGRESS, pcall.status.id)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
