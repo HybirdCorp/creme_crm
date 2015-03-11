@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,4 +43,16 @@ def post_save_setting_value(sender, instance, **kwargs):
             backend.is_sandbox_by_user = instance.value
 
         if instance.value:
-            WaitingAction.objects.filter(user=None).update(user=User.objects.filter(is_superuser=True).order_by('-pk')[0])
+#            WaitingAction.objects.filter(user=None).update(user=User.objects.filter(is_superuser=True).order_by('-pk')[0])
+
+            #TODO: move to a method in User's manager
+            user_qs = User.objects.order_by('id')
+            try:
+                user = user_qs.filter(is_superuser=True, is_staff=False)[0]
+            except IndexError:
+                try:
+                    user = user_qs.filter(is_superuser=True)[0]
+                except IndexError:
+                    user = user_qs[0]
+
+            WaitingAction.objects.filter(user=None).update(user=user)
