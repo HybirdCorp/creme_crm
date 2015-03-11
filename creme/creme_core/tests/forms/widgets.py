@@ -4,13 +4,14 @@ try:
     from django.db.models.query import QuerySet
 
     from creme.creme_core.tests.forms.base import FieldTestCase
-    from creme.creme_core.forms.widgets import DynamicSelect
+    from creme.creme_core.forms.widgets import DynamicSelect, UnorderedMultipleChoiceWidget
 
     from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-__all__ = ('DynamicSelectTestCase',)
+__all__ = ('DynamicSelectTestCase',
+           'UnorderedMultipleChoiceTestCase',)
 
 
 class DynamicSelectTestCase(FieldTestCase):
@@ -51,3 +52,17 @@ class DynamicSelectTestCase(FieldTestCase):
 
         self.assertListEqual([(id, str(id)) for id in xrange(10)],
                              select.choices)
+
+
+class UnorderedMultipleChoiceTestCase(FieldTestCase):
+    def test_option_list(self):
+        select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
+        self.assertEqual(2, select._choice_count())
+        select.render('A', (2,), choices=select.choices)
+
+    def test_option_group_list(self):
+        select = UnorderedMultipleChoiceWidget(choices=[('Group A', ((1, 'A'), (2, 'B'))),
+                                                        ('Group B', ((3, 'C'), (4, 'D'), (5, 'E'))),])
+        self.assertEqual(5, select._choice_count())
+        select.render('A', (3, 4,), choices=select.choices)
+
