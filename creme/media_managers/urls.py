@@ -7,7 +7,7 @@ urlpatterns = patterns('creme.media_managers.views',
     (r'^$', 'portal.portal_media_managers'),
 
     (r'^images$',                          'image.listview'),
-    #(r'^images/popup$',                    'image.listview_popup'),
+    (r'^images/popup$',                    'image.listview_popup'), # NB: for TinyMCE selection
     (r'^images/(?P<image_id>\d+)/get_url', 'image.get_url'), #TODO: 'images' -> 'image' ??
 
     (r'^tiny_mce/image$',                'image.select_image_tiny_mce'),
