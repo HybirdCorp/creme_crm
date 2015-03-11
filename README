@@ -11,7 +11,7 @@ DEPENDENCIES:
         - Python 2.7
         - Django 1.4
         - Django-mediagenerator 1.10
-        - South 0.7
+        - South 1.0
         - pytz
         - python-dateutil 1.5
         - Pillow 2.7
@@ -29,8 +29,8 @@ DEPENDENCIES:
             - pygraphviz (seems unavailable on windows)
 
         - creme.activesync:
-            - restkit 2.2.1
-            - pycrypto 2.3
+            - restkit 4.2
+            - pycrypto 2.6
 
         - creme.crudity:
             - lcab (if you want Infopath forms exports and your server doesn't run on Windows)
