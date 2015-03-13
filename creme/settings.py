@@ -272,16 +272,6 @@ DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his ema
 
 #EMAILS [END] ###################################################################
 
-#GEOLOCATION ####################################################################
-# Files containing towns with their location.
-# It can be an url or a local file. zip files are also supported.
-GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
-                      {'country': 'France'}),
-                    )
-#GEOLOCATION [END] ##############################################################
-
-#LOGS ##########################################################################
-
 #LOGS ##########################################################################
 
 LOGGING_FORMATTERS = {
@@ -723,13 +713,21 @@ ABCTI_URL = 'http://127.0.0.1:8087'
 #VCF ---------------------------------------------------------------------------
 VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
 
-#MOBILE ----------------------------------------------------------------------
+#MOBILE ------------------------------------------------------------------------
 
 # Domain of the complete version (in order to go to it from the mobile version).
 # eg: 'http://mydomain' #No end slash!
 # '' means that there is only one domain for the complete & the mobile versions ;
 # so SITE_DOMAIN will be used.
 NON_MOBILE_SITE_DOMAIN = ''
+
+#GEOLOCATION -------------------------------------------------------------------
+# Files containing towns with their location.
+# It can be an url or a local file. zip files are also supported.
+GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
+                      {'country': 'France'},
+                     ),
+                    )
 
 
 #APPS CONFIGURATION [END]#######################################################
