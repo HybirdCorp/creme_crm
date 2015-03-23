@@ -312,6 +312,9 @@ def bulk_edit_field(request, ct_id, id, field_name):
 def select_entity_for_merge(request, entity1_id):
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
 
+    if merge_form_factory(entity1.entity_type.model_class()) is None:
+        raise ConflictError('This type of entity cannot be merged')
+
     user = request.user
     user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
 
@@ -344,6 +347,9 @@ def merge(request, entity1_id, entity2_id):
     entity2 = entity2.get_real_entity()
 
     EntitiesMergeForm = merge_form_factory(entity1.__class__)
+
+    if EntitiesMergeForm is None:
+        raise ConflictError('This type of entity cannot be merged')
 
     if request.method == 'POST':
         POST = request.POST
