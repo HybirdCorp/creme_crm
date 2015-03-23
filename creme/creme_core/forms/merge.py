@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,8 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
 from ..models import CremeEntity, CustomField, CustomFieldValue
-from ..signals import pre_merge_related
 from ..gui.merge import merge_form_registry
+from ..signals import pre_merge_related
 from .base import CremeForm, _CUSTOM_NAME
 
 
@@ -229,9 +229,12 @@ def mergefield_factory(modelfield):
 def form_factory(model):
     #TODO: use a cache ??
     mergeform_factory = merge_form_registry.get(model)
-    base_form_class = MergeEntitiesBaseForm if mergeform_factory is None else \
-                      mergeform_factory()
+#    base_form_class = MergeEntitiesBaseForm if mergeform_factory is None else \
+#                      mergeform_factory()
 
-    return type('Merge%sForm' % model.__name__, (base_form_class,),
-                fields_for_model(model, formfield_callback=mergefield_factory)
-               )
+    if mergeform_factory is not None:
+        base_form_class = mergeform_factory()
+
+        return type('Merge%sForm' % model.__name__, (base_form_class,),
+                    fields_for_model(model, formfield_callback=mergefield_factory)
+                   )

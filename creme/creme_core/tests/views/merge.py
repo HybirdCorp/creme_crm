@@ -9,11 +9,14 @@ try:
 
     from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue) #Language
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
+
+    from creme.media_managers.models import Image
 
     from creme.persons.models import Organisation, Contact
 except Exception as e:
@@ -28,6 +31,7 @@ class MergeViewsTestCase(ViewsTestCase):
     def setUpClass(cls):
         #cls.populate('creme_core', 'creme_config', 'persons') #'persons' for HeaderFilter
         cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
+        cls.autodiscover()
 
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id
@@ -38,6 +42,10 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge01(self):
         user = self.login()
+
+        form_factory = merge_form_registry.get(Organisation)
+        self.assertIsNotNone(form_factory)
+        self.assertTrue(callable(form_factory))
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
@@ -79,6 +87,14 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_change(orga))
         self.assertGET403(self._build_select_url(orga))
+
+    def test_select_entity_for_merge04(self):
+        "Unregistered model"
+        self.login()
+        self.assertIsNone(merge_form_registry.get(Image))
+
+        image = self.create_image()
+        self.assertGET409(self._build_select_url(image))
 
     def test_merge01(self):
         "2 Organisations"
@@ -303,6 +319,15 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual({(image.id, unicode(image)), ('', '---------')},
                          set(f_image._original_field.choices)
                         )
+
+    def test_merge05(self):
+        "Unregistered model"
+        self.login()
+        self.assertIsNone(merge_form_registry.get(Image))
+
+        image1 = self.create_image(ident=1)
+        image2 = self.create_image(ident=2)
+        self.assertGET409(self.build_merge_url(image1, image2))
 
     def test_merge_customfields(self):
         user = self.login()
