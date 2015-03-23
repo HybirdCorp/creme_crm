@@ -155,6 +155,7 @@ class ActionButtonList(Widget):
         super(ActionButtonList, self).__init__(attrs)
         self.delegate = delegate
         self.actions = actions or []
+        self.from_python = None
 
     def add_action(self, name, label, enabled=True, **kwargs):
         self.actions.append((name, label, enabled, kwargs))
@@ -165,6 +166,8 @@ class ActionButtonList(Widget):
         return self
 
     def render(self, name, value, attrs=None):
+        value = self.from_python(value) if self.from_python is not None else value
+
         context = widget_render_context('ui-creme-actionbuttonlist', attrs)
         context['delegate'] = self.delegate.render(name, value, attrs)
         context['buttons'] = self._render_actions()
@@ -453,6 +456,7 @@ class EntitySelector(TextInput):
         self.url = '/creme_core/list_view/popup/' + content_type + '/${selection}?q_filter=${qfilter}' if content_type else \
                    '/creme_core/list_view/popup/${ctype}/${selection}?q_filter=${qfilter}'
         self.text_url = '/creme_core/relation/entity/${id}/json'
+        self.from_python = None
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
@@ -468,6 +472,7 @@ class EntitySelector(TextInput):
                                         label=_(u'Select...'),
                                        )
 
+        value = self.from_python(value) if self.from_python is not None else value
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
         qfilter = attrs.pop('qfilter', None)

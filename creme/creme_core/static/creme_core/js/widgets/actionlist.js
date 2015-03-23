@@ -57,7 +57,7 @@ creme.widget.ResetActionButton = creme.widget.ActionButton.sub({
 
     _run: function(options)
     {
-        var options = creme.widget.parseopt(this.options().button, {value: ''});
+        var options = creme.widget.parseopt(this._button, {value: ''});
         this._updateDelegate({value:options.value}, 'success');
     }
 });
