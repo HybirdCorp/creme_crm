@@ -6,6 +6,8 @@ try:
     from itertools import count
     from random import randint
 
+    from dateutil.relativedelta import relativedelta
+
     from django.conf import settings
     from django.contrib.auth.models import User
     from django.utils.timezone import now, localtime
@@ -890,17 +892,20 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(STATUS_PLANNED, pcall2.status_id)
         self.assertEqual(FLOATING_TIME,  pcall2.floating_type)
 
-        today = now().day
+        #today = now().day
+        tomorrow = (now() + relativedelta(days=1)).day
 
         start = localtime(pcall2.start)
         self.assertEqual(0, start.hour)
         self.assertEqual(0, start.minute)
-        self.assertEqual(1, start.day - today)
+        #self.assertEqual(1, start.day - today)
+        self.assertEqual(tomorrow, start.day)
 
         end = localtime(pcall2.end)
         self.assertEqual(23, end.hour)
         self.assertEqual(59, end.minute)
-        self.assertEqual(1,  end.day - today)
+        #self.assertEqual(1,  end.day - today)
+        self.assertEqual(tomorrow, end.day)
 
     def test_phone_call_wf_postponed02(self):
         "Phone calls are created (with contact)"
@@ -952,17 +957,20 @@ class MobileTestCase(CremeTestCase):
                          }
                         )
 
-        today = now().day
+        #today = now().day
+        tomorrow = (now() + relativedelta(days=1)).day
 
         start = localtime(pp_pcall.start)
         self.assertEqual(0, start.hour)
         self.assertEqual(0, start.minute)
-        self.assertEqual(1, start.day - today)
+        #self.assertEqual(1, start.day - today)
+        self.assertEqual(tomorrow, start.day)
 
         end = localtime(pp_pcall.end)
         self.assertEqual(23, end.hour)
         self.assertEqual(59, end.minute)
-        self.assertEqual(1,  end.day - today)
+        #self.assertEqual(1,  end.day - today)
+        self.assertEqual(tomorrow, end.day)
 
         self.assertEqual(_('Call to %s from Creme Mobile') % other_part,
                          pp_pcall.title
