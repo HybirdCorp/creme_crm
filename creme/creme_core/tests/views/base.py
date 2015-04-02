@@ -54,6 +54,7 @@ class ViewsTestCase(CremeTestCase):
 class MiscViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
         cls.populate()
 
     def setUp(self):
@@ -162,7 +163,8 @@ class MiscViewsTestCase(ViewsTestCase):
 class LanguageTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        ViewsTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def setUp(self):
         self.login()
@@ -212,7 +214,8 @@ class LanguageTestCase(ViewsTestCase):
 class CurrencyTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        ViewsTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def setUp(self):
         self.login()
@@ -278,7 +281,8 @@ class CurrencyTestCase(ViewsTestCase):
 class ExceptionMiddlewareTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        ViewsTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def setUp(self):
         self.login()

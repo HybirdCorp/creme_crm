@@ -32,7 +32,8 @@ class _PollsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'polls')
+        CremeTestCase.setUpClass()
+        cls.populate('polls')
 
     def _build_stats_url(self, pform):
         return '/polls/poll_form/stats/%s' % pform.id

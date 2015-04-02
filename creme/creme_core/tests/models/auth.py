@@ -27,6 +27,7 @@ class CredentialsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.autodiscover()
 
     def setUp(self):

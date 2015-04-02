@@ -18,7 +18,8 @@ __all__ = ('QuickFormTestCase',)
 class QuickFormTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'persons')
 
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS':  '0',

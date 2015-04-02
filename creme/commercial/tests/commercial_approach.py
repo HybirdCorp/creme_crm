@@ -40,7 +40,8 @@ __all__ = ('CommercialApproachTestCase',)
 class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activities', 'opportunities', 'commercial', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
         cls.autodiscover()
 
     def setUp(self):

@@ -35,7 +35,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps = ['creme_config', 'recurrents']
+        apps = ['recurrents']
 
         if billing_installed:
             apps.append('billing')

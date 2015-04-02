@@ -32,6 +32,7 @@ class LineTestCase(_BillingTestCase):
 
     @classmethod
     def setUpClass(cls):
+        _BillingTestCase.setUpClass()
         ##cls.populate('creme_core', 'creme_config', 'products', 'billing')
         #cls.populate('creme_config', 'products', 'billing')
         cls.populate('products', 'billing')

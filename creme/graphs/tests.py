@@ -25,7 +25,8 @@ except ImportError:
 class GraphsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'graphs')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'graphs')
 
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])

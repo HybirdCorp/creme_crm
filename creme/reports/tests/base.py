@@ -42,7 +42,8 @@ class BaseReportsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        apps = ['creme_core', 'creme_config', 'reports', 'persons']
+        CremeTestCase.setUpClass()
+        apps = ['creme_core', 'reports', 'persons']
 
         if 'creme.billing' in settings.INSTALLED_APPS:
             apps.append('billing')

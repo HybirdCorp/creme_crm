@@ -34,7 +34,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps = ['creme_config', 'recurrents']
+        apps = ['recurrents']
 
         if tickets_installed:
             apps.append('tickets')

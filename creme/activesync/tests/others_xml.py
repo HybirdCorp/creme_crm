@@ -12,7 +12,6 @@ from ..commands.airsync import AirSync
 
 
 class XMLTestCase(CremeTestCase):
-
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()

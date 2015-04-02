@@ -22,7 +22,8 @@ __all__ = ('ActObjectivePatternTestCase',)
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'commercial')
+        CommercialBaseTestCase.setUpClass()
+        cls.populate('commercial')
 
     def _build_addcomp_url(self, pattern):
         return '/commercial/objective_pattern/%s/add_component' % pattern.id

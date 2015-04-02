@@ -423,6 +423,7 @@ class UnicodeCollationTestCase(CremeTestCase):
 class CurrencyFormatTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core')
 
     def test_currency(self):

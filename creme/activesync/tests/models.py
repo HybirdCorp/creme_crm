@@ -20,6 +20,7 @@ except Exception as e:
 class ActiveSyncModelsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'persons', 'activities')
 
     def setUp(self):

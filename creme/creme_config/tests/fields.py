@@ -20,6 +20,7 @@ __all__ = ('CreatorModelChoiceFieldTestCase', )
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'persons')
         cls.autodiscover()
 

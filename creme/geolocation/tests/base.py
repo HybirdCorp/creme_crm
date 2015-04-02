@@ -14,6 +14,7 @@ except Exception as e:
 class GeoLocationBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'persons')
         Town.objects.all().delete()
 

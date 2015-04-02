@@ -20,6 +20,7 @@ class CategoryFieldTestCase(FieldTestCase):
 
     @classmethod
     def setUpClass(cls):
+        FieldTestCase.setUpClass()
         SubCategory.objects.all().delete()
         Category.objects.all().delete()
 

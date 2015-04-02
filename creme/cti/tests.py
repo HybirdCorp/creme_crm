@@ -23,7 +23,8 @@ class CTITestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activities')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'activities')
         cls.autodiscover()
 
     def _buid_add_pcall_url(self, contact):

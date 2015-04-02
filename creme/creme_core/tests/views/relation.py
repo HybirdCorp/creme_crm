@@ -38,7 +38,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
+        ViewsTestCase.setUpClass()
+        cls.populate('creme_core', 'persons')
 
     def _build_get_ctypes_url(self, rtype_id):
         return '/creme_core/relation/type/%s/content_types/json' % rtype_id

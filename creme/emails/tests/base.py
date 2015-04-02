@@ -20,7 +20,7 @@ class _EmailsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'creme_config', 'emails')
+        cls.populate('creme_core', 'emails')
 
 
 class EmailsTestCase(_EmailsTestCase):

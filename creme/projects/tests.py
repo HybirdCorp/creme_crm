@@ -32,6 +32,7 @@ class ProjectsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'activities', 'projects')
         cls.populate('creme_core', 'activities', 'projects')
 

@@ -16,7 +16,8 @@ class _DocumentsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'documents')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'documents')
 
         cls.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'documents')
 

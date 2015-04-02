@@ -18,7 +18,8 @@ except Exception as e:
 class VcfExportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'persons')
 
     def _generate_vcf(self, contact, status_code=200):
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)

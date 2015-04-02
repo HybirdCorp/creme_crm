@@ -91,7 +91,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
 
-        cls.populate('creme_core', 'creme_config')
+        cls.populate('creme_core')
 
         #Contact.objects.all().delete()
         #Organisation.objects.all().delete()

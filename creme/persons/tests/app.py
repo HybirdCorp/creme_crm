@@ -18,7 +18,8 @@ __all__ = ('PersonsAppTestCase',)
 class PersonsAppTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('persons')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
