@@ -32,7 +32,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         cls.populate('creme_config', 'persons')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
+        #HeaderFilter.objects.all().delete()
+
+        cls._hf_backup = list(HeaderFilter.objects.all())
         HeaderFilter.objects.all().delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        ViewsTestCase.tearDownClass()
+        HeaderFilter.objects.bulk_create(cls._hf_backup)
 
     def assertCellsEqual(self, cells1, cells2):
         self.assertEqual(len(cells1), len(cells2))
