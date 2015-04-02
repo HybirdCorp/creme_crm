@@ -21,7 +21,8 @@ __all__ = ('EnumerableViewsTestCase', )
 class EnumerableViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config')
+        ViewsTestCase.setUpClass()
+#        cls.populate('creme_config')
         cls.autodiscover()
 
     def _build_enum_url(self, model):

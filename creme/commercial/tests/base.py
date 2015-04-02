@@ -9,7 +9,8 @@ from ..models import MarketSegment
 class CommercialBaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'commercial')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'commercial')
 
     def setUp(self):
         self.login()

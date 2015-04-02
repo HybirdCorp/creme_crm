@@ -10,7 +10,7 @@ from creme.creme_core.tests.base import CremeTestCase
 class _ActivitiesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activities', 'persons')
+        cls.populate('creme_core', 'activities', 'persons')
         CremeTestCase.setUpClass()
 
     #def login(self, is_superuser=True, other_is_owner=False):

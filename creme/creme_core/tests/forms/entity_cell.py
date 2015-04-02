@@ -20,6 +20,7 @@ __all__ = ('EntityCellsFieldTestCase',)
 class EntityCellsFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
+        FieldTestCase.setUpClass()
         cls.ct_contact = ContentType.objects.get_for_model(Contact)
 
     def test_clean_empty_required(self):

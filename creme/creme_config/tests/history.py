@@ -17,7 +17,8 @@ class HistoryConfigTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def setUp(self):
         self.login()

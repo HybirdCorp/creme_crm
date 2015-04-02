@@ -19,7 +19,8 @@ class AddressTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'creme_core', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'persons')
 
     def login(self, *args, **kwargs):
         super(AddressTestCase, self).login(*args, **kwargs)

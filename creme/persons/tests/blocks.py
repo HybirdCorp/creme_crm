@@ -28,7 +28,8 @@ __all__ = ('BlocksTestCase',)
 class BlocksTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons', 'activities')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'persons', 'activities')
 
     def setUp(self):
         self.login()

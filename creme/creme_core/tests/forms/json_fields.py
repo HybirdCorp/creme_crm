@@ -1609,6 +1609,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
+        _JSONFieldBaseTestCase.setUpClass()
         cls.autodiscover()
 
         get_ct = ContentType.objects.get_for_model

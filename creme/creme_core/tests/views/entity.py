@@ -43,7 +43,8 @@ class EntityViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        ViewsTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def _build_delete_url(self, entity):
         return '/creme_core/entity/delete/%s' % entity.id

@@ -29,7 +29,8 @@ class VcfImportTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'persons')
+        CremeTestCase.setUpClass()
+        cls.populate('persons')
 
     def _post_step0(self, content):
         tmpfile = NamedTemporaryFile()

@@ -20,7 +20,8 @@ class PreferedMenuTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
         cls.autodiscover()
 
         reg_item = creme_menu.get_app_item('creme_config').register_item

@@ -29,6 +29,7 @@ __all__ = ('MergeViewsTestCase', )
 class MergeViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'persons') #'persons' for HeaderFilter
         cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
         cls.autodiscover()

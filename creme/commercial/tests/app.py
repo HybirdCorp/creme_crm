@@ -20,7 +20,8 @@ class CommercialTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'commercial')
+        CremeTestCase.setUpClass()
+        cls.populate('commercial')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)

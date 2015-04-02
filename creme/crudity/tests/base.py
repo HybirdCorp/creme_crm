@@ -43,7 +43,7 @@ class CrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'creme_config', 'crudity')
+        cls.populate('creme_core', 'crudity')
         cls.autodiscover()
 
     def setUp(self):

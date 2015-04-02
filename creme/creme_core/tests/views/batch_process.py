@@ -28,6 +28,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
+        ViewsTestCase.setUpClass()
         cls.populate('creme_core', 'persons')
 
         get_ct = ContentType.objects.get_for_model

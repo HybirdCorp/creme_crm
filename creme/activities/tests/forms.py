@@ -19,6 +19,8 @@ __all__ = ('ActivityTypeFieldTestCase',)
 class ActivityTypeFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
         cls.atype = ActivityType.objects.create(id='meeting', name='Meeting',
                                                 default_day_duration=0,
                                                 default_hour_duration="01:00:00",

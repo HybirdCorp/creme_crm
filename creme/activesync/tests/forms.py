@@ -16,7 +16,8 @@ except Exception as e:
 class GlobalSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activesync')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'activesync')
 
     def test_editview(self):
         self.login()
@@ -63,7 +64,8 @@ class GlobalSettingsTestCase(CremeTestCase):
 class UserSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activesync')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'activesync')
 
     def _assertNoSValue(self, skey_ids, user):
         self.assertFalse(SettingValue.objects.filter(key_id__in=skey_ids, user=user))

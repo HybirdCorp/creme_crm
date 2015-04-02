@@ -26,7 +26,8 @@ class BlockViewTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def test_set_state01(self):
         self.login()

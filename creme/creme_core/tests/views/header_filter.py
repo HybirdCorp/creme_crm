@@ -29,7 +29,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'persons')
+        ViewsTestCase.setUpClass()
+        cls.populate('persons')
         cls.contact_ct = ContentType.objects.get_for_model(Contact)
 
         #HeaderFilter.objects.all().delete()

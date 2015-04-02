@@ -33,7 +33,8 @@ class ActTestCase(CommercialBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'activities', 'opportunities', 'commercial')
+        CommercialBaseTestCase.setUpClass()
+        cls.populate('activities', 'opportunities', 'commercial')
 
     def _build_addobjective_url(self, act):
         return '/commercial/act/%s/add/objective' % act.id

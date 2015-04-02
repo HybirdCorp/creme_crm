@@ -1319,7 +1319,7 @@ class SalesPhaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'creme_config' ,'opportunities')
+        cls.populate('creme_core', 'opportunities')
 
         cls._phase_backup = list(SalesPhase.objects.all())
         SalesPhase.objects.all().delete()
@@ -1474,7 +1474,8 @@ class SalesPhaseTestCase(CremeTestCase):
 class OriginTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def setUp(self):
         self.login()

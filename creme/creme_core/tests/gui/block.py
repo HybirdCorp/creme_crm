@@ -21,6 +21,7 @@ __all__ = ('BlockRegistryTestCase', 'BlocksManagerTestCase')
 class BlockRegistryTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         RelationBlockItem.objects.all().delete()
         InstanceBlockConfigItem.objects.all().delete()
 

@@ -18,6 +18,7 @@ __all__ = ('RelationsTestCase',)
 class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         #cls.populate('creme_config')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 

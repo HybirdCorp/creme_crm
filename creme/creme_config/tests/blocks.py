@@ -44,7 +44,7 @@ class BlocksConfigTestCase(CremeTestCase):
         BlockMypageLocation.objects.all().delete()
         RelationBlockItem.objects.all().delete()
 
-        cls.populate('creme_core', 'creme_config')
+        cls.populate('creme_core')
         cls.autodiscover()
 
     @classmethod

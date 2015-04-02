@@ -24,8 +24,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #cls.populate('creme_core', 'creme_config', 'tickets')
-        cls.populate('creme_config', 'tickets')
+        cls.populate('tickets')
 
     def _build_edit_url(self, ticket):
         return '/tickets/ticket/edit/%s' % ticket.pk
@@ -457,7 +456,8 @@ class TicketTestUniqueCase(CremeTransactionTestCase):
 class TicketTemplateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config', 'tickets') #TODO: factorise
+        CremeTestCase.setUpClass()
+        cls.populate('tickets') #TODO: factorise
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)

@@ -48,7 +48,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'activities', 'persons')
+        cls.populate('creme_core', 'activities', 'persons')
         _ActivitiesTestCase.setUpClass()
         #CSVImportBaseTestCaseMixin.setUpClass()
 

@@ -32,7 +32,8 @@ class AssistantsAppTestCase(CremeTestCase):
 class AssistantsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'assistants')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'assistants')
 
     def setUp(self):
         self.login()

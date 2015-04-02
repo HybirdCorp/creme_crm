@@ -19,7 +19,8 @@ except Exception as e:
 class MediaManagersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'media_managers')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'media_managers')
 
     def setUp(self):
         self.images = []
@@ -174,7 +175,8 @@ class MediaManagersTestCase(CremeTestCase):
 class ImageQuickFormTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'media_managers')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core', 'media_managers')
 
     def setUp(self):
         self.images = []

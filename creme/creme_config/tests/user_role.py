@@ -29,7 +29,8 @@ class UserRoleTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
     def _build_add_creds_url(self, role):
         return '/creme_config/role/add_credentials/%s' % role.id

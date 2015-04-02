@@ -32,6 +32,7 @@ __all__ = ('EntityTestCase',)
 class EntityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'media_managers', 'persons', 'activities')
 
     def setUp(self):
