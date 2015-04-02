@@ -998,7 +998,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter 02', model=Organisation, is_custom=True)
 
     def test_clean_empty_required(self):
-        clean = RelationsConditionsField(required=True).clean
+        clean = RelationSubfiltersConditionsField(required=True).clean
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, None)
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "")
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "[]")
