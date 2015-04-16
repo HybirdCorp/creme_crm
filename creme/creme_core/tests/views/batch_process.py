@@ -9,11 +9,12 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import ViewsTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     #from creme.creme_core.gui import bulk_update_registry
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
 
-    from creme.persons.models import Organisation, Contact
+#    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -29,25 +30,27 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+#        cls.populate('creme_core', 'persons')
+        cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
         cls.orga_ct       = get_ct(Organisation)
         cls.contact_ct_id = get_ct(Contact).id
 
     def build_url(self, model):
-        #return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
         return '/creme_core/list_view/batch_process/%s?list_url=%s' % (
                         ContentType.objects.get_for_model(model).id,
                         model.get_lv_absolute_url(),
                      )
 
     def test_no_app_perm(self):
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=['documents']) #not 'creme_core'
         self.assertGET403(self.build_url(Organisation))
 
     def test_app_perm(self):
-        self.login(is_superuser=False, allowed_apps=['persons'])
+#        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.assertGET200(self.build_url(Organisation))
 
     def test_batching_upper01(self):
@@ -296,7 +299,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                             )
 
     def test_use_edit_perm(self):
-        self.login(is_superuser=False, allowed_apps=['persons'])
+#        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login(is_superuser=False)
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |
@@ -433,7 +437,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_get_ops05(self):
         "No app credentials"
-        self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
+#        self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
+        self.login(is_superuser=False, allowed_apps=['documents']) #not 'creme_core'
         self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
     def test_get_ops06(self):

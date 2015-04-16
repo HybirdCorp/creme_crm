@@ -10,10 +10,11 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import FakeOrganisation
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.models import (CremeEntity, Relation, CremeProperty,
             BlockPortalLocation, SettingValue)
-    from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
@@ -79,7 +80,7 @@ class CommercialApproachTestCase(CremeTestCase):
         #self.login()
         user = self.user
 
-        create_orga = partial(Organisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
         orga02 = create_orga(name='Nerv')
 
@@ -228,10 +229,10 @@ class CommercialApproachTestCase(CremeTestCase):
     def test_delete(self):
         #self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='NERV')
+        orga = FakeOrganisation.objects.create(user=self.user, name='NERV')
         comapp = CommercialApproach.objects.create(title='Commapp01',
                                                    description='A commercial approach',
-                                                   creme_entity=orga
+                                                   creme_entity=orga,
                                                   )
 
         orga.delete()

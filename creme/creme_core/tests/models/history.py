@@ -9,14 +9,18 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
+    from ..base import CremeTestCase # skipIfNotInstalled
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeAddress as Address,
+            FakeSector as Sector, FakeLegalForm as LegalForm,
+            FakeInvoice as Invoice, FakeInvoiceLine as InvoiceLine)
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
-                                         Relation, RelationType)
+            Relation, RelationType)
     from creme.creme_core.models.history import *
-    from ..base import CremeTestCase, skipIfNotInstalled
 
-    from creme.persons.models import Contact, Organisation, Sector, LegalForm
+#    from creme.persons.models import Contact, Organisation, Sector, LegalForm
 
-    from creme.assistants.models import ToDo
+#    from creme.assistants.models import ToDo
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -46,7 +50,8 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True, data=data))
+        #self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True, data=data))
+        self.assertNoFormError(self.client.post('/tests/organisation/add', follow=True, data=data))
 
         return self.get_object_or_fail(Organisation, name=name)
 
@@ -57,7 +62,8 @@ class HistoryTestCase(CremeTestCase):
         if extra_args:
             data.update(extra_args)
 
-        self.assertNoFormError(self.client.post('/persons/contact/add', follow=True, data=data))
+        #self.assertNoFormError(self.client.post('/persons/contact/add', follow=True, data=data))
+        self.assertNoFormError(self.client.post('/tests/contact/add', follow=True, data=data))
 
         return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
@@ -90,13 +96,16 @@ class HistoryTestCase(CremeTestCase):
     def test_creation_n_aux(self):
         "Address is auxiliary + double save() because of addresses caused problems"
         old_count = HistoryLine.objects.count()
-        country = 'Japan'
-        gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
-                                          extra_args={'billing_address-country': country}
-                                         )
-        address = gainax.billing_address
-        self.assertIsNotNone(address)
-        self.assertEqual(country, address.country)
+#        country = 'Japan'
+#        gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
+#                                          extra_args={'billing_address-country': country}
+#                                         )
+#        address = gainax.billing_address
+#        self.assertIsNotNone(address)
+#        self.assertEqual(country, address.country)
+        gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
+        gainax.address = address = Address.objects.create(entity=gainax, country='Japan')
+        gainax.save()
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines)) #1 creation + 1 auxiliary (NB: not edition with double save)
@@ -115,13 +124,12 @@ class HistoryTestCase(CremeTestCase):
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertBetweenDates(hline)
-        #self.assertEqual([ContentType.objects.get_for_model(address).id, unicode(address)],
-        #self.assertEqual([ContentType.objects.get_for_model(address).id, address.id],
         self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
                          hline.modifications
                         )
         self.assertEqual([_(u'Add <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Address'),
+#                                'type':  _(u'Address'),
+                                'type':  'Test address',
                                 'value': address,
                                }
                          ],
@@ -145,6 +153,7 @@ class HistoryTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
+        self.assertEqual(capital, self.refresh(gainax).capital)
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
@@ -225,7 +234,8 @@ about this fantastic animation studio."""
                                               },
                       vmodifs
                      )
-        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
+#        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
+        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation')},
                       vmodifs
                      )
         self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
@@ -324,7 +334,8 @@ about this fantastic animation studio."""
         "With auxiliary models"
         user = self.user
         gainax = Organisation.objects.create(user=user, name='Gainax')
-        ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1')
+        #ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1')
+        Address.objects.create(entity=gainax, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
         gainax.delete()
@@ -346,14 +357,16 @@ about this fantastic animation studio."""
         Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
 
         old_count = HistoryLine.objects.count()
+        description = 'A great animation movie maker'
         response = self.client.post(hayao.get_edit_absolute_url(), follow=True,
                                     data={'user':        self.user.id,
                                           'first_name':  first_name,
                                           'last_name':   last_name,
-                                          'description': 'A great animation movie maker'
+                                          'description': description,
                                          }
                                    )
         self.assertNoFormError(response)
+        self.assertEqual(description, self.refresh(hayao).description)
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
@@ -574,12 +587,19 @@ about this fantastic animation studio."""
         self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate], hline.verbose_modifications)
 
     def test_add_auxiliary(self):
-        "ToDo"
+        "Auxiliary: Address"
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
 
-        ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
+        city = 'Tokyo'
+        response = self.client.post('/tests/address/add/%s' % nerv.id,
+                                    data={'city': city},
+                                   )
+        self.assertNoFormError(response)
+
+        address = self.get_object_or_fail(Address, entity=nerv, city=city)
+
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
 
@@ -590,51 +610,23 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
 
     def test_edit_auxiliary01(self):
-        "ToDo"
-        user = self.user
-        nerv = Organisation.objects.create(user=user, name='Nerv')
-        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
-        old_count = HistoryLine.objects.count()
-
-        todo.description = 'Conquier the world'
-        todo.save()
-
-        hlines = self._get_hlines()
-        self.assertEqual(old_count + 1, len(hlines))
-
-        hline = hlines[-1]
-        self.assertEqual(nerv.id,          hline.entity.id)
-        self.assertEqual(TYPE_AUX_EDITION, hline.type)
-
-        vmodifs = hline.verbose_modifications
-        self.assertEqual(2, len(vmodifs))
-
-        self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Todo'),
-                                'value': todo,
-                               },
-                         vmodifs[0]
-                        )
-        self.assertEqual(self.FSTRING_1_VALUE % {'field': _(u'Description')},
-                         vmodifs[1]
-                        )
-
-    def test_edit_auxiliary02(self):
         "Address"
         country = 'Japan'
         old_city = 'MITAKA'
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
-                                          extra_args={'billing_address-country': country,
-                                                      'billing_address-city':    old_city,
-                                                     }
+#                                          extra_args={'billing_address-country': country,
+#                                                      'billing_address-city':    old_city,
+#                                                     }
                                          )
-        address = gainax.billing_address
-        self.assertIsNotNone(address)
+#        address = gainax.billing_address
+#        self.assertIsNotNone(address)
+        address = Address.objects.create(entity=gainax, country=country, city=old_city)
 
         old_count = HistoryLine.objects.count()
         city = old_city.title()
         department = 'Tokyo'
-        response = self.client.post('/persons/address/edit/%s' % address.id,
+#        response = self.client.post('/persons/address/edit/%s' % address.id,
+        response = self.client.post(address.get_edit_absolute_url(),
                                     data={'country':    country,
                                           'city':       city,
                                           'department': department,
@@ -668,7 +660,8 @@ about this fantastic animation studio."""
         self.assertEqual(3, len(vmodifs))
 
         self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Address'),
+#                                'type':  _(u'Address'),
+                                'type':  'Test address',
                                 'value': address,
                                },
                          vmodifs[0]
@@ -685,34 +678,41 @@ about this fantastic animation studio."""
                          vmodifs[2]
                         )
 
-    @skipIfNotInstalled('creme.billing')
-    def test_edit_auxiliary03(self):
+#    @skipIfNotInstalled('creme.billing')
+    def test_edit_auxiliary02(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
         """
-        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
-        self.populate('billing')
+#        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
+#        self.populate('billing')
 
-        old_count = HistoryLine.objects.count()
+#        old_count = HistoryLine.objects.count()
         user = self.user
         invoice = Invoice.objects.create(user=user, name='Invoice',
                                          expiration_date=date(year=2012, month=12, day=15),
-                                         status=InvoiceStatus.objects.create(name='OK'),
+#                                         status=InvoiceStatus.objects.create(name='OK'),
                                         )
-        pline = ProductLine.objects.create(on_the_fly_item='DeathNote', user=user,
-                                           related_document=invoice,
-                                           quantity=Decimal('1'),
-                                          )
+        old_count = HistoryLine.objects.count()
+#        pline = ProductLine.objects.create(on_the_fly_item='DeathNote', user=user,
+#                                           related_document=invoice,
+#                                           quantity=Decimal('1'),
+#                                          )
+        pline = InvoiceLine.objects.create(item='DeathNote', user=user,
+                                          invoice=invoice, quantity=Decimal('1'),
+                                         )
 
         hlines = self._get_hlines()
-        self.assertEqual(old_count + 4,     len(hlines))
-        self.assertEqual(TYPE_CREATION,     hlines[-4].type)
-        self.assertEqual(TYPE_AUX_CREATION, hlines[-3].type)
-        self.assertEqual(TYPE_RELATION,     hlines[-2].type) # relation between Line & Invoice
-        self.assertEqual(TYPE_SYM_RELATION, hlines[-1].type) # idem
+#        self.assertEqual(old_count + 4,     len(hlines))
+#        self.assertEqual(TYPE_CREATION,     hlines[-4].type)
+#        self.assertEqual(TYPE_AUX_CREATION, hlines[-3].type)
+#        self.assertEqual(TYPE_RELATION,     hlines[-2].type) # relation between Line & Invoice
+#        self.assertEqual(TYPE_SYM_RELATION, hlines[-1].type) # idem
+        self.assertEqual(old_count + 1,     len(hlines))
+        self.assertEqual(TYPE_AUX_CREATION, hlines[-1].type)
 
-        old_count += 4
+#        old_count += 4
+        old_count += 1
 
         pline.quantity = Decimal('2')
         pline.save()
@@ -731,14 +731,16 @@ about this fantastic animation studio."""
                       vmodifs[1]
                      )
 
-    def test_delete_auxiliary01(self):
-        "ToDo"
+    def test_delete_auxiliary(self):
+        "Auxiliary: Address"
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
-        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
+#        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
+        address = Address.objects.create(entity=nerv, city='Tokyo')
         old_count = HistoryLine.objects.count()
 
-        todo.delete()
+#        todo.delete()
+        address.delete()
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
 
@@ -750,8 +752,10 @@ about this fantastic animation studio."""
         self.assertEqual(1, len(vmodifs))
 
         self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
-                                'type':  _(u'Todo'),
-                                'value': todo,
+#                                'type':  _(u'Todo'),
+#                                'value': todo,
+                                'type':  u'Test address',
+                                'value': address,
                                },
                          vmodifs[0]
                         )
@@ -909,26 +913,25 @@ about this fantastic animation studio."""
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
+        address = Address(entity=nerv, city='tokyo')
 
-        todo = ToDo(user=user, creme_entity=nerv, title='todo#1')
-
-        HistoryLine.disable(todo)
-        todo.save()
+        HistoryLine.disable(address)
+        address.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
         #-----------------------
-        todo = self.refresh(todo)
-        HistoryLine.disable(todo)
+        address = self.refresh(address)
+        HistoryLine.disable(address)
 
-        todo.title = todo.title.upper()
-        todo.save()
+        address.city = address.city.upper()
+        address.save()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
         #-----------------------
-        todo = self.refresh(todo)
-        HistoryLine.disable(todo)
+        address = self.refresh(address)
+        HistoryLine.disable(address)
 
-        todo.delete()
+        address.delete()
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     #TODO: test populate related lines + query counter ??

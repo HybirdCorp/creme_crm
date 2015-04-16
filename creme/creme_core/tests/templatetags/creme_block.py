@@ -2,6 +2,7 @@
 
 try:
     from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.backends.base import SessionBase
     from django.core.serializers.json import simplejson
@@ -10,13 +11,14 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import (RelationType, Relation,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
     from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
 
-    from creme.persons.models import Contact, Organisation
+#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

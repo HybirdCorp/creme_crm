@@ -8,10 +8,11 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.tests.fake_models import FakeOrganisation as Organisation
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
 
-    from creme.persons.models import Organisation
+    #from creme.persons.models import Organisation
 
     from .base import _DocumentsTestCase
     from ..models import Folder, FolderCategory, Document
@@ -235,15 +236,16 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document02(self):
         "Creation credentials"
-        self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
+#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
+        self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'])
 
         entity = CremeEntity.objects.create(user=self.user)
-        #self.assertGET(302, self._buid_addrelated_url(entity))
         self.assertGET403(self._buid_addrelated_url(entity))
 
     def test_add_related_document03(self):
         "Link credentials"
-        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+        self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
                    creatable_models=[Document]
                   )
 
@@ -284,7 +286,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_add_related_document04(self):
         "View credentials"
-        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+#        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+        self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
                    creatable_models=[Document],
                   )
 

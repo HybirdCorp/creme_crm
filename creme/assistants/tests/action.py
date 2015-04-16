@@ -7,9 +7,10 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
 
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
     from creme.creme_core.models import BlockDetailviewLocation
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 
     from ..blocks import actions_it_block, actions_nit_block
     from ..models import Action

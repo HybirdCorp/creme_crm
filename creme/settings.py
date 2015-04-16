@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Django settings for creme project.
 
+from sys import argv
+
 from django.utils.translation import ugettext_lazy as _
 
 #DEBUG = True
@@ -8,6 +10,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 JAVASCRIPT_DEBUG = DEBUG
 
+TESTS_ON = len(argv) > 1 and (argv[1] in ('test', 'test_creme'))
 FORCE_JS_TESTVIEW = False
 
 ADMINS = (

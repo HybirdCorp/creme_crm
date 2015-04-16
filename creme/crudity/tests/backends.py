@@ -3,7 +3,9 @@
 try:
     from creme.creme_core.models import SettingValue
 
-    from creme.persons.models import Contact
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
+
+#    from creme.persons.models import Contact
 
     from ..backends.models import CrudityBackend
     from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER

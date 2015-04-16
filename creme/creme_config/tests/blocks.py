@@ -4,21 +4,24 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
+    from creme.creme_core.tests.base import CremeTestCase # skipIfNotInstalled
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeImage as Image,
+            FakeActivity as Activity, FakeEmailCampaign as EmailCampaign)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField
     from creme.creme_core.models.block import *
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme.creme_core.blocks import history_block
-    from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 
     from creme.creme_config.blocks import(BlockDetailviewLocationsBlock, BlockPortalLocationsBlock,
         BlockDefaultMypageLocationsBlock, RelationBlocksConfigBlock,
         InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
 
-    from creme.documents.models import Folder, Document
+    #from creme.documents.models import Folder, Document
 
-    from creme.persons.models import Contact, Organisation  #need CremeEntity
+    #from creme.persons.models import Contact, Organisation  #need CremeEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -764,7 +767,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_add_relationblock_ctypes01(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
-                                 ('test-objfoo', 'object_predicate', [Contact, Organisation, Document]),
+#                                 ('test-objfoo', 'object_predicate', [Contact, Organisation, Document]),
+                                  ('test-objfoo', 'object_predicate', [Contact, Organisation, Activity]),
                                 )[0]
 
         rb_item = RelationBlockItem.objects.create(
@@ -781,8 +785,10 @@ class BlocksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIn(get_ct(Contact),      choices)
         self.assertIn(get_ct(Organisation), choices)
-        self.assertIn(get_ct(Document),     choices)
-        self.assertNotIn(get_ct(Folder),    choices)
+#        self.assertIn(get_ct(Document),     choices)
+        self.assertIn(get_ct(Activity),     choices)
+#        self.assertNotIn(get_ct(Folder),    choices)
+        self.assertNotIn(get_ct(Image),    choices)
 
         self.assertNoFormError(self.client.post(
             url,
@@ -790,7 +796,8 @@ class BlocksConfigTestCase(CremeTestCase):
         ))
 
         rb_item = self.refresh(rb_item)
-        self.assertIsNone(rb_item.get_cells(get_ct(Document)))
+#        self.assertIsNone(rb_item.get_cells(get_ct(Document)))
+        self.assertIsNone(rb_item.get_cells(get_ct(Activity)))
         self.assertEqual([], rb_item.get_cells(get_ct(Contact)))
         self.assertEqual([], rb_item.get_cells(get_ct(Organisation)))
 
@@ -800,8 +807,10 @@ class BlocksConfigTestCase(CremeTestCase):
         with self.assertNoException():
             choices = response.context['form'].fields['ctypes'].ctypes
 
-        self.assertIn(get_ct(Document),        choices) #compatible & not used
-        self.assertNotIn(get_ct(Folder),       choices) #still not compatible
+#        self.assertIn(get_ct(Document),        choices) #compatible & not used
+        self.assertIn(get_ct(Activity),        choices) #compatible & not used
+#        self.assertNotIn(get_ct(Folder),       choices) #still not compatible
+        self.assertNotIn(get_ct(Image),       choices) #still not compatible
         self.assertNotIn(get_ct(Contact),      choices) #used
         self.assertNotIn(get_ct(Organisation), choices) #used
 
@@ -825,7 +834,8 @@ class BlocksConfigTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIn(get_ct(Contact),      choices)
         self.assertIn(get_ct(Organisation), choices)
-        self.assertIn(get_ct(Document),     choices)
+#        self.assertIn(get_ct(Document),     choices)
+        self.assertIn(get_ct(Activity),     choices)
 
         self.assertNoFormError(self.client.post( url, data={'ctypes': [get_ct(Contact).id]}))
 
@@ -925,10 +935,10 @@ class BlocksConfigTestCase(CremeTestCase):
         post('civility', error=False)
         post('civility__shortcut', error=False)
 
-    @skipIfNotInstalled('creme.emails')
+#    @skipIfNotInstalled('creme.emails')
     def test_edit_relationblock_ctypes03(self):
         "Validation errors with M2M"
-        from creme.emails.models import EmailCampaign
+#        from creme.emails.models import EmailCampaign
 
         rb_item = RelationBlockItem(
                 block_id='specificblock_creme_config-test-subfoo',

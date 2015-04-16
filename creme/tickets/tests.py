@@ -26,9 +26,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         CremeTestCase.setUpClass()
         cls.populate('tickets')
 
-    def _build_edit_url(self, ticket):
-        return '/tickets/ticket/edit/%s' % ticket.pk
-
     def test_populate(self):
         for pk, name in BASE_STATUS:
             try:
@@ -134,11 +131,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'title',
-                             [_(u"%(model_name)s with this %(field_label)s already exists.") %  {
+                             _(u"%(model_name)s with this %(field_label)s already exists.") %  {
                                     'model_name': _(u'Ticket'),
                                     'field_label': _(u'Title'),
                                 }
-                             ]
                             )
 
     def test_editview01(self):
@@ -152,7 +148,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        url = self._build_edit_url(ticket)
+        url = ticket.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       = 'Test ticket'
@@ -195,7 +191,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        response = self.client.post(self._build_edit_url(ticket), follow=True,
+        response = self.client.post(ticket.get_edit_absolute_url(), follow=True,
                                     data={'user':         self.user.pk,
                                           'title':        title,
                                           'description':  description,

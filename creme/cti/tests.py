@@ -31,15 +31,16 @@ class CTITestCase(CremeTestCase):
         return '/cti/phonecall/add/%s' % contact.id
 
     def login(self):
-        super(CTITestCase, self).login()
+        user = super(CTITestCase, self).login()
 
-        user = self.user
         other_user = self.other_user
         #create_contact = partial(Contact.objects.create, user=user)
         #self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
         #self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
         self.contact = user.linked_contact
         self.contact_other_user = other_user.linked_contact
+
+        return user
 
     def test_config(self):
         "Should not ne available when creating UserRoles"
@@ -61,9 +62,8 @@ class CTITestCase(CremeTestCase):
         self.assertNotIn('cti',    admin_choices) #<==
 
     def test_print_phone(self):
-        self.login()
+        user = self.login()
 
-        user = self.user
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
 
@@ -79,8 +79,7 @@ class CTITestCase(CremeTestCase):
         self.assertIn('<a onclick="creme.cti.phoneCall', html)
 
     def test_add_phonecall01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         atype = self.get_object_or_fail(ActivityType, pk=ACTIVITYTYPE_PHONECALL)
         self.assertTrue(ActivitySubType.objects.filter(type=atype).exists())
@@ -116,9 +115,9 @@ class CTITestCase(CremeTestCase):
 
     def test_add_phonecall03(self):
         "Organisation"
-        self.login()
+        user = self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats')
+        orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
 
         pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
@@ -129,10 +128,10 @@ class CTITestCase(CremeTestCase):
         self.assertRelationCount(1, orga, REL_SUB_LINKED_2_ACTIVITY, pcall)
 
     def test_respond_to_a_call01(self):
-        self.login()
+        user = self.login()
 
         phone='558899'
-        contact = Contact.objects.create(user=self.user, first_name='Bean', last_name='Bandit', phone=phone)
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', phone=phone)
 
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
 
@@ -143,23 +142,23 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(contact.id, callers[0].id)
 
     def test_respond_to_a_call02(self):
-        self.login()
+        user = self.login()
 
         phone='558899'
-        contact = Contact.objects.create(user=self.user, first_name='Bean', last_name='Bandit', mobile=phone)
+        contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit', mobile=phone)
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([contact.id], [c.id for c in response.context['callers']])
 
     def test_respond_to_a_call03(self):
-        self.login()
+        user = self.login()
 
         phone='558899'
-        orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats', phone=phone)
+        orga = Organisation.objects.create(user=user, name='Gunsmith Cats', phone=phone)
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([orga.id], [o.id for o in response.context['callers']])
 
     def test_create_contact(self):
-        self.login()
+        user = self.login()
 
         phone = '121366'
         url = '/cti/contact/add/%s' % phone
@@ -171,7 +170,7 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(phone, form.initial.get('phone'))
 
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':       self.user.id,
+                                                data={'user':       user.id,
                                                       'first_name': 'Minnie',
                                                       'last_name':  'May',
                                                       'phone':      phone,
@@ -181,7 +180,7 @@ class CTITestCase(CremeTestCase):
         self.get_object_or_fail(Contact, phone=phone)
 
     def test_create_orga(self):
-        self.login()
+        user = self.login()
 
         phone = '987654'
         url = '/cti/organisation/add/%s' % phone
@@ -193,7 +192,7 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(phone, form.initial.get('phone'))
 
         self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':  self.user.id,
+                                                data={'user':  user.id,
                                                       'name':  'Gunsmith cats',
                                                       'phone': phone,
                                                      }
@@ -202,8 +201,7 @@ class CTITestCase(CremeTestCase):
         self.get_object_or_fail(Organisation, phone=phone)
 
     def test_create_phonecall01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST(302, self._buid_add_pcall_url(contact))
@@ -227,7 +225,7 @@ class CTITestCase(CremeTestCase):
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     def test_create_phonecall02(self):
-        self.login()
+        user = self.login()
 
         self.assertPOST(302, self._buid_add_pcall_url(self.contact))
 
@@ -237,11 +235,11 @@ class CTITestCase(CremeTestCase):
         phone_call = activities[0]
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
 
-        calendar = Calendar.get_user_default_calendar(self.user)
+        calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
     def test_create_phonecall03(self):
-        self.login()
+        user = self.login()
 
         self.assertPOST(302, self._buid_add_pcall_url(self.contact_other_user))
 
@@ -253,5 +251,5 @@ class CTITestCase(CremeTestCase):
 
         get_cal = Calendar.get_user_default_calendar
         filter_calendars = phone_call.calendars.filter
-        self.assertTrue(filter_calendars(pk=get_cal(self.user).id).exists())
+        self.assertTrue(filter_calendars(pk=get_cal(user).id).exists())
         self.assertTrue(filter_calendars(pk=get_cal(self.other_user).id).exists())

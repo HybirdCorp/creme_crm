@@ -6,9 +6,11 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation)
     from creme.creme_core.models import EntityFilter
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 
     from ..models import ActObjectivePattern, ActObjectivePatternComponent
     from .base import CommercialBaseTestCase
@@ -68,7 +70,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         average_sales = 1000
         pattern = self._create_pattern(name, average_sales)
 
-        url = '/commercial/objective_pattern/edit/%s' % pattern.id
+        url = pattern.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -96,7 +98,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                    ) for i in xrange(1, 4)
                    ]
 
-        response = self.assertGET200('/commercial/objective_patterns')
+        response = self.assertGET200(ActObjectivePattern.get_lv_absolute_url())
 
         with self.assertNoException():
             patterns_page = response.context['entities']
@@ -285,10 +287,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             [_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
                                     'limit_value': 1,
                                 }
-                             ]
                             )
 
         response = self.client.post(url, data={'name':         'Signed opportunities',
@@ -296,10 +297,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             [_(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                             _(u'Ensure this value is less than or equal to %(limit_value)s.') % {
                                     'limit_value': 100,
                                 }
-                             ]
                             )
 
     def test_get_component_tree(self):
@@ -437,7 +437,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def test_inneredit(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='signed opportunities',
-                                                             pattern=pattern, success_rate=50
+                                                             pattern=pattern,
+                                                             success_rate=50,
                                                             )
 
         build_url = self.build_inneredit_url

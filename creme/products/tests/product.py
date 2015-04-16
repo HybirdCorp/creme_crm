@@ -9,8 +9,11 @@ try:
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
+    from creme.creme_core.tests.fake_models import FakeContact
 
-    from creme.persons.models import Contact
+#    from creme.persons.models import Contact
+
+    from creme.media_managers.tests import create_image
 
     from .base import _ProductsTestCase
     from ..models import Category, SubCategory, Product
@@ -90,10 +93,9 @@ class ProductTestCase(_ProductsTestCase):
 
     def test_createview02(self):
         "Images + credentials"
-        self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-                   creatable_models=[Product],
-                  )
-        user = self.user
+        user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
+                          creatable_models=[Product],
+                         )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -112,9 +114,13 @@ class ProductTestCase(_ProductsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        img_1 = self.create_image(ident=1, user=user)
-        img_2 = self.create_image(ident=2, user=user)
-        img_3 = self.create_image(ident=3, user=self.other_user)
+#        img_1 = self.create_image(ident=1, user=user)
+#        img_2 = self.create_image(ident=2, user=user)
+#        img_3 = self.create_image(ident=3, user=self.other_user)
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
+        img_3 = create_image(ident=3, user=self.other_user)
+
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_3))
 
@@ -147,12 +153,12 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual({img_1, img_2}, set(product.images.all()))
 
     def test_editview(self):
-        self.login()
+        user = self.login()
 
         name    = 'Eva00'
         code    = 42
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name=name, description='A fake god',
+        product = Product.objects.create(user=user, name=name, description='A fake god',
                                          unit_price=Decimal('1.23'), code=code,
                                          category=sub_cat.category, sub_category=sub_cat,
                                         )
@@ -167,7 +173,7 @@ class ProductTestCase(_ProductsTestCase):
         name += '_edited'
         unit_price = '4.53'
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'name':         name,
                                           'code':         product.code,
                                           'description':  product.description,
@@ -275,10 +281,10 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product.category)
 
     def test_edit_inner_category_invalid(self):
-        self.login()
+        user = self.login()
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name='Eva00',
+        product = Product.objects.create(user=user, name='Eva00',
                                          description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category, sub_category=sub_cat
@@ -310,7 +316,7 @@ class ProductTestCase(_ProductsTestCase):
         create_product = partial(Product.objects.create,
                                  user=user, description='A fake god',
                                  unit_price=Decimal('1.23'),
-                                 category=sub_cat.category, sub_category=sub_cat
+                                 category=sub_cat.category, sub_category=sub_cat,
                                 )
 
         product = create_product(name='Eva00', code=42)
@@ -377,10 +383,9 @@ class ProductTestCase(_ProductsTestCase):
 
     def test_add_images(self):
         #TODO: factorise
-        self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-                   creatable_models=[Product],
-                  )
-        user = self.user
+        user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
+                          creatable_models=[Product],
+                         )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -399,15 +404,19 @@ class ProductTestCase(_ProductsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        img_1 = self.create_image(ident=1, user=user)
-        img_2 = self.create_image(ident=2, user=user)
-        img_3 = self.create_image(ident=3, user=user)
-        img_4 = self.create_image(ident=4, user=self.other_user)
+#        img_1 = self.create_image(ident=1, user=user)
+#        img_2 = self.create_image(ident=2, user=user)
+#        img_3 = self.create_image(ident=3, user=user)
+#        img_4 = self.create_image(ident=4, user=self.other_user)
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
+        img_3 = create_image(ident=3, user=user)
+        img_4 = create_image(ident=4, user=self.other_user)
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
+        product = Product.objects.create(user=user, name='Eva00', description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
@@ -433,20 +442,22 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual({img_1, img_2, img_3}, set(product.images.all()))
 
         #------------
-        img_5 = self.create_image(ident=5, user=user)
+#        img_5 = self.create_image(ident=5, user=user)
+        img_5 = create_image(ident=5, user=user)
         response = post(img_1, img_5)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'images', _("This entity doesn't exist.")) 
 
     def test_remove_image(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
-        img_1 = self.create_image(ident=1, user=user)
-        img_2 = self.create_image(ident=2, user=user)
+#        img_1 = self.create_image(ident=1, user=user)
+#        img_2 = self.create_image(ident=2, user=user)
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
 
         sub_cat = SubCategory.objects.all()[0]
-        product = Product.objects.create(user=self.user, name='Eva00',
+        product = Product.objects.create(user=user, name='Eva00',
                                          description='A fake god',
                                          unit_price=Decimal('1.23'), code=42,
                                          category=sub_cat.category,
@@ -461,5 +472,6 @@ class ProductTestCase(_ProductsTestCase):
         self.assertPOST200(url, data=data, follow=True)
         self.assertEqual([img_2], list(product.images.all()))
 
-        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Aynami')
+#        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Aynami')
+        rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Aynami')
         self.assertPOST404('/products/images/remove/%s' % rei.id, data={'id': img_2.id})

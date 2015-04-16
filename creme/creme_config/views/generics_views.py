@@ -29,6 +29,7 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required#, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
@@ -165,6 +166,9 @@ def swap_order(request, app_name, model_name, object_id, offset):
 
     if 'order' not in fields:
         raise Http404('Invalid model (no "user" field)')
+
+    if model._meta.ordering[0] != 'order':
+        raise ConflictError('The "order" field should be used for ordering')
 
     found = None
     ordered = []

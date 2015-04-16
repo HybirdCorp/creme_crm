@@ -6,8 +6,9 @@ try:
 
     from creme.creme_core.models import *
     from ..base import CremeTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

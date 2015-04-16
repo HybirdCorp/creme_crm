@@ -8,11 +8,12 @@ try:
     #from django.test.utils import override_settings
     from django.utils.translation import ugettext as _
 
+    from .base import ViewsTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.gui.block import QuerysetBlock
     from creme.creme_core.models import SearchConfigItem
-    from .base import ViewsTestCase
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -21,7 +22,8 @@ __all__ = ('SearchViewTestCase', )
 
 
 class SearchViewTestCase(ViewsTestCase):
-    CONTACT_BLOCKID = 'block_creme_core-found-persons-contact'
+#    CONTACT_BLOCKID = 'block_creme_core-found-persons-contact'
+    CONTACT_BLOCKID = 'block_creme_core-found-creme_core-fakecontact'
 
     @classmethod
     def setUpClass(cls):
@@ -70,7 +72,6 @@ class SearchViewTestCase(ViewsTestCase):
         if ct_id is not None:
             data['ct_id'] = ct_id
 
-        #return self.client.post('/creme_core/search', data=data)
         return self.client.get('/creme_core/search', data=data)
 
     def test_search01(self):
@@ -83,19 +84,11 @@ class SearchViewTestCase(ViewsTestCase):
 
         with self.assertNoException():
             ctxt = response.context
-            #results = ctxt['results']
-            #total  = ctxt['total']
             models = ctxt['models']
             blocks = ctxt['blocks']
 
-        #self.assertEqual(0, total)
-        #self.assertEqual(1, len(results))
-
-        #result = results[0]
-        #self.assertIs(result['model'], Contact)
-        #self.assertEqual(0, len(result['entities']))
-
-        self.assertEqual([_('Contact')], models)
+#        self.assertEqual([_('Contact')], models)
+        self.assertEqual(['Test Contact'], models)
 
         self.assertIsInstance(blocks, list)
         self.assertEqual(1, len(blocks))
@@ -107,7 +100,6 @@ class SearchViewTestCase(ViewsTestCase):
 
         self.assertNotContains(response, self.linus.get_absolute_url())
 
-    #@override_settings(BLOCK_SIZE=10)
     def test_search02(self):
         "Deleted entities are found too"
         self.login()
@@ -115,19 +107,6 @@ class SearchViewTestCase(ViewsTestCase):
 
         response = self._search('linu', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
-
-        #results = response.context['results']
-        #self.assertEqual(2, response.context['total'])
-        #self.assertEqual(1, len(results))
-
-        #entities = results[0]['entities']
-        #self.assertEqual(2, len(entities))
-
-        #self.assertIsInstance(entities[0], Contact)
-        #self.assertIsInstance(entities[1], Contact)
-        #self.assertEqual({self.linus.id, self.linus2.id}, {e.id for e in entities})
-
-        #print response.content
 
         self.assertContains(response, self.linus.get_absolute_url())
         self.assertContains(response, self.linus2.get_absolute_url())
@@ -139,35 +118,8 @@ class SearchViewTestCase(ViewsTestCase):
         self._setup_contacts()
         self._setup_orgas()
 
-        #context = self._search('cox').context
         response = self._search('cox')
         context = response.context
-        #self.assertEqual(2, context['total'])
-
-        #contacts_result = None
-        #orgas_result    = None
-
-        #for result in context['results']:
-            #model = result['model']
-            #if model is Contact:
-                #self.assertIsNone(contacts_result)
-                #contacts_result = result
-            #elif model is Organisation:
-                #self.assertIsNone(orgas_result)
-                #orgas_result = result
-            #else:
-                #self.assertEqual(0, len(result['entities']))
-
-        #self.assertIsNotNone(contacts_result)
-        #self.assertIsNotNone(orgas_result)
-
-        #entities = contacts_result['entities']
-        #self.assertEqual(1, len(entities))
-        #self.assertEqual(self.alan, entities[0])
-
-        #entities = orgas_result['entities']
-        #self.assertEqual(1, len(entities))
-        #self.assertEqual(self.coxco, entities[0])
 
         self.assertGreaterEqual(len(context['blocks']), 2)
 
@@ -176,7 +128,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
 
-        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
+#        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
+        self.assertContains(response, ' id="block_creme_core-found-creme_core-fakeorganisation-')
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -205,13 +158,6 @@ class SearchViewTestCase(ViewsTestCase):
         self._setup_orgas()
 
         response = self._search('torvalds', self.contact_ct_id)
-        #results = response.context['results']
-        #self.assertEqual(1, response.context['total'])
-        #self.assertEqual(1, len(results))
-
-        #entities = results[0]['entities']
-        #self.assertEqual(1, len(entities))
-        #self.assertEqual(self.linus.id, entities[0].id)
 
         self.assertContains(response, self.linus.get_absolute_url())
         self.assertNotContains(response, self.linus2.get_absolute_url())
@@ -227,8 +173,6 @@ class SearchViewTestCase(ViewsTestCase):
         linus.description = 'He is very smart but wears ugly shorts.'
         linus.save()
 
-        #self.assertEqual(0, self._search('very smart', self.contact_ct_id).context['total'])
-
         response = self._search('very smart', self.contact_ct_id)
         self.assertNotContains(response, linus.get_absolute_url())
 
@@ -241,7 +185,8 @@ class SearchViewTestCase(ViewsTestCase):
         response = self._search('cox')
         context = response.context
 
-        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
+#        self.assertContains(response, ' id="block_creme_core-found-persons-organisation-')
+        self.assertContains(response, ' id="block_creme_core-found-creme_core-fakeorganisation-')
         self.assertContains(response, self.coxco.get_absolute_url())
         self.assertNotContains(response, self.linusfo.get_absolute_url())
 
@@ -249,8 +194,10 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertNotContains(response, self.alan.get_absolute_url())
 
         vnames = {unicode(vname) for vname in context['models']}
-        self.assertIn(_('Organisation'), vnames)
-        self.assertNotIn(_('Contact'), vnames)
+#        self.assertIn(_('Organisation'), vnames)
+#        self.assertNotIn(_('Contact'), vnames)
+        self.assertIn(Organisation._meta.verbose_name, vnames)
+        self.assertNotIn(Contact._meta.verbose_name, vnames)
 
     def test_reload_block(self):
         self.login()

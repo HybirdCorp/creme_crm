@@ -30,3 +30,7 @@ from .search import SearchConfigItem
 from .auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
 
 from .version import Version
+
+from django.conf import settings
+if settings.TESTS_ON:
+    from ..tests.fake_models import *

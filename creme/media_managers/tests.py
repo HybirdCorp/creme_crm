@@ -2,19 +2,36 @@
 
 try:
     import filecmp
+    from functools import partial
     from os.path import join, exists, split, basename
     from tempfile import NamedTemporaryFile
 
-    from django.core.serializers.json import simplejson
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
+    from django.utils.translation import pgettext
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.gui.field_printers import field_printers_registry
+
+    from creme.persons.models import Contact
 
     from .models import *
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
+
+def create_image(user, ident=1):
+    tmpfile = NamedTemporaryFile()
+    tmpfile.width = tmpfile.height = 0
+    tmpfile._committed = True
+    tmpfile.path = 'upload/file_%s.jpg' % ident
+
+    return Image.objects.create(user=user,
+                                image=tmpfile,
+                                name=u'Image #%s' % ident,
+                                description=u"Desc"
+                               )
 
 class MediaManagersTestCase(CremeTestCase):
     @classmethod
@@ -24,19 +41,22 @@ class MediaManagersTestCase(CremeTestCase):
 
     def setUp(self):
         self.images = []
-        self.login()
+#        self.login()
 
     def tearDown(self):
         for img in self.images:
             img.delete()
 
     def test_populate(self):
+        self.login()
         self.assertEqual(3, MediaCategory.objects.count())
 
     def test_portal(self):
+        self.login()
         self.assertGET200('/media_managers/')
 
     def test_add(self): #TODO: test popup version
+        self.login()
         self.assertEqual(0, Image.objects.count())
 
         url = '/media_managers/image/add'
@@ -93,6 +113,8 @@ class MediaManagersTestCase(CremeTestCase):
         return  image
 
     def test_edit(self):
+        self.login()
+
         name = 'my beautiful image'
         description = 'Blabala'
         image = self._create_image(name=name, description=description)
@@ -120,6 +142,7 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(old_path,    image.image.path)
 
     def test_listview(self):
+        self.login()
         image = self._create_image()
 
         response = self.client.get('/media_managers/images')
@@ -152,13 +175,13 @@ class MediaManagersTestCase(CremeTestCase):
         #self.assertEqual(image, entity)
 
     def test_get_url(self):
+        self.login()
         image = self._create_image()
 
         image_url = image.get_image_url()
         self.assertEqual(split(image.image.path)[1], split(image_url)[1])
 
-        response = self.client.get('/media_managers/images/%s/get_url' % image.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/media_managers/images/%s/get_url' % image.id)
 
         content = simplejson.loads(response.content)
         self.assertIsInstance(content, dict)
@@ -166,10 +189,68 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(image_url, content.get('url'))
 
     def test_select_image_tiny_mce(self):
+        self.login()
         self._create_image()
-        self.assertEqual(200, self.client.get('/media_managers/tiny_mce/image').status_code)
+        self.assertGET200('/media_managers/tiny_mce/image')
 
         #TODO: improve this test....
+
+    #TODO: remove when hack in creme_core has been removed
+    def test_field_printers01(self):
+        "Field printer with FK on Image"
+        user = self.login()
+
+        image = self._create_image()
+        casca = Contact.objects.create(user=user, image=image,
+                                       first_name='Casca', last_name='Mylove',
+                                      )
+        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
+                                casca.image.get_image_url(),
+                                casca.image.get_entity_summary(user),
+                            ),
+                         field_printers_registry.get_html_field_value(casca, 'image', user)
+                        )
+        self.assertEqual(unicode(casca.image),
+                         field_printers_registry.get_csv_field_value(casca, 'image', user)
+                        )
+
+    #TODO: remove when hack in creme_core has been removed
+    def test_field_printers02(self):
+        "Field printer with FK on Image + credentials"
+        from creme.creme_core.auth.entity_credentials import EntityCredentials
+        from creme.creme_core.models import SetCredentials
+
+        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
+        self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+
+        create_img = Image.objects.create
+        casca_face = create_img(name='Casca face', user=self.other_user, description="Casca's selfie")
+        judo_face  = create_img(name='Judo face',  user=user,            description="Judo's selfie")
+        self.assertTrue(user.has_perm_to_view(judo_face))
+        self.assertFalse(user.has_perm_to_view(casca_face))
+
+        create_contact = partial(Contact.objects.create, user=user)
+        casca = create_contact(first_name='Casca', last_name='Mylove', image=casca_face)
+        judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (
+                                judo_face.get_image_url(), 
+                                judo_face.get_entity_summary(user)
+                            ),
+                         get_html_val(judo, 'image', user)
+                        )
+        self.assertEqual('<p>%s</p>' % judo_face.description,
+                         get_html_val(judo, 'image__description', user)
+                        )
 
 
 class ImageQuickFormTestCase(CremeTestCase):

@@ -5,18 +5,15 @@ try:
     from datetime import datetime, date
     from decimal import Decimal
     from functools import partial
-    #from itertools import chain
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    #from django.utils.datastructures import SortedDict as OrderedDict
     from django.utils.translation import ugettext as _, ungettext
     from django.utils.encoding import smart_str
     from django.utils.formats import date_format
     from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.unittest.case import skipIf
-    #from django.core.serializers.json import simplejson
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -43,7 +40,7 @@ try:
         from creme.emails.models import EmailCampaign, MailingList
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
-            RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED) #RFT_AGGREGATE
+            RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
     from ..models import Field, Report
     from .base import BaseReportsTestCase
 except Exception as e:
@@ -134,13 +131,15 @@ class ReportTestCase(BaseReportsTestCase):
         return self.get_object_or_fail(Report, name=name)
 
     def login_as_basic_user(self):
-        self.login(is_superuser=False,
-                   allowed_apps=('creme_core', 'documents', 'persons', 'reports', 'media_managers'),
-                  )
+        user = self.login(is_superuser=False,
+                          allowed_apps=('creme_core', 'documents', 'persons', 'reports', 'media_managers'),
+                         )
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_OWN,
                                      )
+
+        return user
 
     def test_portal(self):
         self.login()
@@ -491,8 +490,8 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
 
         create_c = partial(Contact.objects.create, user=self.user)
-        chiyo = create_c(first_name='Chiyo', last_name='Mihana', birthday=datetime(year=1995, month=3, day=26))
-        osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=datetime(year=1990, month=4, day=1))
+        chiyo = create_c(first_name='Chiyo', last_name='Mihana', birthday=date(year=1995, month=3, day=26))
+        osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=date(year=1990, month=4, day=1))
 
         report = self._create_report('My report')
         url = '/reports/export/preview/%s' % report.id
@@ -620,10 +619,9 @@ class ReportTestCase(BaseReportsTestCase):
                                      )
 
         self.assertFormError(response, 'form', '',
-                             [_(u"If you chose a Date field, and select «customized» "
-                                 "you have to specify a start date and/or an end date."
-                               )
-                             ]
+                             _(u"If you chose a Date field, and select «customized» "
+                                "you have to specify a start date and/or an end date."
+                              )
                             )
 
     def test_export_filter_form_invalid_filter(self):
@@ -894,7 +892,6 @@ class ReportTestCase(BaseReportsTestCase):
         column = columns[2]
         self.assertEqual(aggr_id,                             column.name)
         self.assertEqual('%s - %s' % (_('Maximum'), cf.name), column.title)
-        #self.assertEqual(RFT_AGGREGATE,                      column.type)
         self.assertEqual(RFT_AGG_CUSTOM,                      column.type)
         self.assertEqual(old_rfields[2].id, column.id)
 
@@ -978,7 +975,6 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(aggr_id,                              column.name)
         self.assertEqual(_('Minimum') + ' - ' +  _('Capital'), column.title)
         self.assertEqual(2,                                    column.order)
-        #self.assertEqual(RFT_AGGREGATE,                       column.type)
         self.assertEqual(RFT_AGG_FIELD,                        column.type)
         self.assertFalse(column.selected)
         self.assertIsNone(column.sub_report)
@@ -1135,9 +1131,9 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_link_report_relation01(self):
         "RelationType has got constraints on CT"
-        self.login()
+        user = self.login()
 
-        contact_report = Report.objects.create(user=self.user, name="Report on contacts",
+        contact_report = Report.objects.create(user=user, name="Report on contacts",
                                                ct=ContentType.objects.get_for_model(Contact),
                                               )
 
@@ -1160,9 +1156,9 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_link_report_relation02(self):
         "RelationType hasn't any constraint on CT"
-        self.login()
+        user = self.login()
 
-        contact_report = Report.objects.create(user=self.user,
+        contact_report = Report.objects.create(user=user,
                                                ct=ContentType.objects.get_for_model(Contact),
                                                name="Report on contacts",
                                               )
@@ -1181,13 +1177,13 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_link_report_related(self):
         "RFT_RELATED field"
-        self.login()
+        user = self.login()
 
         self.assertEqual([('document', _(u'Document'))],
                          Report.get_related_fields_choices(Folder)
                         )
 
-        folder_report = Report.objects.create(name="Report on folders", user=self.user,
+        folder_report = Report.objects.create(name="Report on folders", user=user,
                                               ct=ContentType.objects.get_for_model(Folder),
                                              )
 
@@ -1205,10 +1201,10 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_link_report_error(self):
         "Cycle error"
-        self.login()
+        user = self.login()
 
         get_ct = ContentType.objects.get_for_model
-        contact_report = Report.objects.create(user=self.user, ct=get_ct(Contact),
+        contact_report = Report.objects.create(user=user, ct=get_ct(Contact),
                                                name="Report on contacts",
                                               )
 
@@ -1388,7 +1384,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_field_03(self):
         "View credentials"
-        self.login_as_basic_user()
+        user = self.login_as_basic_user()
 
         self._aux_test_fetch_persons(report_4_contact=False, create_contacts=False, create_relations=False)
 
@@ -1397,13 +1393,13 @@ class ReportTestCase(BaseReportsTestCase):
                             )
 
         baratheons = Organisation.objects.create(user=self.other_user, name='House Baratheon')
-        self.assertFalse(self.user.has_perm_to_view(baratheons))
+        self.assertFalse(user.has_perm_to_view(baratheons))
 
         create_img     = Image.objects.create
-        starks_img     = create_img(name='Stark emblem',     user=self.user)
+        starks_img     = create_img(name='Stark emblem',     user=user)
         lannisters_img = create_img(name='Lannister emblem', user=self.other_user)
-        self.assertTrue(self.user.has_perm_to_view(starks_img))
-        self.assertFalse(self.user.has_perm_to_view(lannisters_img))
+        self.assertTrue(user.has_perm_to_view(starks_img))
+        self.assertFalse(user.has_perm_to_view(lannisters_img))
 
         self.starks.image = starks_img
         self.starks.save()
@@ -1421,18 +1417,17 @@ class ReportTestCase(BaseReportsTestCase):
 
         lines.pop(0)
         lines[0][1] = settings.HIDDEN_VALUE #lannisters_img not visible
-        self.assertEqual(lines, fetch_all_lines(user=self.user))
+        self.assertEqual(lines, fetch_all_lines(user=user))
 
     @skipIfNotInstalled('creme.billing')
     @skipIfNotInstalled('creme.opportunities')
     def test_fetch_complex(self): #TODO: move
         from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
-        self.login()
+        user = self.login()
 
         self._create_reports()
         self._setUp_data_for_big_report()
-        user = self.user
 
         nintendo = self.nintendo; sega = self.sega; sony = self.sony; virgin = self.virgin
         crash = self.crash; luigi = self.luigi; mario = self.mario; sonic = self.sonic
@@ -1594,9 +1589,9 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_cf_01(self):
         "Custom fields"
-        self.login()
+        user = self.login()
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         ned  = create_contact(first_name='Eddard', last_name='Stark')
         robb = create_contact(first_name='Robb',   last_name='Stark')
         aria = create_contact(first_name='Aria',   last_name='Stark')
@@ -1634,8 +1629,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_cf_02(self):
         "In FK, credentials"
-        self.login_as_basic_user()
-        user = self.user
+        user = self.login_as_basic_user()
 
         self._build_contacts_n_images()
         ned_face = self.ned_face; aria_face = self.aria_face
@@ -1676,7 +1670,7 @@ class ReportTestCase(BaseReportsTestCase):
     @skipIfNotInstalled('creme.emails')
     def test_fetch_m2m_01(self):
         "No sub report"
-        self.login()
+        user = self.login()
 
         hf = HeaderFilter.create(pk='test_hf', name='Campaign view', model=EmailCampaign,
                                  cells_desc=[(EntityCellRegularField, {'name': 'name'}),
@@ -1686,11 +1680,11 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.create_from_view('Campaign Report', EmailCampaign, hf)
 
-        create_camp = partial(EmailCampaign.objects.create, user=self.user)
+        create_camp = partial(EmailCampaign.objects.create, user=user)
         name1 = 'Camp#1'; camp1 = create_camp(name=name1)
         name2 = 'Camp#2'; camp2 = create_camp(name=name2)
 
-        create_ml = partial(MailingList.objects.create, user=self.user)
+        create_ml = partial(MailingList.objects.create, user=user)
         camp1.mailing_lists = [create_ml(name='ML#1'), create_ml(name='ML#2')]
         camp2.mailing_lists = [create_ml(name='ML#3')]
 
@@ -1702,8 +1696,7 @@ class ReportTestCase(BaseReportsTestCase):
                         )
 
     def _aux_test_fetch_m2m(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_ptype = CremePropertyType.create
         self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
@@ -1889,10 +1882,10 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_related_02(self):
         "Sub-report (expanded)"
-        self.login_as_basic_user()
+        user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=True)
-        folder3 = Folder.objects.create(user=self.user, title='Empty')
+        folder3 = Folder.objects.create(user=user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
         #beware: folders are ordered by title
@@ -1905,14 +1898,14 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, fetch())
 
         lines.pop(2) #doc12
-        self.assertEqual(lines, fetch(user=self.user))
+        self.assertEqual(lines, fetch(user=user))
 
     def test_fetch_related_03(self):
         "Sub-report (not expanded)"
-        self.login_as_basic_user()
+        user = self.login_as_basic_user()
 
         self._aux_test_fetch_related(select_doc_report=False)
-        folder3 = Folder.objects.create(user=self.user, title='Empty')
+        folder3 = Folder.objects.create(user=user, title='Empty')
 
         folder1 = self.folder1; doc11 = self.doc11
         fmt = '%s: %%s/%s: %%s' % (_('Title'), _('Description'))
@@ -1925,7 +1918,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(lines, fetch())
 
         lines[1][1] = doc11_str
-        self.assertEqual(lines, fetch(user=self.user))
+        self.assertEqual(lines, fetch(user=user))
 
     def test_fetch_funcfield_01(self):
         self.login()
@@ -1953,8 +1946,7 @@ class ReportTestCase(BaseReportsTestCase):
                         )
 
     def test_fetch_funcfield_02(self):
-        self.login_as_basic_user()
-        user = self.user
+        user = self.login_as_basic_user()
 
         self._build_contacts_n_images()
         ned_face = self.ned_face; aria_face = self.aria_face
@@ -2139,9 +2131,8 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_fetch_relation_05(self):
         "Several expanded sub-reports"
-        self.login()
+        user = self.login()
         self._aux_test_fetch_persons()
-        user = self.user
         tyrion = self.tyrion; ned = self.ned; robb = self.robb; starks = self.starks
 
         report_orga = self.report_orga
@@ -2190,8 +2181,8 @@ class ReportTestCase(BaseReportsTestCase):
 
         #fmt = ('cf__%s' % cf.field_type) + '__%s__max'
         fmt = '%s__max'
-        create_field = partial(Field.objects.create, report=self.report_orga, selected=False,
-                               sub_report=None, #type=RFT_AGGREGATE,
+        create_field = partial(Field.objects.create, report=self.report_orga,
+                               selected=False, sub_report=None,
                               )
         create_field(name='capital__sum', order=2, type=RFT_AGG_FIELD)
         create_field(name=fmt % cf.id,    order=3, type=RFT_AGG_CUSTOM)
@@ -2240,16 +2231,15 @@ class ReportTestCase(BaseReportsTestCase):
     @skipIfNotInstalled('creme.billing')
     def test_fetch_aggregate_03(self):
         "Aggregate in sub-lines (expanded sub-report)"
-        self.login()
+        user = self.login()
         self._aux_test_fetch_persons(create_contacts=False, report_4_contact=False)
 
-        report_invoice = Report.objects.create(user=self.user, name="Report on invoices",
+        report_invoice = Report.objects.create(user=user, name="Report on invoices",
                                                ct=ContentType.objects.get_for_model(Invoice)
                                               )
 
         create_field = partial(Field.objects.create, selected=False, sub_report=None)
         create_field(report=report_invoice, name='name',           type=RFT_FIELD,     order=1)
-        #create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGGREGATE, order=2)
         create_field(report=report_invoice, name='total_vat__sum', type=RFT_AGG_FIELD, order=2)
 
         report = self.report_orga
@@ -2259,7 +2249,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         starks = self.starks; lannisters = self.lannisters
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         guild = create_orga(name='Guild of merchants')
         hord  = create_orga(name='Hord')
 

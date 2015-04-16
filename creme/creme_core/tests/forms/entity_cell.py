@@ -3,13 +3,14 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
+    from ..fake_models import FakeContact as Contact
     from .base import FieldTestCase
     from creme.creme_core.forms.header_filter import EntityCellsField
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

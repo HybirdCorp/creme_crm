@@ -3,25 +3,28 @@
 try:
     from decimal import Decimal
     from functools import partial
-    #from tempfile import NamedTemporaryFile
 
-    from django.contrib.auth.models import User
+    #from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeCivility as Civility,
+            FakeImage as Image, FakeImageCategory as MediaCategory)
     from creme.creme_core.models import *
-    from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+    from creme.creme_core.core.function_field import (FunctionField,
+            FunctionFieldResult, FunctionFieldResultsList)
     from creme.creme_core.core.field_tags import InvalidFieldTag
 
-    from creme.persons.models import Contact, Organisation, Civility
+#    from creme.persons.models import Contact, Organisation, Civility
 
-    from creme.media_managers.models import MediaCategory #Image
+#    from creme.media_managers.models import MediaCategory, Image
 
-    from creme.activities.models import Activity, ActivityType, Status
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
+#    from creme.activities.models import Activity, ActivityType, Status
+#    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -33,10 +36,12 @@ class EntityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'media_managers', 'persons', 'activities')
+#        cls.populate('creme_core', 'media_managers', 'persons', 'activities')
+        cls.populate('creme_core')
 
     def setUp(self):
-        self.user = User.objects.create(username='name')
+#        self.user = User.objects.create(username='name')
+        self.login()
 
     def test_entity01(self):
         with self.assertNoException():
@@ -56,7 +61,7 @@ class EntityTestCase(CremeTestCase):
 
         self.assertEqual(text, ptype.text)
 
-    def _setUpClone(self):
+    def _build_rtypes_n_ptypes(self):
         create_rtype = RelationType.create
         self.rtype1, self.rtype2 = create_rtype(('test-subject_loving', 'is loving'),
                                                 ('test-object_loving',  'is loved by'),
@@ -110,38 +115,8 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('groups').get_tag('viewable'))
         self.assertFalse(get_field('user_permissions').get_tag('viewable'))
 
-    def assertSameRelationsNProperties(self, entity1, entity2):
-        self.assertSameProperties(entity1, entity2)
-        self.assertSameRelations(entity1, entity2)
-
-    def assertSameRelations(self, entity1, entity2):
-        "Not internal relations"
-        relations_desc = lambda entity: list((r.type_id, r.object_entity_id) for r in entity.relations.exclude(type__is_internal=True))
-        rd1 = relations_desc(entity1)
-        rd2 = relations_desc(entity2)
-        self.assertEqual(len(rd1), len(rd2))
-        self.assertEqual(set(rd1), set(rd2))
-
-    def assertSameProperties(self, entity1, entity2):
-        properties_desc  = lambda entity: list(p.type_id for p in entity.properties.all())
-        pd1 = properties_desc(entity1)
-        pd2 = properties_desc(entity2)
-        self.assertEqual(len(pd1), len(pd2))
-        self.assertEqual(set(pd1), set(pd2))
-
-    #def create_image(self, ident=1):
-        #tmpfile = NamedTemporaryFile()
-        #tmpfile.width = tmpfile.height = 0
-        #tmpfile._committed = True
-        #tmpfile.path = 'upload/file_%s.jpg' % ident
-
-        #return Image.objects.create(user=self.user, image=tmpfile,
-                                    #name=u'Image #%s' % ident,
-                                    #description=u"Desc"
-                                   #)
-
     def test_clone01(self):
-        self._setUpClone()
+        self._build_rtypes_n_ptypes()
 
         created = modified = now()
         entity1 = CremeEntity.objects.create(user=self.user)
@@ -175,28 +150,30 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone02(self):
         "Clone regular fields"
-        self._setUpClone()
+        self._build_rtypes_n_ptypes()
 
         civility = Civility.objects.all()[0]
         language = Language.objects.all()[0]
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
-        image = self.create_image()
+#        image = self.create_image()
+        image = Image.objects.create(user=self.user, name='Naruto selfie')
 
         naruto = Contact.objects.create(user=self.user, civility=civility,
                                         first_name=u'Naruto', last_name=u'Uzumaki',
                                         description=u"Ninja", birthday=now(),
-                                        mobile=u"+81 0 0 0 00 01", email=u"naruto.uzumaki@konoha.jp",
+                                        phone='123456', mobile=u"+81 0 0 0 00 01",
+                                        email=u"naruto.uzumaki@konoha.jp",
                                         image=image,
                                        )
         naruto.language = [language]
 
         CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
 
-        create_rel = Relation.objects.create
-        create_rel(user=self.user, type=self.rtype1, subject_entity=naruto, object_entity=sasuke)
-        create_rel(user=self.user, type=self.rtype2, subject_entity=naruto, object_entity=sakura)
+        create_rel = partial(Relation.objects.create, user=self.user, subject_entity=naruto)
+        create_rel(type=self.rtype1, object_entity=sasuke)
+        create_rel(type=self.rtype2, object_entity=sakura)
 
         count = Contact.objects.count()
         kage_bunshin = naruto.clone()
@@ -206,10 +183,11 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(naruto, kage_bunshin)
 
         for attr in ['civility', 'first_name', 'last_name', 'description',
-                     'birthday', 'mobile', 'email', 'image']:
+                     'birthday', 'image']: #'mobile', 'email',
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-        self.assertEqual(set(naruto.language.all()), set(kage_bunshin.language.all()))
+#        self.assertEqual(set(naruto.language.all()), set(kage_bunshin.language.all()))
+        self.assertEqual(set(naruto.languages.all()), set(kage_bunshin.languages.all()))
 
     def test_clone03(self):
         create_cf = partial(CustomField.objects.create,
@@ -258,55 +236,19 @@ class EntityTestCase(CremeTestCase):
                         )
 
     def test_clone04(self):
-        self._setUpClone()
+        "ManyToMany"
+        #image = self.create_image()
+        image1 = Image.objects.create(user=self.user, name='Konoha by nigth')
+        image1.categories = categories = list(MediaCategory.objects.all())
+        self.assertTrue(categories)
 
-        #ct_activity = ContentType.objects.get_for_model(Activity)
-        act_type = ActivityType.objects.all()[0]
-        activity1 = Activity.objects.create(user=self.user, type=act_type)
-        activity2 = activity1.clone()
-        self.assertNotEqual(activity1.pk, activity2.pk)
+        image2 = image1.clone()
+        self.assertNotEqual(image1.pk, image2.pk)
 
-        for attr in ['user', 'title', 'start', 'end', 'description', 'minutes', 'type', 'is_all_day', 'status', 'busy']:
-            self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
+        for attr in ('user', 'name'): #, 'image', 'description'
+            self.assertEqual(getattr(image1, attr), getattr(image2, attr))
 
-    def test_clone05(self):
-        #ct_activity = ContentType.objects.get_for_model(Activity)
-        #act_type = ActivityType.objects.all()[0]
-        act_status = Status.objects.all()[0]#Import status as ActivityStatus ?
-        rtype_participant = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)
-
-        activity1 = Activity.objects.create(user=self.user, type_id=ACTIVITYTYPE_MEETING, title='Meeting',
-                                            start=now(), end=now(), #TODO: timedelta for end
-                                            description='Desc', minutes='123', is_all_day=False,
-                                            status=act_status, busy=True, place='Here',
-                                           )
-        contact1 = Contact.objects.create(user=self.user)
-        contact2 = contact1.clone()
-
-        create_rel = partial(Relation.objects.create, user=self.user, type=rtype_participant, object_entity=activity1)
-        create_rel(subject_entity=contact1)
-        create_rel(subject_entity=contact2)
-
-        activity2 = activity1.clone().clone().clone().clone().clone().clone().clone()
-        self.assertNotEqual(activity1.pk, activity2.pk)
-
-        for attr in ['user', 'title', 'start', 'end', 'description', 'minutes', 'type', 'is_all_day', 'status', 'place']:
-            self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
-
-        self.assertNotEqual(activity1.busy, activity2.busy)
-        self.assertSameRelationsNProperties(activity1, activity2)
-
-    def test_clone06(self):
-        image = self.create_image()
-        image.categories = MediaCategory.objects.all()
-
-        image2 = image.clone()
-        self.assertNotEqual(image.pk, image2.pk)
-
-        for attr in ['user', 'name', 'image', 'description']:
-            self.assertEqual(getattr(image, attr), getattr(image2, attr))
-
-        self.assertEqual(set(image.categories.values_list('pk', flat=True)),
+        self.assertEqual(set(image1.categories.values_list('pk', flat=True)),
                          set(image2.categories.values_list('pk', flat=True))
                         )
 
@@ -318,7 +260,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete02(self):
         "Can delete entities linked by a not internal relation"
-        self._setUpClone()
+        self._build_rtypes_n_ptypes()
         user = self.user
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
@@ -333,7 +275,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete03(self):
         "Can't delete entities linked by an internal relation"
-        self._setUpClone()
+        self._build_rtypes_n_ptypes()
         user = self.user
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)

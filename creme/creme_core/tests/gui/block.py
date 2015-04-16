@@ -2,15 +2,17 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeImage as Image)
     from creme.creme_core.core.entity_cell import EntityCellRegularField
     from creme.creme_core.models import (Relation, RelationType,
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
     from creme.creme_core.gui.block import (Block, SimpleBlock,
          SpecificRelationsBlock, CustomBlock, _BlockRegistry, BlocksManager)
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 
-    from creme.activities.models import Activity
+    #from creme.activities.models import Activity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -88,7 +90,8 @@ class BlockRegistryTestCase(CremeTestCase):
 
         class FoobarInstanceBlock3(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_3')
-            target_ctypes = (Organisation, Activity) # <-- KO !!
+            #target_ctypes = (Organisation, Activity) # <-- KO !!
+            target_ctypes = (Organisation, Image) # <-- KO !!
 
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)
@@ -366,7 +369,8 @@ class BlockRegistryTestCase(CremeTestCase):
         block_registry = _BlockRegistry()
 
         block = block_registry.get_block_4_object(Organisation)
-        self.assertEqual(u'modelblock_persons-organisation', block.id_)
+        #self.assertEqual(u'modelblock_persons-organisation', block.id_)
+        self.assertEqual(u'modelblock_creme_core-fakeorganisation', block.id_)
         self.assertEqual((Organisation,), block.dependencies)
 
     def test_block_4_model02(self):
@@ -376,7 +380,8 @@ class BlockRegistryTestCase(CremeTestCase):
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
 
         block = block_registry.get_block_4_object(casca)
-        self.assertEqual(u'modelblock_persons-contact', block.id_)
+        #self.assertEqual(u'modelblock_persons-contact', block.id_)
+        self.assertEqual(u'modelblock_creme_core-fakecontact', block.id_)
         self.assertEqual((Contact,), block.dependencies)
 
     def test_block_4_model03(self):
@@ -389,7 +394,8 @@ class BlockRegistryTestCase(CremeTestCase):
         block_registry.register_4_model(Contact, block)
 
         self.assertIs(block_registry.get_block_4_object(Contact), block)
-        self.assertEqual(u'modelblock_persons-contact', block.id_)
+        #self.assertEqual(u'modelblock_persons-contact', block.id_)
+        self.assertEqual(u'modelblock_creme_core-fakecontact', block.id_)
         self.assertEqual((Contact,), block.dependencies)
 
     def test_block_4_instance01(self):

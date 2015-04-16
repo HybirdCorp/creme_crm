@@ -5,20 +5,23 @@ try:
     from django.db.models.query import Q, QuerySet
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeImage as Document)
+    from .base import FieldTestCase
     from creme.creme_core.forms.fields import (JSONField,
             GenericEntityField, MultiGenericEntityField,
             RelationEntityField, MultiRelationEntityField,
             CreatorEntityField, MultiCreatorEntityField,
             FilteredEntityTypeField)
+    from creme.creme_core.gui import quickforms_registry
     from creme.creme_core.utils import creme_entity_content_types
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
-            RelationType, EntityFilter)
+            RelationType, CremeEntity, EntityFilter)
     from creme.creme_core.constants import REL_SUB_HAS
 
-    from creme.persons.models import Organisation, Contact
+    #from creme.persons.models import Organisation, Contact
 
-    from creme.documents.models import Document
+    #from creme.documents.models import Document
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -1287,9 +1290,6 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_action_buttons_no_quickform(self):
         self.login()
 
-        from creme.creme_core.models import CremeEntity
-        from creme.creme_core.gui import quickforms_registry
-
         field = CreatorEntityField(CremeEntity, required=False)
         field.user = self.user
 
@@ -1329,8 +1329,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIsNotNone(quickforms_registry.get_form(Contact))
 
         self.assertEqual(field.widget.actions,
-                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
-                          ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
+                         [('reset',  _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+                          ('create', _(u'Add'),   True, {'title':_(u'Add'), 'url':field.create_action_url}),
+                         ]
                         )
 
     def test_create_action_url(self):

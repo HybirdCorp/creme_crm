@@ -7,11 +7,12 @@ try:
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
 
+    from .base import ViewsTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
-    from .base import ViewsTestCase
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -249,19 +250,19 @@ class PropertyViewsTestCase(ViewsTestCase):
             self.assertEntityHasntProperty(ptype03, entity)
 
     def test_add_properties_bulk02(self):
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         create_entity = CremeEntity.objects.create
         entity01 = create_entity(user=self.other_user)
         entity02 = create_entity(user=self.other_user)
-        entity03 = create_entity(user=self.user)
-        entity04 = create_entity(user=self.user)
+        entity03 = create_entity(user=user)
+        entity04 = create_entity(user=user)
 
         create_ptype = CremePropertyType.create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
-        has_perm = self.user.has_perm_to_change
+        has_perm = user.has_perm_to_change
         self.assertFalse(has_perm(entity01))
         self.assertFalse(has_perm(entity02))
         self.assertTrue(has_perm(entity03))
@@ -374,9 +375,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(2, filter_prop(type=ptype02).count())
 
     def test_detailview01(self):
-        self.login()
-        user = self.user
-
+        user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american')
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -397,8 +396,10 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         self.assertEqual(ptype, ctxt_ptype)
 
-        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
-        self.assertContains(response,    ' id="block_creme_core-tagged-persons-organisation"')
+#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
+#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-organisation"')
+        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
+        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
         self.assertNotContains(response, ' id="block_creme_core-tagged-billing-invoice"')
         self.assertNotContains(response, ' id="block_creme_core-misc_tagged_entities"')
 
@@ -407,9 +408,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertContains(response, unicode(entity3))
 
     def test_detailview02(self):
-        self.login()
-        user = self.user
-
+        user = self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
                                          subject_ctypes=[Contact],
                                         )
@@ -423,8 +422,10 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(ptype.get_absolute_url())
 
-        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
-        self.assertNotContains(response, ' id="block_creme_core-tagged-persons-organisation"')
+#        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
+#        self.assertNotContains(response, ' id="block_creme_core-tagged-persons-organisation"')
+        self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
+        self.assertNotContains(response, ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
         self.assertContains(response,    ' id="block_creme_core-misc_tagged_entities"')
 
         self.assertContains(response, unicode(rita), 1)
@@ -438,7 +439,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
         url_fmt = '/creme_core/property/type/%s/reload_block/%s/'
-        block_id = 'block_creme_core-tagged-persons-contact'
+#        block_id = 'block_creme_core-tagged-persons-contact'
+        block_id = 'block_creme_core-tagged-creme_core-fakecontact'
         response = self.assertGET200(url_fmt % (ptype.id, block_id))
 
         with self.assertNoException():

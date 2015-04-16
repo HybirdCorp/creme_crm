@@ -4,9 +4,10 @@ try:
     from functools import partial
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
     from creme.creme_core.models import SettingValue
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 
     from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..models import UserMessagePriority

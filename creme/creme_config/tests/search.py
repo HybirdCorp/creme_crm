@@ -8,8 +8,10 @@ try:
 
     from creme.creme_core.models import SearchConfigItem
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeInvoice, FakeInvoiceLine)
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -165,30 +167,34 @@ class SearchConfigTestCase(CremeTestCase):
         sci = self._edit_config(url, sci, [(fname1, index1)], disabled='on')
         self.assertTrue(sci.disabled)
 
-    @skipIfNotInstalled('creme.billing')
+#    @skipIfNotInstalled('creme.billing')
     def test_edit04(self):
         "Fields with 'choices' are not valid"
-        from creme.billing.models import Line
+#        from creme.billing.models import Line
 
         fname = 'discount_unit'
-        mfield = Line._meta.get_field(fname)
+#        mfield = Line._meta.get_field(fname)
+        mfield = FakeInvoiceLine._meta.get_field(fname)
         self.assertTrue(mfield.choices)
 
-        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(Line))
+#        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(Line))
+        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoiceLine))
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
 
-        self._find_field_index(fields, 'comment')
+#        self._find_field_index(fields, 'comment')
+        self._find_field_index(fields, 'item')
         self.assertNoChoice(fields, fname)
 
-    @skipIfNotInstalled('creme.recurrents')
+#    @skipIfNotInstalled('creme.recurrents')
     def test_edit05(self):
         "Exclude DateperiodField"
-        from creme.recurrents.models import RecurrentGenerator
+#        from creme.recurrents.models import RecurrentGenerator
 
-        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(RecurrentGenerator))
+#        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(RecurrentGenerator))
+        sci = SearchConfigItem.objects.create(content_type=ContentType.objects.get_for_model(FakeInvoice))
         response = self.assertGET200(self._build_edit_url(sci))
 
         with self.assertNoException():

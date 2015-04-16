@@ -3,11 +3,13 @@ try:
     from django.utils.simplejson import loads as jsonloads, dumps as json_encode
     from django.utils.translation import ugettext as _
 
+    from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
+            FakeOrganisation as Organisation)
+    from .base import FieldTestCase
     from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models.custom_field import CustomFieldEnumValue
-    from .base import FieldTestCase
 
-    from creme.persons.models import Organisation, Contact, Civility
+#    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -25,7 +27,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def setUpClass(cls):
         FieldTestCase.setUpClass()
         cls.autodiscover()
-        cls.populate('persons')
+#        cls.populate('persons')
+        cls.populate('creme_core')
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
@@ -247,8 +250,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
 
     def test_fk(self):
-        """FK field"""
-
+        "FK field"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.EQUALS
         name = 'civility'
@@ -303,8 +305,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual({'operator': operator, 'values': [str(v) for v in values]}, condition.decoded_value)
 
     def test_choicetypes(self):
-        """field choice types"""
-
+        "Field choice types"
         field_choicetype = FieldConditionWidget.field_choicetype
         get_field = Contact._meta.get_field_by_name
 
@@ -313,7 +314,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(field_choicetype(get_field('birthday')[0]), 'date__null')
         self.assertEqual(field_choicetype(get_field('created')[0]),  'date')
 
-        self.assertEqual(field_choicetype(get_field('billing_address')[0]),  'fk__null')
+        #self.assertEqual(field_choicetype(get_field('billing_address')[0]),  'fk__null')
+        self.assertEqual(field_choicetype(get_field('address')[0]),  'fk__null')
 
         self.assertEqual(field_choicetype(get_field('user')[0]),     'user')
         self.assertEqual(field_choicetype(get_field('is_user')[0]),  'user__null')
@@ -377,7 +379,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         "M2M field"
         clean = RegularFieldsConditionsField(model=Contact).clean
         operator = EntityFilterCondition.IEQUALS
-        name = 'language__name'
+        name = 'languages__name'
         value = 'French'
         conditions = clean(self.CONDITION_FIELD_JSON_FMT % {
                                  'operator': operator,
@@ -658,7 +660,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     def test_customfield_choicetype(self):
         """custom field choice types"""
         self.autodiscover()
-        self.populate('persons')
+        #self.populate('persons')
 
         field_choicetype = CustomFieldConditionWidget.customfield_choicetype
 

@@ -14,9 +14,12 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.management.commands.reminder import Command as ReminderCommand
-    from creme.creme_core.models import CremeEntity, DateReminder, SettingValue
+    from creme.creme_core.models import CremeEntity, DateReminder, SettingValue, HistoryLine
+    from creme.creme_core.models.history import (TYPE_AUX_CREATION,
+            TYPE_AUX_EDITION, TYPE_AUX_DELETION)
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 
     from ..constants import MIN_HOUR_4_TODO_REMINDER
     from ..blocks import todos_block
@@ -57,6 +60,15 @@ class TodoTestCase(AssistantsTestCase):
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ToDo, title=title, description=description)
+
+    def _create_several_todos(self):
+        self._create_todo('Todo01', 'Description01')
+
+        entity02 = Contact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
+        self._create_todo('Todo02', 'Description02', entity=entity02)
+
+        user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
+        self._create_todo('Todo03', 'Description03', user=user02)
 
     def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
@@ -194,16 +206,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(size, len(page.object_list))
         self.assertEqual(size, len(set(todos) & set(page.object_list)))
 
-    def _create_several_todos(self):
-        self._create_todo('Todo01', 'Description01')
-
-        entity02 = Contact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
-        self._create_todo('Todo02', 'Description02', entity=entity02)
-
-        user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
-        self._create_todo('Todo03', 'Description03', user=user02)
-
-    def test_block_reload02(self): #home
+    def test_block_reload02(self):
+        "Home"
         self._create_several_todos()
         self.assertEqual(3, ToDo.objects.count())
 
@@ -224,14 +228,18 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
 
-    def test_block_reload03(self): #portal
+    def test_block_reload03(self):
+        "Portal"
         self._create_several_todos()
 
         ct_id = ContentType.objects.get_for_model(Contact).id
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (todos_block.id_, str(ct_id)))
+        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
+                                            todos_block.id_, ct_id
+                                        )
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -398,3 +406,77 @@ class TodoTestCase(AssistantsTestCase):
         self.assertTrue(self.send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
         #self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
+
+    def _get_hlines(self):
+        return list(HistoryLine.objects.order_by('id'))
+
+    def test_history01(self):
+        "Creation"
+        user = self.user
+        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        old_count = HistoryLine.objects.count()
+
+        self._create_todo(entity=akane)
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(akane.id,          hline.entity.id)
+        self.assertEqual(akane.entity_type, hline.entity_ctype)
+        self.assertEqual(user,              hline.entity_owner)
+        self.assertEqual(TYPE_AUX_CREATION, hline.type)
+
+    def test_history02(self):
+        "Edition"
+        user = self.user
+        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        old_count = HistoryLine.objects.count()
+
+        todo.description = 'Conquier the world'
+        todo.save()
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(akane.id,         hline.entity.id)
+        self.assertEqual(TYPE_AUX_EDITION, hline.type)
+
+        vmodifs = hline.verbose_modifications
+        self.assertEqual(2, len(vmodifs))
+
+        self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
+                                'type':  _(u'Todo'),
+                                'value': todo,
+                               },
+                         vmodifs[0]
+                        )
+        self.assertEqual(_(u'Set field “%(field)s”') % {'field': _(u'Description')},
+                         vmodifs[1]
+                        )
+
+    def test_history03(self):
+        "Deletion"
+        user = self.user
+        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        old_count = HistoryLine.objects.count()
+
+        todo.delete()
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(akane.id,          hline.entity.id)
+        self.assertEqual(TYPE_AUX_DELETION, hline.type)
+
+        vmodifs = hline.verbose_modifications
+        self.assertEqual(1, len(vmodifs))
+
+        self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
+                                'type':  _(u'Todo'),
+                                'value': todo,
+                               },
+                         vmodifs[0]
+                        )

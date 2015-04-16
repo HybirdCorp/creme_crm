@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.forms.base import CremeTestCase
     from creme.creme_core.models import UserRole
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import FakePosition as Position
 
-    from creme.persons.models import Position
+    #from creme.persons.models import Position
 
     from ..forms.fields import CreatorModelChoiceField
 except Exception as e:
@@ -18,10 +19,13 @@ __all__ = ('CreatorModelChoiceFieldTestCase', )
 
 
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
+
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+#        cls.populate('creme_core', 'persons')
+        cls.populate('creme_core')
         cls.autodiscover()
 
     def _create_superuser(self):
@@ -32,7 +36,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
     def test_actions_not_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
-        #self.assertEqual([], field.widget.actions)
         self.assertFalse(hasattr(field.widget, 'actions'))
 
         role = UserRole(name='CEO')
@@ -45,7 +48,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = user
         self.assertEqual([('create', _(u'Add'), False,
                            {'title': _(u"Can't add"),
-                            'url':   '/creme_config/persons/position/add_widget/',
+#                            'url':   '/creme_config/persons/position/add_widget/',
+                            'url':   self.ADD_URL,
                            }
                           )
                          ],
@@ -53,16 +57,15 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                         )
 
         field.user = None
-        #self.assertEqual([], field.widget.actions)
         self.assertFalse(hasattr(field.widget, 'actions'))
 
     def test_actions_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
-        #self.assertEqual([], field.widget.actions)
         self.assertFalse(hasattr(field.widget, 'actions'))
 
         role = UserRole(name='CEO')
-        role.admin_4_apps = ['persons']
+#        role.admin_4_apps = ['persons']
+        role.admin_4_apps = ['creme_core']
         role.save()
 
         admin = User.objects.create(username='chloe', role=role)
@@ -71,7 +74,8 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field.user = admin
         self.assertEqual([('create', _(u'Add'), True,
                            {'title': _(u'Add'),
-                            'url':   '/creme_config/persons/position/add_widget/',
+#                            'url':   '/creme_config/persons/position/add_widget/',
+                            'url':   self.ADD_URL,
                            },
                           )
                          ],
@@ -79,7 +83,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                         )
 
         field.user = None
-        #self.assertEqual([], field.widget.actions)
         self.assertFalse(hasattr(field.widget, 'actions'))
 
     def test_queryset01(self):
@@ -87,9 +90,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
         positions = [(u'', u'---------')]
         positions.extend((p.pk, unicode(p)) for p in Position.objects.all())
-
-        #self.assertEqual([], field.widget.actions)
-        #self.assertEqual(positions, field.widget.delegate._get_options())
 
         with self.assertNoException():
             choices = list(field.choices)
@@ -104,9 +104,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         positions = [(u'', u'---------')]
         positions.extend((p.pk, unicode(p)) for p in Position.objects.all())
 
-        #self.assertEqual([], field.widget.actions)
-        #self.assertEqual(positions, field.widget.delegate._get_options())
-
         with self.assertNoException():
             options = field.widget.delegate._get_options()
 
@@ -115,15 +112,13 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_filtered_queryset01(self):
         "No action"
         field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=1))
-        #self.assertEqual([], field.widget.actions)
-        #self.assertEqual([(u'', u'---------'), (1, Position.objects.get(pk=1).title)],
-                         #field.widget.delegate._get_options()
-                        #)
 
         with self.assertNoException():
             choices = list(field.choices)
 
-        self.assertEqual([(u'', u'---------'), (1, Position.objects.get(pk=1).title)],
+        self.assertEqual([(u'', u'---------'),
+                          (1, Position.objects.get(pk=1).title),
+                         ],
                          choices
                         )
 
@@ -135,7 +130,9 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         with self.assertNoException():
             options = field.widget.delegate._get_options()
 
-        self.assertEqual([(u'', u'---------'), (1, Position.objects.get(pk=1).title)],
+        self.assertEqual([(u'', u'---------'),
+                          (1, Position.objects.get(pk=1).title),
+                         ],
                          options
                         )
 
@@ -143,8 +140,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         "No action"
         field = CreatorModelChoiceField(queryset=Position.objects.none())
 
-        #self.assertEqual([], field.widget.actions)
-        #self.assertEqual([(u'', u'---------')], field.widget.delegate._get_options())
         self.assertFalse(hasattr(field.widget, 'actions'))
         self.assertEqual([(u'', u'---------')], list(field.widget.choices))
 
@@ -153,8 +148,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
         field.queryset = Position.objects.all()
 
-        #self.assertEqual([], field.widget.actions)
-        #self.assertEqual(positions, field.widget.delegate._get_options())
         self.assertFalse(hasattr(field.widget, 'actions'))
         self.assertEqual(positions, list(field.choices))
 
@@ -172,7 +165,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         self.assertEqual(positions, field.widget.delegate._get_options())
 
     def test_create_action_url(self):
-        #field = CreatorModelChoiceField(Position)
         field = CreatorModelChoiceField(Position.objects.all())
 
         self.assertIsNone(field.create_action_url)

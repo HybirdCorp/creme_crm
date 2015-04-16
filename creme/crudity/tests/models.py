@@ -8,8 +8,9 @@ try:
     from django.utils.timezone import now
 
     from creme.creme_core.models import CremeEntity
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-    from creme.persons.models import Contact
+#    from creme.persons.models import Contact
 
     from ..models import WaitingAction
     from .base import CrudityTestCase

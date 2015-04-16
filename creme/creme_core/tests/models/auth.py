@@ -10,11 +10,12 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import(CremeEntity, CremePropertyType,
             CremeProperty, Relation, UserRole, SetCredentials)
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -627,8 +628,10 @@ class CredentialsTestCase(CremeTestCase):
         role.exportable_ctypes.add(ContentType.objects.get_for_model(Contact))
 
         user.role = self.refresh(role) #refresh cache
-        self.assertTrue(has_perm('persons.export_contact'))
-        self.assertFalse(has_perm('persons.export_organisation'))
+#        self.assertTrue(has_perm('persons.export_contact'))
+#        self.assertFalse(has_perm('persons.export_organisation'))
+        self.assertTrue(has_perm('creme_core.export_fakecontact'))
+        self.assertFalse(has_perm('creme_core.export_fakeorganisation'))
         self.assertTrue(has_perm_to_export(Contact))
         self.assertFalse(has_perm_to_export(Organisation))
 

@@ -8,6 +8,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeImage as Image)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
@@ -16,9 +18,9 @@ try:
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
 
-    from creme.media_managers.models import Image
+#    from creme.media_managers.models import Image
 
-    from creme.persons.models import Organisation, Contact
+#    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -30,8 +32,8 @@ class MergeViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        #cls.populate('creme_core', 'creme_config', 'persons') #'persons' for HeaderFilter
-        cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
+#        cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
+        cls.populate('creme_core') # HeaderFilter for FakeContact/Orga
         cls.autodiscover()
 
     def _build_select_url(self, e1):
@@ -65,7 +67,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge02(self):
         "View credentials"
-        user = self.login(is_superuser=False, allowed_apps=['persons'])
+#        user = self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
                 role=self.role,
@@ -78,7 +81,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge03(self):
         "Edit credentials"
-        user = self.login(is_superuser=False, allowed_apps=['persons'])
+#        user = self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
@@ -94,7 +98,8 @@ class MergeViewsTestCase(ViewsTestCase):
         self.login()
         self.assertIsNone(merge_form_registry.get(Image))
 
-        image = self.create_image()
+#        image = self.create_image()
+        image = Image.objects.create(user=self.user, name='IMG#1')
         self.assertGET409(self._build_select_url(image))
 
     def test_merge01(self):
@@ -223,9 +228,14 @@ class MergeViewsTestCase(ViewsTestCase):
         "2 Contacts, M2M, foreign key to CremeEntities"
         user = self.login()
 
-        image1 = self.create_image(ident=1)
-        image2 = self.create_image(ident=2)
-        self.create_image(ident=3) #image3 should not be proposed by the form
+#        image1 = self.create_image(ident=1)
+#        image2 = self.create_image(ident=2)
+#        self.create_image(ident=3) #image3 should not be proposed by the form
+
+        create_img = partial(Image.objects.create, user=user)
+        image1 = create_img(name='Kosaka face')
+        image2 = create_img(name='Kosuaka selfie')
+        create_img(name='Genshiken logo') #image3 should not be proposed by the form
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
@@ -305,7 +315,8 @@ class MergeViewsTestCase(ViewsTestCase):
         "Nullable foreign key to CremeEntities"
         user = self.login()
 
-        image = self.create_image()
+#        image = self.create_image()
+        image = Image.objects.create(user=user, name='Kosaka face')
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)
@@ -323,11 +334,15 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge05(self):
         "Unregistered model"
-        self.login()
+        user = self.login()
         self.assertIsNone(merge_form_registry.get(Image))
 
-        image1 = self.create_image(ident=1)
-        image2 = self.create_image(ident=2)
+#        image1 = self.create_image(ident=1)
+#        image2 = self.create_image(ident=2)
+        create_image = partial(Image.objects.create, user=user)
+        image1 = create_image(name='IMG#1')
+        image2 = create_image(name='IMG#2')
+
         self.assertGET409(self.build_merge_url(image1, image2))
 
     def test_merge_customfields(self):
@@ -461,7 +476,8 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET409(self.build_merge_url(orga, orga))
 
     def test_perm01(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons'])
+#        user = self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
                 role=self.role,
@@ -479,4 +495,3 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertGET403(self.build_merge_url(orga01, orga02))
         self.assertGET403(self.build_merge_url(orga02, orga01))
-
