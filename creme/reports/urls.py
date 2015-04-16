@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.conf.urls import patterns
 
 
@@ -32,3 +33,16 @@ urlpatterns = patterns('creme.reports.views',
 
     (r'^graph/(?P<graph_id>\d+)/block/add$', 'blocks.add_graph_instance_block'),
 )
+
+if settings.TESTS_ON:
+    urlpatterns += patterns('creme.reports.tests.fake_views',
+        #(r'^tests/folders$',                        'folder_listview'),
+        #(r'^tests/folder/add$',                     'folder_add'),
+        #(r'^tests/folder/edit/(?P<folder_id>\d+)$', 'folder_edit'),
+        (r'^tests/folder/(?P<folder_id>\d+)$',      'folder_detailview'),
+
+        (r'^tests/documents$',                              'document_listview'),
+        #(r'^tests/document/add$',                          'document_add'),
+        #(r'^tests/document/edit/(?P<document_id>\d+)$',	'document_edit'),
+        #(r'^tests/document/(?P<object_id>\d+)$',           'document_detailview'),
+    )

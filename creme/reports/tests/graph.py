@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import loads as json_load
 
-    from django.conf import settings
+#    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _, pgettext
 
@@ -13,22 +13,30 @@ try:
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
             EntityFilter, EntityFilterCondition,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
-    from creme.creme_core.tests.base import skipIfNotInstalled
+#    from creme.creme_core.tests.base import skipIfNotInstalled
+    from creme.creme_core.tests.fake_constants import (
+            FAKE_REL_SUB_EMPLOYED_BY as REL_SUB_EMPLOYED_BY,
+            FAKE_REL_OBJ_EMPLOYED_BY as REL_OBJ_EMPLOYED_BY,
+            FAKE_REL_SUB_BILL_RECEIVED as REL_SUB_BILL_RECEIVED)
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeInvoice as Invoice,
+            FakePosition as Position, FakeSector as Sector)
 
-    from creme.documents.models import Document, Folder
+#    from creme.documents.models import Document, Folder
 
-    from creme.persons.models import Organisation, Contact, Position, Sector
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+#    from creme.persons.models import Organisation, Contact, Position, Sector
+#    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
-    if 'creme.billing' in settings.INSTALLED_APPS:
-        from creme.billing.models import Invoice
-        from creme.billing.constants import REL_SUB_BILL_RECEIVED
+#    if 'creme.billing' in settings.INSTALLED_APPS:
+#        from creme.billing.models import Invoice
+#        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
     from .base import BaseReportsTestCase
+    from .fake_models import FakeFolder as Folder, FakeDocument as Document
+
     from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder
     from ..models import Field, Report, ReportGraph
-
     from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
             RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
@@ -44,12 +52,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def setUpClass(cls):
         BaseReportsTestCase.setUpClass()
 
-        get_ct = ContentType.objects.get_for_model
-        cls.ct_contact = get_ct(Contact)
-        cls.ct_orga    = get_ct(Organisation)
-
-        if 'creme.billing' in settings.INSTALLED_APPS:
-            cls.ct_invoice = get_ct(Invoice)
+#        if 'creme.billing' in settings.INSTALLED_APPS:
+#            cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
+        cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
 
     def setUp(self):
         self.login()
@@ -78,6 +83,9 @@ class ReportGraphTestCase(BaseReportsTestCase):
         return '/reports/graph/fetch_from_instance_block/%s/%s/%s' % (
                         ibi.id, entity.id, order,
                     )
+
+    def _build_graph_types_url(self, ct):
+        return '/reports/graph/get_available_types/%s' % ct.id
 
     def _create_invoice_report_n_graph(self):
         self.report = report = Report.objects.create(user=self.user,
@@ -151,7 +159,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIn('created', choices_set)
         self.assertIn('sector',  choices_set)
         self.assertNotIn('name', choices_set) #string can not be used to group
-        self.assertNotIn('billing_address', choices_set) #not enumerable
+#        self.assertNotIn('billing_address', choices_set) #not enumerable
+        self.assertNotIn('address', choices_set) #not enumerable
 
         rel_choices = abscissa_choices[1]
         self.assertEqual(_('Relationships'), rel_choices[0])
@@ -210,7 +219,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         y_asc = data.get('y')
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
-        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+#        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
                          y_asc[0]
                         )
 
@@ -244,7 +254,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                               )
                             )
 
-        response = post(abscissa_field='staff_size', aggregate_field=ordinate)
+#        response = post(abscissa_field='staff_size', aggregate_field=ordinate)
+        response = post(abscissa_field='legal_form', aggregate_field=ordinate)
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
                              '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By days')
@@ -342,7 +353,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual('',        rgraph.ordinate)
         self.assertTrue(rgraph.is_count)
 
-        self.assertEqual(_('employs'), rgraph.hand.verbose_abscissa)
+#        self.assertEqual(_('employs'), rgraph.hand.verbose_abscissa)
+        self.assertEqual('employs', rgraph.hand.verbose_abscissa)
 
     def _aux_test_createview_with_date(self, gtype, gtype_vname):
         report = self._create_simple_organisations_report()
@@ -362,7 +374,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
             data.update(**kwargs)
             return self.client.post(url, data=data)
 
-        response = post(abscissa_field='staff_size')
+#        response = post(abscissa_field='staff_size')
+        response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
                              '"%s" groups are only compatible with {DateField, DateTimeField}' % gtype_vname
@@ -408,7 +421,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
             data.update(**kwargs)
             return self.client.post(url, data=data)
 
-        response = post(abscissa_field='staff_size')
+#        response = post(abscissa_field='staff_size')
+        response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'abscissa_field',
                              '"%s" groups are only compatible with {DateField, DateTimeField}' % _('By X days')
@@ -642,7 +656,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsNone(rgraph.days)
         self.assertTrue(rgraph.is_count)
 
-    @skipIfNotInstalled('creme.billing')
+#    @skipIfNotInstalled('creme.billing')
     def test_editview02(self):
         "Another ContentType"
         rgraph = self._create_invoice_report_n_graph()
@@ -713,7 +727,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertIsInstance(y_asc, list)
         self.assertEqual(len(x_asc), len(y_asc))
 
-        fmt = '/persons/contacts?q_filter={"position": %s}&filter=test-filter'
+#        fmt = '/persons/contacts?q_filter={"position": %s}&filter=test-filter'
+        fmt = '/tests/contacts?q_filter={"position": %s}&filter=test-filter'
         self.assertEqual([1, fmt % hand.id], y_asc[x_asc.index(hand.title)])
         self.assertEqual([2, fmt % lord.id], y_asc[x_asc.index(lord.title)])
 
@@ -753,7 +768,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
 
-        fmt = '/persons/organisations?q_filter={"sector": %s}&filter=test-filter'
+#        fmt = '/persons/organisations?q_filter={"sector": %s}&filter=test-filter'
+        fmt = '/tests/organisations?q_filter={"sector": %s}&filter=test-filter'
         index = x_asc.index
         self.assertEqual([100,  fmt % war.id],   y_asc[index(war.title)])
         self.assertEqual([1000, fmt % trade.id], y_asc[index(trade.title)])
@@ -794,7 +810,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
 
-        fmt = '/persons/organisations?q_filter={"sector": %s}'
+        #fmt = '/persons/organisations?q_filter={"sector": %s}'
+        fmt = '/tests/organisations?q_filter={"sector": %s}'
         index = x_asc.index
         self.assertEqual([400, fmt % war.id],   y_asc[index(war.title)])
         self.assertEqual([500, fmt % trade.id], y_asc[index(trade.title)])
@@ -814,7 +831,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
             x_asc, y_asc = rgraph.fetch()
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
-        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+#        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
                          y_asc[0]
                         )
         self.assertEqual(_('the field does not exist any more.'),
@@ -835,7 +853,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
             x_asc, y_asc = rgraph.fetch()
 
         self.assertEqual(list(Sector.objects.values_list('title', flat=True)), x_asc)
-        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+#        self.assertEqual([0, '/persons/organisations?q_filter={"sector": 1}'],
+        self.assertEqual([0, '/tests/organisations?q_filter={"sector": 1}'],
                          y_asc[0]
                         )
         self.assertEqual(_('the custom field does not exist any more.'),
@@ -870,7 +889,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         )
 
         self.assertEqual(len(y_asc), 2)
-        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        fmt = '/tests/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
         self.assertEqual([4, fmt % ("2013-06-01", "2013-06-15")], y_asc[0])
         self.assertEqual([2, fmt % ("2013-06-16", "2013-06-30")], y_asc[1])
 
@@ -919,7 +939,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'],
                          x_asc
                         )
-        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        fmt = '/tests/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
         self.assertEqual([300, fmt % ('2013-06-22', '2013-07-01')], y_asc[0])
         self.assertEqual([150, fmt % ('2013-07-02', '2013-07-11')], y_asc[1])
 
@@ -928,7 +949,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(['05/07/2013-26/06/2013', '25/06/2013-16/06/2013'],
                          x_desc
                         )
-        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        fmt = '/tests/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
         self.assertEqual([150, fmt % ('2013-06-26', '2013-07-05')], y_desc[0])
         self.assertEqual([300, fmt % ('2013-06-16', '2013-06-25')], y_desc[1])
 
@@ -960,7 +982,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                         )
 
         self.assertEqual(len(y_asc), 2)
-        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
+        fmt = '/tests/organisations?q_filter={"creation_date__range": ["%s", "%s"]}'
         self.assertEqual([4, fmt % ("2013-12-21", "2014-01-04")], y_asc[0])
         self.assertEqual([2, fmt % ("2014-01-05", "2014-01-19")], y_asc[1])
 
@@ -1036,7 +1059,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          x_asc
                         )
 
-        base_url = '/persons/organisations?q_filter='
+#        base_url = '/persons/organisations?q_filter='
+        base_url = '/tests/organisations?q_filter='
         base_qdict = {'customfielddatetime__custom_field': cf.id}
         self.assertEqual(4, y_asc[0][0])
         self.assertURL(y_asc[0][1], base_url,
@@ -1099,7 +1123,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(['22/06/2013', '05/07/2013'], x_asc)
 
         self.assertEqual(150, y_asc[0][0])
-        self.assertURL(y_asc[0][1], '/persons/organisations?q_filter=',
+#        self.assertURL(y_asc[0][1], '/persons/organisations?q_filter=',
+        self.assertURL(y_asc[0][1], '/tests/organisations?q_filter=',
                        {'creation_date__day':   22,
                         'creation_date__month': 6,
                         'creation_date__year':  2013,
@@ -1150,7 +1175,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(130, y_asc[1][0])
 
         url = y_asc[0][1]
-        self.assertURL(url, '/persons/organisations?q_filter=',
+#        self.assertURL(url, '/persons/organisations?q_filter=',
+        self.assertURL(url, '/tests/organisations?q_filter=',
                        {'customfielddatetime__value__day':   22,
                         'customfielddatetime__value__month': 6,
                         'customfielddatetime__value__year':  2013,
@@ -1202,7 +1228,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(['06/2013', '08/2013'], x_asc)
 
         self.assertEqual(2, y_asc[0][0])
-        self.assertURL(y_asc[0][1], '/persons/organisations?q_filter=',
+#        self.assertURL(y_asc[0][1], '/persons/organisations?q_filter=',
+        self.assertURL(y_asc[0][1], '/tests/organisations?q_filter=',
                        {'creation_date__month': 6,
                         'creation_date__year':  2013,
                        }
@@ -1259,7 +1286,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         #ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch()
         self.assertEqual(['2013', '2014'], x_asc)
-        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
+        fmt = '/tests/organisations?q_filter={"creation_date__year": %s}'
         self.assertEqual([2, fmt % 2013], y_asc[0])
         self.assertEqual([1, fmt % 2014], y_asc[1])
 
@@ -1302,7 +1330,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         x_asc, y_asc = rgraph.fetch()
         self.assertEqual(['2013', '2014', '2015', '2016'], x_asc)
 
-        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
+#        fmt = '/persons/organisations?q_filter={"creation_date__year": %s}'
+        fmt = '/tests/organisations?q_filter={"creation_date__year": %s}'
         self.assertEqual([Decimal('70.70'), fmt % 2013], y_asc[0])
         self.assertEqual([Decimal('100'),   fmt % 2014], y_asc[1])
         self.assertEqual([0,                fmt % 2015], y_asc[2])
@@ -1404,7 +1433,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
             lannisters_idx = x_asc.index(unicode(lannisters))
             starks_idx     = x_asc.index(unicode(starks))
 
-        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}&filter=test-filter'
+#        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}&filter=test-filter'
+        fmt = '/tests/contacts?q_filter={"pk__in": [%s]}&filter=test-filter'
         self.assertEqual([1, fmt % tyrion.pk],                                            y_asc[lannisters_idx])
         self.assertEqual([2, fmt % ', '.join(str(p) for p in (ned.pk, aria.pk, jon.pk))], y_asc[starks_idx]) #not 3, because of the filter
 
@@ -1453,7 +1483,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         tywin_index = x_asc.index(unicode(tywin))
         self.assertNotEqual(-1,  tywin_index)
 
-        fmt = '/persons/organisations?q_filter={"pk__in": [%s]}'
+#        fmt = '/persons/organisations?q_filter={"pk__in": [%s]}'
+        fmt = '/tests/organisations?q_filter={"pk__in": [%s]}'
         self.assertEqual([100, fmt % lannisters.pk],                                y_asc[tywin_index])
         self.assertEqual([90,  fmt % ', '.join((str(starks.pk), str(tullies.pk)))], y_asc[ned_index])
 
@@ -1512,7 +1543,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual({unicode(lannisters), unicode(starks)}, set(x_asc))
 
         index = x_asc.index
-        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}'
+#        fmt = '/persons/contacts?q_filter={"pk__in": [%s]}'
+        fmt = '/tests/contacts?q_filter={"pk__in": [%s]}'
         self.assertEqual([600, fmt % ', '.join([str(jaime.pk), str(tyrion.pk)])], y_asc[index(unicode(lannisters))])
         self.assertEqual([800, fmt % ', '.join([str(ned.pk), str(robb.pk)])],     y_asc[index(unicode(starks))])
 
@@ -1590,7 +1622,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual([hand.value, lord.value], x_asc)
 
-        fmt = '/persons/contacts?q_filter={"customfieldenum__value": %s}'
+#        fmt = '/persons/contacts?q_filter={"customfieldenum__value": %s}'
+        fmt = '/tests/contacts?q_filter={"customfieldenum__value": %s}'
         self.assertEqual([1, fmt % hand.id], y_asc[0])
         self.assertEqual([2, fmt % lord.id], y_asc[1])
 
@@ -1632,7 +1665,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual([fight.value, smartness.value], x_asc)
 
-        fmt = '/persons/organisations?q_filter={"customfieldenum__value": %s}'
+#        fmt = '/persons/organisations?q_filter={"customfieldenum__value": %s}'
+        fmt = '/tests/organisations?q_filter={"customfieldenum__value": %s}'
         self.assertEqual([90,  fmt % fight.id],     y_asc[0])
         self.assertEqual([100, fmt % smartness.id], y_asc[1])
 
@@ -1724,7 +1758,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          ReportGraphBlock(ibci).verbose_name
                         )
 
-    @skipIfNotInstalled('creme.billing')
+#    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
         rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
@@ -1794,7 +1828,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
-        self.assertURL(y[0][1], '/billing/invoices?q_filter=',
+#        self.assertURL(y[0][1], '/billing/invoices?q_filter=',
+        self.assertURL(y[0][1], '/tests/invoices?q_filter=',
                        {'issuing_date__month': 10,
                         'issuing_date__year':  2014,
                        }
@@ -1806,7 +1841,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         y = result.get('y')
         self.assertEqual(0, y[0][0])
-        self.assertURL(y[0][1], '/billing/invoices?q_filter=',
+#        self.assertURL(y[0][1], '/billing/invoices?q_filter=',
+        self.assertURL(y[0][1], '/tests/invoices?q_filter=',
                        {'issuing_date__month': 11,
                         'issuing_date__year':  2014,
                        }
@@ -1874,7 +1910,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         year = doc1.created.year
         self.assertEqual([unicode(year)], x)
-        self.assertEqual([[2, '/documents/documents?q_filter={"created__year": %s}' % year]], y)
+#        self.assertEqual([[2, '/documents/documents?q_filter={"created__year": %s}' % year]], y)
+        self.assertEqual([[2, '/reports/tests/documents?q_filter={"created__year": %s}' % year]], y)
 
     def test_add_graph_instance_block02_error01(self):
         "Volatile column (RFT_FIELD): invalid field"
@@ -2000,7 +2037,8 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         year = sonsaku.created.year
         self.assertEqual([unicode(year)], x)
-        self.assertEqual([[2, '/persons/contacts?q_filter={"created__year": %s}' % year]], y)
+#        self.assertEqual([[2, '/persons/contacts?q_filter={"created__year": %s}' % year]], y)
+        self.assertEqual([[2, '/tests/contacts?q_filter={"created__year": %s}' % year]], y)
 
         #invalid choice
         choice = 'invalid'
@@ -2031,10 +2069,57 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(_('The relationship type is invalid.'), fetcher.error)
         self.assertEqual('??',                                   fetcher.verbose_volatile_column)
 
-    @skipIfNotInstalled('creme.billing')
-    def test_get_available_report_graph_types(self):
-        ct = self.ct_invoice
-        url = '/reports/graph/get_available_types/%s' % ct.id
+#    @skipIfNotInstalled('creme.billing')
+#    def test_get_available_report_graph_types(self):
+#        ct = self.ct_invoice
+#        url = '/reports/graph/get_available_types/%s' % ct.id
+#        self.assertGET404(url)
+#        self.assertPOST404(url)
+#
+#        response = self.assertPOST200(url, data={'record_id': 'name'})
+#        self.assertEqual({'result': [{'text': _(u'Choose an abscissa field'), 'id': ''}]},
+#                         json_load(response.content)
+#                        )
+#
+#        response = self.assertPOST200(url, data={'record_id': 'issuing_date'})
+#        self.assertEqual({'result': [{'id': RGT_DAY,   'text': _(u"By days")},
+#                                     {'id': RGT_MONTH, 'text': _(u"By months")},
+#                                     {'id': RGT_YEAR,  'text': _(u"By years")},
+#                                     {'id': RGT_RANGE, 'text': _(u"By X days")},
+#                                    ],
+#                         },
+#                         json_load(response.content)
+#                        )
+#
+#        response = self.assertPOST200(url, data={'record_id': 'status'})
+#        self.assertEqual({'result': [{'id': RGT_FK, 'text': _(u"By values")}]},
+#                         json_load(response.content)
+#                        )
+#
+#        response = self.assertPOST200(url, data={'record_id': REL_SUB_BILL_RECEIVED})
+#        self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values (of related entities)")}]},
+#                         json_load(response.content)
+#                        )
+#
+#        create_cf = partial(CustomField.objects.create, content_type=ct)
+#        cf_enum = create_cf(name='Type', field_type=CustomField.ENUM)
+#        response = self.assertPOST200(url, data={'record_id': cf_enum.id})
+#        self.assertEqual({'result': [{'id': RGT_CUSTOM_FK, 'text': _(u"By values (of custom choices)")}]},
+#                         json_load(response.content)
+#                        )
+#
+#        cf_dt = create_cf(name='First payment', field_type=CustomField.DATETIME)
+#        response = self.assertPOST200(url, data={'record_id': cf_dt.id})
+#        self.assertEqual({'result': [{'id': RGT_CUSTOM_DAY,   'text': _(u"By days")},
+#                                     {'id': RGT_CUSTOM_MONTH, 'text': _(u"By months")},
+#                                     {'id': RGT_CUSTOM_YEAR,  'text': _(u"By years")},
+#                                     {'id': RGT_CUSTOM_RANGE, 'text': _(u"By X days")},
+#                                    ],
+#                         },
+#                         json_load(response.content)
+#                        )
+    def test_get_available_report_graph_types01(self):
+        url = self._build_graph_types_url(self.ct_orga)
         self.assertGET404(url)
         self.assertPOST404(url)
 
@@ -2043,7 +2128,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          json_load(response.content)
                         )
 
-        response = self.assertPOST200(url, data={'record_id': 'issuing_date'})
+        response = self.assertPOST200(url, data={'record_id': 'creation_date'})
         self.assertEqual({'result': [{'id': RGT_DAY,   'text': _(u"By days")},
                                      {'id': RGT_MONTH, 'text': _(u"By months")},
                                      {'id': RGT_YEAR,  'text': _(u"By years")},
@@ -2053,10 +2138,14 @@ class ReportGraphTestCase(BaseReportsTestCase):
                          json_load(response.content)
                         )
 
-        response = self.assertPOST200(url, data={'record_id': 'status'})
+        response = self.assertPOST200(url, data={'record_id': 'sector'})
         self.assertEqual({'result': [{'id': RGT_FK, 'text': _(u"By values")}]},
                          json_load(response.content)
                         )
+
+    def test_get_available_report_graph_types02(self):
+        ct = self.ct_invoice
+        url = self._build_graph_types_url(ct)
 
         response = self.assertPOST200(url, data={'record_id': REL_SUB_BILL_RECEIVED})
         self.assertEqual({'result': [{'id': RGT_RELATION, 'text': _(u"By values (of related entities)")}]},
