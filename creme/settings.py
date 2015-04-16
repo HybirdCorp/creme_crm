@@ -641,8 +641,8 @@ EMAILCAMPAIGN_SLEEP_TIME = 2
 
 #SAMOUSSA ----------------------------------------------------------------------
 CREME_SAMOUSSA_URL = 'http://localhost:8001/'
-CREME_SAMOUSSA_USERNAME = 'compte21'
-CREME_SAMOUSSA_PASSWORD = 'compte21'
+CREME_SAMOUSSA_USERNAME = ''
+CREME_SAMOUSSA_PASSWORD = ''
 
 #CRUDITY ------------------------------------------------------------------------
 #Mail parameters to sync external email in creme
