@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.contrib.contenttypes.models import ContentType
+    #from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials
@@ -65,7 +65,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(count + 2, size2.order)
 
     def test_createview01(self):
-        self.login()
+        user = self.login()
 
         url = '/persons/organisation/add'
         self.assertGET200(url)
@@ -74,7 +74,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         name  = 'Spectre'
         description = 'DESCRIPTION'
         response = self.client.post(url, follow=True,
-                                    data={'user':        self.user.pk,
+                                    data={'user':        user.pk,
                                           'name':        name,
                                           'description': description,
                                          }
@@ -92,17 +92,17 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertRedirects(response, abs_url)
 
     def test_editview01(self):
-        self.login()
+        user = self.login()
 
         name = 'Bebop'
-        orga = Organisation.objects.create(user=self.user, name=name)
+        orga = Organisation.objects.create(user=user, name=name)
         url = '/persons/organisation/edit/%s' % orga.id
         self.assertGET200(url)
 
         name += '_edited'
         zipcode = '123456'
         response = self.client.post(url, follow=True,
-                                    data={'user':                    self.user.pk,
+                                    data={'user':                    user.pk,
                                           'name':                    name,
                                           'billing_address-zipcode': zipcode,
                                          }
@@ -116,9 +116,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
 
     def test_listview(self):
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
 
@@ -135,15 +135,16 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_clone(self):
         "Addresses are problematic"
-        self.login()
+        user = self.login()
 
-        bebop = Organisation.objects.create(user=self.user, name='Bebop')
+        bebop = Organisation.objects.create(user=user, name='Bebop')
 
         create_address = partial(Address.objects.create, address='XXX',
                                  city='Red city', state='North', zipcode='111',
                                  country='Mars', department='Dome #12',
-                                 content_type=ContentType.objects.get_for_model(Organisation),
-                                 object_id=bebop.id
+                                 owner=bebop,
+                                 #content_type=ContentType.objects.get_for_model(Organisation),
+                                 #object_id=bebop.id
                                 )
         bebop.billing_address  = create_address(name='Hideout #1')
         bebop.shipping_address = create_address(name='Hideout #2')
@@ -187,10 +188,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         return mng_orga
 
     def _become_test(self, url, relation_type):
-        self.login()
+        user = self.login()
 
         mng_orga = self._build_managed_orga()
-        customer = Contact.objects.create(user=self.user, first_name='Jet', last_name='Black')
+        customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
         response = self.assertPOST200(url % customer.id, data={'id': mng_orga.id}, follow=True)
         self.assertTrue(response.redirect_chain)
@@ -201,7 +202,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_become_customer02(self):
         "Credentials errors"
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
@@ -221,7 +222,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, Relation.objects.filter(subject_entity=customer01.id).count())
 
         mng_orga02 = self._build_managed_orga(user=self.other_user)  #can not link it
-        customer02 = Contact.objects.create(user=self.user, first_name='Vicious', last_name='??')
+        customer02 = Contact.objects.create(user=user, first_name='Vicious', last_name='??')
         self.assertPOST403('/persons/%s/become_customer' % customer02.id,
                            data={'id': mng_orga02.id}, follow=True
                           )
@@ -240,10 +241,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
-        self.login()
+        user = self.login()
 
         self._build_managed_orga()
-        Organisation.objects.create(user=self.user, name='Nerv')
+        Organisation.objects.create(user=user, name='Nerv')
 
         response = self.assertGET200('/persons/leads_customers')
 
@@ -253,11 +254,11 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, orgas_page.paginator.count)
 
     def test_leads_customers02(self):
-        self.login()
+        user = self.login()
 
         mng_orga = self._build_managed_orga()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
         fsf  = create_orga(name='FSF')
@@ -278,9 +279,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn(fsf,  orgas_set)
 
     def test_leads_customers03(self):
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
         self.client.post('/persons/%s/become_customer' % nerv.id, data={'id': acme.id})
@@ -290,8 +291,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge01(self):
         "Merging addresses"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -450,8 +450,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge02(self):
         "Merging addresses"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -526,8 +525,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge03(self):
         "Merging addresses"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -600,9 +598,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_sector(self):
         "Set to null"
-        self.login()
+        user = self.login()
         hunting = Sector.objects.create(title='Bounty hunting')
-        bebop = Organisation.objects.create(user=self.user, name='Bebop', sector=hunting)
+        bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
         self.assertPOST200('/creme_config/persons/sector/delete', data={'id': hunting.pk})
         self.assertDoesNotExist(hunting)
@@ -612,9 +610,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_legal_form(self):
         "Set to null"
-        self.login()
+        user = self.login()
         band = LegalForm.objects.create(title='Bounty hunting band')
-        bebop = Organisation.objects.create(user=self.user, name='Bebop', legal_form=band)
+        bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
         self.assertPOST200('/creme_config/persons/legal_form/delete', data={'id': band.pk})
         self.assertDoesNotExist(band)
@@ -624,9 +622,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_staff_size(self):
         "Set to null"
-        self.login()
+        user = self.login()
         size = StaffSize.objects.create(size='4 and a dog')
-        bebop = Organisation.objects.create(user=self.user, name='Bebop', staff_size=size)
+        bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
         self.assertPOST200('/creme_config/persons/staff_size/delete', data={'id': size.pk})
         self.assertDoesNotExist(size)
@@ -635,7 +633,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(bebop.staff_size)
 
     def test_csv_import01(self):
-        self.login()
+        user = self.login()
 
         name1 = 'Nerv'
         city1 = 'Tokyo'
@@ -647,7 +645,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_import_url(Organisation),
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               billaddr_city_colselect=2,
                                               shipaddr_city_colselect=3,
                                              )
@@ -669,18 +667,18 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_csv_import02(self):
         "Update (with address)"
-        self.login()
-
-        user = self.user
+        user = self.login()
 
         name = 'Bebop'
         city1 = 'Red city'
         city2 = 'Crater city'
 
         bebop = Organisation.objects.create(user=user, name=name)
-        create_address = partial(Address.objects.create, object_id=bebop.id,
+        create_address = partial(Address.objects.create,
                                  address='XXX', country='Mars',
-                                 content_type=ContentType.objects.get_for_model(Organisation),
+                                 owner=bebop,
+                                 #object_id=bebop.id,
+                                 #content_type=ContentType.objects.get_for_model(Organisation),
                                 )
         bebop.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
         bebop.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
@@ -695,7 +693,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(self._build_import_url(Organisation),
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               key_fields=['name'],
                                               email_colselect=4,
                                               billaddr_address_colselect=2,

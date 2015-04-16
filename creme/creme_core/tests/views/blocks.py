@@ -7,12 +7,13 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.blocks import RelationsBlock
     from creme.creme_core.models import BlockState, SetCredentials, RelationType, Relation
     from creme.creme_core.gui.block import block_registry, Block, InstanceBlockConfigItem, _BlockRegistry
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -213,7 +214,8 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview04(self):
         "Not superuser"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+#        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
@@ -296,7 +298,8 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_portal02(self):
         "Do not have the credentials"
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=('documents'))
 
         class FoobarBlock1(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_portal02_1')
@@ -367,11 +370,12 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_basic03(self):
         "Not superuser"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+        app_name = 'persons'
+        self.login(is_superuser=False, allowed_apps=[app_name])
 
         class FoobarBlock1(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_basic03')
-            permission = 'persons'
+            permission = app_name
 
         block1 = FoobarBlock1()
         block_registry.register(block1)
@@ -440,13 +444,16 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_relations03(self):
         "Do not have the credentials"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+#        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login(is_superuser=False)
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
+        self.assertFalse(self.user.has_perm_to_view(atom))
         self.assertGET403('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
 
     def test_reload_relations04(self):
         "Not superuser"
-        self.login(is_superuser=False, allowed_apps=['persons'])
+#        self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')

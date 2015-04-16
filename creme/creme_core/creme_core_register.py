@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .core.setting_key import setting_key_registry
@@ -41,3 +42,7 @@ button_registry.register(merge_entities_button)
 bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity')) #TODO: tags modifiable=False ??
 
 setting_key_registry.register(block_opening_key, block_showempty_key, currency_symbol_key)
+
+
+if settings.TESTS_ON:
+    from .tests import fake_creme_core_register

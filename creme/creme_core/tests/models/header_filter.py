@@ -9,13 +9,15 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
 
+    from ..base import CremeTestCase
+    from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
+            FakeCivility as Civility, FakePosition as Position)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, Relation, HeaderFilter
     from creme.creme_core.models.header_filter import HeaderFilterList
-    from ..base import CremeTestCase
 
-    from creme.persons.models import Contact, Organisation, Position, Sector
+    #from creme.persons.models import Contact, Organisation, Position, Sector
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -27,6 +29,7 @@ class HeaderFiltersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
+        cls.populate('creme_core')
 
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(Contact) #TODO: used once ?!
@@ -35,6 +38,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         #create_hf = partial(HeaderFilter.create, is_custom=True)
         #cls.hf_contact = create_hf(pk='hftest_tests-hf_contact', name='Test Contact view', model=Contact)
         #cls.hf_orga    = create_hf(pk='hftest_tests-hf_orga',    name='Test Orga view',    model=Organisation)
+
 
     def assertCellEqual(self, cell1, cell2):
         self.assertIs(cell1.__class__, cell2.__class__)
@@ -177,7 +181,8 @@ class HeaderFiltersTestCase(CremeTestCase):
                                  cells_desc=cells,
                                 )
 
-        cells.append(build_cell(name='phone'))
+        #cells.append(build_cell(name='phone'))
+        cells.append(build_cell(name='description'))
         hf.cells = cells
         hf.save()
         self.assertEqual(3, len(self.refresh(hf).cells))
@@ -305,13 +310,19 @@ class HeaderFiltersTestCase(CremeTestCase):
         build = partial(EntityCellRegularField.build, model=Contact)
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact,
                                  cells_desc=[build(name='last_name'), build(name='first_name'),
-                                             build(name='position'),  build(name='sector__title'),
+                                             build(name='position'),
+                                             #build(name='sector__title'),
+                                             build(name='civility__title'),
                                             ],
                                 )
 
         pos = Position.objects.create(title='Pilot')
-        sector = Sector.objects.create(title='Army')
-        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id, sector_id=sector.id)
+        #sector = Sector.objects.create(title='Army')
+        civ = Civility.objects.all()[0]
+        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id,
+                                 #sector_id=sector.id
+                                 civility_id=civ.id,
+                                )
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
@@ -323,8 +334,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             contacts[0].position
             contacts[1].position
-            contacts[0].sector
-            contacts[1].sector
+            #contacts[0].sector
+            #contacts[1].sector
+            contacts[0].civility
+            contacts[1].civility
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."
@@ -464,12 +477,12 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login(is_superuser=False)
         other_user = self.other_user
 
-        role = self.role
-        role.allowed_apps = ['persons']
-        role.save()
+#        role = self.role
+#        role.allowed_apps = ['persons']
+#        role.save()
 
         teammate = User.objects.create(username='fulbertc',
-                                       email='fulbnert@creme.org', role=role,
+                                       email='fulbnert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
                                       )
 

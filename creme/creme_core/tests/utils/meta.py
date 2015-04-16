@@ -6,13 +6,16 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from ..base import CremeTestCase, skipIfNotInstalled
+    from ..base import CremeTestCase #, skipIfNotInstalled
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeImage as Image,
+            FakeEmailCampaign as EmailCampaign, FakeActivity)
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from creme.creme_core.utils import meta
 
-    from creme.media_managers.models import Image
+#    from creme.media_managers.models import Image
 
-    from creme.persons.models import Contact, Organisation
+#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -302,10 +305,10 @@ class MetaTestCase(CremeTestCase):
                          ]
                         )
 
-    @skipIfNotInstalled('creme.emails')
+#    @skipIfNotInstalled('creme.emails')
     def test_field_enumerator05(self):
         "Other ct"
-        from creme.emails.models import EmailCampaign
+#        from creme.emails.models import EmailCampaign
 
         expected = [('created',     _('Creation date')),
                     ('modified',    _('Last modification')),
@@ -323,92 +326,126 @@ class MetaTestCase(CremeTestCase):
 
     def test_field_enumerator06(self):
         "Filter/exclude : multiple conditions + field true attributes"
-        expected = [#('user',             _('User')),
-                    ('user',             _('Owner user')),
+        expected = [('user',             _('Owner user')),
                     ('civility',         _('Civility')),
                     ('last_name',        _('Last name')),
                     ('first_name',       _('First name')),
+                    ('is_a_nerd',        _(u'Is a Nerd')),
                     ('description',      _('Description')),
-                    ('skype',            _('Skype')),
+#                    ('skype',            _('Skype')),
                     ('phone',            _('Phone number')),
                     ('mobile',           _('Mobile')),
-                    ('fax',              _('Fax')),
+#                    ('fax',              _('Fax')),
                     ('position',         _('Position')),
                     ('sector',           _('Line of business')),
                     ('email',            _('Email address')),
                     ('url_site',         _('Web Site')),
-                    #('billing_address',  _('Billing address')),
-                    #('shipping_address', _('Shipping address')),
-                    #('is_user',          _('Is an user')),
                     ('birthday',         _('Birthday')),
                     ('image',            _('Photograph')),
+                    ('languages',        _(u'Spoken language(s)')),
                    ]
-        choices = meta.ModelFieldEnumerator(Contact, only_leafs=False).filter(editable=True, viewable=True).choices()
+        choices = meta.ModelFieldEnumerator(Contact, only_leafs=False) \
+                      .filter(editable=True, viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(Contact, only_leafs=False).exclude(editable=False, viewable=False).choices()
+        choices = meta.ModelFieldEnumerator(Contact, only_leafs=False) \
+                      .exclude(editable=False, viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
-    @skipIfNotInstalled('creme.tickets')
+#    @skipIfNotInstalled('creme.tickets')
     def test_field_enumerator07(self):
         "Ordering of FKs"
-        from creme.tickets.models import Ticket
+#        from creme.tickets.models import Ticket
+#
+#        choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False).filter(viewable=True).choices()
+#        fs = u'[%s] - %s'
+#        user_lbl = _('Owner user')
+#        self.assertEqual([('created',           _('Creation date')),
+#                          ('modified',          _('Last modification')),
+#                          ('user',              user_lbl),
+#                          ('title',             _('Title')),
+#                          ('description',       _('Description')),
+#                          ('status',            _('Status')),
+#                          ('priority',          _('Priority')),
+#                          ('criticity',         _('Criticity')),
+#                          ('solution',          _('Solution')),
+#                          ('closing_date',      _('Closing date')),
+#                          ('user__username',    fs % (user_lbl, _('Username'))),
+#                          ('user__last_name',   fs % (user_lbl, _('Last name'))),
+#                          ('user__email',       fs % (user_lbl, _('Email address'))),
+#                          ('status__name',      fs % (_('Status'), _('Name'))),
+#                          ('priority__name',    fs % (_('Priority'), _('Name'))),
+#                          ('criticity__name',   fs % (_('Criticity'), _('Name'))),
+#                         ],
+#                         choices, choices
+#                        )
 
-        choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False).filter(viewable=True).choices()
+        choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
+                      .filter(viewable=True).choices()
         fs = u'[%s] - %s'
-        #user_lbl = _('User')
         user_lbl = _('Owner user')
+        type_lbl = _(u'Activity type')
         self.assertEqual([('created',           _('Creation date')),
                           ('modified',          _('Last modification')),
                           ('user',              user_lbl),
-                          ('title',             _('Title')),
-                          ('description',       _('Description')),
-                          ('status',            _('Status')),
-                          ('priority',          _('Priority')),
-                          ('criticity',         _('Criticity')),
-                          ('solution',          _('Solution')),
-                          ('closing_date',      _('Closing date')),
+                          ('title',             _(u'Title')),
+                          ('start',             _(u'Start')),
+                          ('end',               _(u'End')),
+                          ('type',              type_lbl),
                           ('user__username',    fs % (user_lbl, _('Username'))),
-                          #('user__first_name',  fs % (user_lbl, _('first name'))),
                           ('user__last_name',   fs % (user_lbl, _('Last name'))),
                           ('user__email',       fs % (user_lbl, _('Email address'))),
-                          #('user__role',        fs % (user_lbl, _('Role'))),
-                          #('user__is_team',     fs % (user_lbl, _('Is a team ?'))),
-                          ('status__name',      fs % (_('Status'), _('Name'))),
-                          #('status__is_custom', fs % (_('Status'), _('is custom'))),
-                          ('priority__name',    fs % (_('Priority'), _('Name'))),
-                          ('criticity__name',   fs % (_('Criticity'), _('Name'))),
+                          ('type__name',        fs % (type_lbl, _('Name')))
                          ],
                          choices, choices
                         )
 
-    @skipIfNotInstalled('creme.tickets')
+#    @skipIfNotInstalled('creme.tickets')
     def test_field_enumerator08(self):
         "'depth' argument"
-        from creme.tickets.models import Ticket
-
-        choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False) \
+#        from creme.tickets.models import Ticket
+#
+#        choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False) \
+#                      .filter((lambda f, depth: not depth or f.name == 'name'), viewable=True) \
+#                      .choices()
+#
+#        fs = u'[%s] - %s'
+#        self.assertEqual([('created',           _('Creation date')),
+#                          ('modified',          _('Last modification')),
+#                          ('user',              _('Owner user')),
+#                          ('title',             _('Title')),
+#                          ('description',       _('Description')),
+#                          ('status',            _('Status')),
+#                          ('priority',          _('Priority')),
+#                          ('criticity',         _('Criticity')),
+#                          ('solution',          _('Solution')),
+#                          ('closing_date',      _('Closing date')),
+#                          #('user__username',    fs % (user_lbl, _('username'))),
+#                          #('user__first_name',  fs % (user_lbl, _('first name'))),
+#                          # ...
+#                          ('status__name',      fs % (_('Status'), _('Name'))),
+#                          ('priority__name',    fs % (_('Priority'), _('Name'))),
+#                          ('criticity__name',   fs % (_('Criticity'), _('Name'))),
+#                         ],
+#                         choices, choices
+#                        )
+        choices = meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False) \
                       .filter((lambda f, depth: not depth or f.name == 'name'), viewable=True) \
                       .choices()
 
         fs = u'[%s] - %s'
-        self.assertEqual([
-                          ('created',           _('Creation date')),
+        type_lbl = _(u'Activity type')
+        self.assertEqual([('created',           _('Creation date')),
                           ('modified',          _('Last modification')),
                           ('user',              _('Owner user')),
-                          ('title',             _('Title')),
-                          ('description',       _('Description')),
-                          ('status',            _('Status')),
-                          ('priority',          _('Priority')),
-                          ('criticity',         _('Criticity')),
-                          ('solution',          _('Solution')),
-                          ('closing_date',      _('Closing date')),
-                          #('user__username',    fs % (user_lbl, _('username'))),
-                          #('user__first_name',  fs % (user_lbl, _('first name'))),
-                          # ...
-                          ('status__name',      fs % (_('Status'), _('Name'))),
-                          ('priority__name',    fs % (_('Priority'), _('Name'))),
-                          ('criticity__name',   fs % (_('Criticity'), _('Name'))),
+                          ('title',             _(u'Title')),
+                          ('start',             _(u'Start')),
+                          ('end',               _(u'End')),
+                          ('type',              type_lbl),
+                          #('user__username',    fs % (user_lbl, _('Username'))),
+                          #('user__last_name',   fs % (user_lbl, _('Last name'))),
+                          #('user__email',       fs % (user_lbl, _('Email address'))),
+                          ('type__name',        fs % (type_lbl, _('Name')))
                          ],
                          choices, choices
                         )

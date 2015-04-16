@@ -9,6 +9,8 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials
 
+    from creme.media_managers.tests import create_image
+
     from .base import _ProductsTestCase
     from ..models import Category, SubCategory, Service
 except Exception as e:
@@ -61,13 +63,13 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertRedirects(response, service.get_absolute_url())
 
     def test_editview(self):
-        self.login()
+        user = self.login()
 
         name = 'Eva washing'
         #cat = Category.objects.all()[0]
         sub_cat = SubCategory.objects.all()[0]
         cat = sub_cat.category
-        service = Service.objects.create(user=self.user, name=name, description='Blabla',
+        service = Service.objects.create(user=user, name=name, description='Blabla',
                                          unit_price=Decimal('1.23'), reference='42',
                                          category=cat, sub_category=sub_cat, unit='A wash',
                                         )
@@ -79,7 +81,7 @@ class ServiceTestCase(_ProductsTestCase):
         name += '_edited'
         unit_price = '4.53'
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'name':         name,
                                           'reference':    service.reference,
                                           'description':  service.description,
@@ -97,10 +99,10 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual(Decimal(unit_price), service.unit_price)
 
     def test_listview(self):
-        self.login()
+        user = self.login()
 
         cat = Category.objects.all()[0]
-        create_serv = partial(Service.objects.create, user=self.user, unit='unit',
+        create_serv = partial(Service.objects.create, user=user, unit='unit',
                               category=cat, sub_category=SubCategory.objects.all()[0],
                              )
         services = [create_serv(name='Eva00', description='description#1',
@@ -154,10 +156,9 @@ class ServiceTestCase(_ProductsTestCase):
 
     def test_add_images(self):
         #TODO: factorise
-        self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
-                   creatable_models=[Service],
-                  )
-        user = self.user
+        user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
+                          creatable_models=[Service],
+                         )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -176,15 +177,19 @@ class ServiceTestCase(_ProductsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        img_1 = self.create_image(ident=1, user=user)
-        img_2 = self.create_image(ident=2, user=user)
-        img_3 = self.create_image(ident=3, user=user)
-        img_4 = self.create_image(ident=4, user=self.other_user)
+#        img_1 = self.create_image(ident=1, user=user)
+#        img_2 = self.create_image(ident=2, user=user)
+#        img_3 = self.create_image(ident=3, user=user)
+#        img_4 = self.create_image(ident=4, user=self.other_user)
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
+        img_3 = create_image(ident=3, user=user)
+        img_4 = create_image(ident=4, user=self.other_user)
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
 
         sub_cat = SubCategory.objects.all()[0]
-        service = Service.objects.create(user=self.user, name='Eva00', description='A fake god',
+        service = Service.objects.create(user=user, name='Eva00', description='A fake god',
                                          unit_price=Decimal('1.23'),
                                          category=sub_cat.category,
                                          sub_category=sub_cat,
@@ -208,14 +213,15 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertEqual({img_1, img_2, img_3}, set(service.images.all()))
 
     def test_remove_image(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
-        img_1 = self.create_image(ident=1, user=user)
-        img_2 = self.create_image(ident=2, user=user)
+#        img_1 = self.create_image(ident=1, user=user)
+#        img_2 = self.create_image(ident=2, user=user)
+        img_1 = create_image(ident=1, user=user)
+        img_2 = create_image(ident=2, user=user)
 
         sub_cat = SubCategory.objects.all()[0]
-        service = Service.objects.create(user=self.user, name='Eva00', description='A fake god',
+        service = Service.objects.create(user=user, name='Eva00', description='A fake god',
                                          unit_price=Decimal('1.23'),
                                          category=sub_cat.category,
                                          sub_category=sub_cat,

@@ -2,8 +2,10 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
 
     from ..models import Address, Organisation, Contact
     from ..blocks import other_address_block
@@ -22,10 +24,11 @@ class AddressTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'persons')
 
-    def login(self, *args, **kwargs):
+    def login(self, create_orga=True, *args, **kwargs):
         super(AddressTestCase, self).login(*args, **kwargs)
 
-        return Organisation.objects.create(user=self.user, name='Nerv')
+        if create_orga:
+            return Organisation.objects.create(user=self.user, name='Nerv')
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
         response = self.client.post(self.ADD_URL % orga.id,
@@ -276,3 +279,51 @@ class AddressTestCase(CremeTestCase):
         contact.delete()
         self.assertDoesNotExist(contact)
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
+
+    def test_history(self):
+        "Address is auxiliary + double save() because of addresses caused problems"
+        self.login(create_orga=False)
+
+        old_count = HistoryLine.objects.count()
+        country = 'Japan'
+        name = 'Gainax'
+        self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True,
+                                                data={'name': name,
+                                                      'user':  self.other_user.id,
+                                                      'billing_address-country': country,
+                                                     }
+                                               )
+                              )
+
+        gainax = self.get_object_or_fail(Organisation, name=name)
+
+        address = gainax.billing_address
+        self.assertIsNotNone(address)
+        self.assertEqual(country, address.country)
+
+        #hlines = self._get_hlines()
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 2, len(hlines)) #1 creation + 1 auxiliary (NB: not edition with double save)
+
+        hline = hlines[-2]
+        self.assertEqual(gainax.id,          hline.entity.id)
+        self.assertEqual(gainax.entity_type, hline.entity_ctype)
+        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(TYPE_CREATION,      hline.type)
+        self.assertEqual([],                 hline.modifications)
+
+        hline = hlines[-1]
+        self.assertEqual(gainax.id,          hline.entity.id)
+        self.assertEqual(gainax.entity_type, hline.entity_ctype)
+        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(TYPE_AUX_CREATION,  hline.type)
+        self.assertEqual([ContentType.objects.get_for_model(address).id, address.id, unicode(address)],
+                         hline.modifications
+                        )
+        self.assertEqual([_(u'Add <%(type)s>: “%(value)s”') % {
+                                'type':  _(u'Address'),
+                                'value': address,
+                               }
+                         ],
+                         hline.verbose_modifications
+                        )

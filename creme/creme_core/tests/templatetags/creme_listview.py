@@ -6,13 +6,14 @@ try:
     from django.template import Template, Context
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeOrganisation as Organisation
     from creme.creme_core.core.entity_cell import EntityCellCustomField
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.forms.header_filter import EntityCellRegularField
     from creme.creme_core.models import CustomField, CustomFieldEnumValue
     from creme.creme_core.utils.meta import FieldInfo
 
-    from creme.persons.models import Organisation
+    #from creme.persons.models import Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

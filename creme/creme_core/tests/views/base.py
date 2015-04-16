@@ -13,8 +13,6 @@ try:
     from creme.creme_core.utils import is_testenvironment
 
     from creme.creme_core.views.testjs import js_testview_or_404
-
-    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -62,11 +60,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
-
-        #user = self.user
-        #Contact.objects.create(user=user, is_user=user,
-                               #first_name='Fulbert', last_name='Creme'
-                              #) #todo: move into login()
 
     def tearDown(self):
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW

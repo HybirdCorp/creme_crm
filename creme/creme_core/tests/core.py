@@ -14,8 +14,9 @@ try:
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import RelationType, CustomField, CustomFieldEnumValue
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import FakeContact as Contact
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -215,11 +216,18 @@ class BatchActionTestCase(CremeTestCase):
         self.assertEqual('HARUHI', haruhi.first_name)
 
     def test_changed02(self):
-        baction = BatchAction(Organisation, 'name', 'rm_substr', value='Foobar')
-        name = 'SOS no Dan'
-        sos = Organisation(name=name)
-        self.assertFalse(baction(sos))
-        self.assertEqual(name, sos.name)
+#        baction = BatchAction(Organisation, 'name', 'rm_substr', value='Foobar')
+#        name = 'SOS no Dan'
+#        sos = Organisation(name=name)
+#        self.assertFalse(baction(sos))
+#        self.assertEqual(name, sos.name)
+        baction = BatchAction(Contact, 'last_name', 'rm_substr', value='Foobar')
+        first_name = 'Haruhi'
+        last_name = 'Suzumiya'
+        haruhi = Contact(first_name=first_name, last_name=last_name)
+        self.assertFalse(baction(haruhi))
+        self.assertEqual(last_name,  haruhi.last_name)
+        self.assertEqual(first_name, haruhi.first_name)
 
     def test_cast(self):
         baction = BatchAction(Contact, 'last_name', 'rm_start', value='3')
@@ -284,8 +292,10 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field03(self):
         "Boolean field"
-        cell = EntityCellRegularField.build(model=Organisation, name='subject_to_vat')
-        self.assertEqual('subject_to_vat__creme-boolean', cell.filter_string)
+#        cell = EntityCellRegularField.build(model=Organisation, name='subject_to_vat')
+#        self.assertEqual('subject_to_vat__creme-boolean', cell.filter_string)
+        cell = EntityCellRegularField.build(model=Contact, name='is_a_nerd')
+        self.assertEqual('is_a_nerd__creme-boolean', cell.filter_string)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
 
     def test_build_4_field04(self):
@@ -316,11 +326,13 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_build_4_field07(self):
         "ManyToMany"
-        cell = EntityCellRegularField.build(model=Contact, name='language')
+#        cell = EntityCellRegularField.build(model=Contact, name='language')
+        cell = EntityCellRegularField.build(model=Contact, name='languages')
         self.assertIs(cell.has_a_filter, False)
         self.assertIs(cell.sortable, False)
 
-        cell = EntityCellRegularField.build(model=Contact, name='language__name')
+#        cell = EntityCellRegularField.build(model=Contact, name='language__name')
+        cell = EntityCellRegularField.build(model=Contact, name='languages__name')
         self.assertIs(cell.has_a_filter, False)
 
     def test_build_4_field_errors(self):

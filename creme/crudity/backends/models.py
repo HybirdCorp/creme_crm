@@ -34,6 +34,7 @@ from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
 #from creme.creme_core.utils.meta import is_date_field
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
+#TODO: improve the crudity_registry in order to manage FK to other entity types => use test-models
 from creme.media_managers.models import Image
 
 from ..models import History

@@ -12,14 +12,16 @@ try:
 
     from creme import __version__
 
+    from ..base import CremeTestCase
+    from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
+            FakeOrganisation as Organisation, FakeImage as Image)
     from creme.creme_core.global_info import set_global_info
     from creme.creme_core.models import *
     from creme.creme_core.models.entity_filter import EntityFilterList
-    from ..base import CremeTestCase
 
-    from creme.documents.models import Document, Folder
+#    from creme.documents.models import Document, Folder
 
-    from creme.persons.models import Contact, Organisation, Civility
+#    from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -66,8 +68,8 @@ class EntityFiltersTestCase(CremeTestCase):
             'genji':  create(first_name=u'Genji',  last_name=u'Ikaru'),
             'risato': create(first_name=u'Risato', last_name=u'Katsuragu'),
 
-            'kirika':   self.user.linked_contact,
-            'mireille': self.other_user.linked_contact,
+            #'kirika':   self.user.linked_contact,
+            #'mireille': self.other_user.linked_contact,
         }
 
         self.contact_ct = ContentType.objects.get_for_model(Contact)
@@ -569,28 +571,22 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(self.refresh(efilter), Contact, 
-                                    #self._list_contact_ids(*self.contacts.keys())
                                     self._list_contact_ids('mireille', exclude=True)
                                    )
 
-        #self.contacts.get('spike').user = self.other_user
-        #self.contacts.get('spike').save()
+#        rei = self.contacts.get('rei')
+#        rei.user = self.other_user
+#        rei.save()
 
-        #self.contacts.get('rei').user = self.other_user
-        #self.contacts.get('rei').save()
-
-        rei = self.contacts.get('rei')
-        rei.user = self.other_user
-        rei.save()
-
-        #self.assertExpectedFiltered(self.refresh(efilter), Contact,
-                                    #self._list_contact_ids('jet', 'faye', 'ed', 'misato', 'asuka', 'shinji', 'yui', 'gendou', 'genji', 'risato')
-                                   #)
+        for name in ('rei', 'asuka'):
+            c = self.contacts.get(name)
+            c.user = self.other_user
+            c.save()
 
         set_global_info(user=self.other_user)
         self.assertExpectedFiltered(self.refresh(efilter), Contact,
-                                    #self._list_contact_ids('spike', 'rei')
-                                    self._list_contact_ids('mireille', 'rei')
+#                                    self._list_contact_ids('mireille', 'rei')
+                                    self._list_contact_ids('asuka', 'rei')
                                    )
 
     def test_filter_field_iequals(self):
@@ -887,18 +883,25 @@ class EntityFiltersTestCase(CremeTestCase):
         l3 = Language.objects.create(name='Engrish',  code='EN')
 
         contacts = self.contacts
-        jet   = contacts['jet'];   jet.language   = [l1, l3]
-        rei   = contacts['rei'];   rei.language   = [l1]
-        asuka = contacts['asuka']; asuka.language = [l1, l2, l3]
+#        jet   = contacts['jet'];   jet.language   = [l1, l3]
+#        rei   = contacts['rei'];   rei.language   = [l1]
+#        asuka = contacts['asuka']; asuka.language = [l1, l2, l3]
+        jet   = contacts['jet'];   jet.languages   = [l1, l3]
+        rei   = contacts['rei'];   rei.languages   = [l1]
+        asuka = contacts['asuka']; asuka.languages = [l1, l2, l3]
 
-        self.assertEqual(3, Contact.objects.filter(language__code='JP').count())
-        self.assertEqual(4, Contact.objects.filter(language__name__contains='an').count()) #BEWARE: doublon !!
-        self.assertEqual(3, Contact.objects.filter(language__name__contains='an').distinct().count())
+#        self.assertEqual(3, Contact.objects.filter(language__code='JP').count())
+#        self.assertEqual(4, Contact.objects.filter(language__name__contains='an').count()) #BEWARE: doublon !!
+#        self.assertEqual(3, Contact.objects.filter(language__name__contains='an').distinct().count())
+        self.assertEqual(3, Contact.objects.filter(languages__code='JP').count())
+        self.assertEqual(4, Contact.objects.filter(languages__name__contains='an').count()) #BEWARE: doublon !!
+        self.assertEqual(3, Contact.objects.filter(languages__name__contains='an').distinct().count())
 
         efilter = EntityFilter.create('test-filter01', 'JP', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.IEQUALS,
-                                                                    name='language__code', values=['JP']
+                                                                    #name='language__code', values=['JP']
+                                                                    name='languages__code', values=['JP'],
                                                                    )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
@@ -906,27 +909,49 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter02', 'lang contains "an"', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.ICONTAINS,
-                                                                    name='language__name', values=['an']
+                                                                    #name='language__name', values=['an']
+                                                                    name='languages__name', values=['an'],
                                                                    )
                                ])
         self.assertExpectedFiltered(efilter, Contact, [jet.id, rei.id, asuka.id])
 
     def test_problematic_validation_fields(self):
-        efilter = EntityFilter.create('test-filter01', 'Mist..', Contact, is_custom=True)
+#        efilter = EntityFilter.create('test-filter01', 'Mist..', Contact, is_custom=True)
+        efilter = EntityFilter.create('test-filter01', 'Mist..', Organisation, is_custom=True)
         build = EntityFilterCondition.build_4_field
 
         with self.assertNoException():
             #Problem a part of a email address is not a valid email address
-            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
+#            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
+            efilter.set_conditions([build(model=Organisation,
+                                          operator=EntityFilterCondition.ISTARTSWITH,
+                                          name='email', values=['misato'],
+                                         ),
+                                   ]
+                                  )
 
         with self.assertNoException():
-            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
+#            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
+            efilter.set_conditions([build(model=Organisation,
+                                          operator=EntityFilterCondition.RANGE,
+                                          name='email', values=['misato', 'yui'],
+                                         )
+                                   ],
+                                  )
 
         with self.assertNoException():
-            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
+#            efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
+            efilter.set_conditions([build(model=Organisation,
+                                          operator=EntityFilterCondition.EQUALS,
+                                          name='email', values=['misato@nerv.jp'],
+                                         )
+                                   ],
+                                  )
 
         self.assertRaises(EntityFilterCondition.ValueError, build,
-                          model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato'],
+#                          model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato'],
+                          model=Organisation, operator=EntityFilterCondition.EQUALS,
+                          name='email', values=['misato'],
                          )
 
     def test_build_condition(self):
@@ -1563,24 +1588,42 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_datetime06(self):
         "Sub-field"
-        create_folder = partial(Folder.objects.create, user=self.user)
-        folder1 = create_folder(title='Old folder')
-        folder2 = create_folder(title='New folder')
+#        create_folder = partial(Folder.objects.create, user=self.user)
+#        folder1 = create_folder(title='Old folder')
+#        folder2 = create_folder(title='New folder')
+#
+#        create_doc = partial(Document.objects.create, user=self.user)
+#        create_doc(title='Doc#1', folder=folder1)
+#        doc2 = create_doc(title='Doc#2', folder=folder2)
+#
+#        Folder.objects.filter(pk=folder1.id).update(created=folder1.created - timedelta(days=4*31))
+#
+#        efilter = EntityFilter.create('test-filter01', name='Recent folders content', model=Document,
+#                                      conditions=[EntityFilterCondition.build_4_date(
+#                                                            model=Document, name='folder__created',
+#                                                            date_range='current_quarter',
+#                                                           ),
+#                                                 ],
+#                                     )
+#        self.assertExpectedFiltered(efilter, Document, [doc2.id])
+        contacts = self.contacts
+        spike = self.contacts['spike']
+        jet   = self.contacts['jet']
 
-        create_doc = partial(Document.objects.create, user=self.user)
-        create_doc(title='Doc#1', folder=folder1)
-        doc2 = create_doc(title='Doc#2', folder=folder2)
+        create_image = partial(Image.objects.create, user=self.user)
+        spike.image = img1 = create_image(name="Spike's' face"); spike.save()
+        jet.image   = img2 = create_image(name="Jet's' face");   jet.save()
 
-        Folder.objects.filter(pk=folder1.id).update(created=folder1.created - timedelta(days=4*31))
+        Image.objects.filter(pk=img1.id).update(created=img1.created - timedelta(days=4*31))
 
-        efilter = EntityFilter.create('test-filter01', name='Recent folders content', model=Document,
+        efilter = EntityFilter.create('test-filter01', name='Recent images content', model=Contact,
                                       conditions=[EntityFilterCondition.build_4_date(
-                                                            model=Document, name='folder__created',
+                                                            model=Contact, name='image__created',
                                                             date_range='current_quarter',
                                                            ),
                                                  ],
                                      )
-        self.assertExpectedFiltered(efilter, Document, [doc2.id])
+        self.assertExpectedFiltered(efilter, Contact, [jet.id])
 
     def test_date_field_empty(self):
         efilter = EntityFilter.create('test-filter01', name='Birthday is null', model=Contact,
@@ -2216,12 +2259,12 @@ class EntityFiltersTestCase(CremeTestCase):
         logged = self.client.login(username=super_user.username, password=self.password)
         self.assertTrue(logged)
 
-        role = self.role
-        role.allowed_apps = ['persons']
-        role.save()
+#        role = self.role
+#        role.allowed_apps = ['persons']
+#        role.save()
 
         teammate = User.objects.create(username='fulbertc',
-                                       email='fulbnert@creme.org', role=role,
+                                       email='fulbnert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
                                       )
 

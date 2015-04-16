@@ -8,18 +8,23 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.models import Session
     from django.utils.formats import date_format
+    from django.utils.html import escape
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _, pgettext
 
-    from ..base import CremeTestCase, skipIfNotInstalled
+    from ..base import CremeTestCase # skipIfNotInstalled
+    from ..fake_models import (FakeContact as Contact,
+            FakeImage as Image, FakePosition as Position,
+            FakeImageCategory as MediaCategory,
+            FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.gui.last_viewed import LastViewedItem
-    from creme.creme_core.models import CremeEntity, SetCredentials
+    from creme.creme_core.models import CremeEntity, SetCredentials, Language
 
-    from creme.media_managers.models import Image, MediaCategory
+    #from creme.media_managers.models import Image, MediaCategory
 
-    from creme.persons.models import Contact, Organisation, Position
+    #from creme.persons.models import Contact, Organisation, Position
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -103,8 +108,8 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_field_printers01(self):
-        self.login()
-        user = self.user
+        user = self.login()
+
         get_html_val = field_printers_registry.get_html_field_value
         get_csv_val  = field_printers_registry.get_csv_field_value
 
@@ -120,6 +125,7 @@ class GuiTestCase(CremeTestCase):
                                position=Position.objects.create(title='Warrior<script>'),
                                image=img,
                               )
+        judo = create_contact(first_name='Judo', last_name='Doe')
 
         escaped_title = 'Warrior&lt;script&gt;'
 
@@ -133,22 +139,24 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(casca.position.title, get_csv_val(casca,  'position__title', user))
 
         #FK: with & without customised null_label
-        self.assertEqual('', get_html_val(casca, 'sector',  user))
-        self.assertEqual('', get_csv_val(casca,  'sector',  user))
+        self.assertEqual('', get_html_val(judo, 'position', user))
+        self.assertEqual('', get_csv_val(judo,  'position', user))
         self.assertEqual(u'<em>%s</em>' % pgettext('persons-is_user', 'None'),
                          get_html_val(casca, 'is_user', user)
                         )
         self.assertEqual('', get_csv_val(casca,  'is_user', user)) #null_label not used in csv backend
 
-        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
-                                casca.image.get_image_url(),
-                                casca.image.get_entity_summary(user),
-                            ),
+#NB: temporarily tested in media_managers
+#        self.assertEqual(u'''<a onclick="creme.dialogs.image('%s').open();">%s</a>''' % (
+#                                casca.image.get_image_url(),
+#                                casca.image.get_entity_summary(user),
+#                            ),
+#                         get_html_val(casca, 'image', user)
+#                        )
+        self.assertEqual(u'<a href="%s">%s</a>' % (img.get_absolute_url(), escape(img)),
                          get_html_val(casca, 'image', user)
                         )
-        self.assertEqual(unicode(casca.image),
-                         get_csv_val(casca, 'image', user)
-                        )
+        self.assertEqual(unicode(casca.image), get_csv_val(casca, 'image', user))
 
         self.assertEqual('<p>%s</p>' % casca.image.description,
                          get_html_val(casca, 'image__description', user)
@@ -169,8 +177,6 @@ class GuiTestCase(CremeTestCase):
                         )
         #TODO: test ImageField
 
-        judo = create_contact(first_name='Judo', last_name='Doe')
-        self.assertEqual('', get_html_val(judo, 'position',           user))
         self.assertEqual('', get_html_val(judo, 'position__title',    user))
         self.assertEqual('', get_html_val(judo, 'image',              user))
         self.assertEqual('', get_html_val(judo, 'image__description', user))
@@ -188,32 +194,55 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers02(self):
         "ManyToMany (simple model)"
-        self.login()
-        user = self.user
+        user = self.login()
 
-        create_cat = MediaCategory.objects.create
-        cat1 = create_cat(name='Photo of contact')
-        cat2 = create_cat(name='Photo of product')
+#        create_cat = MediaCategory.objects.create
+#        cat1 = create_cat(name='Photo of contact')
+#        cat2 = create_cat(name='Photo of product')
+#
+#        img = Image.objects.create(user=user, name='Img#1', description='Pretty picture')
+#        img.categories = [cat1, cat2]
+#
+#        get_html_val = field_printers_registry.get_html_field_value
+#        result = '<ul><li>%s</li><li>%s</li></ul>' % (cat1.name, cat2.name)
+#        self.assertEqual(result, get_html_val(img, 'categories', user))
+#        self.assertEqual(result, get_html_val(img, 'categories__name', user))
+#
+#        get_csv_val = field_printers_registry.get_csv_field_value
+#        result = '%s/%s' % (cat1.name, cat2.name)
+#        self.assertEqual(result, get_csv_val(img, 'categories', user))
+#        self.assertEqual(result, get_csv_val(img, 'categories__name', user))
+        create_lang = Language.objects.create
+        lang1 = create_lang(name='Klingon')
+        lang2 = create_lang(name='Namek')
 
-        img = Image.objects.create(user=user, name='Img#1', description='Pretty picture')
-        img.categories = [cat1, cat2]
+        goku = Contact.objects.create(user=user, first_name='Goku', last_name='Son')
+        goku.languages = [lang1, lang2]
 
         get_html_val = field_printers_registry.get_html_field_value
-        result = '<ul><li>%s</li><li>%s</li></ul>' % (cat1.name, cat2.name)
-        self.assertEqual(result, get_html_val(img, 'categories', user))
-        self.assertEqual(result, get_html_val(img, 'categories__name', user))
+        result_fmt = '<ul><li>%s</li><li>%s</li></ul>'
+        self.assertEqual(result_fmt  % (lang1, lang2),
+                         get_html_val(goku, 'languages', user)
+                        )
+        self.assertEqual(result_fmt  % (lang1.name, lang2.name),
+                         get_html_val(goku,  'languages__name', user)
+                        )
 
         get_csv_val = field_printers_registry.get_csv_field_value
-        result = '%s/%s' % (cat1.name, cat2.name)
-        self.assertEqual(result, get_csv_val(img, 'categories', user))
-        self.assertEqual(result, get_csv_val(img, 'categories__name', user))
+        self.assertEqual('%s/%s' % (lang1, lang2),
+                         get_csv_val(goku, 'languages', user)
+                        )
+        self.assertEqual('%s/%s' % (lang1.name, lang2.name),
+                         get_csv_val(goku, 'languages__name', user)
+                        )
 
-    @skipIfNotInstalled('creme.emails')
+#    @skipIfNotInstalled('creme.emails')
     def test_field_printers03(self):
         "ManyToMany (CremeEntity)"
-        from creme.emails.models import EmailCampaign, MailingList
+#        from creme.emails.models import EmailCampaign, MailingList
 
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'media_managers', 'emails'])
+#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'emails'])
+        user = self.login(is_superuser=False)
         self.role.exportable_ctypes = [ContentType.objects.get_for_model(EmailCampaign)]
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -223,8 +252,6 @@ class GuiTestCase(CremeTestCase):
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
-
-        user = self.user
 
         create_camp = partial(EmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Camp#1')
@@ -273,7 +300,8 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers04(self):
         "Credentials"
-        self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
+#        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'persons', 'media_managers'])
+        user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         self.role.exportable_ctypes = [ContentType.objects.get_for_model(Contact)]
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
@@ -284,7 +312,6 @@ class GuiTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        user = self.user
         create_img = Image.objects.create
         casca_face = create_img(name='Casca face', user=self.other_user, description="Casca's selfie")
         judo_face  = create_img(name='Judo face',  user=user,            description="Judo's selfie")
@@ -296,8 +323,11 @@ class GuiTestCase(CremeTestCase):
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
         get_html_val = field_printers_registry.get_html_field_value
-        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (judo_face.get_image_url(), 
-                                                                                       judo_face.get_entity_summary(user)),
+#        self.assertEqual(u'<a onclick="creme.dialogs.image(\'%s\').open();">%s</a>' % (judo_face.get_image_url(), 
+#                                                                                       judo_face.get_entity_summary(user)),
+#                         get_html_val(judo, 'image', user)
+#                        )
+        self.assertEqual(u'<a href="%s">%s</a>' % (judo_face.get_absolute_url(), judo_face),
                          get_html_val(judo, 'image', user)
                         )
         self.assertEqual('<p>%s</p>' % judo_face.description,
@@ -316,26 +346,40 @@ class GuiTestCase(CremeTestCase):
 
     def test_field_printers06(self):
         "Boolean Field"
-        self.login()
-        user = self.user
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=user)
-        orga1 = create_orga(name='God hand', subject_to_vat=False)
-        orga2 = create_orga(name='Hawk',     subject_to_vat=True)
+#        create_orga = partial(Organisation.objects.create, user=user)
+#        orga1 = create_orga(name='God hand', subject_to_vat=False)
+#        orga2 = create_orga(name='Hawk',     subject_to_vat=True)
+#
+#        get_html_val = field_printers_registry.get_html_field_value
+#        #self.assertEqual(u'<input type="checkbox" value="False" disabled/>' + _('No'),
+#        self.assertEqual(u'<input type="checkbox" disabled/>' + _('No'),
+#                         get_html_val(orga1, 'subject_to_vat', user)
+#                        )
+#        #self.assertEqual(u'<input type="checkbox" value="True" checked disabled/>' + _('Yes'),
+#        self.assertEqual(u'<input type="checkbox" checked disabled/>' + _('Yes'),
+#                         get_html_val(orga2, 'subject_to_vat', user)
+#                        )
+#
+#        get_csv_val  = field_printers_registry.get_csv_field_value
+#        self.assertEqual(_('No'),  get_csv_val(orga1, 'subject_to_vat', user))
+#        self.assertEqual(_('Yes'), get_csv_val(orga2, 'subject_to_vat', user))
+        create_contact = partial(Contact.objects.create, user=user)
+        casca = create_contact(first_name='Casca', last_name='Mylove', is_a_nerd=False)
+        judo  = create_contact(first_name='Judo',  last_name='Doe',    is_a_nerd=True)
 
         get_html_val = field_printers_registry.get_html_field_value
-        #self.assertEqual(u'<input type="checkbox" value="False" disabled/>' + _('No'),
         self.assertEqual(u'<input type="checkbox" disabled/>' + _('No'),
-                         get_html_val(orga1, 'subject_to_vat', user)
+                         get_html_val(casca, 'is_a_nerd', user)
                         )
-        #self.assertEqual(u'<input type="checkbox" value="True" checked disabled/>' + _('Yes'),
         self.assertEqual(u'<input type="checkbox" checked disabled/>' + _('Yes'),
-                         get_html_val(orga2, 'subject_to_vat', user)
+                         get_html_val(judo, 'is_a_nerd', user)
                         )
 
         get_csv_val  = field_printers_registry.get_csv_field_value
-        self.assertEqual(_('No'),  get_csv_val(orga1, 'subject_to_vat', user))
-        self.assertEqual(_('Yes'), get_csv_val(orga2, 'subject_to_vat', user))
+        self.assertEqual(_('No'),  get_csv_val(casca, 'is_a_nerd', user))
+        self.assertEqual(_('Yes'), get_csv_val(judo, 'is_a_nerd', user))
 
 
 from bulk_update import *

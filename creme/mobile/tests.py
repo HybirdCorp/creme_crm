@@ -49,7 +49,7 @@ class MobileTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('persons', 'activities', 'mobile')
+        cls.populate('persons', 'activities') #'mobile'
 
     def login(self, is_superuser=True, other_is_owner=False):
         super(MobileTestCase, self).login(is_superuser,

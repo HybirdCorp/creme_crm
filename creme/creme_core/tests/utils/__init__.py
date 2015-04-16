@@ -5,12 +5,11 @@ try:
     from datetime import datetime, date
     from functools import partial
 
-    #import pytz
-
     from django.http import Http404
     from django.conf import settings
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeContact as Contact, FakeCivility as Civility
     from creme.creme_core.models import CremePropertyType, PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
@@ -21,7 +20,7 @@ try:
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.queries import get_first_or_None
 
-    from creme.persons.models import Civility, Contact
+    #from creme.persons.models import Civility, Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

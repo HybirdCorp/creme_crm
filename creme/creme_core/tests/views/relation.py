@@ -3,21 +3,21 @@
 try:
     from functools import partial
 
-    from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
     from django.http import Http404
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
-    from creme.creme_core.tests.base import skipIfNotInstalled
+    from ..base import skipIfNotInstalled
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeActivity)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, SemiFixedRelationType,
             Relation, CremeEntity, CremePropertyType, CremeProperty)
 
-    from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
-    from creme.persons.models import Contact, Organisation
-
-    #from creme.documents.models import Document
+#    from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -39,7 +39,8 @@ class RelationViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         ViewsTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+#        cls.populate('creme_core', 'persons')
+        cls.populate('creme_core')
 
     def _build_get_ctypes_url(self, rtype_id):
         return '/creme_core/relation/type/%s/content_types/json' % rtype_id
@@ -50,7 +51,12 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_get_ctypes_of_relation01(self):
         self.login()
 
-        response = self.assertGET200(self._build_get_ctypes_url(REL_OBJ_CUSTOMER_SUPPLIER),
+        rtype = RelationType.create(('test-subject__JSP01_3', u'is a customer of', [Contact]),
+                                    ('test-object__JSP01_4',  u'is a supplier of', [Contact, Organisation]),
+                                   )[0]
+
+#        response = self.assertGET200(self._build_get_ctypes_url(REL_OBJ_CUSTOMER_SUPPLIER),
+        response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
                                      data={'fields': ['id', 'unicode']}
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -62,9 +68,9 @@ class RelationViewsTestCase(ViewsTestCase):
                                     ]
                         )
 
-    @skipIfNotInstalled('creme.tickets')
+#    @skipIfNotInstalled('creme.tickets')
     def test_get_ctypes_of_relation02(self):
-        from creme.tickets.models import Ticket
+#        from creme.tickets.models import Ticket
         self.login()
 
         rtype = RelationType.create(('test-subject_foobar1', 'is loving'),
@@ -79,7 +85,8 @@ class RelationViewsTestCase(ViewsTestCase):
         get_ct = ContentType.objects.get_for_model
         self.assertIn([get_ct(Contact).id], json_data)
         self.assertIn([get_ct(Organisation).id], json_data)
-        self.assertIn([get_ct(Ticket).id], json_data)
+#        self.assertIn([get_ct(Ticket).id], json_data)
+        self.assertIn([get_ct(FakeActivity).id], json_data)
 
     def _aux_test_add_relations(self, is_superuser=True):
         self.login(is_superuser)
@@ -615,25 +622,27 @@ class RelationViewsTestCase(ViewsTestCase):
                             )
 
     def _aux_relation_objects_to_link_selection(self):
-        self.login()
+        user = self.login()
 
-        self.assertEqual(3, Contact.objects.count())
-        #self.contact01 = Contact.objects.all()[0] #NB: Fulbert Creme
-        self.contact01 = Contact.objects.get(is_user=1)
+#        self.assertEqual(3, Contact.objects.count())
+#        self.contact01 = Contact.objects.get(is_user=1)
 
-        user = self.user
         self.subject   = CremeEntity.objects.create(user=user)
-        #self.contact02 = Contact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
-        #self.contact03 = Contact.objects.create(user=user, first_name='Etna',   last_name='Devil')
-        self.contact02 = self.user.linked_contact
-        self.contact03 = self.other_user.linked_contact
-        self.orga01    = Organisation.objects.create(user=user, name='Earth Defense Force')
+#        self.contact02 = self.user.linked_contact
+#        self.contact03 = self.other_user.linked_contact
+
+        create_user = partial(Contact.objects.create, user=user)
+        self.contact01 = create_user(first_name='Laharl', last_name='Overlord')
+        self.contact02 = create_user(first_name='Etna',   last_name='Devil')
+        self.contact03 = create_user(first_name='Flone',   last_name='Angel')
+
+        self.orga01 = Organisation.objects.create(user=user, name='Earth Defense Force')
 
         self.ct_contact = ContentType.objects.get_for_model(Contact)
 
-        self.rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
-                                                    ('test-object_foobar',  'is loved by', [Contact])
-                                                   )
+        self.rtype = RelationType.create(('test-subject_foobar', 'is loving',   [Contact]),
+                                         ('test-object_foobar',  'is loved by', [Contact])
+                                        )[0]
 
     def _build_selection_url(self, rtype, subject, ct):
         return '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % (
@@ -647,8 +656,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_selection_url(self.rtype, self.subject, self.ct_contact))
 
-        with self.assertNoException():
+        #with self.assertNoException():
+        try:
             entities = response.context['entities']
+        except KeyError:
+            self.fail(response.content)
 
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))
@@ -779,9 +791,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type04(self):
         "Credentials errors"
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
-        user = self.user
 
         create_entity = CremeEntity.objects.create
         forbidden = create_entity(user=self.other_user)
@@ -819,9 +830,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type05(self):
         "ContentType constraint errors"
-        self.login()
-
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='orga01')
@@ -916,9 +925,9 @@ class RelationViewsTestCase(ViewsTestCase):
         return self.client.post('/creme_core/relation/delete', data={'id': relation.id})
 
     def test_delete01(self):
-        self.login()
+        user = self.login()
 
-        create_entity = lambda: CremeEntity.objects.create(user=self.user)
+        create_entity = lambda: CremeEntity.objects.create(user=user)
         subject_entity = create_entity()
         object_entity  = create_entity()
 
@@ -926,7 +935,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                     ('test-object_foobar',  'is loved by'),
                                    )[0]
         relation = Relation.objects.create(subject_entity=subject_entity, type=rtype,
-                                           object_entity=object_entity, user=self.user,
+                                           object_entity=object_entity, user=user,
                                           )
         sym_relation = relation.symmetric_relation
         self.assertIsNone(rtype.is_not_internal_or_die())
@@ -935,17 +944,17 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFalse(Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]))
 
     def test_delete02(self):
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
         self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
 
-        allowed   = CremeEntity.objects.create(user=self.user)
+        allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
         rtype = RelationType.create(('test-subject_foobar', 'is loving'),
                                     ('test-object_foobar',  'is loved by'),
                                    )[0]
 
-        create_rel = partial(Relation.objects.create, user=self.user, type=rtype)
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
         relation = create_rel(subject_entity=allowed, object_entity=forbidden)
         self.assertEqual(403, self._delete(relation).status_code)
         self.get_object_or_fail(Relation, pk=relation.pk)
@@ -956,9 +965,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete03(self):
         "Is internal"
-        self.login()
+        user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
         object_entity  = create_entity()
 
@@ -970,7 +979,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertTrue(sym_rtype.is_internal)
         self.assertRaises(Http404, rtype.is_not_internal_or_die)
 
-        relation = Relation.objects.create(user=self.user, type=rtype,
+        relation = Relation.objects.create(user=user, type=rtype,
                                            subject_entity=subject_entity,
                                            object_entity=object_entity,
                                           )
@@ -986,8 +995,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                )
 
     def test_delete_similar01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity01 = create_entity()
@@ -1020,14 +1028,14 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
     def test_delete_similar02(self):
-        self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
 
-        allowed   = CremeEntity.objects.create(user=self.user)
+        allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
 
         rtype = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))[0]
-        create_rel = partial(Relation.objects.create, user=self.user, type=rtype)
+        create_rel = partial(Relation.objects.create, user=user, type=rtype)
         create_rel(subject_entity=allowed,   object_entity=forbidden)
         create_rel(subject_entity=forbidden, object_entity=allowed)
         self.assertEqual(4, Relation.objects.count())
@@ -1040,9 +1048,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_similar03(self):
         "Is internal"
-        self.login()
+        user = self.login()
 
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
         object_entity  = create_entity()
 
@@ -1050,7 +1058,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                     ('test-object_love', 'is loved by'),
                                     is_internal=True
                                    )[0]
-        relation = Relation.objects.create(user=self.user, type=rtype,
+        relation = Relation.objects.create(user=user, type=rtype,
                                            subject_entity=subject_entity,
                                            object_entity=object_entity
                                           )
@@ -1104,7 +1112,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(4 + 4, Relation.objects.count())#4 internals and 4 the user can't unlink because there are not his
 
     def test_not_copiable_relations01(self):
-        self.login()
+        user = self.login()
 
         self.assertEqual(0, Relation.objects.count())
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
@@ -1115,15 +1123,15 @@ class RelationViewsTestCase(ViewsTestCase):
                                              )
 
         create_entity = CremeEntity.objects.create
-        entity1 = create_entity(user=self.user)
-        entity2 = create_entity(user=self.user)
+        entity1 = create_entity(user=user)
+        entity2 = create_entity(user=user)
 
-        Relation.objects.create(user=self.user, type=rtype1,
+        Relation.objects.create(user=user, type=rtype1,
                                 subject_entity=entity1, object_entity=entity2,
                                )
         self.assert_relation_count(((rtype1, 1), (rtype2, 1)))
 
-        Relation.objects.create(user=self.user, type=rtype3,
+        Relation.objects.create(user=user, type=rtype3,
                                 subject_entity=entity1, object_entity=entity2,
                                )
         self.assert_relation_count(((rtype3, 1), (rtype4, 1)))
@@ -1132,7 +1140,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
 
     def test_not_copiable_relations02(self):
-        self.login()
+        user = self.login()
         self.assertEqual(0, Relation.objects.count())
         rtype1, rtype2 = RelationType.create(('test-subject_foobar_copiable', 'is loving', (Contact, Organisation)),
                                              ('test-object_foobar_copiable',  'is loved by', (Contact,)))
@@ -1140,15 +1148,15 @@ class RelationViewsTestCase(ViewsTestCase):
                                              ('test-object_foobar',  'is loved by', (Organisation,)),
                                              )
 
-        contact1 = Contact.objects.create(user=self.user, last_name="Toto")
-        contact2 = Contact.objects.create(user=self.user, last_name="Titi")
-        orga = Organisation.objects.create(user=self.user, name="Toto CORP")
+        contact1 = Contact.objects.create(user=user, last_name="Toto")
+        contact2 = Contact.objects.create(user=user, last_name="Titi")
+        orga = Organisation.objects.create(user=user, name="Toto CORP")
 
         #Contact1 <------> Orga
-        Relation.objects.create(user=self.user, type=rtype1,
+        Relation.objects.create(user=user, type=rtype1,
                                 subject_entity=contact1,
                                 object_entity=orga)
-        Relation.objects.create(user=self.user, type=rtype3,
+        Relation.objects.create(user=user, type=rtype3,
                                 subject_entity=contact1,
                                 object_entity=orga)
 
@@ -1161,12 +1169,12 @@ class RelationViewsTestCase(ViewsTestCase):
         orga._copy_relations(contact1)
         self.assert_relation_count(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
 
-    @skipIfNotInstalled('creme.tickets')
+#    @skipIfNotInstalled('creme.tickets')
     def test_json_entity_rtypes01(self):
-        from creme.tickets.models import Ticket
-        self.login()
+#        from creme.tickets.models import Ticket
+        user = self.login()
 
-        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
         create_rtype = RelationType.create
         rtype1, rtype2 = create_rtype(('test-subject_JSP01_1', 'Predicate#1'),
@@ -1174,7 +1182,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                       is_internal=True
                                      )
         rtype3, rtype4 = create_rtype(('test-subject__JSP01_3', 'Predicate#3', [Contact, Organisation]),
-                                      ('test-object__JSP01_4',  'Predicate#4', [Ticket]),
+#                                      ('test-object__JSP01_4',  'Predicate#4', [Ticket]),
+                                      ('test-object__JSP01_4',  'Predicate#4', [FakeActivity]),
                                      )
         rtype5, rtype6 = create_rtype(('test-subject__JSP01_5', 'Predicate#5'),
                                       ('test-object__JSP01_6',  'Predicate#6', [Contact]),
@@ -1194,7 +1203,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNotIn([rtype1.id], json_data) #internal
         self.assertNotIn([rtype4.id], json_data) #CT constraint
 
-        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        nerv = Organisation.objects.create(user=user, name='Nerv')
         response = self.assertGET200(self._build_predicates_json_url(nerv),
                                      data={'fields': ['id', 'unicode']}
                                     )
@@ -1203,8 +1212,9 @@ class RelationViewsTestCase(ViewsTestCase):
                      )
 
     def test_json_entity_rtypes02(self):
-        self.login(is_superuser=False)
-        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+#        user = self.login(is_superuser=False)
+        user = self.login(is_superuser=False, allowed_apps=['documents'])
+        rei = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET403(self._build_predicates_json_url(rei),
                           data={'fields': ['id']}
                          )

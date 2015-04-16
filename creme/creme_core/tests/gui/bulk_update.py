@@ -7,16 +7,20 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase, skipIfNotInstalled
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeAddress as Address,
+            FakeImage as Image, FakeActivity)
     from creme.creme_core.forms.bulk import BulkDefaultEditForm
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry, FieldNotAllowed
     from creme.creme_core.models.custom_field import CustomField
     from creme.creme_core.utils.unicode_collation import collator
 
-    from creme.persons.models import Contact, Organisation, Address
+#    from creme.persons.models import Contact, Organisation, Address
+#    from creme.persons.models import Organisation
 
-    from creme.media_managers.models import Image
+#    from creme.media_managers.models import Image
 
-    from creme.activities.models import Activity
+#    from creme.activities.models import Activity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -24,7 +28,7 @@ except Exception as e:
 __all__ = ('BulkUpdateRegistryTestCase',)
 
 
-# TODO: test register(..., expandables=[..])    (we need test model feature)
+# TODO: test register(..., expandables=[..])
 class BulkUpdateRegistryTestCase(CremeTestCase):
     def setUp(self):
         self.bulk_update_registry = _BulkUpdateRegistry()
@@ -37,9 +41,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_bulk_update_registry01(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Organisation)
 
-        organisation_excluded_fields = ['siren']
-
-        self.bulk_update_registry.register(Organisation, exclude=organisation_excluded_fields)
+#        self.bulk_update_registry.register(Organisation, exclude=['siren'])
+        self.bulk_update_registry.register(Organisation, exclude=['emails'])
 
         # TODO uncomment when bulk registry will manage empty_or_unique fields
 #        self.assertTrue(is_bulk_updatable(field_name='siren', exclude_unique=False)) # Inner editable
@@ -47,8 +50,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_bulk_updatable(field_name='phone'))
 
         self.assertFalse(is_bulk_updatable(field_name='created')) # Editable = False
-        self.assertFalse(is_bulk_updatable(field_name='billing_address')) # Editable = False
-        self.assertFalse(is_bulk_updatable(field_name='siren')) # excluded field
+#        self.assertFalse(is_bulk_updatable(field_name='billing_address')) # Editable = False
+        self.assertFalse(is_bulk_updatable(field_name='address')) # Editable = False
+#        self.assertFalse(is_bulk_updatable(field_name='siren')) # excluded field
+        self.assertFalse(is_bulk_updatable(field_name='emails')) # excluded field
 
     def test_bulk_update_registry02(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Contact)
@@ -58,24 +63,23 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         # Automatically inherited from CremeEntity excluded fields (editable = false)
         self.assertFalse(is_bulk_updatable(field_name='modified'))
-        self.assertFalse(is_bulk_updatable(field_name='shipping_address'))
+#        self.assertFalse(is_bulk_updatable(field_name='shipping_address'))
+        self.assertFalse(is_bulk_updatable(field_name='address'))
         self.assertFalse(is_bulk_updatable(field_name='is_deleted'))
 
-    def test_bulk_update_registry03(self):
-        bulk_update_registry = self.bulk_update_registry
-
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
-
-        activity_excluded_fields = ['type', 'start_date', 'end_date', 'busy', 'is_all_day']
-
-        bulk_update_registry.register(Activity, exclude=activity_excluded_fields)
-
-        self.assertTrue(is_bulk_updatable(field_name='title'))
-        self.assertTrue(is_bulk_updatable(field_name='description'))
-
-        self.assertFalse(is_bulk_updatable(field_name='type'))
-        self.assertFalse(is_bulk_updatable(field_name='end_date'))
-        self.assertFalse(is_bulk_updatable(field_name='busy'))
+#    def test_bulk_update_registry03(self):
+#        bulk_update_registry = self.bulk_update_registry
+#
+#        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+#
+#        bulk_update_registry.register(Activity, exclude=['type', 'start_date', 'end_date', 'busy', 'is_all_day'])
+#
+#        self.assertTrue(is_bulk_updatable(field_name='title'))
+#        self.assertTrue(is_bulk_updatable(field_name='description'))
+#
+#        self.assertFalse(is_bulk_updatable(field_name='type'))
+#        self.assertFalse(is_bulk_updatable(field_name='end_date'))
+#        self.assertFalse(is_bulk_updatable(field_name='busy'))
 
     def test_is_updatable_many2many(self):
         bulk_update_registry = self.bulk_update_registry
@@ -119,8 +123,9 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         is_bulk_expandable = bulk_update_registry.is_expandable
 
         bulk_update_registry.register(Contact)
-        self.assertTrue(is_bulk_expandable(model=Contact, field_name='billing_address'))
-        self.assertTrue(is_bulk_expandable(model=Contact, field_name='shipping_address'))
+        #self.assertTrue(is_bulk_expandable(model=Contact, field_name='billing_address'))
+        #self.assertTrue(is_bulk_expandable(model=Contact, field_name='shipping_address'))
+        self.assertTrue(is_bulk_expandable(model=Contact, field_name='address'))
 
         # enumerable not expandable
         self.assertFalse(is_bulk_expandable(model=Contact, field_name='civility'))
@@ -131,23 +136,30 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_is_expandable_excluded(self):
         bulk_update_registry = self.bulk_update_registry
 
-        bulk_update_registry.register(Contact, exclude=['billing_address'])
-        self.assertFalse(bulk_update_registry.is_expandable(model=Contact, field_name='billing_address'))
-        self.assertTrue(bulk_update_registry.is_expandable(model=Contact, field_name='shipping_address'))
-
+        #bulk_update_registry.register(Contact, exclude=['billing_address'])
+        #self.assertFalse(bulk_update_registry.is_expandable(model=Contact, field_name='billing_address'))
+        #self.assertTrue(bulk_update_registry.is_expandable(model=Contact, field_name='shipping_address'))
+        bulk_update_registry.register(Contact, exclude=['address'])
+        self.assertFalse(bulk_update_registry.is_expandable(model=Contact, field_name='address'))
 
     def test_is_updatable_ignore(self):
         bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+#        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+#
+#        bulk_update_registry.ignore(Activity)
+#
+#        self.assertFalse(is_bulk_updatable(field_name='title'))
+#        self.assertFalse(is_bulk_updatable(field_name='description'))
+#
+#        self.assertFalse(is_bulk_updatable(field_name='type'))
+#        self.assertFalse(is_bulk_updatable(field_name='end_date'))
+#        self.assertFalse(is_bulk_updatable(field_name='busy'))
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Organisation)
 
-        bulk_update_registry.ignore(Activity)
+        bulk_update_registry.ignore(Organisation)
 
-        self.assertFalse(is_bulk_updatable(field_name='title'))
-        self.assertFalse(is_bulk_updatable(field_name='description'))
-
-        self.assertFalse(is_bulk_updatable(field_name='type'))
-        self.assertFalse(is_bulk_updatable(field_name='end_date'))
-        self.assertFalse(is_bulk_updatable(field_name='busy'))
+        self.assertFalse(is_bulk_updatable(field_name='name'))
+        self.assertFalse(is_bulk_updatable(field_name='phone'))
 
     def test_regular_fields(self):
         bulk_update_registry = self.bulk_update_registry
@@ -161,8 +173,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_regular_fields_ignore(self):
         bulk_update_registry = self.bulk_update_registry
 
-        bulk_update_registry.ignore(Activity)
-        self.assertListEqual(bulk_update_registry.regular_fields(Activity), [])
+#        bulk_update_registry.ignore(Activity)
+#        self.assertListEqual(bulk_update_registry.regular_fields(Activity), [])
+        bulk_update_registry.ignore(Contact)
+        self.assertListEqual(bulk_update_registry.regular_fields(Contact), [])
 
     def test_regular_fields_include_unique(self):
         bulk_update_registry = self.bulk_update_registry
@@ -178,20 +192,27 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         bulk_update_registry.register(Contact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.status(Contact).get_field('billing_address')
+            #bulk_update_registry.status(Contact).get_field('billing_address')
+            bulk_update_registry.status(Contact).get_field('address')
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_field(Contact, 'billing_address')
+            #bulk_update_registry.get_field(Contact, 'billing_address')
+            bulk_update_registry.get_field(Contact, 'address')
 
     def test_get_regular_subfield_expandable(self):
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(Contact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_field(Contact, 'billing_address')
+            #bulk_update_registry.get_field(Contact, 'billing_address')
+            bulk_update_registry.get_field(Contact, 'address')
 
-        self.assertIsNotNone(bulk_update_registry.status(Contact).get_expandable_field('billing_address'))
-        self.assertIsNotNone(bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
+        #self.assertIsNotNone(bulk_update_registry.status(Contact).get_expandable_field('billing_address'))
+        self.assertIsNotNone(bulk_update_registry.status(Contact)
+                                                 .get_expandable_field('address')
+                            )
+        #self.assertIsNotNone(bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
+        self.assertIsNotNone(bulk_update_registry.get_field(Contact, 'address__zipcode'))
 
     def test_regular_fields_expanded(self):
         bulk_update_registry = self.bulk_update_registry
@@ -200,7 +221,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         expected_names = [field.name for field in chain(Contact._meta.fields, Contact._meta.many_to_many)
                               if field.editable and not field.unique
                          ]
-        expanded_names = ['billing_address', 'shipping_address']
+        #expanded_names = ['billing_address', 'shipping_address']
+        expanded_names = ['address']
 
         fields = bulk_update_registry.regular_fields(Contact, expand=True)
 
@@ -213,15 +235,20 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                                   if field.editable and not field.unique
                              ]
 
-        billing_fields = fields_dict['billing_address'][1]
-        self.assertListEqual(sorted(sub_expected_names), sorted([field.name for field in billing_fields]))
+        #billing_fields = fields_dict['billing_address'][1]
+        #self.assertListEqual(sorted(sub_expected_names), sorted([field.name for field in billing_fields]))
+        address_fields = fields_dict['address'][1]
+        self.assertListEqual(sorted(sub_expected_names),
+                             sorted([field.name for field in address_fields])
+                            )
 
     def test_regular_subfield(self):
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(Contact)
 
         zipcode_field = Address._meta.get_field_by_name('zipcode')[0]
-        self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
+        #self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'billing_address__zipcode'))
+        self.assertEqual(zipcode_field, bulk_update_registry.get_field(Contact, 'address__zipcode'))
         self.assertEqual(zipcode_field, bulk_update_registry.get_field(Address, 'zipcode'))
 
     def test_default_field(self):
@@ -268,23 +295,41 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_custom_fields_ignore(self):
         bulk_update_registry = self.bulk_update_registry
 
-        bulk_update_registry.ignore(Activity)
-        self.assertListEqual(bulk_update_registry.custom_fields(Activity), [])
+#        bulk_update_registry.ignore(Activity)
+#        self.assertListEqual(bulk_update_registry.custom_fields(Activity), [])
+        bulk_update_registry.ignore(Organisation)
+        self.assertListEqual(bulk_update_registry.custom_fields(Organisation), [])
 
     def test_innerforms(self):
         bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+#        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Activity)
+#
+#        class _ActivityInnerStart(BulkDefaultEditForm):
+#            pass
+#
+#        bulk_update_registry.register(Activity, exclude=['type'], innerforms={'start': _ActivityInnerStart})
+#
+#        self.assertFalse(is_bulk_updatable(field_name='type'))
+#        self.assertIsNone(bulk_update_registry.status(Activity).get_form('type'))
+#
+#        self.assertTrue(is_bulk_updatable(field_name='start'))
+#        self.assertEquals(_ActivityInnerStart, bulk_update_registry.status(Activity).get_form('start'))
+        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=Contact)
 
-        class _ActivityInnerStart(BulkDefaultEditForm):
+        class _ContactInnerBirthday(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(Activity, exclude=['type'], innerforms={'start': _ActivityInnerStart})
+        bulk_update_registry.register(Contact, exclude=['position'],
+                                      innerforms={'birthday': _ContactInnerBirthday},
+                                     )
 
-        self.assertFalse(is_bulk_updatable(field_name='type'))
-        self.assertIsNone(bulk_update_registry.status(Activity).get_form('type'))
+        self.assertFalse(is_bulk_updatable(field_name='position'))
+        self.assertIsNone(bulk_update_registry.status(Contact).get_form('position'))
 
-        self.assertTrue(is_bulk_updatable(field_name='start'))
-        self.assertEquals(_ActivityInnerStart, bulk_update_registry.status(Activity).get_form('start'))
+        self.assertTrue(is_bulk_updatable(field_name='birthday'))
+        self.assertEquals(_ContactInnerBirthday,
+                          bulk_update_registry.status(Contact).get_form('birthday')
+                         )
 
     def test_innerforms_inherit01(self):
         "Inheritance : registering parent first"
@@ -292,89 +337,164 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         is_bulk_updatable = bulk_update_registry.is_updatable
         status = bulk_update_registry.status
 
-        class SubActivity(Activity):
+#        class SubActivity(Activity):
+#            pass
+#
+#        class _ActivityInnerEditForm(BulkDefaultEditForm):
+#            pass
+#
+#        class _SubActivityInnerEdit(BulkDefaultEditForm):
+#            pass
+#
+#        bulk_update_registry.register(Activity, exclude=['type'],
+#                                      innerforms={'start': _ActivityInnerEditForm,
+#                                                  'minutes': _ActivityInnerEditForm,
+#                                                 }
+#                                     )
+#        bulk_update_registry.register(SubActivity, exclude=['type'],
+#                                      innerforms={'end': _SubActivityInnerEdit,
+#                                                  'minutes': _SubActivityInnerEdit,
+#                                                 }
+#                                     )
+#
+#        self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
+#        self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
+#        self.assertIsNone(status(Activity).get_form('type'))
+#        self.assertIsNone(status(SubActivity).get_form('type'))
+#
+#        # subclass inherits inner forms from base class
+#        self.assertTrue(is_bulk_updatable(model=Activity, field_name='start'))
+#        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
+#        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('start'))
+#        self.assertEquals(_ActivityInnerEditForm, status(SubActivity).get_form('start'))
+#
+#        # base class ignore changes of inner form made for subclass
+#        self.assertTrue(is_bulk_updatable(model=Activity, field_name='end'))
+#        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='end'))
+#        self.assertIsNone(status(Activity).get_form('end'))
+#        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('end'))
+#
+#        # subclass force bulk form for field
+#        self.assertTrue(is_bulk_updatable(model=Activity, field_name='minutes'))
+#        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='minutes'))
+#        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('minutes'))
+#        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('minutes'))
+        class SubContact(Contact):
             pass
 
-        class _ActivityInnerEditForm(BulkDefaultEditForm):
+        class _ContactInnerEditForm(BulkDefaultEditForm):
             pass
 
-        class _SubActivityInnerEdit(BulkDefaultEditForm):
+        class _SubContactInnerEdit(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(Activity, exclude=['type'],
-                                      innerforms={'start': _ActivityInnerEditForm,
-                                                  'minutes': _ActivityInnerEditForm,
+        bulk_update_registry.register(Contact, exclude=['position'],
+                                      innerforms={'first_name': _ContactInnerEditForm,
+                                                  'last_name':  _ContactInnerEditForm,
                                                  }
                                      )
-        bulk_update_registry.register(SubActivity, exclude=['type'],
-                                      innerforms={'end': _SubActivityInnerEdit,
-                                                  'minutes': _SubActivityInnerEdit,
+        bulk_update_registry.register(SubContact, exclude=['position'],
+                                      innerforms={'birthday':  _SubContactInnerEdit,
+                                                  'last_name': _SubContactInnerEdit,
                                                  }
                                      )
 
-        self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
-        self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
-        self.assertIsNone(status(Activity).get_form('type'))
-        self.assertIsNone(status(SubActivity).get_form('type'))
+        self.assertFalse(is_bulk_updatable(model=Contact,    field_name='position'))
+        self.assertFalse(is_bulk_updatable(model=SubContact, field_name='position'))
+        self.assertIsNone(status(Contact).get_form('position'))
+        self.assertIsNone(status(SubContact).get_form('position'))
 
         # subclass inherits inner forms from base class
-        self.assertTrue(is_bulk_updatable(model=Activity, field_name='start'))
-        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
-        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('start'))
-        self.assertEquals(_ActivityInnerEditForm, status(SubActivity).get_form('start'))
+        self.assertTrue(is_bulk_updatable(model=Contact,    field_name='first_name'))
+        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='first_name'))
+        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('first_name'))
+        self.assertEquals(_ContactInnerEditForm, status(SubContact).get_form('first_name'))
 
         # base class ignore changes of inner form made for subclass
-        self.assertTrue(is_bulk_updatable(model=Activity, field_name='end'))
-        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='end'))
-        self.assertIsNone(status(Activity).get_form('end'))
-        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('end'))
+        self.assertTrue(is_bulk_updatable(model=Contact, field_name='birthday'))
+        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='birthday'))
+        self.assertIsNone(status(Contact).get_form('birthday'))
+        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('birthday'))
 
         # subclass force bulk form for field
-        self.assertTrue(is_bulk_updatable(model=Activity, field_name='minutes'))
-        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='minutes'))
-        self.assertEquals(_ActivityInnerEditForm, status(Activity).get_form('minutes'))
-        self.assertEquals(_SubActivityInnerEdit, status(SubActivity).get_form('minutes'))
+        self.assertTrue(is_bulk_updatable(model=Contact, field_name='last_name'))
+        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='last_name'))
+        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('last_name'))
+        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('last_name'))
 
     def test_innerforms_inherit02(self):
         "Inheritance : registering child first"
         bulk_update_registry = self.bulk_update_registry
         is_bulk_updatable = bulk_update_registry.is_updatable
 
-        class SubActivity(Activity):
+#        class SubActivity(Activity):
+#            pass
+#
+#        class _ActivityInnerEditForm(BulkDefaultEditForm):
+#            pass
+#
+#        class _SubActivityInnerEdit(BulkDefaultEditForm):
+#            pass
+#
+#        bulk_update_registry.register(SubActivity,
+#                                      innerforms={'end': _SubActivityInnerEdit,
+#                                                  'minutes': _SubActivityInnerEdit,
+#                                                 }
+#                                     )
+#        bulk_update_registry.register(Activity, exclude=['type'],
+#                                      innerforms={'start': _ActivityInnerEditForm,
+#                                                  'minutes': _ActivityInnerEditForm,
+#                                                 }
+#                                     )
+#
+#        self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
+#        self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
+#
+#        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
+#        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('start'))
+#        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(SubActivity).get_form('start'))
+#
+#        self.assertIsNone(bulk_update_registry.status(Activity).get_form('end'))
+#        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('end'))
+#
+#        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('minutes'))
+#        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('minutes'))
+        class SubContact(Contact):
             pass
 
-        class _ActivityInnerEditForm(BulkDefaultEditForm):
+        class _ContactInnerEditForm(BulkDefaultEditForm):
             pass
 
-        class _SubActivityInnerEdit(BulkDefaultEditForm):
+        class _SubContactInnerEdit(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(SubActivity,
-                                      innerforms={'end': _SubActivityInnerEdit,
-                                                  'minutes': _SubActivityInnerEdit,
+        bulk_update_registry.register(SubContact,
+                                      innerforms={'first_name': _SubContactInnerEdit,
+                                                  'last_name':  _SubContactInnerEdit,
                                                  }
                                      )
-        bulk_update_registry.register(Activity, exclude=['type'],
-                                      innerforms={'start': _ActivityInnerEditForm,
-                                                  'minutes': _ActivityInnerEditForm,
+        bulk_update_registry.register(Contact, exclude=['position'],
+                                      innerforms={'birthday':  _ContactInnerEditForm,
+                                                  'last_name': _ContactInnerEditForm,
                                                  }
                                      )
 
-        self.assertFalse(is_bulk_updatable(model=Activity, field_name='type'))
-        self.assertFalse(is_bulk_updatable(model=SubActivity, field_name='type'))
+        self.assertFalse(is_bulk_updatable(model=Contact,    field_name='position'))
+        self.assertFalse(is_bulk_updatable(model=SubContact, field_name='position'))
 
-        self.assertTrue(is_bulk_updatable(model=SubActivity, field_name='start'))
-        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('start'))
-        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(SubActivity).get_form('start'))
+        status = bulk_update_registry.status
+        self.assertTrue(is_bulk_updatable(model=SubContact, field_name='birthday'))
+        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('birthday'))
+        self.assertEquals(_ContactInnerEditForm, status(SubContact).get_form('birthday'))
 
-        self.assertIsNone(bulk_update_registry.status(Activity).get_form('end'))
-        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('end'))
+        self.assertIsNone(bulk_update_registry.status(Contact).get_form('first_name'))
+        self.assertEquals(_SubContactInnerEdit, status(SubContact).get_form('first_name'))
 
-        self.assertEquals(_ActivityInnerEditForm, bulk_update_registry.status(Activity).get_form('minutes'))
-        self.assertEquals(_SubActivityInnerEdit, bulk_update_registry.status(SubActivity).get_form('minutes'))
+        self.assertEquals(_ContactInnerEditForm, status(Contact).get_form('last_name'))
+        self.assertEquals(_SubContactInnerEdit,  status(SubContact).get_form('last_name'))
 
     def test_subfield_innerforms(self):
-        self.login()
+        user = self.login()
 
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(Contact)
@@ -382,31 +502,41 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         class _ZipcodeInnerEdit(BulkDefaultEditForm):
             pass
 
-        contact = Contact.objects.create(last_name='contact', user=self.user)
-        contact.billing_address = Address.objects.create(owner=contact)
+#        contact = Contact.objects.create(last_name='contact', user=self.user)
+#        contact.billing_address = Address.objects.create(owner=contact)
+        contact = Contact.objects.create(last_name='contact', user=user,
+                                         #address=Address.objects.create()
+                                        )
 
-        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm)(user=self.user, entities=[contact])
+#        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm) \
+        form = bulk_update_registry.get_form(Contact, 'address__zipcode', BulkDefaultEditForm) \
+                                             (user=user, entities=[contact])
 
         self.assertIsInstance(form, BulkDefaultEditForm)
 
         bulk_update_registry.register(Address, innerforms={'zipcode': _ZipcodeInnerEdit})
 
-        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm)(user=self.user, entities=[contact])
+#        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm) \
+        form = bulk_update_registry.get_form(Contact, 'address__zipcode', BulkDefaultEditForm) \
+                                            (user=user, entities=[contact])
         self.assertIsInstance(form, _ZipcodeInnerEdit)
 
     def test_expandable_innerforms(self):
-        self.login()
+        user = self.login()
 
-        contact = Contact.objects.create(last_name='contact', user=self.user)
-        contact.billing_address = Address.objects.create(owner=contact)
+        contact = Contact.objects.create(last_name='contact', user=user)
+#        contact.billing_address = Address.objects.create(owner=contact)
 
         bulk_update_registry = self.bulk_update_registry
         bulk_update_registry.register(Contact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_form(Contact, 'billing_address', BulkDefaultEditForm)
+            #bulk_update_registry.get_form(Contact, 'billing_address', BulkDefaultEditForm)
+            bulk_update_registry.get_form(Contact, 'address', BulkDefaultEditForm)
 
-        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm)(user=self.user, entities=[contact])
+#        form = bulk_update_registry.get_form(Contact, 'billing_address__zipcode', BulkDefaultEditForm)(user=self.user, entities=[contact])
+        form = bulk_update_registry.get_form(Contact, 'address__zipcode', BulkDefaultEditForm)\
+                                            (user=user, entities=[contact])
         self.assertIsInstance(form, BulkDefaultEditForm)
 
     #def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
@@ -473,16 +603,25 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         #self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
         #self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
 
-    @skipIfNotInstalled('creme.tickets')
+#    @skipIfNotInstalled('creme.tickets')
+#    def test_bulk_update_registry06(self):
+#        "Unique field"
+#        from creme.tickets.models import Ticket
+#        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Ticket)
+#
+#        self.bulk_update_registry.register(Ticket)
+#
+#        # 'title' is an unique field which means that its not bulk updtable if the registry manage the unique
+#        # and it is if not
+#        self.assertTrue(is_bulk_updatable(field_name='title', exclude_unique=False))
+#        self.assertFalse(is_bulk_updatable(field_name='title'))
     def test_bulk_update_registry06(self):
         "Unique field"
-        from creme.tickets.models import Ticket
-        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=Ticket)
+        registry = self.bulk_update_registry
+        registry.register(FakeActivity)
 
-        self.bulk_update_registry.register(Ticket)
-
-        # 'title' is an unique field which means that its not bulk updtable if the registry manage the unique
-        # and it is if not
+        # 'title' is an unique field which means that its not bulk updtable if 
+        # the registry manage the unique and it is if not.
+        is_bulk_updatable = partial(registry.is_updatable, model=FakeActivity)
         self.assertTrue(is_bulk_updatable(field_name='title', exclude_unique=False))
         self.assertFalse(is_bulk_updatable(field_name='title'))
-

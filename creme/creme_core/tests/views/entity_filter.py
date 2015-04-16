@@ -9,13 +9,15 @@ try:
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _, ungettext
 
+    from .base import ViewsTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeCivility as Civility)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
             EntityFilterVariable, CustomField, RelationType, CremePropertyType)
-    from .base import ViewsTestCase
 
-    from creme.documents.models import Document
+    #from creme.documents.models import Document
 
-    from creme.persons.models import Contact, Organisation, Civility
+    #from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -58,7 +60,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_create01(self):
         "Check app credentials"
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=('documents'))
 
         ct = self.ct_contact
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
@@ -66,7 +69,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         uri = self._build_add_url(ct)
         self.assertGET403(uri)
 
-        self.role.allowed_apps = ['persons']
+#        self.role.allowed_apps = ['persons']
+        self.role.allowed_apps = ['documents', 'creme_core']
         self.role.save()
         response = self.assertGET200(uri)
 
@@ -264,10 +268,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Date sub-field"
         self.login()
 
-        ct = ContentType.objects.get_for_model(Document)
-        name = 'Filter Doc'
-        field_name = 'folder__created'
+#        ct = ContentType.objects.get_for_model(Document)
+#        name = 'Filter Doc'
+        ct = self.ct_contact
+        name = 'Filter img'
+#        field_name = 'folder__created'
+        field_name = 'image__created'
         daterange_type = 'previous_year'
+#        response = self.client.post(self._build_add_url(ct), follow=True,
         response = self.client.post(self._build_add_url(ct), follow=True,
                                     data={'name':                  name,
                                           'use_or':                'False',
@@ -848,17 +856,19 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_edit03(self):
         "Can not edit Filter that belongs to another user"
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=['creme_core'])
 
-        self.role.allowed_apps = ['persons']
-        self.role.save()
+#        self.role.allowed_apps = ['persons']
+#        self.role.save()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
         self.assertGET403(self._build_edit_url(efilter))
 
     def test_edit04(self):
         "User do not have the app credentials"
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=['documents'])
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
         self.assertGET403(self._build_edit_url(efilter))
@@ -1173,33 +1183,39 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Belongs to another user"
         self.login(is_superuser=False)
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact,
+                                      is_custom=True, user=self.other_user,
+                                     )
         self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
     def test_delete04(self):
         "Belongs to my team -> ok"
-        self.login(is_superuser=False)
+#        user = self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
-        self.role.allowed_apps = ['persons']
-        self.role.save()
+#        self.role.allowed_apps = ['persons']
+#        self.role.save()
 
         my_team = User.objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [self.user]
+        my_team.teammates = [user]
 
-        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=my_team)
+        efilter = EntityFilter.create('test-filter01', 'Filter01', Contact,
+                                      is_custom=True, user=my_team,
+                                     )
         self._delete(efilter)
-        self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
+        self.assertFalse(EntityFilter.objects.filter(pk=efilter.id))
 
     def test_delete05(self):
         "Belongs to a team (not mine) -> ko"
-        self.login(is_superuser=False)
+#        user = self.login(is_superuser=False)
+        user = self.login(is_superuser=False)
 
-        self.role.allowed_apps = ['persons']
-        self.role.save()
+#        self.role.allowed_apps = ['persons']
+#        self.role.save()
 
         my_team = User.objects.create(username='A-team', is_team=True)
-        my_team.teammates = [self.user]
+        my_team.teammates = [user]
 
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
@@ -1312,7 +1328,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                         )
 
     def test_filters_for_ctype03(self):
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        self.login(is_superuser=False, allowed_apps=['documents'])
         self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)
 
     def test_filters_for_ctype04(self):

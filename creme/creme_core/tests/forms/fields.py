@@ -15,8 +15,9 @@ try:
     from creme.creme_core.utils.date_period import DatePeriod
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
     from .base import FieldTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
 
-    from creme.persons.models import Contact, Organisation
+#    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

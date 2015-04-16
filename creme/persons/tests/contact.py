@@ -9,6 +9,7 @@ try:
     from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
+    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.widgets import Label, TextInput
     from creme.creme_core.gui.quick_forms import quickforms_registry
@@ -26,9 +27,41 @@ except Exception as e:
 __all__ = ('ContactTestCase',)
 
 
-class ContactTestCase(_BaseTestCase):
+class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     ADD_URL = '/persons/contact/add'
     ADD_RELATED_URL = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
+
+    lv_import_data = {
+            'step': 1,
+            #'document': doc.id, 'user': self.user.id,
+
+            'first_name_colselect': 1,
+            'last_name_colselect':  2,
+
+            'civility_colselect':    0,
+            'description_colselect': 0,
+            'skype_colselect':       0,
+            'phone_colselect':       0,
+            'mobile_colselect':      0,
+            'fax_colselect':         0,
+            'position_colselect':    0,
+            'sector_colselect':      0,
+            'email_colselect':       0,
+            'url_site_colselect':    0,
+            'birthday_colselect':    0,
+            'image_colselect':       0,
+
+            #'property_types', 'fixed_relations', 'dyn_relations',
+
+            #TODO: factorise with OrganisationTestCase
+            'billaddr_address_colselect':    0,  'shipaddr_address_colselect':    0,
+            'billaddr_po_box_colselect':     0,  'shipaddr_po_box_colselect':     0,
+            'billaddr_city_colselect':       0,  'shipaddr_city_colselect':       0,
+            'billaddr_state_colselect':      0,  'shipaddr_state_colselect':      0,
+            'billaddr_zipcode_colselect':    0,  'shipaddr_zipcode_colselect':    0,
+            'billaddr_country_colselect':    0,  'shipaddr_country_colselect':    0,
+            'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
+        }
 
     #TODO: in creme_core ??
     def _build_delete_url(self, entity):
@@ -1339,3 +1372,153 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertDoesNotExist(image)
         self.assertIsNone(self.refresh(harlock).image)
+
+    def test_csv_import01(self):
+        user = self.login()
+
+        count = Contact.objects.count()
+        lines = [("Rei",   "Ayanami"),
+                 ("Asuka", "Langley"),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        lines_count = len(lines)
+        self.assertFalse(list(form.import_errors))
+        self.assertEqual(lines_count, form.imported_objects_count)
+        self.assertEqual(lines_count, form.lines_count)
+
+        self.assertEqual(count + lines_count, Contact.objects.count())
+
+        for first_name, last_name in lines:
+            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+            self.assertEqual(user, contact.user)
+            self.assertIsNone(contact.billing_address)
+
+    def test_csv_import02(self):
+        "Address"
+        user = self.login()
+
+        contact_count = Contact.objects.count()
+
+        city = 'Tokyo'
+        lines = [('First name', 'Last name', 'City'),
+                 ('Rei',        'Ayanami',   city),
+                 ('Asuka',      'Langley',   ''),
+                ]
+
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(
+                         #url,
+                        self._build_import_url(Contact),
+                        data=dict(self.lv_import_data,
+                                  document=doc.id, has_header=True,
+                                  user=self.user.id,
+                                  first_name_colselect=1,
+                                  last_name_colselect=2,
+                                  billaddr_city_colselect=3,
+                                 )
+                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+ 
+        lines_count = len(lines) - 1 # '-1' for header
+        self.assertEqual(0, len(form.import_errors))
+        self.assertEqual(lines_count, form.imported_objects_count)
+        self.assertEqual(lines_count, form.lines_count)
+        self.assertEqual(contact_count + lines_count, Contact.objects.count())
+
+        rei = self.get_object_or_fail(Contact, last_name=lines[1][1], first_name=lines[1][0])
+        address = rei.billing_address
+        self.assertIsInstance(address, Address)
+        self.assertEqual(city, address.city)
+
+        asuka = self.get_object_or_fail(Contact, last_name=lines[2][1], first_name=lines[2][0])
+        self.assertIsNone(asuka.billing_address)
+
+    def test_csv_import03(self):
+        "Update (with address)"
+        user = self.login()
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        rei = Contact.objects.create(user=user, last_name=last_name, first_name=first_name)
+
+        city1 = 'Kyoto'
+        city2 = 'Tokyo'
+        create_address = partial(Address.objects.create, address='XXX', country='Japan',
+                                 owner=rei,
+                                )
+        rei.billing_address  = addr1 = create_address(name='Hideout #1', city=city1)
+        rei.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
+        rei.save()
+
+        addr_count = Address.objects.count()
+
+        address_val1 = '213 Gauss Street'
+        address_val2 = '56 Einstein Avenue'
+        email = 'contact@bebop.mrs'
+        doc = self._build_csv_doc([(first_name, last_name, address_val1, address_val2, email)])
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.lv_import_data,
+                                                document=doc.id,
+                                                user=user.id,
+                                                key_fields=['first_name', 'last_name'],
+                                                email_colselect=5,
+                                                billaddr_address_colselect=3,
+                                                shipaddr_address_colselect=4,
+                                            )
+                                    )
+        self.assertNoFormError(response)
+
+        rei = self.refresh(rei)
+        self.assertEqual(email, rei.email)
+
+        self.assertEqual(addr_count, Address.objects.count())
+
+        addr1 = self.refresh(addr1)
+        self.assertEqual(city1, addr1.city)
+        self.assertEqual(address_val1, addr1.address)
+
+        addr2 = self.refresh(addr2)
+        self.assertEqual(city2, addr2.city)
+
+    def test_user_delete_is_user(self):
+        "Manage Contact.is_user field : Contact is no more related to deleted user."
+        user = self.login()
+        other_user = self.other_user
+
+        contact = user.linked_contact
+        other_contact = other_user.linked_contact
+
+        create_contact = Contact.objects.create
+        deunan   = create_contact(user=user,       first_name='Deunan',   last_name='Knut')
+        briareos = create_contact(user=other_user, first_name='Briareos', last_name='Hecatonchires')
+
+        self.assertNoFormError(self.client.post('/creme_config/user/delete/%s' % other_user.id,
+                                                {'to_user': user.id}
+                                               )
+                              )
+        self.assertDoesNotExist(other_user)
+        self.assertStillExists(contact)
+
+        other_contact = self.assertStillExists(other_contact)
+        self.assertIsNone(other_contact.is_user)
+        self.assertEqual(user, other_contact.user)
+
+        self.assertStillExists(deunan)
+        self.assertEqual(user, self.assertStillExists(briareos).user)

@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import RelationType, CremePropertyType, SemiFixedRelationType
+    from creme.creme_core.models import (RelationType, CremePropertyType,
+            SemiFixedRelationType)
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation)
 
-    from creme.persons.models import Contact, Organisation #need CremeEntity
+    #from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception, e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -33,13 +36,6 @@ class RelationTypeTestCase(CremeTestCase):
     def test_portal(self):
         self.assertGET200('/creme_config/relation_type/portal/')
 
-    #def _find_relation_type(self, relation_types, predicate):
-        #for relation_type in relation_types:
-            #if relation_type.predicate == predicate:
-                #return relation_type
-
-        #self.fail('No relation type <%s>' % predicate)
-
     def test_create01(self):
         url = self.ADD_URL
         self.assertGET200(url)
@@ -53,11 +49,8 @@ class RelationTypeTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        #rel_types = RelationType.objects.all()
-        #self.assertEqual(count + 2, len(rel_types))#2 freshly created
         self.assertEqual(count + 2, RelationType.objects.count()) #2 freshly created
 
-        #rel_type = self._find_relation_type(rel_types, subject_pred)
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertTrue(rel_type.is_custom)
         self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
@@ -89,7 +82,6 @@ class RelationTypeTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        #rel_type = self._find_relation_type(RelationType.objects.all(), subject_pred)
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
@@ -200,11 +192,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                             }
                                      )
         self.assertFormError(response, 'form', 'predicate',
-                             [_(u"%(model_name)s with this %(field_label)s already exists.") %  {
+                             _(u"%(model_name)s with this %(field_label)s already exists.") %  {
                                     'model_name': _('Semi-fixed type of relationship'),
                                     'field_label': _('Predicate'),
                                 }
-                             ]
                             )
 
     def test_create03(self):
@@ -229,7 +220,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                               }
                                      )
         self.assertFormError(response, 'form', None,
-                             [_(u"A semi-fixed type of relationship with this type and this object already exists.")]
+                             _(u"A semi-fixed type of relationship with this type and this object already exists.")
                             )
 
     def test_delete(self):

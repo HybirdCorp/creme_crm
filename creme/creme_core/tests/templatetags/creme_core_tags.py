@@ -10,8 +10,9 @@ try:
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, CustomField
     from ..base import CremeTestCase
+    from ..fake_models import FakeOrganisation as Organisation
 
-    from creme.persons.models import Organisation
+    #from creme.persons.models import Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -99,7 +100,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual('False' * 11, render.strip())
 
     def test_has_perm_to03(self):
-        self.login(is_superuser=False, allowed_apps=['persons'], creatable_models=[Organisation])
+        #self.login(is_superuser=False, allowed_apps=['persons'], creatable_models=[Organisation])
+        self.login(is_superuser=False, allowed_apps=['creme_core'], creatable_models=[Organisation])
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
@@ -119,8 +121,10 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
                                 "{% has_perm_to export entity as xperm %}{{xperm}}"
                                 "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
-                                "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
-                                "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
+#                                "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
+#                                "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
+                                "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
+                                "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
                                )
             render = template.render(Context({'entity': orga,
                                               'user':   self.user,

@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
-from tempfile import NamedTemporaryFile
+#from tempfile import NamedTemporaryFile
 import warnings
 
 from django.test import TestCase, TransactionTestCase
@@ -20,7 +20,7 @@ from ..utils.xml_utils import xml_diff, XMLDiffError
 from ..registry import creme_registry
 from .. import autodiscover
 
-from creme.media_managers.models import Image
+#from creme.media_managers.models import Image
 
 
 def skipIfNotInstalled(app_name):
@@ -186,15 +186,6 @@ class _CremeTestCase(object):
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)
 
-    #def assertRedirectsToLogin(self, response, url):
-        #self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
-
-    #def assertGETRedirectsToLogin(self, url):
-        #self.assertRedirectsToLogin(self.client.get(url), url)
-
-    #def assertPOSTRedirectsToLogin(self, url, data=None):
-        #self.assertRedirectsToLogin(self.client.post(url, data=data or {}), url)
-
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:
             return _AssertNoExceptionContext(self)
@@ -306,6 +297,32 @@ class _CremeTestCase(object):
                                          .count()
                         )
 
+    def assertSameProperties(self, entity1, entity2):
+        properties_desc = lambda entity: list(entity.properties.values_list('type', flat=True))
+
+        pd1 = properties_desc(entity1)
+        pd2 = properties_desc(entity2)
+        self.assertEqual(len(pd1), len(pd2))
+        self.assertEqual(set(pd1), set(pd2))
+
+    def assertSameRelations(self, entity1, entity2, exclude_internal=True):
+        def relations_desc(entity):
+            qs = entity.relations.values_list('type', 'object_entity')
+
+            if exclude_internal:
+                qs = qs.exclude(type__is_internal=True)
+
+            return list(qs)
+
+        rd1 = relations_desc(entity1)
+        rd2 = relations_desc(entity2)
+        self.assertEqual(len(rd1), len(rd2))
+        self.assertEqual(set(rd1), set(rd2))
+
+    def assertSameRelationsNProperties(self, entity1, entity2, exclude_internal=True):
+        self.assertSameProperties(entity1, entity2)
+        self.assertSameRelations(entity1, entity2, exclude_internal)
+
     def assertXMLEqual(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
         @param expected XML string ; tip: better if it is well indented to have better error message.
@@ -332,16 +349,23 @@ class _CremeTestCase(object):
         return make_aware(datetime(*args, **kwargs), tz)
 
     def create_image(self, ident=1, user=None):
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-        tmpfile.path = 'upload/file_%s.jpg' % ident
+        warnings.warn("_CremeTestCase.create_image() method is deprecated; "
+                      "use creme.media_managers.tests import create_image() instead",
+                      DeprecationWarning
+                     )
 
-        return Image.objects.create(user=user or self.user,
-                                    image=tmpfile,
-                                    name=u'Image #%s' % ident,
-                                    description=u"Desc"
-                                   )
+        from creme.media_managers.tests import create_image
+        return create_image(user or self.user, ident)
+#        tmpfile = NamedTemporaryFile()
+#        tmpfile.width = tmpfile.height = 0
+#        tmpfile._committed = True
+#        tmpfile.path = 'upload/file_%s.jpg' % ident
+#
+#        return Image.objects.create(user=user or self.user,
+#                                    image=tmpfile,
+#                                    name=u'Image #%s' % ident,
+#                                    description=u"Desc"
+#                                   )
 
     def get_object_or_fail(self, model, **kwargs):
         try:

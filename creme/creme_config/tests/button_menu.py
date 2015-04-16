@@ -6,8 +6,10 @@ try:
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button, button_registry
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation)
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

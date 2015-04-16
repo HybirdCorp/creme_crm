@@ -6,8 +6,9 @@ try:
     #from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
+    from ..fake_models import FakeOrganisation as Organisation
 
-    from creme.persons.models import Organisation
+    #from creme.persons.models import Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -29,7 +30,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render,
-                         u'<a href="/persons/organisation/%s">%s</a>' % (
+#                         u'<a href="/persons/organisation/%s">%s</a>' % (
+                         u'<a href="/tests/organisation/%s">%s</a>' % (
                                 orga.id, name + '&lt;br/&gt;'
                             )
                         )
@@ -61,7 +63,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
         self.assertEqual(render, 
-                         u'<a href="/persons/organisation/%s" class="is_deleted">%s</a>' % (
+#                         u'<a href="/persons/organisation/%s" class="is_deleted">%s</a>' % (
+                         u'<a href="/tests/organisation/%s" class="is_deleted">%s</a>' % (
                                 orga.id, unicode(orga)
                             )
                         )

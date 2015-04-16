@@ -3,15 +3,16 @@
 try:
     from django.db.models.query import QuerySet
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from ..fake_models import FakeContact as Contact
+    from .base import FieldTestCase
     from creme.creme_core.forms.widgets import DynamicSelect, UnorderedMultipleChoiceWidget
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
-__all__ = ('DynamicSelectTestCase',
-           'UnorderedMultipleChoiceTestCase',)
+
+__all__ = ('DynamicSelectTestCase', 'UnorderedMultipleChoiceTestCase')
 
 
 class DynamicSelectTestCase(FieldTestCase):

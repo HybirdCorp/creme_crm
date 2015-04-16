@@ -5,8 +5,9 @@ try:
 
     from creme.creme_core.forms.batch_process import BatchActionsField
     from .base import FieldTestCase
+    from ..fake_models import FakeContact as Contact
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

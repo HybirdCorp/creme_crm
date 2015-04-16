@@ -5,8 +5,10 @@ try:
 
     from creme.creme_core.models import CremePropertyType
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation)
 
-    from creme.persons.models import Contact, Organisation #need CremeEntity
+    #from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 

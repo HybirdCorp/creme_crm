@@ -7,11 +7,12 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from .base import ViewsTestCase
+    from ..fake_models import FakeContact as Contact, FakeCivility as Civility
     from creme.creme_core.models import (CustomField, CustomFieldEnumValue,
-                                         EntityFilter, EntityFilterCondition)
+            EntityFilter, EntityFilterCondition)
     from creme.creme_core.utils.unicode_collation import collator
 
-    from creme.persons.models import Contact, Civility
+#    from creme.persons.models import Contact, Civility
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -36,13 +37,15 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertContains(response, 'Content type is not registered in config', status_code=404)
 
     def test_model_app_not_allowed(self):
-        self.login(is_superuser=False)
+#        self.login(is_superuser=False)
+        user = self.login(is_superuser=False, allowed_apps=('documents',)) # not 'creme_core'
 
-        self.assertFalse(self.user.has_perm(ContentType.objects.get_for_model(Civility).app_label))
+        self.assertFalse(user.has_perm(ContentType.objects.get_for_model(Civility).app_label))
 
         url = self._build_enum_url(Civility)
         response = self.assertGET404(url)
-        self.assertContains(response, "You are not allowed to access to the app 'persons'", status_code=404)
+#        self.assertContains(response, "You are not allowed to access to the app 'persons'", status_code=404)
+        self.assertContains(response, "You are not allowed to access to the app 'creme_core'", status_code=404)
 
     def test_contenttype_not_exists(self):
         self.login()

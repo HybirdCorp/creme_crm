@@ -11,6 +11,7 @@ __all__ = ('PortalTestCase',)
 
 class PortalTestCase(CremeTestCase):
     def test_portal(self):
-        self.populate('creme_core', 'creme_config')
+#        self.populate('creme_core', 'creme_config')
+        self.populate('creme_core')
         self.login()
         self.assertGET200('/creme_config/')

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.utils.translation import ugettext as _
 
-    from creme.persons.models import Contact, Civility, Organisation
-
     from .base import CremeTestCase
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeCivility as Civility)
+
+    #from creme.persons.models import Contact, Civility, Organisation
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -19,7 +21,8 @@ class QuickFormTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'persons')
+#        cls.populate('creme_core', 'persons')
+        cls.populate('creme_core')
 
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS':  '0',
@@ -36,7 +39,7 @@ class QuickFormTestCase(CremeTestCase):
                  'form-%d-first_name' % id:   first_name,
                  'form-%d-organisation' % id: organisation,
                  'form-%d-phone' % id:        phone,
-                 'form-%d-user' % id:         '1',
+                 'form-%d-user' % id:         self.user.id,
                })
 
     def _build_quickform_url(self, model, count=1):
@@ -44,7 +47,11 @@ class QuickFormTestCase(CremeTestCase):
 
     def test_add_unknown_ctype(self):
         self.login()
-        url = '/creme_core/quickforms/10000/1'
+
+        invalid_id = 10000
+        self.assertFalse(ContentType.objects.filter(id=invalid_id))
+
+        url = '/creme_core/quickforms/%s/1' % invalid_id
         self.assertGET404(url)
 
         data = self.quickform_data(1)
@@ -62,7 +69,8 @@ class QuickFormTestCase(CremeTestCase):
         self.assertPOST404(self._build_quickform_url(Civility), data)
 
     def test_add_unallowed(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'),
+#        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'),
+        self.login(is_superuser=False,
                    creatable_models=[Organisation],
                   )
 
@@ -83,7 +91,7 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 0)
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
-        self.assertFormError(response, 'form', 'last_name', [_('This field is required.')])
+        self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
         self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
 
         self.assertEqual(count, Contact.objects.count())
@@ -112,11 +120,10 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 0, email='invalid')
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
-        self.assertFormError(response, 'form', 'last_name', [_(u'This field is required.')])
-        self.assertFormError(response, 'form', 'email', [_(u'Enter a valid e-mail address.')])
+        self.assertFormError(response, 'form', 'last_name', _(u'This field is required.'))
+        self.assertFormError(response, 'form', 'email',     _(u'Enter a valid e-mail address.'))
 
         self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
-
         self.assertEqual(count, Contact.objects.count())
 
     def test_add_multiple_invalid_form(self):
@@ -145,13 +152,13 @@ class QuickFormTestCase(CremeTestCase):
         count = Contact.objects.count()
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, last_name='Kirika', email='admin@hello.com')
+        last_name = 'Kirika'
+        email = 'admin@hello.com'
+        self.quickform_data_append(data, 0, last_name=last_name, email=email)
 
         self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertEqual(count + 1, Contact.objects.count())
-        contact = self.get_object_or_fail(Contact, email='admin@hello.com')
-        self.assertEqual('admin@hello.com', contact.email)
-        self.assertEqual('Kirika', contact.last_name)
+        self.get_object_or_fail(Contact, last_name=last_name, email=email)
 
     def test_add_multiple(self):
         self.login()
@@ -176,18 +183,21 @@ class QuickFormTestCase(CremeTestCase):
             self.get_object_or_fail(Contact, **kwargs)
 
     def test_add_from_widget(self):
-        self.login()
+        user = self.login()
         count = Contact.objects.count()
+
+        last_name = 'Kirika'
+        email = 'admin@hello.com'
         response = self.assertPOST200('/creme_core/quickforms/from_widget/%d/add/1' %
                                         ContentType.objects.get_for_model(Contact).pk,
-                                      data={'last_name': 'Kirika',
-                                            'email':     'admin@hello.com',
-                                            'user':      '1',
+                                      data={'last_name': last_name,
+                                            'email':     email,
+                                            'user':      user.id,
                                            }
                                      )
         self.assertEqual(count + 1, Contact.objects.count())
 
-        contact = self.get_object_or_fail(Contact, last_name='Kirika', email='admin@hello.com')
+        contact = self.get_object_or_fail(Contact, last_name=last_name, email=email)
         self.assertEqual('<json>%s</json>' % JSONEncoder().encode({
                                 "added": [[contact.id, unicode(contact)]], 
                                 "value": contact.id

@@ -7,13 +7,15 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import UserRole, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import UserRole, SetCredentials
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeActivity as Activity)
 
-    from creme.activities.models import Activity
+    #from creme.activities.models import Activity
 
-    from creme.persons.models import Contact, Organisation #need CremeEntity
+    #from creme.persons.models import Contact, Organisation #need CremeEntity
 
     from ..blocks import UserRolesBlock
 except Exception as e:
@@ -112,14 +114,15 @@ class UserRoleTestCase(CremeTestCase):
                           )
 
     def test_add_credentials01(self):
-        self.login()
+        user = self.login()
 
         role = UserRole(name='CEO')
-        role.allowed_apps = ['persons']
+#        role.allowed_apps = ['persons']
+        role.allowed_apps = ['creme_core']
         role.save()
 
         other_user = User.objects.create(username='chloe', role=role)
-        contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
+        contact    = Contact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(other_user.has_perm_to_view(contact))
 
         self.assertEqual(0, role.credentials.count())
@@ -231,7 +234,7 @@ class UserRoleTestCase(CremeTestCase):
         self.assertPOST403(self.DEL_CREDS_URL, data={'id': sc.id})
 
     def test_edit01(self):
-        self.login()
+        user = self.login()
 
         role = UserRole.objects.create(name='CEO')
         SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
@@ -239,7 +242,7 @@ class UserRoleTestCase(CremeTestCase):
                                      )
 
         other_user = User.objects.create(username='chloe', role=role)
-        contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
+        contact    = Contact.objects.create(user=user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(other_user.has_perm_to_view(contact)) #role.allowed_apps does not contain 'persons'
 
         url = '/creme_config/role/edit/%s' % role.id
@@ -249,8 +252,10 @@ class UserRoleTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
         exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
-        apps = ['persons', 'tickets']
-        admin_apps = ['persons']
+#        apps = ['persons', 'tickets']
+#        admin_apps = ['persons']
+        apps = ['creme_core', 'tickets']
+        admin_apps = ['creme_core']
         response = self.client.post(url, follow=True,
                                     data={'name':                    name,
                                           'creatable_ctypes':        creatable_ctypes,
@@ -277,7 +282,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
 
         contact = self.refresh(contact) #refresh cache
-        self.assertTrue(self.refresh(other_user).has_perm_to_view(contact)) #role.allowed_apps contains 'persons' now
+#        self.assertTrue(self.refresh(other_user).has_perm_to_view(contact)) #role.allowed_apps contains 'persons' now
+        self.assertTrue(self.refresh(other_user).has_perm_to_view(contact)) #role.allowed_apps contains 'creme_core' now
 
     #def test_edit02(self):
         #self.login()
@@ -397,4 +403,4 @@ class UserRoleTestCase(CremeTestCase):
         User.objects.create(username='chloe', role=role) #<= role is used
 
         response = self.assertPOST200(self._build_del_role_url(role))
-        self.assertFormError(response, 'form', 'to_role', [_('This field is required.')])
+        self.assertFormError(response, 'form', 'to_role', _('This field is required.'))

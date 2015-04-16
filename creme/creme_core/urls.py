@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.conf.urls import patterns, include
+
 
 entity_patterns = patterns('creme.creme_core.views.entity',
     (r'^delete/multi$',                                                 'delete_entities'),
@@ -122,3 +124,36 @@ urlpatterns = patterns('creme.creme_core.views',
     (r'^test_js[/]?$',                      'testjs.test_js'),
     (r'^test_widget(/|/(?P<widget>\w+))?$', 'testjs.test_widget'),
 )
+
+if settings.TESTS_ON:
+    urlpatterns += patterns('creme.creme_core.tests.fake_views',
+        (r'^tests/contacts$',                           'contact_listview'),
+        (r'^tests/contact/add$',                        'contact_add'),
+        (r'^tests/contact/edit/(?P<contact_id>\d+)$',   'contact_edit'),
+        (r'^tests/contact/(?P<contact_id>\d+)$',        'contact_detailview'),
+
+        (r'^tests/organisations$',                      'organisation_listview'),
+        (r'^tests/organisation/add$',                   'organisation_add'),
+        (r'^tests/organisation/edit/(?P<orga_id>\d+)$', 'organisation_edit'),
+        (r'^tests/organisation/(?P<orga_id>\d+)$',      'organisation_detailview'),
+
+        (r'^tests/address/add/(?P<entity_id>\d+)$',     'address_add'),
+        (r'^tests/address/edit/(?P<address_id>\d+)',    'address_edit'),
+
+        (r'^tests/activities$',                    'activity_listview'),
+        #(r'^tests/activity/add$',                  'activity_add'),
+        #(r'^tests/activity/edit/(?P<act_id>\d+)$', 'activity_edit'),
+        #(r'^tests/activity/(?P<act_id>\d+)$',      'activity_detailview'),
+
+        (r'^tests/e_campaigns$',                          'campaign_listview'),
+        #(r'^tests/e_campaign/add$',                       'campaign_add'),
+        #(r'^tests/e_campaign/edit/(?P<campaign_id>\d+)$', 'campaign_edit'),
+        #(r'^tests/e_campaign/(?P<campaign_id>\d+)$',      'campaign_detailview'),
+
+        (r'^tests/invoices$',                          'invoice_listview'),
+        #(r'^tests/invoice/add$',                       'invoice_add'),
+        #(r'^tests/invoice/edit/(?P<invoice_id>\d+)$',  'invoice_edit'),
+        (r'^tests/invoice/(?P<invoice_id>\d+)$',       'invoice_detailview'),
+
+        (r'^tests/invoice_lines$', 'invoice_lines_listview'),
+    )

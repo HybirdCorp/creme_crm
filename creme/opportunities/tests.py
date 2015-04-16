@@ -1311,8 +1311,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
 
 class SalesPhaseTestCase(CremeTestCase):
-    DOWN_URL   = '/creme_config/opportunities/sales_phase/down/%s'
-    UP_URL     = '/creme_config/opportunities/sales_phase/up/%s'
     DELETE_URL = '/creme_config/opportunities/sales_phase/delete'
     PORTAL_URL = '/creme_config/opportunities/sales_phase/portal/'
 
@@ -1378,74 +1376,6 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(1, refresh(sp2).order)
         self.assertEqual(2, refresh(sp3).order)
         self.assertEqual(4, refresh(sp4).order)
-
-    def test_incr_order01(self):
-        self.login()
-
-        create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', order=1)
-        sp2 = create_phase(name='Abandoned',   order=2)
-
-        url = self.DOWN_URL % sp1.id
-        self.assertGET404(url)
-        self.assertPOST200(url)
-
-        self.assertEqual(2, self.refresh(sp1).order)
-        self.assertEqual(1, self.refresh(sp2).order)
-
-    def test_incr_order02(self):
-        self.login()
-
-        create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', order=1)
-        sp2 = create_phase(name='Abandoned',   order=2)
-        sp3 = create_phase(name='Won',         order=3)
-        sp4 = create_phase(name='Lost',        order=4)
-
-        self.assertPOST200(self.DOWN_URL % sp2.id)
-
-        self.assertEqual(1, self.refresh(sp1).order)
-        self.assertEqual(3, self.refresh(sp2).order)
-        self.assertEqual(2, self.refresh(sp3).order)
-        self.assertEqual(4, self.refresh(sp4).order)
-
-    def test_incr_order03(self):
-        "Errrors"
-        self.login()
-
-        create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', order=1)
-        sp2 = create_phase(name='Abandoned',   order=2)
-
-        url = self.DOWN_URL
-        self.assertPOST404(url % sp2.id)
-        self.assertPOST404(url % (sp2.id + sp1.id)) #odd pk
-
-    def test_decr_order01(self):
-        self.login()
-
-        create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', order=1)
-        sp2 = create_phase(name='Abandoned',   order=2)
-        sp3 = create_phase(name='Won',         order=3)
-        sp4 = create_phase(name='Lost',        order=4)
-
-        self.assertPOST200(self.UP_URL % sp3.id)
-
-        self.assertEqual(1, self.refresh(sp1).order)
-        self.assertEqual(3, self.refresh(sp2).order)
-        self.assertEqual(2, self.refresh(sp3).order)
-        self.assertEqual(4, self.refresh(sp4).order)
-
-    def test_decr_order02(self):
-        "Error: can move up the first one"
-        self.login()
-
-        create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', order=1)
-        create_phase(name='Abandoned', order=2)
-
-        self.assertPOST404(self.UP_URL % sp1.id)
 
     def test_delete01(self):
         self.login()

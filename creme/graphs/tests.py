@@ -5,10 +5,12 @@ try:
 
     from django.utils.unittest.case import skipIf
 
-    from creme.creme_core.models import RelationType, Relation
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation)
+    from creme.creme_core.models import RelationType, Relation
 
-    from creme.persons.models import Contact, Organisation
+    #from creme.persons.models import Contact, Organisation
 
     from .models import *
 except Exception as e:
@@ -29,7 +31,7 @@ class GraphsTestCase(CremeTestCase):
         cls.populate('creme_core', 'graphs')
 
     def login(self, is_superuser=True):
-        super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
+        return super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
 
     def test_portal(self):
         self.login()
@@ -54,17 +56,17 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(name, graphs[0].name)
 
     def test_graph_edit(self):
-        self.login()
+        user = self.login()
 
         name = 'Nodz-a-lapalooza'
-        graph = Graph.objects.create(user=self.user, name=name)
+        graph = Graph.objects.create(user=user, name=name)
 
-        url = '/graphs/graph/edit/%s' % graph.id
+        url = graph.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={'user': self.user.id,
+                                    data={'user': user.id,
                                           'name': name,
                                          }
                                    )
@@ -72,13 +74,13 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(name, self.refresh(graph).name)
 
     def test_listview(self):
-        self.login()
+        user = self.login()
 
-        create_graph = partial(Graph.objects.create, user=self.user)
+        create_graph = partial(Graph.objects.create, user=user)
         graph1 = create_graph(name='Graph01')
         graph2 = create_graph(name='Graph02')
 
-        response = self.assertGET200('/graphs/graphs')
+        response = self.assertGET200(Graph.get_lv_absolute_url())
 
         with self.assertNoException():
             graphs = response.context['entities'].object_list
@@ -87,21 +89,21 @@ class GraphsTestCase(CremeTestCase):
         self.assertIn(graph2, graphs)
 
     def test_relation_types01(self):
-        self.login()
+        user = self.login()
 
-        graph = Graph.objects.create(user=self.user, name='Graph01')
+        graph = Graph.objects.create(user=user, name='Graph01')
         self.assertEqual(0, graph.orbital_relation_types.count())
 
         url = '/graphs/graph/%s/relation_types/add' % graph.id
         self.assertGET200(url)
 
         rtype_create = RelationType.create
-        rtype01, srtype01 = rtype_create(('test-subject_love', 'loves'),
-                                         ('test-object_love',  'is loved to')
-                                        )
-        rtype02, srtype02 = rtype_create(('test-subject_hate', 'hates'),
-                                         ('test-object_hate',  'is hated to')
-                                        )
+        rtype01 = rtype_create(('test-subject_love', 'loves'),
+                               ('test-object_love',  'is loved to')
+                              )[0]
+        rtype02 = rtype_create(('test-subject_hate', 'hates'),
+                               ('test-object_hate',  'is hated to')
+                              )[0]
         rtypes_ids = [rtype01.id, rtype02.id]
 
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtypes_ids}))
@@ -129,9 +131,8 @@ class GraphsTestCase(CremeTestCase):
 
     @skipIf(skip_graphviz_test, 'Pygraphviz is not installed (are you under Wind*ws ??')
     def test_download01(self):
-        self.login()
+        user = self.login()
 
-        user = self.user
         contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         orga = Organisation.objects.create(user=user, name='NERV')
 
@@ -166,9 +167,8 @@ class GraphsTestCase(CremeTestCase):
         #TODO: improve
 
     def test_add_rootnode(self):
-        self.login()
+        user = self.login()
 
-        user = self.user
         contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         orga = Organisation.objects.create(user=user, name='NERV')
 
@@ -212,9 +212,8 @@ class GraphsTestCase(CremeTestCase):
         self.assertDoesNotExist(rnode)
 
     def test_edit_rootnode(self):
-        self.login()
+        user = self.login()
 
-        user = self.user
         orga = Organisation.objects.create(user=user, name='NERV')
 
         #TODO: factorise
@@ -230,7 +229,6 @@ class GraphsTestCase(CremeTestCase):
         rnode = RootNode.objects.create(graph=graph, entity=orga)
         rnode.relation_types = [rtype01]
 
-        #url = '/graphs/root/edit/%s/' % rnode.id
         url = rnode.get_edit_absolute_url()
         self.assertGET200(url)
 

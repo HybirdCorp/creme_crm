@@ -10,10 +10,7 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
-    from creme.persons.models import Contact
-
-    from creme.activities.models import Activity, Calendar
-    from creme.activities.constants import *
+    from creme.creme_core.tests.base import skipIfNotInstalled
 
     from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
     from ..models import UserMessage, UserMessagePriority
@@ -188,8 +185,16 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
         self.assertFalse(UserMessage.objects.all())
 
+    @skipIfNotInstalled('creme.activities')
     def test_activity_createview01(self):
         "Test activity form hooking"
+        from creme.persons.models import Contact
+
+        from creme.activities.models import Activity, Calendar
+        from creme.activities.constants import (ACTIVITYTYPE_MEETING,
+                ACTIVITYSUBTYPE_MEETING_NETWORK, REL_SUB_PART_2_ACTIVITY,
+                REL_SUB_ACTIVITY_SUBJECT)
+
         user       = self.user
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
@@ -260,6 +265,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIn(unicode(me), body)
         self.assertIn(unicode(ranma), body)
 
+    @skipIfNotInstalled('creme.activities')
     def test_activity_createview02(self):
         "Pop-up form is not hooked"
         response = self.assertGET200('/activities/activity/add_popup')

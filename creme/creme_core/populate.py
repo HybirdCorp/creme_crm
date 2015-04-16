@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,9 @@
 from decimal import Decimal
 import logging
 
-from django.utils.translation import ugettext as _
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 from .blocks import properties_block, relations_block, customfields_block, history_block
 from .constants import *
@@ -113,3 +114,7 @@ class Populator(BasePopulator):
             create_vat = Vat.objects.get_or_create
             for value in values:
                 create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
+
+    if settings.TESTS_ON:
+        from .tests import fake_populate
+        fake_populate.populate()
