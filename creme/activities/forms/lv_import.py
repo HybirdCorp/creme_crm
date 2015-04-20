@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,17 +108,15 @@ class RelatedExtractor(object):
                 err_msg = _(u'No linkable contact found for the search «%s»') % \
                             self._searched_contact(first_name, last_name)
         elif self._create:
-            civ_obj = None
-
-            if civility:
-                civs = Civility.objects.filter(Q(title=civility) | Q(shortcut=civility)) [:1] #TODO: improve get_first_or_None
-                if civs:
-                    civ_obj = civs[0]
-
             extracted = [Contact.objects.create(user=user,
                                                 first_name=first_name,
                                                 last_name=last_name,
-                                                civility=civ_obj,
+                                                civility=Civility.objects
+                                                                 .filter(Q(title=civility) |
+                                                                         Q(shortcut=civility)
+                                                                        )
+                                                                 .first()
+                                                         if civility else None,
                                                )
                         ]
         else:

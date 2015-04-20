@@ -188,10 +188,12 @@ class VcfImportForm(CremeModelWithUserForm):
                 fields['adr_last_name'].initial = last_name
                 prefix = value.prefix
                 if prefix:
-                    #civil = Civility.objects.filter(title__icontains=prefix)[:1]
-                    civil = Civility.objects.filter(shortcut__icontains=prefix)[:1] #TODO: find in title too ?
+                    ##civil = Civility.objects.filter(title__icontains=prefix)[:1]
+                    #civil = Civility.objects.filter(shortcut__icontains=prefix)[:1]
+                    #TODO: find in title too ?
+                    civil = Civility.objects.filter(shortcut__icontains=prefix).first()
                     if civil:
-                        fields['civility'].initial = civil[0].id
+                        fields['civility'].initial = civil.id
                     else:
                         fields['civility'].help_text = other_help_text + prefix
             else:
@@ -202,11 +204,11 @@ class VcfImportForm(CremeModelWithUserForm):
 
             if contents.get('org'):
                 org_name = vcf_data.org.value[0]
+                orga = Organisation.objects.filter(name=org_name).first()
 
-                orga = Organisation.objects.filter(name=org_name)[:1]
                 if orga:
-                    fields['organisation'].initial = orga[0].id
-                    fields['create_or_attach_orga'].initial  = True
+                    fields['organisation'].initial = orga.id
+                    fields['create_or_attach_orga'].initial = True
 
                 fields['work_name'].initial     = org_name
                 fields['work_adr_name'].initial = org_name
@@ -218,9 +220,10 @@ class VcfImportForm(CremeModelWithUserForm):
 
             if contents.get('title'):
                 title = vcf_data.title.value
-                position = Position.objects.filter(title__icontains=title)[:1]
+                position = Position.objects.filter(title__icontains=title).first()
+
                 if position:
-                    fields['position'].initial = position[0].id
+                    fields['position'].initial = position.id
                 else:
                     fields['position'].help_text = other_help_text + title
 

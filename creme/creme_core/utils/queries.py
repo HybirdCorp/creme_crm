@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, date
 import json
+from datetime import datetime, date
+import warnings
 
 from django.core.serializers.base import SerializationError
 from django.db.models import Q, Model
@@ -56,6 +57,9 @@ def get_q_from_dict(dict, is_or=False):
 
 def get_first_or_None(model):
     """Get the first model instance, if there is at least one, or return None."""
+    warnings.warn("get_first_or_None() is deprecated; use my_model.objects.first() instead",
+                  DeprecationWarning
+                )
     objects = model.objects.all()[:1]
     return objects[0] if objects else None
 

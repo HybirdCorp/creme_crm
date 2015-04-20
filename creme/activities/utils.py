@@ -75,7 +75,7 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
                                                       pk__in=activity_ids,
                                                       floating_type__in=(NARROW, FLOATING_TIME),
                                                       **busy_args
-                                                     )[:1]
+                                                     )[:1] # TODO: use .first()
 
         if activity_collisions:
             collision = activity_collisions[0]

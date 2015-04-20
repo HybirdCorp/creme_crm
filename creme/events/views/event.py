@@ -28,7 +28,6 @@ from creme.creme_core.core.entity_cell import EntityCellRelation, EntityCellVola
 from creme.creme_core.models import RelationType
 from creme.creme_core.models.entity import EntityAction
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from creme.persons.models import Contact
@@ -43,7 +42,7 @@ from ..models import Event, EventType
 @permission_required('events.add_event')
 def add(request):
     return add_entity(request, EventForm,
-                      extra_initial={'type':  get_first_or_None(EventType)},
+                      extra_initial={'type': EventType.objects.first()},
                       extra_template_dict={'submit_label': _('Save the event')},
                      )
 

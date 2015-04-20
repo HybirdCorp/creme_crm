@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 from future_builtins import zip
 
-from django.db.models import CharField, TextField, PositiveSmallIntegerField, ForeignKey, ManyToManyField
+from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
+        ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
@@ -31,7 +32,8 @@ from .market_segment import MarketSegment
 
 
 __all__ = ('Strategy', 'MarketSegmentDescription', 'MarketSegmentCategory',
-           'CommercialAsset', 'CommercialAssetScore', 'MarketSegmentCharm', 'MarketSegmentCharmScore'
+           'CommercialAsset', 'CommercialAssetScore', 'MarketSegmentCharm',
+           'MarketSegmentCharmScore',
           )
 
 _CATEGORY_MAP = {
@@ -278,10 +280,12 @@ class Strategy(CremeEntity):
         orga    = self.evaluated_orgas.get(pk=orga_id) #raise exception if invalid orga
         seg_desc = self.segment_info.get(pk=segment_desc_id)  #raise exception if invalid segment
 
-        cats_objs = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga)[:1]
+        #cats_objs = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga)[:1]
+        cat_obj = MarketSegmentCategory.objects.filter(segment_desc=seg_desc, organisation=orga).first()
 
-        if cats_objs:
-            cat_obj = cats_objs[0]
+        #if cats_objs:
+        if cat_obj:
+            #cat_obj = cats_objs[0]
 
             if cat_obj.category == category:
                 return
@@ -290,7 +294,7 @@ class Strategy(CremeEntity):
             cat_obj.save()
         else:
             MarketSegmentCategory.objects.create(strategy=self, segment_desc=seg_desc,
-                                                 organisation=orga, category=category
+                                                 organisation=orga, category=category,
                                                 )
 
         self._segments_categories.pop(orga.id, None) #clean cache

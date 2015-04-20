@@ -38,8 +38,10 @@ class VcfGenerator(object):
         self.email = contact.email              or ''
         self.url = contact.url_site             or ''
 
-        employer = contact.get_employers()[:1]  # TODO Manage several employers
-        self.employer = employer[0] if employer else None
+        # TODO Manage several employers
+        #employer = contact.get_employers()[:1]
+        #self.employer = employer[0] if employer else None
+        self.employer = contact.get_employers().first()
 
         self.addresses = Address.objects.filter(object_id=contact.id).order_by('id')
 
