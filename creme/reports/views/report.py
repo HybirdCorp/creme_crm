@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,7 @@ def unlink_report(request):
     field.selected = False
     field.save()
 
-    return HttpResponse("", mimetype="text/javascript")
+    return HttpResponse("", content_type="text/javascript")
 
 @login_required
 @permission_required('reports')
@@ -145,14 +145,14 @@ def change_field_order(request):
     try:
         other_field = report.fields.get(order=field.order)
     except Field.DoesNotExist:
-        return HttpResponse("", status=403, mimetype="text/javascript")
+        return HttpResponse("", status=403, content_type="text/javascript")
 
     other_field.order = other_field.order - _order_direction[direction]
 
     field.save()
     other_field.save()
 
-    return HttpResponse("", status=200, mimetype="text/javascript")
+    return HttpResponse("", status=200, content_type="text/javascript")
 
 
 #TODO: jsonify ?
@@ -181,5 +181,5 @@ def set_selected(request):
         rfield.selected = checked
         rfield.save()
 
-    return HttpResponse(mimetype="text/javascript")
+    return HttpResponse(content_type="text/javascript")
 

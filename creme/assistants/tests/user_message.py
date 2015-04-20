@@ -2,11 +2,11 @@
 
 try:
     from functools import partial
+    from json.encoder import JSONEncoder
 
     from django.conf import settings
     from django.contrib.auth.models import User
     from django.core import mail
-    from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
@@ -222,6 +222,7 @@ class UserMessageTestCase(AssistantsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':                user.pk,
                                           'title':               title,
+                                          #TODO: json.dumps
                                           'type_selector':       JSONEncoder().encode({'type': ACTIVITYTYPE_MEETING,
                                                                                        'sub_type': ACTIVITYSUBTYPE_MEETING_NETWORK,
                                                                                       }

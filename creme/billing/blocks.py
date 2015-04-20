@@ -19,23 +19,22 @@
 ################################################################################
 
 from django.conf import settings
-from django.forms.models import modelformset_factory
-#from django.utils.simplejson.encoder import JSONEncoder
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from django.forms.models import modelformset_factory
+from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
 from creme.creme_core.models import SettingValue, CremeEntity, Relation
-from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from creme.persons.models import Contact, Organisation
 from creme.persons.blocks import AddressBlock
+from creme.persons.models import Contact, Organisation
 
 from creme.products.models import Product, Service
 
-from .models import *
 from .constants import *
 from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
+from .models import *
 
 
 class BillingBlock(Block):
@@ -91,10 +90,7 @@ class _LineBlock(SimpleBlock):
                                                             item_count=lines.count(),
                                                             related_item_ct=self.related_item_ct,
                                                             related_item_label=self.related_item_label,
-                                                            #q_filter=JSONEncoder().encode({'type':self.line_type,
-                                                                                           #'relations__type': REL_OBJ_HAS_LINE,
-                                                                                           #'relations__object_entity': document.id}),
-                                                            )
+                                                           )
         )
 
 

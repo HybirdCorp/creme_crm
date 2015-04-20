@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                            )
 
     def _exit(self, msg):
-        print msg
+        self.stderr.write(msg)
         sys.exit(2)
 
     def handle(self, *args, **options):
@@ -75,5 +75,5 @@ class Command(BaseCommand):
         for user in users:
             try:
                 Synchronization(user).synchronize()
-            except CremeActiveSyncError, e:
-                print u"Error with user %s : %s" % (user, e)
+            except CremeActiveSyncError as e:
+                self.stderr.write(u"Error with user %s : %s" % (user, e))

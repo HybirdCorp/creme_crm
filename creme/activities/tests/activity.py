@@ -12,7 +12,6 @@ try:
     from django.utils.html import escape
     from django.utils.timezone import now, get_current_timezone, make_naive
     from django.utils.translation import ugettext as _, ungettext
-    #from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
@@ -25,8 +24,8 @@ try:
     from creme.assistants.models import Alert
 
     from .base import _ActivitiesTestCase
-    from ..models import *
     from ..constants import *
+    from ..models import *
     from ..utils import check_activity_collisions
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))

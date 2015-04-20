@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 try:
-    from django.utils.simplejson import loads as jsonloads, dumps as json_encode
+    from json import loads as jsonloads, dumps as json_encode
+
     from django.utils.translation import ugettext as _
 
     from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,

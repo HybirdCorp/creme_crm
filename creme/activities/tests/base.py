@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
 
-from django.utils.simplejson.encoder import JSONEncoder
+from json.encoder import JSONEncoder
 
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -40,4 +40,4 @@ class _ActivitiesTestCase(CremeTestCase):
         #self.other_contact = self.other_user.linked_contact
 
     def _acttype_field_value(self, atype_id, subtype_id=None):
-        return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id})
+        return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id}) #TODO: json.dumps

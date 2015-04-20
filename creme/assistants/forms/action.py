@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,12 +39,16 @@ class ActionForm(CremeModelWithUserForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(ActionForm, self).__init__(*args, **kwargs)
-        self.instance.creme_entity = entity
+        instance = self.instance
+        instance.creme_entity = entity
 
-        deadline = localtime(self.instance.deadline)
-        self.fields['deadline_time'].initial = time(hour=deadline.hour,
-                                                    minute=deadline.minute,
-                                                   ) if deadline else time()
+        deadline = instance.deadline
+
+        if deadline:
+            local_deadline = localtime(deadline)
+            self.fields['deadline_time'].initial = time(hour=local_deadline.hour,
+                                                        minute=local_deadline.minute,
+                                                       )
 
     def clean(self):
         cdata = super(ActionForm, self).clean()

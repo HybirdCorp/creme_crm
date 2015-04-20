@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import timedelta
-import logging
+#import logging
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -35,7 +35,7 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 LOCK_NAME = "com_approaches_sending_emails"
 
 #NB: python manage.py com_approaches_emails_send
@@ -74,7 +74,7 @@ class Command(BaseCommand):
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException:
-            print 'A process is already running'
+            self.stderr.write('A process is already running')
         else:
             if SettingValue.objects.get(key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED).value:
                 activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
@@ -137,8 +137,10 @@ class Command(BaseCommand):
                         connection.send_messages(emails)
                         connection.close()
 
-                        logger.info(u"Emails sended")
+                        #logger.info(u"Emails sended")
+                        self.stdout.write('Emails sended')
                     except Exception as e:
-                        logger.error(u"An error has occurred during sending mails (%s)" % e)
+                        #logger.error(u"An error has occurred during sending mails (%s)" % e)
+                        self.stderr.write(u"An error has occurred during sending mails (%s)" % e)
 
             Mutex.graceful_release(LOCK_NAME)

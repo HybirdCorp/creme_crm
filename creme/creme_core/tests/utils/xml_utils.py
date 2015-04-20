@@ -268,20 +268,20 @@ class XMLUtilsTestCase(CremeTestCase):
                  '   <update />'
                  '</commands>'
                 )
-        self.assertXMLEqual(xml01,
+        self.assertXMLEqualv2(xml01,
                             '<commands attr1="foo" attr2="bar" >'
                             ' <create attr3="xxx" />'
                             ' <update></update>'
                             '</commands>'
                            )
 
-        self.assertRaises(AssertionError, self.assertXMLEqual, xml01,
+        self.assertRaises(AssertionError, self.assertXMLEqualv2, xml01,
                           '<commands attr2="bar" >'
                           '   <create attr3="xxx" />'
                           '   <update />'
                           '</commands>'
                          )
-        self.assertRaises(AssertionError, self.assertXMLEqual,
+        self.assertRaises(AssertionError, self.assertXMLEqualv2,
                           '<commands attr2="bar" attr1="foo" >', #syntax error
                           '<commands attr2="bar" attr1="foo" />',
                          )

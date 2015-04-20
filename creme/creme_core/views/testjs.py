@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,18 +22,18 @@ from datetime import date #datetime
 from time import sleep
 
 import logging
-from os.path import join
 from os import listdir
-from re import compile as re_compile
+from os.path import join
 from random import randint
+from re import compile as re_compile
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
-from django.core.exceptions import PermissionDenied
 
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
@@ -58,7 +58,8 @@ TEST_IMAGE_URLS = ('images/add_32.png',
                    'images/500.png',
                    'images/action_48.png',
                    'images/action_not_in_time_48.png',
-                   'images/wait.gif',)
+                   'images/wait.gif',
+                  )
 
 class MockImage(object):
     def __init__(self, url, width, height=None):
@@ -183,9 +184,13 @@ def test_http_response(request):
         raise Exception('Server internal error')
 
     if request.is_ajax():
-        return HttpResponse('XML Http Response %d' % status, mimetype='text/javascript', status=status)
+        return HttpResponse('XML Http Response %d' % status,
+                            content_type='text/javascript', status=status,
+                           )
 
-    return HttpResponse('<p>Http Response %d</p>' % status, mimetype='text/html', status=status)
+    return HttpResponse('<p>Http Response %d</p>' % status,
+                        content_type='text/html', status=status,
+                       )
 
 @login_required
 def test_js(request):

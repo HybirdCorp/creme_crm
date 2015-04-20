@@ -119,7 +119,7 @@ def lw_ajax_exceptions(view):
             content = unicode(e)
             status = 400
 
-        return HttpResponse(content, status=status) #, mimetype='text/javascript'
+        return HttpResponse(content, status=status) #, content_type='text/javascript'
 
     return _aux
 

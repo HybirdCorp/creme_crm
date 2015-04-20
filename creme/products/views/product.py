@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,9 @@ from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
-from ..models import Product, Service, Category, SubCategory
 from ..forms.base import AddImagesForm
 from ..forms.product import ProductCreateForm, ProductEditForm
+from ..models import Product, Service, Category, SubCategory
 
 
 @login_required
@@ -89,6 +89,6 @@ def remove_image(request, entity_id):
     entity.images.remove(img_id)
 
     if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
+        return HttpResponse("", content_type="text/javascript")
 
     return redirect(entity)

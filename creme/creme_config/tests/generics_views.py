@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from json import JSONEncoder, loads
+
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder, simplejson
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeCivility as Civility,
@@ -105,6 +106,7 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(count + 2, sector.order) #order is set to max
 
     def assertWidgetResponse(self, response, instance):
+        #TODO: json.dumps
         self.assertEqual(u'<json>%s</json>' % JSONEncoder().encode({
                             'added': [[instance.id, unicode(instance)]], 
                             'value': instance.id
@@ -242,7 +244,7 @@ class GenericModelConfigTestCase(CremeTestCase):
                                     )
 
         with self.assertNoException():
-            result = simplejson.loads(response.content)
+            result = loads(response.content)
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))

@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    from json.encoder import JSONEncoder
 
     from django.utils.formats import date_format
-    from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
@@ -49,7 +49,7 @@ class ProjectsTestCase(CremeTestCase):
         return '/projects/task/%s/resource/add' % task.id
 
     def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
-        return JSONEncoder().encode({'type': atype, 'sub_type': sub_type})
+        return JSONEncoder().encode({'type': atype, 'sub_type': sub_type}) #TODO: json.dumps ??
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,

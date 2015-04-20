@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from json import JSONEncoder
+
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.utils.translation import ugettext as _
 
     from .base import CremeTestCase
@@ -121,7 +122,7 @@ class QuickFormTestCase(CremeTestCase):
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertFormError(response, 'form', 'last_name', _(u'This field is required.'))
-        self.assertFormError(response, 'form', 'email',     _(u'Enter a valid e-mail address.'))
+        self.assertFormError(response, 'form', 'email',     _(u'Enter a valid email address.'))
 
         self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
         self.assertEqual(count, Contact.objects.count())
@@ -140,10 +141,10 @@ class QuickFormTestCase(CremeTestCase):
         self.assertFormSetError(response, 'formset', 0, 'email')
 
         self.assertFormSetError(response, 'formset', 1, 'last_name', [_(u'This field is required.')])
-        self.assertFormSetError(response, 'formset', 1, 'email', [_(u'Enter a valid e-mail address.')])
+        self.assertFormSetError(response, 'formset', 1, 'email', [_(u'Enter a valid email address.')])
 
         self.assertFormSetError(response, 'formset', 2, 'last_name')
-        self.assertFormSetError(response, 'formset', 2, 'email', [_(u'Enter a valid e-mail address.')])
+        self.assertFormSetError(response, 'formset', 2, 'email', [_(u'Enter a valid email address.')])
 
         self.assertEqual(count, Contact.objects.count())
 

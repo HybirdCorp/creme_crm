@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,8 @@
 ################################################################################
 
 import logging
+from json import JSONEncoder
 
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
 from django.http import Http404, HttpResponse
@@ -96,8 +96,8 @@ def add_model_from_widget(request, app_name, model_name):
     instance = form.instance
     response = {'value': instance.id, 'added': [(instance.id, unicode(instance))]}
 
-    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response),
-                        mimetype="text/html"
+    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response), #TODO: json.dumps
+                        content_type="text/html",
                        )
 
 @login_required
@@ -141,7 +141,7 @@ def delete_model(request, app_name, model_name):
 
         #TODO: factorise ??
         if request.is_ajax():
-            return HttpResponse(msg, mimetype="text/javascript", status=400)
+            return HttpResponse(msg, content_type="text/javascript", status=400)
 
         raise Http404(msg)
 
@@ -155,7 +155,7 @@ def edit_model(request, app_name, model_name, object_id):
                                  {'pk': object_id},
                                  modelconf.model,
                                  modelconf.model_form,
-                                 template='creme_core/generics/form/edit_innerpopup.html'
+                                 template='creme_core/generics/form/edit_innerpopup.html',
                                 )
 
 @login_required

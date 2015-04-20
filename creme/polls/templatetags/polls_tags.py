@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from json.encoder import JSONEncoder
+
 from django.template import Library
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext as _
 
 
@@ -81,6 +82,7 @@ def print_node_chart(context, node, diameter=100):
         #data = [[label, 1]]
         #legends = [legend]
 
+    #TODO: json.dumps
     encode = JSONEncoder().encode
     context.update({
                 'chart_data':     mark_safe(encode([data])),

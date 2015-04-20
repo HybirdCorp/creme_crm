@@ -134,7 +134,7 @@ def delete_evalorga(request, strategy_id):
     MarketSegmentCharmScore.objects.filter(charm__strategy=strategy, organisation=orga_id).delete()
 
     if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
+        return HttpResponse("", content_type="text/javascript")
 
     return redirect(strategy)
 
@@ -183,7 +183,7 @@ def _set_score(request, strategy_id, method_name):
     except Exception as e:
         raise Http404(str(e))
 
-    return HttpResponse('', mimetype='text/javascript')
+    return HttpResponse('', content_type='text/javascript')
 
 def set_asset_score(request, strategy_id):
     return _set_score(request, strategy_id, 'set_asset_score')
@@ -207,7 +207,7 @@ def set_segment_category(request, strategy_id):
     except Exception as e:
         raise Http404(str(e))
 
-    return HttpResponse('', mimetype='text/javascript')
+    return HttpResponse('', content_type='text/javascript')
 
 @login_required
 @permission_required('commercial')

@@ -16,7 +16,7 @@ __all__ = ('SettingTestCase',)
 #TODO: clean registry in teardDown....
 class SettingTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        self.populate('creme_core')
 
     def _buil_edit_url(self, setting_value):
         return '/creme_config/settings/edit/%s' % setting_value.id
@@ -127,7 +127,7 @@ class SettingTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'value': 42})
         self.assertFormError(response, 'form', 'value',
-                             _(u'Enter a valid e-mail address.')
+                             _(u'Enter a valid email address.')
                             )
 
         email = u'd.knut.knut@eswat.ol'

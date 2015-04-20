@@ -60,7 +60,7 @@ def download_email_template(request, subject):
                                              },
                                              context_instance=RequestContext(request)
                                             ),
-                            mimetype="application/vnd.sealed.eml"
+                            content_type="application/vnd.sealed.eml",
                            )
     response['Content-Disposition'] = 'attachment; filename=%s.eml' % \
                                         normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')

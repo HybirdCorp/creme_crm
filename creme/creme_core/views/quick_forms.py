@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from json import JSONEncoder
+
 from django.core.exceptions import PermissionDenied
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 from django.forms.formsets import formset_factory
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext as _
@@ -81,9 +82,13 @@ def add(request, ct_id, count):
 
 def json_quickform_response(instance):
     response = {'value':instance.id,
-                'added':[(instance.id, unicode(instance))]}
+                'added':[(instance.id, unicode(instance))],
+               }
 
-    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response), mimetype="text/html", status=200)
+    #TODO: json.dumps
+    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response),
+                        content_type="text/html", status=200,
+                       )
 
 @login_required
 def add_from_widget(request, ct_id, count):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,8 @@ from django.core.management.base import BaseCommand
 
 import restkit
 
-class Command(BaseCommand):
 
+class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option("-u", "--url", action="store", dest="url"),
         make_option("-i", "--hotmail", action="store_const", const="https://m.hotmail.com/Microsoft-Server-ActiveSync", dest="action"),
@@ -50,7 +50,8 @@ class Command(BaseCommand):
         verbose = options.get('verbose')
 
         if not url and not action:
-            print u"Url or action is required"
+            #print u"Url or action is required"
+            self.stderr.write('Url or action is required')
             return
 
         if action:
@@ -60,10 +61,15 @@ class Command(BaseCommand):
 
         if verbose:
             for header in response.response.headers:
-                print header
+                #print header
+                self.stdout.write(header)
         else:
             targets = ('MS-ASProtocolVersions', 'MS-ASProtocolCommands')
-            print '\n'
+            #print '\n'
+            self.stdout.write('\n')
             for item in filter(lambda i: i[0] in targets, response.response.headers):
-                print item
-            print '\n'
+                #print item
+                self.stdout.write(item)
+
+            #print '\n'
+            self.stdout.write('\n')

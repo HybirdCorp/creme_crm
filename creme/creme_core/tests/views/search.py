@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    import json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
     #from django.test.utils import override_settings
     from django.utils.translation import ugettext as _
 
@@ -210,7 +210,7 @@ class SearchViewTestCase(ViewsTestCase):
         response = self.assertGET200(url_fmt % (block_id, 'linu'))
 
         with self.assertNoException():
-            results = simplejson.loads(response.content)
+            results = json.loads(response.content)
 
         self.assertIsInstance(results, list)
         self.assertEqual(1, len(results))

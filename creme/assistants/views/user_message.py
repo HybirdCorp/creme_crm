@@ -64,6 +64,6 @@ def delete(request):
     msg.delete()
 
     if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
+        return HttpResponse("", content_type="text/javascript")
 
     return HttpResponseRedirect(msg.creme_entity.get_absolute_url() if msg.creme_entity else '/')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,9 +22,9 @@ import logging
 #import warnings
 import traceback
 import sys
+from json import JSONEncoder
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 #from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 from django.contrib.contenttypes.models import ContentType
@@ -129,9 +129,9 @@ def jsonify(func):
             msg = unicode(e)
             status = 400
         else:
-            msg = JSONEncoder().encode(rendered)
+            msg = JSONEncoder().encode(rendered) #TODO: json.dumps
 
-        return HttpResponse(msg, mimetype='text/javascript', status=status)
+        return HttpResponse(msg, content_type='text/javascript', status=status)
 
     return _aux
 

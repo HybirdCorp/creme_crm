@@ -3,8 +3,8 @@
 try:
     from decimal import Decimal
     from functools import partial
+    import json
 
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -48,7 +48,7 @@ class ProductTestCase(_ProductsTestCase):
 
         response = self.assertGET200('/products/sub_category/%s/json' % cat.id)
         self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
-                         simplejson.loads(response.content)
+                         json.loads(response.content)
                         )
 
     def test_createview01(self):

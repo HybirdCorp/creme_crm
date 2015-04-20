@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from south.v2 import DataMigration
+from json import dumps as jsondumps
 
-from django.utils.simplejson import dumps as jsondumps
+from south.v2 import DataMigration
 
 
 class Migration(DataMigration):

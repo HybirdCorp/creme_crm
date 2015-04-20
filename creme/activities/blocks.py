@@ -51,7 +51,7 @@ class ParticipantsBlock(QuerysetBlock):
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
                     )
         relations = btc['page'].object_list
-        #TODO: select_related(depth=1) ?? remove civility with better entity repr system ??
+        #TODO: remove civility with better entity repr system ??
         #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
         contacts = {c.id: c
                         for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations])

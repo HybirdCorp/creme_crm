@@ -123,7 +123,7 @@ def delete(request):
         return_msg = msg
 
     if request.is_ajax():
-        return HttpResponse(return_msg, mimetype="text/javascript", status=status)
+        return HttpResponse(return_msg, content_type="text/javascript", status=status)
 
     return HttpResponseRedirect(callback_url)
 

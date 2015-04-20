@@ -3,12 +3,12 @@
 try:
     import filecmp
     from functools import partial
+    import json
     from os.path import join, exists, split, basename
     from tempfile import NamedTemporaryFile
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
     from django.utils.translation import pgettext
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -183,7 +183,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         response = self.assertGET200('/media_managers/images/%s/get_url' % image.id)
 
-        content = simplejson.loads(response.content)
+        content = json.loads(response.content)
         self.assertIsInstance(content, dict)
         self.assertEqual(1,         len(content))
         self.assertEqual(image_url, content.get('url'))

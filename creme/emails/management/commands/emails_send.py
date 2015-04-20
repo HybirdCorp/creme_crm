@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ class Command(BaseCommand):
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException:
-            print 'A process is already running'
+            self.stderr.write('A process is already running')
         else:
             #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
             for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
@@ -55,5 +55,5 @@ class Command(BaseCommand):
                     #TODO: move in send_mails() ???
                     sending.state = status or SENDING_STATE_DONE
                     sending.save()
-        #finally:
+
             Mutex.graceful_release(LOCK_NAME)

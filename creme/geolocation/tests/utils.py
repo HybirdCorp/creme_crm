@@ -150,7 +150,9 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         GeoAddress.objects.filter(address=address).delete()
         address = Address.objects.select_related('geoaddress').get(pk=address.pk)
 
-        self.assertIsNone(address.geoaddress)
+        #self.assertIsNone(address.geoaddress)
+        with self.assertRaises(GeoAddress.DoesNotExist):
+            address.geoaddress
 
         self.assertDictEqual(dict(id=address.pk,
                                   content=u'',

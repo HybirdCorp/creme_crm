@@ -3,8 +3,8 @@
 try:
     from future_builtins import zip
     from functools import partial
+    from json import loads as load_json, dumps as dump_json
 
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
     from django.utils.encoding import smart_unicode
     from django.contrib.contenttypes.models import ContentType
@@ -597,7 +597,7 @@ class PollFormsTestCase(_PollsTestCase):
         line = self._create_enum_line_from_view([c[1] for c in choices],
                                                 qtype=PollLineType.ENUM
                                                )
-        self.assertEqual({'choices': choices}, simplejson.loads(line.type_args))
+        self.assertEqual({'choices': choices}, load_json(line.type_args))
 
         plt = line.poll_line_type
         self.assertEqual(choices, plt.get_choices())
@@ -1105,7 +1105,7 @@ class PollFormsTestCase(_PollsTestCase):
         del_choices = [[2, 'A lot']]
         line1 = self.refresh(line1)
         self.assertEqual({'choices': choices, 'del_choices': del_choices},
-                         simplejson.loads(line1.type_args)
+                         load_json(line1.type_args)
                         )
 
         plt = line1.poll_line_type
@@ -1335,7 +1335,7 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertNoFormError(response)
 
         condition = line2.conditions.get(source=line1)
-        self.assertEqual(simplejson.dumps([2]), condition.raw_answer)
+        self.assertEqual(dump_json([2]), condition.raw_answer)
 
     def _aux_test_add_line_conditions_bool(self, choice, raw_answer, error=None):
         pform = PollForm.objects.create(user=self.user, name='Form#1')
@@ -1397,11 +1397,11 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertEqual(raw_answer, condition.raw_answer)
 
     def test_add_line_conditions_enumorchoice01(self):
-        self._aux_add_line_conditions_enumorchoice(1, simplejson.dumps([1]))
+        self._aux_add_line_conditions_enumorchoice(1, dump_json([1]))
 
     def test_add_line_conditions_enumorchoice02(self):
         "'Other' choice"
-        self._aux_add_line_conditions_enumorchoice(0, simplejson.dumps([0]))
+        self._aux_add_line_conditions_enumorchoice(0, dump_json([0]))
 
     #TODO: def test_add_line_conditionsXX(self): other types of question ?
 
@@ -1673,7 +1673,7 @@ class PollFormsTestCase(_PollsTestCase):
                                                 )
 
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual(choices, simplejson.loads(response.content))
+        self.assertEqual(choices, load_json(response.content))
 
     def test_get_choices02(self):
         "MULTI_ENUM"
@@ -1684,7 +1684,7 @@ class PollFormsTestCase(_PollsTestCase):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual(choices, simplejson.loads(response.content))
+        self.assertEqual(choices, load_json(response.content))
 
     def test_get_choices03(self):
         "ENUM_OR_STRING"
@@ -1695,7 +1695,7 @@ class PollFormsTestCase(_PollsTestCase):
                                                  choices=choices,
                                                 )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual([[0, _('Other')]] + choices, simplejson.loads(response.content))
+        self.assertEqual([[0, _('Other')]] + choices, load_json(response.content))
 
     def test_get_choices04(self):
         "BOOL"
@@ -1704,7 +1704,7 @@ class PollFormsTestCase(_PollsTestCase):
                                            order=1, type=PollLineType.BOOL,
                                           )
         response = self.assertGET200(self._build_choices_url(line))
-        self.assertEqual([[0, _('No')], [1, _('Yes')]], simplejson.loads(response.content))
+        self.assertEqual([[0, _('No')], [1, _('Yes')]], load_json(response.content))
 
     def test_get_choices_error01(self):
         "Bad type"
@@ -1818,7 +1818,7 @@ class PollFormsTestCase(_PollsTestCase):
                                      )
 
         create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
-        dumps = simplejson.dumps
+        dumps = dump_json
         cond1 = create_cond(line=line_with_conds, source=line1, raw_answer='2')
         cond2 = create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))
         cond3 = create_cond(line=line_with_conds, source=line2, raw_answer=dumps([0]))
@@ -1865,7 +1865,7 @@ class PollFormsTestCase(_PollsTestCase):
                                       conds_use_or=False, type=PollLineType.STRING
                                      )
         create_cond = partial(PollFormLineCondition.objects.create, operator=PollFormLineCondition.EQUALS)
-        dumps = simplejson.dumps
+        dumps = dump_json
         create_cond(line=line_with_conds, source=line1, raw_answer='2')
         create_cond(line=line_with_conds, source=line2, raw_answer=dumps([1]))
         create_cond(line=line_with_conds, source=line2, raw_answer=dumps([0]))

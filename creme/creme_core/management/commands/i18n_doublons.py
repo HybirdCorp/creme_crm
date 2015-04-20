@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,15 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from __future__ import print_function
-
 from collections import defaultdict
 from optparse import make_option, OptionParser
 from os import listdir, sep
 from os.path import join, exists
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -61,14 +59,14 @@ class Command(BaseCommand):
         try:
             from polib import pofile
         except ImportError as e:
-            print(e)
-            print('The required "polib" library seems not installed ; aborting.')
+            self.stderr.write(str(e))
+            self.stderr.write('The required "polib" library seems not installed ; aborting.')
             return
 
         verbosity = int(options.get('verbosity'))
 
         if verbosity >= 2:
-            print('OK "polib" library is installed.')
+            self.stdout.write('OK "polib" library is installed.')
 
         language = options.get('language')
         not_diverging = options.get('not_diverging')
@@ -92,10 +90,10 @@ class Command(BaseCommand):
                             entry.file_path = path
                             entries_per_id[entry.msgid].append(entry)
             elif verbosity >= 1:
-                print('No locale file for "%s"' % app_name)
+                self.stdout.write('No locale file for "%s" (%s)' % (app_name, language))
 
         if verbosity >= 1:
-            print('Number of entries:', entry_count)
+            self.stdout.write('Number of entries: %s' % entry_count)
 
         problems_count = 0
 
@@ -109,7 +107,11 @@ class Command(BaseCommand):
                 if len(entries_per_msg) == 1:
                     if not_diverging:
                         msg_entries = entries_per_msg.itervalues().next()
-                        print('\n[doublon] {%s} in %s' % (msgid, [entry.file_path for entry in msg_entries]))
+                        self.stdout.write('\n[doublon] {%s} in %s' % (
+                                                msgid,
+                                                [entry.file_path for entry in msg_entries],
+                                            )
+                                         )
 
                         problems_count += 1
                 else:
@@ -127,16 +129,20 @@ class Command(BaseCommand):
                                           )
 
                     if cxt_conflict:
-                        print('\n[diverging]\n {%s} in :' % msgid)
+                        self.stdout.write('\n[diverging]\n {%s} in :' % msgid)
 
                         for msgstr, msg_entries in entries_per_msg.iteritems():
-                            print('    {%s} in:' % msgstr,
-                                  ', '.join('(file=%s, cxt=%s)' % (entry.file_path, entry.msgctxt)
-                                                for entry in msg_entries
-                                           )
-                                 )
+                            self.stdout.write('    {%s} in: %s' % (
+                                                    msgstr,
+                                                    ', '.join('(file=%s, cxt=%s)' % (
+                                                                    entry.file_path,
+                                                                    entry.msgctxt,
+                                                                ) for entry in msg_entries
+                                                             )
+                                                )
+                                             )
 
                         problems_count += 1
 
         if verbosity >= 1:
-            print('\nNumber of problems:', problems_count)
+            self.stdout.write('\nNumber of problems: %s' % problems_count)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from future_builtins import map
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
+from json import loads as jsonloads, JSONEncoder
 from re import compile as compile_re
 import warnings
 
@@ -35,8 +36,6 @@ from django.forms.widgets import Select, Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
-from django.utils.simplejson import loads as jsonloads
-from django.utils.simplejson.encoder import JSONEncoder
 
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
@@ -132,6 +131,7 @@ class JSONField(CharField):
         return data
 
     def format_json(self, value):
+        #TODO: json.dumps
         return JSONEncoder().encode(value)
 
     #TODO: can we remove this hack with the new widget api (since django 1.2) ??

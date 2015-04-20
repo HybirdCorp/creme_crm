@@ -2,8 +2,8 @@
 
 try:
     from functools import partial
+    from json import loads as load_json
 
-    from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
@@ -163,7 +163,7 @@ class BlockViewTestCase(CremeTestCase):
         response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
         self.assertEqual(atom, block1.contact)
 
@@ -193,7 +193,7 @@ class BlockViewTestCase(CremeTestCase):
                           [block2.id_, self.TestBlock.string_format_detail % block2.id_],
                           [block3.id_, self.TestBlock.string_format_detail % block3.id_],
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
         self.assertEqual(atom, block1.contact)
         self.assertEqual(atom, block2.contact)
@@ -229,7 +229,7 @@ class BlockViewTestCase(CremeTestCase):
 
         response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_reload_detailview05(self):
@@ -239,7 +239,7 @@ class BlockViewTestCase(CremeTestCase):
 
         response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
         self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertEqual([], simplejson.loads(response.content))
+        self.assertEqual([], load_json(response.content))
 
     def test_reload_home(self):
         self.login()
@@ -261,7 +261,7 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual([[block1.id_, self.TestBlock.string_format_home % block1.id_],
                           [block2.id_, self.TestBlock.string_format_home % block2.id_],
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_reload_portal01(self):
@@ -289,7 +289,7 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual([[block1.id_, self.TestBlock.string_format_portal % block1.id_],
                           [block2.id_, self.TestBlock.string_format_portal % block2.id_],
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
         ct_ids = [ct_id1, ct_id2]
@@ -328,7 +328,7 @@ class BlockViewTestCase(CremeTestCase):
                                         ),
                                     )
         self.assertEqual([[block1.id_, self.TestBlock.string_format_portal % block1.id_]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_reload_basic01(self):
@@ -353,7 +353,7 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_],
                           [block2.id_, self.TestBlock.string_format_detail % block2.id_],
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_reload_basic02(self):
@@ -382,7 +382,7 @@ class BlockViewTestCase(CremeTestCase):
 
         response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_)
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_reload_relations01(self):
@@ -407,7 +407,7 @@ class BlockViewTestCase(CremeTestCase):
         response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertTrue(isinstance(content, list))
         self.assertEqual(1, len(content))
 

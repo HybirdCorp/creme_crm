@@ -231,7 +231,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
         wbxml_str = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'
         decoded   = self.decoder.decode(wbxml_str)
         xml_str   = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
-        self.assertXMLEqual(tostring(decoded), xml_str)
+        self.assertXMLEqualv2(tostring(decoded), xml_str)
 
     def test_decoder02(self):
         wbxml_str = '\x03\x01j\x00\x00\x07VL\x031\x00\x01R\x03{112ef5a8-47fb-44ca-94e2-d0770e6d7c6b}1\x00\x01NW\x0312\x00\x01OH\x032e9ce20a99cc4bc39804d5ee95685' \
@@ -325,7 +325,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     </Add>
   </Changes>
 </FolderSync>"""
-        self.assertXMLEqual(tostring(decoded), xml_str)
+        self.assertXMLEqualv2(tostring(decoded), xml_str)
 
     def test_decoder03(self):
         wbxml_str = '\x03\x01j\x00E\\OK\x030\x00\x01R\x032e9ce20a99cc4bc39804d5ee956855311500000000000000\x00\x01`\x00\x01(\x1a\x01\x01\x01\x01'
@@ -340,7 +340,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     </Collection>
   </Collections>
 </Sync>"""
-        self.assertXMLEqual(tostring(decoded), xml_str)
+        self.assertXMLEqualv2(tostring(decoded), xml_str)
 
     def test_decoder04(self):
         wbxml_str = '\x03\x01j\x00E\\OP\x03Contacts\x00\x01K\x030\x00\x01R\x032e9ce20a99cc4bc39804d5ee956855311b00000000000000\x00\x01\x1e\x13\x01\x01\x01'
@@ -357,7 +357,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     </Collection>
   </Collections>
 </Sync>"""
-        self.assertXMLEqual(tostring(decoded), xml_str)
+        self.assertXMLEqualv2(tostring(decoded), xml_str)
 
     def test_decoder05(self):
         wbxml_str = '\x03\x01j\x00E\\OP\x03Contacts\x00\x01K\x031303376515199\x00\x01R\x03Contact:DEFAULT\x00\x01VGL\x032\x00\x01]\x00\x01i\x03Creme' \
@@ -384,7 +384,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
     </Collection>
   </Collections>
 </Sync>"""
-        self.assertXMLEqual(tostring(decoded), xml_str)
+        self.assertXMLEqualv2(tostring(decoded), xml_str)
 
     def test_decoder06(self):
         wbxml_str = self._open_n_read('test_6.wbxml')
