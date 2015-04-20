@@ -24,7 +24,7 @@ from functools import partial
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL, Sum, BooleanField)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -231,7 +231,7 @@ class Opportunity(CremeEntity):
         else:
             self._opp_target = organisation
 
-    @commit_on_success
+    @atomic
     def save(self, *args, **kwargs):
         create_relation = partial(Relation.objects.create, object_entity=self, user=self.user)
         target = self._opp_target

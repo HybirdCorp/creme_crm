@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from collections import defaultdict
 from json import dumps as json_dump
 
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
 from django.forms.util import flatatt, ErrorList
 from django.forms.widgets import Widget
@@ -132,6 +132,9 @@ class EntityCellsWidget(Widget):
 
 class EntityCellsField(Field):
     widget = EntityCellsWidget
+    default_error_messages = {
+        'invalid': _(u'Enter a valid value.'),
+    }
 
     def __init__(self, content_type=None, *args, **kwargs):
         super(EntityCellsField, self).__init__(*args, **kwargs)
@@ -276,7 +279,7 @@ class HeaderFilterForm(CremeModelForm):
 
     blocks = CremeModelForm.blocks.new(('cells', _('Columns'), ['cells']))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = HeaderFilter
         #TODO: use 'help_texts' (django 1.6)
 
@@ -326,7 +329,7 @@ class HeaderFilterForm(CremeModelForm):
 
         return cdata
 
-    @commit_on_success
+    @atomic
     def save(self):
         instance = self.instance
         instance.is_custom = True

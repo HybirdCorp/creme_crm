@@ -24,9 +24,10 @@ import logging
 import os
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+#from django.db import transaction
 from django.db.models import Model, CharField, BooleanField, FileField #ForeignKey, Manager
 from django.db.models.query_utils import Q
+from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _
 
 from ..core.function_field import FunctionFieldsManager
@@ -47,8 +48,7 @@ class CremeModel(Model):
 
     def _pre_delete(self):
         """Called just before deleting the model.
-            Could be useful for cleaning, with transaction management, your inherited model as nested transactions
-            doesn't work.
+        It is useful for cleaning, within the delete() transaction.
         """
         pass
 
@@ -63,27 +63,39 @@ class CremeModel(Model):
         super(CremeModel, self).delete()
 
     def delete(self):
-        file_fields = []
-        _delete_files = self._delete_files
+#        file_fields = []
+#        _delete_files = self._delete_files
+#
+#        with transaction.commit_manually():
+#            try:
+#                if _delete_files:
+#                    file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
+#                                    for field in chain(self._meta.fields, self._meta.many_to_many)
+#                                        if issubclass(field.__class__, FileField) #TODO: isinstance(field, FileField)
+#                                  ]
+#
+#                self._delete_without_transaction()
+#                transaction.commit()
+#            #except Exception as e:
+#            except:
+#                transaction.rollback()
+#                #NB: logger.whatever() breaks the functioning of commit/rollback feature...
+#                #logger.debug('Error in CremeModel.delete(): %s', e)
+#                raise
+        file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
+                        for field in chain(self._meta.fields, self._meta.many_to_many)
+                            if isinstance(field, FileField)
+                      ] if self._delete_files else None
 
-        with transaction.commit_manually(): #TODO: commit_on_success
-            try:
-                if _delete_files:
-                    file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name)))
-                                    for field in chain(self._meta.fields, self._meta.many_to_many)
-                                        if issubclass(field.__class__, FileField) #TODO: isinstance(field, FileField)
-                                  ]
-
+        try:
+            with atomic():
                 self._delete_without_transaction()
-                transaction.commit()
-            #except Exception as e:
-            except:
-                transaction.rollback()
-                #NB: logger.whatever() breaks the functioning of commit/rollback feature...
-                #logger.debug('Error in CremeModel.delete(): %s', e)
-                raise
+        except:
+            logger.exception('Error in CremeModel.delete()')
+            raise
 
-        if _delete_files:
+#        if _delete_files:
+        if file_fields:
             obj_filter = self._default_manager.filter
             os_remove = os.remove
 

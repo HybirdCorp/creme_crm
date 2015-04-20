@@ -25,7 +25,7 @@ from itertools import chain
 from django.core.exceptions import ValidationError
 from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
 from django.forms.util import ErrorList
 from django.template.loader import render_to_string
@@ -118,7 +118,7 @@ class ReportCreateForm(CremeEntityForm):
 
         return cleaned_data
 
-    @commit_on_success
+    @atomic
     def save(self, *args, **kwargs):
         report = super(ReportCreateForm, self).save(*args, **kwargs)
         hf = self.cleaned_data['hf']
@@ -299,7 +299,7 @@ class ReportFieldsForm(CremeForm):
 
         return None, False
 
-    @commit_on_success
+    @atomic
     def save(self):
         report = self.report
         old_rfields = report.columns

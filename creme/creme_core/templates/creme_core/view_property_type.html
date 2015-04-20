@@ -1,5 +1,5 @@
 {% extends "creme_core/base.html" %}{% comment %}TODO: improve detailview.html in order to use it easily ? (remove menu_buttons, blocks...) {% endcomment %}
-{% load i18n %}
+{% load cycle from future %}{% load i18n %}
 {% load creme_core_tags creme_block %}
 
 {% block page_title %}«{{object}}» - {% endblock %}

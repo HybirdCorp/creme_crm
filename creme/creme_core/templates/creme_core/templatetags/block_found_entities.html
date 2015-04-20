@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_block creme_widgets %}
+{% load cycle from future %}{% load i18n creme_core_tags creme_block creme_widgets %}
 {% if page.paginator.count %}{% templatize "{{sfields|length|add:1}}" as colspan %}
     <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}" search-count="{{page.paginator.count}}">
         {% get_block_header colspan=colspan collapsable=False %}

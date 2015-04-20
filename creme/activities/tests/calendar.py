@@ -100,8 +100,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         #be sure that we well managed the automatic save() behaviour
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
-        #with self.assertNumQueries(2): TODO: see comment in the code
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             def_cal = Calendar.get_user_default_calendar(user)
 
         self.assertEqual(cal, def_cal)

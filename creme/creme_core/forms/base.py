@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -213,6 +213,9 @@ class CremeForm(Form, HookableForm):
 class CremeModelForm(ModelForm, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
+    class Meta:
+        fields = '__all__'
+
     def __init__(self, user, *args, **kwargs):
         """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeModelForm, self).__init__(*args, **kwargs)
@@ -246,8 +249,9 @@ class CremeModelWithUserForm(CremeModelForm):
 
 
 class CremeEntityForm(CremeModelWithUserForm):
-    class Meta: #TODO: remove ???
-        exclude = () #'is_deleted', 'is_actived'
+    class Meta:
+        exclude = ()
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(CremeEntityForm, self).__init__(*args, **kwargs)

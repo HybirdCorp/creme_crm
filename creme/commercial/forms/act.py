@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,6 +46,7 @@ class ObjectiveForm(CremeModelForm):
     class Meta:
         model = ActObjective
         #fields = ('name', 'counter_goal')
+        fields = '__all__'
         #TODO: use help_texts (django 1.6)
 
     def __init__(self, entity, *args, **kwargs):
@@ -125,6 +126,7 @@ class _PatternComponentForm(CremeModelForm):
 
     class Meta:
         model = ActObjectivePatternComponent
+        fields = '__all__'
 
     #def __init__(self, *args, **kwargs):
         #super(_PatternComponentForm, self).__init__(*args, **kwargs)

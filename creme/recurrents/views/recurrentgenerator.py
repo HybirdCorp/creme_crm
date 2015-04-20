@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.formtools.wizard.views import SessionWizardView
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -51,7 +51,7 @@ class RecurrentGeneratorWizard(SessionWizardView):
         generator_form = form_list[0]
         resource_form  = form_list[1]
 
-        with commit_on_success():
+        with atomic():
             generator_form.instance.template = resource_form.save()
             generator_form.save()
 

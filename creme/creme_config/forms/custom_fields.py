@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,10 +24,10 @@ from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
 from creme.creme_core.forms.widgets import DynamicSelect
+from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 
 #TODO: User friendly order in choices fields
 
@@ -39,7 +39,7 @@ class CustomFieldsBaseForm(CremeModelForm):
                             help_text=_(u'Give the possible  choices (one per line) if you choose the type "Choices list".'),
                            )
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = CustomField
 
     def clean(self):

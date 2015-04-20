@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,9 @@ from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
-from django.db import transaction, IntegrityError
+#from django.db import transaction, IntegrityError
+from django.db import IntegrityError
+from django.db.transaction import atomic
 from django.template.context import Context
 from django.utils.translation import ugettext_lazy as _ #TODO: lazy ??
 
@@ -136,97 +138,95 @@ class CrudityBackend(object):
 
         return need_new_save
 
-    @transaction.commit_manually
     def _create_instance_n_history(self, data, user=None, source="", action=""):
+        is_created = True
         instance = self.model()
         model_get_field = self.model._meta.get_field
 
-        for field_name, field_value in data.items():
-            try:
-                field = model_get_field(field_name)
-            except FieldDoesNotExist:
-                #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
-                continue
-
-            #TODO: exclude not editable fields ??
-
-            if field_value is None:
-                data[field_name] = field.to_python(None)
-                continue
-
-            if isinstance(field_value, basestring) and not isinstance(field_value, unicode):
-                field_value = field_value.decode('utf8')
-
-            if not isinstance(field, TextField) and isinstance(field_value, basestring):
-                data[field_name] = field_value = field_value.replace('\n', ' ')
-
-            #if is_date_field(field):
-                #data[field_name] = field_value = get_dt_from_str(field_value.strip())
-            if isinstance(field, DateTimeField):
-                data[field_name] = field_value = get_dt_from_str(field_value.strip())
-            elif isinstance(field, DateField):
-                data[field_name] = field_value = get_date_from_str(field_value.strip())
-
-            elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
-                data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
-
-            elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
-                filename, blob = field_value #should be pre-processed by the input
-                upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')#TODO: 'image' bof bof...
-
-                if user is None:
-                    shift_user_id = data.get('user_id')
-                    if shift_user_id is None:
-                        try:
-                            shift_user_id = User.objects.filter(is_superuser=True)[0].id #Not as the default value of data.get because a query is always done even the default value is not necessary
-                        #except User.DoesNotExist: #todo: WTF filter does not raise DoesNotExist !!!
-                        except IndexError:
-                            continue #There is really nothing we can do
-                else:
-                    shift_user_id = user.id
-
-                img_entity = Image() #TODO:  Image.objects.create() ??
-                img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
-                img_entity.user_id  = shift_user_id
-                img_entity.save()
-                setattr(instance, field_name, img_entity)
-                data.pop(field_name)
-                continue
-
-            elif issubclass(field.__class__, FileField): #TODO: why not isinstance(field, FileField) ??
-                filename, blob = field_value #should be pre-processed by the input
-                upload_path = field.upload_to.split('/')
-                setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
-                data.pop(field_name)
-                continue
-
-            data[field_name] = field.to_python(field_value)
-            #setattr(instance, field_name, field.to_python(field_value)) TODO (instead of for ..: setattr()... ??
-
-        instance.__dict__.update(data)
-        #for k, v in data.iteritems(): #TODO: (but fix bug with ManyToManyField)
-            #setattr(instance, k, v)
-
-        is_created = True
         try:
-            self._create_instance_before_save(instance, data)
-            instance.save()
-            need_new_save = self._create_instance_after_save(instance, data)
-            if need_new_save:
+            with atomic():
+                for field_name, field_value in data.items():
+                    try:
+                        field = model_get_field(field_name)
+                    except FieldDoesNotExist:
+                        #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
+                        continue
+
+                    #TODO: exclude not editable fields ??
+
+                    if field_value is None:
+                        data[field_name] = field.to_python(None)
+                        continue
+
+                    if isinstance(field_value, basestring) and not isinstance(field_value, unicode):
+                        field_value = field_value.decode('utf8')
+
+                    if not isinstance(field, TextField) and isinstance(field_value, basestring):
+                        data[field_name] = field_value = field_value.replace('\n', ' ')
+
+                    #if is_date_field(field):
+                        #data[field_name] = field_value = get_dt_from_str(field_value.strip())
+                    if isinstance(field, DateTimeField):
+                        data[field_name] = field_value = get_dt_from_str(field_value.strip())
+                    elif isinstance(field, DateField):
+                        data[field_name] = field_value = get_date_from_str(field_value.strip())
+
+                    elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
+                        data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
+
+                    elif isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
+                        filename, blob = field_value #should be pre-processed by the input
+                        upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')#TODO: 'image' bof bof...
+
+                        if user is None:
+                            shift_user_id = data.get('user_id')
+                            if shift_user_id is None:
+                                try:
+                                    shift_user_id = User.objects.filter(is_superuser=True)[0].id #Not as the default value of data.get because a query is always done even the default value is not necessary
+                                #except User.DoesNotExist: #todo: WTF filter does not raise DoesNotExist !!!
+                                except IndexError:
+                                    continue #There is really nothing we can do
+                        else:
+                            shift_user_id = user.id
+
+                        img_entity = Image() #TODO:  Image.objects.create() ??
+                        img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
+                        img_entity.user_id  = shift_user_id
+                        img_entity.save()
+                        setattr(instance, field_name, img_entity)
+                        data.pop(field_name)
+                        continue
+
+                    elif issubclass(field.__class__, FileField): #TODO: why not isinstance(field, FileField) ??
+                        filename, blob = field_value #should be pre-processed by the input
+                        upload_path = field.upload_to.split('/')
+                        setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
+                        data.pop(field_name)
+                        continue
+
+                    data[field_name] = field.to_python(field_value)
+                    #setattr(instance, field_name, field.to_python(field_value)) TODO (instead of for ..: setattr()... ??
+
+                instance.__dict__.update(data)
+                #for k, v in data.iteritems(): #TODO: (but fix bug with ManyToManyField)
+                    #setattr(instance, k, v)
+
+                self._create_instance_before_save(instance, data)
                 instance.save()
-            history = History() #TODO: History.objects.create(entity=intance [...])
-            history.entity = instance
-            history.action = "create"
-            history.source = source
-            history.user = user
-            history.description = _(u"Creation of %(entity)s") % {'entity': instance}
-            history.save()
+                need_new_save = self._create_instance_after_save(instance, data)
+                if need_new_save:
+                    instance.save()
+
+                history = History() #TODO: History.objects.create(entity=intance [...])
+                history.entity = instance
+                history.action = "create"
+                history.source = source
+                history.user = user
+                history.description = _(u"Creation of %(entity)s") % {'entity': instance}
+                history.save()
         except IntegrityError as e:
             logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)
             is_created = False
-            transaction.rollback()
-        else:
-            transaction.commit()
 
         return is_created, instance
 

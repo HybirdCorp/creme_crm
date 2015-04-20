@@ -200,7 +200,7 @@ def edit_line_wizard(request, preply_id, line_id):
         form = PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 form.save()
 
                 #optimize 'next_question_to_answer' & cie
@@ -259,7 +259,7 @@ def fill(request, preply_id):
         form = PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 form.save()
 
                 next_line = tree.next_question_to_answer
@@ -294,7 +294,7 @@ def clean(request):
 
     request.user.has_perm_to_change_or_die(preply)
 
-    with transaction.commit_on_success():
+    with transaction.atomic():
         preply.lines.update(raw_answer=None, applicable=True) #avoids statistics artefacts
         update_model_instance(preply, is_complete=False)
 
@@ -343,7 +343,7 @@ def edit_line(request, preply_id, line_id):
         edit_form = PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
 
         if edit_form.is_valid():
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 edit_form.save()
                 _clear_dependant_answers(tree, line_node)
                 update_model_instance(preply, is_complete=not bool(tree.next_question_to_answer))

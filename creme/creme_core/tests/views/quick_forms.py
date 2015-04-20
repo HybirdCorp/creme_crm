@@ -93,7 +93,7 @@ class QuickFormTestCase(CremeTestCase):
 
         response = self.assertPOST200(self._build_quickform_url(Contact), data)
         self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
-        self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
+        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
 
         self.assertEqual(count, Contact.objects.count())
 
@@ -107,9 +107,9 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 2)
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
-        self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
-        self.assertFormSetError(response, 'formset', 1, 'last_name', [_(u'This field is required.')])
-        self.assertFormSetError(response, 'formset', 2, 'last_name', [_(u'This field is required.')])
+        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
+        self.assertFormsetError(response, 'formset', 1, 'last_name', _(u'This field is required.'))
+        self.assertFormsetError(response, 'formset', 2, 'last_name', _(u'This field is required.'))
 
         self.assertEqual(count, Contact.objects.count())
 
@@ -124,7 +124,7 @@ class QuickFormTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'last_name', _(u'This field is required.'))
         self.assertFormError(response, 'form', 'email',     _(u'Enter a valid email address.'))
 
-        self.assertFormSetError(response, 'formset', 0, 'last_name', [_(u'This field is required.')])
+        self.assertFormsetError(response, 'formset', 0, 'last_name', _(u'This field is required.'))
         self.assertEqual(count, Contact.objects.count())
 
     def test_add_multiple_invalid_form(self):
@@ -137,14 +137,19 @@ class QuickFormTestCase(CremeTestCase):
         self.quickform_data_append(data, 2, last_name='Mireille', email='invalid')
 
         response = self.assertPOST200(self._build_quickform_url(Contact, 3), data)
-        self.assertFormSetError(response, 'formset', 0, 'last_name')
-        self.assertFormSetError(response, 'formset', 0, 'email')
+        ##self.assertFormSetError(response, 'formset', 0, 'last_name')
+        ##self.assertFormSetError(response, 'formset', 0, 'email')
+        #self.assertNoFormsetError(response, 'formset', 0, 'last_name')
+        #self.assertNoFormsetError(response, 'formset', 0, 'email')
+        #self.assertNoFormsetError(response, 'formset', 0, '__all__')
+        self.assertNoFormsetError(response, 'formset', 0)
 
-        self.assertFormSetError(response, 'formset', 1, 'last_name', [_(u'This field is required.')])
-        self.assertFormSetError(response, 'formset', 1, 'email', [_(u'Enter a valid email address.')])
+        self.assertFormsetError(response, 'formset', 1, 'last_name', _(u'This field is required.'))
+        self.assertFormsetError(response, 'formset', 1, 'email',     _(u'Enter a valid email address.'))
 
-        self.assertFormSetError(response, 'formset', 2, 'last_name')
-        self.assertFormSetError(response, 'formset', 2, 'email', [_(u'Enter a valid email address.')])
+        #self.assertFormSetError(response, 'formset', 2, 'last_name')
+        self.assertNoFormsetError(response, 'formset', 2, 'last_name')
+        self.assertFormsetError(response, 'formset', 2, 'email', _(u'Enter a valid email address.'))
 
         self.assertEqual(count, Contact.objects.count())
 

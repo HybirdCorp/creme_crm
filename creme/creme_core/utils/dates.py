@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,10 +26,14 @@ from django.utils.dateparse import parse_datetime
 from django.utils.timezone import get_current_timezone, make_aware, is_naive, utc
 
 
+DATE_ISO8601_FMT     = '%Y-%m-%d'
+DATETIME_ISO8601_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
+
+
 def date_2_dict(d):
     return {'year': d.year, 'month': d.month, 'day': d.day}
 
-def get_dt_to_iso8601_str(dt):
+def get_dt_to_iso8601_str(dt): #TODO: rename, it is not true ISO 8601 !!!!
     """Converts the datetime into a string in iso8601 format without any separators.
     >>> get_dt_to_iso8601_str(datetime.datetime(2011, 4, 27, 10, 9, 54))
     '20110427T100954Z'
@@ -44,12 +48,15 @@ def get_dt_from_iso8601_str(dt_str):
     """
     return datetime.strptime(dt_str, "%Y%m%dT%H%M%SZ")
 
-def get_dt_from_json_str(dt_str):
+def get_dt_from_json_str(dt_str): #TODO: rename 'dt_from_json_str'
     """Return a TZ aware datetime parsed from the JSON format date (Date.toJSON()
     method in JavaScript): YYYY-MM-DDTHH:mm:ss.sssZ
     @throws ValueError
     """
-    return make_aware(datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%S.%fZ"), utc)
+    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), utc)
+
+def dt_to_json_str(dt):
+    return dt.strftime(DATETIME_ISO8601_FMT)
 
 def get_dt_from_str(dt_str):
     """Returns a datetime from filled formats in settings, or None.

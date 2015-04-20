@@ -20,7 +20,7 @@
 
 from decimal import Decimal
 
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.forms import (ModelChoiceField, TypedChoiceField, DecimalField,
         ValidationError, TextInput, Textarea)
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -285,7 +285,7 @@ class AddToCatalogForm(CremeForm):
 
         return super(AddToCatalogForm, self).clean()
 
-    @commit_on_success
+    @atomic
     def save(self, *args, **kwargs):
         sub_category = self.cleaned_data['sub_category']
         line = self.line

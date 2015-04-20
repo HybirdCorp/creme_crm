@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,8 @@ import logging
 #import warnings
 
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
-from django.db import transaction
+#from django.db import transaction
+from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.http import Http404
 #from django.utils.encoding import force_unicode, smart_str
@@ -91,7 +92,8 @@ class RelationType(CremeModel):
         return types
 
     @staticmethod
-    @transaction.commit_manually
+    #@transaction.commit_manually
+    @atomic
     def create(subject_desc, object_desc, is_custom=False, generate_pk=False, is_internal=False, is_copiable=(True, True)):
         """
         @param subject_desc Tuple (string_pk, predicate_string [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]])
@@ -161,7 +163,7 @@ class RelationType(CremeModel):
         sub_relation_type.save()
         obj_relation_type.save()
 
-        transaction.commit()
+        #transaction.commit()
 
         return (sub_relation_type, obj_relation_type)
 
@@ -218,24 +220,35 @@ class Relation(CremeAbstractEntity):
 
         return sym_relation
 
-    @transaction.commit_manually
+#    @transaction.commit_manually
+    @atomic
     def save(self, using='default', force_insert=False):
-        try:
-            update = bool(self.pk)
+#        try:
+#            update = bool(self.pk)
+#
+#            super(Relation, self).save(using=using, force_insert=force_insert)
+#
+#            sym_relation = self._build_symmetric_relation(update)
+#            super(Relation, sym_relation).save(using=using, force_insert=force_insert)
+#
+#            if self.symmetric_relation is None:
+#                self.symmetric_relation = sym_relation
+#                super(Relation, self).save(using=using, force_insert=False)
+#        except Exception:
+#            logger.exception('Error in creme_core.Relation.save()')
+#            transaction.rollback()
+#        else:
+#            transaction.commit()
+        update = bool(self.pk)
 
-            super(Relation, self).save(using=using, force_insert=force_insert)
+        super(Relation, self).save(using=using, force_insert=force_insert)
 
-            sym_relation = self._build_symmetric_relation(update)
-            super(Relation, sym_relation).save(using=using, force_insert=force_insert)
+        sym_relation = self._build_symmetric_relation(update)
+        super(Relation, sym_relation).save(using=using, force_insert=force_insert)
 
-            if self.symmetric_relation is None:
-                self.symmetric_relation = sym_relation
-                super(Relation, self).save(using=using, force_insert=False)
-        except Exception:
-            logger.exception('Error in creme_core.Relation.save()')
-            transaction.rollback()
-        else:
-            transaction.commit()
+        if self.symmetric_relation is None:
+            self.symmetric_relation = sym_relation
+            super(Relation, self).save(using=using, force_insert=False)
 
     #Commented on 18 august 2014
     #def _collect_sub_objects(self, seen_objs, parent=None, nullable=False):

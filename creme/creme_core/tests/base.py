@@ -207,6 +207,10 @@ class _CremeTestCase(object):
         """Warning : this method has not the same behaviour than assertFormError()
         It checks both error and no error tests.
         """
+        warnings.warn("_CremeTestCase.assertFormSetError() method is deprecated; use assertFormsetError() instead",
+                      DeprecationWarning
+                     )
+
         self.assertIn(form, response.context)
         fieldname = fieldname or '__all__'
 
@@ -249,6 +253,7 @@ class _CremeTestCase(object):
                                 )
                              )
 
+    #TODO: add an argument 'field' like assertNoFormsetError()
     def assertNoFormError(self, response, status=200, form='form'):
         status_code = response.status_code
 
@@ -262,6 +267,49 @@ class _CremeTestCase(object):
         else:
             if errors:
                 self.fail(errors.as_text())
+
+    def assertNoFormsetError(self, response, formset, form_index, field=None, status=200):
+        """
+        @param field Field name (can be '__all__' for gloabl errors) or None
+                     (which means 'No error at all').
+        """
+        status_code = response.status_code
+
+        if status_code != status:
+            self.fail('Response status=%s (expected: %s)' % (status_code, status))
+
+        try:
+            formset_obj = response.context[formset]
+        except Exception:
+            pass
+        else:
+            all_errors = formset_obj.errors
+
+            if not all_errors:
+                return
+
+            self.assertIsInstance(formset_obj, BaseFormSet, "context field '%s' is not a FormSet")
+            self.assertGreaterEqual(form_index, 0)
+            self.assertLess(form_index, len(all_errors))
+
+            errors = all_errors[form_index]
+
+            if field is None:
+                if errors:
+                    self.fail("The formset '%s' number %d contains errors: %s" % (
+                                    formset, form_index, errors
+                                )
+                             )
+            else:
+                try:
+                    field_errors = errors[field]
+                except KeyError:
+                    pass
+                else:
+                    self.fail("The field '%s' on formset '%s' number %d contains errors: %s" % (
+                                    field, formset, form_index, field_errors
+                                )
+                             )
 
     def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
         self.assertEqual(200, response.status_code)

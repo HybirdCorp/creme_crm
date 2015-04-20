@@ -34,6 +34,8 @@ from ..models import RelationType, Relation, CustomField
 from ..utils import find_first
 from ..utils.date_range import CustomRange
 from ..utils.dates import get_dt_from_str
+from ..utils.queries import QSerializer
+
 
 NULL_FK = 'NULL'
 
@@ -72,18 +74,37 @@ class ListViewState(object):
                 )
 
     def register_in_session(self, request):
-        session = request.session
-        current_lvs = session.get(self.url or request.path) #TODO: pop() ??
-        if current_lvs is not None:
-            try:
-                del session[self.url or request.path] #useful ???????
-            except KeyError:
-                pass
-        session[self.url] = self
+#        session = request.session
+#        current_lvs = session.get(self.url or request.path) #todo: pop() ??
+#        if current_lvs is not None:
+#            try:
+#                del session[self.url or request.path] #useful ???????
+#            except KeyError:
+#                pass
+#        session[self.url] = self
+        serialized = dict(self.__dict__)
+
+        if self.extra_q is not None:
+            serialized['extra_q'] = QSerializer().dumps(self.extra_q)
+
+        request.session[self.url] = serialized
 
     @staticmethod
     def get_state(request, url=None):
-        return request.session.get(url or request.path)
+#        return request.session.get(url or request.path)
+        lvs = None
+        data = request.session.get(url or request.path)
+
+        if data is not None:
+            lvs = object.__new__(ListViewState)
+
+            for k, v in data.iteritems():
+                setattr(lvs, k, v)
+
+            if lvs.extra_q is not None:
+                lvs.extra_q = QSerializer().loads(lvs.extra_q)
+
+        return lvs
 
     @staticmethod
     def build_from_request(request, **kwargs):

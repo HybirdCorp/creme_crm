@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ from creme.activities.models import Activity
 
 class CommercialApproach(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
-    ok_or_in_futur      = BooleanField(_("Done ?"), editable=False)#TODO: Future ?
+    ok_or_in_futur      = BooleanField(_("Done ?"), editable=False, default=False) # TODO: Future ?
     description         = TextField(_(u'Description'), blank=True, null=True)
     creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
 

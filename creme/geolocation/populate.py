@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -210,7 +210,7 @@ class CSVTownPopulator(CSVPopulator):
             else:
                 created.append(t)
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             Town.objects.bulk_create(created)
 
             for town in updated:

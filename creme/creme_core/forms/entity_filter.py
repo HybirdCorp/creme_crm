@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1126,7 +1126,7 @@ class _EntityFilterForm(CremeModelForm):
 
     blocks = CremeModelForm.blocks.new(('conditions', _(u'Conditions'), _CONDITIONS_FIELD_NAMES))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = EntityFilter
         #TODO: use 'help_texts' (django 1.6)
 

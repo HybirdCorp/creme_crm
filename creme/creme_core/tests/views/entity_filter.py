@@ -488,8 +488,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = post(dict(data, subfilters_conditions=[subfilter.id]))
         self.assertFormError(response, 'form', 'subfilters_conditions',
-                             _(u'Select a valid choice. %s is not one of the available choices.') %
-                                    subfilter.id
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': subfilter.id,
+                                }
                             )
 
         rtype = RelationType.create(('test-subject_love', u'Is loving'),

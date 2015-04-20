@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ from creme.creme_core.signals import pre_merge_related
 class Alert(CremeModel):
     title               = CharField(max_length=200)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    is_validated        = BooleanField(_('Validated'), editable=False)
+    is_validated        = BooleanField(_('Validated'), editable=False, default=False)
     reminded            = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
     trigger_date        = DateTimeField(_(u"Trigger date"))
 

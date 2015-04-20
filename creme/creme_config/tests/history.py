@@ -54,7 +54,9 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype_ids = [rtype01.id, rtype02.id]
         response = self.client.post(self.ADD_URL, data={'relation_types': rtype_ids})
         self.assertFormError(response, 'form', field='relation_types',
-                             errors=_(u'Select a valid choice. %s is not one of the available choices.') % rtype01.id
+                             errors=_('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': rtype01.id,
+                                }
                             )
 
     def test_delete(self):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -291,7 +291,8 @@ class _RGHRegularField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, basestring):
-                date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                #date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                date = datetime.strptime(key, '%Y-%m-%d')  # NB: it seems the string format has changed in django1.6
 
             qdict = qdict_builder(date)
             yield date.strftime(date_format), [value or 0, build_url(qdict)]
@@ -580,7 +581,8 @@ class _RGHCustomField(ReportGraphHand):
             # TODO: When using extras/sql functions on dates and sqlite, the ORM returns strings instead of datetimes
             # This can probably be fixed/improved when we migrate to Django 1.8, using custom annotation operators.
             if connection.vendor == 'sqlite' and isinstance(key, basestring):
-                date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                #date = datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+                date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)
             qdict['customfielddatetime__custom_field'] = cfield.id

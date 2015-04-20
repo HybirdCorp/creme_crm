@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load cycle from future %}{% load i18n %}
 {% load creme_block creme_core_tags %}
 {% with has_perm=user.is_superuser current_user_id=user.id %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">

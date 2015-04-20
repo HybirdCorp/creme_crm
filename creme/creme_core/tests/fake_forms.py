@@ -16,6 +16,7 @@ class FakeContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to igno
 class FakeContactForm(CremeEntityForm):
     class Meta:
         model = FakeContact
+        fields = '__all__'
 
 
 class FakeOrganisationQuickForm(CremeModelWithUserForm):
@@ -27,11 +28,13 @@ class FakeOrganisationQuickForm(CremeModelWithUserForm):
 class FakeOrganisationForm(CremeEntityForm):
     class Meta:
         model = FakeOrganisation
+        fields = '__all__'
 
 
 class FakeAddressForm(CremeModelForm):
     class Meta:
         model = FakeAddress
+        fields = '__all__'
 
     def __init__(self, entity, *args, **kwargs):
         super(FakeAddressForm, self).__init__(*args, **kwargs)

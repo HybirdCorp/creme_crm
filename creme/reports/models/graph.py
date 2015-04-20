@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ from .report import Report
 logger = logging.getLogger(__name__)
 
 
-
 class ReportGraph(CremeEntity):
     name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
     report   = ForeignKey(Report, editable=False)
@@ -41,7 +40,7 @@ class ReportGraph(CremeEntity):
     ordinate = CharField(_(u'Ordinate axis'), max_length=100, editable=False)
     type     = PositiveIntegerField(_(u'Type'), editable=False) #see RGT_*
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
-    is_count = BooleanField(_(u'Make a count instead of aggregate?')) #TODO: 'count' function instead ???
+    is_count = BooleanField(_(u'Make a count instead of aggregate?'), default=False) #TODO: 'count' function instead ???
     chart    = CharField(_(u'Chart type'), max_length=100, null=True)
 
     creation_label = _("Add a report's graph")

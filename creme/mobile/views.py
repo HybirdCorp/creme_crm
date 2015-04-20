@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.encoding import smart_unicode
@@ -496,7 +496,7 @@ def _phonecall_workflow_set_end(request, end_function):
 
         me, person = _get_participants(user, POST)
 
-        with commit_on_success():
+        with atomic():
             pcall = Activity.objects.create(user=user,
                                             title=_('%(status)s call to %(person)s from Creme Mobile') % {
                                                     'status': _('Successful'),
@@ -529,7 +529,7 @@ def _create_failed_pcall(request):
 
     me, person = _get_participants(user, POST)
 
-    with commit_on_success():
+    with atomic():
         pcall = Activity.objects.create(user=user,
                                         title=_('%(status)s call to %(person)s from Creme Mobile') % {
                                                 'status': _('Failed'),
@@ -569,7 +569,7 @@ def phonecall_workflow_failed(request):
 @login_required
 @POST_only
 @jsonify
-@commit_on_success
+@atomic
 def phonecall_workflow_postponed(request):
     pcall = _get_pcall(request)
 

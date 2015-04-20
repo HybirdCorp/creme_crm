@@ -292,11 +292,18 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     rtype.is_not_internal_or_die()
 
     #TODO: filter with relation creds too
-    #extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #It seems that way causes some entities linked with another reelation type to be skipped...
-    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id,
-                                                   relations__object_entity=subject_id,
-                                                  )
-                                           .values_list('id', flat=True)
+#    #extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #It seems that way causes some entities linked with another reelation type to be skipped...
+#    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id,
+#                                                   relations__object_entity=subject_id,
+#                                                  )
+#                                           .values_list('id', flat=True)
+#                )
+    extra_q = ~Q(pk__in=list(CremeEntity.objects
+                                        .filter(relations__type=rtype.symmetric_type_id,
+                                                relations__object_entity=subject_id,
+                                               )
+                                        .values_list('id', flat=True)
+                            ) # NB: list() because the serialization of sub-QuerySet does not work with the JSON session
                 )
 
     prop_types = list(rtype.object_properties.all())

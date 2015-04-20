@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load cycle from future %}{% load i18n %}
 {% load creme_core_tags creme_block %}
 {% with object.get_custom_fields_n_values as custom_fields_n_values %}
     {% if custom_fields_n_values %}

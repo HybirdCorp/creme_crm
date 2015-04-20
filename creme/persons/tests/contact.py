@@ -299,7 +299,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertIsInstance(cm.exception, ValidationError)
+        #self.assertIsInstance(cm.exception, ValidationError)
         self.assertEqual([_('This Contact is related to a user and must have a first name.')],
                          cm.exception.messages
                         )
@@ -309,7 +309,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         with self.assertRaises(ValidationError) as cm:
             contact.full_clean()
 
-        self.assertIsInstance(cm.exception, ValidationError)
+        #self.assertIsInstance(cm.exception, ValidationError)
         self.assertEqual([_('This Contact is related to a user and must have an e-mail address.')],
                          cm.exception.messages
                         )
@@ -686,7 +686,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation':   orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, 'organisation',
+        #self.assertFormSetError(response, 'formset', 0, 'organisation',
+        self.assertFormsetError(response, 'formset', 0, 'organisation',
                                 [_(u'You are not allowed to create an Organisation.')]
                                )
         self.assertEqual(contact_count, Contact.objects.count())
@@ -730,7 +731,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                'form-0-organisation':   'Bebop',
                               }
                         )
-        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        #self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(orga_count, Organisation.objects.count())
@@ -786,14 +788,16 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                 'form-0-last_name':     'Valentine',
                }
         response = self.client.post(url, data=dict(data, **{'form-0-organisation': 'Bebop'}))
-        self.assertFormSetError(response, 'formset', 0, None,
+        #self.assertFormSetError(response, 'formset', 0, None,
+        self.assertFormsetError(response, 'formset', 0, None,
                                 [_(u'You are not allowed to link with the «%s» of this user.') %
                                     _(u'Contacts')
                                 ]
                                )
 
         response = self.client.post(url, data=data)
-        self.assertFormSetError(response, 'formset', 0, None, expected_errors=None)
+        #self.assertFormSetError(response, 'formset', 0, None, expected_errors=None)
+        self.assertFormsetError(response, 'formset', 0, field=None, errors=None)
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     def test_quickform08(self):
@@ -815,7 +819,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation':   orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, 'organisation',
+        #self.assertFormSetError(response, 'formset', 0, 'organisation',
+        self.assertFormsetError(response, 'formset', 0, 'organisation',
                                 [_(u'Several Organisations with this name have been found.')]
                                )
 
@@ -844,7 +849,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation':   orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        #self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
@@ -872,7 +878,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation':   orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, 'organisation', 
+        #self.assertFormSetError(response, 'formset', 0, 'organisation',
+        self.assertFormsetError(response, 'formset', 0, 'organisation',
                                 [_(u'No linkable Organisation found.')]
                                )
 
@@ -900,7 +907,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation':   orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, None,
+        #self.assertFormSetError(response, 'formset', 0, None,
+        self.assertFormsetError(response, 'formset', 0, None,
                                 [_(u'You are not allowed to link with the «%s» of this user.') % 
                                     _(u'Organisations')
                                 ]
@@ -927,7 +935,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                           'form-0-organisation': orga_name,
                                          }
                                    )
-        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        #self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+        self.assertFormsetError(response, 'formset', 0, 'organisation', None)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
