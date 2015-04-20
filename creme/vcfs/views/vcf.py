@@ -90,7 +90,7 @@ def vcf_export(request, contact_id):
 
     vc = VcfGenerator(person).serialize()
 
-    response = HttpResponse(vc, mimetype='text/vcard')
+    response = HttpResponse(vc, content_type='text/vcard')
     response['Content-Disposition'] = 'attachment; filename="%s.vcf"' % smart_str(person.last_name)
 
     return response

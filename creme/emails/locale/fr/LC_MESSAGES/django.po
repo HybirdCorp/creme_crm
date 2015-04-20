@@ -1102,9 +1102,6 @@ msgstr "Nouveaux fichiers joints pour <%s>"
 #~ msgid "Add a campaign"
 #~ msgstr "Ajouter une campagne"
 
-#~ msgid "Enter a valid e-mail address."
-#~ msgstr "Mettez une adresse e-mail par ligne."
-
 #~ msgid "Use rich text editor"
 #~ msgstr "Utilise l'éditeur de texte riche"
 

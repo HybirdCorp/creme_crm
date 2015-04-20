@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,13 +28,13 @@ from tempfile import mkdtemp
 from unicodedata import normalize
 
 from django.conf import settings
+from django.core.files.base import File
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist, EmailField
-from django.core.files.base import File
-from django.template.loader import render_to_string
-from django.template.context import RequestContext
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
+from django.template.context import RequestContext
+from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -43,8 +43,8 @@ from creme.creme_core.utils.meta import is_date_field
 
 from creme.media_managers.models import Image
 
-from ..utils import generate_guid_for_field
 from ..backends.models import CrudityBackend
+from ..utils import generate_guid_for_field
 
 #Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 
@@ -312,8 +312,12 @@ class InfopathFormBuilder(object):
                 shutil.rmtree(backend_path)
 
     def render(self):
-        response =  HttpResponse(self._render(), mimetype="application/vnd.ms-infopath")
-        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % normalize('NFKD', unicode(CrudityBackend.normalize_subject(self.backend.subject))).encode('ascii', 'ignore')
+        response =  HttpResponse(self._render(), content_type="application/vnd.ms-infopath")
+        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % \
+            normalize('NFKD',
+                      unicode(CrudityBackend.normalize_subject(self.backend.subject))
+                     ).encode('ascii', 'ignore')
+
         return response
 
     def _render_manifest_xsf(self, request):
@@ -325,9 +329,9 @@ class InfopathFormBuilder(object):
                                  'fields':          self.fields,
                                  'file_fields':     self.file_fields,
                                  'to':              settings.CREME_GET_EMAIL,
-                                 'password':        self.backend.password
+                                 'password':        self.backend.password,
                                 },
-                                context_instance=RequestContext(request)
+                                context_instance=RequestContext(request),
                                )
 
     def _render_myschema_xsd(self, request):
@@ -335,7 +339,7 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request)
+                                context_instance=RequestContext(request),
                                )
 
     def _render_template_xml(self, request):
@@ -344,7 +348,7 @@ class InfopathFormBuilder(object):
                                  'form_urn':        self.urn,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request)
+                                context_instance=RequestContext(request),
                                )
 
     def _render_upgrade_xsl(self, request):
@@ -352,7 +356,7 @@ class InfopathFormBuilder(object):
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
                                 },
-                                context_instance=RequestContext(request)
+                                context_instance=RequestContext(request),
                                )
 
     def _render_view_xsl(self, request):
@@ -360,7 +364,7 @@ class InfopathFormBuilder(object):
         return render_to_string("crudity/infopath/create_template/view1.xsl",
                                 {'creme_namespace': self.namespace,
                                  'fields':          self.fields,
-                                 'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name)
+                                 'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name),
                                 },
-                                context_instance=RequestContext(request)
+                                context_instance=RequestContext(request),
                                )

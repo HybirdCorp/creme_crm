@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
 
     from creme.persons.models import Organisation
 
@@ -668,7 +668,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                     )
 
         with self.assertNoException():
-            result = simplejson.loads(response.content)
+            result = load_json(response.content)
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -695,7 +695,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                     )
 
         with self.assertNoException():
-            result = simplejson.loads(response.content)
+            result = load_json(response.content)
 
         result = result[0]
         self.assertEqual(charms_matrix_block.id_, result[0])
@@ -719,7 +719,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                     )
 
         with self.assertNoException():
-            result = simplejson.loads(response.content)
+            result = load_json(response.content)
 
         result = result[0]
         self.assertEqual(assets_charms_matrix_block.id_, result[0])

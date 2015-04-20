@@ -2,11 +2,11 @@
 
 try:
     from functools import partial
+    from json import loads as load_json
 
-    from django.core.exceptions import ValidationError
-    from django.core.serializers.json import simplejson
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import ValidationError
+    from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
@@ -407,7 +407,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         def assertStrOps(fieldname):
             response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
 
-            json_data = simplejson.loads(response.content)
+            json_data = load_json(response.content)
             self.assertIsInstance(json_data, list)
             self.assertTrue(json_data)
             self.assertIn(['upper', _('To upper case')], json_data)
@@ -423,7 +423,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
 
-        json_data = simplejson.loads(response.content)
+        json_data = load_json(response.content)
         self.assertIn(['add_int', _('Add')], json_data)
         self.assertIn(['sub_int', _('Subtract')], json_data)
         self.assertNotIn('prefix', (e[0] for e in json_data))
@@ -433,7 +433,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
-        self.assertEqual([], simplejson.loads(response.content))
+        self.assertEqual([], load_json(response.content))
 
     def test_get_ops05(self):
         "No app credentials"

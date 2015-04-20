@@ -21,6 +21,7 @@
 #from datetime import datetime
 from decimal import Decimal
 from functools import partial
+from json import loads as jsonloads, JSONEncoder
 import logging
 
 from django.core.exceptions import ValidationError
@@ -29,7 +30,6 @@ from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextF
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.simplejson import loads as jsonloads, JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 
 from ..global_info import get_global_info, set_global_info

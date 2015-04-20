@@ -3,11 +3,11 @@
 try:
     from datetime import timedelta #datetime
     from functools import partial
+    from json import loads as load_json
 
     from django.conf import settings
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
-    from django.core.serializers.json import simplejson
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now, localtime
@@ -192,7 +192,7 @@ class TodoTestCase(AssistantsTestCase):
         response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])
@@ -217,7 +217,7 @@ class TodoTestCase(AssistantsTestCase):
         response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])
@@ -242,7 +242,7 @@ class TodoTestCase(AssistantsTestCase):
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])

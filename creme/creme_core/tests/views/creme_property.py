@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    import json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -444,7 +444,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url_fmt % (ptype.id, block_id))
 
         with self.assertNoException():
-            result = simplejson.loads(response.content)
+            result = json.loads(response.content)
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
@@ -474,7 +474,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertGET200(url_fmt % (ptype.id, block_id))
 
         #with self.assertNoException():
-            #result = simplejson.loads(response.content)
+            #result = json.loads(response.content)
 
         #self.assertIsInstance(result, list)
         #self.assertEqual(1, len(result))

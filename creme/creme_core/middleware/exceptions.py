@@ -44,7 +44,7 @@ class Beautiful403Middleware(object):
                 msg = smart_unicode(exception)
 
             if request.is_ajax(): #TODO: use protected_objects ??
-                return HttpResponse(msg, mimetype='text/javascript', status=403)
+                return HttpResponse(msg, content_type='text/javascript', status=403)
 
             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
                                                           RequestContext(request,
@@ -65,7 +65,7 @@ class _AlternativeErrorMiddleware(object):
             msg = smart_unicode(exception)
 
             if request.is_ajax():
-                return HttpResponse(msg, mimetype='text/javascript', status=self.status)
+                return HttpResponse(msg, content_type='text/javascript', status=self.status)
 
             if self.template is None:
                 return

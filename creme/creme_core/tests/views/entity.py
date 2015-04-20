@@ -5,13 +5,13 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
+    from json import loads as load_json
 #    from tempfile import NamedTemporaryFile
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
     from django.core.exceptions import ValidationError
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -60,7 +60,7 @@ class EntityViewsTestCase(ViewsTestCase):
         #response = self.assertPOST200(url, data={'ct_id': ct_id})
         #self.assertEqual('text/javascript', response['Content-Type'])
 
-        #content = simplejson.loads(response.content)
+        #content = load_json(response.content)
         #self.assertIsInstance(content, list)
         #self.assertEqual(5, len(content))
 
@@ -93,7 +93,7 @@ class EntityViewsTestCase(ViewsTestCase):
         #response = self.assertPOST200(url, data={'ct_id': ct_id})
         #self.assertEqual('text/javascript', response['Content-Type'])
 
-        #content = simplejson.loads(response.content)
+        #content = load_json(response.content)
         #self.assertIsInstance(content, list)
         #self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
         #self.assertIn(['get_pretty_properties', _('Properties')], content)
@@ -116,7 +116,7 @@ class EntityViewsTestCase(ViewsTestCase):
         #response = get_cf(ct.id)
         #self.assertEqual(200,               response.status_code)
         #self.assertEqual('text/javascript', response['Content-Type'])
-        #self.assertEqual([], simplejson.loads(response.content))
+        #self.assertEqual([], load_json(response.content))
 
         #create_cf = partial(CustomField.objects.create, content_type=ct)
         #cf1 = create_cf(name='Size',   field_type=CustomField.INT)
@@ -124,7 +124,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         #response = get_cf(ct.id)
         #self.assertEqual([[cf1.id, cf1.name], [cf2.id, cf2.name]],
-                         #simplejson.loads(response.content)
+                         #load_json(response.content)
                         #)
 
         #response = get_cf(0)
@@ -145,13 +145,13 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertGET(400, url)
 
         response = self.assertGET200(url, data={'fields': ['id']})
-        self.assertEqual([[rei.id]], simplejson.loads(response.content))
+        self.assertEqual([[rei.id]], load_json(response.content))
 
         response = self.assertGET200(url, data={'fields': ['unicode']})
-        self.assertEqual([[unicode(rei)]], simplejson.loads(response.content))
+        self.assertEqual([[unicode(rei)]], load_json(response.content))
 
         response = self.assertGET200(url_fmt % nerv.id, data={'fields': ['id', 'unicode']})
-        self.assertEqual([[nerv.id, unicode(nerv)]], simplejson.loads(response.content))
+        self.assertEqual([[nerv.id, unicode(nerv)]], load_json(response.content))
 
         self.assertGET(400, url_fmt % 1024)
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
@@ -175,7 +175,7 @@ class EntityViewsTestCase(ViewsTestCase):
                            'text': 'Creme entity: %s' % entity.id,
                           }
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_get_creme_entities_repr02(self):
@@ -206,7 +206,7 @@ class EntityViewsTestCase(ViewsTestCase):
                           {'id': nerv.id,  'text': unicode(nerv)},
                           {'id': asuka.id, 'text': unicode(asuka)},
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_delete_entity01(self):
@@ -502,7 +502,7 @@ class EntityViewsTestCase(ViewsTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         response = self.assertGET200(furl % ct.id)
 
-        json_data = simplejson.loads(response.content)
+        json_data = load_json(response.content)
         #print json_data
         self.assertIsInstance(json_data, list)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
@@ -527,7 +527,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         furl = '/creme_core/entity/get_info_fields/%s/json'
         ct = ContentType.objects.get_for_model(Organisation)
-        json_data = simplejson.loads(self.client.get(furl % ct.id).content)
+        json_data = load_json(self.client.get(furl % ct.id).content)
         #print json_data
 
         names = ['created', 'modified', 'name', 'description', 'url_site',

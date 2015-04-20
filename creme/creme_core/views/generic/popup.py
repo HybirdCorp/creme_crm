@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,12 +19,12 @@
 ################################################################################
 
 #from logging import debug
+from json import JSONEncoder
 
 from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.simplejson.encoder import JSONEncoder
 
 
 #def inner_popup(request, template, template_dict, context_instance, is_valid=True,
@@ -52,11 +52,12 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                           'is_valid':        is_valid,
                                           'whoami':          request.REQUEST.get('whoami'),
                                           'callback_url':    callback_url,
+                                          #TODO: json.dumps
                                           'reload':          JSONEncoder().encode(reload),
                                           'persisted':       tpl_persist,
                                           'delegate_reload': delegate_reload,
                                          },
                                          context_instance, *args, **kwargs
                                         ),
-                        mimetype="text/html"
+                        content_type="text/html",
                        )

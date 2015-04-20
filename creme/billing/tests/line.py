@@ -4,10 +4,10 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
+    from json.encoder import JSONEncoder
 
     from django.utils.translation import ugettext as _
     #from django.contrib.contenttypes.models import ContentType
-    from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
@@ -799,6 +799,7 @@ class LineTestCase(_BillingTestCase):
         discount = '20'
         discount_unit = DISCOUNT_PERCENT
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
+                                    #TODO: json.dumps
                                     data={service_line.entity_type_id: JSONEncoder().encode({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,

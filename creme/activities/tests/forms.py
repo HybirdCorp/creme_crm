@@ -2,8 +2,7 @@
 
 try:
     #from functools import partial
-
-    from django.utils.simplejson import dumps as jsondumps
+    from json import dumps as jsondumps
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 

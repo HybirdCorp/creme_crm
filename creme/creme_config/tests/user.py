@@ -2,11 +2,11 @@
 
 try:
     from functools import partial
+    from json import loads as jsonloads
 
     from django.conf import settings
     from django.contrib.sessions.models import Session
     from django.contrib.auth.models import User
-    from django.utils.simplejson import loads as jsonloads
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 

@@ -29,7 +29,6 @@ from django.template import Library, Template, TemplateSyntaxError, Node as Temp
 from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
 #from django.utils.safestring import mark_safe
-from django.utils.simplejson import dumps
 #from django.utils.translation import ugettext_lazy as _
 
 from mediagenerator.generators.bundles.utils import _render_include_media
@@ -394,9 +393,11 @@ class MediaNode(TemplateNode):
 
 @register.assignment_tag
 def get_export_backends():
-    return dumps([[backend.id, unicode(backend.verbose_name)]
-                 for backend in export_backend_registry.iterbackends()])
+    return json_dump([[backend.id, unicode(backend.verbose_name)]
+                        for backend in export_backend_registry.iterbackends()
+                     ]
+                    )
 
 @register.assignment_tag
 def get_import_backends():
-    return dumps([[backend.id] for backend in import_backend_registry.iterbackends()])
+    return json_dump([[backend.id] for backend in import_backend_registry.iterbackends()])

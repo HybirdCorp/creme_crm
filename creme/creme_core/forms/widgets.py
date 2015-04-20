@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+from json.encoder import JSONEncoder
 from types import GeneratorType
 #import warnings
 
@@ -30,7 +31,6 @@ from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape, escape
 from django.utils.safestring import mark_safe
-from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext as _
 
 from ..utils.date_range import date_range_registry
@@ -476,6 +476,7 @@ class EntitySelector(TextInput):
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
         qfilter = attrs.pop('qfilter', None)
+        #TODO: jdon.dumps
         context['qfilter'] = escape(JSONEncoder().encode(qfilter)) if qfilter else ''
 
         html_output = """

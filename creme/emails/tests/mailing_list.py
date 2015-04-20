@@ -104,7 +104,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         #################
         response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'}) #invalid address
-        self.assertFormError(response, 'form', 'recipients', [_(u"Enter a valid e-mail address.")])
+        self.assertFormError(response, 'form', 'recipients', _(u"Enter a valid email address."))
 
         #################
         recipient = mlist.emailrecipient_set.all()[0]

@@ -2,8 +2,8 @@
 
 try:
     from functools import partial
+    from json import JSONEncoder
 
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _

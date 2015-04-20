@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,9 @@
 
 import csv
 
-from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponse
 from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext_lazy as _
 
 from .base import ExportBackend
 
@@ -34,7 +34,7 @@ class CSVExportBackend(ExportBackend):
     help_text = ''
 
     def __init__(self):
-        self.response = HttpResponse(mimetype='text/csv')
+        self.response = HttpResponse(content_type='text/csv')
         self.writer = csv.writer(self.response, quoting=csv.QUOTE_ALL, delimiter=self.delimiter)
 
     def writerow(self, row):

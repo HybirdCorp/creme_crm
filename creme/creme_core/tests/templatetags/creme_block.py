@@ -2,10 +2,10 @@
 
 try:
     from functools import partial
+    import json
 
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.sessions.backends.base import SessionBase
-    from django.core.serializers.json import simplejson
     from django.template import Template, RequestContext
     from django.test.client import RequestFactory
     from django.utils.translation import ugettext as _
@@ -13,10 +13,10 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
     from creme.creme_core.models import (RelationType, Relation,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         InstanceBlockConfigItem, RelationBlockItem, CustomBlockConfigItem)
-    from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
 
 #    from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -270,7 +270,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
         idx += len(js_varname)
 
         with self.assertNoException():
-            deps_map = simplejson.loads(render[idx:render.find('}', idx) + 1])
+            deps_map = json.loads(render[idx:render.find('}', idx) + 1])
 
         self.assertEqual({infoblock.id_: ibci.block_id,
                           ibci.block_id: infoblock.id_,

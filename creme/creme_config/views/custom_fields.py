@@ -68,7 +68,7 @@ def delete_ct(request):
         field.delete()
 
     if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
+        return HttpResponse("", content_type="text/javascript")
 
     return HttpResponse()
 
@@ -79,7 +79,7 @@ def delete(request):
     field.delete()
 
     if request.is_ajax():
-        return HttpResponse("", mimetype="text/javascript")
+        return HttpResponse("", content_type="text/javascript")
 
     return HttpResponse()
 

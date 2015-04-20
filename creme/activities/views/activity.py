@@ -220,7 +220,7 @@ def download_ical(request, ids):
     activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
                                           user=request.user
                                          )
-    response = HttpResponse(get_ical(activities), mimetype="text/calendar")
+    response = HttpResponse(get_ical(activities), content_type="text/calendar")
     response['Content-Disposition'] = "attachment; filename=Calendar.ics"
 
     return response

@@ -2,9 +2,9 @@
 
 try:
     from functools import partial
+    from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
     from django.http import Http404
     from django.utils.translation import ugettext as _
 
@@ -61,7 +61,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        json_data = simplejson.loads(response.content)
+        json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
         self.assertEqual(json_data, [[get_ct(Contact).id,      Contact._meta.verbose_name],
                                      [get_ct(Organisation).id, Organisation._meta.verbose_name]
@@ -81,7 +81,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        json_data = simplejson.loads(response.content)
+        json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
         self.assertIn([get_ct(Contact).id], json_data)
         self.assertIn([get_ct(Organisation).id], json_data)
@@ -1195,7 +1195,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertGET403(url, data={'fields': ['unknown']})
 
         response = self.assertGET200(url, data={'fields': ['id']})
-        json_data = simplejson.loads(response.content)
+        json_data = load_json(response.content)
         self.assertIsInstance(json_data, list)
         self.assertIn([rtype3.id], json_data)
         self.assertIn([rtype5.id], json_data)
@@ -1208,7 +1208,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                      data={'fields': ['id', 'unicode']}
                                     )
         self.assertIn([rtype3.id, unicode(rtype3)],
-                      simplejson.loads(response.content)
+                      load_json(response.content)
                      )
 
     def test_json_entity_rtypes02(self):

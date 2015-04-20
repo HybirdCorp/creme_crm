@@ -526,6 +526,8 @@ def _user_unicode(user):
 
 User.__unicode__ = _user_unicode
 User._meta.ordering = ('username',)
+User._meta.verbose_name = _('User')
+User._meta.verbose_name_plural = _('Users')
 
 get_user_field = User._meta.get_field
 for fname in ('first_name', 'password', 'is_staff', 'is_active', 'is_superuser',

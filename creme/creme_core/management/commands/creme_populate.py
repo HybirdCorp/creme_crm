@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
-from __future__ import print_function
 
 import sys
 from traceback import format_exception
@@ -68,9 +66,9 @@ class BasePopulator(object):
         for dep in self.dependencies:
             ext_dep = _extended_app_name(dep, apps_set, raise_exception=False)
             if ext_dep is None:
-                print('BEWARE: ignored dependencies "%s", it seems it is not an '
-                      'installed Creme App (see settings.INSTALLED_CREME_APPS)' % dep
-                     )
+                self.stdout.write('BEWARE: ignored dependencies "%s", it seems it is not an '
+                                  'installed Creme App (see settings.INSTALLED_CREME_APPS)' % dep
+                                 )
             else:
                 deps.append(ext_dep)
 
@@ -147,7 +145,7 @@ class Command(BaseCommand):
                                     .Populator(verbosity, app, all_apps, options)
                 except ImportError as e:
                     if verbosity >= 1:
-                        print('disable populate for "%s": %s' % (app, e))
+                        self.stdout.write('disable populate for "%s": %s' % (app, e))
                 else:
                     assert isinstance(populator, BasePopulator)
                     populators.append(populator)
@@ -161,7 +159,9 @@ class Command(BaseCommand):
             total_missing_deps |= apps_2_populate
 
         if total_missing_deps and verbosity >= 1:
-            print('additionnal dependencies will be populated:', ', '.join(total_missing_deps))
+            self.stdout.write('additionnal dependencies will be populated: %s' % 
+                                ', '.join(total_missing_deps)
+                             )
 
         # clean the dependencies (avoid dependencies that do not exist in
         # 'populators', which would cause Exception raising)
@@ -181,25 +181,27 @@ class Command(BaseCommand):
 
         for populator in populators:
             if verbosity >= 1:
-                print('populate "%s" ...' % populator.app)
+                self.stdout.write('populate "%s" ...' % populator.app)
 
             try:
                 #getattr(populator, name)(*args, **options)
                 getattr(populator, name)()
             except Exception as e:
-                print('populate "%s" failed (%s)' % (populator.app, e))
+                self.stderr.write('populate "%s" failed (%s)' % (populator.app, e))
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
-                    print(''.join(format_exception(exc_type, exc_value, exc_traceback)))
+                    self.stderr.write(''.join(format_exception(exc_type, exc_value, exc_traceback)))
 
             if verbosity >= 1:
-                print('populate "%s" done.' % populator.app)
+                self.stdout.write('populate "%s" done.' % populator.app)
 
         pre_save.disconnect(dispatch_uid=dispatch_uid)
 
         #-----------------------------------------------------------------------
         if verbosity >= 1:
-            print('update sequences for models :', [model.__name__ for model in self.models])
+            self.stdout.write('update sequences for models : %s' % 
+                                [model.__name__ for model in self.models]
+                             )
 
         connection = connections[options.get('database', DEFAULT_DB_ALIAS)]
         cursor = connection.cursor()
@@ -210,7 +212,7 @@ class Command(BaseCommand):
         #connection.close() #seems useless (& does not work with mysql)
 
         if verbosity >= 1:
-            print('update sequences done.')
+            self.stdout.write('update sequences done.')
 
     def _get_populate_module(self, app):
         find_module('populate', __import__(app, globals(), locals(), [app.split('.')[-1]]).__path__)

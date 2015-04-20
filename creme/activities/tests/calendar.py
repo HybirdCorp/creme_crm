@@ -3,10 +3,10 @@
 try:
     from datetime import timedelta #datetime
     from functools import partial
+    from json import loads as jsonloads, dumps as jsondumps
 
     from django.utils.encoding import force_unicode
     from django.utils.html import escape
-    from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
     from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
 

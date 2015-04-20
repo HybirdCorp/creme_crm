@@ -3,9 +3,9 @@
 try:
     from datetime import date
     from functools import partial
+    from json import loads as load_json, dumps as dump_json
 
     from django.forms.widgets import Select
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth import EntityCredentials
@@ -177,7 +177,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.fline2 = create_line('Talk about them')
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
-                                             raw_answer=simplejson.dumps([raw_cond]),
+                                             raw_answer=dump_json([raw_cond]),
                                              operator=PollFormLineCondition.EQUALS
                                             )
 
@@ -196,7 +196,7 @@ class PollRepliesTestCase(_PollsTestCase):
         self.fline2 = create_line('Talk about them')
 
         PollFormLineCondition.objects.create(line=self.fline2, source=fline1,
-                                             raw_answer=simplejson.dumps([1]),
+                                             raw_answer=dump_json([1]),
                                              operator=PollFormLineCondition.EQUALS
                                             )
 
@@ -244,14 +244,14 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertPOST200(self._build_edit_answer_url(preply, rline),
                            data={'answer': answer}
                           )
-        self.assertEqual(answer, simplejson.loads(self.refresh(rline).raw_answer))
+        self.assertEqual(answer, load_json(self.refresh(rline).raw_answer))
         self.assertEqual(is_complete, self.refresh(preply).is_complete)
 
     def _edit_wizard_answer(self, preply, rline, answer, is_complete):
         self.assertPOST200(self._build_edit_wizard_answer_url(preply, rline),
                            data={'answer': answer}, follow=True
                           )
-        self.assertEqual(answer, simplejson.loads(self.refresh(rline).raw_answer))
+        self.assertEqual(answer, load_json(self.refresh(rline).raw_answer))
         self.assertEqual(is_complete, self.refresh(preply).is_complete)
 
     def _fill(self, preply, *answers, **kwargs):

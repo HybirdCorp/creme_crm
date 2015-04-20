@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,16 +106,15 @@ def download_file(request, location, mimetype=None):
     except IOError:
         raise Http404(_('Invalid file'))
 
-    response = HttpResponse(data, mimetype=ftype)
+    response = HttpResponse(data, content_type=ftype)
     response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
+
     return response
 
 def fetch_resources(uri, rel):
-    """
-    Callback to allow pisa/reportlab to retrieve Images,Stylesheets, etc.
+    """Callback to allow pisa/reportlab to retrieve Images,Stylesheets, etc.
     `uri` is the href attribute from the html link element.
     `rel` gives a relative path, but it's not used here.
-
     """
     path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
     return path

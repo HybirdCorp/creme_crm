@@ -3,10 +3,10 @@
 try:
     from datetime import date
     from functools import partial
+    from json import loads as load_json
 
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
-    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _, ungettext
 
     from .base import ViewsTestCase
@@ -1267,7 +1267,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_get_ct_url(rtype))
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertIsInstance(content, list)
         self.assertGreater(len(content), 1)
         self.assertTrue(all(len(t) == 2 for t in content))
@@ -1285,7 +1285,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         ct = self.ct_contact
         self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_filters_for_ctype01(self):
@@ -1293,7 +1293,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
 
-        content = simplejson.loads(response.content)
+        content = load_json(response.content)
         self.assertIsInstance(content, list)
         self.assertFalse(content)
 
@@ -1324,7 +1324,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
         self.assertEqual([[efilter01.id, name1], [efilter02.id, name2], [efilter03.id, name3]],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )
 
     def test_filters_for_ctype03(self):
@@ -1345,5 +1345,5 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                           [efilter01.id, 'Filter 01'],
                           [efilter02.id, 'Filter 02'],
                          ],
-                         simplejson.loads(response.content)
+                         load_json(response.content)
                         )

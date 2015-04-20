@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from json import JSONEncoder
+
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from django.utils.simplejson import JSONEncoder
 
 from creme.creme_core.models import Relation #CremeEntity
 from creme.creme_core.gui.block import QuerysetBlock
@@ -48,7 +49,7 @@ class FolderDocsBlock(QuerysetBlock):
                         #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
                         ct_id=_CT_DOC.id,
-                        q_filter=JSONEncoder().encode(q_dict),
+                        q_filter=JSONEncoder().encode(q_dict), #TODO: json.dumps ??
                        )
                    )
 

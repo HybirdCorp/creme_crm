@@ -323,7 +323,8 @@ class _CremeTestCase(object):
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2, exclude_internal)
 
-    def assertXMLEqual(self, expected, actual):
+    #def assertXMLEqual(self, expected, actual):
+    def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
         @param expected XML string ; tip: better if it is well indented to have better error message.
         @param actual XML string.

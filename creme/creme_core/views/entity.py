@@ -436,7 +436,7 @@ def empty_trash(request):
         message = _('The following entities cannot be deleted') + \
                  u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
 
-    return HttpResponse(message, mimetype='text/javascript', status=status)
+    return HttpResponse(message, content_type='text/javascript', status=status)
 
 @login_required
 @POST_only
@@ -454,7 +454,7 @@ def restore_entity(request, entity_id):
     entity.restore()
 
     if request.is_ajax():
-        return HttpResponse(mimetype='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(entity)
 
@@ -515,10 +515,10 @@ def delete_entities(request):
     try:
         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
     except ValueError:
-        return HttpResponse('Bad POST argument', mimetype='text/javascript', status=400)
+        return HttpResponse('Bad POST argument', content_type='text/javascript', status=400)
 
     if not entity_ids:
-        return HttpResponse(_('No selected entities'), mimetype='text/javascript', status=400)
+        return HttpResponse(_('No selected entities'), content_type='text/javascript', status=400)
 
     logger.debug('delete_entities() -> ids: %s ', entity_ids)
 
@@ -544,7 +544,7 @@ def delete_entities(request):
         status = min(errors.iterkeys())
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
-    return HttpResponse(message, mimetype='text/javascript', status=status)
+    return HttpResponse(message, content_type='text/javascript', status=status)
 
 @login_required
 #TODO: @redirect_if_not_ajax
@@ -562,12 +562,12 @@ def delete_entity(request, entity_id):
         #TODO: 400 => ConflictError ??
 
         #if request.is_ajax():
-            #return HttpResponse(smart_unicode(msg), mimetype='text/javascript', status=code)
+            #return HttpResponse(smart_unicode(msg), content_type='text/javascript', status=code)
 
         raise PermissionDenied(msg, args)
 
     if request.is_ajax():
-        return HttpResponse(mimetype='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     return HttpResponseRedirect(entity.get_lv_absolute_url())
 
@@ -592,12 +592,12 @@ def delete_related_to_entity(request, ct_id):
         #msg = e.args[0]
 
         #if request.is_ajax():
-            #return HttpResponse(smart_unicode(msg), mimetype="text/javascript", status=400)
+            #return HttpResponse(smart_unicode(msg), content_type="text/javascript", status=400)
 
         #raise Http404(unicode(msg)) #todo enhance 404 rendering to use the message...
         raise PermissionDenied(e.args[0])
 
     if request.is_ajax():
-        return HttpResponse(mimetype='text/javascript')
+        return HttpResponse(content_type='text/javascript')
 
     return redirect(entity)

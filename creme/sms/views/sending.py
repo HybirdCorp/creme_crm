@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,7 @@ def delete(request):
     sending.delete() #TODO: try/except ??
 
     if request.is_ajax():
-        return HttpResponse("success", mimetype="text/javascript")
+        return HttpResponse("success", content_type="text/javascript")
 
     return redirect(campaign)
 
@@ -99,7 +99,7 @@ def delete_message(request, id):
         return HttpResponse(err, status=500) #TODO: WTF ?!
 
     if request.is_ajax():
-        return HttpResponse("success", mimetype="text/javascript")
+        return HttpResponse("success", content_type="text/javascript")
 
     #return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
     return redirect(campaign)
