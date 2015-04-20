@@ -253,7 +253,8 @@ def _update_geoaddresses(sender, instance, **kwargs):
         geoaddress = instance.geoaddress
     except GeoAddress.DoesNotExist:
         transaction.savepoint_rollback(sid)
-        instance.geoaddress = geoaddress = GeoAddress(address=instance)
+        #instance.geoaddress = # NB: not useful with django1.5+
+        geoaddress = GeoAddress(address=instance)
         sid = transaction.savepoint()
 
     town = Town.search(instance)

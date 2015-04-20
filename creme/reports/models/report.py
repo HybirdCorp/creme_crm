@@ -71,7 +71,7 @@ class Report(CremeEntity):
         selected_found = False
 
         for rfield in self.fields.all():
-            rfield.report = self #pre-cache
+            #rfield.report = self #pre-cache # NB: not useful with django1.5+
 
             if rfield.hand: #field is valid
                 if rfield.selected:
