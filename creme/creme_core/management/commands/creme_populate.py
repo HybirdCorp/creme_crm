@@ -27,7 +27,7 @@ from django.db import connections, DEFAULT_DB_ALIAS
 from django.db.models.signals import pre_save
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
-from django.utils import translation
+#from django.utils import translation
 from django.conf import settings
 
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -95,6 +95,7 @@ class Command(BaseCommand):
     help = ('Populates the database for the specified applications, or the '
             'entire site if no apps are specified.')
     args = '[appname ...]'
+    leave_locale_alone = True
 
     #def create_parser(self, prog_name, subcommand):
         #return OptionParser(prog=prog_name,
@@ -108,7 +109,7 @@ class Command(BaseCommand):
         #action = options.get('action') or 'populate' #TODO: when reset is possible
         action = 'populate'
 
-        translation.activate(settings.LANGUAGE_CODE)
+        #translation.activate(settings.LANGUAGE_CODE)
         self._do_populate_action(action, app_names, **options)
 
     def _signal_handler(self, sender, instance, **kwargs):
