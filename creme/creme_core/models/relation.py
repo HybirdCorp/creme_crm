@@ -100,7 +100,7 @@ class RelationType(CremeModel):
         @param object_desc See subject_desc
         @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
         """
-        from creme.creme_core.utils import create_or_update
+        #from creme.creme_core.utils import create_or_update
 
         padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
         subject_desc += padding
@@ -115,10 +115,24 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom,
-                                                                           is_internal=is_internal, is_copiable=is_copiable[0])
-            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom,
-                                                                           is_internal=is_internal, is_copiable=is_copiable[1])
+#            sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom,
+#                                                                           is_internal=is_internal, is_copiable=is_copiable[0])
+#            obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom,
+#                                                                           is_internal=is_internal, is_copiable=is_copiable[1])
+            update_or_create = RelationType.objects.update_or_create
+            defaults = {'is_custom': is_custom, 'is_internal': is_internal}
+            sub_relation_type = update_or_create(id=pk_subject,
+                                                 defaults=dict(defaults,
+                                                               predicate=pred_subject,
+                                                               is_copiable=is_copiable[0],
+                                                              )
+                                                )[0]
+            obj_relation_type = update_or_create(id=pk_object,
+                                                 defaults=dict(defaults,
+                                                               predicate=pred_object,
+                                                               is_copiable=is_copiable[1],
+                                                              )
+                                                )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
 

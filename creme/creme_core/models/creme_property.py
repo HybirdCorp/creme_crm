@@ -71,8 +71,15 @@ class CremePropertyType(CremeModel):
         @param generate_pk If True, str_pk is used as prefix to generate pk.
         """
         if not generate_pk:
-            from creme.creme_core.utils import create_or_update
-            property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom, is_copiable=is_copiable)
+            #from creme.creme_core.utils import create_or_update
+            #property_type = create_or_update(CremePropertyType, str_pk, text=text, is_custom=is_custom, is_copiable=is_copiable)
+            property_type = CremePropertyType.objects.update_or_create(
+                                    id=str_pk,
+                                    defaults={'text': text,
+                                              'is_custom': is_custom,
+                                              'is_copiable':is_copiable,
+                                             }
+                                )[0]
         else:
             from creme.creme_core.utils.id_generator import generate_string_id_and_save
             property_type = CremePropertyType(text=text, is_custom=is_custom, is_copiable=is_copiable)
