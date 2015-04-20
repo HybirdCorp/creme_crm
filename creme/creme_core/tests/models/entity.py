@@ -112,8 +112,9 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('is_staff').get_tag('viewable'))
         self.assertFalse(get_field('last_login').get_tag('viewable'))
         self.assertFalse(get_field('date_joined').get_tag('viewable'))
-        self.assertFalse(get_field('groups').get_tag('viewable'))
-        self.assertFalse(get_field('user_permissions').get_tag('viewable'))
+        #self.assertFalse(get_field('groups').get_tag('viewable'))
+        #self.assertFalse(get_field('user_permissions').get_tag('viewable'))
+        self.assertFalse(get_field('role').get_tag('viewable'))
 
     def test_clone01(self):
         self._build_rtypes_n_ptypes()

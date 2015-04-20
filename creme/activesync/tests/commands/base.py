@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from threading import Thread
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from .fake_server import SimpleASHTTPServer
@@ -23,7 +23,7 @@ class BaseASTestCase(TestCase):
         self.thread_httpd = Thread(target=start_server, kwargs={'port': self.port, 'testcase': self})
         print("Starting server")
         self.thread_httpd.start()
-        self.user = User.objects.create(username='name')
+        self.user = get_user_model().objects.create(username='name')
         self.params = (self.url, '', '', 1, self.user)
 
     def tearDown(self):

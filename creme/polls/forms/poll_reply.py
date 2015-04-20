@@ -20,7 +20,7 @@
 
 from itertools import repeat
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.forms import CharField, IntegerField, ModelChoiceField, BooleanField
 from django.http import Http404
@@ -39,7 +39,9 @@ from ..models import PollForm, PollReply, PollCampaign
 
 
 class PollRepliesCreateForm(CremeForm):
-    user     = ModelChoiceField(label=_(u'User'), queryset=User.objects.filter(is_staff=False), required=True)
+    user     = ModelChoiceField(label=_(u'User'), required=True,
+                                queryset=get_user_model().objects.filter(is_staff=False),
+                               )
     name     = CharField(label=_(u'Name'), required=True)
     campaign = CreatorEntityField(label=pgettext_lazy('polls', u'Related campaign'), model=PollCampaign, required=False)
     number   = IntegerField(label=_(u'Number of replies'), initial=1, min_value=1, required=False)

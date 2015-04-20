@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from .. import autodiscover
+#from .. import autodiscover
 from ..registry import creme_registry, NotRegistered as AppNotRegistered
 from ..utils import bool_from_str
 
@@ -65,25 +65,28 @@ class _SettingKeyRegistry(object):
     def __init__(self):
         self._skeys = {}
 
-    def _get_keys(self):
-        #  __getitem__ is sometimes called during the "populate" scripts are running
-        # so autodiscover() has not been called (so SettingKey are not registered)
-        # TODO: call autodiscover() in populate scripts ??
-        try:
-            creme_registry.get_app('creme_config')
-        except AppNotRegistered:
-            autodiscover()
-
-        return self._skeys
+#    def _get_keys(self):
+#        #  __getitem__ is sometimes called during the "populate" scripts are running
+#        # so autodiscover() has not been called (so SettingKey are not registered)
+#        # todo: call autodiscover() in populate scripts ??
+#        try:
+#            creme_registry.get_app('creme_config')
+#        except AppNotRegistered:
+#            autodiscover()
+#
+#        return self._skeys
 
     def __getitem__(self, key_id): #TODO: Exception
-        return self._get_keys()[key_id]
+        #return self._get_keys()[key_id]
+        return self._skeys[key_id]
 
     def __iter__(self):
-        return self._get_keys().itervalues()
+        #return self._get_keys().itervalues()
+        return self._skeys.itervalues()
 
     def register(self, *skeys):
-        setdefault = self._get_keys().setdefault
+        #setdefault = self._get_keys().setdefault
+        setdefault = self._skeys.setdefault
 
         for skey in skeys:
             if setdefault(skey.id, skey) is not skey:

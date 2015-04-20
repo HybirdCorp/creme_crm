@@ -4,10 +4,10 @@ try:
     from decimal import Decimal
     from functools import partial
     from tempfile import NamedTemporaryFile
+    from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
-    from django.utils.unittest.case import skipIf
 
     from .base import ViewsTestCase
     from ..fake_models import (FakeContact as Contact, FakeImage,

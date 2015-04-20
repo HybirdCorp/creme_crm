@@ -20,7 +20,7 @@
 
 from json import loads as jsonloads, dumps as jsondumps
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import (DateTimeField, CharField, TextField, DecimalField,
         PositiveIntegerField, ForeignKey, SET, SubfieldBase, Max)
@@ -31,24 +31,25 @@ from ..utils.date_period import date_period_registry, DatePeriod
 #TODO: add a form field ?? (validation)
 #TODO: fix the max_lenght value ?,
 class PhoneField(CharField):
-    def south_field_triple(self):
-        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.CharField"
-        args, kwargs = introspector(self)
-
-        return (field_class, args, kwargs)
+    pass
+#    def south_field_triple(self):
+#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.CharField"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
 #TODO: Make a real api for this
 class DurationField(CharField):
-    #TODO: factorise
-    def south_field_triple(self):
-        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.CharField"
-        args, kwargs = introspector(self)
-
-        return (field_class, args, kwargs)
+    pass
+#    def south_field_triple(self):
+#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.CharField"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
 
 class DatePeriodField(TextField): #TODO: inherit from a JSONField
@@ -82,23 +83,23 @@ class DatePeriodField(TextField): #TODO: inherit from a JSONField
         # (we could define the 'widget' key in 'defaults'...)
         return super(TextField, self).formfield(**defaults)
 
-    def south_field_triple(self):
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.TextField"
-        args, kwargs = introspector(self)
-
-        return (field_class, args, kwargs)
+#    def south_field_triple(self):
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.TextField"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
 
 class MoneyField(DecimalField):
-    #TODO: factorise
-    def south_field_triple(self):
-        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.DecimalField"
-        args, kwargs = introspector(self)
-
-        return (field_class, args, kwargs)
+    pass
+#    def south_field_triple(self):
+#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.DecimalField"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
 
 def _transfer_assignation():
@@ -110,18 +111,31 @@ class CremeUserForeignKey(ForeignKey):
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = {'is_staff': False}
         kwargs['on_delete'] = SET(_transfer_assignation)#Overide on_delete, even if it was already defined in kwargs
-        super(CremeUserForeignKey, self).__init__(User, **kwargs)
+        #super(CremeUserForeignKey, self).__init__(settings.AUTH_USER_MODEL, **kwargs)
+        #kwargs['to'] = settings.AUTH_USER_MODEL
+        kwargs.setdefault('to', settings.AUTH_USER_MODEL)
+        super(CremeUserForeignKey, self).__init__(**kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(CremeUserForeignKey, self).deconstruct()
+
+        #kwargs.pop('to', None)
+        kwargs.pop('limit_choices_to', None)
+        del kwargs['on_delete']
+
+        return name, path, args, kwargs
 
     def get_internal_type(self):
         return "ForeignKey"
 
-    def south_field_triple(self):
-        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.related.ForeignKey"
-        args, kwargs = introspector(self)
+#    def south_field_triple(self):
+#        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.related.ForeignKey"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
-        return (field_class, args, kwargs)
 
 
 class CTypeForeignKey(ForeignKey):
@@ -143,16 +157,22 @@ class CTypeForeignKey(ForeignKey):
         #Connect self as the descriptor for this field (thx to GenericForeignKey code)
         setattr(cls, name, self)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(CTypeForeignKey, self).deconstruct()
+        #kwargs.pop('to', None)
+
+        return name, path, args, kwargs
+
     #TODO: factorise
     def get_internal_type(self):
         return "ForeignKey"
 
-    def south_field_triple(self):
-        from south.modelsinspector import introspector
-        field_class = 'django.db.models.fields.related.ForeignKey'
-        args, kwargs = introspector(self)
-
-        return (field_class, args, kwargs)
+#    def south_field_triple(self):
+#        from south.modelsinspector import introspector
+#        field_class = 'django.db.models.fields.related.ForeignKey'
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
     def formfield(self, **kwargs):
         from ..forms.fields import CTypeChoiceField
@@ -198,6 +218,19 @@ class BasicAutoField(PositiveIntegerField):
         super(BasicAutoField, self).__init__(*args, **kwargs)
         self.set_tags(viewable=False)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(BasicAutoField, self).deconstruct()
+
+        if self.editable:
+            kwargs['editable'] = True
+
+        if not self.blank:
+            kwargs['blank'] = False
+
+        del kwargs['default']
+
+        return name, path, args, kwargs
+
     def pre_save(self, model, add):
         attname = self.attname
         value = getattr(model, attname, None)
@@ -210,19 +243,20 @@ class BasicAutoField(PositiveIntegerField):
 
         return value
 
-    def south_field_triple(self):
-        from south.modelsinspector import introspector
-        args, kwargs = introspector(self)
-
-        return ("django.db.models.fields.PositiveIntegerField", args, kwargs)
+#    def south_field_triple(self):
+#        from south.modelsinspector import introspector
+#        args, kwargs = introspector(self)
+#
+#        return ("django.db.models.fields.PositiveIntegerField", args, kwargs)
 
 
 # Code copied/modified from django_extensions one:
 #    http://code.google.com/p/django-command-extensions/
 
 ################################################################################
-#  Copyright (c) 2007 Michael Trier
-#  Copyright (C) 2009-2014  Hybird
+#  Copyright (c) 2007  Michael Trier
+#  Copyright (C) 2014  http://trbs.net
+#  Copyright (C) 2009-2015  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -259,14 +293,28 @@ class CreationDateTimeField(DateTimeField):
     def get_internal_type(self):
         return "DateTimeField"
 
-    def south_field_triple(self):
-        """Returns a suitable description of this field for South."""
-        # We'll just introspect ourselves, since we inherit.
-        from south.modelsinspector import introspector
-        field_class = "django.db.models.fields.DateTimeField"
-        args, kwargs = introspector(self)
+#    def south_field_triple(self):
+#        """Returns a suitable description of this field for South."""
+#        # We'll just introspect ourselves, since we inherit.
+#        from south.modelsinspector import introspector
+#        field_class = "django.db.models.fields.DateTimeField"
+#        args, kwargs = introspector(self)
+#
+#        return (field_class, args, kwargs)
 
-        return (field_class, args, kwargs)
+    def deconstruct(self):
+        name, path, args, kwargs = super(CreationDateTimeField, self).deconstruct()
+
+        if self.editable:
+            kwargs['editable'] = True
+
+        if not self.blank:
+            kwargs['blank'] = False
+
+        if self.default is not now:
+            kwargs['default'] = self.default
+
+        return name, path, args, kwargs
 
 
 class ModificationDateTimeField(CreationDateTimeField):
@@ -276,7 +324,6 @@ class ModificationDateTimeField(CreationDateTimeField):
 
     Sets value to now() on each save of the model.
     """
-
     def pre_save(self, model, add):
         value = now()
         setattr(model, self.attname, value)

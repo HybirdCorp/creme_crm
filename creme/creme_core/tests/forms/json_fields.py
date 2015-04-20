@@ -154,7 +154,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_default_ctypes(self):
-        self.autodiscover()
+        #self.autodiscover()
 
         ctypes = GenericEntityField().get_ctypes()
         self.assertEqual(list(creme_entity_content_types()), ctypes)
@@ -296,7 +296,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_default_ctypes(self):
-        self.autodiscover()
+        #self.autodiscover()
 
         ctypes = MultiGenericEntityField().get_ctypes()
         self.assertEqual(list(creme_entity_content_types()), ctypes)
@@ -1240,7 +1240,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIn(str(error.exception), qfilter_errors)
 
     def test_action_buttons_no_custom_quickform(self):
-        self.autodiscover()
+        #self.autodiscover()
         self.login()
         contact = self.create_contact()
 
@@ -1300,7 +1300,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_action_buttons_not_allowed(self):
-        self.autodiscover()
+        #self.autodiscover()
         self.login()
 
         field = CreatorEntityField(Contact, required=False)
@@ -1317,7 +1317,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_action_buttons_allowed(self):
-        self.autodiscover()
+        #self.autodiscover()
         self.login()
 
         field = CreatorEntityField(Contact, required=False)
@@ -1611,7 +1611,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
     @classmethod
     def setUpClass(cls):
         _JSONFieldBaseTestCase.setUpClass()
-        cls.autodiscover()
+#        cls.autodiscover()
 
         get_ct = ContentType.objects.get_for_model
         cls.ct_contact = get_ct(Contact)

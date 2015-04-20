@@ -20,8 +20,9 @@
 
 import logging
 
+from django.apps import apps
+#from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.conf import settings
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import HeaderFilter, BlockDetailviewLocation, SearchConfigItem
@@ -102,7 +103,7 @@ class Populator(BasePopulator):
             create_bdl(block_id=related_preplies_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT,  model=Organisation)
 
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block

@@ -21,7 +21,7 @@
 import logging
 import re
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
         DateField, DateTimeField, FileField, ForeignKey, ManyToManyField)
@@ -180,6 +180,7 @@ class CrudityBackend(object):
 
                         if user is None:
                             shift_user_id = data.get('user_id')
+                            User = get_user_model() # TODO: use first() instead
                             if shift_user_id is None:
                                 try:
                                     shift_user_id = User.objects.filter(is_superuser=True)[0].id #Not as the default value of data.get because a query is always done even the default value is not necessary

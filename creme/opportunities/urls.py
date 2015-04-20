@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.conf import settings
+from django.apps import apps
 from django.conf.urls import patterns
 
 
@@ -15,7 +15,7 @@ urlpatterns = patterns('creme.opportunities.views',
     (r'^opportunity/(?P<opp_id>\d+)$',             'opportunity.detailview'),
 )
 
-if 'creme.billing' in settings.INSTALLED_APPS:
+if apps.is_installed('creme.billing'):
     urlpatterns += patterns('creme.opportunities.views.billing',
         (r'^opportunity/generate_new_doc/(?P<opp_id>\d+)/(?P<ct_id>\d+)$',                                       'generate_new_doc'),
         (r'^opportunity/(?P<opp_id>\d+)/linked/quote/(?P<quote_id>\d+)/(?P<action>set_current|unset_current)/$', 'current_quote'),

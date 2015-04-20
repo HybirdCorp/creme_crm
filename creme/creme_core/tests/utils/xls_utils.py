@@ -4,8 +4,7 @@ try:
     import os
     from datetime import datetime
     from tempfile import NamedTemporaryFile
-
-    from django.utils.unittest.case import skipIf
+    from unittest import skipIf
 
     from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:

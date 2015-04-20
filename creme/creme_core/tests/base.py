@@ -4,27 +4,28 @@ from datetime import datetime, timedelta
 from os import remove as delete_file, listdir, makedirs
 from os import path as os_path
 #from tempfile import NamedTemporaryFile
+from unittest import skipIf
 import warnings
 
 from django.test import TestCase, TransactionTestCase
+from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
 from django.utils.timezone import utc, get_current_timezone, make_aware
-from django.utils.unittest.case import skipIf
 
-from ..models import UserRole, RelationType, Relation, CremePropertyType
+from ..models import CremeUser, UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..utils.xml_utils import xml_diff, XMLDiffError
 from ..registry import creme_registry
-from .. import autodiscover
+#from .. import autodiscover
 
 #from creme.media_managers.models import Image
 
 
 def skipIfNotInstalled(app_name):
-    return skipIf(app_name not in settings.INSTALLED_APPS,
+    return skipIf(not apps.is_installed(app_name),
                   "Skip this test which is related to the uninstalled app '%s'" % app_name
                  )
 
@@ -65,6 +66,9 @@ class _CremeTestCase(object):
                                 RuntimeWarning, r'django\.db\.models\.fields',
                                )
 
+        from .fake_creme_core_register import register
+        register()
+
     def tearDown(self):
         if not getattr(self, 'clean_files_in_teardown', False):
             return
@@ -80,7 +84,7 @@ class _CremeTestCase(object):
               creatable_models=None, admin_4_apps=()):
         self.password = password = 'test'
 
-        superuser = User(username='kirika', email='kirika@noir.jp',
+        superuser = CremeUser(username='kirika', email='kirika@noir.jp',
                          first_name='Kirika', last_name='Yumura',
                          #is_superuser=True,
                          is_superuser=True or is_staff,
@@ -100,7 +104,7 @@ class _CremeTestCase(object):
 
         self.role = role
 
-        basic_user = User(username='mireille', email='mireille@noir.jp', role=role,
+        basic_user = CremeUser(username='mireille', email='mireille@noir.jp', role=role,
                           first_name='Mireille', last_name='Bouquet',
                          )
         basic_user.set_password(password)
@@ -120,8 +124,12 @@ class _CremeTestCase(object):
 
     @staticmethod
     def autodiscover():
-        if not list(creme_registry.iter_apps()):
-            autodiscover()
+        #if not list(creme_registry.iter_apps()):
+            #autodiscover()
+
+        warnings.warn("_CremeTestCase.autodiscover() method is deprecated.",
+                      DeprecationWarning
+                     )
 
     def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
         delta = max(dt1, dt2) - min(dt1, dt2)

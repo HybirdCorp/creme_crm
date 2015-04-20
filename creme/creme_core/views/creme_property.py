@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,8 @@ from .generic import inner_popup, add_to_entity as generic_add_to_entity
 def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk and bulk_update?
     user     = request.user
     model    = get_ct_or_404(ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
+    #entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
+    entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
 

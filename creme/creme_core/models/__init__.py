@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .auth import CremeUser, EntityCredentials, UserRole, SetCredentials #, UserProfile, TeamM2M
+
 from .base import CremeModel, CremeAbstractEntity#, CremeEntityManager
 from .entity import CremeEntity
 
@@ -27,10 +29,9 @@ from .reminder import DateReminder
 from .history import HistoryLine, HistoryConfigItem
 from .search import SearchConfigItem
 
-from .auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
-
 from .version import Version
+
 
 from django.conf import settings
 if settings.TESTS_ON:
-    from ..tests.fake_models import *
+    from creme.creme_core.tests.fake_models import *

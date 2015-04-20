@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import loads as load_json
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
@@ -181,6 +181,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "Cannot create a private filter for another user (but OK with one of our teams)"
         user = self.login()
 
+        User = get_user_model()
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user, self.other_user]
 
@@ -311,7 +312,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -326,6 +327,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
+        User = get_user_model()
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         #my_team.teammates = [self.user] # <=====
 
@@ -428,7 +430,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -444,6 +446,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
+        User = get_user_model()
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
 

@@ -6,15 +6,15 @@ try:
 
     #from django.conf import settings
     #from django.utils.translation import ugettext as _
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import User
 
     from ..base import CremeTestCase
     from ..fake_models import (FakeContact as Contact, FakeOrganisation as Organisation,
             FakeCivility as Civility, FakePosition as Position)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.models import RelationType, Relation, HeaderFilter
+    from creme.creme_core.models import RelationType, Relation, HeaderFilter, CremeEntity
     from creme.creme_core.models.header_filter import HeaderFilterList
 
     #from creme.persons.models import Contact, Organisation, Position, Sector
@@ -422,6 +422,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
         create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
 
+        # NB: sometimes a query to get this CT is performed when the Relations
+        # are retrieved. So we force the cache to be filled has he should be
+        ContentType.objects.get_for_model(CremeEntity)
+
         with self.assertNumQueries(2):
             #hf.populate_entities([nagate, shizuka], user)
             hf.populate_entities([nagate, shizuka])
@@ -481,6 +485,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 #        role.allowed_apps = ['persons']
 #        role.save()
 
+        User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
                                        email='fulbnert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',

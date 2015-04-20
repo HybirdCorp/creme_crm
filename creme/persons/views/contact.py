@@ -53,7 +53,8 @@ def add_with_relation(request, orga_id, predicate_id=None):
         initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=predicate_id)
 
     return add_entity(request, RelatedContactForm,
-                      request.REQUEST.get('callback_url'),
+                      #request.REQUEST.get('callback_url'),
+                      request.POST.get('callback_url') or request.GET.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial
                      )
 

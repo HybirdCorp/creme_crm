@@ -23,7 +23,7 @@ class AssistantsAppTestCase(CremeTestCase):
         self.populate('assistants')
         self.assertEqual(3, UserMessagePriority.objects.count())
 
-        self.autodiscover()
+        #self.autodiscover()
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         self.assertEqual('assistants', sv.key.app_label)

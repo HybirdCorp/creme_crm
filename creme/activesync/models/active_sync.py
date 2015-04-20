@@ -20,11 +20,11 @@
 
 import pickle
 
-from django.db.models import Model, IntegerField, BooleanField, CharField, TextField, DateTimeField, ForeignKey
-from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
+from django.db.models import (Model, IntegerField, BooleanField, CharField,
+        TextField, DateTimeField, ForeignKey)
+from django.db.models.signals import post_save, post_delete
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -82,7 +82,7 @@ class CremeExchangeMapping(CremeModel):
     synced             = BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = BooleanField(u'Modified by creme?',       default=False)
     was_deleted        = BooleanField(u'Was deleted by creme?',    default=False)#Seems redundant with is_deleted but isn't in case of TRUE_DELETE
-    user               = ForeignKey(User, verbose_name=u'Belongs to')
+    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Belongs to')
     creme_entity_repr  = CharField(u'Verbose entity representation', max_length=200, null=True, blank=True, default=u"")#IHM/User purposes
 
     def __unicode__(self):
@@ -107,7 +107,7 @@ class CremeExchangeMapping(CremeModel):
 
 
 class CremeClient(CremeModel):
-    user               = ForeignKey(User, verbose_name=u'Assigned to', unique=True)
+    user               = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'Assigned to', unique=True)
     client_id          = CharField(u'Creme Client ID',   max_length=32,  default=generate_guid, unique=True)
     policy_key         = CharField(u'Last policy key',   max_length=200, default=0)
     sync_key           = CharField(u'Last sync key',     max_length=200, default=None, blank=True, null=True)
@@ -179,14 +179,19 @@ class SyncKeyHistory(CremeModel):
         return u"<SyncKeyHistory for <%s>, key=<%s>, created=<%s>>" % (self.client, self.sync_key, self.created)
 
 
+def _empty_dump():
+    return pickle.dumps({})
+
+
 class UserSynchronizationHistory(CremeModel):
-    user           = ForeignKey(User, verbose_name=u'user')
+    user           = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=u'user')
     entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
     entity_pk      = IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
     #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
     entity_ct      = CTypeForeignKey(verbose_name=u'What', null=True, blank=True)
     created        = CreationDateTimeField(_('Creation date'), default=now)
-    entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
+    #entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
+    entity_changes = TextField(_(u'Entity changes'), default=_empty_dump)
     type           = IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
     where          = IntegerField(u'', max_length=1, choices=USER_HISTORY_WHERE)
 

@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management.commands.test import Command as TestCommand
+
+from creme.creme_core.registry import creme_registry
 
 
 class Command(BaseCommand):
@@ -29,13 +32,13 @@ class Command(BaseCommand):
     option_list = TestCommand.option_list
 
     def handle(self, *args, **options):
-        ##TestCommand().handle(*settings.INSTALLED_CREME_APPS, **options)
-        #TestCommand().handle(*[app.replace('creme.', '') for app in settings.INSTALLED_CREME_APPS], **options)
-
-        apps = settings.INSTALLED_CREME_APPS
+        get_app_config = apps.get_app_config
+        app_configs = [get_app_config(creme_app.name)
+                           for creme_app in creme_registry.iter_apps()
+                      ]
 
         try:
-            TestCommand().handle(*[app + '.tests' for app in apps], **options)
+            TestCommand().handle(*[app_config.name + '.tests' for app_config in app_configs], **options)
         except AttributeError as e:
             if "'tests'" in e.message:
                 from imp import find_module
@@ -43,11 +46,11 @@ class Command(BaseCommand):
                 self.stderr.write('It seems one of your apps does not have a "tests" module...')
                 invalid_apps = []
 
-                for app in apps:
+                for app_config in app_configs:
                     try:
-                        find_module("tests", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+                        find_module("tests", __import__(app_config.name, {}, {}, [app_config.label]).__path__)
                     except ImportError:
-                        invalid_apps.append(app)
+                        invalid_apps.append(app_config.name)
 
                 if invalid_apps:
                     self.stderr.write('... invalid apps are: %s' % invalid_apps)

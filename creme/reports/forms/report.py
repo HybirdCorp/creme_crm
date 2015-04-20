@@ -27,7 +27,7 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext

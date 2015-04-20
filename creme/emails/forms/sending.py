@@ -22,7 +22,7 @@ import logging
 from pickle import dumps
 
 from django.forms import TypedChoiceField, IntegerField, EmailField
-from django.forms.util import ErrorList, ValidationError
+from django.forms.utils import ErrorList, ValidationError
 from django.template import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext

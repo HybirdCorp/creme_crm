@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
 
@@ -30,14 +30,15 @@ class WaitingActionTestCase(CrudityTestCase):
         cls.ct_entity  = get_ct(CremeEntity)
         cls.ct_contact = get_ct(Contact)
 
-        cls._staff_user_ids_backup = list(User.objects.filter(is_staff=True)
-                                                      .values_list('id')
+        cls.User = get_user_model()
+        cls._staff_user_ids_backup = list(cls.User.objects.filter(is_staff=True)
+                                                          .values_list('id')
                                          )
 
     @classmethod
     def tearDownClass(cls):
         CrudityTestCase.tearDownClass()
-        User.objects.exclude(id__in=cls._staff_user_ids_backup).update(is_staff=False)
+        cls.User.objects.exclude(id__in=cls._staff_user_ids_backup).update(is_staff=False)
 
     def test_can_validate_or_delete01(self):
         "Sandbox for everyone"
@@ -72,7 +73,7 @@ class WaitingActionTestCase(CrudityTestCase):
                                              )
         self.assertIsNone(action.user)
 
-        self.assertTrue(User.objects.filter(is_superuser=True, is_staff=False))
+        self.assertTrue(self.User.objects.filter(is_superuser=True, is_staff=False))
 
         #Sandbox will be by user
         self._set_sandbox_by_user()
@@ -88,9 +89,9 @@ class WaitingActionTestCase(CrudityTestCase):
                                              )
         self.assertIsNone(action.user)
 
-        User.objects.filter(is_superuser=True).update(is_staff=True)
+        self.User.objects.filter(is_superuser=True).update(is_staff=True)
 
-        superuser = User.objects.create(username='Kirika2', is_superuser=True)
+        superuser = self.User.objects.create(username='Kirika2', is_superuser=True)
 
         self._set_sandbox_by_user()
         self.assertFalse(WaitingAction.objects.filter(user=None))

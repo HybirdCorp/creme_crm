@@ -2,13 +2,17 @@
 try:
     from json import loads as jsonloads, dumps as json_encode
 
+    from django.contrib.contenttypes.models import ContentType
+    from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
     from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
             FakeOrganisation as Organisation)
     from .base import FieldTestCase
-    from creme.creme_core.forms.entity_filter import *
-    from creme.creme_core.models.custom_field import CustomFieldEnumValue
+#    from creme.creme_core.forms.entity_filter import *
+    from creme.creme_core.models import (RelationType, CremePropertyType,
+            EntityFilter, EntityFilterCondition,
+            CustomField, CustomFieldEnumValue)
 
 #    from creme.persons.models import Organisation, Contact, Civility
 except Exception as e:
@@ -27,9 +31,12 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     @classmethod
     def setUpClass(cls):
         FieldTestCase.setUpClass()
-        cls.autodiscover()
+#        cls.autodiscover()
 #        cls.populate('persons')
         cls.populate('creme_core')
+
+        global RegularFieldsConditionsField, FieldConditionWidget
+        from creme.creme_core.forms.entity_filter import RegularFieldsConditionsField, FieldConditionWidget
 
     def test_clean_empty_required(self):
         clean = RegularFieldsConditionsField(required=True).clean
@@ -397,6 +404,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global DateFieldsConditionsField
+        from creme.creme_core.forms.entity_filter import DateFieldsConditionsField
+
     def test_clean_invalid_data(self):
         clean = DateFieldsConditionsField(model=Contact).clean
         self.assertFieldValidationError(DateFieldsConditionsField, 'invalidfield', clean,
@@ -506,6 +520,13 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     CONDITION_FIELD_JSON_FMT = '[{"field": {"id": "%(field)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global CustomFieldsConditionsField, CustomFieldConditionWidget
+        from creme.creme_core.forms.entity_filter import CustomFieldsConditionsField, CustomFieldConditionWidget
 
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -660,7 +681,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_customfield_choicetype(self):
         """custom field choice types"""
-        self.autodiscover()
+        #self.autodiscover()
         #self.populate('persons')
 
         field_choicetype = CustomFieldConditionWidget.customfield_choicetype
@@ -673,6 +694,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global DateCustomFieldsConditionsField
+        from creme.creme_core.forms.entity_filter import DateCustomFieldsConditionsField
+
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
         self.cfield01 = CustomField.objects.create(name='Day', content_type=ct, field_type=CustomField.DATETIME)
@@ -764,6 +792,13 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class PropertiesConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global PropertiesConditionsField
+        from creme.creme_core.forms.entity_filter import PropertiesConditionsField
+
     def setUp(self):
         self.ptype01 = CremePropertyType.create('test-prop_active', 'Is active')
         self.ptype02 = CremePropertyType.create('test-prop_cute',   'Is cute', (Contact,))
@@ -822,6 +857,13 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global RelationsConditionsField
+        from creme.creme_core.forms.entity_filter import RelationsConditionsField
+
     def setUp(self):
         create = RelationType.create
         self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (Contact,)),
@@ -988,6 +1030,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global RelationSubfiltersConditionsField
+        from creme.creme_core.forms.entity_filter import RelationSubfiltersConditionsField
+
     def setUp(self):
         create = RelationType.create
         self.rtype01, self.rtype02 = create(('test-subject_love', u'Is loving', (Contact,)),

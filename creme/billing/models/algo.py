@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, ForeignKey, IntegerField
-from django.utils.translation import ugettext_lazy as _
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model, CharField, ForeignKey, IntegerField
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CTypeForeignKey
@@ -53,7 +54,8 @@ class SimpleBillingAlgo(Model):
         unique_together = ("organisation", "last_number", "ct")
 
 
-if 'creme.billing' in settings.INSTALLED_APPS: #useful for tests (this file could be loaded even if the app is not installed)
+#TODO; use AppConfig.ready() ??
+if apps.is_installed('creme.billing'): #useful for tests (this file could be loaded even if the app is not installed)
     from django.db.models.signals import post_save
     from django.dispatch import receiver
 

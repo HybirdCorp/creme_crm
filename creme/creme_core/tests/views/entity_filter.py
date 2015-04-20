@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import loads as load_json
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _, ungettext
 
@@ -318,6 +318,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Cannot create a private filter for another user (but OK with one of our teams)"
         user = self.login()
 
+        User = get_user_model()
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user, self.other_user]
 
@@ -357,7 +358,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "A staff  user can create a private filter for another user"
         user = self.login(is_staff=True)
 
-        team = User.objects.create(username='A-team', is_team=True)
+        team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user]
 
         subfilter = EntityFilter.create('creme_core-subfilter', 'Misato', model=Contact,
@@ -515,7 +516,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         """
         user = self.login()
 
-        team = User.objects.create(username='A-team', is_team=True)
+        team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user, self.other_user]
 
         subfilter1 = EntityFilter.create('creme_core-subfilter1', 'Misato', model=Contact,
@@ -577,6 +578,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login()
         other_user = self.other_user
 
+        User = get_user_model()
         team = User.objects.create(username='A-team', is_team=True)
         team.teammates = [user, other_user]
 
@@ -1089,6 +1091,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         """
         user = self.login()
 
+        User = get_user_model()
         team = User.objects.create(username='A-team', is_team=True)
         team.teammates = [user, self.other_user]
 
@@ -1128,7 +1131,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         """
         user = self.login()
 
-        team = User.objects.create(username='A-team', is_team=True)
+        team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user]
 
         efilter1 = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
@@ -1198,7 +1201,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
+        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [user]
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact,
@@ -1215,6 +1218,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 #        self.role.allowed_apps = ['persons']
 #        self.role.save()
 
+        User = get_user_model()
         my_team = User.objects.create(username='A-team', is_team=True)
         my_team.teammates = [user]
 

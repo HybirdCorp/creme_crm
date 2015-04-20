@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db.models import Model, CharField, PositiveIntegerField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
 
 
 class PreferedMenuItem(Model):
-    user  = ForeignKey(User, verbose_name=_(u'User'), null=True)
+    user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'), null=True)
     label = CharField(_(u'Label'), max_length=100, blank=True)
     url   = CharField(_(u'Url'), max_length=100,  blank=True)
     order = PositiveIntegerField(_(u'Order'))

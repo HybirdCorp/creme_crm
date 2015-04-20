@@ -22,7 +22,7 @@ from future_builtins import map
 
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
-from django.forms.util import ValidationError, ErrorList
+from django.forms.utils import ValidationError, ErrorList
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 

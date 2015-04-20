@@ -24,11 +24,11 @@ from functools import partial
 from itertools import chain
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField
-#from django.forms.util import flatatt
-from django.forms.util import ErrorList, ValidationError
+#from django.forms.utils import flatatt
+from django.forms.utils import ErrorList, ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
 
@@ -576,7 +576,7 @@ def get_csv_form_builder(header_dict, choices):
                                            )
 
         participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
-                                                       queryset=User.objects.filter(is_staff=False),
+                                                       queryset=get_user_model().objects.filter(is_staff=False),
                                                        required=False, widget=UnorderedMultipleChoiceWidget,
                                                       )
         participants        = ParticipantsExtractorField(choices, label=_('Participants'), required=False)

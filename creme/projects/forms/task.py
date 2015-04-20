@@ -20,7 +20,7 @@
 
 from functools import partial
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.forms import DateTimeField, ValidationError, ModelMultipleChoiceField # ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
@@ -106,7 +106,7 @@ class TaskCreateForm(_TaskForm):
     #type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
     parent_tasks = MultiCreatorEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
     participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
-                                                   queryset=User.objects.filter(is_staff=False),
+                                                   queryset=get_user_model().objects.filter(is_staff=False),
                                                    required=False,
                                                    widget=UnorderedMultipleChoiceWidget,
                                                   )

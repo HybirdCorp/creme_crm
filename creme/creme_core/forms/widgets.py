@@ -25,7 +25,7 @@ from types import GeneratorType
 
 from django.conf import settings
 #from django.contrib.contenttypes.models import ContentType
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
         TextInput, Input, MultiWidget, RadioSelect, RadioFieldRenderer)
 from django.utils.encoding import force_unicode

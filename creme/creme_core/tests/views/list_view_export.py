@@ -3,14 +3,15 @@
 try:
     from datetime import date
     from functools import partial
+    from unittest import skipIf
 
+    from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.timezone import localtime
     from django.utils.translation import ugettext as _
-    from django.utils.unittest.case import skipIf
 
     from .base import ViewsTestCase
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT

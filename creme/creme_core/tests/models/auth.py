@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.contrib.auth.models import User, Permission
+    #from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import PermissionDenied
     from django.db.models.deletion import ProtectedError
@@ -12,6 +12,7 @@ try:
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremeUser
     from creme.creme_core.models import(CremeEntity, CremePropertyType,
             CremeProperty, Relation, UserRole, SetCredentials)
 
@@ -26,15 +27,25 @@ __all__ = ('CredentialsTestCase',)
 class CredentialsTestCase(CremeTestCase):
     password = 'password'
 
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-        cls.autodiscover()
+#    @classmethod
+#    def setUpClass(cls):
+#        CremeTestCase.setUpClass()
+#        cls.autodiscover()
 
     def setUp(self):
-        create_user = User.objects.create_user
-        self.user       = user  = create_user('Kenji', 'kenji@century.jp', self.password)
-        self.other_user = other = create_user('Shogun', 'shogun@century.jp', 'uselesspw') #TODO: remove from here ??
+#        create_user = User.objects.create_user
+#        self.user       = user  = create_user('Kenji', 'kenji@century.jp', self.password)
+#        self.other_user = other = create_user('Shogun', 'shogun@century.jp', 'uselesspw') #TODO: remove from here ??
+        create_user = CremeUser.objects.create_user
+        self.user = user = create_user(username='Kenji', email='kenji@century.jp',
+                                       first_name='Kenji', last_name='Gendou',
+                                       password=self.password,
+                                      )
+        self.other_user = other = create_user(username='Shogun',
+                                              first_name='Choji', last_name='Ochiai',
+                                              email='shogun@century.jp',
+                                              password='uselesspw',
+                                             ) #TODO: remove from here ??
 
         create_contact = Contact.objects.create 
         self.contact1 = create_contact(user=user,  first_name='Musashi', last_name='Miyamoto')
@@ -70,17 +81,17 @@ class CredentialsTestCase(CremeTestCase):
     def _build_contact_qs(self):
         return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
 
-    def test_regularperms01(self):
-        "Regular perms not used"
-        ct = ContentType.objects.get_for_model(CremeProperty)
-
-        try:
-            perm = Permission.objects.get(codename='add_cremeproperty', content_type=ct)
-        except Permission.DoesNotExist as e:
-            self.fail(str(e))
-
-        self.user.user_permissions.add(perm)
-        self.assertFalse(self.user.has_perm('creme_core.add_cremeproperty'))
+#    def test_regularperms01(self):
+#        "Regular perms not used"
+#        ct = ContentType.objects.get_for_model(CremeProperty)
+#
+#        try:
+#            perm = Permission.objects.get(codename='add_cremeproperty', content_type=ct)
+#        except Permission.DoesNotExist as e:
+#            self.fail(str(e))
+#
+#        self.user.user_permissions.add(perm)
+#        self.assertFalse(self.user.has_perm('creme_core.add_cremeproperty'))
 
     def test_super_user(self):
         user = self.user
@@ -768,7 +779,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual(2, SetCredentials.objects.filter(role=role).count())
 
     def test_create_team01(self):
-        team = User.objects.create(username='Teamee')
+        team = CremeUser.objects.create(username='Teamee')
 
         self.assertFalse(team.is_team)
 
@@ -779,7 +790,7 @@ class CredentialsTestCase(CremeTestCase):
             team.teammates
 
     def test_create_team02(self):
-        team = User.objects.create(username='Teamee', is_team=True)
+        team = CremeUser.objects.create(username='Teamee', is_team=True)
 
         user  = self.user
         other = self.other_user
@@ -794,13 +805,16 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNumQueries(0): #teammates are cached
             team.teammates
 
-        self.assertTrue(all(isinstance(u, User) for u in teammates.itervalues()))
+        self.assertTrue(all(isinstance(u, CremeUser) for u in teammates.itervalues()))
 
         ids_set = {user.id, other.id}
         self.assertEqual(ids_set, set(teammates.iterkeys()))
         self.assertEqual(ids_set, {u.id for u in teammates.itervalues()})
 
-        user3 = User.objects.create_user('Kanna', 'kanna@century.jp', 'uselesspw')
+        user3 = CremeUser.objects.create_user(username='Kanna', email='kanna@century.jp',
+                                              first_name='Kanna', last_name='Gendou',
+                                              password='uselesspw',
+                                             )
         team.teammates = [user, other, user3]
         self.assertEqual(3, len(team.teammates))
 
@@ -809,7 +823,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual({other.id: other}, self.refresh(team).teammates)
 
     def _create_team(self, name, teammates):
-        team = User.objects.create(username=name, is_team=True, role=None)
+        team = CremeUser.objects.create(username=name, is_team=True, role=None)
         team.teammates = teammates
         return team
 

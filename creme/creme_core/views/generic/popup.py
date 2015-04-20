@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 #from logging import debug
 from json import JSONEncoder
 
@@ -36,11 +37,20 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
     context_instance = RequestContext(request)
     template_dict['hide_submit'] = True
 
-    REQUEST = request.REQUEST
-    persist = REQUEST.getlist('persist')
-    tpl_persist = {}
-    for persist_key in persist:
-        tpl_persist[persist_key] = REQUEST.getlist(persist_key)
+    #REQUEST = request.REQUEST
+    GET = request.GET
+    POST = request.POST
+
+    #persist = REQUEST.getlist('persist')
+
+    #tpl_persist = {}
+    #for persist_key in persist:
+        #tpl_persist[persist_key] = REQUEST.getlist(persist_key)
+    tpl_persist = {persist_key: POST.getlist(persist_key) + GET.getlist(persist_key)
+                        for persist_key in chain(POST.getlist('persist'),
+                                                 GET.getlist('persist'),
+                                                )
+                  }
 
     template_dict['persisted'] = tpl_persist
 
@@ -50,7 +60,8 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                          {'html':            html,
                                           'from_url':        request.path,
                                           'is_valid':        is_valid,
-                                          'whoami':          request.REQUEST.get('whoami'),
+                                          #'whoami':          request.REQUEST.get('whoami'),
+                                          'whoami':          POST.get('whoami') or GET.get('whoami'),
                                           'callback_url':    callback_url,
                                           #TODO: json.dumps
                                           'reload':          JSONEncoder().encode(reload),

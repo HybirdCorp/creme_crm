@@ -24,8 +24,8 @@ from itertools import chain, izip_longest
 import logging
 from os.path import splitext
 
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.core import validators
 from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
@@ -33,7 +33,7 @@ from django.forms.models import modelform_factory
 from django.forms import (ValidationError, Field, BooleanField, MultipleChoiceField,
         ModelChoiceField, ModelMultipleChoiceField, IntegerField)
 from django.forms.widgets import SelectMultiple, HiddenInput
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
@@ -1190,7 +1190,9 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user            = ModelChoiceField(label=_('Owner user'), queryset=User.objects.filter(is_staff=False), empty_label=None) #label=_('User')
+    user            = ModelChoiceField(label=_('Owner user'), empty_label=None,
+                                       queryset=get_user_model().objects.filter(is_staff=False),
+                                      ) #label=_('User')
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)

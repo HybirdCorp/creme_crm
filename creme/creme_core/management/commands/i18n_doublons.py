@@ -20,10 +20,10 @@
 
 from collections import defaultdict
 from optparse import make_option, OptionParser
-from os import listdir, sep
+from os import listdir
 from os.path import join, exists
 
-from django.conf import settings
+from django.apps import apps
 from django.core.management.base import BaseCommand
 
 
@@ -75,10 +75,8 @@ class Command(BaseCommand):
         entry_count = 0
         entries_per_id = defaultdict(list)
 
-        for app_name in settings.INSTALLED_CREME_APPS:
-            basepath = join(app_name.replace('.', sep), #creme.creme_core => creme/creme_core
-                            'locale', language, 'LC_MESSAGES',
-                           )
+        for app_config in apps.get_app_configs():
+            basepath = join(app_config.path, 'locale', language, 'LC_MESSAGES')
 
             if exists(basepath):
                 for fname in listdir(basepath):
@@ -90,7 +88,7 @@ class Command(BaseCommand):
                             entry.file_path = path
                             entries_per_id[entry.msgid].append(entry)
             elif verbosity >= 1:
-                self.stdout.write('No locale file for "%s" (%s)' % (app_name, language))
+                self.stdout.write('No locale file for "%s" (%s)' % (app_config.label, language))
 
         if verbosity >= 1:
             self.stdout.write('Number of entries: %s' % entry_count)

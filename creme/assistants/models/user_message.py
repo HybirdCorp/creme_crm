@@ -24,7 +24,7 @@ from django.db.models.signals import pre_delete
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey

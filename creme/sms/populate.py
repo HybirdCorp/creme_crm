@@ -20,8 +20,9 @@
 
 import logging
 
+from django.apps import apps
+#from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.conf import settings
 
 from creme.creme_core.blocks import (properties_block, relations_block,
         customfields_block, history_block)
@@ -77,7 +78,7 @@ class Populator(BasePopulator):
             create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=MessagingList)
 
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block

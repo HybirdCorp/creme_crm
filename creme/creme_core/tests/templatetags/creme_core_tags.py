@@ -5,11 +5,11 @@ try:
     from django.template import Template, Context, TemplateSyntaxError
     from django.contrib.contenttypes.models import ContentType
 
+    from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.models import SetCredentials, CustomField
-    from ..base import CremeTestCase
     from ..fake_models import FakeOrganisation as Organisation
 
     #from creme.persons.models import Organisation

@@ -5,7 +5,7 @@ try:
     from functools import partial
     from json import loads as json_load
 
-#    from django.conf import settings
+#    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _, pgettext
 
@@ -27,7 +27,7 @@ try:
 #    from creme.persons.models import Organisation, Contact, Position, Sector
 #    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
-#    if 'creme.billing' in settings.INSTALLED_APPS:
+#    if apps.is_installed('creme.billing'):
 #        from creme.billing.models import Invoice
 #        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
@@ -52,7 +52,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def setUpClass(cls):
         BaseReportsTestCase.setUpClass()
 
-#        if 'creme.billing' in settings.INSTALLED_APPS:
+#        if apps.is_installed('creme.billing'):
 #            cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
         cls.ct_invoice = ContentType.objects.get_for_model(Invoice)
 

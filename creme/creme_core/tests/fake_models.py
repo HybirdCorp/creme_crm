@@ -7,7 +7,7 @@ if not settings.TESTS_ON:
 else:
     from decimal import Decimal
 
-    from django.contrib.auth.models import User
+    #from django.contrib.auth.models import User
     from django.core.exceptions import ValidationError
     from django.db import models
     from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -156,7 +156,7 @@ else:
                                             blank=True, null=True,  editable=False,
                                             related_name='+',
                                            ).set_tags(enumerable=False) #clonable=False useless
-        is_user         = models.ForeignKey(User, verbose_name=_(u'Related user'),
+        is_user         = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
                                             blank=True, null=True, editable=False,
                                             related_name='+',
                                             on_delete=models.SET_NULL,

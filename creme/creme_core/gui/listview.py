@@ -21,6 +21,7 @@
 from collections import defaultdict
 from functools import partial
 from future_builtins import filter
+from itertools import chain
 import logging
 
 from django.db.models import Q, DateField, ForeignKey #DateTimeField
@@ -108,18 +109,25 @@ class ListViewState(object):
 
     @staticmethod
     def build_from_request(request, **kwargs):
-        kwargs.update((str(k), v) for k, v in request.REQUEST.items())
         #kwargs.update((str(k), v) for k, v in request.POST.items())
+        #kwargs.update((str(k), v) for k, v in request.REQUEST.items())
+        kwargs.update((str(k), v) for k, v in chain(request.POST.iteritems(),
+                                                    request.GET.iteritems(),
+                                                   )
+                     )
         kwargs['url'] = request.path
         return ListViewState(**kwargs)
 
     def handle_research(self, request, cells):
         "Handle strings to use in order to filter (strings are in the request)."
         if self._search:
-            if not request.POST and self.research:
+            POST = request.POST
+
+            if not POST and self.research:
                 return
 
-            getlist = request.REQUEST.getlist
+            #getlist = request.REQUEST.getlist
+            GET = request.GET
             list_session = []
 
             for cell in cells:
@@ -127,7 +135,8 @@ class ListViewState(object):
                     continue
 
                 cell_key = cell.key
-                values = getlist(cell_key)
+                #values = getlist(cell_key)
+                values = chain(POST.getlist(cell_key), GET.getlist(cell_key))
 
                 if values:
                     filtered_attr = [smart_str(value.strip()) for value in values]

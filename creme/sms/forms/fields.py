@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms.fields import RegexField
-from django.forms.util import ValidationError
+from django.forms.utils import ValidationError
 
 
 PHONE_REGEX = '^[\s]*[\+]{0,1}([\d]+[\s\.\-,]*)+[\s]*$'

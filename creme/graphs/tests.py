@@ -2,8 +2,7 @@
 
 try:
     from functools import partial
-
-    from django.utils.unittest.case import skipIf
+    from unittest import skipIf
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,

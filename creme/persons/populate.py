@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,9 @@
 
 import logging
 
-from django.conf import settings
-from django.contrib.auth.models import User
+from django.apps import apps
+#from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (relations_block, properties_block,
@@ -136,7 +137,7 @@ class Populator(BasePopulator):
             create_if_needed(Civility,          {'pk': 4}, title=_(u"N/A"),    shortcut=u"")
 
 
-            admin = User.objects.get(pk=1)
+            admin = get_user_model().objects.get(pk=1)
 
             if not Contact.objects.filter(is_user=admin).exists():
                 Contact.objects.create(user=admin, is_user=admin,
@@ -223,7 +224,7 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='persons', block_id=neglected_orgas_block.id_, order=10)
             BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,         order=30)
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block

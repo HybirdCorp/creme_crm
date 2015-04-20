@@ -151,7 +151,7 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
         cls.populate('creme_core', 'billing')
         #Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 
-        cls.autodiscover()
+        #cls.autodiscover()
 
     def _aux_test_csv_import(self, model, status_model, update=False):
         count = model.objects.count()

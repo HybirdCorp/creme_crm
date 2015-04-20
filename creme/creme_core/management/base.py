@@ -64,7 +64,7 @@ class CSVImportCommand(BaseCommand):
 ## Content of 'my_app/management/commands/my_import.py' ------------------------
 ##  [so command is: > python manage.py my_import path/to/my_file.csv]
 
-#from django.contrib.auth.models import User
+#from django.contrib.auth import get_user_model
 #
 #from creme.creme_core.models import Relation, RelationType
 #from creme.creme_core.management.base import CSVImportCommand
@@ -134,7 +134,7 @@ class CSVImportCommand(BaseCommand):
 #        print 'Importing organisation...'
 #
 #        try:
-#            self.user = User.objects.get(pk=1)
+#            self.user = get_user_model().objects.get(pk=1)
 #            self.rtype_manages = RelationType.objects.get(pk=REL_SUB_MANAGES)
 #        except Exception, e:
 #            print 'Error (%s): have you run the populates ???' % e

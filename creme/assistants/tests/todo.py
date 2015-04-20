@@ -8,7 +8,7 @@ try:
     from django.conf import settings
     from django.core import mail
     from django.core.mail.backends.locmem import EmailBackend
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
@@ -67,7 +67,12 @@ class TodoTestCase(AssistantsTestCase):
         entity02 = Contact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
         self._create_todo('Todo02', 'Description02', entity=entity02)
 
-        user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
+        #user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
+        user02 = get_user_model().objects.create_user(username='ryoga',
+                                                      first_name='Ryoga',
+                                                      last_name='Hibiki',
+                                                      email='user@creme.org',
+                                                     )
         self._create_todo('Todo03', 'Description03', user=user02)
 
     def test_create01(self):

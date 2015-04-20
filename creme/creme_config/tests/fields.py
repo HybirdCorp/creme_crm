@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import UserRole
@@ -26,13 +26,14 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
 #        cls.populate('creme_core', 'persons')
         cls.populate('creme_core')
-        cls.autodiscover()
+        #cls.autodiscover()
 
     def _create_superuser(self):
-        return User.objects.create_superuser(username='averagejoe',
-                                             email='averagejoe@company.com',
-                                             password='password',
-                                            )
+        return get_user_model().objects.create_superuser(username='averagejoe',
+                                                         first_name='Joe',
+                                                         last_name='Average',
+                                                         email='averagejoe@company.com',
+                                                        )
 
     def test_actions_not_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())
@@ -42,7 +43,11 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.allowed_apps = ['persons'] #not admin
         role.save()
 
-        user = User.objects.create_user(username='averagejoe', email='averagejoe@company.com')
+        user = get_user_model().objects.create_user(username='averagejoe',
+                                                    first_name='Joe',
+                                                    last_name='Average',
+                                                    email='averagejoe@company.com',
+                                                  )
         user.role = role
 
         field.user = user
@@ -68,7 +73,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         role.admin_4_apps = ['creme_core']
         role.save()
 
-        admin = User.objects.create(username='chloe', role=role)
+        admin = get_user_model().objects.create(username='chloe', role=role)
         admin.role = role
 
         field.user = admin

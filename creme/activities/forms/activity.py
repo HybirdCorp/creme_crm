@@ -22,10 +22,10 @@ from datetime import datetime, time, timedelta
 from functools import partial
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.fields import ChoiceField # DateTimeField
-from django.forms.util import ValidationError, ErrorList
+from django.forms.utils import ValidationError, ErrorList
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -226,7 +226,7 @@ class ActivityEditForm(_ActivityForm):
 
 class _ActivityCreateForm(_ActivityForm):
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'),
-                                                   queryset=User.objects.filter(is_staff=False),
+                                                   queryset=get_user_model().objects.filter(is_staff=False),
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
 
@@ -324,7 +324,8 @@ class ActivityCreateForm(_ActivityCreateForm):
         if self.instance.is_auto_orga_subject_enabled():
             subjects_field.help_text = ugettext('The organisations of the participants will be automatically added as subjects')
 
-        fields['participating_users'].queryset = User.objects.filter(is_staff=False).exclude(pk=user.id)
+        fields['participating_users'].queryset = get_user_model().objects.filter(is_staff=False) \
+                                                                         .exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
 
     def clean_my_participation(self):

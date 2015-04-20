@@ -18,36 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from imp import find_module
 import sys
 from traceback import format_exception
-#from optparse import OptionParser #make_option
-from imp import find_module
 
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.db.models.signals import pre_save
+from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.db.models.signals import pre_save
 #from django.utils import translation
-from django.conf import settings
+#from django.conf import settings
 
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.dependence_sort import dependence_sort
 
 
-PROJECT_PREFIX = 'creme.'
+def _checked_app_label(app_label, app_labels):
+    if app_label not in app_labels:
+        raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_label)
 
-def _extended_app_name(app_name, app_names, raise_exception=True):
-    if app_name in app_names:
-        return app_name
+    return app_label
 
-    inner_app_name = PROJECT_PREFIX + app_name
-
-    if inner_app_name not in app_names:
-        if raise_exception:
-            raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_name)
-
-        return None
-
-    return inner_app_name
 
 class BasePopulator(object):
     dependencies = [] #eg ['appname1', 'appname2']
@@ -63,22 +56,17 @@ class BasePopulator(object):
 
     def build_dependencies(self, apps_set):
         deps = []
+
         for dep in self.dependencies:
-            ext_dep = _extended_app_name(dep, apps_set, raise_exception=False)
-            if ext_dep is None:
-                self.stdout.write('BEWARE: ignored dependencies "%s", it seems it is not an '
-                                  'installed Creme App (see settings.INSTALLED_CREME_APPS)' % dep
-                                 )
-            else:
-                deps.append(ext_dep)
+            try:
+                deps.append(_checked_app_label(dep, apps_set))
+            except CommandError as e:
+                self.stdout.write('BEWARE: ignored dependencies "%s", %s' % (dep, e))
 
         self.dependencies = deps
 
     def populate(self):
         raise NotImplementedError
-
-    #def reset(self):
-        #pass
 
     def get_app(self):
         return self.app
@@ -88,45 +76,22 @@ class BasePopulator(object):
 
 
 class Command(BaseCommand):
-    #option_list = BaseCommand.option_list + ( #TODO: when reset is possible
-        #make_option("-R", "--reset",    action="store_const", const="reset",    dest="action"),
-        #make_option("-P", "--populate", action="store_const", const="populate", dest="action"),
-    #)
     help = ('Populates the database for the specified applications, or the '
             'entire site if no apps are specified.')
     args = '[appname ...]'
     leave_locale_alone = True
 
-    #def create_parser(self, prog_name, subcommand):
-        #return OptionParser(prog=prog_name,
-                            #usage=self.usage(subcommand),
-                            #version=self.get_version(),
-                            #option_list=self.option_list,
-                            #conflict_handler="resolve",
-                           #)
-
-    def handle(self, *app_names, **options):
-        #action = options.get('action') or 'populate' #TODO: when reset is possible
-        action = 'populate'
-
-        #translation.activate(settings.LANGUAGE_CODE)
-        self._do_populate_action(action, app_names, **options)
-
     def _signal_handler(self, sender, instance, **kwargs):
         if instance.pk and not isinstance(instance.pk, basestring): # models with string pk should manage pk manually, so we can optimise
             self.models.add(sender)
 
-    def _do_populate_action(self, name, applications, *args, **options):
+    def handle(self, *app_names, **options):
+        #translation.activate(settings.LANGUAGE_CODE)
+
         verbosity = int(options.get('verbosity'))
-        all_apps = frozenset(settings.INSTALLED_CREME_APPS)
-
-        if not applications:
-            apps_2_populate = settings.INSTALLED_CREME_APPS
-        else:
-            apps_2_populate = []
-
-            for app in applications:
-                apps_2_populate.append(_extended_app_name(app, all_apps))
+        all_apps = OrderedSet(creme_app.name for creme_app in creme_registry.iter_apps()) # eg: 'persons', 'creme_core'...
+        apps_2_populate = all_apps if not app_names else \
+                          [_checked_app_label(app, all_apps) for app in app_names]
 
         #-----------------------------------------------------------------------
         populators = []
@@ -135,7 +100,6 @@ class Command(BaseCommand):
         total_missing_deps = set() # all populators names that are added by
                                    # this script because of dependencies
 
-        #while apps_2_populate: #can infinitely loops if an error occurs
         while True:
             changed = False
 
@@ -185,8 +149,7 @@ class Command(BaseCommand):
                 self.stdout.write('populate "%s" ...' % populator.app)
 
             try:
-                #getattr(populator, name)(*args, **options)
-                getattr(populator, name)()
+                populator.populate()
             except Exception as e:
                 self.stderr.write('populate "%s" failed (%s)' % (populator.app, e))
                 if verbosity >= 1:
@@ -215,6 +178,8 @@ class Command(BaseCommand):
         if verbosity >= 1:
             self.stdout.write('update sequences done.')
 
-    def _get_populate_module(self, app):
-        find_module('populate', __import__(app, globals(), locals(), [app.split('.')[-1]]).__path__)
-        return __import__(app, globals(), locals(), ['populate'])
+    def _get_populate_module(self, app_label):
+        app_name = apps.get_app_config(app_label).name
+        find_module('populate', __import__(app_name, globals(), locals(), [app_label]).__path__)
+
+        return __import__(app_name, globals(), locals(), ['populate'])

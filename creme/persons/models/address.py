@@ -22,7 +22,7 @@ from future_builtins import filter
 import warnings
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _

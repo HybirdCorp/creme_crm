@@ -4,10 +4,10 @@ try:
     from functools import partial
 
     from django.utils.translation import ugettext as _
-    from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import UserRole, SetCredentials
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,

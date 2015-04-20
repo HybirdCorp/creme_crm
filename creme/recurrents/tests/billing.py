@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from django.conf import settings
+    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
@@ -13,7 +13,7 @@ try:
 
     from creme.persons.models import Organisation, Address
 
-    if 'creme.billing' in settings.INSTALLED_APPS:
+    if apps.is_installed('creme.billing'):
         from creme.billing.models import (Invoice, InvoiceStatus, TemplateBase,
                 Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
                 CreditNote, CreditNoteStatus)

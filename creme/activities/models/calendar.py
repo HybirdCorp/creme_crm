@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db.models import CharField, BooleanField
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -129,7 +130,8 @@ class Calendar(CremeModel):
                             .update(is_default=False)
 
 
-@receiver(pre_delete, sender=User)
+#@receiver(pre_delete, sender=User)
+@receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
 def _transfer_default_calendar(sender, instance, **kwargs):
     # NB: when a User is deleted, his Calendars are given to another User, who
     #     has at this moment 2 default Calendars. When get_user_default_calendar()

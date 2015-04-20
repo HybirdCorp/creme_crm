@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.forms.util import ValidationError
+from django.forms.utils import ValidationError
 from django.utils.translation import ugettext as _
 
 from ..utils import entities2unicode

@@ -24,7 +24,7 @@ import re
 #from pyexpat import ExpatError
 from xml.etree import ElementTree as ET
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
@@ -151,6 +151,8 @@ class CreateEmailInput(EmailInput):
     def get_owner(is_sandbox_by_user, sender=None):
         """Returns the owner to assign to waiting actions and history"""
         if is_sandbox_by_user:
+            #TODO: use first()
+            User = get_user_model()
             try:
                 #return Contact.objects.filter(email__iexact=sender, is_user__isnull=False)[0].is_user
                 return User.objects.filter(email=sender)[0]

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import *
@@ -24,7 +24,7 @@ class RelationsTestCase(CremeTestCase):
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
     def setUp(self):
-        self.user = User.objects.create(username='name')
+        self.user = get_user_model().objects.create(username='name')
 
     def test_relation01(self):
         subject_pred = 'is loving'

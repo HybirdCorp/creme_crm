@@ -48,7 +48,7 @@ class BlocksConfigTestCase(CremeTestCase):
         RelationBlockItem.objects.all().delete()
 
         cls.populate('creme_core')
-        cls.autodiscover()
+        #cls.autodiscover()
 
     @classmethod
     def tearDownClass(cls):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,10 @@ from django.db.models import (Field, FieldDoesNotExist, BooleanField, PositiveIn
         DecimalField, DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _
 
-from ..gui.field_printers import field_printers_registry
+#from ..gui.field_printers import field_printers_registry
 from ..models import CremeEntity, RelationType, CustomField
 from ..models.fields import DatePeriodField
-from ..templatetags.creme_widgets import widget_entity_hyperlink
+#from ..templatetags.creme_widgets import widget_entity_hyperlink
 from ..utils.meta import FieldInfo #get_model_field_info
 
 
@@ -114,6 +114,8 @@ class EntityCell(object):
         return Field
 
     def _get_listview_css_class(self, attr_name):
+        from ..gui.field_printers import field_printers_registry
+
         listview_css_class = getattr(self, attr_name)
 
         if listview_css_class is None:
@@ -407,6 +409,8 @@ class EntityCellRelation(EntityCell):
         CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 
     def render_html(self, entity, user):
+        from ..templatetags.creme_widgets import widget_entity_hyperlink
+
         related_entities = entity.get_related_entities(self.value, True)
 
         if not related_entities:

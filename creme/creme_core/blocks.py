@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
@@ -116,7 +116,7 @@ class HistoryBlock(QuerysetBlock):
         users = {user.username: user}
 
         if usernames:
-            users.update((u.username, u) for u in User.objects.filter(username__in=usernames))
+            users.update((u.username, u) for u in get_user_model().objects.filter(username__in=usernames))
 
         for hline in hlines:
             hline.user = users.get(hline.username)

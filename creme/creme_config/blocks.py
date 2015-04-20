@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from collections import defaultdict
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
@@ -39,6 +39,7 @@ from creme.creme_core.utils.unicode_collation import collator
 
 
 _PAGE_SIZE = 20
+User = get_user_model()
 
 
 class GenericModelsBlock(QuerysetBlock):

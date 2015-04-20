@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 import logging
 
-from django.conf import settings
+from django.apps import apps
+#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
@@ -120,7 +121,7 @@ class Populator(BasePopulator):
                 create_bdl(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
                 create_bdl(block_id=history_block.id_,      order=30,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block

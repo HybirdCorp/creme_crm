@@ -20,7 +20,7 @@
 
 from itertools import chain
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
@@ -50,7 +50,7 @@ def json_list_enumerable(request, ct_id):
                       ],
                       key=key)
 
-    if not issubclass(model, User):
+    if not issubclass(model, get_user_model()):
         app_name = ct.app_label
 
         if not request.user.has_perm(app_name):
@@ -69,7 +69,7 @@ def json_list_enumerable(request, ct_id):
 @jsonify
 def json_list_userfilter(request):
     return list(chain((('__currentuser__', _('Current user')),),
-                      ((e.id, unicode(e)) for e in User.objects.all()),
+                      ((e.id, unicode(e)) for e in get_user_model().objects.all()),
                      )
                )
 

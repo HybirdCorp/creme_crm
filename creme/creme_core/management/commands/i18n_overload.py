@@ -25,6 +25,7 @@ from os.path import join, exists, isdir
 
 import pytz
 
+from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils.encoding import smart_unicode
@@ -110,15 +111,11 @@ class Command(BaseCommand):
                                                     .localize(datetime.now()) \
                                                     .strftime('%Y-%m-%d %H:%M%z')
 
-        #terms = map(smart_unicode, args)
         terms = [smart_unicode(arg) for arg in args]
         entry_count = 0
 
-        for app_name in settings.INSTALLED_CREME_APPS:
-            #basepath = '%s/locale/%s/LC_MESSAGES/' % (app_name, language)
-            basepath = join(app_name.replace('.', sep), #creme.creme_core => creme/creme_core
-                            'locale', language, 'LC_MESSAGES',
-                           )
+        for app_config in apps.get_app_configs():
+            basepath = join(app_config.path, 'locale', language, 'LC_MESSAGES')
 
             if exists(basepath):
                 for fname in listdir(basepath):

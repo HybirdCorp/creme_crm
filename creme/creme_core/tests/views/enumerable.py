@@ -2,9 +2,9 @@
 try:
     import json
 
-    from django.utils.translation import ugettext as _
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
     from ..fake_models import FakeContact as Contact, FakeCivility as Civility
@@ -20,11 +20,11 @@ except Exception as e:
 __all__ = ('EnumerableViewsTestCase', )
 
 class EnumerableViewsTestCase(ViewsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        ViewsTestCase.setUpClass()
-#        cls.populate('creme_config')
-        cls.autodiscover()
+#    @classmethod
+#    def setUpClass(cls):
+#        ViewsTestCase.setUpClass()
+##        cls.populate('creme_config')
+#        cls.autodiscover()
 
     def _build_enum_url(self, model):
         return '/creme_core/enumerable/%s/json' % ContentType.objects.get_for_model(model).id
@@ -66,6 +66,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_model_user(self):
         self.login()
 
+        User = get_user_model()
         url = self._build_enum_url(User)
         response = self.assertGET200(url)
         self.assertEqual([[c.id, unicode(c)] for c in User.objects.all()], json.loads(response.content))
@@ -108,7 +109,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200('/creme_core/enumerable/userfilter/json')
         self.assertEqual([['__currentuser__', _('Current user')]] +
-                         [[u.id, unicode(u)] for u in User.objects.all()],
+                         [[u.id, unicode(u)] for u in get_user_model().objects.all()],
                          json.loads(response.content)
                         )
 

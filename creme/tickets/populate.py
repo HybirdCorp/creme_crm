@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,8 @@
 
 import logging
 
-from django.conf import settings
+from django.apps import apps
+#from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (properties_block, relations_block,
@@ -48,7 +49,7 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
 
-        if 'creme.activities' in settings.INSTALLED_APPS:
+        if apps.is_installed('creme.activities'):
             logger.info('Activities app is installed => a Ticket can be the subject of an Activity')
 
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
@@ -100,7 +101,7 @@ class Populator(BasePopulator):
             create_bdl(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
@@ -111,7 +112,7 @@ class Populator(BasePopulator):
                 create_bdl(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
 
-            if 'creme.persons' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.persons'):
                 try:
                     from creme.persons.models import Contact, Organisation
                 except ImportError as e:

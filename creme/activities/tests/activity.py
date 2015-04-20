@@ -4,9 +4,10 @@ try:
     from datetime import datetime, date, time # timedelta
     from functools import partial
 
-    from django.contrib.auth.models import User
+    #from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.forms.util import ValidationError
+    from django.forms.utils import ValidationError
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.html import escape
@@ -482,7 +483,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         activity = self._create_meeting()
 
-        create_user = User.objects.create
+        create_user = get_user_model().objects.create
         musashi = create_user(username='musashi', first_name='Musashi',
                               last_name='Miyamoto', email='musashi@miyamoto.jp',
                              )
@@ -1761,7 +1762,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         activity = self._create_meeting()
 
-        create_user = User.objects.create
+        create_user = get_user_model().objects.create
         musashi = create_user(username='musashi', first_name='Musashi',
                               last_name='Miyamoto', email='musashi@miyamoto.jp',
                              )

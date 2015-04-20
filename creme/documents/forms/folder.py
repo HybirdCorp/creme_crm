@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms.util import ValidationError
+from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm

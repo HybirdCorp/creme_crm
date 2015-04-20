@@ -22,7 +22,7 @@
 
 #from django.db.models import Max
 from django.forms import ModelChoiceField # Field ValidationError
-#from django.forms.util import flatatt
+#from django.forms.utils import flatatt
 #from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 

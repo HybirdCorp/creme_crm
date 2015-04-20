@@ -5,7 +5,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
-#    from django.conf import settings
+#    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
     #from django.utils.translation import ugettext as _
@@ -52,16 +52,16 @@ class BaseReportsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-#        apps = ['creme_core', 'reports', 'persons']
-        apps = ['creme_core', 'reports']
+#        apps2populate = ['creme_core', 'reports', 'persons']
+        apps2populate = ['creme_core', 'reports']
 
-#        if 'creme.billing' in settings.INSTALLED_APPS:
-#            apps.append('billing')
+#        if apps.is_installed('creme.billing'):
+#            apps2populate.append('billing')
 #
-#        if 'creme.opportunities' in settings.INSTALLED_APPS:
-#            apps.append('opportunities')
+#        if apps.is_installed('creme.opportunities'):
+#            apps2populate.append('opportunities')
 
-        cls.populate(*apps)
+        cls.populate(*apps2populate)
 
         #Folder.objects.all().delete()
 

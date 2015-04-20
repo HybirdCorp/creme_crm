@@ -26,6 +26,7 @@ import logging
 from re import compile as compile_re
 import warnings
 
+from django.contrib.auth import get_user_model
 from django.db.models import (Model, CharField, TextField, BooleanField,
         PositiveSmallIntegerField, ForeignKey, Q)
 from django.db import models
@@ -33,7 +34,6 @@ from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
 #from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, ungettext
 from django.utils.timezone import now
 
@@ -89,7 +89,7 @@ class _CurrentUserVariable(EntityFilterVariable):
         return user.pk if user is not None else None
 
     def validate(self, field, value):
-        if not isinstance(field, ForeignKey) or not issubclass(field.rel.to, User):
+        if not isinstance(field, ForeignKey) or not issubclass(field.rel.to, get_user_model()):
             return field.formfield().clean(value) 
 
         if isinstance(value, basestring) and value == EntityFilterVariable.CURRENT_USER:
@@ -365,6 +365,8 @@ class EntityFilter(Model): #CremeModel ???
                 # It should not be useful to create a private EntityFilter (so it
                 # belongs to a user) which cannot be deleted.
                 raise ValueError('EntityFilter.create(): a private filter must be custom.')
+
+        User = get_user_model()
 
         if isinstance(user, User):
             if user.is_staff:

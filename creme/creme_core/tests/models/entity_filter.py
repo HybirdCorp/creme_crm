@@ -6,7 +6,7 @@ try:
     from logging import info
 
     from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.db.models.query import QuerySet
     from django.utils.timezone import now
 
@@ -171,6 +171,7 @@ class EntityFiltersTestCase(CremeTestCase):
         """
         user = self.user
         other_user = self.other_user
+        User = get_user_model()
 
         team = User.objects.create(username='TeamTitan', is_team=True)
         team.teammates = [user, other_user]
@@ -2263,6 +2264,7 @@ class EntityFiltersTestCase(CremeTestCase):
 #        role.allowed_apps = ['persons']
 #        role.save()
 
+        User = get_user_model()
         teammate = User.objects.create(username='fulbertc',
                                        email='fulbnert@creme.org', role=self.role,
                                        first_name='Fulbert', last_name='Creme',
