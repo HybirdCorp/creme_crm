@@ -29,8 +29,8 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from ..models import (Relation, RelationBlockItem,
-        InstanceBlockConfigItem, CustomBlockConfigItem, BlockState) #CremeEntity
+from ..models import (Relation, RelationBlockItem, CremeEntity,
+        InstanceBlockConfigItem, CustomBlockConfigItem, BlockState)
 
 
 logger = logging.getLogger(__name__)
@@ -579,16 +579,23 @@ class _BlockRegistry(object):
                 raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block_class.id_)
 
     def register_4_model(self, model, block): #TODO: had an 'overload' arg ??
-        ct = ContentType.objects.get_for_model(model)
-        block.id_ = self._generate_modelblock_id(ct)
+#        ct = ContentType.objects.get_for_model(model)
+#        block.id_ = self._generate_modelblock_id(ct)
+        block.id_ = self._generate_modelblock_id(model)
 
         if not block.dependencies:
             block.dependencies  = (model,)
 
-        self._object_blocks[ct.id] = block
+        # NB: the key is the class, not the ContentType.id because it can cause
+        # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
+#        self._object_blocks[ct.id] = block
+        self._object_blocks[model] = block
 
-    def _generate_modelblock_id(self, ct):
-        return u'modelblock_%s-%s' % (ct.app_label, ct.model)
+#    def _generate_modelblock_id(self, ct):
+#        return u'modelblock_%s-%s' % (ct.app_label, ct.model)
+    def _generate_modelblock_id(self, model):
+        meta = model._meta
+        return u'modelblock_%s-%s' % (meta.app_label, meta.model_name)
 
     def __getitem__(self, block_id):
         return self._blocks[block_id]
@@ -680,16 +687,23 @@ class _BlockRegistry(object):
         @param obj_or_ct Model (class inheriting CremeEntity), or ContentType instance
                          representing this model, or instance of this model.
         """
-        ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
-        block = self._object_blocks.get(ct.id)
+#        ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
+#        block = self._object_blocks.get(ct.id)
+        model = obj_or_ct.__class__ if isinstance(obj_or_ct, CremeEntity) else \
+                obj_or_ct.model_class() if isinstance(obj_or_ct, ContentType) else \
+                obj_or_ct
+        block = self._object_blocks.get(model)
 
         if not block:
             block = SimpleBlock()
-            block.id_ = self._generate_modelblock_id(ct)
-            block.dependencies = (ct.model_class(),)
+#            block.id_ = self._generate_modelblock_id(ct)
+#            block.dependencies = (ct.model_class(),)
+            block.id_ = self._generate_modelblock_id(model)
+            block.dependencies = (model,)
             block.template_name = 'creme_core/templatetags/block_object.html'
 
-            self._object_blocks[ct.id] = block
+#            self._object_blocks[ct.id] = block
+            self._object_blocks[model] = block
 
         return block
 

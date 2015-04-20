@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
@@ -35,7 +35,7 @@ from ..forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
 @login_required
 @superuser_required
 def change_password(request, user_id):
-    return edit_model_with_popup(request, {'pk': user_id}, User,
+    return edit_model_with_popup(request, {'pk': user_id}, get_user_model(),
                                  UserChangePwForm, _(u'Change password for <%s>')
                                 )
 
@@ -64,7 +64,7 @@ def edit(request, user_id):
     if not request.user.is_staff:
         user_filter['is_staff'] = False
 
-    return edit_model_with_popup(request, user_filter, User, UserEditForm)
+    return edit_model_with_popup(request, user_filter, get_user_model(), UserEditForm)
 
 @login_required
 @superuser_required
@@ -74,7 +74,7 @@ def edit_team(request, user_id):
                                   'is_team':  True,
                                   'is_staff': False,
                                  },
-                                 User, TeamEditForm,
+                                 get_user_model(), TeamEditForm,
                                 )
 
 @login_required
@@ -88,7 +88,7 @@ def delete(request, user_id):
     if int(user_id) == user.id:
         raise ConflictError(_(u"You can't delete the current user."))
 
-    user_to_delete = get_object_or_404(User, pk=user_id)
+    user_to_delete = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_delete.is_staff and not user.is_staff:
         return HttpResponse(_(u"You can't delete a staff user."), status=400)
@@ -113,7 +113,7 @@ def deactivate(request, user_id):
     if int(user_id) == user.id:
         raise ConflictError(_(u"You can't deactivate the current user."))
 
-    user_to_deactivate = get_object_or_404(User, pk=user_id)
+    user_to_deactivate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_deactivate.is_staff and not user.is_staff:
         return HttpResponse(_(u"You can't deactivate a staff user."), status=400)
@@ -128,7 +128,7 @@ def deactivate(request, user_id):
 @superuser_required
 @POST_only
 def activate(request, user_id):
-    user_to_activate = get_object_or_404(User, pk=user_id)
+    user_to_activate = get_object_or_404(get_user_model(), pk=user_id)
 
     if user_to_activate.is_staff and not request.user.is_staff:
         return HttpResponse(_(u"You can't activate a staff user."), status=400)

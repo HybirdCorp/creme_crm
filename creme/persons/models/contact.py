@@ -22,7 +22,8 @@ from future_builtins import filter
 import logging
 import warnings
 
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
         DateField, EmailField, URLField, SET_NULL) #ProtectedError
@@ -49,8 +50,8 @@ logger = logging.getLogger(__name__)
 
 class Contact(CremeEntity):
     civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True, on_delete=SET_NULL)
-    last_name       = CharField(_(u'Last name'), max_length=100)
-    first_name      = CharField(_(u'First name'), max_length=100, blank=True, null=True)
+    last_name       = CharField(_(u'Last name'), max_length=100)  #NB: same max_length than CremeUser.last_name
+    first_name      = CharField(_(u'First name'), max_length=100, blank=True, null=True)  #NB: same max_length than CremeUser.first_name
     description     = TextField(_(u'Description'), blank=True, null=True)
     skype           = CharField('Skype', max_length=100, blank=True, null=True)
     phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
@@ -69,7 +70,7 @@ class Contact(CremeEntity):
                                   blank=True, null=True, editable=False,
                                   related_name='shipping_address_contact_set',
                                  ).set_tags(enumerable=False)
-    is_user         = ForeignKey(User, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
+    is_user         = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
                                  blank=True, null=True, related_name='related_contact',
                                  on_delete=SET_NULL, editable=False
                                 ).set_tags(clonable=False, enumerable=False) \
@@ -197,9 +198,13 @@ class Contact(CremeEntity):
 
 def _create_linked_contact(user):
     return Contact.objects.create(user=user, is_user=user,
-                                  last_name=user.last_name or user.username.title(), #TODO: contribute to User to have null=False, blank=False
-                                  first_name=user.first_name or _('N/A'), #TODO: idem
-                                  email=user.email or _('replaceMe@byYourAddress.com'), #TODO: idem
+                                  last_name=user.last_name or user.username.title(),
+                                  first_name=user.first_name or _('N/A'),
+                                  email=user.email or _('replaceMe@byYourAddress.com'),
+                                  #TODO assert user is not a team + enforec non team clean() ?
+                                  #last_name=user.last_name,
+                                  #first_name=user.first_name,
+                                  #email=user.email,
                                  )
 
 def _get_linked_contact(self):
@@ -222,9 +227,7 @@ def _get_linked_contact(self):
 
     return contact
 
-User.linked_contact = property(_get_linked_contact)
-
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def _sync_with_user(sender, instance, created, **kwargs):
     if instance.is_team:
         return

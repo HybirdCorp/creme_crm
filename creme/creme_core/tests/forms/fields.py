@@ -7,6 +7,8 @@ try:
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
+    from .base import FieldTestCase
+    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.forms.fields import (DatePeriodField, DateRangeField,
         DurationField, ColorField, ChoiceOrCharField,
         CTypeChoiceField, EntityCTypeChoiceField,
@@ -14,8 +16,6 @@ try:
     from creme.creme_core.models import RelationType, CremePropertyType, Currency
     from creme.creme_core.utils.date_period import DatePeriod
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
-    from .base import FieldTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
 
 #    from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -281,7 +281,7 @@ class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
         cls.ct2 = get_ct(Organisation)
         cls.ct3 = get_ct(Currency)
 
-        cls.autodiscover()
+        #cls.autodiscover()
 
 
 class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):

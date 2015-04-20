@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,8 @@ from collections import defaultdict
 from imp import find_module
 import logging
 
-from django.conf import settings
+from django.apps import apps
+#from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -64,14 +65,25 @@ algo_registry = AlgoRegistry()
 
 #TODO: use creme_core.utils.import find_n_import
 logger.debug('Billing: algos registering')
-for app in settings.INSTALLED_APPS:
+#for app in settings.INSTALLED_APPS:
+#    try:
+#        find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+#    except ImportError, e:
+#        # there is no app creme_config.py, skip it
+#        continue
+#
+#    algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
+#    algo_registry.register(*algos_import.to_register)
+for app_config in apps.get_app_configs():
+    app_name = app_config.name
+
     try:
-        find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-    except ImportError, e:
+        find_module("billing_register", __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
+    except ImportError:
         # there is no app creme_config.py, skip it
         continue
 
-    algos_import = __import__("%s.billing_register" % app , globals(), locals(), ['to_register'], -1)
+    algos_import = __import__("%s.billing_register" % app_name, globals(), locals(), ['to_register'], -1)
     algo_registry.register(*algos_import.to_register)
 
 

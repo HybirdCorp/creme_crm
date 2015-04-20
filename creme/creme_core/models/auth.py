@@ -20,21 +20,25 @@
 
 import logging
 from operator import or_ as or_op
+from re import compile as re_compile
 
-from django.core.exceptions import PermissionDenied
-from django.db.models import (Model, CharField, TextField, BooleanField,
-                              PositiveSmallIntegerField, PositiveIntegerField,
-                              ForeignKey, ManyToManyField, PROTECT)
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, _user_has_perm
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.core.validators import RegexValidator
+from django.db.models import (Model, CharField, TextField, BooleanField,
+        PositiveSmallIntegerField, PositiveIntegerField, EmailField,
+        DateTimeField, ForeignKey, ManyToManyField, PROTECT)
+from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry, NotRegistered
-from ..utils.contribute_to_model import contribute_to_model
+#from ..utils.contribute_to_model import contribute_to_model
 from ..utils.unicode_collation import collator
 from .fields import CTypeForeignKey
-from .entity import CremeEntity
+#from .entity import CremeEntity
 
 
 logger = logging.getLogger(__name__)
@@ -295,21 +299,107 @@ class SetCredentials(Model):
         self.value = value
 
 
-class UserProfile(Model):
-    role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True, on_delete=PROTECT)
-    is_team = BooleanField(verbose_name=_(u'Is a team ?'), default=False)
-    #TODO: delete 'permissions' table
+class CremeUserManager(BaseUserManager):
+    def create_user(self, username, first_name, last_name, email, password=None, **extra_fields):
+        "Creates and saves a User"
+        if not username:
+            raise ValueError('The given username must be set')
+
+        user = self.model(username=username,
+                          first_name=first_name, last_name=last_name,
+                          email=self.normalize_email(email),
+                          **extra_fields
+                         )
+
+        user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_superuser(self, username, first_name, last_name, email, password=None, **extra_fields):
+        "Creates and saves a superuser"
+        extra_fields['is_superuser'] = True
+
+        return self.create_user(username=username,
+                                first_name=first_name, last_name=last_name,
+                                email=email,
+                                password=password,
+                                **extra_fields
+                               )
+
+    # TODO: create_staff_user ??
+
+#class UserProfile(Model):
+class CremeUser(AbstractBaseUser):
+    username     = CharField(_('Username'), max_length=30, unique=True,
+                             help_text=_('Required. 30 characters or fewer. '
+                                         'Letters, numbers and @/./+/-/_ characters'
+                                        ),
+                             validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
+                                                        _('Enter a valid username.'),
+                                                        'invalid',
+                                                       ),
+                                        ],
+                            )
+    first_name   = CharField(_(u'First name'), max_length=100, blank=True).set_tags(viewable=False) # NB: blank=True for teams
+    last_name    = CharField(_(u'Last name'), max_length=100, blank=True)
+    email        = EmailField(_('Email address'), blank=True)
+    date_joined  = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
+    is_active    = BooleanField(_('Is active ?'), default=True,
+                                #help_text=_('Designates whether this user should be treated as '
+                                            #'active. Unselect this instead of deleting accounts.'
+                                           #), TODO
+                               ).set_tags(viewable=False)
+    is_staff     = BooleanField(_('Is staff ?'), default=False,
+                                #help_text=_('Designates whether the user can log into this admin site.'), TODO
+                               ).set_tags(viewable=False)
+    is_superuser = BooleanField(_('Is superuser?'), default=False,
+                                #help_text=_('If True, can create groups & events.') TODO
+                               ).set_tags(viewable=False)
+    role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
+                              on_delete=PROTECT,
+                             ).set_tags(viewable=False)
+    is_team      = BooleanField(verbose_name=_(u'Is a team ?'), default=False).set_tags(viewable=False)
+    #children      = ManyToManyField('self', verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
+    teammates_set = ManyToManyField('self', verbose_name=_(u'Teammates'),
+                                    symmetrical=False, related_name='teams_set',
+                                   ).set_tags(viewable=False)
+
+    objects = CremeUserManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
 
     _teams = None
     _teammates = None
 
     class Meta:
-        abstract = True
+        #abstract = True
+        ordering = ('username',)
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
+        app_label = 'creme_core'
 
     def __unicode__(self):
-        return self.username if not self.is_team else ugettext('%s (team)') % self.username
+        return self.get_full_name()
 
-    #TODO: full_clean() ?? (team + role= None etc...)
+    def get_full_name(self):
+        #TODO: we could also check related contact to find first_name, last_name
+        first_name = self.first_name
+        last_name  = self.last_name
+
+        if first_name and last_name:
+            return ugettext(u"%(first_name)s %(last_name)s.") % {
+                        'first_name': first_name,
+                        'last_name':  last_name[0],
+                    }
+        else:
+            return self.username #TODO: if not self.is_team else ugettext('%s (team)') % self.username
+
+    def get_short_name(self):
+        return self.username
+
+    #TODO: def clean() ?? (team + role= None etc...)
 
     #TODO find where forms are imported, making that method called BEFORE User has been contributed
     # @staticmethod
@@ -322,7 +412,8 @@ class UserProfile(Model):
 
         teams = self._teams
         if teams is None:
-            self._teams = teams = list(User.objects.filter(team_m2m_teamside__teammate=self))
+            #self._teams = teams = list(User.objects.filter(team_m2m_teamside__teammate=self))
+            self._teams = teams = list(self.teams_set.all())
 
         return teams
 
@@ -334,7 +425,8 @@ class UserProfile(Model):
 
         if teammates is None:
             logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            self._teammates = teammates = {u.id: u for u in User.objects.filter(team_m2m__team=self)}
+            #self._teammates = teammates = {u.id: u for u in User.objects.filter(team_m2m__team=self)}
+            self._teammates = teammates = {u.id: u for u in self.teammates_set.all()}
         else:
             logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
 
@@ -345,18 +437,19 @@ class UserProfile(Model):
         assert self.is_team
         assert not any(user.is_team for user in users)
 
-        old_teammates = self.teammates
-        new_teammates = {u.id: u for u in users}
-
-        old_set = set(old_teammates.iterkeys())
-        new_set = set(new_teammates.iterkeys())
-
-        users2remove = [old_teammates[user_id] for user_id in (old_set - new_set)]
-        TeamM2M.objects.filter(team=self, teammate__in=users2remove).delete()
-
-        users2add = [new_teammates[user_id] for user_id in (new_set - old_set)]
-        for user in users2add:
-            TeamM2M.objects.get_or_create(team=self, teammate=user)
+#        old_teammates = self.teammates
+#        new_teammates = {u.id: u for u in users}
+#
+#        old_set = set(old_teammates.iterkeys())
+#        new_set = set(new_teammates.iterkeys())
+#
+#        users2remove = [old_teammates[user_id] for user_id in (old_set - new_set)]
+#        TeamM2M.objects.filter(team=self, teammate__in=users2remove).delete()
+#
+#        users2add = [new_teammates[user_id] for user_id in (new_set - old_set)]
+#        for user in users2add:
+#            TeamM2M.objects.get_or_create(team=self, teammate=user)
+        self.teammates_set = users
 
         self._teammates = None #clear cache (we could rebuild it but ...)
 
@@ -376,6 +469,26 @@ class UserProfile(Model):
             logger.debug('UserProfile._get_credentials(): Cache HIT for id=%s user=%s', entity.id, self)
 
         return creds
+
+    # Copied from auth.models.PermissionsMixin.has_perm
+    def has_perm(self, perm, obj=None):
+        """
+        Returns True if the user has the specified permission. This method
+        queries all available auth backends, but returns immediately if any
+        backend returns True. Thus, a user who has permission from a single
+        auth backend is assumed to have permission in general. If an object is
+        provided, permissions for this specific object are checked.
+        """
+        if self.is_active and self.is_superuser:
+            return True
+
+        # Check the backends.
+        return _user_has_perm(self, perm, obj)
+
+    def has_perms(self, perm_list, obj=None):
+        has_perm = self.has_perm
+
+        return all(has_perm(perm, obj) for perm in perm_list)
 
     def has_perm_to_access(self, app_name):
         return self.is_superuser or self.role.is_app_allowed_or_administrable(app_name)
@@ -458,6 +571,8 @@ class UserProfile(Model):
         """
         assert not self.is_team #teams can not be logged, it has no sense
 
+        from .entity import CremeEntity
+
         if isinstance(entity_or_model, CremeEntity):
             return False if entity_or_model.is_deleted else \
                    self._get_credentials(entity_or_model).can_link()
@@ -467,6 +582,8 @@ class UserProfile(Model):
                self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
 
     def has_perm_to_link_or_die(self, entity_or_model, owner=None): #TODO: factorise ??
+        from .entity import CremeEntity
+
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
                 msg = ugettext(u'You are not allowed to link this entity: %s') % \
@@ -496,49 +613,51 @@ class UserProfile(Model):
                                   )
 
 
-#TODO: remove this class when we can contribute_to_model with a ManyToManyField
-class TeamM2M(Model):
-    team     = ForeignKey(User, related_name='team_m2m_teamside')
-    teammate = ForeignKey(User, related_name='team_m2m')
+##todo: remove this class when we can contribute_to_model with a ManyToManyField
+#class TeamM2M(Model):
+#    team     = ForeignKey(User, related_name='team_m2m_teamside')
+#    teammate = ForeignKey(User, related_name='team_m2m')
+#
+#    class Meta:
+#        app_label = 'creme_core'
 
-    class Meta:
-        app_label = 'creme_core'
 
+##NB: We use a contribute_to_model() instead of regular Django's profile
+## management to avoid having a additional DB table and creating a annoying
+## signal handler to create the corresponding Profile object each time a User is
+## created
+#contribute_to_model(UserProfile, User)
+#
+##todo: we could also check related contact to find first_name, last_name
+#def _user_unicode(user):
+#    first_name = user.first_name
+#    last_name  = user.last_name
+#
+#    if first_name and last_name:
+#        return ugettext(u"%(first_name)s %(last_name)s.") % {
+#                    'first_name': first_name,
+#                    'last_name':  last_name[0],
+#                }
+#    else:
+#        return user.username
+#
+#User.__unicode__ = _user_unicode
+#User._meta.ordering = ('username',)
+#User._meta.verbose_name = _('User')
+#User._meta.verbose_name_plural = _('Users')
 
-#NB: We use a contribute_to_model() instead of regular Django's profile
-# management to avoid having a additional DB table and creating a annoying
-# signal handler to create the corresponding Profile object each time a User is
-# created
-contribute_to_model(UserProfile, User)
-
-#TODO: we could also check related contact to find first_name, last_name
-def _user_unicode(user):
-    first_name = user.first_name
-    last_name  = user.last_name
-
-    if first_name and last_name:
-        return ugettext(u"%(first_name)s %(last_name)s.") % {
-                    'first_name': first_name,
-                    'last_name':  last_name[0],
-                }
-    else:
-        return user.username
-
-User.__unicode__ = _user_unicode
-User._meta.ordering = ('username',)
-User._meta.verbose_name = _('User')
-User._meta.verbose_name_plural = _('Users')
-
-get_user_field = User._meta.get_field
-for fname in ('first_name', 'password', 'is_staff', 'is_active', 'is_superuser',
-              'last_login', 'date_joined', 'groups', 'user_permissions',
-              'role', 'is_team',
-             ):
+#get_user_field = User._meta.get_field
+get_user_field = CremeUser._meta.get_field
+#for fname in ('first_name', 'password', 'is_staff', 'is_active', 'is_superuser',
+#              'last_login', 'date_joined', 'groups', 'user_permissions',
+#              'role', 'is_team',
+#             ):
+for fname in ('password', 'last_login'):
     get_user_field(fname).set_tags(viewable=False)
 
-get_user_field('username').verbose_name = _('Username')
-get_user_field('last_name').verbose_name = _('Last name')
-get_user_field('email').verbose_name = _('Email address')
+#get_user_field('username').verbose_name = _('Username')
+#get_user_field('last_name').verbose_name = _('Last name')
+#get_user_field('email').verbose_name = _('Email address')
 
 del get_user_field
 

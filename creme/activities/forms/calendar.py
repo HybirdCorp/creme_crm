@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 
@@ -49,7 +49,7 @@ class CalendarConfigForm(CalendarForm):
         super(CalendarForm, self).__init__(*args, **kwargs)
         if not self.instance.pk:
             self.fields['user'] = ModelChoiceField(label=_('User'),
-                                                   queryset=User.objects.filter(is_staff=False),
+                                                   queryset=get_user_model().objects.filter(is_staff=False),
                                                    empty_label=None,
                                                    initial=self.user.id,
                                                   )

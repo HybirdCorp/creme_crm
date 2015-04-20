@@ -23,14 +23,14 @@ from collections import defaultdict, OrderedDict
 from datetime import date
 import json
 
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelDateField,
         IntegerField as ModelIntegerField, FloatField as ModelFloatField,
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
 from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
@@ -198,7 +198,7 @@ class FieldConditionWidget(ChainedInput):
         isnull = '__null' if getattr(field, 'null', False) else ''
 
         if isinstance(field, ModelRelatedField):
-            if issubclass(field.rel.to, User):
+            if issubclass(field.rel.to, get_user_model()):
                 return 'user' + isnull
 
             if field.get_tag('enumerable'):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
+#from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import AppCommand, CommandError
 from django.core.management.color import no_style
@@ -27,8 +27,8 @@ from django.db import connections, transaction, DEFAULT_DB_ALIAS
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.models import CremeEntity, PreferedMenuItem, SettingValue
+from creme.creme_core.registry import creme_registry, NotRegistered
 from creme.creme_core.utils import split_filter
-
 
 MAX_ERRORS = 15 #maximum errors count before aborting #TODO: as argument
 
@@ -74,15 +74,22 @@ class Command(AppCommand):
 
         return  errors
 
-    def handle_app(self, app, **options):
-        app_name = app.__name__.split('.')[-2] #__name__ is on the form 'my_app.models' or 'creme.my_app.models'
+#    def handle_app(self, app, **options):
+    def handle_app_config(self, app_config, **options):
+#        app_name = app.__name__.split('.')[-2] #__name__ is on the form 'my_app.models' or 'creme.my_app.models'
         verbosity = int(options.get('verbosity'))
-        creme_apps = settings.INSTALLED_CREME_APPS
+#        creme_apps = settings.INSTALLED_CREME_APPS
 
-        if app_name not in creme_apps and 'creme.' + app_name not in creme_apps:
-            raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_name)
+        app_label = app_config.label
 
-        app_label = app_name.split('.')[-1] #eg 'creme.removeme'  => 'removeme'
+#        if app_name not in creme_apps and 'creme.' + app_name not in creme_apps:
+        try:
+            creme_registry.get_app(app_label)
+        except NotRegistered:
+#            raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_name)
+            raise CommandError('"%s" seems not to be a Creme app (see settings.INSTALLED_CREME_APPS)' % app_label)
+
+#        app_label = app_name.split('.')[-1] #eg 'creme.removeme'  => 'removeme'
         ctypes = ContentType.objects.filter(app_label=app_label)
 
         #NB: we delete first the entities models because it will probably avoid major dependencies problems.
@@ -101,11 +108,11 @@ class Command(AppCommand):
         skey_ids = [skey.id for skey in setting_key_registry if skey.app_label == app_label]
         SettingValue.objects.filter(key_id__in=skey_ids).delete()
 
-        if 'south' not in settings.INSTALLED_APPS:
-            self.stderr.write('ERROR: "south" seems to be not installed (it should be...). Continuing anyway.\n')
-        else:
-            from south.models import MigrationHistory
-            MigrationHistory.objects.filter(app_name=app_label).delete()
+#        if 'south' not in settings.INSTALLED_APPS:
+#            self.stderr.write('ERROR: "south" seems to be not installed (it should be...). Continuing anyway.\n')
+#        else:
+#            from south.models import MigrationHistory
+#            MigrationHistory.objects.filter(app_name=app_label).delete()
 
         if verbosity > 1:
             self.stdout.write('Trying to delete ContentTypes\n')
@@ -122,31 +129,35 @@ class Command(AppCommand):
         #connection = connections[options.get('database')] TODO ?
         connection = connections[DEFAULT_DB_ALIAS]
 
-        if verbosity > 1:
-            self.stdout.write('Trying to delete tables.\n')
-
-        sql_commands = sql_delete(app, no_style(), connection)
-
-        try:
-            cursor = connection.cursor()
-
-            for sql_command in sql_commands:
-                cursor.execute(sql_command)
-        except Exception as e:
-            transaction.rollback_unless_managed()
-
-            raise CommandError(u"""Error: tables of "%(app_name)s" couldn't be dropped."""
-                               u"""Original error "%(error)s"."""
-                               u"""Tried SQL commands: %(commands)s"""
-                               u"""Sadly you have to SOLVE this problem MANUALLY, and THEN REMOVE "%(app_name)s" from your settings.""" % {
-                                        'app_name': app_name,
-                                        'error':    e,
-                                        'commands': u'\n'.join(sql_commands).encode('utf-8')
-                                    }
-                               )
-
-        transaction.commit_unless_managed()
+# TODO: delete the tables (no possible with sql_delete since django 1.7 with app which j=have migrations)
+#        if verbosity > 1:
+#            self.stdout.write('Trying to delete tables.\n')
+#
+##        sql_commands = sql_delete(app, no_style(), connection)
+#        sql_commands = sql_delete(app_config, no_style(), connection)
+#
+#        try:
+#            cursor = connection.cursor()
+#
+#            for sql_command in sql_commands:
+#                cursor.execute(sql_command)
+#        except Exception as e:
+#            transaction.rollback_unless_managed()
+#
+#            raise CommandError(u"""Error: tables of "%(app_name)s" couldn't be dropped."""
+#                               u"""Original error "%(error)s"."""
+#                               u"""Tried SQL commands: %(commands)s"""
+#                               u"""Sadly you have to SOLVE this problem MANUALLY, and THEN REMOVE "%(app_name)s" from your settings.""" % {
+#                                        #'app_name': app_name,
+#                                        'app_name': app_label,
+#                                        'error':    e,
+#                                        'commands': u'\n'.join(sql_commands).encode('utf-8')
+#                                    }
+#                               )
+#
+#        transaction.commit_unless_managed()
 
         self.stdout.write('Uninstall is OK.\n'
-                          'You should now remove "%s" from your settings.\n' % app_name
+                          'You should now remove "%s" from your settings.\n' % app_config.name
+                          #'You should now remove "%s" from your settings.\n' % app_name
                          )

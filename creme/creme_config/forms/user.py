@@ -18,26 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#import re
 from collections import defaultdict
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, RegexField
-from django.forms.util import ValidationError, ErrorList
+from django.forms.utils import ValidationError, ErrorList
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
-#from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme.creme_core.models import UserRole, Mutex #Relation, RelationType
+from creme.creme_core.models import UserRole, Mutex
 from creme.creme_core.models.fields import CremeUserForeignKey
-#from creme.creme_core.forms.fields import CreatorEntityField
-
-#from creme.persons.models import Contact, Organisation #todo: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
 
-#_get_ct = ContentType.objects.get_for_model
+CremeUser = get_user_model()
 
 #TODO: inherit from django.contrib.auth.forms.UserCreationForm
 class UserAddForm(CremeModelForm):
@@ -57,40 +52,14 @@ class UserAddForm(CremeModelForm):
                                     queryset=UserRole.objects.all(),
                                     help_text=_('You must choose a role for a non-super user.'),
                                    )
-    #contact      = CreatorEntityField(label=_(u"Related contact"), model=Contact, q_filter={'is_user': None}, required=False,
-                                      #help_text=_(u"Select the related contact if he already exists (if you don't, a contact will be automatically created)."))
-    #organisation = ModelChoiceField(label=_(u"User organisation"), queryset=Organisation.get_all_managed_by_creme(), empty_label=None)
-    #relation     = ModelChoiceField(label=_(u"Position in the organisation"), empty_label=None,
-                                    #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
-                                   #)
 
     error_messages = {
         'no_role': _(u"Choose a role or set superuser status to 'True'."),
     }
 
     class Meta:
-        model = User
+        model = CremeUser
         fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser', 'role')
-
-    #def clean_username(self):
-        #username = self.cleaned_data['username']
-
-        #if not re.match("^(\w)[\w-]*$", username):
-            #raise ValidationError(ugettext(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                            #"hyphen and underscores are allowed (but not as first character)."
-                                           #)
-                                 #)
-
-        #return username
-
-    #def clean_password_2(self):
-        #cleaned_data = self.cleaned_data
-        #pw2  = cleaned_data['password_2']
-
-        #if cleaned_data['password_1'] != pw2:
-            #raise ValidationError(ugettext(u"Passwords are different"))
-
-        #return pw2
 
     def clean_role(self):
         cleaned_data = self.cleaned_data
@@ -112,31 +81,9 @@ class UserAddForm(CremeModelForm):
         return cleaned
 
     def save(self, *args, **kwargs):
-        cleaned = self.cleaned_data
-        user    = self.instance
+        self.instance.set_password(self.cleaned_data['password_1'])
 
-        user.set_password(cleaned['password_1'])
-        super(UserAddForm, self).save(*args, **kwargs)
-
-        #contact = cleaned.get('contact', None)
-
-        #if not contact:
-            #contact = Contact(last_name=(user.last_name or user.username),
-                              #first_name=(user.first_name or user.username),
-                              #user=user
-                             #)
-
-        #contact.is_user = user
-        #contact.save()
-
-        #relation_desc = {'subject_entity': contact,
-                         #'type':           cleaned['relation'],
-                         #'object_entity':  cleaned['organisation'],
-                        #}
-        #if not Relation.objects.filter(**relation_desc).exists():
-            #Relation.objects.create(user=user, **relation_desc)
-
-        return user
+        return super(UserAddForm, self).save(*args, **kwargs)
 
 
 #TODO: factorise with UserAddForm
@@ -150,7 +97,7 @@ class UserEditForm(CremeModelForm):
     }
 
     class Meta:
-        model = User
+        model = CremeUser
         fields = ('first_name', 'last_name', 'email', 'is_superuser', 'role')
 
     def clean_role(self):
@@ -194,13 +141,13 @@ class UserChangePwForm(CremeForm):
 
 
 class TeamCreateForm(CremeModelForm):
-    teammates = ModelMultipleChoiceField(queryset=User.objects.filter(is_team=False, is_staff=False),
+    teammates = ModelMultipleChoiceField(queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
                                          widget=UnorderedMultipleChoiceWidget,
                                          label=_(u"Teammates"), required=False,
                                         )
 
     class Meta:
-        model = User
+        model = CremeUser
         fields = ('username',)
 
     def __init__(self, *args, **kwargs):
@@ -226,14 +173,14 @@ class TeamEditForm(TeamCreateForm):
 
 class UserAssignationForm(CremeForm):
     to_user = ModelChoiceField(label=_(u"Choose a user to transfer to"),
-                               queryset=User.objects.none(),
+                               queryset=CremeUser.objects.none(),
                               )
 
     def __init__(self, user, *args, **kwargs):
         super(UserAssignationForm, self).__init__(user, *args, **kwargs)
         self.user_to_delete = user_to_delete= self.initial['user_to_delete']
 
-        users = User.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
+        users = CremeUser.objects.exclude(pk=user_to_delete.pk).exclude(is_staff=True)
         choices = defaultdict(list)
         for user in users:
             choices[user.is_team].append((user.id, unicode(user)))
@@ -245,14 +192,11 @@ class UserAssignationForm(CremeForm):
                            ]
 
     def save(self, *args, **kwargs):
-        user_2_delete = self.user_to_delete
-
-        #Contact.objects.filter(is_user=user_2_delete).update(is_user=None) #todo: Don't know why SET_NULL doesn't work on Contact.is_user
-
         mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']
+
         try:
-            user_2_delete.delete()
+            self.user_to_delete.delete()
         finally:
             CremeUserForeignKey._TRANSFER_TO_USER = None
             mutex.release()

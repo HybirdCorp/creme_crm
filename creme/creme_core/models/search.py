@@ -21,11 +21,11 @@
 import logging
 import warnings
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import TextField, ForeignKey, BooleanField, Q, FieldDoesNotExist #PositiveIntegerField, CharField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 
 from ..utils.meta import FieldInfo, ModelFieldEnumerator #get_verbose_field_name
 from .base import CremeModel
@@ -57,7 +57,7 @@ class SearchField(object):
 class SearchConfigItem(CremeModel):
     content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
 #    role         = ForeignKey(UserRole, verbose_name=_(u"Related role"), null=True) #TODO: To be done ?
-    user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
+    user         = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u"Related user"), null=True)
     disabled     = BooleanField(pgettext_lazy('creme_core-search_conf', u'Disabled?'), default=False)
     field_names  = TextField(null=True) #Do not this field directly; use 'searchfields' property
 

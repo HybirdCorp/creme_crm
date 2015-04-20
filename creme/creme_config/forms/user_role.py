@@ -21,13 +21,12 @@
 #from itertools import izip
 
 #from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm, EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect
-from creme.creme_core.models import UserRole, SetCredentials, Mutex
+from creme.creme_core.models import CremeUser, UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
@@ -170,7 +169,7 @@ class UserRoleDeleteForm(CremeForm):
     def __init__(self, user, *args, **kwargs):
         super(UserRoleDeleteForm, self).__init__(user, *args, **kwargs)
         self.role_to_delete = role_2_del = self.initial['role_to_delete']
-        self.using_users = users = User.objects.filter(role=role_2_del)
+        self.using_users = users = CremeUser.objects.filter(role=role_2_del)
 
         if users:
             self.fields['to_role'] = ModelChoiceField(label=ugettext('Choose a role to transfer to'),

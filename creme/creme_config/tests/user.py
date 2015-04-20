@@ -3,15 +3,16 @@
 try:
     from functools import partial
     from json import loads as jsonloads
+    from unittest import skipIf
 
     from django.conf import settings
     from django.contrib.sessions.models import Session
-    from django.contrib.auth.models import User
     from django.utils import timezone as django_tz
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.setting_key import SettingKey
+    from creme.creme_core.models import CremeUser as User
     from creme.creme_core.models import (CremeEntity, CremeProperty,
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
     from creme.creme_core.tests.base import CremeTestCase
@@ -27,6 +28,12 @@ except Exception as e:
 
 
 __all__ = ('UserTestCase', 'UserSettingsTestCase')
+
+
+def skipIfNotCremeUser(test_func):
+    return skipIf(settings.AUTH_USER_MODEL != 'creme_core.CremeUser',
+                  "Skip this test which uses CremeUser model"
+                 )(test_func)
 
 
 class UserTestCase(CremeTestCase):
@@ -64,6 +71,7 @@ class UserTestCase(CremeTestCase):
         self.login_not_as_superuser()
         self._aux_test_portal()
 
+    @skipIfNotCremeUser
     def test_create01(self):
         self.login()
 
@@ -110,6 +118,7 @@ class UserTestCase(CremeTestCase):
                                          )
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
+    @skipIfNotCremeUser
     def test_create02(self):
         "Not superuser ; special chars in username"
         self.login()
@@ -122,12 +131,8 @@ class UserTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
-
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        #ce_count = CremeEntity.objects.count()
 
         username = 'dknut@eswat.ol'
         password = 'password'
@@ -148,50 +153,16 @@ class UserTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        #users = User.objects.filter(username=username)
-        #self.assertEqual(1, len(users))
-
-        #user = users[0]
         user = self.get_object_or_fail(User, username=username)
         self.assertEqual(role,     user.role)
-        #self.assertEqual(ce_count, CremeEntity.objects.count())
 
         self.assertTrue(user.has_perm_to_view(orga))
 
-        #contact = self.refresh(contact)
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(user, contact.is_user)
         self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga)
 
-    #def test_create03(self):
-        #"Relation is not recreate if it already exists"
-        #self.login()
-
-        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
-
-        #orga = Organisation.objects.create(user=self.user, name='Olympus')
-        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        #Relation.objects.create(user=self.user, subject_entity=contact, type_id=REL_SUB_MANAGES, object_entity=orga)
-
-        #username = 'deunan'
-        #password = 'password'
-        #response = self.client.post(self.ADD_URL, follow=True,
-                                    #data={'username':     username,
-                                          #'password_1':   password,
-                                          #'password_2':   password,
-                                          #'is_superuser': True,
-                                          #'contact':      contact.id,
-                                          #'organisation': orga.id,
-                                          #'relation':     REL_SUB_MANAGES,
-                                         #}
-                                   #)
-        #self.assertNoFormError(response)
-
-        #user = self.get_object_or_fail(User, username=username)
-        #contact = self.refresh(contact)
-        #self.assertEqual(user, contact.is_user)
-        #self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga) #not 2 !!
+    @skipIfNotCremeUser
     def test_create03(self):
         "First name, last name, email, orga, rtypes are required"
         self.login()
@@ -212,18 +183,17 @@ class UserTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'organisation', msg)
         self.assertFormError(response, 'form', 'relation',     msg)
 
+    @skipIfNotCremeUser
     def test_create04(self):
         user = self.login_not_as_superuser()
 
         url = self.ADD_URL
-        #self.assertGETRedirectsToLogin(url)
         self.assertGET403(url)
 
         orga = Organisation.objects.create(user=user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
         password = 'password'
-        #self.assertPOSTRedirectsToLogin(url, data={'username':     'deunan',
         self.assertPOST403(url, data={'username':     'deunan',
                                       'password_1':   password,
                                       'password_2':   password,
@@ -236,37 +206,7 @@ class UserTestCase(CremeTestCase):
                                      }
                           )
 
-    #def test_create05(self):
-        #"Linked contact can not be already linked to another user"
-        #self.login()
-
-        #user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
-        #contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut', is_user=user)
-
-        #orga = Organisation.objects.create(user=self.user, name='Olympus')
-        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        #username = 'deunan'
-        #password = 'password'
-        #response = self.client.post(self.ADD_URL, follow=True,
-                                    #data={'username':     username,
-                                          #'password_1':   password,
-                                          #'password_2':   password,
-                                          #'is_superuser': True,
-                                          #'contact':      contact.id,
-                                          #'organisation': orga.id,
-                                          #'relation':     REL_SUB_MANAGES,
-                                         #}
-                                   #)
-        #self.assertNoFormError(response)
-        #self.assertEqual(user, self.refresh(contact).is_user)
-
-        #new_user = self.get_object_or_fail(User, username=username)
-        #self.get_object_or_fail(Contact, is_user=new_user,
-                                #first_name=username, last_name=username
-                               #)
-
-    #def test_create06(self):
+    @skipIfNotCremeUser
     def test_create05(self):
         "Wrong username"
         user = self.login()
@@ -286,34 +226,10 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'username',
-                             #_(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                #"hyphen and underscores are allowed (but not as first character)."
-                              #)
                              _("This value may contain only letters, numbers and @/./+/-/_ characters.")
                             )
 
-    #def test_create07(self):
-        #"Wrong password"
-        #self.login()
-
-        #orga = Organisation.objects.create(user=self.user, name='Olympus')
-        #CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
-
-        #username = 'deunan'
-        #password = 'password'
-        #response = self.client.post(self.ADD_URL, follow=True,
-                                    #data={'username':     username,
-                                          #'password_1':   password,
-                                          #'password_2':   password + "5",
-                                          #'is_superuser': True,
-                                          #'organisation': orga.id,
-                                          #'relation':     REL_SUB_MANAGES,
-                                         #}
-                                   #)
-
-        #self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
-
-    #def test_create08(self):
+    @skipIfNotCremeUser
     def test_create06(self):
         "Common user without role"
         user = self.login()
@@ -336,7 +252,7 @@ class UserTestCase(CremeTestCase):
                              _(u"Choose a role or set superuser status to 'True'.")
                             )
 
-    #def test_create09(self):
+    @skipIfNotCremeUser
     def test_create07(self):
         "Password errors"
         user = self.login()
@@ -377,6 +293,7 @@ class UserTestCase(CremeTestCase):
                                      )
         self.assertFormError(response, 'form', 'password_2', _('Passwords are different'))
 
+    @skipIfNotCremeUser
     def test_create08(self):
         "Unique username"
         user = self.login()
@@ -404,6 +321,7 @@ class UserTestCase(CremeTestCase):
                                 }
                             )
 
+    @skipIfNotCremeUser
     def test_create11(self):
         self.login()
 
@@ -431,6 +349,7 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(user.is_superuser)
         self.assertIsNone(user.role)
 
+    @skipIfNotCremeUser
     def test_edit01(self):
         user = self.login()
 
@@ -443,14 +362,7 @@ class UserTestCase(CremeTestCase):
         other_user = User.objects.create(username='deunan', first_name='??', last_name='??',
                                          email='??', role=role1,
                                         )
-        #description = 'Pilot & warrior'
-        #deunan = Contact.objects.create(user=other_user, first_name=other_user.first_name,
-                                        #last_name=other_user.last_name, email=other_user.email,
-                                        #description=description,
-                                       #)
-        #deunan = self.get_object_or_fail(Contact, is_user=other_user)
         deunan = other_user.linked_contact
-        #deunan.description = description
 
         briareos = Contact.objects.create(user=user, first_name='Briareos', last_name='Hecatonchires')
         self.assertTrue(other_user.has_perm_to_view(briareos))
@@ -487,17 +399,24 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(email,       deunan.email)
         #self.assertEqual(description, deunan.description)
 
+    @skipIfNotCremeUser
     def test_edit02(self):
         "Can not edit a team with the user edit view"
         self.login()
 
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        user = User.objects.create_user(username='deunan',
+                                             first_name='Deunan',
+                                             last_name='Knut',
+                                             email='d.knut@eswat.ol',
+                                             password='uselesspw',
+                                            )
         team  = self._create_team('Teamee', [user])
 
         url = self._build_edit_url(team.id)
         self.assertGET404(url)
         self.assertPOST404(url)
 
+    @skipIfNotCremeUser
     def test_edit03(self):
         user = self.login_not_as_superuser()
 
@@ -513,11 +432,9 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
-        #self.assertGETRedirectsToLogin(url)
         self.assertGET403(url)
 
         role2 = UserRole.objects.create(name='Slave')
-        #self.assertPOSTRedirectsToLogin(url,data={'first_name': 'Deunan',
         self.assertPOST403(url, data={'first_name': 'Deunan',
                                       'last_name':  'Knut',
                                       'email':      'd.knut@eswat.ol',
@@ -525,6 +442,7 @@ class UserTestCase(CremeTestCase):
                                      }
                           )
 
+    @skipIfNotCremeUser
     def test_edit04(self):
         "Common user without role"
         self.login()
@@ -536,9 +454,7 @@ class UserTestCase(CremeTestCase):
         url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
 
-        response = self.client.post(url, follow=True,
-                                    data={'is_superuser': ''},
-                                   )
+        response = self.client.post(url, follow=True, data={'is_superuser': ''})
         self.assertFormError(response, 'form', 'role',
                              _(u"Choose a role or set superuser status to 'True'.")
                             )
@@ -554,6 +470,7 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(other_user.is_superuser)
         self.assertIsNone(other_user.role)
 
+    @skipIfNotCremeUser
     def test_change_password01(self):
         self.login()
 
@@ -570,6 +487,7 @@ class UserTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertTrue(self.refresh(other_user).check_password(password))
 
+    @skipIfNotCremeUser
     def test_change_password02(self):
         self.login_not_as_superuser()
 
@@ -583,6 +501,7 @@ class UserTestCase(CremeTestCase):
                                      }
                           )
 
+    @skipIfNotCremeUser
     def test_change_password03(self):
         self.login()
 
@@ -598,6 +517,7 @@ class UserTestCase(CremeTestCase):
                                    )
         self.assertFormError(response, 'form', 'password_2', _(u"Passwords are different"))
 
+    @skipIfNotCremeUser
     def test_user_activation01(self):
         "Not superuser"
         self.login_not_as_superuser()
@@ -606,6 +526,7 @@ class UserTestCase(CremeTestCase):
         self.assertGET403(url('deactivate'))
         self.assertGET403(url('activate'))
 
+    @skipIfNotCremeUser
     def test_user_activation02(self):
         "Post only & Current user"
         user = self.login()
@@ -613,6 +534,7 @@ class UserTestCase(CremeTestCase):
         self.assertGET404(url)
         self.assertPOST409(url)
 
+    @skipIfNotCremeUser
     def test_user_activation03(self):
         "user is staff"
         self.login()
@@ -621,6 +543,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST(400, url('activate'))
         self.assertPOST(400, url('deactivate'))
 
+    @skipIfNotCremeUser
     def test_user_activation04(self):
         "user is staff"
         self.login()
@@ -629,6 +552,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST(400, url('activate'))
         self.assertPOST(400, url('deactivate'))
 
+    @skipIfNotCremeUser
     def test_user_activation05(self):
         "user is staff"
         self.login()
@@ -640,6 +564,7 @@ class UserTestCase(CremeTestCase):
         self.assertPOST200(url('activate'))
         self.assertTrue(self.refresh(other_user).is_active)
 
+    @skipIfNotCremeUser
     def test_team_create01(self):
         self.login()
 
@@ -647,8 +572,14 @@ class UserTestCase(CremeTestCase):
         self.assertGET200(url)
 
         create_user = User.objects.create_user
-        user01 = create_user('Shogun', 'shogun@century.jp', 'uselesspw')
-        user02 = create_user('Yoshitsune', 'yoshitsune@century.jp', 'uselesspw')
+        user01 = create_user(username='Shogun',
+                             first_name='Choji', last_name='Ochiai',
+                             email='shogun@century.jp', password='uselesspw',
+                            )
+        user02 = create_user(username='Yukiji',
+                             first_name='Yukiji', last_name='Setoguchi',
+                             email='yukiji@century.jp', password='uselesspw',
+                            )
 
         username   = 'Team-A'
         response = self.client.post(url, follow=True,
@@ -674,13 +605,17 @@ class UserTestCase(CremeTestCase):
 
         self.assertFalse(Contact.objects.filter(is_user=team))
 
+    @skipIfNotCremeUser
     def test_team_create02(self):
         self.login_not_as_superuser()
 
         url = self.ADD_TEAM_URL
         self.assertGET403(url)
 
-        user01 = User.objects.create_user('Shogun', 'shogun@century.jp', 'uselesspw')
+        user01 = User.objects.create_user(username='Shogun',
+                                          first_name='Choji', last_name='Ochiai',
+                                          email='shogun@century.jp', password='uselesspw',
+                                         )
         self.assertPOST403(url, data={'username':  'Team-A',
                                       'teammates': [user01.id],
                                      }
@@ -692,6 +627,7 @@ class UserTestCase(CremeTestCase):
 
         return team
 
+    @skipIfNotCremeUser
     def test_team_edit01(self):
         self.login()
 
@@ -703,7 +639,10 @@ class UserTestCase(CremeTestCase):
                                      )
 
         def create_user(name, email):
-            user = User.objects.create_user(name, email, 'uselesspw')
+            user = User.objects.create_user(username=name, email=email,
+                                            first_name=name, last_name='Endou',
+                                            password='uselesspw'
+                                           )
             user.role = role
             user.save()
 
@@ -749,12 +688,19 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(self.refresh(user02).has_perm_to_view(entity))
         self.assertTrue(self.refresh(user03).has_perm_to_view(entity))
 
+    @skipIfNotCremeUser
     def test_team_edit02(self):
         self.login_not_as_superuser()
 
         create_user = User.objects.create_user
-        user01 = create_user('Maruo',  'maruo@century.jp',  'uselesspw1')
-        user02 = create_user('Yokiji', 'yokiji@century.jp', 'uselesspw2')
+        user01 = create_user(username='Shogun',
+                             first_name='Choji', last_name='Ochiai',
+                             email='shogun@century.jp', password='uselesspw',
+                            )
+        user02 = create_user(username='Yukiji',
+                             first_name='Yukiji', last_name='Setoguchi',
+                             email='yukiji@century.jp', password='uselesspw',
+                            )
 
         teamname = 'Teamee'
         team = self._create_team(teamname, [user01, user02])
@@ -766,10 +712,15 @@ class UserTestCase(CremeTestCase):
                                      }
                           )
 
+    @skipIfNotCremeUser
     def test_team_delete01(self):
         self.login()
 
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        user = User.objects.create_user(username='Shogun',
+                                             first_name='Choji', last_name='Ochiai',
+                                             email='shogun@century.jp',
+                                             password='uselesspw',
+                                            )
         team = self._create_team('Teamee', [])
 
         url = self._build_delete_url(team)
@@ -777,10 +728,15 @@ class UserTestCase(CremeTestCase):
         self.assertPOST200(url, data={'to_user': user.id})
         self.assertDoesNotExist(team)
 
+    @skipIfNotCremeUser
     def test_team_delete02(self):
         self.login()
 
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        user = User.objects.create_user(username='Shogun',
+                                             first_name='Choji', last_name='Ochiai',
+                                             email='shogun@century.jp',
+                                             password='uselesspw',
+                                            )
         team  = self._create_team('Teamee', [user])
         team2 = self._create_team('Teamee2', [user])
 
@@ -794,6 +750,7 @@ class UserTestCase(CremeTestCase):
         ce = self.assertStillExists(ce)
         self.assertEqual(team2, ce.user)
 
+    @skipIfNotCremeUser
     def test_team_delete03(self):
         self.login()
 
@@ -803,16 +760,22 @@ class UserTestCase(CremeTestCase):
         self.assertPOST200(self._build_delete_url(team), data={'to_user': self.user.id})
         self.assertDoesNotExist(team)
 
+    @skipIfNotCremeUser
     def test_team_delete04(self):
         self.login_not_as_superuser()
 
-        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        user = User.objects.create_user(username='Shogun',
+                                        first_name='Choji', last_name='Ochiai',
+                                        email='shogun@century.jp',
+                                        #password='uselesspw',
+                                       )
         team = self._create_team('Teamee', [])
 
         url = self._build_delete_url(team)
         self.assertGET403(url)
         self.assertPOST403(url, data={'to_user': user.id})
 
+    @skipIfNotCremeUser
     def test_user_delete01(self):
         "Delete view can delete a superuser if at least one remains"
         user = self.login()
@@ -828,6 +791,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
         self.assertDoesNotExist(root)
 
+    @skipIfNotCremeUser
     def test_user_delete02(self):
         "Delete view can delete any normal user"
         user = self.login()
@@ -847,6 +811,7 @@ class UserTestCase(CremeTestCase):
         ce = self.assertStillExists(ce)
         self.assertEqual(user, ce.user)
 
+    @skipIfNotCremeUser
     def test_user_cannot_delete_last_superuser(self):
         "Delete view can not delete the last superuser"
         self.client.login(username='root', password='root')
@@ -862,6 +827,7 @@ class UserTestCase(CremeTestCase):
 
         self.assertStillExists(user)
 
+    @skipIfNotCremeUser
     def test_user_cannot_delete_staff_user(self):
         "Delete view can not delete the staff user"
         self.login()
@@ -871,6 +837,7 @@ class UserTestCase(CremeTestCase):
         self.assertGET(400, url)
         self.assertPOST(400, url, {'to_user': hybird.id})
 
+    @skipIfNotCremeUser
     def test_user_cannot_delete_during_transfert(self):
         "Delete view is protected by a lock"
         user = self.login()
@@ -892,34 +859,7 @@ class UserTestCase(CremeTestCase):
             #NB: Postgresql cancels all remaining queries after the error...
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
-    #def test_user_delete_last_basic_user(self):
-        #"Delete view can delete any normal user"
-        #role = UserRole.objects.create(name='Basic')
-        #role.allowed_apps = ('creme_core',)
-        #role.admin_4_apps = ()
-        #role.save()
-
-        #self.role = role
-        #basic_user = User.objects.create(username='Mireille', role=role)
-        #basic_user.set_password('test')
-        #basic_user.save()
-
-        #self.client.login(username='root', password='root')
-
-        #self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        #self.assertEqual(1, User.objects.filter(is_superuser=False).count())
-
-        #root = User.objects.get(is_superuser=True)
-
-        #url = '/creme_config/user/delete/%s' % basic_user.id
-        #self.assertEqual(200, self.client.get(url).status_code)
-
-        #response = self.client.post(url, {'to_user': root.id})
-        #self.assertEqual(200, response.status_code)
-
-        #self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        #self.assertEqual(0, User.objects.filter(is_superuser=False).count())
-
+    @skipIfNotCremeUser
     def test_user_delete_errors(self):
         "Validation errors"
         user = self.login()
@@ -941,6 +881,7 @@ class UserTestCase(CremeTestCase):
                             )
         self.assertStillExists(user)
 
+    @skipIfNotCremeUser
     def test_user_delete_settingkey(self):
         "Related SettingValues are deleted."
         user = self.login()
@@ -957,6 +898,7 @@ class UserTestCase(CremeTestCase):
         self.assertDoesNotExist(self.other_user)
         self.assertDoesNotExist(sv)
 
+    @skipIfNotCremeUser
     def test_user_delete_credentials(self):
         "Only super user are allowed"
         user = self.login_not_as_superuser()
@@ -980,14 +922,11 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
     def test_change_theme01(self):
-        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
         self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
 
         def change_theme(theme):
             self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
 
-            #svalues = SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME)
             svalues = SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME)
             self.assertEqual(1, len(svalues))
             self.assertEqual(theme, svalues[0].value)
@@ -1003,12 +942,9 @@ class UserSettingsTestCase(CremeTestCase):
                 self.user = user
                 self.session = {}
 
-        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        #self.assertFalse(SettingValue.objects.filter(user=user, key=USER_THEME_NAME))
         self.assertFalse(SettingValue.objects.filter(user=user, key_id=USER_THEME_NAME))
 
         self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
-        #sv = self.get_object_or_fail(SettingValue, user=user, key=USER_THEME_NAME)
         sv = self.get_object_or_fail(SettingValue, user=user, key_id=USER_THEME_NAME)
 
         sv.value = "unknown theme"
@@ -1030,19 +966,14 @@ class UserSettingsTestCase(CremeTestCase):
 
             return theme
 
-        #self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
-        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
         self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_THEME_NAME))
         self.assertIsNone(get_theme())
 
         self.client.get('/')
-        #self.get_object_or_fail(SettingValue, user=self.user, key=USER_THEME_NAME)
         self.get_object_or_fail(SettingValue, user=self.user, key_id=USER_THEME_NAME)
         self.assertEqual(settings.DEFAULT_THEME, get_theme())
 
     def test_change_timezone01(self):
-        #self.get_object_or_fail(SettingKey, pk=USER_TIMEZONE)
-        #self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE))
         self.assertFalse(SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE))
 
         #TODO: use 'nonlocal' in py3k
@@ -1080,7 +1011,6 @@ class UserSettingsTestCase(CremeTestCase):
         def change_tz(tz):
             self.assertPOST200(url, data={'time_zone': tz})
 
-            #svalues = SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE)
             svalues = SettingValue.objects.filter(user=self.user, key_id=USER_TIMEZONE)
             self.assertEqual(1, len(svalues))
             self.assertEqual(tz, svalues[0].value)

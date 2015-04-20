@@ -9,9 +9,8 @@ You can find more information on Creme on its official web site: http://cremecrm
 DEPENDENCIES:
     - Core
         - Python 2.7
-        - Django 1.6
+        - Django 1.7
         - Django-mediagenerator 1.10
-        - South 1.0
         - pytz
         - python-dateutil 1.5
         - Pillow 2.7
@@ -48,16 +47,12 @@ Upgrade notice : if you already have a Creme installation, upgrade the version o
 See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following commands in the root directory:
->> python manage.py syncdb
-[if it is the initial installation, you are asked if you want to create a new user ; you should create one]
-
 >> python manage.py migrate
-[If you encounter some issues with ghost migrations, you can use '--ignore-ghost-migrations' or '--delete-ghost-migrations' option]
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate
 
-And if you are upgrading from Creme 1.4:
+And if you are upgrading from Creme 1.5:
  - Clean all existing sessions, for example like this:
     >> python manage.py shell
     > from django.contrib.sessions.models import Session

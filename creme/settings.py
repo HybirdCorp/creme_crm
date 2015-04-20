@@ -41,6 +41,16 @@ DATABASES = {
     },
 }
 
+MIGRATION_MODULES = {
+    'auth': 'creme.creme_core.migrations_auth', # XXX: should be removed in Creme 1.7 ...
+}
+
+# AUTHENTICATION ###############################################################
+
+AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
+AUTH_USER_MODEL = 'creme_core.CremeUser'
+
+
 #I18N / L10N ###################################################################
 
 USE_TZ = True
@@ -155,11 +165,12 @@ MIDDLEWARE_CLASSES = (
 
     'mediagenerator.middleware.MediaMiddleware', #Media middleware has to come first
 
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'django.contrib.admindocs.middleware.XViewMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
@@ -185,7 +196,6 @@ INSTALLED_DJANGO_APPS = (
 
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
-    'south',          #It manages DB migrations
 )
 
 INSTALLED_CREME_APPS = (
@@ -235,7 +245,6 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 #TRUE_DELETE = True
 
-AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
 
 ALLOWED_IMAGES_EXTENSIONS = (
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',

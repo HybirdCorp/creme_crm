@@ -22,7 +22,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import activate
 
-from creme.creme_core import autodiscover
+#from creme.creme_core import autodiscover
 from creme.creme_core.core.reminder import reminder_registry
 
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         activate(settings.LANGUAGE_CODE)
-        autodiscover()
+        #autodiscover()
 
         for one_remind in reminder_registry.itervalues():
             one_remind.execute()

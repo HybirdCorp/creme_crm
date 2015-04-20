@@ -22,7 +22,7 @@ from decimal import Decimal
 import logging
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
 from .blocks import properties_block, relations_block, customfields_block, history_block
@@ -46,6 +46,8 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_HAS, _(u'owns')),
                             (REL_OBJ_HAS, _(u'belongs to')))
 
+
+        User = get_user_model()
 
         #TODO: if not already_populated  ??
         try:

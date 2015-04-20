@@ -28,13 +28,13 @@ from urlparse import urlparse
 from zipfile import ZipFile
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models.query_utils import Q
 from django.template.defaultfilters import slugify
 
-from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation, SettingValue
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation, SettingValue
 from creme.creme_core.utils import safe_unicode
 from creme.creme_core.utils.chunktools import iter_as_chunk
 
@@ -253,12 +253,9 @@ class Populator(BasePopulator):
 
             BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=20)
 
-            try:
-                # add this bloc only if the root user exists (creme_core populated)
-                root = User.objects.get(pk=1)
-
+            # add this bloc only if the root user exists (creme_core populated)
+            root = get_user_model().objects.filter(pk=1).first()
+            if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
                 BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=8, user=root)
-            except User.DoesNotExist:
-                pass
 

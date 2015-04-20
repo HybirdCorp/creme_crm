@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
@@ -46,7 +46,7 @@ def post_save_setting_value(sender, instance, **kwargs):
 #            WaitingAction.objects.filter(user=None).update(user=User.objects.filter(is_superuser=True).order_by('-pk')[0])
 
             #TODO: move to a method in User's manager
-            user_qs = User.objects.order_by('id')
+            user_qs = get_user_model().objects.order_by('id')
             try:
                 user = user_qs.filter(is_superuser=True, is_staff=False)[0]
             except IndexError:

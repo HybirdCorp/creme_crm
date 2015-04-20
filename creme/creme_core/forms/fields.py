@@ -31,7 +31,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
         ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
-from django.forms.util import ValidationError
+from django.forms.utils import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.utils.encoding import smart_unicode
@@ -1435,7 +1435,8 @@ class CTypeChoiceField(Field):
     #TODO: ctypes_or_models ??
     def __init__(self, ctypes=(), empty_label=u"---------",
                  required=True, widget=None, label=None, initial=None,
-                 help_text=None, to_field_name=None, *args, **kwargs):
+                 help_text=None, to_field_name=None, limit_choices_to=None,
+                 *args, **kwargs):
         super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
                                                *args, **kwargs
                                               )

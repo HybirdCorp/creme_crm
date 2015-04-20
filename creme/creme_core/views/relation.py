@@ -169,7 +169,8 @@ def add_relations(request, subject_id, rtype_id=None):
 def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factorise with add_properties_bulk and bulk_update?
     user = request.user
     model    = get_ct_or_404(model_ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
+    #entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
+    entities = get_list_or_404(model, pk__in=request.POST.getlist('ids') or request.GET.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
 

@@ -21,7 +21,7 @@
 from itertools import chain
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import (CharField, PositiveIntegerField,
         PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _
@@ -108,7 +108,7 @@ class Report(CremeEntity):
         return set(asc_reports)
 
     def _fetch(self, limit_to=None, extra_q=None, user=None):
-        user = user or User(is_superuser=True)
+        user = user or get_user_model()(is_superuser=True)
         entities = EntityCredentials.filter(user, self.ct.model_class().objects.filter(is_deleted=False))
 
         if self.filter is not None:

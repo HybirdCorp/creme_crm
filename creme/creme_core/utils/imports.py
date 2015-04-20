@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,23 +19,35 @@
 ################################################################################
 
 from imp import find_module
+from importlib import import_module
 
-from django.conf import settings
-from django.utils.importlib import import_module
+from django.apps import apps
+#from django.conf import settings
 
 
 def find_n_import(filename, imports):
     results = []
-    for app in settings.INSTALLED_APPS:
+
+#    for app in settings.INSTALLED_APPS:
+#        try:
+#            find_module(filename, __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
+#        except ImportError as e:
+#            # there is no app report_backend_register.py, skip it
+#            continue
+#
+#        results.append(__import__("%s.%s" % (app, filename), globals(), locals(), imports, -1))
+    for app_config in apps.get_app_configs():
+        app_name = app_config.name
+
         try:
-            find_module(filename, __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-        except ImportError as e:
+            find_module(filename, __import__(app_name, {}, {}, [app_name.split(".")[-1]]).__path__)
+        except ImportError:
             # there is no app report_backend_register.py, skip it
             continue
 
-        results.append(__import__("%s.%s" % (app, filename), globals(), locals(), imports, -1))
-    return results
+        results.append(__import__("%s.%s" % (app_name, filename), globals(), locals(), imports, -1))
 
+    return results
 
 def import_object(objectpath):
     i = objectpath.rfind('.')
@@ -51,7 +63,6 @@ def import_object(objectpath):
         raise AttributeError('Module "%s" does not define a "%s" object' % (module, attr))
 
     return result
-
 
 def safe_import_object(objectpath):
     try:

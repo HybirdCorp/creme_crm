@@ -9,7 +9,7 @@ try:
     from dateutil.relativedelta import relativedelta
 
     from django.conf import settings
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 
@@ -148,7 +148,12 @@ class MobileTestCase(CremeTestCase):
 
       username = 'gally'
       password = 'passwd'
-      User.objects.create_superuser(username, 'gally@zalem.org', password)
+      get_user_model().objects.create_superuser(username,
+                                                first_name='Gally',
+                                                last_name='Alita',
+                                                email='gally@zalem.org',
+                                                password=password,
+                                               )
 
       response = self.assertPOST200(url, follow=True,
                                     data={'username': username,

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 
@@ -39,6 +39,8 @@ class Command(BaseCommand):
         except MutexLockedException:
             self.stderr.write('A process is already running')
         else:
+            User = get_user_model()
+
             try:
                 user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
                 self.stdout.write("There are %s new item(s)" % _fetch(user))

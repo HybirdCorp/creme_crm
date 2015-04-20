@@ -5,7 +5,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from django.conf import settings
+    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.db.models import Max
     from django.utils.translation import ugettext as _
@@ -26,7 +26,7 @@ try:
 
     from creme.products.models import Product, Service
 
-    if 'creme.billing' in settings.INSTALLED_APPS:
+    if apps.is_installed('creme.billing'):
         from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
         from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 

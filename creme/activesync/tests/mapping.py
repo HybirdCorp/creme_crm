@@ -9,7 +9,7 @@ try:
     except ImportError:
         from StringIO import StringIO
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
     from django.core.files import File
 
@@ -49,7 +49,7 @@ class MappingTestCase(CremeTestCase):
 
     def test_contact_serialization01(self):
         #TODO: Check contact image
-        user = User.objects.create(username='user')
+        user = get_user_model().objects.create(username='user')
 
         civility = Civility.objects.create(title='Mister')
         contact = Contact.objects.create(

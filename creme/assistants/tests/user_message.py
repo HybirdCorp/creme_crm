@@ -5,7 +5,7 @@ try:
     from json.encoder import JSONEncoder
 
     from django.conf import settings
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.core import mail
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -22,6 +22,7 @@ except Exception as e:
 
 __all__ = ('UserMessageTestCase',)
 
+User = get_user_model() #TODO: self.User
 
 class UserMessageTestCase(AssistantsTestCase):
     DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
@@ -58,7 +59,9 @@ class UserMessageTestCase(AssistantsTestCase):
         title    = 'TITLE'
         body     = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
+        user01   = User.objects.create_user('User01', email='user01@foobar.com',
+                                            first_name='User01', last_name='Foo',
+                                           )
         self._create_usermessage(title, body, priority, [user01], entity)
 
         messages = UserMessage.objects.all()
@@ -83,8 +86,10 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_create02(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
-        user02   = User.objects.create_user('User02', 'user02@foobar.com', 'password')
+
+        create_user = User.objects.create_user
+        user01 = create_user('User01', first_name='User01', last_name='Foo', email='user01@foobar.com')
+        user02 = create_user('User02', first_name='User02', last_name='Bar', email='user02@foobar.com')
 
         title = 'TITLE'
         body  = 'BODY'
@@ -116,7 +121,9 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertGET200(self._build_add_url())
 
         priority = UserMessagePriority.objects.create(title='Important')
-        user01  = User.objects.create_user('User01', 'user01@foobar.com', 'password')
+        user01  = User.objects.create_user('User01', email='user01@foobar.com',
+                                           first_name='User01', last_name='Foo',
+                                          )
 
         self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
 
@@ -130,8 +137,9 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_create04(self): #one team
         create_user = User.objects.create_user
-        users       = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword')
-                            for i in xrange(1, 3)
+        users       = [create_user('User%s' % i, email='user%s@foobar.com' % i,
+                                   first_name='User%s' % i, last_name='Foobar',
+                                  ) for i in xrange(1, 3)
                       ]
 
         team = User.objects.create(username='Team', is_team=True, role=None)
@@ -146,8 +154,9 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create05(self):
         "Teams and isolated usres with non void intersections"
         create_user = User.objects.create_user
-        users = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword')
-                    for i in xrange(1, 5)
+        users = [create_user('User%s' % i, email='user%s@foobar.com' % i,
+                             first_name='User%s' % i, last_name='Foobar',
+                            ) for i in xrange(1, 5)
                 ]
 
         team01 = User.objects.create(username='Team01', is_team=True, role=None)
@@ -164,7 +173,9 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
+        user01   = User.objects.create_user('User01', email='user01@foobar.com',
+                                            first_name='User01', last_name='Foo',
+                                           )
         self._create_usermessage('TITLE', 'BODY', priority, [user01], self.entity)
 
         self.assertEqual(1, UserMessage.objects.count())
@@ -279,7 +290,9 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_merge(self):
         def creator(contact01, contact02):
             priority = UserMessagePriority.objects.create(title='Important')
-            user01 = User.objects.create_user('User01', 'user01@foobar.com', 'password')
+            user01 = User.objects.create_user('User01', email='user01@foobar.com',
+                                              first_name='User01', last_name='Foo',
+                                             )
             self._create_usermessage('Beware', 'This guy wants to fight against you', priority, [user01], contact01)
             self._create_usermessage('Oh',     'This guy wants to meet you',          priority, [user01], contact02)
             self.assertEqual(2, UserMessage.objects.count())

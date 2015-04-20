@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.forms.fields import EmailField, BooleanField, IntegerField #CharField
 from django.forms.widgets import HiddenInput
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models.relation import Relation

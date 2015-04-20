@@ -3,7 +3,7 @@
 try:
     from datetime import date #datetime
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.core.files.uploadedfile import SimpleUploadedFile
     from django.db.models.query_utils import Q
 
@@ -620,7 +620,7 @@ description3=[[<br>]]
         self._set_sandbox_by_user()
         superuser1 = self.user
 
-        superuser2 = User.objects.create(username='Kirika2')
+        superuser2 = get_user_model().objects.create(username='Kirika2')
         superuser2.set_password("Kirika2")
         superuser2.is_superuser = True
         superuser2.save()

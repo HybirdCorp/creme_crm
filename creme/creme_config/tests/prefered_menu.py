@@ -22,7 +22,7 @@ class PreferedMenuTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core')
-        cls.autodiscover()
+#        cls.autodiscover()
 
         reg_item = creme_menu.get_app_item('creme_config').register_item
         for item in cls.items_info:

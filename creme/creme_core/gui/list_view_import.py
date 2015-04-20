@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
 
 class FormRegistry(object):
@@ -35,16 +35,19 @@ class FormRegistry(object):
          and which returns a form class that inherits creme_core.forms.list_view_import.ImportForm.
         'factory' can be None: it means that this ContentType use a generic import form.
         """
-        self._form_factories[ContentType.objects.get_for_model(model).id] = factory
+        #self._form_factories[ContentType.objects.get_for_model(model).id] = factory
+        self._form_factories[model] = factory
 
     def get(self, ct):
         try:
-            return self._form_factories[ct.id]
+            #return self._form_factories[ct.id]
+            return self._form_factories[ct.model_class()]
         except KeyError:
             raise self.UnregisteredCTypeException('Unregistered ContentType: %s' % ct)
 
     def is_registered(self, ct):
-        return ct.id in self._form_factories
+        #return ct.id in self._form_factories
+        return ct.model_class() in self._form_factories #TODO: accept model directly ??
 
 
 import_form_registry = FormRegistry()

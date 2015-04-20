@@ -4,8 +4,8 @@ try:
     from functools import partial
     from json import loads as jsonloads
 
+    from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import User
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
@@ -45,7 +45,7 @@ class BlockTestCase(CremeTestCase):
         BlockPortalLocation.objects.all().delete()
         BlockMypageLocation.objects.all().delete()
 
-        cls.autodiscover()
+        #cls.autodiscover()
 
     @classmethod
     def tearDownClass(cls):
@@ -255,7 +255,7 @@ class BlockTestCase(CremeTestCase):
         order = 3
         BlockMypageLocation.create(block_id=block_id, order=order)
 
-        user = User.objects.create(username='Kirika')
+        user = get_user_model().objects.create(username='Kirika')
         user.set_password('password')
         user.save()
         self.get_object_or_fail(BlockMypageLocation, user=user, block_id=block_id, order=order)

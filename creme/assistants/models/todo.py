@@ -24,7 +24,7 @@ from django.db.models import CharField, BooleanField, TextField, DateTimeField, 
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField

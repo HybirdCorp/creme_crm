@@ -3,8 +3,8 @@
 try:
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.forms.batch_process import BatchActionsField
     from .base import FieldTestCase
+#    from creme.creme_core.forms.batch_process import BatchActionsField
     from ..fake_models import FakeContact as Contact
 
     #from creme.persons.models import Contact
@@ -17,6 +17,13 @@ __all__ = ('BatchActionsFieldTestCase',)
 
 class BatchActionsFieldTestCase(FieldTestCase):
     format_str = '[{"name": "%(name)s", "operator": "%(operator)s", "value": "%(value)s"}]'
+
+    @classmethod
+    def setUpClass(cls):
+        FieldTestCase.setUpClass()
+
+        global BatchActionsField
+        from creme.creme_core.forms.batch_process import BatchActionsField
 
     def test_clean_empty_required(self):
         clean = BatchActionsField(required=True).clean

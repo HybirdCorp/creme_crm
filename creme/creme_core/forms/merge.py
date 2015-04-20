@@ -24,7 +24,7 @@ from django.db.models import ForeignKey
 from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.translation import ugettext as _

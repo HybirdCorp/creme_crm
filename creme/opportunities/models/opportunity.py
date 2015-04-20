@@ -22,17 +22,17 @@ import logging
 from functools import partial
 #import warnings
 
-from django.conf import settings
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL, Sum, BooleanField)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
-from creme.creme_core.models.fields import BasicAutoField
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
+from creme.creme_core.models.fields import BasicAutoField
 
 from creme.persons.models import Contact, Organisation
 from creme.persons.workflow import transform_target_into_prospect
@@ -256,7 +256,7 @@ class Opportunity(CremeEntity):
                 transform_target_into_prospect(self.emitter, target, self.user)
 
 
-if 'creme.billing' in settings.INSTALLED_APPS:
+if apps.is_installed('creme.billing'):
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.signals import post_save, post_delete
     from django.dispatch import receiver

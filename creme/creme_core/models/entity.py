@@ -28,7 +28,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.conf import settings
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from .base import CremeAbstractEntity

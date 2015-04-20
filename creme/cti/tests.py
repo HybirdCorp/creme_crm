@@ -25,7 +25,7 @@ class CTITestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'activities')
-        cls.autodiscover()
+        #cls.autodiscover()
 
     def _buid_add_pcall_url(self, contact):
         return '/cti/phonecall/add/%s' % contact.id

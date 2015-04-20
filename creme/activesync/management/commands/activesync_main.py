@@ -21,7 +21,7 @@
 import sys
 from optparse import make_option, OptionParser
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from creme.activesync.sync import Synchronization
@@ -57,6 +57,7 @@ class Command(BaseCommand):
         get_option = options.get
         all_users = get_option(ALL_USERS)
         user_id   = get_option(USER_ID)
+        User = get_user_model()
 
         if all_users:
             if user_id:

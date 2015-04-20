@@ -10,7 +10,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.core.exceptions import ValidationError
     from django.utils.translation import ugettext as _
 
@@ -1206,8 +1206,13 @@ class BulkEditTestCase(_BulkEditTestCase):
 
     def test_other_field_validation_error(self):
         user = self.login()
-        empty_user1 = User.objects.create_user('empty1')
-        empty_user2 = User.objects.create_user('empty2')
+#        empty_user1 = User.objects.create_user('empty1')
+#        empty_user2 = User.objects.create_user('empty2')
+        create_empty_user = partial(get_user_model().objects.create_user,
+                                    first_name='', last_name='', email='',
+                                   )
+        empty_user1 = create_empty_user(username='empty1')
+        empty_user2 = create_empty_user(username='empty2')
 
         create_contact = partial(Contact.objects.create, user=user, first_name='', last_name='')
         empty_contact1 = create_contact(is_user=empty_user1)
@@ -1409,7 +1414,11 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_other_field_validation_error(self):
         self.login()
-        empty_user = User.objects.create_user('empty')
+        empty_user = get_user_model().objects.create_user(username='empty',
+                                                          first_name="",
+                                                          last_name="",
+                                                          email="",
+                                                         )
         empty_contact = Contact.objects.create(user=self.user, first_name="",
                                                last_name="", is_user=empty_user,
                                               )
@@ -1424,7 +1433,11 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_both_edited_field_and_field_validation_error(self):
         self.login()
-        empty_user = User.objects.create_user('empty')
+        empty_user = get_user_model().objects.create_user(username='empty',
+                                                          first_name="",
+                                                          last_name="",
+                                                          email="",
+                                                         )
         empty_contact = Contact.objects.create(user=self.user, first_name="",
                                                last_name="", is_user=empty_user,
                                               )

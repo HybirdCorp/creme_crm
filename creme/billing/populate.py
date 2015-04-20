@@ -21,6 +21,7 @@
 #from datetime import date
 import logging
 
+from django.apps import apps
 from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 
@@ -78,7 +79,7 @@ class Populator(BasePopulator):
                             is_internal=True
                            )
 
-        if 'creme.activities' in settings.INSTALLED_APPS:
+        if apps.is_installed('creme.activities'):
             logger.info('Activities app is installed => an Invoice/Quote/SalesOrder can be the subject of an Activity')
 
             from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
@@ -309,7 +310,7 @@ class Populator(BasePopulator):
                 BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
@@ -325,7 +326,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
 
-            if 'creme.reports' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.reports'):
                 logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
                 #self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
                 self.create_reports(rt_sub_bill_received,
@@ -337,7 +338,7 @@ class Populator(BasePopulator):
     def create_reports(self, rt_sub_bill_received, current_year_invoice_filter, current_year_unpaid_invoice_filter):
         from functools import partial
 
-        from django.contrib.auth.models import User
+        from django.contrib.auth import get_user_model
         from django.contrib.contenttypes.models import ContentType
 
         from creme.reports.constants import RFT_FIELD, RFT_RELATION, RGT_FK, RGT_MONTH
@@ -348,7 +349,7 @@ class Populator(BasePopulator):
             #return
 
         invoice_ct = ContentType.objects.get_for_model(Invoice)
-        admin = User.objects.get(pk=1)
+        admin = get_user_model().objects.get(pk=1)
 
         #current_year_invoice_filter = EntityFilter.create(
                 #'billing-current_year_invoices',

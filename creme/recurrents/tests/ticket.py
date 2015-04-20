@@ -4,7 +4,7 @@ try:
     from datetime import timedelta
     from functools import partial
 
-    from django.conf import settings
+    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
     from django.utils.formats import date_format
     from django.utils.timezone import now
@@ -15,7 +15,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
 
-    if 'creme.tickets' in settings.INSTALLED_APPS:
+    if apps.is_installed('creme.tickets'):
         from creme.tickets.models import Ticket, TicketTemplate, Status, Priority, Criticity
         tickets_installed = True
     else:

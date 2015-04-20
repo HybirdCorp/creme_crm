@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.contrib.auth import get_user_model
+    from django.contrib.contenttypes.models import ContentType
     from django.db.models import fields, FieldDoesNotExist
     from django.utils.translation import ugettext as _
-    from django.contrib.auth.models import User
-    from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase #, skipIfNotInstalled
     from ..fake_models import (FakeContact as Contact,
@@ -27,7 +27,7 @@ class MetaTestCase(CremeTestCase):
     def test_get_instance_field_info(self):
         text = 'TEXT'
 
-        user   = User.objects.create(username='name')
+        user   = get_user_model().objects.create(username='name')
         ptype  = CremePropertyType.objects.create(text=text, is_custom=True)
         entity = CremeEntity.objects.create(user=user)
         prop   = CremeProperty(type=ptype, creme_entity=entity)
@@ -161,7 +161,7 @@ class MetaTestCase(CremeTestCase):
 
         self.assertEqual([Contact._meta.get_field('image'),
                           Image._meta.get_field('user'),
-                          User._meta.get_field('username'),
+                          get_user_model()._meta.get_field('username'),
                          ],
                          fi_as_list
                         )
@@ -187,7 +187,7 @@ class MetaTestCase(CremeTestCase):
         self.assertIsInstance(sub_fi, meta.FieldInfo)
         self.assertEqual(2, len(sub_fi))
         self.assertEqual(Image._meta.get_field('user'),    sub_fi[0])
-        self.assertEqual(User._meta.get_field('username'), sub_fi[1])
+        self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[1])
 
     def test_get_related_field(self):
         self.assertIsNone(meta.get_related_field(Contact, 'stuffes'))

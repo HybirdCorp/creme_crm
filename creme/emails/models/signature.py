@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db.models import CharField, TextField, ManyToManyField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
 from creme.creme_core.models import CremeModel
 
@@ -29,7 +29,7 @@ from creme.media_managers.models import Image
 
 class EmailSignature(CremeModel):
     name   = CharField(_(u'Name'), max_length=100)
-    user   = ForeignKey(User, verbose_name=_(u'User'))
+    user   = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'User'))
     body   = TextField(_(u'Body'))
     images = ManyToManyField(Image, verbose_name=_(u'Images'), blank=True, null=True)
 

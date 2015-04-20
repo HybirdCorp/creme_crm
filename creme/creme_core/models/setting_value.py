@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models import Model, CharField, TextField, ForeignKey
 from django.utils.translation import ugettext as _
 
@@ -34,7 +34,7 @@ def print_hour(value):
 #TODO: Add a null and blank attribute ?? And a unique together with key, user
 class SettingValue(Model):
     key_id    = CharField(max_length=100) #see SettingKey.id
-    user      = ForeignKey(User, blank=True, null=True)
+    user      = ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     value_str = TextField()
 
     class Meta:

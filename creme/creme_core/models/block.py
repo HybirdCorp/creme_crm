@@ -22,12 +22,13 @@ from functools import partial
 from json import loads as jsonloads, dumps as jsondumps
 import logging
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
-                              PositiveSmallIntegerField, BooleanField, TextField)
+        PositiveSmallIntegerField, BooleanField, TextField)
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 
 from ..constants import (SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
         SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID)
@@ -137,7 +138,7 @@ class BlockPortalLocation(CremeModel):
 
 
 class BlockMypageLocation(CremeModel):
-    user     = ForeignKey(User, null=True)
+    user     = ForeignKey(settings.AUTH_USER_MODEL, null=True)
     block_id = CharField(max_length=100)
     order    = PositiveIntegerField()
 
@@ -187,7 +188,8 @@ class BlockMypageLocation(CremeModel):
         return block_registry.get_blocks((self.block_id,))[0].verbose_name
 
 
-post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
+#post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
+post_save.connect(BlockMypageLocation._copy_default_config, sender=settings.AUTH_USER_MODEL,
                   dispatch_uid='creme_core-blockmypagelocation._copy_default_config'
                  )
 
@@ -422,7 +424,7 @@ class CustomBlockConfigItem(CremeModel):
 
 
 class BlockState(CremeModel):
-    user              = ForeignKey(User)
+    user              = ForeignKey(settings.AUTH_USER_MODEL)
     block_id          = CharField(_(u"Block ID"), max_length=100)
     is_open           = BooleanField(default=True) #Is block has to appear as opened or closed
     show_empty_fields = BooleanField(default=True) #Are empty fields in block have to be shown or not

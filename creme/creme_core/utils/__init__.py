@@ -31,7 +31,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from ..registry import creme_registry
+#from ..registry import creme_registry
 from ..core.exceptions import ConflictError
 
 
@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 def creme_entity_content_types():
+    from ..registry import creme_registry
     get_for_model = ContentType.objects.get_for_model
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 

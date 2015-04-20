@@ -154,7 +154,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 # TODO: uncomment when a model has a field with batchable type and not inner editable (maybe a test model)
 #    def test_validation_error02(self):
 #        "Field is not inner editable -> invalid"
-#        self.autodiscover()
+##        self.autodiscover()
 #        self.login()
 #
 #        fname = 'siren'

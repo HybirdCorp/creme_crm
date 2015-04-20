@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField, MultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.auth.models import User
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
@@ -28,7 +28,7 @@ from creme.creme_core.models import SearchConfigItem
 
 
 class SearchAddForm(CremeModelForm):
-    user = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(),
+    user = ModelChoiceField(label=_(u'User'), queryset=get_user_model().objects.all(),
                             empty_label=_(u"All users"), required=False,
                            )
 

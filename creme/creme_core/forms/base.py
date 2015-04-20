@@ -20,7 +20,7 @@
 
 from collections import OrderedDict
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
@@ -241,11 +241,17 @@ class CremeModelForm(ModelForm, HookableForm):
 
 
 class CremeModelWithUserForm(CremeModelForm):
-    user = ModelChoiceField(label=_('Owner user'), queryset=User.objects.filter(is_staff=False), empty_label=None) #label=_('User')
+    user = ModelChoiceField(label=_('Owner user'), empty_label=None,
+#                            queryset=get_user_model().objects.filter(is_staff=False),
+                            queryset=None,
+                           ) #label=_('User')
 
     def __init__(self, user, *args, **kwargs):
         super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)
-        self.fields['user'].initial = user.id
+#        self.fields['user'].initial = user.id
+        user_f = self.fields['user']
+        user_f.queryset = get_user_model().objects.filter(is_staff=False)
+        user_f.initial = user.id
 
 
 class CremeEntityForm(CremeModelWithUserForm):

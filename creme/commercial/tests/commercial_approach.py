@@ -43,7 +43,7 @@ class CommercialApproachTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'activities', 'opportunities', 'commercial', 'persons')
-        cls.autodiscover()
+#        cls.autodiscover()
 
     def setUp(self):
         self.login()

@@ -5,13 +5,13 @@ try:
     import os
     import re
     import subprocess
+    from unittest import skipIf
     from xml.etree.ElementTree import XML, tostring # Element
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth import get_user_model
     from django.db.models.fields import FieldDoesNotExist
     #from django.utils import translation
     from django.utils.translation import ugettext as _
-    from django.utils.unittest.case import skipIf
     from django.test.client import RequestFactory
 
     from creme.creme_core.models import CremeEntity, Language
@@ -532,7 +532,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         users_set = {('my:%s=""' % field_name, _('Select...'))}
         users_set.update(('my:%s="%s"' % (field_name, user.pk), unicode(user))
-                            for user in User.objects.all()
+                            for user in get_user_model().objects.all()
                         )
         self.assertEqual(users_set,
                          {(option.find('%(xsl)sif' % d_ns).get('test'),
@@ -750,6 +750,6 @@ class InfopathFormFieldTestCase(CrudityTestCase):
                                     body_map={'user_id': 1},
                                    )
         urn = InfopathFormBuilder(request=request, backend=backend).urn
-        self.assertEqual({(user.pk, unicode(user)) for user in User.objects.all()},
+        self.assertEqual({(user.pk, unicode(user)) for user in get_user_model().objects.all()},
                          set(InfopathFormField(urn, Contact, 'user_id', request)._get_choices())
                         )

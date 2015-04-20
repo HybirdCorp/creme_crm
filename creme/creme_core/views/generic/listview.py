@@ -227,7 +227,9 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     if not request.user.has_perm(ct.app_label):
         raise Http404(_(u"You are not allowed to access to this app"))
 
-    req_get = request.REQUEST.get
+    #req_get = request.REQUEST.get
+    req_get = lambda k, default=None: request.POST.get(k, default) or request.GET.get(k, default)
+
     o2m = bool(int(o2m))
 
     #json_str_q_filter = str(req_get('q_filter', {}))

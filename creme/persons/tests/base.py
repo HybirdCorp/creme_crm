@@ -11,7 +11,7 @@ class _BaseTestCase(CremeTestCase):
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('creme_core', 'persons')
-        cls.autodiscover()
+        #cls.autodiscover()
 
     def assertAddressOnlyContentEqual(self, address1, address2):
         self.assertNotEqual(address1.id, address2.id)

@@ -23,7 +23,7 @@ from json import dumps as json_dump
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-from django.forms.util import flatatt, ErrorList
+from django.forms.utils import flatatt, ErrorList
 from django.forms.widgets import Widget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe

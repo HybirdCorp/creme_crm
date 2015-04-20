@@ -20,15 +20,16 @@
 
 import logging
 
+from django.apps import apps
+#from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.conf import settings
 
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilter
 from creme.creme_core.utils import create_if_needed
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import Document, FolderCategory, Folder
 from .blocks import folder_docs_block #linked_docs_block
@@ -55,8 +56,9 @@ class Populator(BasePopulator):
         create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
 
         if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
-            Folder.objects.create(user=User.objects.get(pk=1), title="Creme", category=entities_cat,
-                                  description=_(u"Folder containing all the documents related to entities")
+            Folder.objects.create(user=get_user_model().objects.get(pk=1),
+                                  title="Creme", category=entities_cat,
+                                  description=_(u"Folder containing all the documents related to entities"),
                                  )
         else:
             logger.info("A Folder with title 'Creme' already exists => no re-creation")
@@ -88,7 +90,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
             BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
-            if 'creme.assistants' in settings.INSTALLED_APPS:
+            if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
                 from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block

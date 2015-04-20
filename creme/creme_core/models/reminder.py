@@ -21,7 +21,7 @@
 from django.db.models import Model, DateTimeField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class DateReminder(Model): #not CremeModel ??

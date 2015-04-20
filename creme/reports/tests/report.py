@@ -5,7 +5,9 @@ try:
     from datetime import datetime, date
     from decimal import Decimal
     from functools import partial
+    from unittest import skipIf
 
+#    from django.apps import apps
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.utils.encoding import smart_str
@@ -13,7 +15,6 @@ try:
     from django.utils.html import escape
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _, ungettext
-    from django.utils.unittest.case import skipIf
 
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -41,11 +42,11 @@ try:
 #    from creme.persons.constants import (REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY,
 #            REL_OBJ_CUSTOMER_SUPPLIER)
 
-#    if 'creme.billing' in settings.INSTALLED_APPS:
+#    if apps.is_installed('creme.billing'):
 #        from creme.billing.constants import REL_OBJ_BILL_ISSUED
 #        from creme.billing.models import Invoice
 
-#    if 'creme.emails' in settings.INSTALLED_APPS:
+#    if apps.is_installed('creme.emails'):
 #        from creme.emails.models import EmailCampaign, MailingList
 
     from .base import BaseReportsTestCase
