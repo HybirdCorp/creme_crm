@@ -249,16 +249,19 @@ class PollFormLineEditForm(_PollFormLineForm):
                 choices_2_keep.append((existing_choice[0], choice))
 
         if choices_2_del:
-            conditions = PollFormLineCondition.objects.filter(source=self.instance,
-                                                              raw_answer__in=[str(c[0]) for c in choices_2_del],
-                                                             )[:1]
+            condition = PollFormLineCondition.objects \
+                                             .filter(source=self.instance,
+                                                     raw_answer__in=[str(c[0]) for c in choices_2_del],
+                                                    ) \
+                                             .first()
 
-            if conditions:
-                condition = conditions[0]
+            if condition is not None:
                 choice_id = int(condition.raw_answer)
 
                 raise ValidationError(self.error_messages['used_choice'],
-                                      params={'choice':   find_first(choices_2_del, (lambda c: c[0] == choice_id))[1],
+                                      params={'choice':   find_first(choices_2_del,
+                                                                     (lambda c: c[0] == choice_id)
+                                                                    )[1],
                                               'question': condition.line.question,
                                              },
                                       code='used_choice',

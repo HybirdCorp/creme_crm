@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,11 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
 
-from ..models import Project, ProjectStatus
 from ..forms.project import ProjectCreateForm, ProjectEditForm
+from ..models import Project, ProjectStatus
 
 
 @login_required
@@ -36,7 +35,7 @@ from ..forms.project import ProjectCreateForm, ProjectEditForm
 @permission_required('projects.add_project')
 def add(request):
     return add_entity(request, ProjectCreateForm,
-                      extra_initial={'status':  get_first_or_None(ProjectStatus)},
+                      extra_initial={'status': ProjectStatus.objects.first()},
                       extra_template_dict={'submit_label': _('Save the project')},
                      )
 

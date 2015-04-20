@@ -157,11 +157,15 @@ class PaymentInformation(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         if self.is_default:
-            existing_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
-                                                    .exclude(id=self.id)[:1]
+            #existing_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
+                                                    #.exclude(id=self.id)[:1]
+            first_pi = PaymentInformation.objects.filter(organisation=self.organisation) \
+                                                 .exclude(id=self.id) \
+                                                 .first()
 
-            if existing_pi:
-                first_pi = existing_pi[0]
+            #if existing_pi:
+            if first_pi:
+                #first_pi = existing_pi[0]
                 first_pi.is_default = True
                 first_pi.save()
 

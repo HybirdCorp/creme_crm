@@ -52,10 +52,9 @@ class Vat(CremeModel):
     @atomic
     def delete(self, *args, **kwargs):
         if self.is_default:
-            existing_vat = Vat.objects.exclude(id=self.id)[:1]
+            first_vat = Vat.objects.exclude(id=self.id).first()
 
-            if existing_vat:
-                first_vat = existing_vat[0]
+            if first_vat:
                 first_vat.is_default = True
                 first_vat.save()
 

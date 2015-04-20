@@ -623,7 +623,8 @@ class RelationExtractor(object):
             model = self._related_model
 
             try:
-                object_entities = EntityCredentials.filter(user, model.objects.filter(**data))[:1]
+                #object_entities = EntityCredentials.filter(user, model.objects.filter(**data))[:1]
+                object_entity = EntityCredentials.filter(user, model.objects.filter(**data)).first()
             except Exception as e:
                 err_msg = ugettext('Error while extracting value to build a Relation: '
                                    'tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s. '
@@ -635,8 +636,10 @@ class RelationExtractor(object):
                                         'model':     model._meta.verbose_name,
                                     }
             else:
-                if object_entities:
-                    object_entity = object_entities[0]
+                #if object_entities:
+                if object_entity is not None:
+                    #object_entity = object_entities[0]
+                    pass # TODO: ugly
                 elif self._related_form: #try to create the referenced instance
                     data['user'] = user.id
                     creator = self._related_form(data=data)
@@ -650,7 +653,7 @@ class RelationExtractor(object):
                                                     'model':  model._meta.verbose_name,
                                                     'column': self._column_index,
                                                     'data':   data,
-                                                    'errors': creator.errors
+                                                    'errors': creator.errors,
                                                 }
                 else:
                     err_msg = ugettext('Error while extracting value to build a Relation: '

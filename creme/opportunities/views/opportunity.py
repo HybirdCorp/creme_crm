@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,8 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
-                                          edit_entity, view_entity, list_view)
+        edit_entity, view_entity, list_view)
 
 from ..forms.opportunity import OpportunityCreateForm, OpportunityEditForm
 from ..models import Opportunity, SalesPhase
@@ -36,7 +35,7 @@ from ..models import Opportunity, SalesPhase
 @permission_required('opportunities.add_opportunity')
 def add(request):
     return add_entity(request, OpportunityCreateForm,
-                      extra_initial={'sales_phase': get_first_or_None(SalesPhase)},
+                      extra_initial={'sales_phase': SalesPhase.objects.first()},
                       extra_template_dict={'submit_label': _('Save the opportunity')},
                      )
 
@@ -53,7 +52,7 @@ def add_to(request, ce_id, inner_popup=False):
     # and can be seen as ForeignKeys).
 
     initial = {'target': '{"ctype":"%s","entity":"%s"}' % (centity.entity_type_id, centity.id), #TODO: This is not an easy way to init the field...
-               'sales_phase': get_first_or_None(SalesPhase),
+               'sales_phase': SalesPhase.objects.first(),
               }
 
     if inner_popup:

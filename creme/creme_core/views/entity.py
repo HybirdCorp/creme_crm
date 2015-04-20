@@ -227,10 +227,10 @@ def search_and_view(request):
                 query |= Q(**{str(field): value})
 
         if query: #avoid useless query
-            found = EntityCredentials.filter(user, model.objects.filter(query))[:1]
+            found = EntityCredentials.filter(user, model.objects.filter(query)).first()
 
             if found:
-                return redirect(found[0])
+                return redirect(found)
 
     raise Http404(_(u'No entity corresponding to your search was found.'))
 

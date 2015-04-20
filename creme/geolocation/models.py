@@ -201,6 +201,7 @@ class Town(Model):
         towns = list(towns.filter(query_filter))
 
         if len(towns) > 1 and slug:
+            #TODO: [:1] is useless (not a queryset) ; use next() with default arg instead
             towns = filter(lambda c: c.slug == slug, towns)[:1]
 
         return towns[0] if len(towns) == 1 else None

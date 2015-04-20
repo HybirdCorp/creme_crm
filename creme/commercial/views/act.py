@@ -28,7 +28,6 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.quick_forms import quickforms_registry
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.utils.queries import get_first_or_None
 from creme.creme_core.views import generic
 
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
@@ -45,8 +44,8 @@ from ..models import (ActType, Act, ActObjective, MarketSegment,
 @permission_required('commercial.add_act')
 def add(request):
     return generic.add_entity(request, forms.ActForm,
-                              extra_initial={'act_type': get_first_or_None(ActType),
-                                             'segment':  get_first_or_None(MarketSegment),
+                              extra_initial={'act_type': ActType.objects.first(),
+                                             'segment':  MarketSegment.objects.first(),
                                             },
                               extra_template_dict={'submit_label': _('Save the commercial action')},
                              )
