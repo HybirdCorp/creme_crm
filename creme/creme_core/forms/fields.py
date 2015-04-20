@@ -1276,15 +1276,29 @@ class DateRangeField(MultiValueField):
         'customized_invalid': _(u'Start date has to be before end date.'),
     }
 
-    def __init__(self, render_as="table", required=True, *args, **kwargs):
-        self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()))
-        self.start_date = DateField()
-        self.end_date   = DateField()
+#    def __init__(self, render_as="table", required=True, *args, **kwargs):
+    def __init__(self, render_as="table", *args, **kwargs):
+#        self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()))
+#        self.start_date = DateField()
+#        self.end_date   = DateField()
+        # TODO: are these attributes useful ??
+        self.ranges     = ChoiceField(choices=chain([(u'', _(u'Customized'))],
+                                                    date_range_registry.choices(),
+                                                   ),
+                                      required=False,
+                                     )
+        self.start_date = DateField(required=False)
+        self.end_date   = DateField(required=False)
         self.render_as  = render_as
 
-        fields = self.ranges, self.start_date, self.end_date
-
-        super(DateRangeField, self).__init__(fields, required=required, *args, **kwargs)
+#        fields = self.ranges, self.start_date, self.end_date
+#        super(DateRangeField, self).__init__(fields, required=required, *args, **kwargs)
+        super(DateRangeField, self).__init__(fields=(self.ranges,
+                                                     self.start_date,
+                                                     self.end_date,
+                                                    ),
+                                             require_all_fields=False, *args, **kwargs
+                                            )
 
     def compress(self, data_list):
         if data_list:
@@ -1292,13 +1306,13 @@ class DateRangeField(MultiValueField):
         return u'', u'', u''
 
     def clean(self, value):
-        # MultiValueField manages "required" for all fields together
-        # thought we need to manage them independently (range or end_date
-        # can be an empty string) so we have to hook it.
-        previous_required = self.required
-        self.required = False
+#        # MultiValueField manages "required" for all fields together
+#        # thought we need to manage them independently (range or end_date
+#        # can be an empty string) so we have to hook it.
+#        previous_required = self.required
+#        self.required = False
         range_name, start, end = super(DateRangeField, self).clean(value)
-        self.required = previous_required
+#        self.required = previous_required
 
         if range_name == "":
             if not start and not end and self.required:
@@ -1373,12 +1387,15 @@ class ChoiceOrCharField(MultiValueField):
                           BEWARE: id should not be a null value (like '', 0, etc..).
         """
         self.choice_field = choice_field = ChoiceField()
-        fields = (choice_field, CharField())
-
-        super(ChoiceOrCharField, self).__init__(fields=fields, *args, **kwargs)
-        self.original_required = self.required
-        self.required = False #MultiValueField.clean does not used the 'required' attr of internal fields
-                              #so the CharField could not return ''if self.required was True
+#        fields = (choice_field, CharField())
+#        super(ChoiceOrCharField, self).__init__(fields=fields, *args, **kwargs)
+        super(ChoiceOrCharField, self).__init__(fields=(choice_field, CharField(required=False)),
+                                                require_all_fields=False,
+                                                *args, **kwargs
+                                               )
+#        self.original_required = self.required
+#        self.required = False #MultiValueField.clean does not used the 'required' attr of internal fields
+#                              #so the CharField could not return ''if self.required was True
 
         self.choices = choices
 
@@ -1411,12 +1428,13 @@ class ChoiceOrCharField(MultiValueField):
     def clean(self, value):
         value = super(ChoiceOrCharField, self).clean(value)
 
-        index = value[0]
+#        index = value[0]
 
-        if self.original_required and index is None:
-            raise ValidationError(self.error_messages['required'], code='required')
+#        if self.original_required and index is None:
+#            raise ValidationError(self.error_messages['required'], code='required')
 
-        if index == 0 and not value[1]:
+#        if index == 0 and not value[1]:
+        if value[0] == 0 and not value[1]:
             raise ValidationError(self.error_messages['invalid_other'],
                                   code='invalid_other',
                                  )

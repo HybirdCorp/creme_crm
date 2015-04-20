@@ -98,8 +98,10 @@ class DatePeriodFieldTestCase(FieldTestCase):
 class DateRangeFieldTestCase(FieldTestCase):
     def test_clean_empty_customized(self):
         clean = DateRangeField().clean
-        self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, [u"", u"", u""])
-        self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, None)
+        #self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, [u"", u"", u""])
+        #self.assertFieldValidationError(DateRangeField, 'customized_empty', clean, None)
+        self.assertFieldValidationError(DateRangeField, 'required', clean, ['', '', ''])
+        self.assertFieldValidationError(DateRangeField, 'required', clean, None)
 
     def test_start_before_end(self):
         self.assertFieldValidationError(DateRangeField, 'customized_invalid',
