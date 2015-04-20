@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,14 @@ from collections import defaultdict
 from django.forms import DateTimeField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
-from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
-from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
-from creme.persons.models import Organisation
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
+from creme.persons.models import Organisation
 
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
@@ -56,6 +56,10 @@ _TYPES = [REL_OBJ_IS_INVITED_TO, REL_OBJ_CAME_EVENT, REL_OBJ_NOT_CAME_EVENT]
 class AddContactsToEventForm(CremeForm):
     related_contacts = MultiRelationEntityField(allowed_rtypes=_TYPES, label=_(u'Related contacts'))
 
+    error_messages = {
+        'duplicates': _(u'Contact %(contact)s is present twice.'),
+    }
+
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('instance')
         super(AddContactsToEventForm, self).__init__(*args, **kwargs)
@@ -71,7 +75,10 @@ class AddContactsToEventForm(CremeForm):
 
         for relationtype, contact in related_contacts:
             if contact.id in contacts_set:
-                raise ValidationError(ugettext(u'Contact %s is present twice.') % contact)
+                raise ValidationError(self.error_messages['duplicates'],
+                                      params={'contact': contact},
+                                      code='duplicates',
+                                     )
 
             contacts_set.add(contact.id)
 

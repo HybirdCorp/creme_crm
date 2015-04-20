@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms.util import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeModelForm
@@ -28,6 +28,11 @@ from ..models import MarketSegment
 
 
 class MarketSegmentForm(CremeModelForm):
+    error_messages = {
+        'duplicated_name':     _(u'A segment with this name already exists'),
+        'duplicated_property': _(u'A property with the name «%(name)s» already exists'),
+    }
+
     class Meta:
         model = MarketSegment
         #exclude = ('property_type',)
@@ -37,12 +42,17 @@ class MarketSegmentForm(CremeModelForm):
         name = self.cleaned_data['name']
 
         if MarketSegment.objects.filter(name=name).exists():
-            raise ValidationError(_(u'A segment with this name already exists'))
+            raise ValidationError(self.error_messages['duplicated_name'],
+                                  code='duplicated_name',
+                                 )
 
         ptype_text = MarketSegment.generate_property_text(name)
 
         if CremePropertyType.objects.filter(text=ptype_text).exists():
-            raise ValidationError(_(u'A property with the name <%s> already exists') % ptype_text)
+            raise ValidationError(self.error_messages['duplicated_property'],
+                                  params={'name': ptype_text},
+                                  code='duplicated_property',
+                                 )
 
         self.ptype_text = ptype_text
 
@@ -53,6 +63,6 @@ class MarketSegmentForm(CremeModelForm):
         self.instance.property_type = CremePropertyType.create('commercial-segment',
                                                                self.ptype_text,
                                                                generate_pk=True,
-                                                               is_custom=False
+                                                               is_custom=False,
                                                               )
         return super(MarketSegmentForm, self).save(*args, **kwargs)

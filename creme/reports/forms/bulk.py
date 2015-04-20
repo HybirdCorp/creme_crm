@@ -74,16 +74,20 @@ class ReportFilterBulkForm(BulkDefaultEditForm):
 
     def clean(self):
         if not self._has_same_report_ct:
+            # TODO: error_messages
             raise ValidationError(_(u"Filter field can only be updated when reports "
                                     u"target the same type of entities (e.g: only contacts)."
-                                   )
+                                   ),
+                                  code='different_ctypes',
                                  )
 
         return super(ReportFilterBulkForm, self).clean()
 
     def _bulk_clean_entity(self, entity, values):
         if entity.id in self._uneditable_ids:
-            raise ValidationError(_('The filter cannot be changed because it is private.'))
+            raise ValidationError(_('The filter cannot be changed because it is private.'),
+                                  code='private',
+                                 )
 
         #efilter = values.get('filter')
 

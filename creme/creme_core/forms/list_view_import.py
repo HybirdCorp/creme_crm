@@ -72,6 +72,12 @@ class UploadForm(CremeForm):
                               help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
                              )
 
+    error_messages = {
+        'forbidden_read': _(u'You have not the credentials to read this document.'),
+        'invalid_doctype': _("Error reading document, unsupported file type: %(file)s."),
+        'read_error': _("Error reading document: %(error)s."),
+    }
+
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
         self._header = None
@@ -95,19 +101,25 @@ class UploadForm(CremeForm):
             filename = filedata.name
 
             if not self.user.has_perm_to_view(document):
-                raise ValidationError(ugettext("You have not the credentials to read this document."))
+                raise ValidationError(self.error_messages['forbidden_read'],
+                                      code='forbidden_read',
+                                     )
 
             pathname, extension = splitext(filename)
             backend = import_backend_registry.get_backend(extension.replace('.', ''))
             if backend is None:
-                raise ValidationError(ugettext("Error reading document, unsupported file type: %s.") % filename)
+                raise ValidationError(ugettext("Error reading document, unsupported file type: %(file)s."),
+                                      params={'file': filename}, code='invalid_doctype',
+                                     )
 
             if cleaned_data['has_header']:
                 try:
                     filedata.open()
                     self._header = backend(filedata).next()
                 except Exception as e:
-                    raise ValidationError(ugettext("Error reading document: %s.") % e)
+                    raise ValidationError(self.error_messages['read_error'],
+                                          params={'error': e}, code='read_error',
+                                         )
                 finally:
                     filedata.close()
 
@@ -341,7 +353,7 @@ class ExtractorField(Field):
         try:
             col_index = int(value['selected_column'])
         except TypeError:
-            raise ValidationError(self.error_messages['invalid'])
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
 
         #def_value = value['default_value']
         def_value = self._original_field.clean(value['default_value'])
@@ -350,7 +362,7 @@ class ExtractorField(Field):
             #self._original_field.clean(def_value) #to raise ValidationError if needed
         #elif self.required and not col_index:
         if self.required and def_value in validators.EMPTY_VALUES and not col_index:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         #TODO: check that col_index is in self._choices ???
 
@@ -531,7 +543,7 @@ class EntityExtractorWidget(ExtractorWidget):
 class EntityExtractorField(Field):
     default_error_messages = {
         'invalid': _(u'Enter a valid value.'),
-        'nocreationperm': _(u'You are not allowed to create: %s'),
+        'nocreationperm': _(u'You are not allowed to create: %(model)s'),
     }
 
     def __init__(self, models_info, choices, *args, **kwargs):
@@ -556,16 +568,17 @@ class EntityExtractorField(Field):
                 index = cmd.build_column_index()
 
                 if not index in allowed_indexes:
-                    raise ValidationError(self.error_messages['invalid'])
+                    raise ValidationError(self.error_messages['invalid'], code='invalid')
 
                 if cmd.create and not can_create(cmd.model):
-                    raise ValidationError(self.error_messages['nocreationperm'] %
-                                            cmd.model._meta.verbose_name
+                    raise ValidationError(self.error_messages['nocreationperm'],
+                                          params={'model': cmd.model._meta.verbose_name},
+                                          code='nocreationperm',
                                          )
 
                 one_active_command |= bool(index)
         except TypeError:
-            raise ValidationError(self.error_messages['invalid'])
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
 
         return one_active_command
 
@@ -573,7 +586,7 @@ class EntityExtractorField(Field):
         one_active_command = self._clean_commands(value)
 
         if self.required and not one_active_command:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         return EntityExtractor(value)
 
@@ -721,12 +734,12 @@ class RelationExtractorField(MultiRelationEntityField):
 
         if not selector_data:
             if self.required:
-                raise ValidationError(self.error_messages['required'])
+                raise ValidationError(self.error_messages['required'], code='required')
 
             return MultiRelationsExtractor([])
 
         if not isinstance(selector_data, list):
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'], code='invalidformat')
 
         clean_value = self.clean_value
         cleaned_entries = [(clean_value(entry, 'rtype',       str),
@@ -746,12 +759,14 @@ class RelationExtractorField(MultiRelationEntityField):
         for rtype_pk, ctype_pk, column, searchfield in cleaned_entries:
             if column not in allowed_columns:
                 raise ValidationError(self.error_messages['invalidcolunm'],
-                                      params={'column': column}
+                                      params={'column': column},
+                                      code='invalidcolunm',
                                      )
 
             if rtype_pk not in allowed_rtypes_ids:
                 raise ValidationError(self.error_messages['rtypenotallowed'],
-                                      params={'rtype': rtype_pk, 'ctype': ctype_pk}
+                                      params={'rtype': rtype_pk, 'ctype': ctype_pk},
+                                      code='rtypenotallowed',
                                      )
 
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = \
@@ -762,7 +777,8 @@ class RelationExtractorField(MultiRelationEntityField):
 
             if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
                 raise ValidationError(self.error_messages['ctypenotallowed'],
-                                      params={'ctype': ctype_pk}
+                                      params={'ctype': ctype_pk},
+                                      code='ctypenotallowed',
                                      )
 
             try:
@@ -771,11 +787,13 @@ class RelationExtractorField(MultiRelationEntityField):
                 model._meta.get_field_by_name(searchfield)
             except ContentType.DoesNotExist:
                 raise ValidationError(self.error_messages['ctypedoesnotexist'],
-                                      params={'ctype': ctype_pk}
+                                      params={'ctype': ctype_pk},
+                                      code='ctypedoesnotexist',
                                      )
             except FieldDoesNotExist:
                 raise ValidationError(self.error_messages['fielddoesnotexist'],
-                                      params={'field': searchfield}
+                                      params={'field': searchfield},
+                                      code='fielddoesnotexist',
                                      )
 
             #TODO: creation creds for entity (it is done, but in the form)
@@ -935,14 +953,14 @@ class CustomfieldExtractorField(Field):
         try:
             col_index = int(value['selected_column'])
         except TypeError:
-            raise ValidationError(self.error_messages['invalid'])
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
 
         def_value = value['default_value']
 
         if def_value:
             self._original_field.clean(def_value) #to raise ValidationError if needed
         elif self.required and not col_index: #should be useful while CustomFields can not be marked as required
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         #TODO: check that col_index is in self._choices ???
 
@@ -991,7 +1009,12 @@ class ImportForm(CremeModelForm):
                                                 ),
                                     )
 
-    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)] #overload by factory
+    error_messages = {
+        'invalid_document': _("This document doesn't exist or doesn't exist any more."),
+        'forbidden_read': _("You have not the credentials to read this document."),
+    }
+
+    choices = [(0, 'Not in the file')] + [(i, 'Column %s' % i) for i in xrange(1, 21)] # overload by factory
     header_dict = {} #idem
 
     blocks = FieldBlockManager(
@@ -1027,10 +1050,14 @@ class ImportForm(CremeModelForm):
         try:
             document = Document.objects.get(pk=document_id)
         except Document.DoesNotExist:
-            raise ValidationError(ugettext("This document doesn't exist or doesn't exist any more."))
+            raise ValidationError(self.error_messages['invalid_document'],
+                                  code='invalid_document',
+                                 )
 
         if not self.user.has_perm('creme_core.view_entity', document):
-            raise ValidationError(ugettext("You have not the credentials to read this document."))
+            raise ValidationError(self.error_messages['forbidden_read'],
+                                  code='forbidden_read',
+                                 )
 
         return document
 
@@ -1169,6 +1196,10 @@ class ImportForm4CremeEntity(ImportForm):
         ('relations',  _(u'Associated relationships'), ('fixed_relations', 'dyn_relations')),
        )
 
+    error_messages = dict(ImportForm.error_messages,
+                          creation_forbidden=_('You are not allowed to create: %(model)s'),
+                         )
+
     #columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]
 
     #class Meta:
@@ -1218,8 +1249,9 @@ class ImportForm4CremeEntity(ImportForm):
 
         for extractor in extractors:
             if extractor.create_if_unfound and not can_create(extractor.related_model):
-                raise ValidationError(_('You are not allowed to create: %s') %
-                                        extractor.related_model._meta.verbose_name
+                raise ValidationError(self.error_messages['creation_forbidden'],
+                                      params={'model': extractor.related_model._meta.verbose_name},
+                                      code='creation_forbidden',
                                      )
 
         return extractors

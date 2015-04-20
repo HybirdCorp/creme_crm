@@ -20,7 +20,7 @@
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
-from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext
 
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm #BulkForm
@@ -141,6 +141,10 @@ class ActivityTypeField(JSONField):
 
 
 class BulkEditTypeForm(BulkDefaultEditForm):
+    error_messages = {
+        'immutable_indispo': _('The type of an indisponibility cannot be changed.'),
+    }
+
     def __init__(self, field, user, entities, is_bulk=False, **kwargs):
         super(BulkEditTypeForm, self).__init__(field, user, entities, is_bulk=is_bulk, **kwargs)
         self.fields['field_value'] = type_selector = \
@@ -170,7 +174,9 @@ class BulkEditTypeForm(BulkDefaultEditForm):
 
     def _bulk_clean_entity(self, entity, values):
         if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
-            raise ValidationError(ugettext('The type of an indisponibility cannot be changed.'))
+            raise ValidationError(self.error_messages['immutable_indispo'],
+                                  code='immutable_indispo',
+                                 )
 
         entity.type, entity.sub_type = values.get(self.field_name)
 

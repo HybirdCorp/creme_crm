@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,9 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         text = self.cleaned_data['text']
 
         if CremePropertyType.objects.filter(text=text).exists(): #TODO: unique constraint in model too ??
-            raise ValidationError(ugettext(u"A property type with this name already exists"))
+            raise ValidationError(ugettext(u"A property type with this name already exists"),
+                                  code='duplicated_name',
+                                 )
 
         return text
 

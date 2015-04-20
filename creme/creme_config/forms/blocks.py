@@ -127,6 +127,10 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
     right  = BlockLocationsField(label=_(u'Blocks to display on right side'))
     bottom = BlockLocationsField(label=_(u'Blocks to display on bottom'))
 
+    error_messages = {
+        'duplicated_block': _(u'The following block should be displayed only once: «%(block)s»'),
+    }
+
     _ZONES = (('top',    BlockDetailviewLocation.TOP),
               ('left',   BlockDetailviewLocation.LEFT),
               ('right',  BlockDetailviewLocation.RIGHT),
@@ -156,8 +160,9 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
 
         for block_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
             if block_id in all_block_ids:
-                raise ValidationError(ugettext(u'The following block should be displayed only once: <%s>') % \
-                                        block_registry[block_id].verbose_name
+                raise ValidationError(self.error_messages['duplicated_block'],
+                                      params={'block': block_registry[block_id].verbose_name},
+                                      code='duplicated_block',
                                      )
 
             all_block_ids.add(block_id)
@@ -287,6 +292,10 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
         model = RelationBlockItem
         exclude = ('relation_type',)
 
+    error_messages = {
+        'invalid_first': _('This type of field can not be the first column.'),
+    }
+
     def __init__(self, ctype, *args, **kwargs):
         super(RelationBlockItemEditCtypeForm, self).__init__(*args, **kwargs)
         self.ctype = ctype
@@ -313,7 +322,7 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
         cells = self.cleaned_data['cells']
 
         if not self._errors and not self._is_valid_first_column(cells[0]):
-            raise ValidationError(_('This type of field can not be the first column.'))
+            raise ValidationError(self.error_messages['invalid_first'], code='invalid_first')
 
         return cells
 

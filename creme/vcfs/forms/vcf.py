@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +24,18 @@ import os
 from urllib import urlretrieve
 from urllib2 import urlopen
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
                           EmailField, URLField, BooleanField, HiddenInput)
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import RelationType, Relation
-from creme.creme_core.forms import CremeForm, CremeEntityForm, CreatorEntityField, CremeModelWithUserForm
+from creme.creme_core.forms import (CremeForm, CremeEntityForm,
+        CreatorEntityField, CremeModelWithUserForm)
 from creme.creme_core.forms.widgets import DynamicSelect
+from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
@@ -42,8 +43,8 @@ from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.media_managers.models import Image
 
-from creme.persons.models import Contact, Civility, Position, Organisation, Address
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Contact, Civility, Position, Organisation, Address
 
 from ..vcf_lib import readOne as read_vcf
 
@@ -52,16 +53,23 @@ logger = logging.getLogger(__name__)
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
 
+
 class VcfForm(CremeForm):
     vcf_step = IntegerField(widget=HiddenInput)
     vcf_file = FileField(label=_(u'VCF file'), max_length=500)
+
+    error_messages = {
+        'invalid_file': _(u'VCF file is invalid [%(error)s]'),
+    }
 
     def clean_vcf_file(self):
         file_obj = self.cleaned_data['vcf_file']
         try:
             vcf_data = read_vcf(file_obj)
         except Exception as e:
-            raise ValidationError(ugettext(u'VCF file is invalid') + ' [%s]' % str(e))
+            raise ValidationError(self.error_messages['invalid_file'],
+                                  params={'error': e}, code='invalid_file',
+                                 )
 
         return vcf_data
 
@@ -123,6 +131,13 @@ class VcfImportForm(CremeModelWithUserForm):
     work_country  = CharField(label=_('Country'),        required=False)
     work_code     = CharField(label=_('Zip code'),       required=False)
     work_region   = CharField(label=_('Region'),         required=False)
+
+    error_messages = {
+        'required4orga': _(u'Required, if you want to create organisation'),
+        'no_orga_creation': _(u'Create organisation not checked'),
+        'orga_not_selected': _(u'Organisation not selected'),
+        'required2update': _(u'Required, if you want to update organisation'),
+    }
 
     blocks = CremeEntityForm.blocks.new(
         ('coordinates',                  _(u'Coordinates'),                  ['phone', 'mobile', 'fax', 'email', 'url_site']),
@@ -267,7 +282,9 @@ class VcfImportForm(CremeModelWithUserForm):
         cleaned = cleaned_data.get(field_name)
 
         if cleaned_data['create_or_attach_orga'] and not cleaned:
-            raise ValidationError(ugettext(u'Required, if you want to create organisation'))
+            raise ValidationError(self.error_messages['required4orga'],
+                                  code='required4orga',
+                                 )
 
         return cleaned
 
@@ -280,9 +297,13 @@ class VcfImportForm(CremeModelWithUserForm):
 
         if checked:
             if not cleaned_data['create_or_attach_orga']:
-                raise ValidationError(ugettext(u'Create organisation not checked'))
+                raise ValidationError(self.error_messages['no_orga_creation'],
+                                      code='no_orga_creation'
+                                     )
             elif not cleaned_data['organisation']:
-                raise ValidationError(ugettext(u'Organisation not selected'))
+                raise ValidationError(self.error_messages['orga_not_selected'],
+                                      code='orga_not_selected'
+                                     )
 
         return checked
 
@@ -297,8 +318,9 @@ class VcfImportForm(CremeModelWithUserForm):
         cleaned_data = self.cleaned_data
         cleaned_data_field_name = cleaned_data[field_name]
 
-        if not cleaned_data_field_name and all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', checkbox_name)):
-            raise ValidationError(ugettext(u'Required, if you want to update organisation'))
+        if not cleaned_data_field_name and \
+           all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', checkbox_name)):
+            raise ValidationError(self.error_messages['required2update'], code='required2update')
 
         return cleaned_data_field_name
 

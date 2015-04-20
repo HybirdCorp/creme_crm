@@ -1,39 +1,39 @@
 # FR LOCALISATION OF 'SMS' APP
-# Copyright (C) 2013 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme SMS 1.4\n"
+"Project-Id-Version: Creme SMS 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-13 18:35+0200\n"
+"POT-Creation-Date: 2015-02-17 18:10+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:57 forms/campaign.py:46
+#: blocks.py:55 forms/campaign.py:50
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
 
-#: blocks.py:68
+#: blocks.py:66
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:83 forms/messaging_list.py:44 forms/messaging_list.py:87
+#: blocks.py:81 forms/messaging_list.py:43 forms/messaging_list.py:87
 #: models/messaging_list.py:31
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
 
-#: blocks.py:96
+#: blocks.py:94
 msgid "Sent messages"
 msgstr "Messages envoyés"
 
-#: blocks.py:120 models/message.py:61
+#: blocks.py:118 models/message.py:61
 msgid "Sendings"
 msgstr "Envois"
 
@@ -57,15 +57,15 @@ msgstr "Lister les listes de diffusion"
 msgid "All message templates"
 msgstr "Lister les patrons de message"
 
-#: populate.py:41
+#: populate.py:44
 msgid "Messaging list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:44
+#: populate.py:47
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:47
+#: populate.py:50
 msgid "Message template view"
 msgstr "Vue de patron de message"
 
@@ -77,10 +77,11 @@ msgstr "Listes de diffusion associées"
 msgid "Lists"
 msgstr "Listes"
 
-#: forms/campaign.py:59
+#: forms/campaign.py:47
 #, python-format
-msgid "Following lists are already related to this campaign: %s"
-msgstr "La(es) liste(s) suivante(s) est déja présente dans la campagne: %s"
+msgid "Following lists are already related to this campaign: %(lists)s"
+msgstr ""
+"La(es) liste(s) suivante(s) est déja présente dans la campagne: %(lists)s"
 
 #: forms/message.py:32 models/message.py:55 models/template.py:36
 msgid "Message template"
@@ -90,11 +91,11 @@ msgstr "Patron de message"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/messaging_list.py:59
+#: forms/messaging_list.py:58
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/messaging_list.py:59
+#: forms/messaging_list.py:58
 msgid "All"
 msgstr "Tout"
 
@@ -134,7 +135,7 @@ msgstr ""
 msgid "Message"
 msgstr "Message"
 
-#: forms/template.py:52
+#: forms/template.py:41
 #, python-format
 msgid "Message is too long (%(length)s > %(max_length)s)"
 msgstr "Message trop long (%(length)s > %(max_length)s)"
@@ -151,11 +152,11 @@ msgstr "Crédit"
 msgid "Group"
 msgstr "Groupe"
 
-#: models/account.py:39
+#: models/account.py:37
 msgid "SMS account"
 msgstr "Compte plateforme SMS"
 
-#: models/account.py:40
+#: models/account.py:38
 msgid "SMS accounts"
 msgstr "Comptes plateforme SMS"
 
@@ -474,20 +475,20 @@ msgstr "Détails"
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
-#: views/campaign.py:37
+#: views/campaign.py:38
 msgid "Save the SMS campaign"
 msgstr "Enregistrer la campagne de SMS"
 
-#: views/campaign.py:72
+#: views/campaign.py:73
 #, python-format
 msgid "New messaging lists for <%s>"
 msgstr "Nouvelles listes de diffusion pour <%s>"
 
-#: views/messaging_list.py:38
+#: views/messaging_list.py:39
 msgid "Save the messaging list"
 msgstr "Enregistrer la liste de diffusion"
 
-#: views/messaging_list.py:60 views/messaging_list.py:68
+#: views/messaging_list.py:61 views/messaging_list.py:69
 #, python-format
 msgid "New contacts for <%s>"
 msgstr "Nouveaux contacts pour <%s>"

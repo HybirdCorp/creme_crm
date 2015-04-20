@@ -31,6 +31,10 @@ from ..models import Folder
 class FolderForm(CremeEntityForm):
     parent_folder = CreatorEntityField(label=_(u'Parent folder'), model=Folder, required=False)
 
+    error_messages = {
+        'loop': _(u'This folder is one of the child folders of «%(folder)s»'),
+    }
+
     class Meta(CremeEntityForm.Meta):
         model = Folder
 
@@ -63,9 +67,8 @@ class FolderForm(CremeEntityForm):
         folder = self.instance
 
         if folder.pk and parent_folder and folder.already_in_children(parent_folder.id):
-            raise ValidationError(ugettext(u'This folder is one of the child folders of «%(folder)s»') % {
-                                    'folder': folder,
-                                  }
+            raise ValidationError(self.error_messages['loop'],
+                                  params={ 'folder': folder}, code='loop',
                                  )
 
         return parent_folder
@@ -91,16 +94,19 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
 
         if parent_folder:
             if parent_folder == entity:
+                # TODO: self.error_messages ?
                 raise ValidationError(ugettext(u'«%(folder)s» cannot be its own parent') % {
                                             'folder': entity,
-                                        }
-                                    )
+                                        },
+                                      code='itself',
+                                     )
 
             if entity.already_in_children(parent_folder.id):
                 raise ValidationError(ugettext(u'This folder is one of the child folders of «%(folder)s»') % {
                                             'folder': entity,
-                                        }
-                                    )
+                                        },
+                                      code='loop',
+                                     )
 
             if not entity.category:
                 entity.category = parent_folder.category

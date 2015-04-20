@@ -202,6 +202,13 @@ class PollFormLineEditForm(_PollFormLineForm):
     class Meta(_PollFormLineForm.Meta):
         exclude = ('type',)
 
+    error_messages = {
+        'empty_choices': _('Choices can not be empty.'),
+        'used_choice': _(u'You can not delete the choice "%(choice)s" because it '
+                         u'is used in a condition by the question "%(question)s".'
+                        ),
+    }
+
     def __init__(self, *args, **kwargs):
         super(PollFormLineEditForm, self).__init__(*args, **kwargs)
         if self.instance.disabled:  #TODO: improve the generic view edit_related_to_entity instead....
@@ -235,7 +242,9 @@ class PollFormLineEditForm(_PollFormLineForm):
                 choice = choice.strip()
 
                 if not choice:
-                    raise ValidationError(ugettext('Choices can not be empty.')) #TODO: move this validation to the field ??
+                    raise ValidationError(self.error_messages['empty_choices'],
+                                          code='empty_choices',
+                                         ) #TODO: move this validation to the field ??
 
                 choices_2_keep.append((existing_choice[0], choice))
 
@@ -248,11 +257,11 @@ class PollFormLineEditForm(_PollFormLineForm):
                 condition = conditions[0]
                 choice_id = int(condition.raw_answer)
 
-                raise ValidationError(ugettext('You can not delete the choice "%(choice)s" because it is '
-                                               'used in a condition by the question "%(question)s".') % {
-                                            'choice':   find_first(choices_2_del, (lambda c: c[0] == choice_id))[1],
-                                            'question': condition.line.question,
-                                        }
+                raise ValidationError(self.error_messages['used_choice'],
+                                      params={'choice':   find_first(choices_2_del, (lambda c: c[0] == choice_id))[1],
+                                              'question': condition.line.question,
+                                             },
+                                      code='used_choice',
                                      )
 
         return old_choices

@@ -191,10 +191,11 @@ class SubjectCreateForm(CremeForm):
         duplicates = [subject for subject in subjects if subject.id in already_subjects]
 
         if duplicates:
-            raise ValidationError(ungettext(u'This entity is already a subject: %s',
-                                            u'These entities are already subjects: %s',
+            raise ValidationError(ungettext(u'This entity is already a subject: %(duplicates)s',
+                                            u'These entities are already subjects: %(duplicates)s',
                                             len(duplicates)
-                                           ) % (u', '.join(unicode(e) for e in duplicates))
+                                           ),
+                                  params={'duplicates': u', '.join(unicode(e) for e in duplicates)},
                                  )
 
         return validate_linkable_entities(subjects, self.user)

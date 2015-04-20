@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,12 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
     organisation = CharField(label=_(u"Organisation"), required=False,
                              help_text=_(u'If no organisation is found, a new one will be created.'),
                             )
+
+    error_messages = {
+        'forbidden_creation': _(u'You are not allowed to create an Organisation.'),
+        'no_linkable': _(u'No linkable Organisation found.'),
+        'several_found': _(u'Several Organisations with this name have been found.'),
+    }
 
     class Meta:
         model = Contact
@@ -71,7 +77,9 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
 
                 if not orgas:
                     if not self.can_create():
-                        raise ValidationError(ugettext(u'You are not allowed to create an Organisation.'))
+                        raise ValidationError(self.error_messages['forbidden_creation'],
+                                              code='forbidden_creation',
+                                             )
 
                     orga = None
                 else:
@@ -80,10 +88,14 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
                     linkable_orgas = [o for o in orgas if has_perm(o)]
 
                     if not linkable_orgas:
-                        raise ValidationError(ugettext(u'No linkable Organisation found.'))
+                        raise ValidationError(self.error_messages['no_linkable'],
+                                              code='no_linkable',
+                                             )
 
                     if len(linkable_orgas) > 1:
-                        raise ValidationError(ugettext(u'Several Organisations with this name have been found.'))
+                        raise ValidationError(self.error_messages['several_found'],
+                                              code='several_found',
+                                             )
 
                     orga = linkable_orgas[0]
 

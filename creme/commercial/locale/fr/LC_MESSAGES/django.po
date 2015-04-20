@@ -1,14 +1,15 @@
 # FR LOCALISATION OF 'COMMERCIAL' APP
-# Copyright (C) 2014 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 1.5\n"
+"Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-18 16:05+0100\n"
+"POT-Creation-Date: 2015-02-17 11:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -52,11 +53,11 @@ msgstr "Sociétés évaluées"
 msgid "Objectives of a Commercial Action"
 msgstr "Objectifs d'une Action Commerciale"
 
-#: blocks.py:293
+#: blocks.py:299
 msgid "Opportunities related to a Commercial Action"
 msgstr "Opportunités reliées à une Action Commerciale"
 
-#: blocks.py:314
+#: blocks.py:320
 msgid "Components of an Objective Pattern"
 msgstr "Compsants d'un Modèle d'Objectif"
 
@@ -64,35 +65,35 @@ msgstr "Compsants d'un Modèle d'Objectif"
 msgid "Completes a goal (Commercial action)"
 msgstr "Remplit un but (Action Commerciale)"
 
-#: creme_core_register.py:33 models/strategy.py:53
+#: creme_core_register.py:35 models/strategy.py:53
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:39
 msgid "Portal of commercial strategy"
 msgstr "Portail de la stratégie commerciale"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:40
 msgid "All market segments"
 msgstr "Lister les segments de marché"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:41
 msgid "All commercial actions"
 msgstr "Lister les actions commerciales"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:43
 msgid "All strategies"
 msgstr "Lister les plans commerciaux"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:45
 msgid "All objective patterns"
 msgstr "Lister les modèles d'objectif"
 
-#: creme_core_register.py:47
+#: creme_core_register.py:49
 msgid "All salesmen"
 msgstr "Lister les commerciaux"
 
-#: creme_core_register.py:48
+#: creme_core_register.py:50
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
@@ -162,49 +163,49 @@ msgstr "Début"
 msgid "Due date"
 msgstr "Échéance"
 
-#: forms/act.py:42 forms/act.py:119
+#: forms/act.py:42 forms/act.py:120
 msgid "Entity counting"
 msgstr "Comptage de fiche"
 
-#: forms/act.py:43 forms/act.py:120
+#: forms/act.py:43 forms/act.py:121
 msgid "Do not count entity"
 msgstr "Ne pas compter de resource"
 
-#: forms/act.py:56
+#: forms/act.py:57
 msgid "Integer value the counter has to reach"
 msgstr "Valeur entière que le compteur doit atteindre"
 
-#: forms/act.py:65
+#: forms/act.py:66
 msgid "The filter cannot be changed because it is private."
 msgstr "Le filtre ne peut pas être changé car il est privé."
 
-#: forms/act.py:84
+#: forms/act.py:85
 msgid "Pattern"
 msgstr "Modèle"
 
-#: forms/act.py:100
+#: forms/act.py:101
 msgid "Number of won opportunities"
 msgstr "Nombre d'opportunités remportées"
 
-#: forms/act.py:122 models/act.py:248
+#: forms/act.py:123 models/act.py:252
 #: templates/commercial/templatetags/block_components.html:20
 msgid "Success rate"
 msgstr "Taux de réussite"
 
-#: forms/act.py:123
+#: forms/act.py:124
 msgid "Percentage of success"
 msgstr "Pourcentage de réussite"
 
-#: forms/market_segment.py:39
+#: forms/market_segment.py:40
 msgid "A segment with this name already exists"
 msgstr "Un segment avec ce nom existe déjà"
 
-#: forms/market_segment.py:44
+#: forms/market_segment.py:47
 #, python-format
-msgid "A property with the name <%s> already exists"
-msgstr "Une propriété avec le nom <%s> existe déjà"
+msgid "A property with the name «%(name)s» already exists"
+msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 
-#: forms/strategy.py:73 models/act.py:130 models/act.py:188 models/act.py:244
+#: forms/strategy.py:74 models/act.py:132 models/act.py:190 models/act.py:246
 #: models/market_segment.py:28 models/strategy.py:46 models/strategy.py:336
 #: models/strategy.py:369
 #: templates/commercial/templatetags/block_assets.html:16
@@ -217,11 +218,11 @@ msgstr "Une propriété avec le nom <%s> existe déjà"
 msgid "Name"
 msgstr "Nom"
 
-#: forms/strategy.py:75
+#: forms/strategy.py:76
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/strategy.py:121
+#: forms/strategy.py:122
 #: templates/commercial/templatetags/block_evalorgas.html:6
 msgid "Organisations"
 msgstr "Sociétés"
@@ -273,7 +274,7 @@ msgstr "But de l'action"
 msgid "Type"
 msgstr "Type"
 
-#: models/act.py:67 models/act.py:190
+#: models/act.py:67 models/act.py:192
 msgid "Related segment"
 msgstr "Segment concerné"
 
@@ -294,44 +295,44 @@ msgstr "Actions Commerciales"
 msgid "Due date can't be before start."
 msgstr "L'échéance ne peut être avant la date de début."
 
-#: models/act.py:132
+#: models/act.py:134
 #: templates/commercial/templatetags/block_objectives.html:17
 msgid "Counter"
 msgstr "Compteur"
 
-#: models/act.py:133
+#: models/act.py:135
 msgid "Value to reach"
 msgstr "Valeur à atteindre"
 
-#: models/act.py:135 models/act.py:246
+#: models/act.py:137 models/act.py:248
 msgid "Counted type"
 msgstr "Type compté"
 
-#: models/act.py:136 models/act.py:247
+#: models/act.py:138 models/act.py:249
 msgid "Filter on counted entities"
 msgstr "Filtre sur les fiches comptées"
 
-#: models/act.py:142
+#: models/act.py:144
 msgid "Commercial Objective"
 msgstr "Objectif Commercial"
 
-#: models/act.py:143
+#: models/act.py:145
 msgid "Commercial Objectives"
 msgstr "Objectifs Commerciaux"
 
-#: models/act.py:189
+#: models/act.py:191
 msgid "Average sales"
 msgstr "CA moyen"
 
-#: models/act.py:192
+#: models/act.py:194
 msgid "Add an objective pattern"
 msgstr "Ajouter un modèle d'objectif"
 
-#: models/act.py:197
+#: models/act.py:199
 msgid "Commercial objective pattern"
 msgstr "Modèle d'objectif commercial"
 
-#: models/act.py:198
+#: models/act.py:200
 msgid "Commercial objective patterns"
 msgstr "Modèles d'objectif commercial"
 

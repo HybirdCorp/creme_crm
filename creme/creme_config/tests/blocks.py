@@ -356,9 +356,9 @@ class BlocksConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', field=None,
-                             errors=[_(u'The following block should be displayed only once: <%s>') %
-                                        evil_block.verbose_name
-                                    ]
+                             errors=_(u'The following block should be displayed only once: «%(block)s»') % {
+                                            'block': evil_block.verbose_name
+                                        }
                             )
 
     def test_edit_detailview06(self):

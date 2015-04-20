@@ -494,7 +494,7 @@ class RegularFieldsConditionsField(_ConditionsField):
                             'name', str, required_error_key='invalidfield')
 
         if fname not in self._fields:
-            raise ValidationError(self.error_messages['invalidfield'])
+            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
 
         return fname
 
@@ -506,7 +506,7 @@ class RegularFieldsConditionsField(_ConditionsField):
         operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
 
         if not operator_class:
-            raise ValidationError(self.error_messages['invalidoperator'])
+            raise ValidationError(self.error_messages['invalidoperator'], code='invalidoperator')
 
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
@@ -609,7 +609,7 @@ class DateFieldsConditionsField(_ConditionsField):
         range_info = entry.get('range')
 
         if not isinstance(range_info, dict):
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'], code='invalidformat')
 
         range_type = range_info.get('type') or None
         start = None
@@ -620,7 +620,7 @@ class DateFieldsConditionsField(_ConditionsField):
             end_str   = range_info.get('end')
 
             if not start_str and not end_str:
-                raise ValidationError(self.error_messages['emptydates'])
+                raise ValidationError(self.error_messages['emptydates'], code='emptydates')
 
             clean_date = DateField().clean
 
@@ -630,17 +630,18 @@ class DateFieldsConditionsField(_ConditionsField):
             if end_str:
                 end = clean_date(end_str)
         elif not date_range_registry.get_range(name=range_type):
-            raise ValidationError(self.error_messages['invaliddaterange'])
+            raise ValidationError(self.error_messages['invaliddaterange'], code='invaliddaterange')
 
         return (range_type, start, end)
 
     def _clean_field_name(self, entry):
         clean_value = self.clean_value
         fname = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidfield'),
-                            'name', str, required_error_key='invalidfield')
+                            'name', str, required_error_key='invalidfield',
+                           )
 
         if not fname in self._fields:
-            raise ValidationError(self.error_messages['invalidfield'])
+            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
 
         return fname
 
@@ -723,24 +724,34 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     def _clean_custom_field(self, entry):
         clean_value =  self.clean_value
-        cfield_id = clean_value(clean_value(entry, 'field', dict, required_error_key='invalidcustomfield'), 
-                                'id', int, required_error_key='invalidcustomfield')
+        cfield_id = clean_value(clean_value(entry, 'field', dict,
+                                            required_error_key='invalidcustomfield',
+                                           ),
+                                'id', int, required_error_key='invalidcustomfield',
+                               )
         cfield = self._cfields.get(cfield_id)
 
         if not cfield:
-            raise ValidationError(self.error_messages['invalidcustomfield'])
+            raise ValidationError(self.error_messages['invalidcustomfield'],
+                                  code='invalidcustomfield',
+                                 )
 
         return cfield
 
     def _clean_operator_n_values(self, entry):
         clean_value =  self.clean_value
-        operator = clean_value(clean_value(entry, 'operator', dict, required_error_key='invalidoperator'), 
-                               'id', int, required_error_key='invalidoperator')
+        operator = clean_value(clean_value(entry, 'operator', dict,
+                                           required_error_key='invalidoperator',
+                                          ),
+                               'id', int, required_error_key='invalidoperator',
+                              )
 
         operator_class = EntityFilterCondition._OPERATOR_MAP.get(operator)
 
         if not operator_class:
-            raise ValidationError(self.error_messages['invalidoperator'])
+            raise ValidationError(self.error_messages['invalidoperator'],
+                                  code='invalidoperator',
+                                 )
 
         if isinstance(operator_class, _ConditionBooleanOperator):
             values = [clean_value(entry, 'value', bool, required_error_key='invalidvalue')]
@@ -815,7 +826,9 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         cfield = self._cfields.get(cfield_id)
 
         if not cfield:
-            raise ValidationError(self.error_messages['invalidcustomfield'])
+            raise ValidationError(self.error_messages['invalidcustomfield'],
+                                  code='invalidcustomfield',
+                                 )
 
         return cfield
 
@@ -897,7 +910,7 @@ class RelationsConditionsField(_ConditionsField):
             try:
                 ct = ContentType.objects.get_for_id(ct_id)
             except ContentType.DoesNotExist:
-                raise ValidationError(self.error_messages['invalidct'])
+                raise ValidationError(self.error_messages['invalidct'], code='invalidct')
 
             return ct
 
@@ -908,7 +921,7 @@ class RelationsConditionsField(_ConditionsField):
             try:
                 return int(entity_id)
             except ValueError:
-                raise ValidationError(self.error_messages['invalidformat'])
+                raise ValidationError(self.error_messages['invalidformat'], code='invalidformat')
 
     def _clean_rtype(self, entry):
         rtype_id = self.clean_value(entry, 'rtype', str)
@@ -941,7 +954,9 @@ class RelationsConditionsField(_ConditionsField):
             entities = {e.id: e for e in CremeEntity.objects.filter(pk__in=entity_ids)}
 
             if len(entities) != len(entity_ids):
-                raise ValidationError(self.error_messages['invalidentity'])
+                raise ValidationError(self.error_messages['invalidentity'],
+                                      code='invalidentity',
+                                     )
 
             for kwargs in all_kwargs:
                 entity_id = kwargs.get('entity')
@@ -1004,7 +1019,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
                       }
 
             if len(filters) != len(filter_ids):
-                raise ValidationError(self.error_messages['invalidfilter'])
+                raise ValidationError(self.error_messages['invalidfilter'], code='invalidfilter')
 
             for kwargs in all_kwargs:
                 kwargs['subfilter'] = filters.get(kwargs['subfilter'])
@@ -1049,7 +1064,7 @@ class PropertiesConditionsField(_ConditionsField):
         ptype = self._ptypes.get(self.clean_value(entry, 'ptype', str))
 
         if not ptype:
-            raise ValidationError(self.error_messages['invalidptype'])
+            raise ValidationError(self.error_messages['invalidptype'], code='invalidptype')
 
         return ptype
 
@@ -1058,7 +1073,9 @@ class PropertiesConditionsField(_ConditionsField):
         clean_ptype = self._clean_ptype
         clean_value = self.clean_value
 
-        return [build(ptype=clean_ptype(entry), has=clean_value(entry, 'has', bool)) for entry in data]
+        return [build(ptype=clean_ptype(entry), has=clean_value(entry, 'has', bool))
+                    for entry in data
+               ]
 
     def _set_initial_conditions(self, conditions):
         PROPERTY = EntityFilterCondition.EFC_PROPERTY
@@ -1118,6 +1135,10 @@ class _EntityFilterForm(CremeModelForm):
     properties_conditions       = PropertiesConditionsField(label=_(u'On properties'), required=False)
     subfilters_conditions       = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 
+    error_messages = {
+        'no_condition': _(u'The filter must have at least one condition.'),
+    }
+
     _CONDITIONS_FIELD_NAMES = ('fields_conditions', 'datefields_conditions',
                                'customfields_conditions', 'datecustomfields_conditions',
                                'relations_conditions', 'relsubfilfers_conditions',
@@ -1154,7 +1175,9 @@ class _EntityFilterForm(CremeModelForm):
 
         if not self._errors:
             if not any(cdata[f] for f in self._CONDITIONS_FIELD_NAMES):
-                raise ValidationError(ugettext(u'The filter must have at least one condition.'))
+                raise ValidationError(self.error_messages['no_condition'],
+                                      code='no_condition',
+                                     )
 
             is_private = cdata.get('is_private', False)
             owner      = cdata.get('user')

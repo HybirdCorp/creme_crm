@@ -68,9 +68,9 @@ class BatchActionsWidget(SelectorList):
 class BatchActionsField(JSONField):
     default_error_messages = {
         'invalidfield':    _(u"This field is invalid with this model."),
-        'reusedfield':     _(u"The field '%s' can not be used twice."),
+        'reusedfield':     _(u"The field «%(field)s» can not be used twice."),
         'invalidoperator': _(u"This operator is invalid."),
-        'invalidvalue':    _(u"Invalid value => %s"),
+        'invalidvalue':    _(u"Invalid value => %(error)s"),
     }
 
     value_type = list
@@ -114,10 +114,13 @@ class BatchActionsField(JSONField):
         field = self._fields.get(fname)
 
         if not field:
-            raise ValidationError(self.error_messages['invalidfield'])
+            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
 
         if fname in used_fields:
-            raise ValidationError(self.error_messages['reusedfield'] % field.verbose_name)
+            raise ValidationError(self.error_messages['reusedfield'],
+                                  params={'field': field.verbose_name},
+                                  code='reusedfield',
+                                 )
 
         used_fields.add(fname)
 
@@ -141,9 +144,14 @@ class BatchActionsField(JSONField):
             try:
                 action = BatchAction(model, clean_fieldname(entry, used_fields), *clean_operator_n_value(entry))
             except BatchAction.InvalidOperator as e:
-                raise ValidationError(self.error_messages['invalidoperator'])
+                raise ValidationError(self.error_messages['invalidoperator'],
+                                      code='invalidoperator',
+                                     )
             except BatchAction.ValueError as e:
-                raise ValidationError(self.error_messages['invalidvalue'] % e)
+                raise ValidationError(self.error_messages['invalidvalue'],
+                                      params={'error': e},
+                                      code='invalidvalue',
+                                     )
 
             actions.append(action)
 

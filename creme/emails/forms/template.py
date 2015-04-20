@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,6 +51,10 @@ class EmailTemplateForm(CremeEntityForm):
     body_html   = CharField(label=_(u'Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
     attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
 
+    error_messages = {
+        'invalid_vars': _(u'The following variables are invalid: %(vars)s'),
+    }
+
     class Meta(CremeEntityForm.Meta):
         model = EmailTemplate
 
@@ -63,7 +67,10 @@ class EmailTemplateForm(CremeEntityForm):
                 invalid_vars.append(varname)
 
         if invalid_vars:
-            raise ValidationError(ugettext(u'The following variables are invalid: %s') % invalid_vars)
+            raise ValidationError(self.error_messages['invalid_vars'],
+                                  params={'vars': invalid_vars},
+                                  code='invalid_vars',
+                                 )
 
     def clean_body(self):
         body = self.cleaned_data['body']

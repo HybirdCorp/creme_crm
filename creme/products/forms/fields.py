@@ -68,10 +68,12 @@ class CategoryField(JSONField):
         try:
             subcategory = SubCategory.objects.get(pk=subcategory_pk)
         except SubCategory.DoesNotExist:
-            raise ValidationError(self.error_messages['doesnotexist'])
+            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
 
         if subcategory.category_id != category_pk:
-            raise ValidationError(self.error_messages['subcategorynotallowed'])
+            raise ValidationError(self.error_messages['subcategorynotallowed'],
+                                  code='subcategorynotallowed',
+                                 )
 
         return subcategory
 
@@ -81,7 +83,9 @@ class CategoryField(JSONField):
             if category.pk == category_pk:
                 return category
 
-        raise ValidationError(self.error_messages['categorynotallowed'])
+        raise ValidationError(self.error_messages['categorynotallowed'],
+                              code='categorynotallowed',
+                             )
 
     def _get_categories_options(self, categories): #TODO: factorise ??
         return ((category.pk, unicode(category)) for category in categories)

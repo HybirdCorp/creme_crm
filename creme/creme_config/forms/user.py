@@ -64,6 +64,10 @@ class UserAddForm(CremeModelForm):
                                     #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
                                    #)
 
+    error_messages = {
+        'no_role': _(u"Choose a role or set superuser status to 'True'."),
+    }
+
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser', 'role')
@@ -95,7 +99,7 @@ class UserAddForm(CremeModelForm):
         if cleaned_data.get('is_superuser', False):
             role = None
         elif not role:
-            raise ValidationError(ugettext(u"Choose a role or set superuser status to 'True'."))
+            raise ValidationError(self.error_messages['no_role'], code='no_role')
 
         return role
 
@@ -141,6 +145,10 @@ class UserEditForm(CremeModelForm):
                             help_text=_(u"You must choose a role for a non-super user."),
                            )
 
+    error_messages = {
+        'no_role': _(u"Choose a role or set superuser status to 'True'."),
+    }
+
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email', 'is_superuser', 'role')
@@ -152,7 +160,7 @@ class UserEditForm(CremeModelForm):
         if cleaned_data.get('is_superuser', False):
             role = None
         elif not role:
-            raise ValidationError(ugettext(u"Choose a role or set superuser status to 'True'."))
+            raise ValidationError(self.error_messages['no_role'], code='no_role')
 
         return role
 
@@ -161,6 +169,10 @@ class UserEditForm(CremeModelForm):
 class UserChangePwForm(CremeForm):
     password_1 = CharField(label=_(u"Password"), min_length=6, widget=PasswordInput())
     password_2 = CharField(label=_(u"Confirm password"), min_length=6, widget=PasswordInput())
+
+    error_messages = {
+        'password_mismatch': _(u"Passwords are different"),
+    }
 
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
@@ -171,7 +183,7 @@ class UserChangePwForm(CremeForm):
         pw2  = data['password_2']
 
         if data['password_1'] != pw2:
-            raise ValidationError(ugettext(u"Passwords are different"))
+            raise ValidationError(self.error_messages['password_mismatch'], code='password_mismatch')
 
         return pw2
 
