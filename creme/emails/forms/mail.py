@@ -25,7 +25,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.forms.fields import EmailField, BooleanField, IntegerField #CharField
 from django.forms.widgets import HiddenInput
-from django.forms.utils import ErrorList
+#from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models.relation import Relation
@@ -110,10 +110,12 @@ class EntityEmailForm(CremeEntityForm):
 
         if bad_entities:
             msg_format = ugettext(u'The email address for %s is invalid')
-            self.errors[field_name] = ErrorList([msg_format % entity.allowed_unicode(user)
-                                                     for entity in bad_entities
-                                                ]
-                                               )
+#            self.errors[field_name] = ErrorList([msg_format % entity.allowed_unicode(user)
+#                                                     for entity in bad_entities
+#                                                ]
+#                                               )
+            for entity in bad_entities:
+                self.add_error(field_name, msg_format % entity.allowed_unicode(user))
 
         return recipients
 

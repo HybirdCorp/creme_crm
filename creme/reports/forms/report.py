@@ -27,7 +27,7 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField, CharField
-from django.forms.utils import ErrorList
+#from django.forms.utils import ErrorList
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -109,12 +109,14 @@ class ReportCreateForm(CremeEntityForm):
 
             #if hf and hf.entity_type != ct:
             if hf and not hf.can_view(self.user, ct)[0]:
-                self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
+                #self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
+                self.add_error('hf', _(u'Select a valid choice. That choice is not one of the available choices.'))
 
             efilter = get_data('filter')
             #if efilter and efilter.entity_type != ct:
             if efilter and not efilter.can_view(self.user, ct)[0]:
-                self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
+                #self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
+                self.add_error('filter', _(u'Select a valid choice. That choice is not one of the available choices.'))
 
         return cleaned_data
 

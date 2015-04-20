@@ -24,7 +24,7 @@ import logging
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.forms import BooleanField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.utils import ErrorList
+#from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, ungettext
 
 from creme.creme_core.forms import CremeForm
@@ -141,7 +141,8 @@ class ParticipantCreateForm(CremeForm):
             extend_participants(cleaned_data['participants'])
 
             if cleaned_data.get('my_participation') and not cleaned_data.get('my_calendar'):
-                self.errors['my_calendar'] = ErrorList([ugettext(u"If you participate, you have to choose one of your calendars.")])
+#                self.errors['my_calendar'] = ErrorList([ugettext(u"If you participate, you have to choose one of your calendars.")])
+                self.add_error('my_calendar', _(u"If you participate, you have to choose one of your calendars."))
 
             collisions = check_activity_collisions(activity.start, activity.end,
                                                    self.participants, busy=activity.busy,

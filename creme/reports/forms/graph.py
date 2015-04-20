@@ -22,7 +22,7 @@ from future_builtins import map
 
 from django.db.models import FieldDoesNotExist, DateTimeField, DateField, ForeignKey
 from django.forms.fields import ChoiceField, BooleanField
-from django.forms.utils import ValidationError, ErrorList
+from django.forms.utils import ValidationError # ErrorList
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -235,34 +235,51 @@ class ReportGraphForm(CremeEntityForm):
         try:
             field = model._meta.get_field(name)
         except FieldDoesNotExist:
-            self.errors[formfield_name] = ErrorList([u'If you choose to group "%s" you have to choose a field.' %
-                                                           self.verbose_graph_type
-                                                    ]
-                                                   )
+#            self.errors[formfield_name] = ErrorList([u'If you choose to group "%s" you have to choose a field.' %
+#                                                           self.verbose_graph_type
+#                                                    ]
+#                                                   )
+            self.add_error(formfield_name,
+                           u'If you choose to group "%s" you have to choose a field.' %
+                                self.verbose_graph_type
+                          )
         else:
             if not isinstance(field, field_types):
-                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
-                                                                self.verbose_graph_type,
-                                                                ', '.join(ftype.__name__ for ftype in field_types)
-                                                            )
-                                                        ]
-                                                       )
+#                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
+#                                                                self.verbose_graph_type,
+#                                                                ', '.join(ftype.__name__ for ftype in field_types)
+#                                                            )
+#                                                        ]
+#                                                       )
+                self.add_error(formfield_name,
+                               u'"%s" groups are only compatible with {%s}' % (
+                                    self.verbose_graph_type,
+                                    ', '.join(ftype.__name__ for ftype in field_types),
+                                )
+                              )
             else:
                 return field
 
     def _clean_customfield(self, name, cfield_types, formfield_name='abscissa_field'):
         if not name or not name.isdigit():
-            self.errors[formfield_name] = ErrorList([u'Unknown or invalid custom field.'])
+#            self.errors[formfield_name] = ErrorList([u'Unknown or invalid custom field.'])
+            self.add_error(formfield_name, u'Unknown or invalid custom field.')
         else:
             cfield = self.abs_cfields[int(name)]
 
             if cfield.field_type not in cfield_types:
-                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
-                                                                self.verbose_graph_type,
-                                                                ', '.join(map(str, cfield_types)), #TODO: verbose type
-                                                            )
-                                                        ]
-                                                       )
+#                self.errors[formfield_name] = ErrorList([u'"%s" groups are only compatible with {%s}' % (
+#                                                                self.verbose_graph_type,
+#                                                                ', '.join(map(str, cfield_types)), #TODO: verbose type
+#                                                            )
+#                                                        ]
+#                                                       )
+                self.add_error(formfield_name,
+                               u'"%s" groups are only compatible with {%s}' % (
+                                    self.verbose_graph_type,
+                                    ', '.join(map(str, cfield_types)), #TODO: verbose type
+                                )
+                              )
             else:
                 return cfield
 
@@ -281,27 +298,31 @@ class ReportGraphForm(CremeEntityForm):
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.ENUM,))
         elif abscissa_group_by == RGT_RELATION:
             if abscissa_name not in self.rtypes:
-                self.errors['abscissa_field'] = ErrorList([u'Unknown relationship type.'])
+                #self.errors['abscissa_field'] = ErrorList([u'Unknown relationship type.'])
+                self.add_error('abscissa_field', u'Unknown relationship type.')
         elif abscissa_group_by in (RGT_DAY, RGT_MONTH, RGT_YEAR):
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
         elif abscissa_group_by == RGT_RANGE:
             self._clean_field(model, abscissa_name, field_types=(DateField, DateTimeField))
 
             if not cleaned_data.get('days'):
-                self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+                #self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+                self.add_error('days', _(u"You have to specify a day range if you use 'by X days'"))
         elif abscissa_group_by in (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR):
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
         elif abscissa_group_by == RGT_CUSTOM_RANGE:
             self._clean_customfield(abscissa_name, cfield_types=(CustomField.DATETIME,))
 
             if not cleaned_data.get('days'): #TODO: factorise
-                self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+                #self.errors['days'] = ErrorList([ugettext(u"You have to specify a day range if you use 'by X days'")])
+                self.add_error('days', _(u"You have to specify a day range if you use 'by X days'"))
         else:
             raise ValidationError('Unknown graph type')
 
         if get_data('aggregate_field'):
             if not field_aggregation_registry.get(get_data('aggregate')):
-                self.errors['aggregate'] = ErrorList([ugettext(u'This field is required if you choose a field to aggregate.')])
+                #self.errors['aggregate'] = ErrorList([ugettext(u'This field is required if you choose a field to aggregate.')])
+                self.add_error('aggregate', _(u'This field is required if you choose a field to aggregate.'))
         elif not get_data('is_count'):
             raise ValidationError(ugettext(u"If you don't choose an ordinate field (or none available) "
                                             "you have to check 'Make a count instead of aggregate ?'"

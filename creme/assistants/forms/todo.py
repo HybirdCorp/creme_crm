@@ -60,9 +60,10 @@ class ToDoForm(CremeModelWithUserForm):
                 deadline_hour = get_data('deadline_hour') 
 
                 if deadline_hour is None:
-                    self._errors['deadline_hour'] = self.error_class(
-                            [ugettext(u'The hour is required if you set a date.')]
-                        )
+#                    self._errors['deadline_hour'] = self.error_class(
+#                            [ugettext(u'The hour is required if you set a date.')]
+#                        )
+                    self.add_error('deadline_hour', _(u'The hour is required if you set a date.'))
                 else:
                     cdata['deadline'] = make_aware_dt(datetime.combine(deadline,
                                                                        time(deadline_hour)

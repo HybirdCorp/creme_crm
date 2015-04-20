@@ -25,7 +25,7 @@ import logging
 from django.contrib.auth import get_user_model
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.fields import ChoiceField # DateTimeField
-from django.forms.utils import ValidationError, ErrorList
+from django.forms.utils import ValidationError # ErrorList
 from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -355,7 +355,8 @@ class ActivityCreateForm(_ActivityCreateForm):
             cdata = self.cleaned_data
             my_participation = cdata['my_participation']
             if my_participation and not cdata.get('my_calendar'):
-                self.errors['my_calendar'] = ErrorList([ugettext(u'If you participate, you have to choose one of your calendars.')])
+                #self.errors['my_calendar'] = ErrorList([ugettext(u'If you participate, you have to choose one of your calendars.')])
+                self.add_error('my_calendar', _(u'If you participate, you have to choose one of your calendars.'))
 
             if not my_participation and not cdata['participating_users']:
                 raise ValidationError(self.error_messages['no_participant'], code='no_participant')

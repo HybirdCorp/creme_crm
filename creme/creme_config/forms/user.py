@@ -22,7 +22,7 @@ from collections import defaultdict
 
 from django.contrib.auth import get_user_model
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, RegexField
-from django.forms.utils import ValidationError, ErrorList
+from django.forms.utils import ValidationError # ErrorList
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -76,7 +76,8 @@ class UserAddForm(CremeModelForm):
         cleaned = super(UserAddForm, self).clean()
 
         if not self._errors and cleaned['password_1'] != cleaned['password_2']:
-            self.errors['password_2'] = ErrorList([ugettext(u'Passwords are different')])
+            #self.errors['password_2'] = ErrorList([ugettext(u'Passwords are different')])
+            self.add_error('password_2', _(u'Passwords are different'))
 
         return cleaned
 

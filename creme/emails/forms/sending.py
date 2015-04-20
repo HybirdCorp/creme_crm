@@ -22,10 +22,10 @@ import logging
 from pickle import dumps
 
 from django.forms import TypedChoiceField, IntegerField, EmailField
-from django.forms.utils import ErrorList, ValidationError
+from django.forms.utils import ValidationError #ErrorList
 from django.template import Template, VariableNode
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ # ugettext
 
 from creme.creme_core.models import SettingValue
 from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
@@ -103,9 +103,11 @@ class SendingCreateForm(CremeModelForm):
             sending_date = cleaned_data['sending_date']
 
             if sending_date is None:
-                self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
+                #self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
+                self.add_error('sending_date', _(u"Sending date required for a deferred sending"))
             elif sending_date < now():
-                self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
+                #self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
+                self.add_error('sending_date', _(u"Sending date must be is the future"))
             else:
                 cleaned_data['sending_date'] = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
                                                                     minute=int(cleaned_data.get('minute') or 0),

@@ -28,7 +28,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 #from django.forms.utils import flatatt
-from django.forms.utils import ErrorList, ValidationError
+from django.forms.utils import ValidationError #ErrorList
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _, ugettext_lazy
 
@@ -632,7 +632,8 @@ def get_csv_form_builder(header_dict, choices):
 
             if not self._errors:
                 if cdata['my_participation'] and not cdata.get('my_calendar'):
-                    self.errors['my_calendar'] = ErrorList([_(u'If you participate, you have to choose one of your calendars.')])
+                    #self.errors['my_calendar'] = ErrorList([_(u'If you participate, you have to choose one of your calendars.')])
+                    self.add_error('my_calendar', ugettext_lazy(u'If you participate, you have to choose one of your calendars.'))
 
             return cdata
 

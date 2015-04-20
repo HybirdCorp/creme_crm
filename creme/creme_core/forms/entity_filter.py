@@ -30,8 +30,8 @@ from django.db.models import (ForeignKey as ModelForeignKey, DateField as ModelD
         DecimalField as ModelDecimalField, BooleanField as ModelBooleanField)
 from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.forms import ModelMultipleChoiceField, DateField, ChoiceField, ValidationError
-from django.forms.utils import ErrorList
-from django.utils.translation import ugettext_lazy as _, ugettext
+#from django.forms.utils import ErrorList
+from django.utils.translation import ugettext_lazy as _ #ugettext
 from django.utils.formats import date_format
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
@@ -1185,9 +1185,11 @@ class _EntityFilterForm(CremeModelForm):
             if not req_user.is_staff and is_private and owner:
                 if owner.is_team:
                     if req_user.id not in owner.teammates:
-                        self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+                        #self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+                        self.add_error('user', _(u'A private filter must belong to you (or one of your teams).'))
                 elif owner != req_user:
-                    self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+                    #self.errors['user'] = ErrorList([ugettext(u'A private filter must belong to you (or one of your teams).')])
+                    self.add_error('user', _(u'A private filter must belong to you (or one of your teams).'))
 
             try:
                 self.instance.check_privacy(self.get_cleaned_conditions(), is_private, owner)

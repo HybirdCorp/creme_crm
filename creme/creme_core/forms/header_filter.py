@@ -23,11 +23,11 @@ from json import dumps as json_dump
 
 from django.db.transaction import atomic
 from django.forms.fields import EMPTY_VALUES, Field, ValidationError
-from django.forms.utils import flatatt, ErrorList
+from django.forms.utils import flatatt # ErrorList
 from django.forms.widgets import Widget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ #, ugettext
 
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -316,16 +316,18 @@ class HeaderFilterForm(CremeModelForm):
                 owner = cdata.get('user')
 
                 if not owner:
-                    self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
+                    #self.errors['user'] = ErrorList([ugettext(u'A private view of list must be assigned to a user/team.')])
+                    self.add_error('user', _(u'A private view of list must be assigned to a user/team.'))
                 else:
                     req_user = self.user
 
                     if not req_user.is_staff:
                         if owner.is_team:
                             if req_user.id not in owner.teammates:
-                                self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
+                                #self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
+                                self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))
                         elif owner != req_user:
-                            self.errors['user'] = ErrorList([ugettext(u'A private view of list must belong to you (or one of your teams).')])
+                            self.add_error('user', _(u'A private view of list must belong to you (or one of your teams).'))
 
         return cdata
 
