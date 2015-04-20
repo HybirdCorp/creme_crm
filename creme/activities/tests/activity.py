@@ -17,7 +17,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter, SettingValue
-    from creme.creme_core.utils import create_or_update
+    #from creme.creme_core.utils import create_or_update
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
@@ -1971,11 +1971,18 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_detete_activity_type01(self):
         self.login()
 
-        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-                                 name='Karate session',
-                                 default_day_duration=0, default_hour_duration="00:15:00",
-                                 is_custom=True,
-                                )
+#        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
+#                                 name='Karate session',
+#                                 default_day_duration=0, default_hour_duration="00:15:00",
+#                                 is_custom=True,
+#                                )
+        atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
+                                                      defaults={'name':                 'Karate session',
+                                                                'default_day_duration':  0,
+                                                                'default_hour_duration': "00:15:00",
+                                                                'is_custom':             True,
+                                                               },
+                                                     )[0]
 
         self.assertPOST200(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
         self.assertDoesNotExist(atype)
@@ -1983,11 +1990,19 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_detete_activity_type02(self):
         user = self.login()
 
-        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
-                                 name='Karate session',
-                                 default_day_duration=0, default_hour_duration="00:15:00",
-                                 is_custom=True,
-                                )
+#        atype = create_or_update(ActivityType, 'activities-activity_custom_1',
+#                                 name='Karate session',
+#                                 default_day_duration=0, default_hour_duration="00:15:00",
+#                                 is_custom=True,
+#                                )
+        atype = ActivityType.objects.update_or_create(id='activities-activity_custom_1',
+                                                      defaults={'name':                 'Karate session',
+                                                                'default_day_duration':  0,
+                                                                'default_hour_duration': "00:15:00",
+                                                                'is_custom':             True,
+                                                               },
+                                                     )[0]
+
         activity = Activity.objects.create(user=user, type=atype)
 
         self.assertPOST404(self.DEL_ACTTYPE_URL, data={'id': atype.pk})
@@ -2117,9 +2132,16 @@ class ActivityTestCase(_ActivitiesTestCase):
         my_calendar = Calendar.get_user_default_calendar(user)
 
         ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session',
-                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
-                        )
+#        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session',
+#                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
+#                        )
+        ActivityType.objects.update_or_create(id=ACTIVITYTYPE_ACTIVITY,
+                                              defaults={'name':                 'Karate session',
+                                                        'default_day_duration':  0,
+                                                        'default_hour_duration': "00:15:00",
+                                                        'is_custom':             True,
+                                                       },
+                                             )
 
         create_dt = self.create_datetime
 
