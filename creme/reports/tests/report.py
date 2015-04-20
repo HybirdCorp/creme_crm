@@ -157,6 +157,30 @@ class ReportTestCase(BaseReportsTestCase):
         self.login()
         self.assertGET200('/reports/')
 
+    def test_columns(self):
+        self.login()
+        report = self._build_orga_report()
+        report = self.refresh(report)
+
+        with self.assertNumQueries(1):
+            columns = report.columns
+
+        self.assertIsInstance(columns, list)
+        self.assertEqual(2, len(columns))
+
+        field = columns[0]
+        self.assertIsInstance(field, Field)
+        self.assertEqual('name',     field.name)
+        self.assertEqual(_(u'Name'), field.title)
+        self.assertEqual(RFT_FIELD,  field.type)
+        self.assertFalse(field.selected)
+        self.assertFalse(field.sub_report)
+
+        with self.assertNumQueries(0):
+            f_report = field.report
+
+        self.assertEqual(report, f_report)
+
     def test_createview01(self):
         self.login()
         cf = self._create_cf_int()
