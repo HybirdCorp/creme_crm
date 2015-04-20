@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,13 +77,13 @@ def new_fk_formfield(self, **kwargs):
 ForeignKey.formfield = new_fk_formfield
 
 #-------------------------------------------------------------------------------
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 
 try:
-    with commit_on_success():
+    with atomic():
         app_labels = list(ContentType.objects.order_by('app_label')
-                                                .distinct()
-                                                .values_list('app_label', flat=True)
+                                             .distinct()
+                                             .values_list('app_label', flat=True)
                          )
 except DatabaseError: #happens during syncdb (ContentType table does not exist yet)
     pass

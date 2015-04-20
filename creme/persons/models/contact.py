@@ -27,7 +27,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
         DateField, EmailField, URLField, SET_NULL) #ProtectedError
 from django.db.models.signals import post_save
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -233,7 +233,7 @@ def _sync_with_user(sender, instance, created, **kwargs):
         return
 
     #when received during 'syncdb' it fails because the Contact table does not exist
-    with commit_on_success():
+    with atomic():
         try:
             if created:
                 instance._linked_contact_cache = _create_linked_contact(instance)

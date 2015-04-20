@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -153,11 +153,11 @@ class BlockMypageLocation(CremeModel):
     @staticmethod
     def _copy_default_config(sender, instance, created, **kwargs):
         if created:
-            from django.db.transaction import commit_on_success
+            from django.db.transaction import atomic
 
             create = BlockMypageLocation.objects.create
 
-            with commit_on_success():
+            with atomic():
                 try:
                     for loc in BlockMypageLocation.objects.filter(user=None):
                         create(user=instance, block_id=loc.block_id, order=loc.order)

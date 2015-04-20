@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
@@ -48,7 +48,7 @@ def convert(request, document_id):
 
     user.has_perm_to_create_or_die(dest_class)
 
-    with commit_on_success():
+    with atomic():
         if isinstance(src, TemplateBase): #TODO: unitest
             dest = TemplateBase()
             dest.build(src, ContentType.objects.get_for_model(dest_class))

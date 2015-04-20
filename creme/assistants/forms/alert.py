@@ -34,7 +34,7 @@ class AlertForm(CremeModelWithUserForm):
     trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
     trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
 
-    class Meta:
+    class Meta(CremeModelWithUserForm.Meta):
         model = Alert
 
     def __init__(self, entity, *args, **kwargs):

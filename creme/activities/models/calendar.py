@@ -99,7 +99,6 @@ class Calendar(CremeModel):
 
             if not defaults:
                 #TODO: only update 'is_default' field (django 1.5)
-                #     it seems the Calendar is retrieved again (see unit test assertNumQueries); why ??
                 cal = calendars[0]
                 cal.is_default = True
                 cal._enable_default_checking = False

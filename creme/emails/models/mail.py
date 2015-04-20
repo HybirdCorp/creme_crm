@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,11 @@
 
 import logging
 
+from django.db import IntegrityError
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
-                              TextField, DateTimeField, ForeignKey, ManyToManyField)
-from django.db import transaction, IntegrityError
+        TextField, DateTimeField, ForeignKey, ManyToManyField)
+from django.db.transaction import atomic
+#from django.db import transaction, IntegrityError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.template.defaultfilters import removetags
@@ -84,25 +86,37 @@ class EntityEmail(_Email, CremeEntity):
         verbose_name_plural = _(u'Emails')
         ordering = ('-sending_date',)
 
-    @transaction.commit_manually
+#    @transaction.commit_manually
+#    def genid_n_save(self):
+#        #BEWARE: manage manually
+#        while True:
+#            sid = transaction.savepoint()
+#
+#            try:
+#                self.identifier = generate_id()
+#                self.save(force_insert=True)
+#            except IntegrityError:  #a mail with this id already exists
+#                logger.debug('Mail id already exists: %s', self.identifier)
+#                self.pk = None
+#
+#                transaction.savepoint_rollback(sid)
+#            else:
+#                transaction.savepoint_commit(sid)
+#                break
+#
+#        transaction.commit()
     def genid_n_save(self):
-        #BEWARE: manage manually
-        while True:
-            sid = transaction.savepoint()
+        while True: # TODO: xrange(10000) to avoid infinite loop ??
+            self.identifier = generate_id()
 
             try:
-                self.identifier = generate_id()
-                self.save(force_insert=True)
-            except IntegrityError:  #a mail with this id already exists
+                with atomic():
+                    self.save(force_insert=True)
+            except IntegrityError:  # A mail with this id already exists
                 logger.debug('Mail id already exists: %s', self.identifier)
                 self.pk = None
-
-                transaction.savepoint_rollback(sid)
             else:
-                transaction.savepoint_commit(sid)
-                break
-
-        transaction.commit()
+                return
 
     def __unicode__(self):
         return ugettext('EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {

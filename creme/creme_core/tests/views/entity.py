@@ -1015,9 +1015,12 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
         url = self.build_bulkedit_url([image, image2], 'categories')
-        response = self.client.post(url, data={'field_value': [categories[0].pk, 12]})
+        invalid_pk = 12
+        response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'Select a valid choice. %s is not one of the available choices.') % 12
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': invalid_pk,
+                                }
                             )
 
         image = self.refresh(image)
@@ -1305,7 +1308,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         url = self.build_inneredit_url(image, 'categories')
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
-                             _(u'Select a valid choice. %s is not one of the available choices.') % invalid_pk
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': invalid_pk,
+                                }
                             )
 
         image = self.refresh(image)

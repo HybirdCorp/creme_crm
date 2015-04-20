@@ -66,7 +66,7 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
         name = 'unknownperiod'
         self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
-                                        [name, '2'], message_args={'value': name}
+                                        [name, '2'], message_args={'value': name},
                                        )
 
     def test_choices(self):
@@ -76,14 +76,23 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
         name = 'years'
         self.assertFieldValidationError(ChoiceField, 'invalid_choice', clean,
-                                        [name, '2'], message_args={'value': name}
+                                        [name, '2'], message_args={'value': name},
                                        )
 
     def test_notnull(self):
-        self.assertFieldValidationError(IntegerField, 'min_value',
-                                        DatePeriodField().clean, ['days', '0'],
-                                        message_args={'limit_value': 1}
-                                       )
+        #self.assertFieldValidationError(IntegerField, 'min_value',
+                                        #DatePeriodField().clean, ['days', '0'],
+                                        #message_args={'limit_value': 1}
+                                       #)
+        with self.assertRaises(ValidationError) as cm:
+            DatePeriodField().clean(['days', '0'])
+
+        self.assertEqual([_('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                                'limit_value': 1
+                            },
+                         ],
+                         cm.exception.messages
+                        )
 
 
 class DateRangeFieldTestCase(FieldTestCase):

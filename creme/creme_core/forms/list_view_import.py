@@ -132,7 +132,7 @@ class Extractor(object):
         self._m2m = multiple
 
         if create_if_unfound:
-            self._fk_form = modelform_factory(subfield_model) #TODO: creme_config form ??
+            self._fk_form = modelform_factory(subfield_model, fields='__all__') #TODO: creme_config form ??
 
     def extract_value(self, line):
         value = None
@@ -281,8 +281,9 @@ class ExtractorWidget(SelectMultiple):
 
 
 class ExtractorField(Field):
-    #default_error_messages = {
-    #}
+    default_error_messages = {
+        'invalid': _(u'Enter a valid value.'),
+    }
 
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
         super(ExtractorField, self).__init__(widget=ExtractorWidget, *args, **kwargs)
@@ -529,6 +530,7 @@ class EntityExtractorWidget(ExtractorWidget):
 
 class EntityExtractorField(Field):
     default_error_messages = {
+        'invalid': _(u'Enter a valid value.'),
         'nocreationperm': _(u'You are not allowed to create: %s'),
     }
 
@@ -584,7 +586,7 @@ class RelationExtractor(object):
         self._rtype           = rtype
         self._subfield_search = str(subfield_search)
         self._related_model   = related_model
-        self._related_form    = modelform_factory(related_model) if create_if_unfound else None
+        self._related_form    = modelform_factory(related_model, fields='__all__') if create_if_unfound else None
 
     related_model = property(lambda self: self._related_model)
 

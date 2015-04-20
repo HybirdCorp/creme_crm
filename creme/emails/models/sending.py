@@ -23,10 +23,12 @@ from pickle import loads
 from time import sleep
 
 from django.conf import settings
-from django.db import transaction, IntegrityError
-from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-                              EmailField, CharField, TextField, ManyToManyField)
 from django.core.mail import send_mail, get_connection
+#from django.db import transaction, IntegrityError
+from django.db import IntegrityError
+from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
+        EmailField, CharField, TextField, ManyToManyField)
+from django.db.transaction import atomic
 from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
 
@@ -198,25 +200,37 @@ class LightWeightEmail(_Email):
         return self.sending.campaign
 
     #TODO: factorise
-    @transaction.commit_manually
+#    @transaction.commit_manually
+#    def genid_n_save(self):
+#        #BEWARE: manage manually
+#        while True:
+#            sid = transaction.savepoint()
+#
+#            try:
+#                self.id = generate_id()
+#                self.save(force_insert=True)
+#            except IntegrityError:  #a mail with this id already exists
+#                logger.debug('Mail id already exists: %s', self.id)
+#                self.pk = None
+#
+#                transaction.savepoint_rollback(sid)
+#            else:
+#                transaction.savepoint_commit(sid)
+#                break
+#
+#        transaction.commit()
     def genid_n_save(self):
-        #BEWARE: manage manually
         while True:
-            sid = transaction.savepoint()
+            self.id = generate_id()
 
             try:
-                self.id = generate_id()
-                self.save(force_insert=True)
-            except IntegrityError:  #a mail with this id already exists
+                with atomic():
+                    self.save(force_insert=True)
+            except IntegrityError:  # A mail with this id already exists
                 logger.debug('Mail id already exists: %s', self.id)
                 self.pk = None
-
-                transaction.savepoint_rollback(sid)
             else:
-                transaction.savepoint_commit(sid)
-                break
-
-        transaction.commit()
+                return
 
 
 class LightWeightEmailSender(EMailSender):

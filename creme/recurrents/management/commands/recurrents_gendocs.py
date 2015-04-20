@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.management.base import BaseCommand
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.utils.timezone import now
 
 
@@ -45,7 +45,7 @@ class Command(BaseCommand):
                                   last + generator.periodicity.as_timedelta()
 
                 if next_generation <= now():
-                    with commit_on_success():
+                    with atomic():
                         template = generator.template.get_real_entity()
 
                         template.create_entity()

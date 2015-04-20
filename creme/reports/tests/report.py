@@ -723,7 +723,8 @@ class ReportTestCase(BaseReportsTestCase):
         report = self.create_from_view('Report on invoices', Invoice, hf)
 
         response = self.assertGET200('/reports/export/%s' % report.id, data={'doc_type': 'csv'})
-        self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
+        #self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
+        self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
         self.assertEqual(smart_str('"%s","%s","%s","%s"\r\n' % (
                                       _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
                                     )

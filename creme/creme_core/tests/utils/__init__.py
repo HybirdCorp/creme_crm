@@ -10,15 +10,15 @@ try:
 
     from ..base import CremeTestCase
     from ..fake_models import FakeContact as Contact, FakeCivility as Civility
-    from creme.creme_core.models import CremePropertyType, PreferedMenuItem
+    from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
         safe_unicode, safe_unicode_error, int_2_roman)
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
-        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict, get_dt_from_json_str)
+        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict,
+        get_dt_from_json_str, dt_to_json_str)
         #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
-    from creme.creme_core.utils.queries import get_first_or_None
 
     #from creme.persons.models import Civility, Contact
 except Exception as e:
@@ -308,13 +308,28 @@ class DatesTestCase(CremeTestCase):
         dt = datetime(2011, 5, 22, 22, 30, 0)
         self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
 
-    def test_get_dt_from_json_str_01(self):
-        dt = get_dt_from_json_str('2014-03-17T15:22:03.357Z')
+    def test_get_dt_from_json_str(self):
         self.assertEqual(self.create_datetime(year=2014, month=3, day=17, hour=15,
                                               minute=22, second=3, microsecond=357000,
                                               utc=True,
                                              ),
-                         dt
+                         get_dt_from_json_str('2014-03-17T15:22:03.357Z')
+                        )
+        self.assertEqual(self.create_datetime(year=2015, month=1, day=16, hour=15,
+                                              minute=22, second=3, microsecond=123456,
+                                              utc=True,
+                                             ),
+                         get_dt_from_json_str('2015-01-16T15:22:03.123456Z')
+                        )
+
+    def test_dt_to_json_str(self):
+        self.assertEqual('2015-01-16T15:22:03.357000Z',
+                         dt_to_json_str(
+                             self.create_datetime(year=2015, month=1, day=16, hour=15,
+                                                  minute=22, second=3, microsecond=357000,
+                                                  utc=True,
+                                                 )
+                            )
                         )
 
     def test_get_dt_from_str(self):
@@ -352,31 +367,6 @@ class DatesTestCase(CremeTestCase):
 
         check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
         check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
-
-
-class QueriesTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        CremeTestCase.setUpClass()
-
-        cls._civ_backup = list(Civility.objects.all())
-        Civility.objects.all().delete()
-
-    @classmethod
-    def tearDownClass(cls):
-        CremeTestCase.tearDownClass()
-        Civility.objects.bulk_create(cls._civ_backup)
-
-    def test_get_first_or_None01(self):
-        CremePropertyType.objects.create(text='Is cute', is_custom=True)
-        self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
-
-    def test_get_first_or_None02(self):
-        #Civility.objects.all().delete()
-        self.assertFalse(Civility.objects.exists())
-        self.assertIsNone(get_first_or_None(Civility))
-
-    #TODO: test get_q_from_dict()
 
 
 class UnicodeCollationTestCase(CremeTestCase):
@@ -473,5 +463,6 @@ from .collections import *
 from .date_period import *
 from .date_range import *
 from .meta import *
+from .queries import *
 from .xml_utils import *
 from .xls_utils import *

@@ -37,7 +37,8 @@ class GuiTestCase(CremeTestCase):
         cls.populate('creme_core')
 
     def test_last_viewed_items(self):
-        settings.MAX_LAST_ITEMS = MAX_LAST_ITEMS = 5
+#        settings.MAX_LAST_ITEMS = MAX_LAST_ITEMS = 5
+        settings.MAX_LAST_ITEMS = 5
         self.login()
 
         class FakeRequest(object):
@@ -47,8 +48,9 @@ class GuiTestCase(CremeTestCase):
                 self.session = sessions[0].get_decoded()
 
         def get_items():
-            with self.assertNoException():
-                return FakeRequest().session['last_viewed_items']
+            #with self.assertNoException():
+                #return FakeRequest().session['last_viewed_items']
+            return LastViewedItem.get_all(FakeRequest())
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
 
@@ -59,12 +61,11 @@ class GuiTestCase(CremeTestCase):
         contact04 = create_contact(first_name='Griffith', last_name='Femto')
 
         self.assertGET200(contact01.get_absolute_url())
-        self.assertEqual(1, len(LastViewedItem.get_all(FakeRequest())))
-
+        #self.assertEqual(1, len(LastViewedItem.get_all(FakeRequest())))
         items = get_items()
         self.assertEqual(1, len(items))
         self.assertEqual(contact01.pk, items[0].pk)
-        self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
+        #self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertGET200(contact03.get_absolute_url())
@@ -85,6 +86,7 @@ class GuiTestCase(CremeTestCase):
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertEqual([contact02.pk, contact04.pk, contact03.pk, contact01.pk],
+                         #[i.pk for i in get_items()]
                          [i.pk for i in get_items()]
                         )
 
@@ -95,7 +97,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual([contact02.pk, contact04.pk, contact01.pk],
                          [i.pk for i in items]
                         )
-        self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
+        #self.assertEqual(MAX_LAST_ITEMS, items.maxlen)
 
         contact04.trash()
         self.assertGET200(Contact.get_lv_absolute_url())

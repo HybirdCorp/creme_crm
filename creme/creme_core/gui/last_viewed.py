@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import deque
 import logging
 
 from django.conf import settings
 
 from ..models import CremeEntity
-
+from creme.creme_core.utils.dates import get_dt_from_json_str, dt_to_json_str
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +42,24 @@ class LastViewedItem(object):
     def __eq__(self, other):
         return self.pk == other.pk
 
+    def as_dict(self):
+        return {'pk':       self.pk,
+                'url':      self.url,
+                'name':     self.name,
+                'modified': dt_to_json_str(self.modified),
+               }
+
+    @staticmethod
+    def from_dict(data):
+        instance = object.__new__(LastViewedItem)
+
+        for attr in ('pk', 'url', 'name'):
+            setattr(instance, attr, data[attr])
+
+        instance.modified = get_dt_from_json_str(data['modified'])
+
+        return instance
+
     def update(self, entity):
         self.name = unicode(entity)
         self.modified = entity.modified
@@ -50,9 +67,7 @@ class LastViewedItem(object):
     def __add(self, request):
         logger.debug('LastViewedItem.add: %s', self)
         session = request.session
-        #last_viewed_items = session.get('last_viewed_items', deque(maxlen=settings.MAX_LAST_ITEMS))
-        #last_viewed_items = session.get('last_viewed_items', deque())
-        last_viewed_items = session.get('last_viewed_items') or deque(maxlen=settings.MAX_LAST_ITEMS)
+        last_viewed_items = self._deserialize_all(session)
 
         if last_viewed_items and last_viewed_items[0] == self:
             return
@@ -62,48 +77,53 @@ class LastViewedItem(object):
         except ValueError:
             logger.debug('%s not in last_viewed', self)
 
-        last_viewed_items.appendleft(self)
-        #while len(last_viewed_items) > MAX_LAST_ITEMS:
-            #last_viewed_items.pop()
+        last_viewed_items.insert(0, self)
+        del last_viewed_items[settings.MAX_LAST_ITEMS:]
 
-        session['last_viewed_items'] = last_viewed_items
+        self._serialize_all(session, last_viewed_items)
+
+    @staticmethod
+    def _deserialize_all(session):
+        from_dict = LastViewedItem.from_dict
+        return [from_dict(data) for data in session.get('last_viewed_items', ())]
+
+    @staticmethod
+    def _serialize_all(session, items):
+        session['last_viewed_items'] = [item.as_dict() for item in items]
 
     #TODO: use the future entity representation table
     @staticmethod
     def get_all(request):
-        session = request.session
-        old_items = session.get('last_viewed_items')
-
-        if not old_items:
-            return ()
-
-        MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
-        updated = False
-
-        if old_items.maxlen != MAX_LAST_ITEMS:
-            updated = True #the serialized maxlen is wrong
-
-            while len(old_items) > MAX_LAST_ITEMS:
-                old_items.pop()
-
-        entities = {e.id: e for e in CremeEntity.objects.filter(is_deleted=False, 
-                                                                pk__in=[item.pk for item in old_items],
-                                                               )
-                   }
         items = []
-        updated |= (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
+        session = request.session
+        old_items = LastViewedItem._deserialize_all(session)
 
-        for item in old_items:
-            entity = entities.get(item.pk)
+        if old_items:
+            MAX_LAST_ITEMS = settings.MAX_LAST_ITEMS
+            updated = False
 
-            if entity:
-                if entity.modified > item.modified:
-                    updated = True
-                    item.update(entity.get_real_entity()) #TODO: use CremeEntity.populate_real_entities()
+            if len(old_items) > MAX_LAST_ITEMS:
+                updated = True # The settings has change since the list has been stored
+                del old_items[MAX_LAST_ITEMS:]
 
-                items.append(item)
+            entities = {e.id: e for e in CremeEntity.objects
+                                                    .filter(is_deleted=False, 
+                                                            pk__in=[item.pk for item in old_items],
+                                                           )
+                       }
+            updated |= (len(old_items) != len(entities)) # If any entitiy has been deleted -> must update
 
-        if updated:
-            session['last_viewed_items'] = deque(items, maxlen=MAX_LAST_ITEMS)
+            for item in old_items:
+                entity = entities.get(item.pk)
+
+                if entity:
+                    if entity.modified > item.modified:
+                        updated = True
+                        item.update(entity.get_real_entity()) #TODO: use CremeEntity.populate_real_entities()
+
+                    items.append(item)
+
+            if updated:
+                LastViewedItem._serialize_all(session, items)
 
         return items

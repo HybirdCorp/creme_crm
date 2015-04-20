@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.db.transaction import commit_on_success
+    from django.db.transaction import atomic
 
     from ..base import CremeTransactionTestCase #CremeTestCase
     from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException, mutex_autolock, MutexAutoLock
@@ -55,7 +55,7 @@ class MutexTestCase(CremeTransactionTestCase):
 
         mutex1.lock()
 
-        with commit_on_success():
+        with atomic():
             self.assertRaises(MutexLockedException, mutex2.lock)
 
         self.assertEqual(1, Mutex.objects.count())
@@ -75,7 +75,7 @@ class MutexTestCase(CremeTransactionTestCase):
         mutex = Mutex.get_n_lock(name)
         self.assertEqual(1, Mutex.objects.count())
 
-        with commit_on_success():
+        with atomic():
             self.assertRaises(MutexLockedException, Mutex.get_n_lock, name)
 
         mutex.release()

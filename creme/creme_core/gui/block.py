@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,20 @@ class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateC
     def __repr__(self):
         return '<BlockContext>'
 
-    def update(self, modified, template_context):
+    def as_dict(self):
+        return {}
+
+    @classmethod
+    def from_dict(cls, data):
+        instance = cls()
+
+        for k, v in data.iteritems():
+            setattr(instance, k, v)
+
+        return instance
+
+    #def update(self, modified, template_context):
+    def update(self, template_context):
         """Overload me (see _PaginatedBlockContext, _QuerysetBlockContext)"""
         return False
 
@@ -108,47 +121,48 @@ class Block(object):
 
     def _simple_detailview_display(self, context):
         """Helper method to build a basic detailview_display() method for classes that inherit Block."""
-        entity = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                           )
-                        )
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                                    self.id_,
+                                                    context['object'].pk,
+                                                ),
+                           ))
 
-
-    def __get_context(self, request, base_url, block_name):
-        """Retrieve block's context stored in the session.
-        In the session (request.session), blocks are stored like this (with "blockcontexts_manager" as key):
-            {
-                'base_url_for_element_1': {
-                    'id_for_block01': _BlockContext<>,
-                    'id_for_block02': _BlockContext<>,
-                    ...
-                },
-                'base_url_for_element_2': {...},
-                ...
-            }
-        Base url are opposite to ajax_url.
-        Eg: '/tickets/ticket/21' for base url, ajax url could be '/creme_core/todo/reload/21/'.
-        """
-        modified = False
-        session = request.session
-
-        blockcontexts_manager = session.get('blockcontexts_manager')
-        if blockcontexts_manager is None:
-            modified = True
-            session['blockcontexts_manager'] = blockcontexts_manager = {}
-
-        page_blockcontexts = blockcontexts_manager.get(base_url)
-        if page_blockcontexts is None:
-            modified = True
-            blockcontexts_manager[base_url] = page_blockcontexts = {}
-
-        blockcontext = page_blockcontexts.get(block_name)
-        if blockcontext is None:
-            modified = True
-            page_blockcontexts[block_name] = blockcontext = self.context_class()
-
-        return blockcontext, modified
+#    def __get_context(self, request, base_url, block_name):
+#        """Retrieve block's context stored in the session.
+#        In the session (request.session), blocks are stored like this (with "blockcontexts_manager" as key):
+#            {
+#                'base_url_for_element_1': {
+#                    'id_for_block01': _BlockContext<>,
+#                    'id_for_block02': _BlockContext<>,
+#                    ...
+#                },
+#                'base_url_for_element_2': {...},
+#                ...
+#            }
+#        Base url are opposite to ajax_url.
+#        Eg: '/tickets/ticket/21' for base url, ajax url could be '/creme_core/todo/reload/21/'.
+#        """
+#        modified = False
+#        session = request.session
+#
+#        blockcontexts_manager = session.get('blockcontexts_manager')
+#        if blockcontexts_manager is None:
+#            modified = True
+#            session['blockcontexts_manager'] = blockcontexts_manager = {}
+#
+#        page_blockcontexts = blockcontexts_manager.get(base_url)
+#        if page_blockcontexts is None:
+#            modified = True
+#            blockcontexts_manager[base_url] = page_blockcontexts = {}
+#
+#        blockcontext = page_blockcontexts.get(block_name)
+#        if blockcontext is None:
+#            modified = True
+#            page_blockcontexts[block_name] = blockcontext = self.context_class()
+#
+#        return blockcontext, modified
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = block_name
@@ -165,7 +179,15 @@ class Block(object):
         request = context['request']
         base_url = request.GET.get('base_url', request.path)
         block_name = self.id_
-        block_context, modified = self.__get_context(request, base_url, block_name)
+        #block_context, modified = self.__get_context(request, base_url, block_name)
+        session = request.session
+
+        try:
+            serialized_context = session['blockcontexts_manager'][base_url][block_name]
+        except KeyError:
+            block_context = self.context_class()
+        else:
+            block_context = self.context_class.from_dict(serialized_context)
 
         template_context = self._build_template_context(context, block_name, block_context,
                                                         base_url=base_url,
@@ -177,7 +199,12 @@ class Block(object):
         if not BlocksManager.get(context).block_is_registered(self):
             logger.debug('Not registered block: %s', self.id_)
 
-        if block_context.update(modified, template_context):
+        #if block_context.update(modified, template_context):
+        if block_context.update(template_context):
+            session.setdefault('blockcontexts_manager', {}) \
+                   .setdefault(base_url, {}) \
+                   [block_name] = block_context.as_dict()
+
             request.session.modified = True
 
         return template_context
@@ -196,12 +223,18 @@ class _PaginatedBlockContext(_BlockContext):
     def __repr__(self):
         return '<PaginatedBlockContext: page=%s>' % self.page
 
-    def update(self, modified, template_context):
+    def as_dict(self):
+        return {'page': self.page}
+
+    #def update(self, modified, template_context):
+    def update(self, template_context):
         page = template_context['page'].number
 
         if self.page != page:
             modified = True
             self.page = page
+        else:
+            modified = False
 
         return modified
 
@@ -251,6 +284,12 @@ class _QuerysetBlockContext(_PaginatedBlockContext):
     def __repr__(self):
         return '<QuerysetBlockContext: page=%s order_by=%s>' % (self.page, self._order_by)
 
+    def as_dict(self):
+        d = super(_QuerysetBlockContext, self).as_dict()
+        d['_order_by'] = self._order_by
+
+        return d
+
     def get_order_by(self, order_by):
         _order_by = self._order_by
 
@@ -259,8 +298,10 @@ class _QuerysetBlockContext(_PaginatedBlockContext):
 
         return order_by
 
-    def update(self, modified, template_context):
-        modified = super(_QuerysetBlockContext, self).update(modified, template_context)
+    #def update(self, modified, template_context):
+    def update(self, template_context):
+        #modified = super(_QuerysetBlockContext, self).update(modified, template_context)
+        modified = super(_QuerysetBlockContext, self).update(template_context)
         order_by = template_context['order_by']
 
         if self._order_by != order_by:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -236,7 +236,7 @@ class RelationBlockAddForm(CremeModelForm):
     relation_type = ModelChoiceField(RelationType.objects, empty_label=None,
                                      widget=DynamicSelect(attrs={'autocomplete': True}))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = RelationBlockItem
 
     def __init__(self, *args, **kwargs):
@@ -327,7 +327,7 @@ class CustomBlockConfigItemCreateForm(CremeModelForm):
     ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
                                    widget=DynamicSelect(attrs={'autocomplete': True}))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = CustomBlockConfigItem
 
     def save(self, *args, **kwargs):
@@ -348,7 +348,7 @@ class CustomBlockConfigItemEditForm(CremeModelForm):
 
     blocks = CremeModelForm.blocks.new(('cells', 'Columns', ['cells']))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = CustomBlockConfigItem
 
     def __init__(self, *args, **kwargs):

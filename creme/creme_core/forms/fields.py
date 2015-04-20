@@ -1264,6 +1264,9 @@ class ColorField(RegexField):
     """A Field which handle html colors (e.g: #F2FAB3) without '#' """
     regex  = compile_re(r'^([0-9a-fA-F]){6}$')
     widget = ColorPickerWidget
+    default_error_messages = {
+        'invalid': _(u'Enter a valid value (eg: DF8177).'),
+    }
 
     def __init__(self, *args, **kwargs):
         super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)

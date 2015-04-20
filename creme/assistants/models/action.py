@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ from creme.creme_core.signals import pre_merge_related
 
 class Action(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
-    is_ok               = BooleanField(_('Expected reaction has been done'), editable=False)
+    is_ok               = BooleanField(_('Expected reaction has been done'), editable=False, default=False)
     description         = TextField(_(u'Source action'), blank=True, null=True)
     creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
     expected_reaction   = TextField(_(u'Target action'), blank=True, null=True)

@@ -34,7 +34,7 @@ class ActionForm(CremeModelWithUserForm):
     deadline      = CremeDateTimeField(label=_(u"Deadline"))
     deadline_time = CremeTimeField(label=_(u'Hour'), required=False)
 
-    class Meta:
+    class Meta(CremeModelWithUserForm.Meta):
         model = Action
 
     def __init__(self, entity, *args, **kwargs):

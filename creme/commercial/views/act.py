@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.transaction import commit_on_success
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -110,7 +110,7 @@ def add_opportunity(request, act_id):
         form = OpportunityCreateForm(user=user, data=request.POST)
 
         if form.is_valid():
-            with commit_on_success():
+            with atomic():
                 opp = form.save()
                 Relation.objects.create(subject_entity=opp,
                                         type_id=REL_SUB_COMPLETE_GOAL,
@@ -234,7 +234,7 @@ def create_objective_entity(request, objective_id):
         form = form_class(user=user, data=request.POST)
 
         if form.is_valid():
-            with commit_on_success():
+            with atomic():
                 entity = form.save()
                 Relation.objects.create(subject_entity=entity,
                                         type_id=REL_SUB_COMPLETE_GOAL,

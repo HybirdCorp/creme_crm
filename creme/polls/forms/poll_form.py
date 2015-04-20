@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,12 +36,12 @@ from .fields import PollFormLineConditionsField
 
 
 class PollFormForm(CremeEntityForm):
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = PollForm
 
 
 class PollFormSectionEditForm(CremeModelForm):
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = PollFormSection
 
     def __init__(self, entity, *args, **kwargs):
@@ -82,7 +82,7 @@ class PollFormSectionCreateForm(PollFormSectionEditForm):
 
 
 class _PollFormLineForm(CremeModelForm):
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = PollFormLine
 
     def __init__(self, entity, *args, **kwargs):

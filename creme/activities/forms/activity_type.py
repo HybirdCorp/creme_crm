@@ -35,7 +35,7 @@ from ..models import ActivityType, ActivitySubType
 class ActivityTypeForm(CremeModelForm):
     default_hour_duration = DurationField(label=_(u'Duration'))
 
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = ActivityType
 
     def save(self):
@@ -43,7 +43,9 @@ class ActivityTypeForm(CremeModelForm):
 
         if not instance.id:
             super(ActivityTypeForm, self).save(commit=False)
-            generate_string_id_and_save(ActivityType, [instance], 'creme_config-useractivitytype')
+            generate_string_id_and_save(ActivityType, [instance],
+                                        'creme_config-useractivitytype',
+                                       )
         else:
             super(ActivityTypeForm, self).save()
 
@@ -51,7 +53,7 @@ class ActivityTypeForm(CremeModelForm):
 
 
 class ActivitySubTypeForm(CremeModelForm):
-    class Meta:
+    class Meta(CremeModelForm.Meta):
         model = ActivitySubType
 
     def save(self, *args, **kwargs):
@@ -59,7 +61,9 @@ class ActivitySubTypeForm(CremeModelForm):
 
         if not instance.id:
             super(ActivitySubTypeForm, self).save(commit=False, *args, **kwargs)
-            generate_string_id_and_save(ActivitySubType, [instance], 'creme_config-useractivitydetailesubtype')
+            generate_string_id_and_save(ActivitySubType, [instance],
+                                        'creme_config-useractivitydetailesubtype',
+                                       )
         else:
             super(ActivitySubTypeForm, self).save(*args, **kwargs)
 

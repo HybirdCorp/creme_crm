@@ -75,7 +75,9 @@ class PropertyViewsTestCase(ViewsTestCase):
         #-----------------------------------------------------------------------
         response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
         self.assertFormError(response, 'form', 'types',
-                             _(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id
+                             _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                                    'value': ptype01.id,
+                                }
                             )
 
     def test_add_type01(self):

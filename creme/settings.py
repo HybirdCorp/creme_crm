@@ -20,9 +20,11 @@ ADMINS = (
 #login / password for interface of administration : admin/admin
 
 from os.path import dirname, join, abspath, exists
-CREME_ROOT = dirname(abspath(__file__))
+BASE_DIR = dirname(dirname(__file__))
+CREME_ROOT = dirname(abspath(__file__)) #  BASE_DIR + '/creme'
 
-MANAGERS = ADMINS
+# Define 'MANAGERS' if you use BrokenLinkEmailsMiddleware
+# MANAGERS = ADMINS
 
 # NB: it's recommended to :
 #   - use a database engine that supports transactions (ie: not MyISAM for MySQL, which uses now INNODB by default).
@@ -75,7 +77,8 @@ DATE_FORMAT_JS      = {
 DATE_FORMAT_JS_SEP = '-' #DATE_FORMAT_JS values separator
 DATE_INPUT_FORMATS = (
     '%d-%m-%Y', '%d/%m/%Y',
-    '%Y-%m-%d',  '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
+    '%Y-%m-%d', # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
+    '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
 )
@@ -89,8 +92,8 @@ DATETIME_INPUT_FORMATS  = (
     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
-    '%Y-%m-%dT%H:%M:%S.%fZ',#Needed for some activesync servers (/!\ %f python >=2.6)
-    "%Y-%m-%dT%H:%M:%S",#Needed for infopath
+    '%Y-%m-%dT%H:%M:%S.%fZ', # DO NOT REMOVE ! Needed by the core (eg: to store queries in session) (+for some activesync servers)
+    "%Y-%m-%dT%H:%M:%S", # Needed for infopath
 )
 
 #I18N / L10N [END]##############################################################
@@ -155,7 +158,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.doc.XViewMiddleware',
+    #'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
