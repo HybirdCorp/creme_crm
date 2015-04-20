@@ -1,1 +1,1 @@
-# -*- coding: utf-8 -*-
+default_app_config = 'creme.billing.apps.BillingConfig'
