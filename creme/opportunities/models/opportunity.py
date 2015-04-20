@@ -305,8 +305,9 @@ if 'creme.billing' in settings.INSTALLED_APPS:
                 for r in relations:
                     update_sales(r.object_entity.get_real_entity())
 
-    @receiver(post_delete, sender=Relation)
-    @receiver(post_save, sender=Relation)
+    #@receiver(post_delete, sender=Relation)
+    #@receiver(post_save, sender=Relation)
+    @receiver((post_save, post_delete), sender=Relation)
     def _handle_current_quote_set(sender, instance, **kwargs):
         if instance.type_id == REL_SUB_CURRENT_DOC:
             doc = instance.subject_entity.get_real_entity()

@@ -316,8 +316,9 @@ class Base(CremeEntity):
         return super(Base, self).save(*args, **kwargs)
 
 
-@receiver(post_save,   sender=Relation)
-@receiver(post_delete, sender=Relation)
+#@receiver(post_save,   sender=Relation)
+#@receiver(post_delete, sender=Relation)
+@receiver((post_save, post_delete), sender=Relation)
 def _manage_linked_credit_notes(sender, instance, **kwargs):
     """Invoice calculated totals have to be refreshed."""
     if instance.type_id == REL_SUB_CREDIT_NOTE_APPLIED:
