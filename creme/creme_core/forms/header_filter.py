@@ -281,18 +281,18 @@ class HeaderFilterForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = HeaderFilter
-        #TODO: use 'help_texts' (django 1.6)
+        help_texts = {
+            'user': _(u'All users can see the view, but only the owner can edit or delete it'),
+            'is_private': _(u'A private view of list can only be used by its owner '
+                            u'(or the teammates if the owner is a team)'
+                           ),
+        }
 
     def __init__(self, *args, **kwargs):
         super(HeaderFilterForm, self).__init__(*args, **kwargs)
         instance = self.instance
         fields   = self.fields
-
-        user_f = fields['user']
-        user_f.empty_label = _(u'All users')
-        user_f.help_text   = _(u'All users can see the view, but only the owner can edit or delete it')
-
-        fields['is_private'].help_text = _(u'A private view of list can only be used by its owner (or the teammates if the owner is a team)')
+        fields['user'].empty_label = _(u'All users')
 
         cells_f = fields['cells']
 

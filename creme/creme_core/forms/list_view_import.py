@@ -69,7 +69,9 @@ class UploadForm(CremeForm):
                                     create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
-                              help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
+                              help_text=_(u'Does the first line of the line contain '
+                                          u'the header of the columns (eg: "Last name","First name") ?'
+                                         )
                              )
 
     error_messages = {
@@ -83,10 +85,13 @@ class UploadForm(CremeForm):
         self._header = None
         document = self.fields['document']
         document.user = self.user
-        document.help_text = mark_safe("<ul>%s</ul>" %
-                                       u''.join(("<li>%s: %s</li>" %
-                                                (unicode(be.verbose_name), unicode(be.help_text))
-                                                for be in import_backend_registry.iterbackends())))
+        document.help_text = mark_safe(u"<ul>%s</ul>" %
+                                        u''.join("<li>%s: %s</li>" % (
+                                                        unicode(be.verbose_name),
+                                                        unicode(be.help_text),
+                                                    ) for be in import_backend_registry.iterbackends()
+                                                )
+                                      )
 
     @property
     def header(self):

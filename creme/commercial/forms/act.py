@@ -47,17 +47,17 @@ class ObjectiveForm(CremeModelForm):
         model = ActObjective
         #fields = ('name', 'counter_goal')
         fields = '__all__'
-        #TODO: use help_texts (django 1.6)
+        help_texts = {
+            'counter_goal': _(u'Integer value the counter has to reach'),
+        }
 
     def __init__(self, entity, *args, **kwargs):
         super(ObjectiveForm, self).__init__(*args, **kwargs)
         self.act = entity
-        fields = self.fields
-
-        fields['counter_goal'].help_text = ugettext(u'Integer value the counter has to reach')
 
         instance = self.instance
         if instance.pk: #edition
+            fields = self.fields
             efilter = instance.filter
 
             if efilter and not efilter.can_view(self.user)[0]:
