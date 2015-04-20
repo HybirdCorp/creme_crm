@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,12 @@ class _RelationsCreateForm(CremeForm):
                                                 queryset=SemiFixedRelationType.objects.none(),
                                                 required=False, widget=UnorderedMultipleChoiceWidget
                                                )
+
+    error_messages = {
+        'duplicates': _(u'There are duplicates: %(duplicates)s'),
+        'link_themselves': _(u'An entity can not be linked to itself : %(entities)s'),
+        'empty': _(u'You must give one relationship at least.'),
+    }
 
     def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
         """Constructor.
@@ -83,10 +89,13 @@ class _RelationsCreateForm(CremeForm):
                 future_relations.add(r_id)
 
         if duplicates:
-            raise ValidationError(ugettext(u'There are duplicates: %s') % \
-                                    u', '.join(u'(%s, %s)' % (rtype, e.allowed_unicode(user))
-                                                   for rtype, e in duplicates
-                                              )
+            raise ValidationError(self.error_messages['duplicates'],
+                                  params={'duplicates': 
+                                              u', '.join(u'(%s, %s)' % (rtype, e.allowed_unicode(user))
+                                                            for rtype, e in duplicates
+                                                        ),
+                                         },
+                                  code='duplicates',
                                  )
 
     def _check_loops(self, relations):
@@ -94,9 +103,9 @@ class _RelationsCreateForm(CremeForm):
         bad_objects = [unicode(entity) for rtype, entity in relations if entity.id in subjects_ids]
 
         if bad_objects:
-            raise ValidationError(ugettext(u'An entity can not be linked to itself : %s') % (
-                                        u', '.join(bad_objects)
-                                    )
+            raise ValidationError(self.error_messages['link_themselves'],
+                                  params={'entities': u', '.join(bad_objects)},
+                                  code='link_themselves',
                                  )
 
     def clean_relations(self):
@@ -118,7 +127,7 @@ class _RelationsCreateForm(CremeForm):
             relations_desc.extend((sfrt.relation_type, sfrt.object_entity) for sfrt in cdata['semifixed_rtypes'])
 
             if not relations_desc:
-                raise ValidationError(ugettext(u'You must give one relationship at least.'))
+                raise ValidationError(self.error_messages['empty'], code='empty')
 
             self._check_duplicates(relations_desc, self.user)
 
@@ -183,5 +192,5 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
                                                    widget=Label,
-                                                   initial=entities2unicode(forbidden_subjects, user)
+                                                   initial=entities2unicode(forbidden_subjects, user),
                                                   )

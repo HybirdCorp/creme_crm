@@ -1235,7 +1235,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
         self.assertFormError(response, 'form', 'target',
-                             _(u'You are not allowed to create: %s') % _(u'Organisation')
+                             #_(u'You are not allowed to create: %s') % _(u'Organisation')
+                             _(u'You are not allowed to create: %(model)s') % {
+                                    'model': _(u'Organisation'),
+                                }
                             )
         self.assertFormError(response, 'form', 'sales_phase',
                              #u'You are not allowed to create "Sales phase"'

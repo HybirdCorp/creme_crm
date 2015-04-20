@@ -426,6 +426,7 @@ class BulkForm(CremeForm):
         instance = getattr(entity, self.model_parent_field.name)
 
         if instance is None:
+            #TODO: code + _bulk_error_messages + params
             raise ValidationError(ugettext(u'The field %s is empty') % self.model_parent_field.verbose_name)
 
         return self._bulk_clean_entity(instance, values)

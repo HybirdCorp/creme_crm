@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*"
+#
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 1.5\n"
+"Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-09 17:42+0100\n"
+"POT-Creation-Date: 2015-02-17 14:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,8 +94,8 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: forms/blocks.py:105 forms/blocks.py:327 forms/button_menu.py:37
-#: forms/custom_fields.py:68
+#: forms/blocks.py:105 forms/blocks.py:336 forms/button_menu.py:37
+#: forms/custom_fields.py:75
 msgid "Related resource"
 msgstr "Ressource associée"
 
@@ -114,40 +115,40 @@ msgstr "Blocs à afficher à droite"
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/blocks.py:141
+#: forms/blocks.py:131
+#, python-format
+msgid "The following block should be displayed only once: «%(block)s»"
+msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: «%(block)s»"
+
+#: forms/blocks.py:145
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: forms/blocks.py:159
-#, python-format
-msgid "The following block should be displayed only once: <%s>"
-msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
-
-#: forms/blocks.py:184
+#: forms/blocks.py:189
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:204
+#: forms/blocks.py:209
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:218
+#: forms/blocks.py:223
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
-#: forms/blocks.py:256
+#: forms/blocks.py:261
 msgid "Customised resource"
 msgstr "Ressource personnalisée"
 
-#: forms/blocks.py:284
+#: forms/blocks.py:289
 msgid "Columns"
 msgstr "Colonnes"
 
-#: forms/blocks.py:316
+#: forms/blocks.py:296
 msgid "This type of field can not be the first column."
 msgstr "Ce type de champ ne peut pas être la première colonne."
 
-#: forms/blocks.py:347
+#: forms/blocks.py:356
 msgid "Lines"
 msgstr "Lignes"
 
@@ -211,14 +212,14 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:49
+#: forms/custom_fields.py:52
 msgid ""
 "The choices list must not be empty if you choose the type \"Choices list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:69
+#: forms/custom_fields.py:76
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -226,19 +227,19 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:109
+#: forms/custom_fields.py:116
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:110
+#: forms/custom_fields.py:117
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:113
+#: forms/custom_fields.py:120
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:114
+#: forms/custom_fields.py:121
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
@@ -330,7 +331,7 @@ msgstr "Objet"
 msgid "Type and object"
 msgstr "Type et objet"
 
-#: forms/relation_type.py:125
+#: forms/relation_type.py:126
 msgid ""
 "A semi-fixed type of relationship with this type and this object already "
 "exists."
@@ -346,11 +347,11 @@ msgstr "Utilisateur"
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
-#: forms/search.py:46
+#: forms/search.py:47
 msgid "The pair search configuration/user(s) already exists !"
 msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
 
-#: forms/search.py:52
+#: forms/search.py:55
 #: templates/creme_config/templatetags/block_searchconfig.html:18
 msgid "Concerned fields"
 msgstr "Champs concernés"
@@ -360,58 +361,63 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/user.py:44 forms/user.py:152
+#: forms/user.py:45
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+# Already in Django
+#: forms/user.py:46
+msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
+msgstr ""
+
+# Already in Django
+#: forms/user.py:49
+msgid "This value may contain only letters, numbers and @/./+/-/_ characters."
+msgstr ""
+
+#: forms/user.py:54 forms/user.py:170
 #: templates/creme_config/templatetags/block_users.html:26
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:45 forms/user.py:153
+#: forms/user.py:55 forms/user.py:171
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
-#: forms/user.py:46 forms/user.py:130
+#: forms/user.py:56 forms/user.py:144
 #: templates/creme_config/templatetags/block_users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/user.py:48 forms/user.py:131
+#: forms/user.py:58 forms/user.py:145
 msgid "You must choose a role for a non-super user."
 msgstr "Vous devez choisir un rôle pour un utilisateur non super-utilisateur."
 
-#: forms/user.py:65
-msgid ""
-"The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
-"underscores are allowed (but not as first character)."
-msgstr ""
-"Le nom d'utilisateur doit uniquement comporter des caractères "
-"alphanumériques (a-z, A-Z, 0-9), les tirets et les underscore ( _ ) sont "
-"admis (sauf comme premier caractère)."
-
-#: forms/user.py:88 forms/user.py:145
+#: forms/user.py:68 forms/user.py:149
 msgid "Choose a role or set superuser status to 'True'."
 msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'."
 
-#: forms/user.py:96 forms/user.py:164
+#: forms/user.py:110 forms/user.py:174
 msgid "Passwords are different"
 msgstr "Les mots de passe sont différents"
 
-#: forms/user.py:177 templates/creme_config/templatetags/block_teams.html:18
+#: forms/user.py:199 templates/creme_config/templatetags/block_teams.html:18
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:186
+#: forms/user.py:208
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:206
+#: forms/user.py:228
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:221 templates/creme_config/user_portal.html:6
+#: forms/user.py:243 templates/creme_config/user_portal.html:6
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/user.py:222
+#: forms/user.py:244
 msgid "Teams"
 msgstr "Équipes"
 
@@ -1097,7 +1103,7 @@ msgstr "%s Équipe"
 msgid "%s Teams"
 msgstr "%s Équipes"
 
-#: templates/creme_config/templatetags/block_teams.html:12 views/user.py:51
+#: templates/creme_config/templatetags/block_teams.html:12 views/user.py:50
 msgid "New team"
 msgstr "Nouvelle équipe"
 
@@ -1199,7 +1205,7 @@ msgstr "%s Utilisateur"
 msgid "%s Users"
 msgstr "%s Utilisateurs"
 
-#: templates/creme_config/templatetags/block_users.html:12 views/user.py:46
+#: templates/creme_config/templatetags/block_users.html:12 views/user.py:45
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
@@ -1316,37 +1322,37 @@ msgstr "Nouveau type de relation semi-fixé"
 msgid "Edit \"%s\""
 msgstr "Modifier \"%s\""
 
-#: views/user.py:40
+#: views/user.py:39
 #, python-format
 msgid "Change password for <%s>"
 msgstr "Changer le mot de passe pour <%s>"
 
-#: views/user.py:90
+#: views/user.py:89
 msgid "You can't delete the current user."
 msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
-#: views/user.py:95
+#: views/user.py:94
 msgid "You can't delete a staff user."
 msgstr "Vous ne pouvez pas supprimer un super administrateur."
 
-#: views/user.py:102
+#: views/user.py:101
 #, python-format
 msgid "Delete %s and assign his files to user"
 msgstr "Supprimer %s et réassigner ses fiches"
 
-#: views/user.py:106
+#: views/user.py:105
 msgid "You can't delete this user."
 msgstr "Vous ne pouvez pas supprimer cet utilisateur."
 
-#: views/user.py:117
+#: views/user.py:114
 msgid "You can't deactivate the current user."
 msgstr "Vous ne pouvez pas désactiver l'utilisateur courant."
 
-#: views/user.py:122
+#: views/user.py:119
 msgid "You can't deactivate a staff user."
 msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
-#: views/user.py:139
+#: views/user.py:134
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
@@ -1359,6 +1365,14 @@ msgstr "Ajouter des droits à <%s>"
 #, python-format
 msgid "Delete role <%s>"
 msgstr "Supprimer le rôle <%s>"
+
+#~ msgid ""
+#~ "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
+#~ "underscores are allowed (but not as first character)."
+#~ msgstr ""
+#~ "Le nom d'utilisateur doit uniquement comporter des caractères "
+#~ "alphanumériques (a-z, A-Z, 0-9), les tirets et les underscore ( _ ) sont "
+#~ "admis (sauf comme premier caractère)."
 
 #~ msgid "%sh"
 #~ msgstr "%sh"

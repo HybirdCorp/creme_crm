@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -121,8 +121,13 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         if not self._errors:
             rtype, entity = cdata['semi_relation']
 
+            #TODO: unique_together in model
             if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
-                raise ValidationError(_(u"A semi-fixed type of relationship with this type and this object already exists."))
+                raise ValidationError(_(u"A semi-fixed type of relationship with "
+                                        u"this type and this object already exists."
+                                       ),
+                                      code='not_unique',
+                                     )
 
         return cdata
 

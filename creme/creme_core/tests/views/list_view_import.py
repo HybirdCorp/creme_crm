@@ -748,8 +748,11 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                       data={'step': 0, 'document': doc.id}
                                      )
         self.assertFormError(response, 'form', None,
-                             _(u"Error reading document, unsupported file type: %s.") %
-                                    doc.filedata.name
+#                             _(u"Error reading document, unsupported file type: %s.") %
+#                                    doc.filedata.name
+                             _(u"Error reading document, unsupported file type: %(file)s.") % {
+                                    'file': doc.filedata.name,
+                                }
                             )
 
     def test_import_error02(self):
@@ -842,8 +845,10 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                ),
                                      )
         self.assertFormError(response, 'form', 'dyn_relations', 
-#                             _(u'You are not allowed to create: %s') % _(u'Organisation')
-                             _(u'You are not allowed to create: %s') % u'Test Organisation'
+#                             _(u'You are not allowed to create: %s') % u'Test Organisation'
+                             _(u'You are not allowed to create: %(model)s') % {
+                                    'model': u'Test Organisation',
+                                }
                             )
 
     def test_import_with_update01(self):

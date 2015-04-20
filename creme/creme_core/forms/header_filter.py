@@ -257,7 +257,7 @@ class EntityCellsField(Field):
 
         if value in EMPTY_VALUES:
             if self.required:
-                raise ValidationError(self.error_messages['required'])
+                raise ValidationError(self.error_messages['required'], code='required')
         else:
             model = self._content_type.model_class()
             get_builder = self._builders.get
@@ -266,7 +266,7 @@ class EntityCellsField(Field):
                 builder = get_builder(elt)
 
                 if not builder:
-                    raise ValidationError(self.error_messages['invalid'])
+                    raise ValidationError(self.error_messages['invalid'], code='invalid')
 
                 cells.append(builder(self, model, elt))
 

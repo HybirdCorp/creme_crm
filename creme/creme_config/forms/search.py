@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,11 +39,14 @@ class SearchAddForm(CremeModelForm):
     def clean(self):
         cdata = super(SearchAddForm, self).clean()
 
+        #TODO: unique_together in model
         if not self._errors and \
            SearchConfigItem.objects.filter(content_type=cdata['content_type'],
                                            user=cdata.get('user')
                                           ).exists():
-            raise ValidationError(ugettext(u'The pair search configuration/user(s) already exists !'))
+            raise ValidationError(ugettext(u'The pair search configuration/user(s) already exists !'),
+                                  code='not_unique',
+                                 )
 
         return cdata
 

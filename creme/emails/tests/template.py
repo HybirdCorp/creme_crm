@@ -50,9 +50,16 @@ class TemplatesTestCase(_EmailsTestCase):
                                            }
                                    )
 
-        error_msg = _(u'The following variables are invalid: %s')
-        self.assertFormError(response, 'form', 'body',      [error_msg % [u'unexisting_var']])
-        self.assertFormError(response, 'form', 'body_html', [error_msg % [u'foobar_var']])
+        #error_msg = _(u'The following variables are invalid: %s')
+        #self.assertFormError(response, 'form', 'body',      [error_msg % [u'unexisting_var']])
+        #self.assertFormError(response, 'form', 'body_html', [error_msg % [u'foobar_var']])
+        error_msg = _(u'The following variables are invalid: %(vars)s')
+        self.assertFormError(response, 'form', 'body',
+                             error_msg % {'vars': [u'unexisting_var']}
+                            )
+        self.assertFormError(response, 'form', 'body_html',
+                             error_msg % {'vars': [u'foobar_var']}
+                            )
 
     def test_editview01(self):
         name    = 'my template'

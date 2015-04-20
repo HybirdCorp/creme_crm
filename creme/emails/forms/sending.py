@@ -32,7 +32,8 @@ from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDate
 
 from ..constants import MAIL_STATUS_NOTSENT, SETTING_EMAILCAMPAIGN_SENDER
 from ..models import EmailTemplate
-from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
+from ..models.sending import (EmailSending, LightWeightEmail,
+        SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED)
 
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,10 @@ class SendingCreateForm(CremeModelForm):
                                       help_text=_(u"Required only of the sending is deferred."))
     hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
     minute       = IntegerField(label=_("Sending minute"), required=False, min_value=0, max_value=59)
+
+    error_messages = {
+        'forbidden': _(u"You are not allowed to modify the sender address, please contact your administrator."),
+    }
 
     blocks = CremeModelForm.blocks.new(('sending_date', _(u"Sending date"), ['type', 'sending_date', 'hour', 'minute']))
 
@@ -85,8 +90,10 @@ class SendingCreateForm(CremeModelForm):
 
     def clean_sender(self):
         sender_value = self.cleaned_data.get('sender')
+
         if not self.can_edit_sender_value and sender_value != self.sender_setting.value:
-            raise ValidationError(ugettext(u"You are not allowed to modify the sender address, please contact your administrator."))
+            raise ValidationError(self.error_messages['forbidden'], code='forbidden')
+
         return sender_value
 
     def clean(self):

@@ -40,7 +40,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         response = self.assertPOST200(url, data={'name': name})
         self.assertFormError(response, 'form', 'name',
-                             [_(u'A segment with this name already exists')]
+                             _(u'A segment with this name already exists')
                             )
 
     def test_create03(self):
@@ -51,7 +51,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         response = self.assertPOST200(self.ADD_URL, data={'name': name})
         self.assertFormError(response, 'form', 'name',
-                             [_(u'A property with the name <%s> already exists') % pname]
+                             _(u'A property with the name «%(name)s» already exists') % {
+                                    'name': pname,
+                                 }
                             )
 
     def test_listview(self):

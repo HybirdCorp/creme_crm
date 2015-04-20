@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,6 +59,10 @@ class EntityEmailForm(CremeEntityForm):
 
     attachments  = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
     send_me      = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
+
+    error_messages = {
+        'no_person': _(u'Select at least a Contact or an Organisation'),
+    }
 
     blocks = FieldBlockManager(
             ('recipients', _(u'Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
@@ -131,7 +135,7 @@ class EntityEmailForm(CremeEntityForm):
         cdata = super(EntityEmailForm, self).clean()
 
         if not self._errors and not cdata['c_recipients'] and not cdata['o_recipients']:
-            raise ValidationError(ugettext(u'Select at least a Contact or an Organisation'))
+            raise ValidationError(self.error_messages['no_person'], code='no_person')
 
         return cdata
 

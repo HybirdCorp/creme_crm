@@ -1805,10 +1805,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         # avoid duplicates
         response = self.assertPOST200(uri, data=data)
         self.assertFormError(response, 'form', 'subjects',
-                             ungettext(u'This entity is already a subject: %s',
-                                       u'These entities are already subjects: %s',
+                             ungettext(u'This entity is already a subject: %(duplicates)s',
+                                       u'These entities are already subjects: %(duplicates)s',
                                        1
-                                      ) % orga
+                                      ) % {'duplicates': orga}
                             )
 
     def test_add_subjects02(self):

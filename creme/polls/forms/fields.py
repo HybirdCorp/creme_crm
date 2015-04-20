@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,14 +75,14 @@ class PollFormLineConditionsField(JSONField):
             if line_id == line.id:
                 return line
 
-        raise ValidationError(self.error_messages['invalidsource'])
+        raise ValidationError(self.error_messages['invalidsource'], code='invalidsource')
 
     def _clean_choice(self, entry, source):
         choice = self.clean_value(entry, 'choice', int)
         items  = source.poll_line_type.get_choices()
 
         if not any(choice == item[0] for item in items):
-            raise ValidationError(self.error_messages['invalidchoice'])
+            raise ValidationError(self.error_messages['invalidchoice'], code='invalidchoice')
 
         return choice
 

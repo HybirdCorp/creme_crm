@@ -162,7 +162,9 @@ class IntPollLineType(PollLineType):
 
         if lower_bound is not None and upper_bound is not None:
             if lower_bound >= upper_bound:
-                raise ValidationError(ugettext(u'The upper bound must be greater than the lower bound.'))
+                raise ValidationError(ugettext(u'The upper bound must be greater than the lower bound.'),
+                                      code='invalid_bounds',
+                                     )
 
     @property
     def description(self):

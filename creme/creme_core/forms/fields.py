@@ -69,7 +69,7 @@ class JSONField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
         'invalidtype': _(u'Invalid type'),
-        'doesnotexist':  _(u"This entity doesn't exist."),
+        'doesnotexist': _(u"This entity doesn't exist."),
     }
     value_type = None #Overload this: type of the value returned by the field.
 
@@ -94,10 +94,14 @@ class JSONField(CharField):
 
     def clean_value(self, data, name, type, required=True, required_error_key='required'):
         if not data:
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'],
+                                  code='invalidformat',
+                                 )
 
         if not isinstance(data, dict):
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'],
+                                  code='invalidformat',
+                                 )
 
         value = data.get(name)
 
@@ -114,7 +118,9 @@ class JSONField(CharField):
         try:
             return type(value)
         except:
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'],
+                                  code='invalidformat',
+                                 )
 
     def clean_json(self, value, expected_type=None):
         if not value:
@@ -123,10 +129,12 @@ class JSONField(CharField):
         try:
             data = jsonloads(value)
         except Exception:
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat'],
+                                  code='invalidformat',
+                                 )
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):
-            raise ValidationError(self.error_messages['invalidtype'])
+            raise ValidationError(self.error_messages['invalidtype'], code='invalidtype')
 
         return data
 
@@ -149,7 +157,7 @@ class JSONField(CharField):
 
         if not data:
             if self.required:
-                raise ValidationError(self.error_messages['required'])
+                raise ValidationError(self.error_messages['required'], code='required')
 
             return self._build_empty_value()
 
@@ -162,14 +170,15 @@ class JSONField(CharField):
                 ctype = ContentType.objects.get_for_id(ctype)
             except ContentType.DoesNotExist:
                 raise ValidationError(self.error_messages['doesnotexist'],
-                                      params={'ctype': ctype}
+                                      params={'ctype': ctype},
+                                      code='doesnotexist',
                                      )
 
         entity = None
 
         if not entity_pk:
             if self.required:
-                raise ValidationError(self.error_messages['required'])
+                raise ValidationError(self.error_messages['required'], code='required')
         else:
             model = ctype.model_class()
             assert issubclass(model, CremeEntity)
@@ -178,7 +187,10 @@ class JSONField(CharField):
                 entity = model.objects.get(is_deleted=False, pk=entity_pk)
             except model.DoesNotExist:
                 raise ValidationError(self.error_messages['doesnotexist'],
-                                      params={'ctype': ctype.pk, 'entity': entity_pk}
+                                      params={'ctype': ctype.pk,
+                                              'entity': entity_pk,
+                                             },
+                                      code='doesnotexist',
                                      )
 
         return entity
@@ -196,7 +208,9 @@ class JSONField(CharField):
             return self._entity_queryset(model, qfilter).get(pk=entity_pk)
         except model.DoesNotExist:
             if self.required:
-                raise ValidationError(self.error_messages['doesnotexist'])
+                raise ValidationError(self.error_messages['doesnotexist'],
+                                      code='doesnotexist',
+                                     )
 
     def _create_widget(self):
         #pass
@@ -279,7 +293,7 @@ class GenericEntityField(JSONField):
             if ct.pk == ctype_pk:
                 return ct
 
-        raise ValidationError(self.error_messages['ctypenotallowed'])
+        raise ValidationError(self.error_messages['ctypenotallowed'], code='ctypenotallowed')
 
     def _get_ctypes_options(self, ctypes):
         return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
@@ -335,7 +349,9 @@ class MultiGenericEntityField(GenericEntityField):
                                                      .in_bulk(ctype_entity_pks)
 
             if not all(pk in ctype_entities for pk in ctype_entity_pks):
-                raise ValidationError(self.error_messages['doesnotexist'])
+                raise ValidationError(self.error_messages['doesnotexist'],
+                                      code='doesnotexist',
+                                     )
 
             entities.update(ctype_entities)
 
@@ -438,23 +454,31 @@ class RelationEntityField(JSONField):
 
         # is relation type accepts content type
         if ctype_ids and ctype_pk not in ctype_ids:
-            raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})
+            raise ValidationError(self.error_messages['ctypenotallowed'],
+                                  params={'ctype': ctype_pk}, code='ctypenotallowed',
+                                 )
 
     def _validate_properties_constraints(self, rtype, entity):
         ptype_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
 
         if ptype_ids and not any(p.type_id in ptype_ids for p in entity.get_properties()):
-            raise ValidationError(self.error_messages['nopropertymatch'])
+            raise ValidationError(self.error_messages['nopropertymatch'],
+                                  code='nopropertymatch',
+                                 )
 
     def _clean_rtype(self, rtype_pk):
         # is relation type allowed
         if rtype_pk not in self._get_allowed_rtypes_ids():
-            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk})
+            raise ValidationError(self.error_messages['rtypenotallowed'],
+                                  params={'rtype': rtype_pk}, code='rtypenotallowed',
+                                 )
 
         try:
             return RelationType.objects.get(pk=rtype_pk)
         except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype': rtype_pk})
+            raise ValidationError(self.error_messages['rtypedoesnotexist'],
+                                  params={'rtype': rtype_pk}, code='rtypedoesnotexist',
+                                 )
 
     def _get_options(self):
         return ChoiceModelIterator(self._allowed_rtypes)
@@ -484,7 +508,9 @@ class MultiRelationEntityField(RelationEntityField):
         try:
             rtype = RelationType.objects.get(pk=rtype_pk)
         except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype': rtype_pk})
+            raise ValidationError(self.error_messages['rtypedoesnotexist'],
+                                  params={'rtype': rtype_pk}, code='rtypedoesnotexist',
+                                 )
 
         rtype_allowed_ctypes     = frozenset(ct.pk for ct in rtype.object_ctypes.all())
         rtype_allowed_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
@@ -495,7 +521,9 @@ class MultiRelationEntityField(RelationEntityField):
         try:
             ctype = ContentType.objects.get_for_id(ctype_pk)
         except ContentType.DoesNotExist:
-            raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
+            raise ValidationError(self.error_messages['ctypedoesnotexist'],
+                                  params={'ctype': ctype_pk}, code='ctypedoesnotexist',
+                                 )
 
         return (ctype, [])
 
@@ -534,18 +562,28 @@ class MultiRelationEntityField(RelationEntityField):
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
             # check if relation type is allowed
             if rtype_pk not in allowed_rtypes_ids:
-                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
+                raise ValidationError(self.error_messages['rtypenotallowed'],
+                                      params={'rtype': rtype_pk,
+                                              'ctype': ctype_pk,
+                                             },
+                                      code='rtypenotallowed',
+                                     )
 
-            rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
+            rtype, rtype_allowed_ctypes, rtype_allowed_properties = \
+                self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
             if rtype_allowed_properties:
                 need_property_validation = True
 
             # check if content type is allowed by relation type
             if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
-                raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype':ctype_pk})
+                raise ValidationError(self.error_messages['ctypenotallowed'],
+                                      params={'ctype':ctype_pk}, code='ctypenotallowed',
+                                     )
 
-            ctype, ctype_entity_pks = self._get_cache(ctypes_cache, ctype_pk, self._build_ctype_cache)
+            ctype, ctype_entity_pks = self._get_cache(ctypes_cache, ctype_pk,
+                                                      self._build_ctype_cache,
+                                                     )
             ctype_entity_pks.append(entity_pk)
 
         entities_cache = {}
@@ -559,7 +597,9 @@ class MultiRelationEntityField(RelationEntityField):
                              }
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
-                raise ValidationError(self.error_messages['doesnotexist'])
+                raise ValidationError(self.error_messages['doesnotexist'],
+                                      code='doesnotexist',
+                                     )
 
             entities_cache.update(ctype_entities)
 
@@ -573,8 +613,11 @@ class MultiRelationEntityField(RelationEntityField):
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = rtypes_cache.get(rtype_pk)
             entity = entities_cache.get(entity_pk)
 
-            if rtype_allowed_properties and not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
-                raise ValidationError(self.error_messages['nopropertymatch'])
+            if rtype_allowed_properties and \
+               not any(p.type_id in rtype_allowed_properties for p in entity.get_properties()):
+                raise ValidationError(self.error_messages['nopropertymatch'],
+                                      code='nopropertymatch',
+                                     )
 
             relations.append((rtype, entity))
 
@@ -786,12 +829,12 @@ class MultiCreatorEntityField(CreatorEntityField):
 
         for entry in data:
             if not isinstance(entry, int):
-                raise ValidationError(self.error_messages['invalidtype'])
+                raise ValidationError(self.error_messages['invalidtype'], code='invalidtype')
 
             entity = self._clean_entity_from_model(self.model, entry, self.q_filter_query)
 
             if entity is None:
-                raise ValidationError(self.error_messages['doesnotexist'])
+                raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
 
             entities.append(entity)
 
@@ -1015,13 +1058,17 @@ class FilteredEntityTypeField(JSONField):
 
         if not ctype_pk:
             if self.required:
-                raise ValidationError(self.error_messages['ctyperequired'])
+                raise ValidationError(self.error_messages['ctyperequired'],
+                                      code='ctyperequired',
+                                     )
 
             return self._build_empty_value()
 
         ct = self._clean_ctype(ctype_pk)
         if ct is None:
-            raise ValidationError(self.error_messages['ctypenotallowed'])
+            raise ValidationError(self.error_messages['ctypenotallowed'],
+                                  code='ctypenotallowed',
+                                 )
 
         efilter_pk = clean_value(data, 'efilter',  str, required=False)
         if not efilter_pk:  #TODO: self.filter_required ???
@@ -1038,7 +1085,9 @@ class FilteredEntityTypeField(JSONField):
 
                     efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
             except EntityFilter.DoesNotExist:
-                raise ValidationError(self.error_messages['invalidefilter'])
+                raise ValidationError(self.error_messages['invalidefilter'],
+                                      code='invalidefilter',
+                                     )
 
         return ct, efilter
 
@@ -1096,7 +1145,7 @@ class AjaxChoiceField(ChoiceField):
         is_value_empty = value in EMPTY_VALUES
 
         if self.required and is_value_empty:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         if is_value_empty:
             value = u''
@@ -1114,12 +1163,14 @@ class AjaxMultipleChoiceField(MultipleChoiceField):
         """
         not_value = not value
         if self.required and not_value:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
         elif not self.required and not_value:
             return []
 
         if not isinstance(value, (list, tuple)):
-            raise ValidationError(self.error_messages['invalid_list'])
+            raise ValidationError(self.error_messages['invalid_list'],
+                                  code='invalid_list',
+                                 )
 
         return [smart_unicode(val) for val in value]
 
@@ -1138,7 +1189,9 @@ class AjaxModelChoiceField(ModelChoiceField):
             key   = self.to_field_name or 'pk'
             value = self.queryset.model._default_manager.get(**{key: value})
         except self.queryset.model.DoesNotExist:
-            raise ValidationError(self.error_messages['invalid_choice'])
+            raise ValidationError(self.error_messages['invalid_choice'],
+                                  code='invalid_choice',
+                                 )
 
         return value
 
@@ -1249,10 +1302,14 @@ class DateRangeField(MultiValueField):
 
         if range_name == "":
             if not start and not end and self.required:
-                raise ValidationError(self.error_messages['customized_empty'])
+                raise ValidationError(self.error_messages['customized_empty'],
+                                      code='customized_empty',
+                                     )
 
             if start and end and start > end:
-                raise ValidationError(self.error_messages['customized_invalid'])
+                raise ValidationError(self.error_messages['customized_invalid'],
+                                      code='customized_invalid',
+                                     )
 
         return date_range_registry.get_range(range_name, start, end)
 
@@ -1357,10 +1414,12 @@ class ChoiceOrCharField(MultiValueField):
         index = value[0]
 
         if self.original_required and index is None:
-            raise ValidationError(self.error_messages['required'])
+            raise ValidationError(self.error_messages['required'], code='required')
 
         if index == 0 and not value[1]:
-            raise ValidationError(self.error_messages['invalid_other'])
+            raise ValidationError(self.error_messages['invalid_other'],
+                                  code='invalid_other',
+                                 )
 
         return value
 
@@ -1421,7 +1480,9 @@ class CTypeChoiceField(Field):
         except ValueError:
             pass
 
-        raise ValidationError(self.error_messages['invalid_choice'])
+        raise ValidationError(self.error_messages['invalid_choice'],
+                              code='invalid_choice',
+                             )
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):

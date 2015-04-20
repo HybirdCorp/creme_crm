@@ -275,12 +275,15 @@ class AddToCatalogForm(CremeForm):
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):
-            raise ValidationError(ugettext(u'You are not allowed to create this entity'))
+            raise ValidationError(ugettext(u'You are not allowed to create this entity'),
+                                  code='forbidden_creation',
+                                 )
 
         if not self.line.on_the_fly_item:
             raise ValidationError(ugettext(u'You are not allowed to add this item '
                                            u'to the catalog because it is not on the fly'
-                                          )
+                                          ),
+                                  code='not_on_the_fly',
                                  )
 
         return super(AddToCatalogForm, self).clean()

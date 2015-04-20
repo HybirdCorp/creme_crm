@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import ModelChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
+from django.forms import ModelChoiceField, ValidationError
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import EntityFilter
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
+from creme.creme_core.models import EntityFilter
 
 from creme.persons.models import Contact, Organisation
 
@@ -123,6 +123,12 @@ class AddOrganisationsFromFilterForm(_AddPersonsFromFilterForm):
 class AddChildForm(CremeForm):
     child = CreatorEntityField(label=_(u'List'), required=True, model=MailingList)
 
+    error_messages = {
+        'own_child': _(u"A list can't be its own child"),
+        'in_parents': _(u'List already in the parents'),
+        'in_children': _(u'List already in the children'),
+    }
+
     blocks = FieldBlockManager(('general', _(u'Child mailing list'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
@@ -134,13 +140,13 @@ class AddChildForm(CremeForm):
         ml    = self.ml
 
         if ml.id == child.id:
-            raise ValidationError(ugettext(u"A list can't be its own child"))
+            raise ValidationError(self.error_messages['own_child'], code='own_child')
 
         if ml.already_in_parents(child.id):
-            raise ValidationError(ugettext(u'List already in the parents'))
+            raise ValidationError(self.error_messages['in_parents'], code='in_parents')
 
         if ml.already_in_children(child.id):
-            raise ValidationError(ugettext(u'List already in the children'))
+            raise ValidationError(self.error_messages['in_children'], code='in_children')
 
         return child
 

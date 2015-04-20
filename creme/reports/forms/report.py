@@ -411,6 +411,12 @@ class ReportExportPreviewFilterForm(CremeForm):
     date_field  = ChoiceField(label=_(u'Date field'), required=False, choices=())
     date_filter = DateRangeField(label=_(u'Date filter'), required=False)
 
+    error_messages = {
+        'custom_start': _(u"If you chose a Date field, and select «customized» "
+                          u"you have to specify a start date and/or an end date."
+                         ),
+    }
+
     def __init__(self, report, *args, **kwargs):
         super(ReportExportPreviewFilterForm, self).__init__(*args, **kwargs)
         fields = self.fields
@@ -440,9 +446,8 @@ class ReportExportPreviewFilterForm(CremeForm):
             date_filter = cleaned_data.get('date_filter')
 
             if not date_filter or not any(date_filter.get_dates(now())):
-                raise ValidationError(_(u"If you chose a Date field, and select «customized» "
-                                        u"you have to specify a start date and/or an end date."
-                                       )
+                raise ValidationError(self.error_messages['custom_start'],
+                                      code='custom_start',
                                      )
 
         return cleaned_data

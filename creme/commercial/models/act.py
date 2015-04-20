@@ -84,7 +84,9 @@ class Act(CremeEntity):
         due_date = self.due_date
 
         if not due_date or not start or due_date < start:
-            raise ValidationError(ugettext(u"Due date can't be before start."))
+            raise ValidationError(ugettext(u"Due date can't be before start."),
+                                  code='duedate_before_start',
+                                 )
 
     def get_absolute_url(self):
         return "/commercial/act/%s" % self.id

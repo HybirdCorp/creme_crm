@@ -544,7 +544,10 @@ class EventsTestCase(CremeTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'related_contacts',
-                             [_(u'Contact %s is present twice.') % casca]
+                             #_(u'Contact %s is present twice.') % casca
+                             _(u'Contact %(contact)s is present twice.') % {
+                                    'contact': casca,
+                                }
                             )
 
     def test_link_contacts04(self):

@@ -96,7 +96,9 @@ class BaseEditForm(CremeEntityForm):
         cleaned_data = super(BaseEditForm, self).clean()
 
         if cleaned_data.get('discount') > 100:
-            raise ValidationError(ugettext(u"Your discount is a %. It must be between 1 and 100%"))
+            raise ValidationError(ugettext(u"Your discount is a %. It must be between 1 and 100%"),
+                                  code='invalid_percentage',
+                                 )
 
         return cleaned_data
 

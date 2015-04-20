@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from django.forms import CharField
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 
@@ -37,6 +37,10 @@ _HELP = _(u"""Message with a maximum of 160 characters.
 class TemplateCreateForm(CremeEntityForm):
     body = CharField(label=_(u'Message'), widget=Textarea(), help_text=_HELP)
 
+    error_messages = {
+        'too_long': _('Message is too long (%(length)s > %(max_length)s)'),
+    }
+
     class Meta(CremeEntityForm.Meta):
         model = MessageTemplate
 
@@ -49,8 +53,12 @@ class TemplateCreateForm(CremeEntityForm):
         encoded_length = len(gsm_encoded_content(content))
 
         if encoded_length > SMS_MAX_LENGTH:
-            raise ValidationError(ugettext('Message is too long (%(length)s > %(max_length)s)') % {
-                                    'length': encoded_length, 'max_length': SMS_MAX_LENGTH})
+            raise ValidationError(self.error_messages['too_long'],
+                                  params={'length':     encoded_length,
+                                          'max_length': SMS_MAX_LENGTH,
+                                         },
+                                  code='too_long',
+                                 )
 
         return cleaned_data
 

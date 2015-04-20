@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.forms import ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme.creme_core.forms.fields import MultiCreatorEntityField
@@ -43,6 +43,10 @@ class CampaignEditForm(CremeEntityForm):
 class CampaignAddListForm(CremeForm):
     messaging_lists = MultiCreatorEntityField(label=_(u'Lists'), required=False, model=MessagingList)
 
+    error_messages = {
+        'already_linked': _(u"Following lists are already related to this campaign: %(lists)s"),
+    }
+
     blocks = FieldBlockManager(('general', _(u'Messaging lists'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
@@ -56,8 +60,10 @@ class CampaignAddListForm(CremeForm):
         duplicate       = [mlist for mlist in messaging_lists if mlist.id in current_lists]
 
         if duplicate:
-            raise ValidationError(ugettext(u"Following lists are already related to this campaign: %s") %
-                                  u', '.join(mlist.name for mlist in duplicate))
+            raise ValidationError(self.error_messages['already_linked'],
+                                  params={'lists': u', '.join(mlist.name for mlist in duplicate)},
+                                  code='already_linked',
+                                 )
 
         return messaging_lists
 

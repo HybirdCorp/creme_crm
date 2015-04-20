@@ -62,6 +62,12 @@ class _ActivityForm(CremeEntityForm):
                                    )
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
+    error_messages = {
+        'floating_cannot_busy': _(u"A floating on the day activity can't busy its participants"),
+        'no_start': _(u"You can't set the end of your activity without setting its start"),
+        'end_before_start_time': _(u'End time is before start time'),
+    }
+
     class Meta(CremeEntityForm.Meta):
         model = Activity
         #exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
@@ -116,12 +122,14 @@ class _ActivityForm(CremeEntityForm):
         if start_time is None and end_time is None:
             if not is_all_day:
                 if get('busy', False):
-                    raise ValidationError(ugettext(u"A floating on the day activity can't busy its participants"))
+                    raise ValidationError(self.error_messages['floating_cannot_busy'],
+                                          code='floating_cannot_busy',
+                                         )
 
                 floating_type = FLOATING_TIME
 
         if not start and end:
-            raise ValidationError(ugettext(u"You can't set the end of your activity without setting its start"))
+            raise ValidationError(self.error_messages['no_start'], code='no_start')
 
         if start and start_time:
             start = make_aware_dt(datetime.combine(start, start_time))
@@ -151,7 +159,9 @@ class _ActivityForm(CremeEntityForm):
             end   = make_aware_dt(datetime.combine(end, time(hour=23, minute=59)))
 
         if start > end:
-            raise ValidationError(ugettext(u'End time is before start time'))
+            raise ValidationError(self.error_messages['end_before_start_time'],
+                                  code='end_before_start_time',
+                                 )
 
         cdata['start'] = start
         cdata['end'] = end
@@ -275,6 +285,11 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                ],
                                       )
 
+    error_messages = dict(_ActivityCreateForm.error_messages,
+                          no_participant=_('No participant'),
+                          no_alert_start=_('If you want this alert you must specify date and time'),
+                         )
+
     blocks = _ActivityForm.blocks.new(
         ('datetime',       _(u'When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
         ('participants',   _(u'Participants'), ['my_participation', 'my_calendar', 'participating_users',
@@ -342,10 +357,10 @@ class ActivityCreateForm(_ActivityCreateForm):
                 self.errors['my_calendar'] = ErrorList([ugettext(u'If you participate, you have to choose one of your calendars.')])
 
             if not my_participation and not cdata['participating_users']:
-                raise ValidationError(ugettext('No participant'))
+                raise ValidationError(self.error_messages['no_participant'], code='no_participant')
 
             if cdata.get('alert_day') and cdata.get('alert_start_time') is None:
-                raise ValidationError(ugettext('If you want this alert you must specify date and time')) #TODO: not global error
+                raise ValidationError(self.error_messages['no_alert_start'], code='no_alert_start') #TODO: not global error
 
         return super(ActivityCreateForm, self).clean()
 

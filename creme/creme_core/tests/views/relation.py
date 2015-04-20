@@ -168,7 +168,9 @@ class RelationViewsTestCase(ViewsTestCase):
                                                             ),
                                          }
                                    )
-        self.assertFormError(response, 'form', 'relations', [_(u'Some entities are not linkable: %s') % unlinkable])
+        self.assertFormError(response, 'form', 'relations',
+                             _(u'Some entities are not linkable: %s') % unlinkable
+                            )
         self.assertEqual(0, self.subject01.relations.count())
 
     def test_add_relations04(self):
@@ -185,7 +187,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'There are duplicates: %s') % (u'(%s, %s)' % (self.rtype01, self.object01))]
+                             #_(u'There are duplicates: %s') % (u'(%s, %s)' % (self.rtype01, self.object01))
+                             _(u'There are duplicates: %(duplicates)s') % {
+                                 'duplicates': u'(%s, %s)' % (self.rtype01, self.object01),
+                                 }
                             )
 
     def test_add_relations05(self):
@@ -220,7 +225,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'An entity can not be linked to itself : %s') % subject]
+                             #_(u'An entity can not be linked to itself : %s') % subject
+                             _(u'An entity can not be linked to itself : %(link_themselves)s') % {
+                                    'link_themselves': subject,
+                                }
                             )
 
     def test_add_relations_with_semi_fixed01(self):
@@ -296,7 +304,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_test_add_relations()
 
         response = self.assertPOST200(self._build_add_url(self.subject01))
-        self.assertFormError(response, 'form', None, [_(u'You must give one relationship at least.')])
+        self.assertFormError(response, 'form', None,
+                             _(u'You must give one relationship at least.')
+                            )
 
     def test_add_relations_with_semi_fixed04(self):
         "Collision fixed / not fixed"
@@ -320,7 +330,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', None,
-                             [_(u'There are duplicates: %s') % (u'(%s, %s)' % (self.rtype01, self.object01))]
+                             #_(u'There are duplicates: %s') % (u'(%s, %s)' % (self.rtype01, self.object01))
+                             _(u'There are duplicates: %(duplicates)s') % {
+                                    'duplicates': u'(%s, %s)' % (self.rtype01, self.object01),
+                                 }
                             )
 
     def test_add_relations_with_semi_fixed05(self):
@@ -381,7 +394,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'This type of relationship causes a constraint error.')]
+                             _(u'This type of relationship causes a constraint error.')
                             )
 
     def test_add_relations_narrowedtype03(self):
@@ -510,7 +523,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'Some entities are not linkable: %s') % unlinkable]
+                             _(u'Some entities are not linkable: %s') % unlinkable
                             )
 
     def test_add_relations_bulk05(self):
@@ -529,10 +542,12 @@ class RelationViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'An entity can not be linked to itself : %s') % (
-                                    '%s, %s' % (subject01, subject02)
-                                  )
-                             ]
+                             #_(u'An entity can not be linked to itself : %s') % (
+                                    #'%s, %s' % (subject01, subject02)
+                                  #)
+                            _(u'An entity can not be linked to itself : %(link_themselves)s') % {
+                                    'link_themselves': '%s, %s' % (subject01, subject02),
+                                  }
                             )
 
     def test_add_relations_bulk_with_semifixed01(self):
@@ -618,7 +633,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                 }
                                      )
         self.assertFormError(response, 'form', 'relations',
-                             [_(u'This type of relationship causes a constraint error.')]
+                             _(u'This type of relationship causes a constraint error.')
                             )
 
     def _aux_relation_objects_to_link_selection(self):
