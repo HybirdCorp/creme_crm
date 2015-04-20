@@ -51,8 +51,8 @@ class PhoneInput(Input):
     input_type = 'tel'
 
 
-class EmailInput(Input):
-    input_type = 'email'
+#class EmailInput(Input):
+#    input_type = 'email'
 
 
 class MobileContactCreateForm(ContactQuickForm):
@@ -63,7 +63,7 @@ class MobileContactCreateForm(ContactQuickForm):
         widgets = {
             'phone':  PhoneInput,
             'mobile': PhoneInput,
-            'email':  EmailInput,
+            #'email':  EmailInput,
           }
 
     def __init__(self, *args, **kwargs):
