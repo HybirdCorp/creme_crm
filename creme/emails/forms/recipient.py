@@ -53,7 +53,10 @@ class MailingListAddRecipientsForm(CremeForm):
 
 class MailingListAddCSVForm(CremeForm):
     recipients = FileField(label=_(u'Recipients'),
-                           help_text=_(u'A file containing one e-mail address per line (eg:creme@crm.com without quotation marks).'))
+                           help_text=_(u'A file containing one e-mail address per line '
+                                       u'(eg:creme@crm.com without quotation marks).'
+                                      )
+                          )
 
     blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 

@@ -1149,17 +1149,16 @@ class _EntityFilterForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = EntityFilter
-        #TODO: use 'help_texts' (django 1.6)
+        help_texts = {
+            'user': _(u'All users can see this filter, but only the owner can edit or delete it'),
+            'is_private': _(u'A private filter can only be used by its owner '
+                            u'(or the teammates if the owner is a team)'
+                           ),
+        }
 
     def __init__(self, *args, **kwargs):
         super(_EntityFilterForm, self).__init__(*args, **kwargs)
-        fields = self.fields
-
-        user_field = fields['user']
-        user_field.empty_label = _(u'All users')
-        user_field.help_text   = _(u'All users can see this filter, but only the owner can edit or delete it')
-
-        fields['is_private'].help_text = _(u'A private filter can only be used by its owner (or the teammates if the owner is a team)')
+        self.fields['user'].empty_label = _(u'All users')
 
     def get_cleaned_conditions(self):
         cdata = self.cleaned_data

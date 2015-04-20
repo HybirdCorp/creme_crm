@@ -37,17 +37,16 @@ class FolderForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Folder
+        help_texts = {
+            'category': _(u"The parent's category will be copied if you do not select one."),
+        }
 
     def __init__(self, *args, **kwargs):
         super(FolderForm, self).__init__(*args, **kwargs)
-        fields = self.fields
         pk = self.instance.id
         if pk:
             # TODO: remove direct children too ??
-            fields['parent_folder'].q_filter = {'~id__in': [pk]}
-
-        #TODO: django 1.6: use Meta.help_texts
-        fields['category'].help_text = _(u"The parent's category will be copied if you do not select one.")
+            self.fields['parent_folder'].q_filter = {'~id__in': [pk]}
 
 #    def clean_category(self):
 #        cleaned_data = self.cleaned_data
