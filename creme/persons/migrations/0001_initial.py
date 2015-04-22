@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-#from django.conf import settings
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
 
@@ -101,6 +101,7 @@ class Migration(migrations.Migration):
                 ('content_type', models.ForeignKey(related_name='object_set', editable=False, to='contenttypes.ContentType')),
             ],
             options={
+                'swappable': 'PERSONS_ADDRESS_MODEL',
                 'verbose_name': 'Address',
                 'verbose_name_plural': 'Addresses',
             },
@@ -121,8 +122,10 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
-                ('billing_address', models.ForeignKey(related_name='billing_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                #('billing_address', models.ForeignKey(related_name='billing_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
+                #('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                ('billing_address',  models.ForeignKey(related_name='billing_address_contact_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                ('shipping_address', models.ForeignKey(related_name='shipping_address_contact_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
                 ('image', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Photograph', blank=True, to='media_managers.Image', null=True)),
                 #('is_user', models.ForeignKey(related_name='related_contact', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
                 ('is_user', models.ForeignKey(related_name='related_contact', on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='auth.User', null=True, verbose_name='Related user')),
@@ -131,6 +134,7 @@ class Migration(migrations.Migration):
                 ('language', models.ManyToManyField(verbose_name='Spoken language(s)', null=True, editable=False, to='creme_core.Language', blank=True)),
             ],
             options={
+                'swappable': 'PERSONS_CONTACT_MODEL',
                 'ordering': ('last_name', 'first_name'),
                 'verbose_name': 'Contact',
                 'verbose_name_plural': 'Contacts',
@@ -156,14 +160,17 @@ class Migration(migrations.Migration):
                 ('annual_revenue', models.CharField(max_length=100, null=True, verbose_name='Annual revenue', blank=True)),
                 ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
-                ('billing_address', models.ForeignKey(related_name='billing_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                #('billing_address', models.ForeignKey(related_name='billing_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
+                #('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                ('billing_address',  models.ForeignKey(related_name='billing_address_orga_set',  blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                ('shipping_address', models.ForeignKey(related_name='shipping_address_orga_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
                 ('image', models.ForeignKey(verbose_name='Logo', blank=True, to='media_managers.Image', null=True)),
                 ('legal_form', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
                 ('sector', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
                 ('staff_size', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
             ],
             options={
+                'swappable': 'PERSONS_ORGANISATION_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Organisation',
                 'verbose_name_plural': 'Organisations',

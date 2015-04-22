@@ -6,7 +6,8 @@ from django.contrib.auth import get_user_model
 
 from creme.creme_core.tests.base import CremeTestCase
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..mappings import CREME_AS_MAPPING
 from ..commands.airsync import AirSync
@@ -26,7 +27,8 @@ class XMLTestCase(CremeTestCase):
         ns0 = "{AirSync:}"
         d_ns = {'ns0': ns0}
         user = get_user_model().objects.get(pk=1)
-        creme_model_AS_values = CREME_AS_MAPPING.get(Contact)
+#        creme_model_AS_values = CREME_AS_MAPPING.get(Contact)
+        creme_model_AS_values = CREME_AS_MAPPING.get(get_contact_model())
         mapping = creme_model_AS_values['mapping']
 
         xml_collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)

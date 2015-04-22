@@ -32,7 +32,8 @@ from creme.creme_core.models import Relation
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
 from creme.activities.forms.activity_type import ActivityTypeField
@@ -124,7 +125,6 @@ class TaskCreateForm(_TaskForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-
         self._project = entity
 
         fields = self.fields
@@ -135,9 +135,12 @@ class TaskCreateForm(_TaskForm):
         users = self.cleaned_data['participating_users']
         self.participants.extend(
                 validate_linkable_entities(
-                        Contact.objects.filter(is_user__in=users), self.user
+#                        Contact.objects.filter(is_user__in=users), self.user
+                        get_contact_model().objects.filter(is_user__in=users),
+                        self.user,
                     )
             )
+
         return users
 
     def save(self, *args, **kwargs):

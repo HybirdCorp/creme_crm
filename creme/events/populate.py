@@ -32,13 +32,17 @@ from creme.creme_core.models import (SearchConfigItem, RelationType, HeaderFilte
         BlockDetailviewLocation)
 from creme.creme_core.utils import create_if_needed
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
-from creme.opportunities.models import Opportunity
+from creme.opportunities import get_opportunity_model
+#from creme.opportunities.models import Opportunity
 
+from . import get_event_model
 from .constants import *
 from .blocks import resuts_block
-from .models import EventType, Event
+#from .models import EventType, Event
+from .models import EventType
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +54,9 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_IS_INVITED_TO).exists()
 
+        Event = get_event_model()
+        Contact = get_contact_model()
+        Opportunity = get_opportunity_model()
 
         create_rtype = RelationType.create
         create_rtype((REL_SUB_IS_INVITED_TO,       _(u'is invited to the event'),               [Contact]),

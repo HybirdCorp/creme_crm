@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,15 +27,22 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 from creme.creme_core.models import Relation, SettingValue
 
+from creme.persons import get_organisation_model
+#from creme.persons.models import Organisation
+
+from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
-from creme.opportunities.models import Opportunity
+#from creme.opportunities.models import Opportunity
 
-from creme.persons.models import Organisation
-
-from .models import *
+from . import get_act_model, get_pattern_model, get_strategy_model
+from .models import * #TODO: from . import models
 from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
+Act = get_act_model()
+ActObjectivePattern = get_pattern_model()
+Strategy = get_strategy_model()
+Opportunity = get_opportunity_model()
 get_ct = ContentType.objects.get_for_model
 
 
@@ -69,8 +76,9 @@ class ApproachesBlock(QuerysetBlock):
         entity = context['object']
         pk = entity.pk
 
-        #if entity.entity_type_id == self._ORGA_CT_ID and \
-        if isinstance(entity, Organisation) and \
+#        #if entity.entity_type_id == self._ORGA_CT_ID and \
+#        if isinstance(entity, Organisation) and \
+        if isinstance(entity, get_organisation_model()) and \
            not SettingValue.objects.get(key_id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
             managers_ids      = entity.get_managers().values_list('id', flat=True)
             employees_ids     = entity.get_employees().values_list('id', flat=True)

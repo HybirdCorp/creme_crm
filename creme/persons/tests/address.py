@@ -2,11 +2,13 @@
 
 try:
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
 
+    from .base import skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation
     from ..models import Address, Organisation, Contact
     from ..blocks import other_address_block
 except Exception as e:
@@ -16,8 +18,9 @@ except Exception as e:
 __all__ = ('AddressTestCase',)
 
 
+@skipIfCustomAddress
 class AddressTestCase(CremeTestCase):
-    ADD_URL = '/persons/address/add/%s'
+    #ADD_URL = '/persons/address/add/%s'
 
     @classmethod
     def setUpClass(cls):
@@ -30,8 +33,12 @@ class AddressTestCase(CremeTestCase):
         if create_orga:
             return Organisation.objects.create(user=self.user, name='Nerv')
 
+    def _build_add_url(self, entity):
+        return reverse('persons__create_address', args=(entity.id,))
+
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
-        response = self.client.post(self.ADD_URL % orga.id,
+#        response = self.client.post(self.ADD_URL % orga.id,
+        response = self.client.post(self._build_add_url(orga),
                                     data={'name':       name,
                                           'address':    address,
                                           'po_box':     po_box,
@@ -44,11 +51,13 @@ class AddressTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
+    @skipIfCustomOrganisation
     def test_createview(self):
         orga = self.login()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
-        self.assertGET200(self.ADD_URL % orga.id)
+        #self.assertGET200(self.ADD_URL % orga.id)
+        self.assertGET200(self._build_add_url(orga))
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -85,11 +94,13 @@ class AddressTestCase(CremeTestCase):
         self.assertContains(response, country)
         self.assertContains(response, department)
 
+    @skipIfCustomOrganisation
     def test_create_billing(self):
         orga = self.login()
         self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
-        url = '/persons/address/add/billing/%s' % orga.id
+#        url = '/persons/address/add/billing/%s' % orga.id
+        url = reverse('persons__create_biling_address', args=(orga.id,))
         self.assertGET200(url)
 
         addr_value = '21 jump street'
@@ -111,9 +122,11 @@ class AddressTestCase(CremeTestCase):
 
         self.assertEqual(address, self.refresh(orga).billing_address)
 
+    @skipIfCustomOrganisation
     def test_create_shipping(self):
         orga = self.login()
-        url = '/persons/address/add/shipping/%s' % orga.id
+#        url = '/persons/address/add/shipping/%s' % orga.id
+        url = reverse('persons__create_shipping_address', args=(orga.id,))
         self.assertGET200(url)
 
         addr_value = '21 jump street'
@@ -135,6 +148,7 @@ class AddressTestCase(CremeTestCase):
 
         self.assertEqual(address, self.refresh(orga).shipping_address)
 
+    @skipIfCustomOrganisation
     def test_editview(self):
         orga = self.login()
 
@@ -172,6 +186,7 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(city,    address.city)
         self.assertEqual(country, address.country)
 
+    @skipIfCustomOrganisation
     def test_deleteview(self):
         orga = self.login()
 
@@ -232,6 +247,7 @@ class AddressTestCase(CremeTestCase):
                          unicode(Address(po_box=po_box, state=state, country=country))
                         )
 
+    @skipIfCustomOrganisation
     def test_delete_orga(self):
         "Addresses are deleted when the related Organisation is deleted."
         orga = self.login()
@@ -255,9 +271,10 @@ class AddressTestCase(CremeTestCase):
         self.assertDoesNotExist(orga)
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
 
+    @skipIfCustomContact
     def test_delete_contact(self):
         "Addresses are deleted when the related Contact is deleted."
-        self.login()
+        self.login(create_orga=False)
 
         contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
 
@@ -280,6 +297,7 @@ class AddressTestCase(CremeTestCase):
         self.assertDoesNotExist(contact)
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
 
+    @skipIfCustomContact
     def test_history(self):
         "Address is auxiliary + double save() because of addresses caused problems"
         self.login(create_orga=False)

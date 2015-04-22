@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Filter', blank=True, to='creme_core.EntityFilter', null=True)),
             ],
             options={
+                'swappable': 'REPORTS_REPORT_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Report',
                 'verbose_name_plural': 'Reports',
@@ -38,8 +39,10 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField()),
                 ('type', models.PositiveSmallIntegerField()),
                 ('selected', models.BooleanField(default=False)),
-                ('report', models.ForeignKey(related_name='fields', to='reports.Report')),
-                ('sub_report', models.ForeignKey(blank=True, to='reports.Report', null=True)),
+                #('report', models.ForeignKey(related_name='fields', to='reports.Report')),
+                ('report', models.ForeignKey(related_name='fields', to=settings.REPORTS_REPORT_MODEL)),
+                #('sub_report', models.ForeignKey(blank=True, to='reports.Report', null=True)),
+                ('sub_report', models.ForeignKey(blank=True, to=settings.REPORTS_REPORT_MODEL, null=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -59,9 +62,11 @@ class Migration(migrations.Migration):
                 ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True)),
                 ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
-                ('report', models.ForeignKey(editable=False, to='reports.Report')),
+                #('report', models.ForeignKey(editable=False, to='reports.Report')),
+                ('report', models.ForeignKey(editable=False, to=settings.REPORTS_REPORT_MODEL)),
             ],
             options={
+                'swappable': 'REPORTS_GRAPH_MODEL',
                 'ordering': ['name'],
                 'verbose_name': "Report's graph",
                 'verbose_name_plural': "Reports' graphs",

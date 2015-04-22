@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, ForeignKey, DateTimeField,
         BooleanField) #PROTECT
 from django.utils.translation import ugettext_lazy as _
@@ -28,7 +29,8 @@ from creme.creme_core.models.fields import CTypeForeignKey, DatePeriodField
 #from .periodicity import Periodicity
 
 
-class RecurrentGenerator(CremeEntity):
+#class RecurrentGenerator(CremeEntity):
+class AbstractRecurrentGenerator(CremeEntity):
     name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'))
@@ -42,6 +44,7 @@ class RecurrentGenerator(CremeEntity):
     creation_label = _('Add a generator')
 
     class Meta:
+        abstract = True
         app_label = 'recurrents'
         verbose_name = _(u'Recurrent generator')
         verbose_name_plural = _(u'Recurrent generators')
@@ -51,11 +54,19 @@ class RecurrentGenerator(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/recurrents/generator/%s" % self.id
+#        return "/recurrents/generator/%s" % self.id
+        return reverse('recurrents__view_generator', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/recurrents/generator/edit/%s" % self.id
+#        return "/recurrents/generator/edit/%s" % self.id
+        return reverse('recurrents__edit_generator', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/recurrents/generators"
+#        return "/recurrents/generators"
+        return reverse('recurrents__list_generators')
+
+
+class RecurrentGenerator(AbstractRecurrentGenerator):
+    class Meta(AbstractRecurrentGenerator.Meta):
+        swappable = 'RECURRENTS_RGENERATOR_MODEL'

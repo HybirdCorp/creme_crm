@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
                 ('type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Type', to='events.EventType')),
             ],
             options={
+                'swappable': 'EVENTS_EVENT_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Event',
                 'verbose_name_plural': 'Events',

@@ -20,6 +20,7 @@
 
 from itertools import izip, chain, groupby
 
+from django.conf import settings
 #from django.db import transaction
 from django.db.models import (Model, FloatField, BooleanField,
     OneToOneField, CharField, SlugField, SmallIntegerField)
@@ -34,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.chunktools import iter_as_slices
 
-from creme.persons.models import Address
+#from creme.persons.models import Address
 
 from .utils import location_bounding_box
 
@@ -52,7 +53,8 @@ class GeoAddress(Model):
         COMPLETE:  '',
     }
 
-    address   = OneToOneField(Address, verbose_name=_(u"Address"), primary_key=True)
+#    address   = OneToOneField(Address, verbose_name=_(u"Address"), primary_key=True)
+    address   = OneToOneField(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u"Address"), primary_key=True)
     latitude  = FloatField(verbose_name=_(u"Latitude"), null=True, blank=True) # min_value=-90, max_value=90
     longitude = FloatField(verbose_name=_(u"Longitude"), null=True, blank=True)  # min_value=-180, max_value=180,
     draggable = BooleanField(verbose_name=_(u'Is this marker draggable in maps ?'), default=True)
@@ -236,7 +238,8 @@ class Town(Model):
             yield towns[0] if len(towns) == 1 else None
 
 
-@receiver(post_delete, sender=Address)
+#@receiver(post_delete, sender=Address)
+@receiver(post_delete, sender=settings.PERSONS_ADDRESS_MODEL)
 def _dispose_geoaddresses(sender, instance, **kwargs):
 #    sid = transaction.savepoint()
 #
@@ -252,7 +255,8 @@ def _dispose_geoaddresses(sender, instance, **kwargs):
     except GeoAddress.DoesNotExist:
         pass
 
-@receiver(post_save, sender=Address)
+#@receiver(post_save, sender=Address)
+@receiver(post_save, sender=settings.PERSONS_ADDRESS_MODEL)
 def _update_geoaddresses(sender, instance, **kwargs):
 #    sid = transaction.savepoint()
 #

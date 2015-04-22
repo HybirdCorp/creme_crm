@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2013  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,19 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
-from .models import (PollCampaign, PollForm, PollFormLine, PollReply,
-                     PollReplyLine, PollFormSection)
+from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
+#from .models import (PollCampaign, PollForm, PollFormLine, PollReply,
+                     #PollReplyLine, PollFormSection)
+from .models import PollFormLine, PollReplyLine, PollFormSection
 from .utils import SectionTree, ReplySectionTree, NodeStyle
 
+
+PollCampaign = get_pollcampaign_model()
+PollForm     = get_pollform_model()
+PollReply    = get_pollreply_model()
 
 get_ct = ContentType.objects.get_for_model
 _CT_REPLY = get_ct(PollReply)
@@ -125,7 +132,8 @@ class _RelatedRepliesBlock(QuerysetBlock):
 class PersonPollRepliesBlock(_RelatedRepliesBlock):
     id_           = _RelatedRepliesBlock.generate_id('polls', 'person_replies')
     template_name = 'polls/templatetags/block_person_preplies.html'
-    target_ctypes = (Contact, Organisation)
+#    target_ctypes = (Contact, Organisation)
+    target_ctypes = (get_contact_model(), get_organisation_model())
 
     def _get_replies(self, pk):
         return PollReply.objects.filter(person=pk)

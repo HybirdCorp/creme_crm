@@ -64,4 +64,32 @@ ForeignKey.set_null_label = _set_null_label
 
 # ------------------------------------------------------------------------------
 
+def get_concrete_model(model_setting):
+    """Returns the concrete model that is active in this project corresponding
+    to the setting value.
+    @param model_setting A string corresponding to an entry of setting.py,
+           which contains a value in the form ''app_label.model_name'.
+    @return A model class.
+    """
+    from django.apps import apps
+    from django.conf import settings
+    from django.core.exceptions import ImproperlyConfigured
+
+    model_str = getattr(settings, model_setting)
+
+    try:
+        return apps.get_model(model_str)
+    except ValueError:
+        raise ImproperlyConfigured("%s must be of the form 'app_label.model_name'" %
+                                    model_setting
+                                  )
+    except LookupError:
+        raise ImproperlyConfigured("%s refers to model '%s' that has not been installed" % (
+                                            model_setting, model_str,
+                                        )
+                                  )
+
+
+# ------------------------------------------------------------------------------
+
 default_app_config = 'creme.creme_core.apps.CremeCoreConfig'

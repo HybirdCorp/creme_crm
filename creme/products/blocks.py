@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,21 +20,25 @@
 
 from creme.creme_core.gui.block import Block
 
-from .models import Product, Service
+#from .models import Product, Service
+from . import get_product_model, get_service_model
 
 
 class ImagesBlock(Block):
     id_           = Block.generate_id('products', 'images')
     #dependencies  = (Image,) ??
     template_name = 'products/block_images.html'
-    target_ctypes = (Product, Service)
+#    target_ctypes = (Product, Service)
+    target_ctypes = (get_product_model(), get_service_model())
 
     def detailview_display(self, context):
         entity = context['object']
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
-                                                            object_type=entity.__class__.__name__.lower(), #'product' or 'service', used by URL
-                                                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+#                                object_type=entity.__class__.__name__.lower(), #'product' or 'service', used by URL
+                                object_type='product' if isinstance(entity, get_product_model()) else 'service',
+                               )
                            )
 
 

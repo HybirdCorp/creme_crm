@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
+
 import creme.polls.models.base
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('creme_core', '0001_initial'),
         ('commercial', '0001_initial'),
@@ -39,6 +40,7 @@ class Migration(migrations.Migration):
                 ('segment', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Related segment', blank=True, to='commercial.MarketSegment', null=True)),
             ],
             options={
+                'swappable': 'POLLS_CAMPAIGN_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Campaign of polls',
                 'verbose_name_plural': 'Campaigns of polls',
@@ -53,6 +55,7 @@ class Migration(migrations.Migration):
                 ('type', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Type', blank=True, to='polls.PollType', null=True)),
             ],
             options={
+                'swappable': 'POLLS_FORM_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Form of poll',
                 'verbose_name_plural': 'Forms of poll',
@@ -67,7 +70,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(null=True, verbose_name='Section body', blank=True)),
                 ('parent', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True)),
-                ('pform', models.ForeignKey(related_name='sections', editable=False, to='polls.PollForm')),
+                #('pform', models.ForeignKey(related_name='sections', editable=False, to='polls.PollForm')),
+                ('pform', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_FORM_MODEL)),
             ],
             options={
                 'ordering': ('order',),
@@ -86,7 +90,8 @@ class Migration(migrations.Migration):
                 ('type_args', models.TextField(null=True, editable=False)),
                 ('conds_use_or', models.NullBooleanField(verbose_name='Use OR or AND between conditions', editable=False)),
                 ('question', models.TextField(verbose_name='Question')),
-                ('pform', models.ForeignKey(related_name='lines', editable=False, to='polls.PollForm')),
+                #('pform', models.ForeignKey(related_name='lines', editable=False, to='polls.PollForm')),
+                ('pform', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_FORM_MODEL)),
                 ('section', models.ForeignKey(editable=False, to='polls.PollFormSection', null=True)),
             ],
             options={
@@ -115,12 +120,15 @@ class Migration(migrations.Migration):
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('is_complete', models.BooleanField(default=False, verbose_name='Is complete', editable=False)),
-                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Related campaign', blank=True, to='polls.PollCampaign', null=True)),
+                #('campaign', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Related campaign', blank=True, to='polls.PollCampaign', null=True)),
+                ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Related campaign', blank=True, to=settings.POLLS_CAMPAIGN_MODEL, null=True)),
                 ('person', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='Person who filled', blank=True, to='creme_core.CremeEntity', null=True)),
-                ('pform', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, editable=False, to='polls.PollForm', verbose_name='Related form')),
+                #('pform', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, editable=False, to='polls.PollForm', verbose_name='Related form')),
+                ('pform', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, editable=False, to=settings.POLLS_FORM_MODEL, verbose_name='Related form')),
                 ('type', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, blank=True, editable=False, to='polls.PollType', null=True, verbose_name='Type')),
             ],
             options={
+                'swappable': 'POLLS_REPLY_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Form reply',
                 'verbose_name_plural': 'Form replies',
@@ -135,7 +143,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=250, verbose_name='Name')),
                 ('body', models.TextField(null=True, verbose_name='Section body', blank=True)),
                 ('parent', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True)),
-                ('preply', models.ForeignKey(related_name='sections', editable=False, to='polls.PollReply')),
+                #('preply', models.ForeignKey(related_name='sections', editable=False, to='polls.PollReply')),
+                ('preply', models.ForeignKey(related_name='sections', editable=False, to=settings.POLLS_REPLY_MODEL)),
             ],
             options={
                 'ordering': ('order',),
@@ -156,7 +165,8 @@ class Migration(migrations.Migration):
                 ('question', models.TextField(verbose_name='Question')),
                 ('raw_answer', models.TextField(null=True, verbose_name='Answer')),
                 ('pform_line', models.ForeignKey(editable=False, to='polls.PollFormLine')),
-                ('preply', models.ForeignKey(related_name='lines', editable=False, to='polls.PollReply')),
+                #('preply', models.ForeignKey(related_name='lines', editable=False, to='polls.PollReply')),
+                ('preply', models.ForeignKey(related_name='lines', editable=False, to=settings.POLLS_REPLY_MODEL)),
                 ('section', models.ForeignKey(editable=False, to='polls.PollReplySection', null=True)),
             ],
             options={

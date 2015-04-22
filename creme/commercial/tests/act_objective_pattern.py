@@ -4,6 +4,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
@@ -13,7 +14,7 @@ try:
     #from creme.persons.models import Contact, Organisation
 
     from ..models import ActObjectivePattern, ActObjectivePatternComponent
-    from .base import CommercialBaseTestCase
+    from .base import CommercialBaseTestCase, skipIfCustomPattern
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -21,6 +22,7 @@ except Exception as e:
 __all__ = ('ActObjectivePatternTestCase',)
 
 
+@skipIfCustomPattern
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
@@ -34,7 +36,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         return '/commercial/objective_pattern/component/%s/add_parent' % component.id
 
     def test_create(self):
-        url = '/commercial/objective_pattern/add'
+#        url = '/commercial/objective_pattern/add'
+        url = reverse('commercial__create_pattern')
         self.assertGET200(url)
 
         segment = self._create_segment()

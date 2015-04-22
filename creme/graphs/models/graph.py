@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, ManyToManyField, ForeignKey
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -26,7 +27,8 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
 
-class Graph(CremeEntity):
+#class Graph(CremeEntity):
+class AbstractGraph(CremeEntity):
     name                   = CharField(pgettext_lazy('graphs', u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
 
@@ -38,6 +40,7 @@ class Graph(CremeEntity):
         pass
 
     class Meta:
+        abstract = True
         app_label = 'graphs'
         verbose_name = pgettext_lazy('graphs', u'Graph')
         verbose_name_plural = pgettext_lazy('graphs', u'Graphs')
@@ -47,14 +50,17 @@ class Graph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/graphs/graph/%s" % self.id
+#        return "/graphs/graph/%s" % self.id
+        return reverse('graphs__view_graph', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/graphs/graph/edit/%s" % self.id
+#        return "/graphs/graph/edit/%s" % self.id
+        return reverse('graphs__edit_graph', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/graphs/graphs"
+#        return "/graphs/graphs"
+        return reverse('graphs__list_graphs')
 
     def generate_png(self, user):
         from os.path import join, exists
@@ -150,8 +156,14 @@ class Graph(CremeEntity):
             rn.relation_types = node.relation_types.all()
 
 
+class Graph(AbstractGraph):
+    class Meta(AbstractGraph.Meta):
+        swappable = 'GRAPHS_GRAPH_MODEL'
+
+
 class RootNode(CremeModel):
-    graph          = ForeignKey(Graph, related_name='roots', editable=False)
+#    graph          = ForeignKey(Graph, related_name='roots', editable=False)
+    graph          = ForeignKey(settings.GRAPHS_GRAPH_MODEL, related_name='roots', editable=False)
     entity         = ForeignKey(CremeEntity, editable=False)
     relation_types = ManyToManyField(RelationType, editable=False) #TODO: editable=False is only to avoid inner edition with an ugly widget
 

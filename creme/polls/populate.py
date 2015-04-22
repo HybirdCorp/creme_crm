@@ -30,11 +30,13 @@ from creme.creme_core.utils import create_if_needed
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
-from .models import PollType, PollForm, PollReply, PollCampaign
+from . import get_pollform_model, get_pollreply_model, get_pollcampaign_model
 from .blocks import *
-
+#from .models import PollType, PollForm, PollReply, PollCampaign
+from .models import PollType
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,13 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     def populate(self, *args, **kwargs):
+        PollCampaign = get_pollcampaign_model()
+        PollForm     = get_pollform_model()
+        PollReply    = get_pollreply_model()
+    
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
+
         create_hf = HeaderFilter.create
         create_hf(pk='polls-hf_pollform', name=_(u'Form view'), model=PollForm,
                   cells_desc=[(EntityCellRegularField, {'name': 'name'}),

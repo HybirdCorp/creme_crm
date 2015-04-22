@@ -32,14 +32,16 @@ from creme.creme_core.views.decorators import POST_only
 
 from creme.persons.workflow import transform_target_into_customer, transform_target_into_prospect
 
-from creme.products.models import Product
+from creme.products import get_product_model
+#from creme.products.models import Product
 
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 
+from .. import get_opportunity_model
 #from ..constants import REL_SUB_CURRENT_DOC
 from ..constants import *
-from ..models import Opportunity
+#from ..models import Opportunity
 
 
 @login_required
@@ -49,7 +51,8 @@ def current_quote(request, opp_id, quote_id, action):
     user = request.user
     has_perm_or_die = user.has_perm_to_link_or_die if action == 'set_current' else user.has_perm_to_unlink_or_die
 
-    opp = get_object_or_404(Opportunity, pk=opp_id)
+#    opp = get_object_or_404(Opportunity, pk=opp_id)
+    opp = get_object_or_404(get_opportunity_model(), pk=opp_id)
     has_perm_or_die(opp)
 
     quote = get_object_or_404(Quote, pk=quote_id)
@@ -101,7 +104,8 @@ def generate_new_doc(request, opp_id, ct_id):
     user.has_perm_to_create_or_die(klass)
     user.has_perm_to_link_or_die(klass, owner=user) #TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
 
-    opp = get_object_or_404(Opportunity, id=opp_id)
+#    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp = get_object_or_404(get_opportunity_model(), pk=opp_id)
     user.has_perm_to_link_or_die(opp)
 
     document = klass.objects.create(user=user, issuing_date=now(),
@@ -125,6 +129,7 @@ def generate_new_doc(request, opp_id, ct_id):
     if relations:
         Relation.populate_real_object_entities(relations)
         vat_value = Vat.get_default_vat()
+        Product = get_product_model()
 
         for relation in relations:
             item = relation.object_entity.get_real_entity()

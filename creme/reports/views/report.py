@@ -30,6 +30,7 @@ from creme.creme_core.utils import get_from_POST_or_404 #jsonify
 from creme.creme_core.views.generic import (add_entity, edit_entity,
         view_entity, list_view, inner_popup, add_to_entity)
 
+from .. import get_report_model
 from ..forms.report import (ReportCreateForm, ReportEditForm,
         LinkFieldToReportForm, ReportFieldsForm)
 from ..models import Report, Field
@@ -125,6 +126,7 @@ def link_report(request, field_id):
 def edit_fields(request, report_id):
     return add_to_entity(request, report_id, ReportFieldsForm,
                          _(u'Edit columns of <%s>'),
+                         entity_class=get_report_model(),
                         )
 
 _order_direction = {

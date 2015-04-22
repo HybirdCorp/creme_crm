@@ -14,6 +14,7 @@ try:
     from creme.documents.models import Document
 
     from creme.persons.models import Contact, Civility, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from .base import _ActivitiesTestCase
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
@@ -166,6 +167,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual(act3, error.instance)
         self.assertEqual(_('End time is before start time'), error.message)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_import02(self):
         """Static user participants (+ calendars), dynamic participants with
         search on first_name/last_name.
@@ -282,6 +285,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         act4 = self.get_object_or_fail(Activity, title=title4)
         self.assertRelationCount(1, act4, REL_OBJ_PART_2_ACTIVITY, user_contact) #not 2
 
+    @skipIfCustomContact
     def test_import03(self):
         "Dynamic participants with cell splitting & pattern '$last_name $first_name'."
         self.login()
@@ -391,6 +395,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant3)
         self.assertRelationCount(1, act5, REL_OBJ_PART_2_ACTIVITY, participant2)
 
+    @skipIfCustomContact
     def test_import04(self):
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
         self.login()
@@ -427,6 +432,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, aoi)
 
+    @skipIfCustomOrganisation
     def test_import05(self):
         "Dynamic participants with search on first_name/last_name + creation"
         self.login()
@@ -462,11 +468,13 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertRelationCount(1, task, REL_OBJ_PART_2_ACTIVITY, aoi)
         self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga)
 
+
+    @skipIfCustomContact
     def test_import06(self):
         "Dynamic participants with cell splitting + creation"
-        self.login()
+        user = self.login()
 
-        aoi = Contact.objects.create(user=self.user, first_name='Aoi', last_name='Kunieda')
+        aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda')
 
         title = 'Task#1'
         first_name = 'Tatsumi'
@@ -480,7 +488,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         response = self.client.post(self._build_import_url(Activity),
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
                                               participants_mode=2, #search with pattern
@@ -556,23 +564,25 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         act = self.get_object_or_fail(Activity, title=title)
         self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=act.id)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_import_subjects01(self):
         """Subject: Contact is searched if Organisation is not found.
         No creation asked.
         """
-        self.login()
+        user = self.login()
 
         title1 = 'Task#1'; title2 = 'Task#2'; title3 = 'Task#3'
         title4 = 'Task#4'; title5 = 'Task#5'; title6 = 'Task#6'
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         aoi    = create_contact(first_name='Aoi', last_name='Kunieda')
         furyo1 = create_contact(last_name='Furyo')
         furyo2 = create_contact(last_name='Furyo')
 
         name = 'Ishiyama'
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         clan1 = create_orga(name='Clan')
         clan2 = create_orga(name='Clan')
 
@@ -587,7 +597,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         response = self.client.post(self._build_import_url(Activity),
                                     data=dict(self.lv_import_data,
                                               document=doc.id,
-                                              user=self.user.id,
+                                              user=user.id,
                                               type_selector=self._acttype_field_value(ACTIVITYTYPE_TASK),
 
                                               subjects_colselect=2,
@@ -708,6 +718,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.get_object_or_fail(Activity, title=title)
         self.assertFalse(Organisation.objects.filter(name__icontains=name))
 
+    @skipIfCustomOrganisation
     def test_import_subjects04(self):
         "Subject: view credentials."
         self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
@@ -746,6 +757,8 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertRelationCount(1, task, REL_OBJ_ACTIVITY_SUBJECT, orga1)
         self.assertRelationCount(0, task, REL_OBJ_ACTIVITY_SUBJECT, orga2)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_import_with_update(self):
         "No duplicated Subjects/participants"
         user = self.login()
@@ -862,6 +875,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                          pattern_func('de Emperana Beelzebub Kaiser ')
                         )
 
+    @skipIfCustomContact
     def test_participants_multicol_extractor01(self):
         self.login()
         user = self.user
@@ -911,6 +925,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                          err_msg
                         )
 
+    @skipIfCustomContact
     def test_participants_multicol_extractor02(self):
         "View credentials"
         self.login(is_superuser=False)
@@ -930,6 +945,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual([aoi], list(contacts))
         self.assertFalse(err_msg)
 
+    @skipIfCustomContact
     def test_participants_multicol_extractor03(self):
         "Link credentials"
         self.login(is_superuser=False)
@@ -986,6 +1002,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         extract()
         self.assertEqual(1, Contact.objects.filter(first_name=first_name, last_name=last_name).count())
 
+    @skipIfCustomContact
     def test_participants_singlecol_extractor01(self):
         "SplittedColumnParticipantsExtractor"
         self.login()
@@ -1028,6 +1045,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
                          err_msg
                         )
 
+    @skipIfCustomContact
     def test_participants_singlecol_extractor02(self):
         "SplittedColumnParticipantsExtractor + credentials"
         self.login(is_superuser=False)
@@ -1046,6 +1064,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual([aoi], contacts)
         self.assertFalse(err_msg)
 
+    @skipIfCustomContact
     def test_participants_singlecol_extractor03(self):
         "Creation if not found + civility"
         self.login()
@@ -1087,6 +1106,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         furuichi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(mister, furuichi.civility)
 
+    @skipIfCustomContact
     def test_subjects_extractor01(self):
         "Link credentials."
         self.login(is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
@@ -1125,6 +1145,7 @@ class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin)
         self.assertEqual([aoi], contacts)
         self.assertFalse(err_msg)
 
+    @skipIfCustomContact
     def test_subjects_extractor02(self):
         "Limit"
         self.login()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateField,
-                              PositiveIntegerField, ForeignKey, PROTECT)
+        PositiveIntegerField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
@@ -27,7 +28,8 @@ from creme.creme_core.models import CremeEntity
 from creme.commercial.models import MarketSegment
 
 
-class PollCampaign(CremeEntity):
+#class PollCampaign(CremeEntity):
+class AbstractPollCampaign(CremeEntity):
     name           = CharField(_(u'Name'), max_length=100)
     goal           = TextField(_(u'Goal of the campaign'), blank=True, null=True)
     start          = DateField(_(u'Start'), null=True, blank=True)
@@ -40,6 +42,7 @@ class PollCampaign(CremeEntity):
     creation_label = _('Add a campaign')
 
     class Meta:
+        abstract = True
         app_label = 'polls'
         verbose_name = _(u'Campaign of polls')
         verbose_name_plural = _(u'Campaigns of polls')
@@ -49,11 +52,19 @@ class PollCampaign(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return '/polls/campaign/%s' % self.id
+#        return '/polls/campaign/%s' % self.id
+        return reverse('polls__view_campaign', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return '/polls/campaign/edit/%s' % self.id
+#        return '/polls/campaign/edit/%s' % self.id
+        return reverse('polls__edit_campaign', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/polls/campaigns' 
+#        return '/polls/campaigns' 
+        return reverse('polls__list_campaigns')
+
+
+class PollCampaign(AbstractPollCampaign):
+    class Meta(AbstractPollCampaign.Meta):
+        swappable = 'POLLS_CAMPAIGN_MODEL'

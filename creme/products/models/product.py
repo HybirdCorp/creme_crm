@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, ManyToManyField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 #from django.utils.html import escape
@@ -31,7 +32,8 @@ from creme.media_managers.models import Image
 from .other_models import Category, SubCategory
 
 
-class Product(CremeEntity):
+#class Product(CremeEntity):
+class AbstractProduct(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     code              = IntegerField(_(u'Code'), default=0)
     description       = CharField(_(u'Description'), max_length=200)
@@ -48,6 +50,7 @@ class Product(CremeEntity):
     creation_label = _('Add a product')
 
     class Meta:
+        abstract = True
         app_label    = 'products'
         verbose_name = _(u'Product')
         verbose_name_plural = _(u'Products')
@@ -57,15 +60,17 @@ class Product(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/products/product/%s" % self.id
+#        return "/products/product/%s" % self.id
+        return reverse('products__view_product', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/products/product/edit/%s" % self.id
+#        return "/products/product/edit/%s" % self.id
+        return reverse('products__edit_product', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/products/products"
+#        return "/products/products"
+        return reverse('products__list_products')
 
 # Hum the images list could be annoying if huge (it is used in selection widget;
 # eg: Relationships creation) ; so we disable the summary.
@@ -78,3 +83,8 @@ class Product(CremeEntity):
 #        summary += print_many2many(self, self.images, user, None) #todo: use a carroussel ?
 #
 #        return mark_safe(summary)
+
+
+class Product(AbstractProduct):
+    class Meta(AbstractProduct.Meta):
+        swappable = 'PRODUCTS_PRODUCT_MODEL'

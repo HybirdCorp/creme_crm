@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from random import randint
 
+from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, CharField, TextField, DateTimeField, PROTECT
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -42,7 +43,8 @@ class _ResolvingDurationField(FunctionField):
     verbose_name = _(u'Resolving duration')
 
 
-class AbstractTicket(CremeEntity):
+#class AbstractTicket(CremeEntity):
+class TicketMixin(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100, blank=True, null=False, unique=True)
     description  = TextField(_(u'Description'))
     status       = ForeignKey(Status, verbose_name=_(u'Status'), on_delete=PROTECT)
@@ -65,31 +67,37 @@ class AbstractTicket(CremeEntity):
             self._pre_save_clone(source)
 
 
-class Ticket(AbstractTicket):
+#class Ticket(AbstractTicket):
+class AbstractTicket(TicketMixin):
     closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True, editable=False)
 
     function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
     creation_label = _('Add a ticket')
 
     class Meta:
+        abstract = True
         app_label = 'tickets'
         verbose_name = _(u'Ticket')
         verbose_name_plural = _(u'Tickets')
         ordering = ('title',)
 
     def __init__(self, *args, **kwargs):
-        super(Ticket, self).__init__(*args, **kwargs)
+#        super(Ticket, self).__init__(*args, **kwargs)
+        super(AbstractTicket, self).__init__(*args, **kwargs)
         self.old_status_id = self.status_id
 
     def get_absolute_url(self):
-        return "/tickets/ticket/%s" % self.id
+#        return "/tickets/ticket/%s" % self.id
+        return reverse('tickets__view_ticket', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/tickets/ticket/edit/%s" % self.id
+#        return "/tickets/ticket/edit/%s" % self.id
+        return reverse('tickets__edit_ticket', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/tickets/tickets"
+#        return "/tickets/tickets"
+        return reverse('tickets__list_tickets')
 
     def get_resolving_duration(self):
         if self.status_id == CLOSED_PK:
@@ -98,7 +106,8 @@ class Ticket(AbstractTicket):
         return ''
 
     def _pre_save_clone(self, source):
-        super(Ticket, self)._pre_save_clone(source)
+#        super(Ticket, self)._pre_save_clone(source)
+        super(AbstractTicket, self)._pre_save_clone(source)
         if self.status_id == CLOSED_PK:
             self.closing_date = self.created = self.modified = now()
 
@@ -109,38 +118,52 @@ class Ticket(AbstractTicket):
         else: #creation
             self.status_id = self.status_id or OPEN_PK
 
-        super(Ticket, self).save(*args, **kwargs)
+#        super(Ticket, self).save(*args, **kwargs)
+        super(AbstractTicket, self).save(*args, **kwargs)
 
 
-class TicketTemplate(AbstractTicket):
+class Ticket(AbstractTicket):
+    class Meta(AbstractTicket.Meta):
+        swappable = 'TICKETS_TICKET_MODEL'
+
+
+#class TicketTemplate(AbstractTicket):
+class AbstractTicketTemplate(TicketMixin):
     """Used by 'recurrents' app if it is installed"""
     creation_label = _('Add a ticket template')
 
     class Meta:
+        abstract = True
         app_label = 'tickets'
         verbose_name = _(u'Ticket template')
         verbose_name_plural = _(u'Ticket templates')
         ordering = ('title',)
 
     def get_absolute_url(self):
-        return "/tickets/template/%s" % self.id
+#        return "/tickets/template/%s" % self.id
+        return reverse('tickets__view_template', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/tickets/template/edit/%s" % self.id
+#        return "/tickets/template/edit/%s" % self.id
+        return reverse('tickets__edit_template', args=(self.id,))
 
     def get_delete_absolute_url(self):
         return '' #means that TicketTemplate can not be deleted directly (because it is closely linked to its RecurrentGenerator)
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/tickets/templates"
+#        return "/tickets/templates"
+        return reverse('tickets__list_templates')
 
     def create_entity(self):
         """This method is used by the generation job of the 'recurrents' app"""
+        from .. import get_ticket_model
+
         #Beware: the 'title' column must be unique
         now_value = now()
         title = u'%s %s' % (self.title, date_format(now_value.date(), 'DATE_FORMAT')) #TODO: use localtime() ?
 
+        Ticket = get_ticket_model()
         ticket = Ticket(user=self.user,
                         description=self.description,
                         status_id=self.status_id,
@@ -166,3 +189,8 @@ class TicketTemplate(AbstractTicket):
             raise last_exception
 
         return ticket
+
+
+class TicketTemplate(AbstractTicketTemplate):
+    class Meta(AbstractTicketTemplate.Meta):
+        swappable = 'TICKETS_TEMPLATE_MODEL'

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
 
@@ -45,7 +46,8 @@ class Migration(migrations.Migration):
                 ('iban', models.CharField(max_length=100, null=True, verbose_name='IBAN', blank=True)),
                 ('bic', models.CharField(max_length=100, null=True, verbose_name='BIC', blank=True)),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('organisation', models.ForeignKey(related_name='PaymentInformationOrganisation_set', verbose_name='Target organisation', to='persons.Organisation')),
+                #('organisation', models.ForeignKey(related_name='PaymentInformationOrganisation_set', verbose_name='Target organisation', to='persons.Organisation')),
+                ('organisation', models.ForeignKey(related_name='PaymentInformationOrganisation_set', verbose_name='Target organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
             ],
             options={
                 'ordering': ('name',),
@@ -85,8 +87,10 @@ class Migration(migrations.Migration):
                 ('currency', models.ForeignKey(related_name='Currency_set', on_delete=django.db.models.deletion.PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('payment_info', models.ForeignKey(blank=True, editable=False, to='billing.PaymentInformation', null=True, verbose_name='Payment information')),
                 ('payment_terms', models.ForeignKey(related_name='PaymentTerms_set', on_delete=django.db.models.deletion.SET_NULL, verbose_name='Payment Terms', blank=True, to='billing.PaymentTerms', null=True)),
-                ('billing_address', models.ForeignKey(related_name='BillingAddress_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='ShippingAddress_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                #('billing_address', models.ForeignKey(related_name='BillingAddress_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Billing address')),
+                ('billing_address', models.ForeignKey(related_name='BillingAddress_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
+                #('shipping_address', models.ForeignKey(related_name='ShippingAddress_set', blank=True, editable=False, to='persons.Address', null=True, verbose_name='Shipping address')),
+                ('shipping_address', models.ForeignKey(related_name='ShippingAddress_set', blank=True, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
             ],
             options={
                 'ordering': ('name',),
@@ -99,7 +103,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name_algo', models.CharField(max_length=400, verbose_name='Algo name')),
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('organisation', models.ForeignKey(verbose_name='Organisation', to='persons.Organisation')),
+#                ('organisation', models.ForeignKey(verbose_name='Organisation', to='persons.Organisation')),
+                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
             ],
             options={
             },
@@ -285,7 +290,8 @@ class Migration(migrations.Migration):
                 ('last_number', models.IntegerField()),
                 ('prefix', models.CharField(max_length=400, verbose_name='Invoice prefix')),
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('organisation', models.ForeignKey(verbose_name='Organisation', to='persons.Organisation')),
+                #('organisation', models.ForeignKey(verbose_name='Organisation', to='persons.Organisation')),
+                ('organisation', models.ForeignKey(verbose_name='Organisation', to=settings.PERSONS_ORGANISATION_MODEL)),
             ],
             options={
             },

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,19 +20,25 @@
 
 from future_builtins import filter
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import Relation #CremeEntity
 from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
+from creme.creme_core.models import Relation #CremeEntity
 
-from creme.activities.models import Activity
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
-                                  REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
+        REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
+from creme.activities.models import Activity
 
-from .models import Contact, Organisation, Address
+from . import get_address_model, get_contact_model, get_organisation_model
+#from .models import Contact, Organisation, Address
 from .constants import *
+
+
+Address = get_address_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 
 class ContactBlock(SimpleBlock):

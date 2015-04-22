@@ -18,23 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.registry import creme_registry
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.registry import creme_registry
 
+from . import get_report_model, get_rgraph_model
 from .blocks import report_fields_block, report_graphs_block, ReportGraphBlock
 from .forms.bulk import ReportFilterBulkForm
 from .models import Report, ReportGraph
 
+
+Report = get_report_model()
+ReportGraph = get_rgraph_model()
 
 creme_registry.register_app('reports', _(u'Reports'), '/reports')
 creme_registry.register_entity_models(Report)
 
 reg_item = creme_menu.register_app('reports', '/reports/').register_item
 reg_item('/reports/',           _(u'Portal of reports'), 'reports')
-reg_item('/reports/reports',    _(u'All reports'),       'reports')
-reg_item('/reports/report/add', Report.creation_label,   'reports.add_report')
+#reg_item('/reports/reports',    _(u'All reports'),       'reports')
+#reg_item('/reports/report/add', Report.creation_label,   'reports.add_report')
+reg_item(reverse('reports__list_reports'),  _(u'All reports'),     'reports')
+reg_item(reverse('reports__create_report'), Report.creation_label, build_creation_perm(Report))
 
 block_registry.register(report_fields_block, report_graphs_block)
 block_registry.register_4_instance(ReportGraphBlock)

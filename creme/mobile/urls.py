@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
 from django.contrib.auth import REDIRECT_FIELD_NAME
+
+from creme.persons import contact_model_is_custom, organisation_model_is_custom
 
 from .forms import MobileAuthenticationForm
 
@@ -11,8 +13,6 @@ urlpatterns = patterns('creme.mobile.views',
 
     (r'^persons$',          'persons_portal'),
     (r'^person/search$',    'search_person'),
-    (r'^contact/add$',      'create_contact'),
-    (r'^organisation/add$', 'create_organisation'),
 
     (r'^activity/(?P<activity_id>\d+)/start$', 'start_activity'),
     (r'^activity/(?P<activity_id>\d+)/stop$',  'stop_activity'),
@@ -30,6 +30,16 @@ urlpatterns = patterns('creme.mobile.views',
     (r'^mark_as_favorite/(?P<entity_id>\d+)$', 'mark_as_favorite'),
     (r'^unmark_favorite/(?P<entity_id>\d+)$',  'unmark_favorite'),
 )
+
+if not contact_model_is_custom():
+    urlpatterns += patterns('creme.mobile.views',
+        url(r'^contact/add$', 'create_contact', name='mobile__create_contact'),
+    )
+
+if not organisation_model_is_custom():
+    urlpatterns += patterns('creme.mobile.views',
+        url(r'^organisation/add$', 'create_organisation', name='mobile__create_organisation'),
+    )
 
 urlpatterns += patterns('django.contrib.auth.views',
     (r'^login/$',  'login', {'template_name':       'mobile/login.html',

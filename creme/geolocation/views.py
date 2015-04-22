@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ from creme.creme_core.models import EntityFilter
 from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.views.decorators import POST_only
 
-from creme.persons.models import Address, Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model, get_address_model
+#from creme.persons.models import Address, Contact, Organisation
 
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
 from .setting_keys import NEIGHBOURHOOD_DISTANCE
@@ -44,7 +45,8 @@ from .utils import address_as_dict, addresses_from_persons, get_setting
 @POST_only
 def set_address_info(request, address_id):
     get = partial(get_from_POST_or_404, request.POST)
-    address = get_object_or_404(Address, pk=address_id)
+#    address = get_object_or_404(Address, pk=address_id)
+    address = get_object_or_404(get_address_model(), pk=address_id)
 
     request.user.has_perm_to_change_or_die(address.owner)
 
@@ -67,7 +69,8 @@ def set_address_info(request, address_id):
 def get_addresses_from_filter(request, filter_id):
     user = request.user
     entity_filter = get_object_or_404(EntityFilter, pk=filter_id) if filter_id else None
-    owner_groups = (Contact.objects, Organisation.objects,)
+#    owner_groups = (Contact.objects, Organisation.objects,)
+    owner_groups = (get_contact_model().objects, get_organisation_model().objects,)
 
     if entity_filter:
         model = entity_filter.entity_type.model_class()
@@ -84,7 +87,8 @@ def get_addresses_from_filter(request, filter_id):
 @jsonify
 def get_neighbours(request, address_id, filter_id):
     user = request.user
-    source = get_object_or_404(Address, pk=address_id)
+#    source = get_object_or_404(Address, pk=address_id)
+    source = get_object_or_404(get_address_model(), pk=address_id)
     distance = get_setting(NEIGHBOURHOOD_DISTANCE, DEFAULT_SEPARATING_NEIGHBOURS)
     entity_filter = get_object_or_404(EntityFilter, pk=filter_id) if filter_id else None
 

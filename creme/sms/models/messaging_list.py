@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,22 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from creme.persons.models import Contact #, Organisation
+#from creme.persons.models import Contact
 
 
-class MessagingList(CremeEntity):
-    name          = CharField(_(u'Name of the messaging list'), max_length=80)
-    contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
-#    organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
+#class MessagingList(CremeEntity):
+class AbstractMessagingList(CremeEntity):
+    name     = CharField(_(u'Name of the messaging list'), max_length=80)
+    contacts = ManyToManyField(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contacts recipients'))
 
     creation_label = _('Add a messaging list')
 
     class Meta:
+        abstract = True
         app_label = "sms"
         verbose_name = _(u'SMS messaging list')
         verbose_name_plural = _(u'SMS messaging lists')
@@ -43,14 +46,17 @@ class MessagingList(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/sms/messaging_list/%s" % self.id
+#        return "/sms/messaging_list/%s" % self.id
+        return reverse('sms__view_mlist', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/sms/messaging_list/edit/%s" % self.id
+#        return "/sms/messaging_list/edit/%s" % self.id
+        return reverse('sms__edit_mlist', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/sms/messaging_lists"
+#        return "/sms/messaging_lists"
+        return reverse('sms__list_mlists')
 
     def _post_save_clone(self, source):
         for recipient in source.recipient_set.all():
@@ -94,3 +100,8 @@ class MessagingList(CremeEntity):
 #
 #        for child in self.children.all():
 #            child.get_family_aux(dic)
+
+
+class MessagingList(AbstractMessagingList):
+    class Meta(AbstractMessagingList.Meta):
+        swappable = 'SMS_MLIST_MODEL'

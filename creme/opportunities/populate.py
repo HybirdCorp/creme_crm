@@ -31,14 +31,17 @@ from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValu
         HeaderFilter, EntityFilterCondition, EntityFilter)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
+from . import get_opportunity_model
 from .blocks import *
 from .buttons import linked_opportunity_button
 from .constants import *
-from .models import SalesPhase, Origin, Opportunity
+from .models import SalesPhase, Origin #, Opportunity
 from .setting_keys import quote_key
 
 
@@ -50,6 +53,12 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_TARGETS).exists()
+
+        Opportunity = get_opportunity_model()
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
+        Product = get_product_model()
+        Service = get_service_model()
 
         create_rtype = RelationType.create
         rt_sub_targets, rt_obj_targets = create_rtype((REL_SUB_TARGETS, _(u'targets the organisation/contact'), [Opportunity]),

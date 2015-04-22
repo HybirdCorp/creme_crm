@@ -32,9 +32,11 @@ from creme.creme_core.models import (RelationType, HeaderFilter,
         SearchConfigItem, BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
 from creme.creme_core.utils import create_if_needed
 
-from .models import *
-from .models.status import BASE_STATUS
+from . import get_ticket_model, get_tickettemplate_model
+#from .models import *
 from .constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
+from .models import Status, Priority, Criticity
+from .models.status import BASE_STATUS
 
 
 logger = logging.getLogger(__name__)
@@ -45,6 +47,9 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_LINKED_2_TICKET).exists()
+
+        Ticket = get_ticket_model()
+        TicketTemplate = get_tickettemplate_model()
 
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
@@ -114,14 +119,17 @@ class Populator(BasePopulator):
 
             if apps.is_installed('creme.persons'):
                 try:
-                    from creme.persons.models import Contact, Organisation
+                    #from creme.persons.models import Contact, Organisation
+                    from creme.persons import get_contact_model, get_organisation_model
                 except ImportError as e:
                     logger.info(str(e))
                 else:
                     from creme.tickets.buttons import linked_2_ticket_button
 
                     create_bmi = ButtonMenuItem.create_if_needed
-                    create_bmi(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
-                    create_bmi(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
+#                    create_bmi(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
+#                    create_bmi(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
+                    create_bmi(pk='tickets-linked_contact_button', model=get_contact_model(),      button=linked_2_ticket_button, order=50)
+                    create_bmi(pk='tickets-linked_orga_button',    model=get_organisation_model(), button=linked_2_ticket_button, order=50)
 
                     logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

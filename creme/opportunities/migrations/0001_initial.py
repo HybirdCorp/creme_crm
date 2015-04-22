@@ -59,6 +59,7 @@ class Migration(migrations.Migration):
                 ('sales_phase', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Sales phase', to='opportunities.SalesPhase')),
             ],
             options={
+                'swappable': 'OPPORTUNITIES_OPPORTUNITY_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Opportunity',
                 'verbose_name_plural': 'Opportunities',

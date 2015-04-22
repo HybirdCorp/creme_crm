@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from django.apps import apps
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
+
+from . import opportunity_model_is_custom
 
 
 urlpatterns = patterns('creme.opportunities.views',
     (r'^$', 'portal.portal'),
-
-    (r'^opportunities$',                           'opportunity.listview'),
-    (r'^opportunity/add$',                         'opportunity.add'),
-    (r'^opportunity/add_to/(?P<ce_id>\d+)$',       'opportunity.add_to'),
-    (r'^opportunity/add_to/(?P<ce_id>\d+)/popup$', 'opportunity.add_to', {'inner_popup': True}),
-    (r'^opportunity/edit/(?P<opp_id>\d+)$',        'opportunity.edit'),
-    (r'^opportunity/(?P<opp_id>\d+)$',             'opportunity.detailview'),
 )
+
+if not opportunity_model_is_custom():
+    urlpatterns += patterns('creme.opportunities.views.opportunity',
+        url(r'^opportunities$',                           'listview', name='opportunities__list_opportunities'),
+        url(r'^opportunity/add$',                         'add',      name='opportunities__create_opportunity'),
+        url(r'^opportunity/add_to/(?P<ce_id>\d+)$',       'add_to',   name='opportunities__create_related_opportunity'),
+        url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup$', 'add_to', {'inner_popup': True},
+            name='opportunities__create_related_opportunity_popup'
+           ),
+        url(r'^opportunity/edit/(?P<opp_id>\d+)$',        'edit',       name='opportunities__edit_opportunity'),
+        url(r'^opportunity/(?P<opp_id>\d+)$',             'detailview', name='opportunities__view_opportunity'),
+    )
 
 if apps.is_installed('creme.billing'):
     urlpatterns += patterns('creme.opportunities.views.billing',

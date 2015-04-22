@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db.models import ForeignKey, CharField, DateField, TextField
 #from django.db.models.aggregates import Count
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -26,11 +27,11 @@ from creme.creme_core.models import CremeModel
 from creme.creme_core.utils import chunktools
 
 from ..webservice.samoussa import (SamoussaBackEnd, SAMOUSSA_STATUS_ACCEPT,
-                                   SAMOUSSA_STATUS_WAITING, SAMOUSSA_STATUS_SENT,
-                                   SAMOUSSA_STATUS_ERROR)
+        SAMOUSSA_STATUS_WAITING, SAMOUSSA_STATUS_SENT,
+        SAMOUSSA_STATUS_ERROR)
 from ..webservice.backend import WSException
-from .campaign import SMSCampaign
-from .template import MessageTemplate
+#from .campaign import SMSCampaign
+#from .template import MessageTemplate
 
 
 MESSAGE_STATUS_NOTSENT = 'notsent'
@@ -51,8 +52,10 @@ MESSAGE_STATUS = {
 
 class Sending(CremeModel):
     date     = DateField(_(u'Date'))
-    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Related campaign'), related_name="sendings")
-    template = ForeignKey(MessageTemplate, verbose_name=_(u'Message template'))
+#    campaign = ForeignKey(SMSCampaign, verbose_name=_(u'Related campaign'), related_name="sendings")
+    campaign = ForeignKey(settings.SMS_CAMPAIGN_MODEL, verbose_name=_(u'Related campaign'), related_name="sendings")
+#    template = ForeignKey(MessageTemplate, verbose_name=_(u'Message template'))
+    template = ForeignKey(settings.SMS_TEMPLATE_MODEL, verbose_name=_(u'Message template'))
     content  = TextField(_(u'Generated message'), max_length=160)
 
     class Meta:

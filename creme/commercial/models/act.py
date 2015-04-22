@@ -20,21 +20,25 @@
 
 from functools import partial
 
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import (CharField, TextField, PositiveIntegerField, DateField,
-                              BooleanField, ForeignKey, PROTECT)
+from django.core.urlresolvers import reverse
+from django.db.models import (CharField, TextField, PositiveIntegerField,
+        DateField, BooleanField, ForeignKey, PROTECT)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
 from creme.creme_core.models.fields import CTypeForeignKey
 
-from creme.opportunities.models import Opportunity
+from creme.opportunities import get_opportunity_model
+#from creme.opportunities.models import Opportunity
 
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
 
+from .. import get_act_model
 from ..constants import REL_SUB_COMPLETE_GOAL
 from .market_segment import MarketSegment
 
@@ -56,7 +60,8 @@ class ActType(CremeModel):
         return self.title
 
 
-class Act(CremeEntity):
+#class Act(CremeEntity):
+class AbstractAct(CremeEntity):
     name           = CharField(_(u"Name of the commercial action"), max_length=100)
     expected_sales = PositiveIntegerField(_(u'Expected sales'))
     cost           = PositiveIntegerField(_(u"Cost of the commercial action"), blank=True, null=True)
@@ -70,6 +75,7 @@ class Act(CremeEntity):
     _related_opportunities = None
 
     class Meta:
+        abstract = True
         app_label = "commercial"
         verbose_name = _(u'Commercial Action')
         verbose_name_plural = _(u'Commercial Actions')
@@ -79,7 +85,8 @@ class Act(CremeEntity):
         return self.name
 
     def clean(self):
-        super(Act, self).clean()
+#        super(Act, self).clean()
+        super(AbstractAct, self).clean()
         start = self.start
         due_date = self.due_date
 
@@ -89,14 +96,17 @@ class Act(CremeEntity):
                                  )
 
     def get_absolute_url(self):
-        return "/commercial/act/%s" % self.id
+#        return "/commercial/act/%s" % self.id
+        return reverse('commercial__view_act', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/commercial/act/edit/%s" % self.id
+#        return "/commercial/act/edit/%s" % self.id
+        return reverse('commercial__edit_act', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/commercial/acts"
+#        return "/commercial/acts"
+        return reverse('commercial__list_acts')
 
     def get_made_sales(self):
         return sum(o.made_sales for o in self.get_related_opportunities() if o.made_sales)
@@ -108,7 +118,8 @@ class Act(CremeEntity):
         relopps = self._related_opportunities
 
         if relopps is None:
-            relopps = list(Opportunity.objects.filter(is_deleted=False,
+#            relopps = list(Opportunity.objects.filter(is_deleted=False,
+            relopps = list(get_opportunity_model().objects.filter(is_deleted=False,
                                                       relations__type=REL_SUB_COMPLETE_GOAL,
                                                       relations__object_entity=self.id,
                                                      )
@@ -128,9 +139,15 @@ class Act(CremeEntity):
                                 ctype=act_objective.ctype)
 
 
+class Act(AbstractAct):
+    class Meta(AbstractAct.Meta):
+        swappable = 'COMMERCIAL_ACT_MODEL'
+
+
 class ActObjective(CremeModel):
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
-    act          = ForeignKey(Act, related_name='objectives', editable=False)
+#    act          = ForeignKey(Act, related_name='objectives', editable=False)
+    act          = ForeignKey(settings.COMMERCIAL_ACT_MODEL, related_name='objectives', editable=False)
     counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
     #ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
@@ -186,7 +203,8 @@ class ActObjective(CremeModel):
         return self.get_count() >= self.counter_goal
 
 
-class ActObjectivePattern(CremeEntity):
+#class ActObjectivePattern(CremeEntity):
+class AbstractActObjectivePattern(CremeEntity):
     name          = CharField(_(u"Name"), max_length=100)
     average_sales = PositiveIntegerField(_(u'Average sales'))
     segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
@@ -195,6 +213,7 @@ class ActObjectivePattern(CremeEntity):
     _components_cache = None
 
     class Meta:
+        abstract = True
         app_label = "commercial"
         verbose_name = _(u'Commercial objective pattern')
         verbose_name_plural = _(u'Commercial objective patterns')
@@ -204,14 +223,17 @@ class ActObjectivePattern(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/commercial/objective_pattern/%s" % self.id
+#        return "/commercial/objective_pattern/%s" % self.id
+        return reverse('commercial__view_pattern', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/commercial/objective_pattern/edit/%s" % self.id
+#        return "/commercial/objective_pattern/edit/%s" % self.id
+        return reverse('commercial__edit_pattern', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/commercial/objective_patterns"
+#        return "/commercial/objective_patterns"
+        return reverse('commercial__list_patterns')
 
     def get_components_tree(self):
         """Get (and cache) the ActObjectivePatternComponent objects tree related
@@ -238,6 +260,11 @@ class ActObjectivePattern(CremeEntity):
     def _post_save_clone(self, source):
         for pattern_component in source.get_components_tree():
             pattern_component.clone(self)
+
+
+class ActObjectivePattern(AbstractActObjectivePattern):
+    class Meta(AbstractActObjectivePattern.Meta):
+        swappable = 'COMMERCIAL_PATTERN_MODEL'
 
 
 class ActObjectivePatternComponent(CremeModel):
@@ -319,10 +346,12 @@ def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
         object_entity = instance.object_entity
         get_ct = ContentType.objects.get_for_model
 
-        if object_entity.entity_type == get_ct(Opportunity):
+#        if object_entity.entity_type == get_ct(Opportunity):
+        if object_entity.entity_type == get_ct(get_opportunity_model()):
             relations = Relation.objects.filter(subject_entity=object_entity,
                                                 type=REL_SUB_COMPLETE_GOAL,
-                                                object_entity__entity_type=get_ct(Act)
+#                                                object_entity__entity_type=get_ct(Act)
+                                                object_entity__entity_type=get_ct(get_act_model())
                                                )
 
             create_relation = partial(Relation.objects.create,

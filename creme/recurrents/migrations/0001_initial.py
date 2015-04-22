@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
                 ('template', models.ForeignKey(related_name='template_set', editable=False, to='creme_core.CremeEntity', verbose_name='Related model')),
             ],
             options={
+                'swappable': 'RECURRENTS_RGENERATOR_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Recurrent generator',
                 'verbose_name_plural': 'Recurrent generators',

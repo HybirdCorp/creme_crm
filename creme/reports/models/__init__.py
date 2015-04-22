@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .report import Field, Report
-from .graph import ReportGraph#, ReportGraphType
+from .report import Field, AbstractReport, Report
+from .graph import AbstractReportGraph, ReportGraph
 
 
 from django.conf import settings

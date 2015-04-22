@@ -5,16 +5,17 @@ try:
     from functools import partial
     from json import loads as load_json, dumps as dump_json
 
-    from django.utils.translation import ugettext as _
-    from django.utils.encoding import smart_unicode
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
+    from django.utils.encoding import smart_unicode
+    from django.utils.translation import ugettext as _
 
-    from .base import _PollsTestCase
-    from ..models import PollType, PollForm, PollFormSection, PollFormLine, PollFormLineCondition
+    from .base import _PollsTestCase, skipIfCustomPollForm
     from ..core import PollLineType
     from ..blocks import pform_lines_block, preplies_block
-    from ..utils import SectionTree, NodeStyle
+    from ..models import PollType, PollForm, PollFormSection, PollFormLine, PollFormLineCondition
     from ..templatetags.polls_tags import print_node_number, print_node_css, print_line_condition
+    from ..utils import SectionTree, NodeStyle
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -25,6 +26,7 @@ get_ct = ContentType.objects.get_for_model
 DELETE_RELATED_URL = '/creme_core/entity/delete_related/%s'
 
 
+@skipIfCustomPollForm
 class PollFormsTestCase(_PollsTestCase):
     _CONDSFIELD_STR   = '[{"source": "%(source)s", "choice": "%(choice)s"}]'
     _CONDSFIELD_STR2X = '[{"source": "%(source1)s", "choice": "%(choice1)s"},' \
@@ -119,7 +121,8 @@ class PollFormsTestCase(_PollsTestCase):
         user = self.user
         self.assertFalse(PollForm.objects.all())
 
-        url = '/polls/poll_form/add'
+#        url = '/polls/poll_form/add'
+        url = reverse('polls__create_form')
         self.assertGET200(url)
 
         name = 'Form#1'
@@ -141,7 +144,8 @@ class PollFormsTestCase(_PollsTestCase):
         name = 'form#1'
         pform = PollForm.objects.create(user=user, name=name)
 
-        url = '/polls/poll_form/edit/%s' % pform.id
+#        url = '/polls/poll_form/edit/%s' % pform.id
+        url = pform.get_edit_absolute_url()
         self.assertGET200(url)
 
         name = name.title()
@@ -164,7 +168,8 @@ class PollFormsTestCase(_PollsTestCase):
         pform1 = create_pform(name='Form#1')
         pform2 = create_pform(name='Form#2')
 
-        response = self.assertGET200('/polls/poll_forms')
+#        response = self.assertGET200('/polls/poll_forms')
+        response = self.assertGET200(PollForm.get_lv_absolute_url())
 
         with self.assertNoException():
             pform_page = response.context['entities']

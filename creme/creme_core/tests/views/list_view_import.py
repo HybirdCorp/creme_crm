@@ -7,6 +7,7 @@ try:
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -19,6 +20,7 @@ try:
 #    from creme.persons.models import Contact, Organisation, Position, Sector
 
     from creme.documents.models import Document, Folder, FolderCategory
+    from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -32,7 +34,8 @@ except:
 
 __all__ = ('CSVImportViewsTestCase', )
 
-
+@skipIfCustomDocument
+@skipIfCustomFolder
 class CSVImportBaseTestCaseMixin(object):
     clean_files_in_teardown = True #see CremeTestCase
 
@@ -52,7 +55,8 @@ class CSVImportBaseTestCaseMixin(object):
                                       )
 
         title = 'Test doc'
-        response = self.client.post('/documents/document/add', follow=True,
+#        response = self.client.post('/documents/document/add', follow=True,
+        response = self.client.post(reverse('documents__create_document'), follow=True,
                                     data={'user':        self.user.id,
                                           'title':       title,
                                           'description': 'CSV file for contacts',

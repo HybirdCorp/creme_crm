@@ -15,8 +15,10 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import _EmailsTestCase
+    from .base import (_EmailsTestCase, skipIfCustomEmailCampaign,
+            skipIfCustomEmailTemplate, skipIfCustomMailingList)
     from ..management.commands.emails_send import Command as EmailsSendCommand
     from ..models import (EmailSending, EmailCampaign, EmailRecipient,
             EmailTemplate, MailingList, LightWeightEmail)
@@ -30,6 +32,9 @@ except Exception as e:
 __all__ = ('SendingsTestCase',)
 
 
+@skipIfCustomEmailCampaign
+@skipIfCustomEmailTemplate
+@skipIfCustomMailingList
 class SendingsTestCase(_EmailsTestCase):
     def _load_or_fail(self, data):
         with self.assertNoException():
@@ -44,10 +49,11 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_sender_setting01(self):
         self.repopulate_email()
-        self.login()
-        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
-        template = EmailTemplate.objects.create(user=self.user, name='name',
-                                                subject='SUBJECT', body='BODY')
+        user = self.login()
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name',
+                                                subject='SUBJECT', body='BODY',
+                                               )
 
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
@@ -80,7 +86,7 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_sender_setting02(self):
         self.repopulate_email()
-        self.login(is_superuser=False,
+        user = self.login(is_superuser=False,
                    allowed_apps=('emails',),
                    creatable_models=(EmailSending, EmailCampaign)
                   )
@@ -91,9 +97,10 @@ class SendingsTestCase(_EmailsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
-        template = EmailTemplate.objects.create(user=self.user, name='name',
-                                                subject='SUBJECT', body='BODY')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name',
+                                                subject='SUBJECT', body='BODY',
+                                               )
 
         url = self._build_add_url(camp)
         response = self.assertGET200(url)
@@ -132,16 +139,18 @@ class SendingsTestCase(_EmailsTestCase):
                                                )
                               )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_create01(self):
-        self.login()
+        user = self.login()
         # We create voluntarily duplicates (recipients that have same addresses
         # than Contact/Organisation, MailingList that contain the same addresses)
         # EmailSending should not contain duplicates.
-        camp = EmailCampaign.objects.create(user=self.user, name='camp01')
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
 
         self.assertFalse(camp.sendings_set.exists())
 
-        create_ml = partial(MailingList.objects.create, user=self.user)
+        create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='ml01')
         mlist02 = create_ml(name='ml02')
         mlist03 = create_ml(name='ml03')
@@ -173,7 +182,7 @@ class SendingsTestCase(_EmailsTestCase):
         create_recipient(ml=mlist05, address=addresses[7])
         create_recipient(ml=mlist06, address='jin@reddragons.mrs')
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         contacts = [create_contact(first_name='Spike', last_name='Spiegel', email=addresses[0]),
                     create_contact(first_name='Jet',   last_name='Black',   email=addresses[1]),
                    ]
@@ -186,7 +195,7 @@ class SendingsTestCase(_EmailsTestCase):
         mlist02.contacts.add(contacts[1])
         mlist02.contacts.add(deleted_contact)
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orgas = [create_orga(name='NERV',  email=addresses[5]),
                  create_orga(name='Seele', email=addresses[6]),
                 ]
@@ -197,7 +206,7 @@ class SendingsTestCase(_EmailsTestCase):
 
         subject = 'SUBJECT'
         body    = 'BODYYYYYYYYYYY'
-        template = EmailTemplate.objects.create(user=self.user, name='name', subject=subject, body=body)
+        template = EmailTemplate.objects.create(user=user, name='name', subject=subject, body=body)
 
         url = self._build_add_url(camp)
         self.assertGET200(url)
@@ -251,10 +260,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(EmailSending.objects.exists())
         self.assertFalse(LightWeightEmail.objects.exists())
 
+    @skipIfCustomContact
     def test_create02(self):
         "Test template"
-        self.login()
-        user = self.user
+        user = self.login()
         first_name = 'Spike'
         last_name  = 'Spiegel'
 
@@ -301,11 +310,12 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertDoesNotExist(sending)
         self.assertDoesNotExist(mail)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Command + outbox"
-        self.login()
-        user = self.user
+        user = self.login()
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
         mlist    = MailingList.objects.create(user=user, name='ml01')

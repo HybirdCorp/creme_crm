@@ -7,16 +7,18 @@ try:
 
     from django.conf import settings
     from django.core import mail
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import Relation, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Relation, SetCredentials
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.documents.models import Document, Folder, FolderCategory
 
-    from .base import _EmailsTestCase
+    from .base import _EmailsTestCase, skipIfCustomEntityEmail, skipIfCustomEmailTemplate
     from ..constants import (MAIL_STATUS_NOTSENT, MAIL_STATUS_SENT,
             MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SYNCHRONIZED,
             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
@@ -30,16 +32,17 @@ except Exception as e:
 __all__ = ('EntityEmailTestCase',)
 
 
+@skipIfCustomEntityEmail
 class EntityEmailTestCase(_EmailsTestCase):
     clean_files_in_teardown = True #see CremeTestCase
 
     def login(self, is_superuser=True):
-        super(EntityEmailTestCase, self).login(is_superuser,
+        user = super(EntityEmailTestCase, self).login(is_superuser,
                                                allowed_apps=['persons', 'emails'],
                                                creatable_models=[Contact, Organisation, EntityEmail],
                                               )
 
-        user = self.user
+        #user = self.user
         ###self.user_contact = Contact.objects.create(user=user, is_user=user,
                                                    ###first_name='Re-l',
                                                    ###last_name='Mayer',
@@ -56,9 +59,9 @@ class EntityEmailTestCase(_EmailsTestCase):
     def _build_send_from_template_url(self, entity):
         return '/emails/mail/add_from_template/%s' % entity.id
 
+    @skipIfCustomContact
     def test_createview01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         recipient = 'vincent.law@immigrates.rmd'
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
@@ -111,10 +114,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual([(body_html, 'text/html')], message.alternatives)
         self.assertFalse(message.attachments)
 
+    @skipIfCustomOrganisation
     def test_createview02(self):
         "Attachments"
-        self.login()
-        user = self.user
+        user = self.login()
 
         recipient = 'contact@venusgate.jp'
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
@@ -138,7 +141,8 @@ class EntityEmailTestCase(_EmailsTestCase):
             tmpfile.flush()
             tmpfile.file.seek(0)
 
-            response = self.client.post('/documents/document/add', follow=True,
+#            response = self.client.post('/documents/document/add', follow=True,
+            response = self.client.post(reverse('documents__create_document'), follow=True,
                                         data={'user':        user.id,
                                               'title':       title,
                                               'description': 'Attachment file',
@@ -156,7 +160,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         doc2 = create_doc('Doc02', content2)
 
         sender = 're-l.mayer@rpd.rmd'
-        signature = EmailSignature.objects.create(user=self.user, name="Re-l's signature", body='I love you... not')
+        signature = EmailSignature.objects.create(user=user, name="Re-l's signature", body='I love you... not')
         response = self.client.post(url, data={'user':         user.id,
                                                'sender':       sender,
                                                'o_recipients': '[%d]' % orga.id,
@@ -188,10 +192,11 @@ class EntityEmailTestCase(_EmailsTestCase):
                          message.attachments
                         )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview03(self):
         "Invalid email adress"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Vincent', last_name='Law',
@@ -223,11 +228,12 @@ class EntityEmailTestCase(_EmailsTestCase):
                              _(u"The email address for %s is invalid") % orga01
                             )
 
+    @skipIfCustomContact
     def test_createview04(self):
         "Related contact has no emails address"
-        self.login()
+        user = self.login()
 
-        contact = Contact.objects.create(user=self.user, first_name='Vincent', last_name='Law')
+        contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law')
         response = self.assertGET200(self._build_send_url(contact))
 
         with self.assertNoException():
@@ -236,11 +242,12 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(c_recipients.initial)
         self.assertEqual(_(u'Beware: the contact «%s» has no email address!') % contact, c_recipients.help_text)
 
+    @skipIfCustomOrganisation
     def test_createview05(self):
         "Related organisation has no email address"
-        self.login()
+        user = self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Venus gate')
+        orga = Organisation.objects.create(user=user, name='Venus gate')
         response = self.assertGET200(self._build_send_url(orga))
 
         with self.assertNoException():
@@ -249,6 +256,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(o_recipients.initial)
         self.assertEqual(_(u'Beware: the organisation «%s» has no email address!') % orga, o_recipients.help_text)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview06(self):
         "Credentials problem"
         user = self.login(is_superuser=False)
@@ -302,15 +311,16 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertFormError(response, 'form', 'c_recipients',
-                             [_(u"Some entities are not linkable: %s") % contact01]
+                             _(u"Some entities are not linkable: %s") % contact01
                             )
         self.assertFormError(response, 'form', 'o_recipients',
-                             [_(u"Some entities are not linkable: %s") % orga01]
+                             _(u"Some entities are not linkable: %s") % orga01
                             )
 
+    @skipIfCustomEmailTemplate
+    @skipIfCustomContact
     def test_create_from_template01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         body_format      = 'Hi %s %s, nice to meet you !'
         body_html_format = 'Hi <strong>%s %s</strong>, nice to meet you !'
@@ -370,9 +380,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityEmail, recipient=recipient)
 
+    @skipIfCustomEmailTemplate
+    @skipIfCustomContact
     def test_create_from_template02(self): #TODO: test better (credentials....)
-        self.login()
-        user = self.user
+        user = self.login()
         body = 'Hi , nice to meet you !'
 
         image_filename = '13_myimg.png'
@@ -404,6 +415,8 @@ class EntityEmailTestCase(_EmailsTestCase):
                              _(u"The image «%s» no longer exists or isn't valid.") % image_filename
                             )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def _create_emails(self):
         user = self.user
 
@@ -440,7 +453,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         self._create_emails()
 
-        response = self.assertGET200('/emails/mails')
+#        response = self.assertGET200('/emails/mails')
+        response = self.assertGET200(reverse('emails__list_emails'))
 
         with self.assertNoException():
             emails = response.context['entities']

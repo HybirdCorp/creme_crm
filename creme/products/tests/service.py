@@ -4,6 +4,7 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -11,7 +12,7 @@ try:
 
     from creme.media_managers.tests import create_image
 
-    from .base import _ProductsTestCase
+    from .base import _ProductsTestCase, skipIfCustomService
     from ..models import Category, SubCategory, Service
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -20,12 +21,14 @@ except Exception as e:
 __all__ = ('ServiceTestCase',)
 
 
+@skipIfCustomService
 class ServiceTestCase(_ProductsTestCase):
     def test_createview(self):
         self.login()
         self.assertEqual(0, Service.objects.count())
 
-        url = '/products/service/add'
+#        url = '/products/service/add'
+        url = reverse('products__create_service')
         self.assertGET200(url)
 
         name = 'Eva washing'
@@ -113,7 +116,8 @@ class ServiceTestCase(_ProductsTestCase):
                                ),
                    ]
 
-        response = self.assertGET200('/products/services')
+#        response = self.assertGET200('/products/services')
+        response = self.assertGET200(Service.get_lv_absolute_url())
 
         with self.assertNoException():
             services_page = response.context['entities']

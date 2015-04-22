@@ -3,16 +3,35 @@
 from os import remove as delete_file, listdir, makedirs
 from os.path import basename, join, exists
 from tempfile import NamedTemporaryFile
+from unittest import skipIf
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from creme.creme_core.tests.base import CremeTestCase
 
 from ..models import Folder
 
+try:
+    from .. import document_model_is_custom, folder_model_is_custom
+
+    skip_document_tests = document_model_is_custom()
+    skip_folder_tests   = folder_model_is_custom()
+except Exception as e:
+    print('Error in <%s>: %s' % (__name__, e))
+
+    skip_document_tests = skip_folder_tests = False
+
+
+def skipIfCustomDocument(test_func):
+    return skipIf(skip_document_tests, 'Custom document model in use')(test_func)
+
+def skipIfCustomFolder(test_func):
+    return skipIf(skip_folder_tests, 'Custom folder model in use')(test_func)
+
 
 class _DocumentsTestCase(CremeTestCase):
-    ADD_DOC_URL = '/documents/document/add'
+    #ADD_DOC_URL = '/documents/document/add'
 
     @classmethod
     def setUpClass(cls):
@@ -27,6 +46,8 @@ class _DocumentsTestCase(CremeTestCase):
         else:
             makedirs(dir_path, 0755)
             cls.existing_files = set()
+
+        cls.ADD_DOC_URL = reverse('documents__create_document')
 
     def tearDown(self):
         dir_path = self.dir_path

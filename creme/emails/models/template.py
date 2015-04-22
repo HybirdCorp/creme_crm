@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,27 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, SET_NULL
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from creme.documents.models import Document
+#from creme.documents.models import Document
 
 from .signature import EmailSignature
 
 
-class EmailTemplate(CremeEntity):
+#class EmailTemplate(CremeEntity):
+class AbstractEmailTemplate(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
     body_html   = TextField(_(u"Body (HTML)"))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
-    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+#    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
     creation_label = _('Add an email template')
 
     class Meta:
+        abstract = True
         app_label = "emails"
         verbose_name = _(u"Email template")
         verbose_name_plural = _(u"Email templates")
@@ -48,13 +53,19 @@ class EmailTemplate(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/emails/template/%s" % self.id
+#        return "/emails/template/%s" % self.id
+        return reverse('emails__view_template', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/emails/template/edit/%s" % self.id
+#        return "/emails/template/edit/%s" % self.id
+        return reverse('emails__edit_template', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/emails/templates"
+#        return "/emails/templates"
+        return reverse('emails__list_templates')
 
 
+class EmailTemplate(AbstractEmailTemplate):
+    class Meta(AbstractEmailTemplate.Meta):
+        swappable = 'EMAILS_TEMPLATE_MODEL'

@@ -29,7 +29,8 @@ from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailv
 from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from .models import Graph
+#from .models import Graph
+from . import get_graph_model
 from .blocks import root_nodes_block, orbital_rtypes_block
 
 
@@ -40,6 +41,8 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        Graph = get_graph_model()
+
         HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph,
                             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
                            )

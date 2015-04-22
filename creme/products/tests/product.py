@@ -5,6 +5,7 @@ try:
     from functools import partial
     import json
 
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -15,7 +16,7 @@ try:
 
     from creme.media_managers.tests import create_image
 
-    from .base import _ProductsTestCase
+    from .base import _ProductsTestCase, skipIfCustomProduct
     from ..models import Category, SubCategory, Product
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -24,6 +25,7 @@ except Exception as e:
 __all__ = ('ProductTestCase',)
 
 
+@skipIfCustomProduct
 class ProductTestCase(_ProductsTestCase):
     def test_populate(self):
         self.assertTrue(Category.objects.exists())
@@ -51,12 +53,14 @@ class ProductTestCase(_ProductsTestCase):
                          json.loads(response.content)
                         )
 
+    @skipIfCustomProduct
     def test_createview01(self):
         self.login()
 
         self.assertEqual(0, Product.objects.count())
 
-        url = '/products/product/add'
+#        url = '/products/product/add'
+        url = reverse('products__create_product')
         self.assertGET200(url)
 
         name = 'Eva00'
@@ -91,6 +95,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertRedirects(response, product.get_absolute_url())
         self.assertTemplateUsed(response, 'products/block_images.html')
 
+    @skipIfCustomProduct
     def test_createview02(self):
         "Images + credentials"
         user = self.login(is_superuser=False, allowed_apps=['products', 'media_managers'],
@@ -128,8 +133,9 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.all()[0]
 
         def post(*images):
-            return self.client.post('/products/product/add', follow=True,
-                                    data={'user':       user.pk,
+#            return self.client.post('/products/product/add', follow=True,
+            return self.client.post(reverse('products__create_product'), follow=True,
+                                    data={'user':         user.pk,
                                           'name':         name,
                                           'code':         42,
                                           'description':  'A fake god',
@@ -152,6 +158,7 @@ class ProductTestCase(_ProductsTestCase):
         product = self.get_object_or_fail(Product, name=name)
         self.assertEqual({img_1, img_2}, set(product.images.all()))
 
+    @skipIfCustomProduct
     def test_editview(self):
         user = self.login()
 
@@ -190,6 +197,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(name,                product.name)
         self.assertEqual(Decimal(unit_price), product.unit_price)
 
+    @skipIfCustomProduct
     def test_listview(self):
         self.login()
 
@@ -202,7 +210,8 @@ class ProductTestCase(_ProductsTestCase):
                     create_prod(name='Eva01', code=43),
                    ]
 
-        response = self.assertGET200('/products/products')
+#        response = self.assertGET200('/products/products')
+        response = self.assertGET200(Product.get_lv_absolute_url())
 
         with self.assertNoException():
             products_page = response.context['entities']
@@ -229,6 +238,7 @@ class ProductTestCase(_ProductsTestCase):
 
         return product, cat, sub_cat
 
+    @skipIfCustomProduct
     def test_delete_category02(self):
         self.login()
 

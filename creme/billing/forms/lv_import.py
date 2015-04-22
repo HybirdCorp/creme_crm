@@ -27,10 +27,15 @@ from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, Enti
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first, update_model_instance
 
-from creme.persons.models import Contact, Organisation # Address
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation # Address
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from .base import copy_or_create_address
+
+
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
 
 
 def _copy_or_update_address(source, dest, attr_name, addr_name):

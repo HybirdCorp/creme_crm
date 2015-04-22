@@ -21,6 +21,7 @@ try:
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.assistants.models import Alert
 
@@ -162,6 +163,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
         self.assertGET200('/activities/')
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview01(self):
         self.login()
 
@@ -220,6 +223,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRedirects(response, act.get_absolute_url())
         self.assertTemplateUsed(response, 'activities/view_activity.html')
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview02(self):
         "Credentials errors"
         #self.login(is_superuser=False, other_is_owner=True)
@@ -274,6 +279,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFormError(response, 'form', 'subjects',            msg % akane)
         self.assertFormError(response, 'form', 'linked_entities',     msg % dojo)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview03(self):
         "No end given ; auto subjects"
         self.login()
@@ -441,6 +448,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
 
+    @skipIfCustomOrganisation
     def test_createview11(self):
         "Auto subjects disabled"
         user = self.login()
@@ -559,6 +567,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                              _(u"This content type is not allowed.")
                             )
 
+    @skipIfCustomContact
     def test_createview_errors03(self):
         "other_participants contains contact of user"
         user = self.login()
@@ -650,6 +659,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         alert = self.get_object_or_fail(Alert, entity_id=act.id)
         self.assertEqual(self.create_datetime(2013, 3, 28, 17, 28), alert.trigger_date)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_create_view_meeting01(self):
         user = self.login()
 
@@ -774,6 +785,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(Activity, type=type_id, title=title)
 
+    @skipIfCustomContact
     def test_createview_related01(self):
         user = self.login()
         other_user = self.other_user
@@ -835,6 +847,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual([self.other_user.id], [e.id for e in users.initial])
 
+    @skipIfCustomOrganisation
     def test_createview_related03(self):
         self.login()
 
@@ -859,6 +872,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
 
+    @skipIfCustomContact
     def test_createview_related_meeting01(self):
         "Meeting forced"
         user = self.login()
@@ -904,6 +918,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                              _(u'This type causes constraint error.'),
                             )
 
+    @skipIfCustomContact
     def test_createview_related_other01(self):
         user = self.login()
 
@@ -1168,6 +1183,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity.type_id)
         self.assertEqual(subtype, activity.sub_type)
 
+    @skipIfCustomContact
     def test_delete01(self):
         "Cannot delete a participant"
         user = self.login()
@@ -1186,6 +1202,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertStillExists(activity)
         self.assertStillExists(rel)
 
+    @skipIfCustomContact
     def test_delete02(self):
         "Relations REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted"
         user = self.login()
@@ -1388,6 +1405,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         if collisions:
             raise ValidationError(collisions)
 
+    @skipIfCustomContact
     def test_collision01(self):
         user = self.login()
 
@@ -1530,6 +1548,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual([acts[1]], list(meetings_page.object_list))
 
+    @skipIfCustomContact
     def test_unlink01(self):
         user = self.login()
 
@@ -1557,6 +1576,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertPOST404(url, data={'id': 1024,        'object_id': contact.id})
         self.assertPOST404(url, data={'id': activity.id, 'object_id': 1024})
 
+    @skipIfCustomContact
     def test_unlink02(self):
         "Can not unlink the activity"
         user = self.login(is_superuser=False)
@@ -1579,6 +1599,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                           )
         self.assertEqual(1, contact.relations.filter(pk=relation.id).count())
 
+    @skipIfCustomContact
     def test_unlink03(self):
         "Can not unlink the contact"
         self.login(is_superuser=False)
@@ -1605,6 +1626,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                           )
         self.get_object_or_fail(Relation, pk=relation.id)
 
+    @skipIfCustomContact
     def test_participants01(self):
         self.login()
         activity = self._create_meeting()
@@ -1638,6 +1660,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(user.has_perm_to_link(activity))
         self.assertGET403(self._buid_add_participants_url(activity))
 
+    @skipIfCustomContact
     def test_participants03(self):
         "Credentials error with selected subjects"
         user = self.login(is_superuser=False)
@@ -1662,6 +1685,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                 )
                         )
 
+    @skipIfCustomContact
     def test_participants04(self):
         "Remove participants (relationships deleted)"
         user = self.login()
@@ -1709,6 +1733,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(qs.all())
         self.assertFalse(phone_call.calendars.all())
 
+    @skipIfCustomContact
     def test_participants05(self):
         "'My participation' field is removed when it is useless."
         activity = self._create_activity_by_view()
@@ -1735,6 +1760,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                          {r.object_entity_id for r in relations}
                         )
 
+    @skipIfCustomContact
     def test_participants06(self):
         "Fix a bug when checking for collision for a floating activities"
         activity = self._create_activity_by_view()
@@ -1787,6 +1813,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                          {r.object_entity.get_real_entity() for r in relations}
                         )
 
+    @skipIfCustomOrganisation
     def test_add_subjects01(self):
         user = self.login()
 
@@ -1828,6 +1855,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(user.has_perm_to_link(activity))
         self.assertGET403(self._buid_add_subjects_url(activity))
 
+    @skipIfCustomOrganisation
     def test_add_subjects03(self): 
         "Credentials error with selected subjects"
         user = self.login(is_superuser=False)
@@ -2251,6 +2279,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                     ]:
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
+    @skipIfCustomContact
     def test_clone02(self):
         user = self.login()
 

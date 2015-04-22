@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
+skip_report_tests = False
+skip_rgraph_tests = False
+
 try:
     from datetime import datetime
     from decimal import Decimal
     from functools import partial
+    from unittest import skipIf
 
 #    from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     #from django.utils.translation import ugettext as _
 
@@ -39,14 +44,25 @@ try:
 
     from .fake_models import FakeFolder as Folder, FakeDocument as Document
 
+    from .. import report_model_is_custom, rgraph_model_is_custom
     from ..constants import RFT_FIELD # RFT_AGG_FIELD RFT_RELATION
     from ..models import Field, Report
+
+    skip_report_tests = report_model_is_custom()
+    skip_rgraph_tests = rgraph_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+def skipIfCustomReport(test_func):
+    return skipIf(skip_report_tests, 'Custom Report model in use')(test_func)
+
+def skipIfCustomRGraph(test_func):
+    return skipIf(skip_rgraph_tests, 'Custom ReportGraph model in use')(test_func)
+
+
 class BaseReportsTestCase(CremeTestCase):
-    ADD_URL = '/reports/report/add'
+#    ADD_URL = '/reports/report/add'
     SET_FIELD_ORDER_URL = '/reports/report/field/change_order'
 
     @classmethod
@@ -70,6 +86,8 @@ class BaseReportsTestCase(CremeTestCase):
         cls.ct_orga    = get_ct(Organisation)
         cls.ct_image   = get_ct(Image)
         cls.ct_folder  = get_ct(Folder)
+
+        cls.ADD_URL = reverse('reports__create_report')
 
     def _create_report(self, name='Report #1', efilter=None, extra_cells=()):
         cells = [EntityCellRegularField.build(model=Contact, name='last_name'),

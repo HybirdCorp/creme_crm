@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
+
+from . import report_model_is_custom, rgraph_model_is_custom
 
 
 urlpatterns = patterns('creme.reports.views',
     (r'^$', 'portal.portal'),
-
-    (r'^reports$',                                   'report.listview'),
-    (r'^report/add$',                                'report.add'),
-    (r'^report/edit/(?P<report_id>\d+)$',            'report.edit'),
-    (r'^report/(?P<report_id>\d+)$',                 'report.detailview'),
 
     (r'^export/preview/(?P<report_id>\d+)$',  'export.preview'),
     (r'^export/filter/(?P<report_id>\d+)$',   'export.filter'),
@@ -24,15 +21,27 @@ urlpatterns = patterns('creme.reports.views',
     (r'^report/field/(?P<field_id>\d+)/link_report$',   'report.link_report'),
     (r'^report/(?P<report_id>\d+)/edit_fields$',        'report.edit_fields'),
 
-    (r'^graph/(?P<report_id>\d+)/add$',                                                                 'graph.add'),
-    (r'^graph/edit/(?P<graph_id>\d+)$',                                                                 'graph.edit'),
-    (r'^graph/(?P<graph_id>\d+)$',                                                                      'graph.detailview'),
     (r'^graph/get_available_types/(?P<ct_id>\d+)$',                                                     'graph.get_available_report_graph_types'),
     (r'^graph/fetch_graph/(?P<graph_id>\d+)/(?P<order>\w+)$',                                           'graph.fetch_graph'),
     (r'^graph/fetch_from_instance_block/(?P<instance_block_id>\d+)/(?P<entity_id>\d+)/(?P<order>\w+)$', 'graph.fetch_graph_from_instanceblock'),
 
     (r'^graph/(?P<graph_id>\d+)/block/add$', 'blocks.add_graph_instance_block'),
 )
+
+if not report_model_is_custom():
+    urlpatterns += patterns('creme.reports.views.report',
+        url(r'^reports$',                        'listview',   name='reports__list_reports'),
+        url(r'^report/add$',                     'add',        name='reports__create_report'),
+        url(r'^report/edit/(?P<report_id>\d+)$', 'edit',       name='reports__edit_report'),
+        url(r'^report/(?P<report_id>\d+)$',      'detailview', name='reports__view_report'),
+    )
+
+if not rgraph_model_is_custom():
+    urlpatterns += patterns('creme.reports.views.graph',
+        url(r'^graph/(?P<report_id>\d+)/add$', 'add',        name='reports__create_graph'),
+        url(r'^graph/edit/(?P<graph_id>\d+)$', 'edit',       name='reports__edit_graph'),
+        url(r'^graph/(?P<graph_id>\d+)$',      'detailview', name='reports__view_graph'),
+    )
 
 if settings.TESTS_ON:
     urlpatterns += patterns('creme.reports.tests.fake_views',

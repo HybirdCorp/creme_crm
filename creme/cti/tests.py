@@ -4,12 +4,14 @@ try:
     from datetime import timedelta # datetime
     #from functools import partial
 
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.gui.field_printers import field_printers_registry
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities.models import Activity, Calendar, ActivityType, ActivitySubType
     from creme.activities.constants import *
@@ -78,6 +80,7 @@ class CTITestCase(CremeTestCase):
         self.assertIn(contact.phone, html)
         self.assertIn('<a onclick="creme.cti.phoneCall', html)
 
+    @skipIfCustomContact
     def test_add_phonecall01(self):
         user = self.login()
 
@@ -113,6 +116,7 @@ class CTITestCase(CremeTestCase):
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': '1024'})
         self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
 
+    @skipIfCustomOrganisation
     def test_add_phonecall03(self):
         "Organisation"
         user = self.login()
@@ -127,6 +131,7 @@ class CTITestCase(CremeTestCase):
         self.assertRelationCount(0, orga, REL_SUB_PART_2_ACTIVITY,   pcall)
         self.assertRelationCount(1, orga, REL_SUB_LINKED_2_ACTIVITY, pcall)
 
+    @skipIfCustomContact
     def test_respond_to_a_call01(self):
         user = self.login()
 
@@ -141,6 +146,7 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(1, len(callers))
         self.assertEqual(contact.id, callers[0].id)
 
+    @skipIfCustomContact
     def test_respond_to_a_call02(self):
         user = self.login()
 
@@ -149,6 +155,7 @@ class CTITestCase(CremeTestCase):
         response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([contact.id], [c.id for c in response.context['callers']])
 
+    @skipIfCustomOrganisation
     def test_respond_to_a_call03(self):
         user = self.login()
 
@@ -157,11 +164,13 @@ class CTITestCase(CremeTestCase):
         response = self.client.get(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([orga.id], [o.id for o in response.context['callers']])
 
+    @skipIfCustomContact
     def test_create_contact(self):
         user = self.login()
 
         phone = '121366'
-        url = '/cti/contact/add/%s' % phone
+#        url = '/cti/contact/add/%s' % phone
+        url = reverse('cti__create_contact', args=(phone,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -179,11 +188,13 @@ class CTITestCase(CremeTestCase):
                               )
         self.get_object_or_fail(Contact, phone=phone)
 
+    @skipIfCustomOrganisation
     def test_create_orga(self):
         user = self.login()
 
         phone = '987654'
-        url = '/cti/organisation/add/%s' % phone
+#        url = '/cti/organisation/add/%s' % phone
+        url = reverse('cti__create_organisation', args=(phone,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -200,6 +211,7 @@ class CTITestCase(CremeTestCase):
                               )
         self.get_object_or_fail(Organisation, phone=phone)
 
+    @skipIfCustomContact
     def test_create_phonecall01(self):
         user = self.login()
 

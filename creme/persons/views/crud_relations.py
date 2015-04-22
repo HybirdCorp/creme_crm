@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,16 +25,19 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity, Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 
-from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT,
-                         REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER)
-from ..models import Organisation
-
+from .. import get_organisation_model
+from ..constants import (REL_SUB_CUSTOMER_SUPPLIER, REL_OBJ_CUSTOMER_SUPPLIER,
+        REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE)
+#from ..models import Organisation
 
 #TODO: generalise and move to creme_core ??
 @login_required
 @permission_required('persons')
 def _link(request, entity_id, relation_type_id):
-    managed_orga  = get_object_or_404(Organisation, pk=get_from_POST_or_404(request.POST, 'id', int))
+#    managed_orga  = get_object_or_404(Organisation, pk=get_from_POST_or_404(request.POST, 'id', int))
+    managed_orga  = get_object_or_404(get_organisation_model(),
+                                      pk=get_from_POST_or_404(request.POST, 'id', int),
+                                     )
     entity        = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     relation_type = get_object_or_404(RelationType, pk=relation_type_id)
     user = request.user

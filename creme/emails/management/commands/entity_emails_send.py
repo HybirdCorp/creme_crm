@@ -22,9 +22,9 @@ from django.core.management.base import BaseCommand
 
 from creme.creme_core.models.lock import Mutex, MutexLockedException
 
+from creme.emails import get_entityemail_model
 from creme.emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
-from creme.emails.models import EntityEmail
-
+#from creme.emails.models import EntityEmail
 
 LOCK_NAME = "entity_emails_send"
 
@@ -39,7 +39,8 @@ class Command(BaseCommand):
         except MutexLockedException:
             self.stderr.write('A process is already running')
         else:
-            for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
+#            for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
+            for email in get_entityemail_model().objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
                 email.send()
 
             Mutex.graceful_release(LOCK_NAME)

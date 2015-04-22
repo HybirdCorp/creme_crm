@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,13 +27,18 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from creme.creme_core.models import EntityFilter
 from creme.creme_core.gui.block import Block
 
-from creme.persons.models import Contact, Organisation, Address
+from creme.persons import get_contact_model, get_organisation_model, get_address_model
+#from creme.persons.models import Contact, Organisation, Address
 
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
+from .models import GeoAddress
 from .setting_keys import NEIGHBOURHOOD_DISTANCE
 from .utils import address_as_dict, get_setting
 
-from .models import GeoAddress
+
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
+Address      = get_address_model()
 
 
 class _MapBlock(Block):

@@ -3,4 +3,5 @@
 from .models import Origin, SalesPhase
 
 to_register = ((Origin,     'origin'),
-               (SalesPhase, 'sales_phase'))
+               (SalesPhase, 'sales_phase'),
+              )

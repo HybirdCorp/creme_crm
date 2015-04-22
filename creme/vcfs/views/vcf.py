@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import permission_required, login_required
 from creme.creme_core.utils import get_from_POST_or_404
 
+from creme.persons import get_contact_model
 from creme.persons.models import Contact
 
 from ..forms.vcf import VcfForm, VcfImportForm
@@ -84,7 +85,8 @@ def vcf_import(request):
 @login_required
 @permission_required('persons')
 def vcf_export(request, contact_id):
-    person = get_object_or_404(Contact, pk=contact_id)
+#    person = get_object_or_404(Contact, pk=contact_id)
+    person = get_object_or_404(get_contact_model(), pk=contact_id)
     request.user.has_perm_to_view_or_die(person)
 
     vc = VcfGenerator(person).serialize()

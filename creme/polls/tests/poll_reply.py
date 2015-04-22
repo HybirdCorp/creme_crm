@@ -5,23 +5,26 @@ try:
     from functools import partial
     from json import loads as load_json, dumps as dump_json
 
+    from django.core.urlresolvers import reverse
     from django.forms.widgets import Select
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.auth import EntityCredentials
-    from creme.creme_core.models import SetCredentials
     from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+    from creme.creme_core.models import SetCredentials
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities.models import Activity, ActivityType
 
-    from .base import _PollsTestCase
-    from ..models import (PollType, PollCampaign,
-        PollForm,  PollFormSection,  PollFormLine,  PollFormLineCondition,
-        PollReply, PollReplySection, PollReplyLine, PollReplyLineCondition)
-    from ..core import PollLineType
+    from .base import (_PollsTestCase, skipIfCustomPollForm,
+            skipIfCustomPollReply, skipIfCustomPollCampaign)
     from ..blocks import preply_lines_block
+    from ..core import PollLineType
+    from ..models import (PollType, PollCampaign,
+            PollForm,  PollFormSection,  PollFormLine,  PollFormLineCondition,
+            PollReply, PollReplySection, PollReplyLine, PollReplyLineCondition)
     from ..utils import SectionTree, StatsTree
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -30,6 +33,8 @@ except Exception as e:
 __all__ = ('PollRepliesTestCase', )
 
 
+@skipIfCustomPollForm
+@skipIfCustomPollReply
 class PollRepliesTestCase(_PollsTestCase):
     def assertCurrentQuestion(self, response, fline, line_number=None):
         try:
@@ -61,7 +66,8 @@ class PollRepliesTestCase(_PollsTestCase):
         return '/polls/poll_reply/link_to_person/%s' % entity.id
 
     def _build_preply_from_person_url(self, person):
-        return '/polls/poll_reply/add_from_person/%s' % person.id
+#        return '/polls/poll_reply/add_from_person/%s' % person.id
+        return reverse('polls__create_reply_from_person', args=(person.id,))
 
     def _build_reply_with_bool_line(self):
         return self._build_reply_with_1_line(PollLineType.BOOL, 'Do you like spam ?')
@@ -220,7 +226,8 @@ class PollRepliesTestCase(_PollsTestCase):
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
     def _build_preply_from_pform_url(self, pform):
-        return '/polls/poll_reply/add_from_pform/%s' % pform.id
+#        return '/polls/poll_reply/add_from_pform/%s' % pform.id
+        return reverse('polls__create_reply_from_pform', args=(pform.id,))
 
     def _build_preply_from_pform(self, pform, name='Reply#1'):
         self.assertNoFormError(self.client.post(self._build_preply_from_pform_url(pform),
@@ -462,6 +469,8 @@ class PollRepliesTestCase(_PollsTestCase):
             self.assertFalse(preply.is_complete)
             self.assertEqual([1, 2, 3], list(preply.lines.values_list('order', flat=True)))
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_createview07(self):
         "Create view : create several replies linked to Contact/Organisation"
         user = self.login()
@@ -625,14 +634,17 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertEqual(person_id, self.refresh(preply2).person_id)
         self.assertIsNone(self.refresh(preply3).person)
 
+    @skipIfCustomContact
     def test_link_to_contact(self):
         user = self.login()
         self._aux_test_link_to(Contact.objects.create(user=user, first_name='Leina', last_name='Vance'))
 
+    @skipIfCustomOrganisation
     def test_link_to_orga(self):
         user = self.login()
         self._aux_test_link_to(Organisation.objects.create(user=user, name='Gaimos'))
 
+    @skipIfCustomContact
     def test_link_to_error01(self):
         "Link credentials error"
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
@@ -691,11 +703,13 @@ class PollRepliesTestCase(_PollsTestCase):
 
         self.assertEqual(person.id, replies[0].person_id)
 
+    @skipIfCustomContact
     def test_create_from_person01(self):
         "From a Contact"
         user = self.login()
         self._aux_test_create_from_person(Contact.objects.create(user=user, first_name='Leina', last_name='Vance'))
 
+    @skipIfCustomOrganisation
     def test_create_from_person02(self):
         "From an Organisation"
         user = self.login()
@@ -742,6 +756,8 @@ class PollRepliesTestCase(_PollsTestCase):
         self.assertIsNone(preply.campaign)
         self.assertIsNone(preply.person)
 
+    @skipIfCustomPollCampaign
+    @skipIfCustomContact
     def test_editview02(self):
         "Edit campaign & person"
         user = self.login()
@@ -798,6 +814,7 @@ class PollRepliesTestCase(_PollsTestCase):
                        )
         self.assertEqual(pform1, self.refresh(preply).pform)
 
+    @skipIfCustomContact
     def test_inneredit03(self):
         "Inner edition: 'person' field"
         user = self.login()
@@ -826,7 +843,8 @@ class PollRepliesTestCase(_PollsTestCase):
         preply1 = create_reply(name='Reply#1')
         preply2 = create_reply(name='Reply#2')
 
-        response = self.assertGET200('/polls/poll_replies')
+#        response = self.assertGET200('/polls/poll_replies')
+        response = self.assertGET200(PollReply.get_lv_absolute_url())
 
         with self.assertNoException():
             preply_page = response.context['entities']

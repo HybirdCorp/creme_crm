@@ -30,7 +30,8 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.utils import create_if_needed
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from .blocks import *
 from .constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
@@ -45,6 +46,7 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
+        Contact = get_contact_model()
 
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
                             (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]))

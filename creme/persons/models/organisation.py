@@ -20,6 +20,8 @@
 
 from future_builtins import filter
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
         BooleanField, DateField, EmailField, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _ # ugettext
@@ -31,13 +33,15 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from creme.media_managers.models import Image
 
+from .. import get_contact_model, get_address_model, get_organisation_model
 from ..constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-from .contact import Contact
-from .address import Address
+#from .contact import Contact
+#from .address import Address
 from .other_models import StaffSize, LegalForm, Sector
 
 
-class Organisation(CremeEntity):
+#class Organisation(CremeEntity):
+class AbstractOrganisation(CremeEntity):
     name            = CharField(_(u'Name'), max_length=200)
     phone           = PhoneField(_(u'Phone number'), max_length=100 , blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
@@ -53,11 +57,13 @@ class Organisation(CremeEntity):
     subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
     legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True, on_delete=SET_NULL)
     staff_size      = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True, on_delete=SET_NULL)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+#    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
                                   blank=True, null=True, editable=False,
                                   related_name='billing_address_orga_set',
                                  ).set_tags(enumerable=False) #clonable=False useless
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+#    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
                                   blank=True, null=True, editable=False,
                                   related_name='shipping_address_orga_set',
                                  ).set_tags(enumerable=False)
@@ -73,6 +79,7 @@ class Organisation(CremeEntity):
     creation_label = _('Add an organisation')
 
     class Meta:
+        abstract = True
         app_label = "persons"
         ordering = ('name',)
         verbose_name = _(u'Organisation')
@@ -98,31 +105,40 @@ class Organisation(CremeEntity):
 #                raise ValidationError(ugettext(u"This siren already exists and must be unique !"))
 
     def get_absolute_url(self):
-        return "/persons/organisation/%s" % self.id
+#        return "/persons/organisation/%s" % self.id
+        return reverse('persons__view_organisation', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/persons/organisation/edit/%s" % self.id
+#        return "/persons/organisation/edit/%s" % self.id
+        return reverse('persons__edit_organisation', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
         """url for list_view """
-        return "/persons/organisations"
+#        return "/persons/organisations"
+        return reverse('persons__list_organisations')
 
+    #TODO: move in a manager ??
     def get_managers(self):
-        return Contact.objects.filter(is_deleted=False,
+#        return Contact.objects.filter(is_deleted=False,
+        return get_contact_model().objects.filter(is_deleted=False,
                                       relations__type=REL_SUB_MANAGES,
                                       relations__object_entity=self.id,
                                      )
 
+    #TODO: move in a manager ??
     def get_employees(self):
-        return Contact.objects.filter(is_deleted=False,
+        #return Contact.objects.filter(is_deleted=False,
+        return get_contact_model().objects.filter(is_deleted=False,
                                       relations__type=REL_SUB_EMPLOYED_BY,
                                       relations__object_entity=self.id,
                                      )
 
+    #TODO: move in a manager ??
     @staticmethod
     def get_all_managed_by_creme():
-        return Organisation.objects.filter(is_deleted=False,
+#        return Organisation.objects.filter(is_deleted=False,
+        return get_organisation_model().objects.filter(is_deleted=False,
                                            properties__type=PROP_IS_MANAGED_BY_CREME,
                                           )
 
@@ -144,5 +160,12 @@ class Organisation(CremeEntity):
         #TODO: factorise with OtherAdressesBlock ??
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
 
-        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+        #for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+        for address in get_address_model().objects.filter(object_id=source.id) \
+                                          .exclude(pk__in=excl_source_addr_ids):
             address.clone(self)
+
+
+class Organisation(AbstractOrganisation):
+    class Meta(AbstractOrganisation.Meta):
+        swappable = 'PERSONS_ORGANISATION_MODEL'

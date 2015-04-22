@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 import logging
 from operator import or_ as or_op
 from re import compile as re_compile
@@ -57,8 +58,8 @@ class UserRole(Model):
 
     def __init__(self, *args, **kwargs):
         super(UserRole, self).__init__(*args, **kwargs)
-        self._allowed_apps = None
-        self._admin_4_apps = None
+        self._allowed_apps = None; self._extended_allowed_apps = None
+        self._admin_4_apps = None; self._extended_admin_4_apps = None
         self._creatable_ctypes_set = None
         self._exportable_ctypes_set = None
         self._setcredentials = None
@@ -92,8 +93,34 @@ class UserRole(Model):
         self._allowed_apps = set(apps)
         self.raw_allowed_apps = '\n'.join(apps)
 
+    def _build_extended_apps(self, apps):
+        ext_apps = (ext_app
+                        for app in apps
+                            for ext_app in creme_registry.get_extending_apps(app)
+                   )
+
+        return set(chain(apps, ext_apps))
+
+    @property
+    def extended_admin_4_apps(self):
+        if self._extended_admin_4_apps is None:
+            self._extended_admin_4_apps = self._build_extended_apps(self.admin_4_apps)
+
+        return self._extended_admin_4_apps
+
+    @property
+    def extended_allowed_apps(self):
+        if self._extended_allowed_apps is None:
+            self._extended_allowed_apps = self._build_extended_apps(self.allowed_apps)
+
+        return self._extended_allowed_apps
+
+    def is_app_administrable(self, app_name):
+        return app_name in self.extended_admin_4_apps
+
     def is_app_allowed_or_administrable(self, app_name):
-        return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
+#        return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
+        return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
     def _build_apps_verbose(self, app_names):
         get_app = creme_registry.get_app
@@ -503,7 +530,8 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_admin(self, app_name):
         #return self.has_perm('%s.can_admin' % app_name) #todo: app_name in self.role.admin_4_apps + use this method in backend
-        return self.is_superuser or (app_name in self.role.admin_4_apps)
+#        return self.is_superuser or (app_name in self.role.admin_4_apps)
+        return self.is_superuser or self.role.is_app_administrable(app_name)
 
     def has_perm_to_admin_or_die(self, app_name):
         if not self.has_perm_to_admin(app_name):

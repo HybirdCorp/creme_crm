@@ -30,8 +30,9 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 
+from . import get_smscampaign_model, get_messaginglist_model, get_messagetemplate_model
 from .blocks import messaging_lists_block, recipients_block, contacts_block, sendings_block
-from .models import MessagingList, SMSCampaign, MessageTemplate
+#from .models import MessagingList, SMSCampaign, MessageTemplate
 
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,10 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        SMSCampaign     = get_smscampaign_model()
+        MessagingList   = get_messaginglist_model()
+        MessageTemplate = get_messagetemplate_model()
+
         create_hf = HeaderFilter.create
         create_hf(pk='sms-hf_mlist', name=_(u'Messaging list view'), model=MessagingList,
                   cells_desc=[(EntityCellRegularField, {'name': 'name'})],

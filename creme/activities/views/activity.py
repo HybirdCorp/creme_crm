@@ -33,7 +33,8 @@ from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import get_from_GET_or_404, jsonify
 from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
         ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
@@ -111,7 +112,8 @@ def add_related(request, entity_id):
 
     request.user.has_perm_to_link_or_die(entity)
 
-    if isinstance(entity, Contact):
+#    if isinstance(entity, Contact):
+    if isinstance(entity, get_contact_model()):
         rtype_id = REL_SUB_PART_2_ACTIVITY
     else:
         rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)

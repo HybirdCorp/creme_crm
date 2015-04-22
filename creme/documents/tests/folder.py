@@ -4,13 +4,14 @@ try:
     from functools import partial
 
     from django.conf import settings
+    from django.core.urlresolvers import reverse
     #from django.test.utils import override_settings
     from django.utils.encoding import smart_str, smart_unicode
     from django.utils.translation import ugettext as _
 
-    from .base import _DocumentsTestCase
+    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder
     from creme.documents.models import Folder, FolderCategory, Document
-    from creme.documents.blocks import folder_docs_block
+#    from creme.documents.blocks import folder_docs_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -18,9 +19,18 @@ except Exception as e:
 __all__ = ('FolderTestCase',)
 
 
+@skipIfCustomDocument
+@skipIfCustomFolder
 class FolderTestCase(_DocumentsTestCase):
-    ADD_URL  = '/documents/folder/add'
-    LIST_URL = '/documents/folders'
+#    ADD_URL  = '/documents/folder/add'
+#    LIST_URL = '/documents/folders'
+
+    @classmethod
+    def setUpClass(cls):
+        _DocumentsTestCase.setUpClass()
+
+        cls.ADD_URL  = reverse('documents__create_folder')
+        cls.LIST_URL = reverse('documents__list_folders')
 
     def setUp(self):
         super(FolderTestCase, self).setUp()
@@ -395,6 +405,8 @@ class FolderTestCase(_DocumentsTestCase):
     #@override_settings(BLOCK_SIZE=max(4, settings.BLOCK_SIZE))
     def test_block(self):
         "Block which display contained docs"
+        from creme.documents.blocks import folder_docs_block
+
         folder_docs_block.page_size = max(4, settings.BLOCK_SIZE)
 
         folder = Folder.objects.create(user=self.user, title='PDF',

@@ -5,6 +5,7 @@ try:
     from django.test.utils import override_settings
 
     from creme.persons.models import Contact
+    from creme.persons.tests.base import skipIfCustomContact
 
     from ..backends.models import CrudityBackend
     from ..fetchers.base import CrudityFetcher
@@ -20,8 +21,11 @@ except Exception as e:
 __all__ = ('CrudityViewsTestCase',)
 
 
+#TODO: use test models isntead of skipping
+
 
 class CrudityViewsTestCase(CrudityTestCase):
+    @skipIfCustomContact
     def test_validate01(self):
         first_name = 'Haruhi'
         last_name  = 'Suzumiya'
@@ -63,6 +67,7 @@ class CrudityViewsTestCase(CrudityTestCase):
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(self.user, contact.user)
 
+    @skipIfCustomContact
     def test_download_email_template(self):
         subject = 'create_contact'
         url = '/crudity/download_email_template/%s' % subject
@@ -198,11 +203,13 @@ class CrudityViewsTestCase(CrudityTestCase):
 
         return result
 
+    @skipIfCustomContact
     def test_actions_fetch02(self):
         response = self._aux_test_actions_fetch(lambda: self.client.get('/crudity/waiting_actions'))
 
         self.assertEqual(200, response.status_code)
 
+    @skipIfCustomContact
     def test_actions_fetch03(self):
         self._aux_test_actions_fetch(lambda: SyncCommand().execute(verbosity=0))
 

@@ -21,7 +21,9 @@
 from itertools import chain
 import logging
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, PositiveIntegerField,
         PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _
@@ -34,7 +36,8 @@ from creme.creme_core.models.fields import EntityCTypeForeignKey
 logger = logging.getLogger(__name__)
 
 
-class Report(CremeEntity):
+#class Report(CremeEntity):
+class AbstractReport(CremeEntity):
     name   = CharField(_(u'Name of the report'), max_length=100)
     ct     = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
     filter = ForeignKey(EntityFilter, verbose_name=_(u'Filter'),
@@ -45,6 +48,7 @@ class Report(CremeEntity):
     _columns = None
 
     class Meta:
+        abstract = True
         app_label = 'reports'
         verbose_name = _(u'Report')
         verbose_name_plural = _(u'Reports')
@@ -54,14 +58,17 @@ class Report(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/reports/report/%s" % self.id
+#        return "/reports/report/%s" % self.id
+        return reverse('reports__view_report', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/reports/report/edit/%s" % self.id
+#        return "/reports/report/edit/%s" % self.id
+        return reverse('reports__edit_report', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/reports/reports"
+        #return "/reports/reports"
+        return reverse('reports__list_reports')
 
     def _build_columns(self, allow_selected):
         """@param allow_selected Boolean, 'True' allows columns to be 'selected'
@@ -97,7 +104,9 @@ class Report(CremeEntity):
         return columns
 
     def get_ascendants_reports(self):
-        asc_reports = list(Report.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
+#        asc_reports = list(Report.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
+        #asc_reports = list(AbstractReport.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
+        asc_reports = list(self.__class__.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
                                                                      .values_list('report', flat=True)
                                                 )
                           )
@@ -162,13 +171,20 @@ class Report(CremeEntity):
                ]
 
 
+class Report(AbstractReport):
+    class Meta(AbstractReport.Meta):
+        swappable = 'REPORTS_REPORT_MODEL'
+
+
 class Field(CremeModel):
-    report     = ForeignKey(Report, related_name='fields').set_tags(viewable=False)
+#    report     = ForeignKey(Report, related_name='fields').set_tags(viewable=False)
+    report     = ForeignKey(settings.REPORTS_REPORT_MODEL, related_name='fields').set_tags(viewable=False)
     name       = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
     order      = PositiveIntegerField().set_tags(viewable=False)
     type       = PositiveSmallIntegerField().set_tags(viewable=False) #==> see RFT_* in constants #Add in choices ?
     selected   = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
-    sub_report = ForeignKey(Report, blank=True, null=True).set_tags(viewable=False) #Sub report
+#    sub_report = ForeignKey(Report, blank=True, null=True).set_tags(viewable=False) #Sub report
+    sub_report = ForeignKey(settings.REPORTS_REPORT_MODEL, blank=True, null=True).set_tags(viewable=False)
 
     _hand = None
 

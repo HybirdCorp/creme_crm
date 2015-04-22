@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,24 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, FileField, ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
 
 from ..constants import REL_SUB_RELATED_2_DOC
-from .folder import Folder
+#from .folder import Folder
 
 
-class Document(CremeEntity):
+#class Document(CremeEntity):
+class AbstractDocument(CremeEntity):
     title       = CharField(_(u'Title'), max_length=100)
     description = TextField(_(u'Description'), blank=True, null=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+#    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT)
+    folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,
+                             verbose_name=_(u'Folder'), on_delete=PROTECT,
+                            )
 
     creation_label = _('Add a document')
 
     class Meta:
+        abstract = True
         app_label = 'documents'
         verbose_name = _('Document')
         verbose_name_plural = _(u'Documents')
@@ -45,16 +52,23 @@ class Document(CremeEntity):
         return u'%s - %s' % (self.folder, self.title)
 
     def get_absolute_url(self):
-        return "/documents/document/%s" % self.id
+#        return "/documents/document/%s" % self.id
+        return reverse('documents__view_document', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/documents/document/edit/%s" % self.id
+#        return "/documents/document/edit/%s" % self.id
+        return reverse('documents__edit_document', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/documents/documents"
+#        return "/documents/documents"
+        return reverse('documents__list_documents')
 
     @staticmethod
     def get_linkeddoc_relations(entity):
         return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
+
+
+class Document(AbstractDocument):
+    class Meta(AbstractDocument.Meta):
+        swappable = 'DOCUMENTS_DOCUMENT_MODEL'

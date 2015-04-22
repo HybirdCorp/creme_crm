@@ -59,6 +59,7 @@ class Migration(migrations.Migration):
                 ('images', models.ManyToManyField(related_name='ProductImages_set', null=True, verbose_name='Images', to='media_managers.Image', blank=True)),
             ],
             options={
+                'swappable': 'PRODUCTS_PRODUCT_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Product',
                 'verbose_name_plural': 'Products',
@@ -82,6 +83,7 @@ class Migration(migrations.Migration):
                 ('images', models.ManyToManyField(related_name='ServiceImages_set', null=True, verbose_name='Images', to='media_managers.Image', blank=True)),
             ],
             options={
+                'swappable': 'PRODUCTS_SERVICE_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Service',
                 'verbose_name_plural': 'Services',

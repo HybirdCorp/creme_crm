@@ -25,17 +25,26 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import Relation
 from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
 #from creme.billing.blocks import TotalBlock, TargetBlock
 
+from . import get_opportunity_model
 from .constants import *
-from .models import Opportunity
+#from .models import Opportunity
 
 
+Opportunity = get_opportunity_model()
+Contact = get_contact_model()
+Organisation = get_organisation_model()
+Product = get_product_model()
+Service = get_service_model()
 _get_ct = ContentType.objects.get_for_model
+
 
 class OpportunityBlock(SimpleBlock):
     template_name = 'creme_core/templatetags/block_object.html'

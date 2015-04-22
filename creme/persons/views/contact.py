@@ -25,7 +25,8 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from ..models import Contact, Organisation
+from .. import get_organisation_model
+from ..models import Contact # Organisation
 from ..forms.contact import RelatedContactForm, ContactForm
 
 
@@ -38,17 +39,21 @@ def add(request):
 
 @login_required
 @permission_required(('persons','persons.add_contact'))
-def add_with_relation(request, orga_id, predicate_id=None):
+#def add_with_relation(request, orga_id, predicate_id=None):
+def add_with_relation(request, orga_id, rtype_id=None):
     user = request.user
-    linked_orga = get_object_or_404(Organisation, pk=orga_id)
+#    linked_orga = get_object_or_404(Organisation, pk=orga_id)
+    linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
     user.has_perm_to_link_or_die(linked_orga)
     user.has_perm_to_view_or_die(linked_orga) #displayed in the form....
     user.has_perm_to_link_or_die(Contact)
 
     initial = {'linked_orga': linked_orga}
 
-    if predicate_id:
-        initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=predicate_id)
+#    if predicate_id:
+#        initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=predicate_id)
+    if rtype_id:
+        initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=rtype_id)
 
     return add_entity(request, RelatedContactForm,
                       #request.REQUEST.get('callback_url'),

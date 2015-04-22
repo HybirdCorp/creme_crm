@@ -14,6 +14,7 @@ try:
     #from creme.creme_core.utils.dates import get_dt_from_str
 
     from creme.persons.models import Contact
+    from creme.persons.tests.base import skipIfCustomContact
 
     from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
             ACTIVITYTYPE_TASK, ACTIVITYTYPE_MEETING,
@@ -26,6 +27,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+@skipIfCustomContact
 class ProjectsTestCase(CremeTestCase):
     ADD_PROJECT_URL = '/projects/project/add'
     ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'

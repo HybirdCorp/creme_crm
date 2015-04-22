@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,16 @@
 
 from creme.activities.models import Activity
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT, SYNC_FOLDER_TYPE_TASK
 from .contact import CREME_CONTACT_MAPPING, save_contact, update_contact, serialize_contact, pre_serialize_contact
 from .activity import CREME_MEETING_MAPPING, save_meeting, update_meeting, pre_serialize_meeting
 from .utils import serialize_entity
 
+
+Contact = get_contact_model()
 
 #Mapping between AS folder types and creme types
 FOLDERS_TYPES_CREME_TYPES_MAPPING = {

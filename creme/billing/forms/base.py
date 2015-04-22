@@ -29,7 +29,8 @@ from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import find_first
 
-from creme.persons.models import Organisation, Address, Contact
+from creme.persons import get_contact_model, get_organisation_model, get_address_model
+#from creme.persons.models import Organisation, Address, Contact
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import Line
@@ -42,20 +43,26 @@ logger = logging.getLogger(__name__)
 def copy_or_create_address(address, owner, name):
     if address is None:
         name = unicode(name)
-        return Address.objects.create(name=name, owner=owner, address=name)
+#        return Address.objects.create(name=name, owner=owner, address=name)
+        return get_address_model().objects.create(name=name, owner=owner, address=name)
 
     return address.clone(owner)
 
 def first_managed_orga_id():
     try:
-        return Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
+#        return Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0]
+        return get_organisation_model().get_all_managed_by_creme().values_list('id', flat=True)[0]
     except IndexError:
         logger.warn('No managed organisation ?!')
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
-    target = GenericEntityField(label=_(u"Target"), models=[Organisation, Contact]) #, required=True
+#    source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
+#    target = GenericEntityField(label=_(u"Target"), models=[Organisation, Contact]) #, required=True
+    source = CreatorEntityField(label=_(u"Source organisation"), model=get_organisation_model())
+    target = GenericEntityField(label=_(u"Target"),
+                                models=[get_organisation_model(), get_contact_model()],
+                               ) #, required=True
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)

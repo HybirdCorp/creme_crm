@@ -7,14 +7,17 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, RelationType, SetCredentials, ButtonMenuItem
 
-    from creme.persons.models import Contact, Organisation, Address, Civility
+    from creme.persons.models import Contact, Organisation, Address, Civility    
     from creme.persons.constants import REL_OBJ_EMPLOYED_BY
+    from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation)
 
     from creme.vcfs.buttons import generate_vcf_button
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+@skipIfCustomContact
 class VcfExportTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -95,6 +98,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomOrganisation
     def test_get_vcf_org(self):
         self.login()
         user = self.user
@@ -109,6 +113,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomAddress
     def test_get_vcf_billing_addr(self):
         self.login()
         contact = self.create_contact()
@@ -124,6 +129,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomAddress
     def test_get_vcf_shipping_addr(self):
         self.login()
         contact = self.create_contact()
@@ -140,6 +146,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomAddress
     def test_get_vcf_both_addr(self):
         self.login()
         contact = self.create_contact()
@@ -158,6 +165,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomAddress
     def test_get_vcf_addr_eq(self):
         self.login()
         contact = self.create_contact()
@@ -176,6 +184,7 @@ class VcfExportTestCase(CremeTestCase):
                          response.content
                         )
 
+    @skipIfCustomAddress
     def test_person(self):
         self.login()
         contact = self.create_contact()

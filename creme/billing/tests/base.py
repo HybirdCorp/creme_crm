@@ -15,8 +15,11 @@ try:
             SettingValue, CremePropertyType, CremeProperty, BlockDetailviewLocation)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT
 
+    from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.models import Contact, Organisation, Address
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
+    from creme.products import get_product_model, get_service_model
     from creme.products.models import Product, Service, Category, SubCategory
 
     from ..blocks import persons_statistics_block
@@ -446,6 +449,11 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
 
 class AppTestCase(_BillingTestCase, CremeTestCase):
     def test_populate(self):
+        Organisation = get_organisation_model()
+        Contact = get_contact_model()
+        Product = get_product_model()
+        Service = get_service_model()
+
         billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         lines_clases = [Line, ProductLine, ServiceLine]
         self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
@@ -474,6 +482,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         self.assertGET200('/billing/')
 
+    @skipIfCustomOrganisation
     def test_algoconfig(self):
         self.login()
 
@@ -499,6 +508,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
     def _get_setting_value(self):
         return self.get_object_or_fail(SettingValue, key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 
+    @skipIfCustomOrganisation
     def test_block_orga01(self):
         self.login()
 
@@ -519,6 +529,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, payment_info_tlpt)
 
+    @skipIfCustomOrganisation
     def test_block_orga02(self):
         "Managed organisation"
         self.login()
@@ -539,6 +550,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         self.assertTemplateUsed(response, payment_info_tlpt)
 
+    @skipIfCustomOrganisation
     def test_block_orga03(self):
         "Statistics"
         self.login()

@@ -69,7 +69,7 @@ class RelatedContactForm(ContactForm):
         if self.relation_type:
             relation_field = CharField(label=ugettext(u'Relation type'),
                                        widget=TextInput(attrs={'readonly': 'readonly'}),
-                                       initial=self.relation_type,
+                                       initial=self.relation_type, #TODO: required=False ??
                                       )
         else:
             get_ct = ContentType.objects.get_for_model

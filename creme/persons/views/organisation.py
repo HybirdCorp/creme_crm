@@ -25,9 +25,9 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from ..models import Organisation
-from ..forms.organisation import OrganisationForm
 from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+from ..forms.organisation import OrganisationForm
+from ..models import Organisation
 
 
 @login_required

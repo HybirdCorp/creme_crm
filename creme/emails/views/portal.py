@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,13 @@ from creme.creme_core.views.generic import app_portal
 
 from creme.creme_config.utils import generate_portal_url
 
-from ..models import EmailCampaign, MailingList #, Sending
-
+from .. import get_emailcampaign_model, get_mailinglist_model
+#from ..models import EmailCampaign, MailingList #, Sending
 
 
 def portal(request):
+    EmailCampaign = get_emailcampaign_model()
+    MailingList   = get_mailinglist_model()
     stats = (
                 (_('Number of campaigns'),      EmailCampaign.objects.count()),
                 (_('Number of mailing lists'),  MailingList.objects.count()),

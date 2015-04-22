@@ -7,7 +7,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import Relation, Currency
+
     from creme.persons.models import Organisation
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import CreditNoteStatus, CreditNote, ProductLine
     from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
@@ -19,15 +21,16 @@ except Exception as e:
 __all__ = ('CreditNoteTestCase',)
 
 
+@skipIfCustomOrganisation
 class CreditNoteTestCase(_BillingTestCase):
     def setUp(self):
         self.login()
-    
-    def _build_deleterelated_url(self, credit_note, invoice):
-        return '/billing/credit_note/delete_related/%(credit_note)d/from/%(invoice)d/' % {'credit_note': credit_note.id,
-                                                                                          'invoice': invoice.id,
-                                                                                         }
 
+    def _build_deleterelated_url(self, credit_note, invoice):
+        return '/billing/credit_note/delete_related/%(credit_note)d/from/%(invoice)d/' % {
+                    'credit_note': credit_note.id,
+                    'invoice': invoice.id,
+                }
 
     def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
         user = user or self.user

@@ -20,6 +20,8 @@
 
 import logging
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
@@ -27,15 +29,17 @@ from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
 #from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
 from ..constants import RFT_RELATION, RFT_FIELD
-from .report import Report
+#from .report import Report
 
 
 logger = logging.getLogger(__name__)
 
 
-class ReportGraph(CremeEntity):
+#class ReportGraph(CremeEntity):
+class AbstractReportGraph(CremeEntity):
     name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
-    report   = ForeignKey(Report, editable=False)
+#    report   = ForeignKey(Report, editable=False)
+    report   = ForeignKey(settings.REPORTS_REPORT_MODEL, editable=False)
     abscissa = CharField(_(u'Abscissa axis'), max_length=100, editable=False)
     ordinate = CharField(_(u'Ordinate axis'), max_length=100, editable=False)
     type     = PositiveIntegerField(_(u'Type'), editable=False) #see RGT_*
@@ -48,6 +52,7 @@ class ReportGraph(CremeEntity):
     _hand = None
 
     class Meta:
+        abstract = True
         app_label = 'reports'
         verbose_name = _(u"Report's graph")
         verbose_name_plural = _(u"Reports' graphs")
@@ -57,7 +62,8 @@ class ReportGraph(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/reports/graph/%s" % self.id
+#        return "/reports/graph/%s" % self.id
+        return reverse('reports__view_graph', args=(self.id,))
 
     #def get_edit_absolute_url(self):
         #return "/reports/graph/edit/%s" % self.id
@@ -159,3 +165,8 @@ class ReportGraph(CremeEntity):
             ibci.save()
 
         return ibci
+
+
+class ReportGraph(AbstractReportGraph):
+    class Meta(AbstractReportGraph.Meta):
+        swappable = 'REPORTS_GRAPH_MODEL'

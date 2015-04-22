@@ -63,13 +63,15 @@ class Command(BaseCommand):
         from creme.creme_core.models import SettingValue
         from creme.creme_core.models.lock import Mutex, MutexLockedException
 
+        from creme.persons import get_contact_model, get_organisation_model
+#        from creme.persons.models import Organisation, Contact
+
+        from creme.opportunities import get_opportunity_model
+        from creme.opportunities.constants import REL_SUB_TARGETS
+#        from creme.opportunities.models import Opportunity
+
         from creme.commercial.constants import IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED
         from creme.commercial.models import CommercialApproach
-
-        from creme.opportunities.constants import REL_SUB_TARGETS
-        from creme.opportunities.models import Opportunity
-
-        from creme.persons.models import Organisation, Contact
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
@@ -78,6 +80,10 @@ class Command(BaseCommand):
         else:
             if SettingValue.objects.get(key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED).value:
                 activate(settings.LANGUAGE_CODE)#TODO: Activate in the user's language ?
+
+                Organisation = get_organisation_model()
+                Contact = get_contact_model()
+                Opportunity = get_opportunity_model()
 
                 emails = []
 

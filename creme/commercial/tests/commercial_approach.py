@@ -25,6 +25,7 @@ try:
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION)
 
     from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.tests import skipIfCustomOpportunity
 
     from ..blocks import approaches_block
     from ..constants import (DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
@@ -239,6 +240,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertDoesNotExist(comapp)
 
     #@override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
+    @skipIfCustomOpportunity
     def test_block01(self):
         approaches_block.page_size = 5
 
@@ -409,6 +411,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOpportunity
     def test_command06(self):
         "A commapp is linked to an Opportunity*"
         mngd_orga, customer = self._build_orgas()

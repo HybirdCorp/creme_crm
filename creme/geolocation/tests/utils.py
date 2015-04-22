@@ -6,6 +6,8 @@ try:
     from creme.creme_core.models import SettingValue
 
     from creme.persons.models import Organisation, Contact, Address
+    from creme.persons.tests.base import (skipIfCustomAddress,
+            skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..constants import DEFAULT_SEPARATING_NEIGHBOURS
     from ..models import GeoAddress
@@ -19,6 +21,8 @@ except Exception as e:
 __all__ = ('GeoLocationUtilsTestCase',)
 
 class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_address_as_dict(self):
         user = self.login()
 
@@ -43,6 +47,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              address_as_dict(address)
                             )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_address_as_dict_empty_billing_shipping(self):
         user = self.login()
 
@@ -87,6 +93,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              address_as_dict(address)
                             )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_address_as_dict_empty(self):
         user = self.login()
 
@@ -111,6 +119,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              address_as_dict(address)
                             )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_address_as_dict_missing_geoaddress01(self):
         user = self.login()
 
@@ -141,6 +151,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              address_as_dict(address)
                             )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_address_as_dict_missing_geoaddress02(self):
         "With select_related"
         user = self.login()
@@ -172,6 +184,8 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                              address_as_dict(address)
                             )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
     def test_addresses_from_persons(self):
         user = self.login()
 

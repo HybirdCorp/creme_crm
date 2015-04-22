@@ -23,15 +23,18 @@ import warnings
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _
 
+from .. import get_address_model
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.signals import pre_merge_related
 
 
-class Address(CremeModel):
+#class Address(CremeModel):
+class AbstractAddress(CremeModel):
     name       = CharField(_(u"Name"), max_length=100, blank=True, null=True)
     address    = TextField(_(u"Address"), blank=True, null=True)
     po_box     = CharField(_(u"PO box"), max_length=50, blank=True, null=True)
@@ -46,6 +49,7 @@ class Address(CremeModel):
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
     class Meta:
+        abstract = True
         app_label = 'persons'
         verbose_name = _(u'Address')
         verbose_name_plural = _(u'Addresses')
@@ -59,7 +63,8 @@ class Address(CremeModel):
         return s
 
     def get_edit_absolute_url(self):
-        return '/persons/address/edit/%s' % self.id
+#        return '/persons/address/edit/%s' % self.id
+        return reverse('persons__edit_address', args=(self.id,))
 
     def get_related_entity(self): #for generic views
         return self.owner
@@ -89,15 +94,22 @@ class Address(CremeModel):
             yield fname, getattr(self, fname)
 
 
+class Address(AbstractAddress):
+    class Meta(AbstractAddress.Meta):
+        swappable = 'PERSONS_ADDRESS_MODEL'
+
+
 #TODO: with a real ForeignKey can not we remove these handlers ??
 def _dispose_addresses(sender, instance, **kwargs):
-    Address.objects.filter(object_id=instance.id).delete()
+#    Address.objects.filter(object_id=instance.id).delete()
+    get_address_model().objects.filter(object_id=instance.id).delete()
 
 def _handle_merge(sender, other_entity, **kwargs):
     #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
     excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
 
-    for address in Address.objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
+#    for address in Address.objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
+    for address in get_address_model().objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
         address.owner = sender
         address.save()
 

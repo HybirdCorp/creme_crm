@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
 import django.utils.timezone
@@ -58,6 +59,7 @@ class Migration(migrations.Migration):
                 ('act_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Type', to='commercial.ActType')),
             ],
             options={
+                'swappable': 'COMMERCIAL_ACT_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Commercial Action',
                 'verbose_name_plural': 'Commercial Actions',
@@ -71,7 +73,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('counter', models.PositiveIntegerField(default=0, verbose_name='Counter', editable=False)),
                 ('counter_goal', models.PositiveIntegerField(default=1, verbose_name='Value to reach')),
-                ('act', models.ForeignKey(related_name='objectives', editable=False, to='commercial.Act')),
+                #('act', models.ForeignKey(related_name='objectives', editable=False, to='commercial.Act')),
+                ('act', models.ForeignKey(related_name='objectives', editable=False, to=settings.COMMERCIAL_ACT_MODEL)),
                 ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
                 ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
             ],
@@ -90,6 +93,7 @@ class Migration(migrations.Migration):
                 ('segment', models.ForeignKey(verbose_name='Related segment', to='commercial.MarketSegment')),
             ],
             options={
+                'swappable': 'COMMERCIAL_PATTERN_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Commercial objective pattern',
                 'verbose_name_plural': 'Commercial objective patterns',
@@ -105,7 +109,8 @@ class Migration(migrations.Migration):
                 ('ctype', creme.creme_core.models.fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
                 ('filter', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, blank=True, editable=False, to='creme_core.EntityFilter', null=True, verbose_name='Filter on counted entities')),
                 ('parent', models.ForeignKey(related_name='children', editable=False, to='commercial.ActObjectivePatternComponent', null=True)),
-                ('pattern', models.ForeignKey(related_name='components', editable=False, to='commercial.ActObjectivePattern')),
+                #('pattern', models.ForeignKey(related_name='components', editable=False, to='commercial.ActObjectivePattern')),
+                ('pattern', models.ForeignKey(related_name='components', editable=False, to=settings.COMMERCIAL_PATTERN_MODEL)),
             ],
             options={
             },
@@ -134,9 +139,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('evaluated_orgas', models.ManyToManyField(to='persons.Organisation', null=True, editable=False)),
+                #('evaluated_orgas', models.ManyToManyField(to='persons.Organisation', null=True, editable=False)),
+                ('evaluated_orgas', models.ManyToManyField(to=settings.PERSONS_ORGANISATION_MODEL, null=True, editable=False)),
             ],
             options={
+                'swappable': 'COMMERCIAL_STRATEGY_MODEL',
                 'ordering': ('name',),
                 'verbose_name': 'Commercial strategy',
                 'verbose_name_plural': 'Commercial strategies',
@@ -152,7 +159,8 @@ class Migration(migrations.Migration):
                 ('price', models.TextField(null=True, verbose_name='Price', blank=True)),
                 ('promotion', models.TextField(null=True, verbose_name='Promotion', blank=True)),
                 ('segment', models.ForeignKey(to='commercial.MarketSegment')),
-                ('strategy', models.ForeignKey(related_name='segment_info', editable=False, to='commercial.Strategy')),
+                #('strategy', models.ForeignKey(related_name='segment_info', editable=False, to='commercial.Strategy')),
+                ('strategy', models.ForeignKey(related_name='segment_info', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL)),
             ],
             options={
                 'verbose_name': 'Market segment description',
@@ -165,7 +173,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('strategy', models.ForeignKey(related_name='assets', editable=False, to='commercial.Strategy')),
+                #('strategy', models.ForeignKey(related_name='assets', editable=False, to='commercial.Strategy')),
+                ('strategy', models.ForeignKey(related_name='assets', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL)),
             ],
             options={
                 'verbose_name': 'Commercial asset',
@@ -179,7 +188,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', models.PositiveSmallIntegerField()),
                 ('asset', models.ForeignKey(to='commercial.CommercialAsset')),
-                ('organisation', models.ForeignKey(to='persons.Organisation')),
+                #('organisation', models.ForeignKey(to='persons.Organisation')),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL)),
                 ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription')),
             ],
             options={
@@ -191,8 +201,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('category', models.PositiveSmallIntegerField()),
-                ('organisation', models.ForeignKey(to='persons.Organisation')),
-                ('strategy', models.ForeignKey(to='commercial.Strategy')),
+                #('organisation', models.ForeignKey(to='persons.Organisation')),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL)),
+                #('strategy', models.ForeignKey(to='commercial.Strategy')),
+                ('strategy', models.ForeignKey(to=settings.COMMERCIAL_STRATEGY_MODEL)),
                 ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription')),
             ],
             options={
@@ -204,7 +216,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('strategy', models.ForeignKey(related_name='charms', editable=False, to='commercial.Strategy')),
+                #('strategy', models.ForeignKey(related_name='charms', editable=False, to='commercial.Strategy')),
+                ('strategy', models.ForeignKey(related_name='charms', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL)),
             ],
             options={
                 'verbose_name': 'Segment charm',
@@ -218,7 +231,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', models.PositiveSmallIntegerField()),
                 ('charm', models.ForeignKey(to='commercial.MarketSegmentCharm')),
-                ('organisation', models.ForeignKey(to='persons.Organisation')),
+                #('organisation', models.ForeignKey(to='persons.Organisation')),
+                ('organisation', models.ForeignKey(to=settings.PERSONS_ORGANISATION_MODEL)),
                 ('segment_desc', models.ForeignKey(to='commercial.MarketSegmentDescription')),
             ],
             options={

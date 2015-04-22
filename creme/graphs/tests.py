@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+skip_graph_tests = False
+skip_graphviz_tests = False
+
 try:
     from functools import partial
     from unittest import skipIf
+
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
@@ -11,18 +16,24 @@ try:
 
     #from creme.persons.models import Contact, Organisation
 
+    from . import graph_model_is_custom
     from .models import *
+
+    skip_graph_tests = graph_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-skip_graphviz_test = False
 
 try:
     import pygraphviz
 except ImportError:
-    skip_graphviz_test = True
+    skip_graphviz_tests = True
 
 
+def skipIfCustomGraph(test_func):
+    return skipIf(skip_graph_tests, 'Custom Graph model in use')(test_func)
+
+
+@skipIfCustomGraph
 class GraphsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -37,14 +48,15 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200('/graphs/')
 
     def test_graph_create(self):
-        self.login()
+        user = self.login()
 
-        url = '/graphs/graph/add'
+#        url = '/graphs/graph/add'
+        url = reverse('graphs__create_graph')
         self.assertGET200(url)
 
         name = 'Graph01'
         response = self.client.post(url, follow=True,
-                                    data={'user': self.user.id,
+                                    data={'user': user.id,
                                           'name': name,
                                          }
                                    )
@@ -128,7 +140,7 @@ class GraphsTestCase(CremeTestCase):
                            data={'id': rtype.id}
                           )
 
-    @skipIf(skip_graphviz_test, 'Pygraphviz is not installed (are you under Wind*ws ??')
+    @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
     def test_download01(self):
         user = self.login()
 

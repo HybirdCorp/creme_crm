@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
         PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, PROTECT, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
@@ -25,17 +27,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.models import CremeModel, CremeEntity
 
 from .base import _PollLine
-from .campaign import PollCampaign
+#from .campaign import PollCampaign
 from .poll_type import PollType
 from .poll_form import PollForm, PollFormLine
 
 
-class PollReply(CremeEntity):
+#class PollReply(CremeEntity):
+class AbstractPollReply(CremeEntity):
     name        = CharField(_(u'Name'), max_length=250)
-    pform       = ForeignKey(PollForm, verbose_name=_(u'Related form'),
+#    pform       = ForeignKey(PollForm, verbose_name=_(u'Related form'),
+    pform       = ForeignKey(settings.POLLS_FORM_MODEL, verbose_name=_(u'Related form'),
                              editable=False, on_delete=PROTECT,
                             )
-    campaign    = ForeignKey(PollCampaign, verbose_name=pgettext_lazy('polls', u'Related campaign'),
+#    campaign    = ForeignKey(PollCampaign, verbose_name=pgettext_lazy('polls', u'Related campaign'),
+    campaign    = ForeignKey(settings.POLLS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('polls', u'Related campaign'),
                              on_delete=PROTECT, null=True, blank=True, #editable=False,
                             )
     person      = ForeignKey(CremeEntity, verbose_name=_(u'Person who filled'),
@@ -52,6 +57,7 @@ class PollReply(CremeEntity):
     creation_label = _(u'Add replies')
 
     class Meta:
+        abstract = True
         app_label = 'polls'
         verbose_name = _(u'Form reply')
         verbose_name_plural = _(u'Form replies')
@@ -61,19 +67,28 @@ class PollReply(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/polls/poll_reply/%s" % self.id
+#        return "/polls/poll_reply/%s" % self.id
+        return reverse('polls__view_reply', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/polls/poll_reply/edit/%s" % self.id
+#        return "/polls/poll_reply/edit/%s" % self.id
+        return reverse('polls__edit_reply', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/polls/poll_replies"
+#        return "/polls/poll_replies"
+        return reverse('polls__list_replies')
+
+
+class PollReply(AbstractPollReply):
+    class Meta(AbstractPollReply.Meta):
+        swappable = 'POLLS_REPLY_MODEL'
 
 
 #TODO: factorise (abstract class) ?
 class PollReplySection(CremeModel):
-    preply = ForeignKey(PollReply, editable=False, related_name='sections')
+#    preply = ForeignKey(PollReply, editable=False, related_name='sections')
+    preply = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='sections')
     parent = ForeignKey('self', editable=False, null=True) #, related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
@@ -90,7 +105,8 @@ class PollReplySection(CremeModel):
 
 
 class PollReplyLine(CremeModel, _PollLine):
-    preply       = ForeignKey(PollReply, editable=False, related_name='lines')
+#    preply       = ForeignKey(PollReply, editable=False, related_name='lines')
+    preply       = ForeignKey(settings.POLLS_REPLY_MODEL, editable=False, related_name='lines')
     section      = ForeignKey(PollReplySection, editable=False, null=True) #, related_name='lines'
     pform_line   = ForeignKey(PollFormLine, editable=False) #, related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)

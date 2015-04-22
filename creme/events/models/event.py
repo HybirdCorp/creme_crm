@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count, PROTECT
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -44,7 +45,8 @@ class EventType(CremeModel):
         return self.name
 
 
-class Event(CremeEntity):
+#class Event(CremeEntity):
+class AbstractEvent(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
     description = TextField(_(u'Description'), blank=True)
@@ -57,6 +59,7 @@ class Event(CremeEntity):
     creation_label = _('Add an event')
 
     class Meta:
+        abstract = True
         app_label = 'events'
         verbose_name = _(u'Event')
         verbose_name_plural = _(u'Events')
@@ -73,15 +76,17 @@ class Event(CremeEntity):
             relation._delete_without_transaction()
 
     def get_absolute_url(self):
-        return "/events/event/%s" % self.id
+#        return "/events/event/%s" % self.id
+        return reverse('events__view_event', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/events/event/edit/%s" % self.id
+#        return "/events/event/edit/%s" % self.id
+        return reverse('events__edit_event', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/events/events"
+#        return "/events/events"
+        return reverse('events__list_events')
 
     def get_stats(self):
         types_count = dict(RelationType.objects.filter(id__in=_STATS_TYPES,
@@ -132,3 +137,9 @@ class Event(CremeEntity):
         else: #PRES_STATUS_DONT_KNOW
             relations.filter(subject_entity=contact.id, type__in=(REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT), object_entity=self.id) \
                      .delete()
+
+
+class Event(AbstractEvent):
+    class Meta(AbstractEvent.Meta):
+        #abstract = False # seems useless
+        swappable = 'EVENTS_EVENT_MODEL'

@@ -24,6 +24,7 @@ from functools import partial
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
         DateField, PROTECT, SET_NULL, Sum, BooleanField)
@@ -34,10 +35,12 @@ from creme.creme_core.core.function_field import FunctionField
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, Currency, Vat
 from creme.creme_core.models.fields import BasicAutoField
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 from creme.persons.workflow import transform_target_into_prospect
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
 from ..constants import *
 
@@ -79,7 +82,8 @@ class Origin(CremeModel):
         ordering = ('name',)
 
 
-class Opportunity(CremeEntity):
+#class Opportunity(CremeEntity):
+class AbstractOpportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
     reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
@@ -101,6 +105,7 @@ class Opportunity(CremeEntity):
     _opp_target_rel = None
 
     class Meta:
+        abstract = True
         app_label = "opportunities"
         verbose_name = _(u'Opportunity')
         verbose_name_plural = _(u'Opportunities')
@@ -129,18 +134,21 @@ class Opportunity(CremeEntity):
 
     def clean(self):
         self._clean_emitter_n_target()
-        super(Opportunity, self).clean()
+#        super(Opportunity, self).clean()
+        super(AbstractOpportunity, self).clean()
 
     def get_absolute_url(self):
-        return "/opportunities/opportunity/%s" % self.id
+#        return "/opportunities/opportunity/%s" % self.id
+        return reverse('opportunities__view_opportunity', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/opportunities/opportunity/edit/%s" % self.id
+#        return "/opportunities/opportunity/edit/%s" % self.id
+        return reverse('opportunities__edit_opportunity', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/opportunities/opportunities"
+#        return "/opportunities/opportunities"
+        return reverse('opportunities__list_opportunities')
 
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
@@ -159,43 +167,34 @@ class Opportunity(CremeEntity):
         else:
             return (self.estimated_sales or 0) * tax
 
-    #def get_target(self):
-        ##NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
-        #warnings.warn("Opportunity.get_target() method is deprecated; use Opportunity.target instead",
-                      #DeprecationWarning
-                     #)
-        #return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
-
-    #def get_source(self):
-        #warnings.warn("Opportunity.get_source() method is deprecated; use Opportunity.emitter instead",
-                      #DeprecationWarning
-                     #)
-        #return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
-
     #TODO: test
     def get_products(self):
-        return Product.objects.filter(is_deleted=False,
+#        return Product.objects.filter(is_deleted=False,
+        return get_product_model().objects.filter(is_deleted=False,
                                       relations__object_entity=self.id,
                                       relations__type=REL_SUB_LINKED_PRODUCT,
                                      )
 
     #TODO: test
     def get_services(self):
-        return Service.objects.filter(is_deleted=False,
+#        return Service.objects.filter(is_deleted=False,
+        return get_service_model().objects.filter(is_deleted=False,
                                       relations__object_entity=self.id,
                                       relations__type=REL_SUB_LINKED_SERVICE,
                                      )
 
     #TODO: test
     def get_contacts(self):
-        return Contact.objects.filter(is_deleted=False,
+#        return Contact.objects.filter(is_deleted=False,
+        return get_contact_model().objects.filter(is_deleted=False,
                                       relations__object_entity=self.id,
                                       relations__type=REL_SUB_LINKED_CONTACT,
                                      )
 
     #TODO: test
     def get_responsibles(self):
-        return Contact.objects.filter(is_deleted=False,
+#        return Contact.objects.filter(is_deleted=False,
+        return get_contact_model().objects.filter(is_deleted=False,
                                       relations__object_entity=self.id,
                                       relations__type=REL_SUB_RESPONSIBLE,
                                      )
@@ -203,7 +202,8 @@ class Opportunity(CremeEntity):
     @property
     def emitter(self):
         if not self._opp_emitter:
-            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA,
+#            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA,
+            self._opp_emitter = get_organisation_model().objects.get(relations__type=REL_SUB_EMIT_ORGA,
                                                          relations__object_entity=self.id,
                                                         )
 
@@ -239,14 +239,16 @@ class Opportunity(CremeEntity):
         if not self.pk: #creation
             self._clean_emitter_n_target()
 
-            super(Opportunity, self).save(*args, **kwargs)
+#            super(Opportunity, self).save(*args, **kwargs)
+            super(AbstractOpportunity, self).save(*args, **kwargs)
 
             create_relation(subject_entity=self._opp_emitter, type_id=REL_SUB_EMIT_ORGA)
             create_relation(subject_entity=target,            type_id=REL_OBJ_TARGETS)
 
             transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
-            super(Opportunity, self).save(*args, **kwargs)
+#            super(Opportunity, self).save(*args, **kwargs)
+            super(AbstractOpportunity, self).save(*args, **kwargs)
 
             old_relation = self._opp_target_rel
 
@@ -254,6 +256,11 @@ class Opportunity(CremeEntity):
                 old_relation.delete()
                 create_relation(subject_entity=self._opp_target, type_id=REL_OBJ_TARGETS)
                 transform_target_into_prospect(self.emitter, target, self.user)
+
+
+class Opportunity(AbstractOpportunity):
+    class Meta(AbstractOpportunity.Meta):
+        swappable = 'OPPORTUNITIES_OPPORTUNITY_MODEL'
 
 
 if apps.is_installed('creme.billing'):

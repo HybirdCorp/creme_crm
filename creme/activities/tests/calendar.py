@@ -13,8 +13,6 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials
 
-    #from creme.persons.models import Contact
-
     from .base import _ActivitiesTestCase
     from ..models import Calendar, Activity
     from ..constants import *

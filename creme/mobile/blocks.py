@@ -23,9 +23,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import QuerysetBlock
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
 from .models import MobileFavorite
+
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 
 class FavoritePersonsBlock(QuerysetBlock):

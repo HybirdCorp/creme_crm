@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from .base import _EmailsTestCase
+    from .base import _EmailsTestCase, skipIfCustomEmailTemplate
     from ..models import EmailSignature, EmailTemplate
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -12,7 +12,7 @@ __all__ = ('SignaturesTestCase',)
 
 class SignaturesTestCase(_EmailsTestCase):
     def login(self, is_superuser=True):
-        super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])
+        return super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])
 
     def test_create01(self):
         self.login()
@@ -33,11 +33,11 @@ class SignaturesTestCase(_EmailsTestCase):
     #TODO: create with images....
 
     def test_edit01(self):
-        self.login()
+        user = self.login()
 
         name = 'Funny signature'
         body = 'I love you... not'
-        signature = EmailSignature.objects.create(user=self.user, name=name, body=body)
+        signature = EmailSignature.objects.create(user=user, name=name, body=body)
 
         #url = '/emails/signature/edit/%s' % signature.id
         url = signature.get_edit_absolute_url()
@@ -48,9 +48,9 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))
 
         signature = self.refresh(signature)
-        self.assertEqual(name,      signature.name)
-        self.assertEqual(body,      signature.body)
-        self.assertEqual(self.user, signature.user)
+        self.assertEqual(name, signature.name)
+        self.assertEqual(body, signature.body)
+        self.assertEqual(user, signature.user)
         self.assertFalse(signature.images.exists())
 
     #TODO: edit with images....
@@ -79,9 +79,9 @@ class SignaturesTestCase(_EmailsTestCase):
         return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)
 
     def test_delete01(self):
-        self.login()
+        user = self.login()
 
-        signature = EmailSignature.objects.create(user=self.user, name="Spike's one",
+        signature = EmailSignature.objects.create(user=user, name="Spike's one",
                                                   body='See U space cowboy',
                                                  )
         self.assertEqual(200, self._delete(signature).status_code)
@@ -97,11 +97,11 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertEqual(403, self._delete(signature).status_code)
         self.assertEqual(1, EmailSignature.objects.filter(pk=signature.id).count())
 
+    @skipIfCustomEmailTemplate
     def test_delete03(self):
         "Dependencies problem"
-        self.login()
+        user = self.login()
 
-        user = self.user
         signature = EmailSignature.objects.create(user=user, name="Spike's one", body='See U space cowboy')
         template  = EmailTemplate.objects.create(user=user, name='name', signature=signature,
                                                  subject='Hello', body='Do you know the real folk blues ?',
@@ -112,4 +112,3 @@ class SignaturesTestCase(_EmailsTestCase):
 
         template = self.get_object_or_fail(EmailTemplate, pk=template.id)
         self.assertIsNone(template.signature)
-

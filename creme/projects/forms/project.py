@@ -28,7 +28,9 @@ from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.models import Relation
-from creme.persons.models import Contact
+
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..constants import REL_OBJ_PROJECT_MANAGER
 from ..models import Project
@@ -44,16 +46,18 @@ class ProjectEditForm(CremeEntityForm):
 
 
 class ProjectCreateForm(ProjectEditForm):
-    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), required=True, model=Contact)
+#    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), required=True, model=Contact)
+    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), model=get_contact_model())
 
     def clean_responsibles(self):
         return validate_linkable_entities(self.cleaned_data['responsibles'], self.user)
 
-    def save(self):
-        instance = super(ProjectCreateForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(ProjectCreateForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
         create_relation = partial(Relation.objects.create, user=cleaned_data['user'],
-                                  type_id=REL_OBJ_PROJECT_MANAGER, subject_entity=instance
+                                  type_id=REL_OBJ_PROJECT_MANAGER,
+                                  subject_entity=instance,
                                  )
 
         for contact in cleaned_data['responsibles']:

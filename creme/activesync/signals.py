@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,9 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 
+from creme.persons import get_contact_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
-from creme.persons.models import Contact
+#from creme.persons.models import Contact
 
 
 logger = logging.getLogger(__name__)
@@ -61,11 +62,13 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
 def post_save_relation_employed_by(sender, instance, **kwargs):
     if instance.type_id == REL_SUB_EMPLOYED_BY:
         contact = instance.subject_entity
-        post_save_activesync_handler(Contact, contact, False)
+#        post_save_activesync_handler(Contact, contact, False)
+        post_save_activesync_handler(get_contact_model(), contact, False)
 
 #Catching the delete of the relation between a Contact and his employer
 def post_delete_relation_employed_by(sender, instance, **kwargs):
     if instance.type_id == REL_SUB_EMPLOYED_BY:
         contact = instance.subject_entity
         #We just say to the mapping that the contact was modified so we use the post_save_activesync_handler and not the delete one
-        post_save_activesync_handler(Contact, contact, False)
+#        post_save_activesync_handler(Contact, contact, False)
+        post_save_activesync_handler(get_contact_model(), contact, False)

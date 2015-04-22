@@ -17,8 +17,10 @@ try:
     from creme.creme_core.models import CremeEntity, Language
 
     from creme.documents.models import Document
+    from creme.documents.tests.base import skipIfCustomDocument
 
     from creme.persons.models import Contact
+    from creme.persons.tests.base import skipIfCustomContact
 
     from ..backends.models import CrudityBackend
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
@@ -41,6 +43,9 @@ except OSError as e:
 __all__ = ('InfopathFormBuilderTestCase', 'InfopathFormFieldTestCase')
 
 
+#TODO use test models instead of skipping
+
+@skipIfCustomContact
 class InfopathFormBuilderTestCase(CrudityTestCase):
     def setUp(self):
         super(InfopathFormBuilderTestCase, self).setUp()
@@ -251,6 +256,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             for attr in element_node.keys():
                 self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
 
+    @skipIfCustomDocument
     def test_myschema_xsd02(self):
         "With Document"
         body_map = {'user_id': 1, "title": "",
@@ -543,6 +549,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                          }
                         )
 
+    @skipIfCustomDocument
     def test_view_xsl04(self):
         "Simple attr verification for Document"
         fields = {

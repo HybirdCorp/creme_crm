@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.fake_models import FakeOrganisation as Organisation
@@ -14,7 +15,7 @@ try:
 
     #from creme.persons.models import Organisation
 
-    from .base import _DocumentsTestCase
+    from .base import _DocumentsTestCase, skipIfCustomDocument, skipIfCustomFolder
     from ..models import Folder, FolderCategory, Document
     from ..constants import REL_SUB_RELATED_2_DOC
     from ..utils import get_csv_folder_or_create
@@ -25,9 +26,12 @@ except Exception as e:
 __all__ = ('DocumentTestCase', 'DocumentQuickFormTestCase', 'CSVDocumentQuickWidgetTestCase')
 
 
+@skipIfCustomDocument
+@skipIfCustomFolder
 class DocumentTestCase(_DocumentsTestCase):
     def _buid_addrelated_url(self, entity):
-        return '/documents/document/add_related/%s' % entity.id
+#        return '/documents/document/add_related/%s' % entity.id
+        return reverse('documents__create_related_document', args=(entity.id,))
 
     def test_populate(self):
         self.get_object_or_fail(RelationType, pk=REL_SUB_RELATED_2_DOC)
@@ -71,7 +75,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.folder)
 
-        self.assertRedirects(response, '/documents/document/%s' % doc.id)
+#        self.assertRedirects(response, '/documents/document/%s' % doc.id)
+        self.assertRedirects(response, doc.get_absolute_url())
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s' % file_name, filedata.name)
@@ -164,7 +169,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
         doc = self.get_object_or_fail(Document, title=title)
 
-        url = '/documents/document/edit/%s' % doc.id
+#        url = '/documents/document/edit/%s' % doc.id
+        url = doc.get_edit_absolute_url()
         self.assertGET200(url)
 
         title       = title.upper()
@@ -245,9 +251,9 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_add_related_document03(self):
         "Link credentials"
 #        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
-        self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
-                   creatable_models=[Document]
-                  )
+        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
+                          creatable_models=[Document]
+                         )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
@@ -256,7 +262,6 @@ class DocumentTestCase(_DocumentsTestCase):
                         EntityCredentials.DELETE | EntityCredentials.UNLINK, #not EntityCredentials.LINK
                  )
 
-        user = self.user
         orga = Organisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
@@ -281,15 +286,15 @@ class DocumentTestCase(_DocumentsTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             [_(u'You are not allowed to link with the «%s» of this user.') % _(u'Documents')]
+                             _(u'You are not allowed to link with the «%s» of this user.') % _(u'Documents')
                             )
 
     def test_add_related_document04(self):
         "View credentials"
 #        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
-        self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
-                   creatable_models=[Document],
-                  )
+        user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'],
+                          creatable_models=[Document],
+                         )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.CHANGE |
@@ -301,26 +306,26 @@ class DocumentTestCase(_DocumentsTestCase):
 
         #entity = CremeEntity.objects.create(user=self.other_user)
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
-        self.assertTrue(self.user.has_perm_to_link(orga))
-        self.assertFalse(self.user.has_perm_to_view(orga))
+        self.assertTrue(user.has_perm_to_link(orga))
+        self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._buid_addrelated_url(orga))
 
     def test_add_related_document05(self):
         "The Folder containing all the Documents related to the entity has a too long name."
-        self.login()
+        user = self.login()
 
         MAX_LEN = 100
         self.assertEqual(MAX_LEN, Folder._meta.get_field('title').max_length)
 
         with self.assertNoException():
-            entity = Organisation.objects.create(user=self.user, name='A' * MAX_LEN)
+            entity = Organisation.objects.create(user=user, name='A' * MAX_LEN)
 
         self.assertEqual(100, len(unicode(entity)))
 
         title    = 'Related doc'
         response = self.client.post(self._buid_addrelated_url(entity),
                                     follow=True,
-                                    data={'user':        self.user.pk,
+                                    data={'user':        user.pk,
                                           'title':       title,
                                           'description': 'Test description',
                                           'filedata':    self._build_filedata('Yes I am the content '
@@ -352,7 +357,8 @@ class DocumentTestCase(_DocumentsTestCase):
         doc1 = create_doc('Test doc #1')
         doc2 = create_doc('Test doc #2')
 
-        response = self.assertGET200('/documents/documents')
+#        response = self.assertGET200('/documents/documents')
+        response = self.assertGET200(Document.get_lv_absolute_url())
 
         with self.assertNoException():
             docs = response.context['entities'].object_list
@@ -383,6 +389,8 @@ class DocumentTestCase(_DocumentsTestCase):
     #TODO complete
 
 
+@skipIfCustomDocument
+@skipIfCustomFolder
 class DocumentQuickFormTestCase(_DocumentsTestCase):
     def quickform_data(self, count):
         return {'form-INITIAL_FORMS': '0',
@@ -428,6 +436,8 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
 
 
+@skipIfCustomDocument
+@skipIfCustomFolder
 class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
     def test_add_from_widget(self):
         self.login()
@@ -435,7 +445,8 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
 
-        url = '/documents/quickforms/from_widget/document/csv/add/%d' % 1
+#        url = '/documents/quickforms/from_widget/document/csv/add/%d' % 1
+        url = reverse('documents__create_document_from_widget', args=(1,))
         self.assertGET200(url)
 
         content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'

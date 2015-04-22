@@ -638,16 +638,52 @@ COPY_MEDIA_FILETYPES = ('gif', 'jpg', 'jpeg', 'png', 'ico', 'cur')
 
 #APPS CONFIGURATION ############################################################
 
+#DOCUMENTS ---------------------------------------------------------------------
+DOCUMENTS_FOLDER_MODEL   = 'documents.Folder'
+DOCUMENTS_DOCUMENT_MODEL = 'documents.Document'
+
+#PERSONS -----------------------------------------------------------------------
+PERSONS_ADDRESS_MODEL      = 'persons.Address'
+PERSONS_CONTACT_MODEL      = 'persons.Contact'
+PERSONS_ORGANISATION_MODEL = 'persons.Organisation'
+
 #ASSISTANTS --------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
 DEFAULT_TIME_TODO_REMIND = 120
+
+#REPORTS -----------------------------------------------------------------------
+REPORTS_REPORT_MODEL = 'reports.Report'
+REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
+
+#GRAPHS ------------------------------------------------------------------------
+GRAPHS_GRAPH_MODEL = 'graphs.Graph'
+
+#PRODUCTS ----------------------------------------------------------------------
+PRODUCTS_PRODUCT_MODEL = 'products.Product'
+PRODUCTS_SERVICE_MODEL = 'products.Service'
+
+#RECURRENTS --------------------------------------------------------------------
+RECURRENTS_RGENERATOR_MODEL = 'recurrents.RecurrentGenerator'
 
 #BILLING -----------------------------------------------------------------------
 QUOTE_NUMBER_PREFIX = "DE"
 INVOICE_NUMBER_PREFIX = "FA"
 SALESORDER_NUMBER_PREFIX = "BC"
 
+#OPPORTUNITIES -----------------------------------------------------------------
+OPPORTUNITIES_OPPORTUNITY_MODEL = 'opportunities.Opportunity'
+
+#COMMERCIAL --------------------------------------------------------------------
+COMMERCIAL_ACT_MODEL      = 'commercial.Act'
+COMMERCIAL_PATTERN_MODEL  = 'commercial.ActObjectivePattern'
+COMMERCIAL_STRATEGY_MODEL = 'commercial.Strategy'
+
 #EMAILS [external] -------------------------------------------------------------
+EMAILS_CAMPAIGN_MODEL = 'emails.EmailCampaign'
+EMAILS_TEMPLATE_MODEL = 'emails.EmailTemplate'
+EMAILS_EMAIL_MODEL    = 'emails.EntityEmail'
+EMAILS_MLIST_MODEL    = 'emails.MailingList'
+
 #Emails campaigns sent to the customers
 EMAILCAMPAIGN_HOST      = 'localhost'
 EMAILCAMPAIGN_HOST_USER = ''
@@ -659,12 +695,16 @@ EMAILCAMPAIGN_USE_TLS   = True
 EMAILCAMPAIGN_SIZE = 40
 EMAILCAMPAIGN_SLEEP_TIME = 2
 
-#SAMOUSSA ----------------------------------------------------------------------
+#SMS ---------------------------------------------------------------------------
+SMS_CAMPAIGN_MODEL = 'sms.SMSCampaign'
+SMS_MLIST_MODEL    = 'sms.MessagingList'
+SMS_TEMPLATE_MODEL = 'sms.MessageTemplate'
+
 CREME_SAMOUSSA_URL = 'http://localhost:8001/'
 CREME_SAMOUSSA_USERNAME = ''
 CREME_SAMOUSSA_PASSWORD = ''
 
-#CRUDITY ------------------------------------------------------------------------
+#CRUDITY -----------------------------------------------------------------------
 #Mail parameters to sync external email in creme
 CREME_GET_EMAIL              = "" #Creme get email e.g : creme@cremecrm.org
 CREME_GET_EMAIL_SERVER       = "" #Creme get server e.g : pop.cremecrm.org (only pop supported for now)
@@ -727,11 +767,23 @@ CONNECTION_TIMEOUT = 150
 
 PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures > to this size
 
+#TICKETS -----------------------------------------------------------------------
+TICKETS_TICKET_MODEL   = 'tickets.Ticket'
+TICKETS_TEMPLATE_MODEL = 'tickets.TicketTemplate'
+
+#EVENTS ------------------------------------------------------------------------
+EVENTS_EVENT_MODEL = 'events.Event'
+
 #CTI ---------------------------------------------------------------------------
 ABCTI_URL = 'http://127.0.0.1:8087'
 
 #VCF ---------------------------------------------------------------------------
 VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
+
+#POLLS -------------------------------------------------------------------------
+POLLS_CAMPAIGN_MODEL = 'polls.PollCampaign'
+POLLS_FORM_MODEL     = 'polls.PollForm'
+POLLS_REPLY_MODEL    = 'polls.PollReply'
 
 #MOBILE ------------------------------------------------------------------------
 

@@ -3,14 +3,15 @@
 try:
     from datetime import timedelta
 
-    from django.utils.translation import ugettext as _
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import SettingValue
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.documents import get_folder_model
     from creme.documents.constants import DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME
-    from creme.documents.models import FolderCategory, Folder
+    from creme.documents.models import FolderCategory #, Folder
 
     from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from creme.crudity.fetchers.pop import PopEmail
@@ -19,12 +20,15 @@ try:
     from ..constants import MAIL_STATUS_SYNCHRONIZED_WAITING
     from ..crudity_register import EntityEmailBackend
     from ..models import EntityEmail
+    from .base import skipIfCustomEntityEmail
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('EmailsCrudityTestCase',)
 
+
+@skipIfCustomEntityEmail
 class EmailsCrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -156,7 +160,8 @@ class EmailsCrudityTestCase(CremeTestCase):
         backend.fetcher_fallback(email, user)
         self.get_object_or_fail(EntityEmail, subject=email.subject)
 
-        folder = self.get_object_or_fail(Folder, title=_(u"%(username)s's files received by email") % {
+#        folder = self.get_object_or_fail(Folder, title=_(u"%(username)s's files received by email") % {
+        folder = self.get_object_or_fail(get_folder_model(), title=_(u"%(username)s's files received by email") % {
                                                                 'username': user.username,
                                                             },
                                         )

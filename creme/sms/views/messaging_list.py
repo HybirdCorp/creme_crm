@@ -27,6 +27,7 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 from creme.creme_core.utils import get_from_POST_or_404
 
+from .. import get_messaginglist_model
 from ..forms.messaging_list import MessagingListForm, AddContactsForm, AddContactsFromFilterForm
 from ..models import MessagingList
 
@@ -60,7 +61,8 @@ def listview(request):
 def add_contacts(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsForm,
                          ugettext('New contacts for <%s>'),
-                         entity_class=MessagingList,
+#                         entity_class=MessagingList,
+                         entity_class=get_messaginglist_model(),
                         )
 
 @login_required
@@ -68,14 +70,16 @@ def add_contacts(request, mlist_id):
 def add_contacts_from_filter(request, mlist_id):
     return add_to_entity(request, mlist_id, AddContactsFromFilterForm,
                          ugettext('New contacts for <%s>'),
-                         entity_class=MessagingList,
+#                         entity_class=MessagingList,
+                         entity_class=get_messaginglist_model(),
                         )
 
 @login_required
 @permission_required('sms')
 def _delete_aux(request, mlist_id, deletor):
     subobject_id   = get_from_POST_or_404(request.POST, 'id')
-    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
+#    messaging_list = get_object_or_404(MessagingList, pk=mlist_id)
+    messaging_list = get_object_or_404(get_messaginglist_model(), pk=mlist_id)
 
     request.user.has_perm_to_change_or_die(messaging_list)
 

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, ForeignKey, BooleanField, IntegerField,
         DecimalField, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
@@ -31,7 +32,8 @@ from .other_models import Category, SubCategory
 
 #TODO: use an abstract base class for Service and Products ??
 
-class Service(CremeEntity):
+#class Service(CremeEntity):
+class AbstractService(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
@@ -47,6 +49,7 @@ class Service(CremeEntity):
     creation_label = _('Add a service')
 
     class Meta:
+        abstract = True
         app_label = 'products'
         verbose_name = _(u'Service')
         verbose_name_plural = _(u'Services')
@@ -56,11 +59,19 @@ class Service(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/products/service/%s" % self.id
+#        return "/products/service/%s" % self.id
+        return reverse('products__view_service', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/products/service/edit/%s" % self.id
+#        return "/products/service/edit/%s" % self.id
+        return reverse('products__edit_service', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/products/services"
+#        return "/products/services"
+        return reverse('products__list_services')
+
+
+class Service(AbstractService):
+    class Meta(AbstractService.Meta):
+        swappable = 'PRODUCTS_SERVICE_MODEL'

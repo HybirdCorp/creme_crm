@@ -35,9 +35,11 @@ from creme.creme_core.blocks import (properties_block, relations_block,
 from creme.creme_core.utils import create_if_needed
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme.persons.models import Organisation, Contact
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Organisation, Contact
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
 from .blocks import *
 from .buttons import *
@@ -54,6 +56,10 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_BILL_ISSUED).exists()
 
+        Contact      = get_contact_model()
+        Organisation = get_organisation_model()
+        Product = get_product_model()
+        Service = get_service_model()
 
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         line_entities = [Line, ProductLine, ServiceLine]

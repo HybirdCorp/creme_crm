@@ -4,8 +4,9 @@ try:
     from datetime import date #datetime
     from functools import partial
 
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme.creme_core.models import (RelationType, Relation, CremeProperty,
@@ -14,13 +15,14 @@ try:
     from creme.persons.models import Contact, Organisation
 
     from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.tests import skipIfCustomOpportunity
 
     from creme.activities.models import Activity
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
 
     from ..models import *
     from ..constants import REL_SUB_COMPLETE_GOAL
-    from .base import CommercialBaseTestCase
+    from .base import CommercialBaseTestCase, skipIfCustomAct, skipIfCustomPattern
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -28,13 +30,16 @@ except Exception as e:
 __all__ = ('ActTestCase',)
 
 
+@skipIfCustomAct
 class ActTestCase(CommercialBaseTestCase):
-    ADD_URL = '/commercial/act/add'
+#    ADD_URL = '/commercial/act/add'
 
     @classmethod
     def setUpClass(cls):
         CommercialBaseTestCase.setUpClass()
         cls.populate('activities', 'opportunities', 'commercial')
+
+        cls.ADD_URL = reverse('commercial__create_act')
 
     def _build_addobjective_url(self, act):
         return '/commercial/act/%s/add/objective' % act.id
@@ -189,7 +194,8 @@ class ActTestCase(CommercialBaseTestCase):
                             )
         acts = [create_act(name='NAME_%s' % i) for i in xrange(1, 3)]
 
-        response = self.assertGET200('/commercial/acts')
+#        response = self.assertGET200('/commercial/acts')
+        response = self.assertGET200(Act.get_lv_absolute_url())
 
         with self.assertNoException():
             acts_page = response.context['entities']
@@ -200,12 +206,15 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_detailview(self):
         act = self.create_act()
-        self.assertGET200('/commercial/act/%s' % act.id)
+#        self.assertGET200('/commercial/act/%s' % act.id)
+        self.assertGET200(act.get_absolute_url())
 
+    @skipIfCustomOpportunity
     def test_create_linked_opportunity(self):
         act = self.create_act()
 
-        url = '/commercial/act/%s/add/opportunity' % act.id
+#        url = '/commercial/act/%s/add/opportunity' % act.id
+        url = reverse('commercial__create_opportunity', args=(act.id,))
         self.assertGET200(url)
 
         user = self.user
@@ -331,6 +340,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(ct,           objective.ctype)
         self.assertEqual(pub_efilter,  objective.filter)
 
+    @skipIfCustomPattern
     def test_add_objectives_from_pattern01(self):
         "No component"
         act = self.create_act(expected_sales=21000)
@@ -347,6 +357,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(1, len(objectives))
         self.assertEqual(5, objectives[0].counter_goal)
 
+    @skipIfCustomPattern
     def test_add_objectives_from_pattern02(self):
         "With components"
         act = self.create_act(expected_sales=20000)
@@ -632,6 +643,7 @@ class ActTestCase(CommercialBaseTestCase):
         completes_goal(subject_entity=contact)
         self.assertEqual(2, self.refresh(objective).get_count())
 
+    @skipIfCustomOpportunity
     def test_related_opportunities(self):
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
 
@@ -685,6 +697,7 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.get_object_or_fail(Act, pk=act.pk)
         self.assertEqual(atype, act.act_type)
 
+    @skipIfCustomOpportunity
     def test_link_to_activity(self):
         user = self.user
         act1 = self.create_act('Act#1')

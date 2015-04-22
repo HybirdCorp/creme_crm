@@ -6,6 +6,8 @@ try:
 
     from creme.creme_core.models import Currency
 
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
+
     from ..models import SalesOrderStatus, SalesOrder
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase
@@ -16,6 +18,7 @@ except Exception as e:
 __all__ = ('SalesOrderTestCase',)
 
 
+@skipIfCustomOrganisation
 class SalesOrderTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
@@ -150,8 +153,10 @@ class SalesOrderTestCase(_BillingTestCase):
 
         self.assertDeleteStatusKO(status, 'sales_order_status', order)
 
+    @skipIfCustomAddress
     def test_csv_import(self):
         self._aux_test_csv_import(SalesOrder, SalesOrderStatus)
 
+    @skipIfCustomAddress
     def test_csv_import_update(self):
         self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)

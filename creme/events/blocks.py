@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import SimpleBlock
 
-from .models import Event
+#from .models import Event
+from . import get_event_model
 
 
 class ResutsBlock(SimpleBlock):
@@ -30,7 +31,8 @@ class ResutsBlock(SimpleBlock):
     #dependencies  = (Relation,) ??
     verbose_name  = _(u'Results of an event')
     template_name = 'events/block_results.html'
-    target_ctypes = (Event,)
+#    target_ctypes = (Event,)
+    target_ctypes = (get_event_model(),)
 
 
 resuts_block = ResutsBlock()

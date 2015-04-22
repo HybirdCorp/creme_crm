@@ -7,6 +7,7 @@ try:
     from creme.creme_core.models import Currency
 
     from creme.persons.models import Organisation
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import PaymentInformation
     from .base import _BillingTestCase
@@ -17,6 +18,7 @@ except Exception as e:
 __all__ = ('PaymentInformationTestCase',)
 
 
+@skipIfCustomOrganisation
 class PaymentInformationTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)

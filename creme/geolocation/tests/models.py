@@ -6,6 +6,8 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.persons.models import Address, Organisation, Contact
+    from creme.persons.tests.base import (skipIfCustomAddress,
+            skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..models import GeoAddress, Town
     from .base import GeoLocationBaseTestCase
@@ -16,6 +18,8 @@ except Exception as e:
 __all__ = ('GeoLocationModelsTestCase',)
 
 
+@skipIfCustomOrganisation
+@skipIfCustomAddress
 class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
     def setUp(self):
         user = self.login()
@@ -437,6 +441,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         geoaddress.status = GeoAddress.MANUAL
         self.assertEqual(geoaddress.get_status_display(), _('Manual location'))
 
+    @skipIfCustomContact
     def test_neighbours(self):
         contact = Contact.objects.create(last_name='Contact 1', user=self.user)
         orga2   = Organisation.objects.create(name='Orga 2', user=self.user)
@@ -459,6 +464,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                          [ST_VICTOR.geoaddress, AUBAGNE.geoaddress]
                         )
 
+    @skipIfCustomContact
     def test_neighbours_with_same_owner(self):
         contact = Contact.objects.create(last_name='Contact 1', user=self.user)
 
@@ -480,6 +486,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
                          [ST_VICTOR.geoaddress]
                         ) # ignore aubagne, same owner !
 
+    @skipIfCustomContact
     def test_neighbours_with_empty_coordinates(self):
         contact = Contact.objects.create(last_name='Contact 1', user=self.user)
         town = self.marseille1

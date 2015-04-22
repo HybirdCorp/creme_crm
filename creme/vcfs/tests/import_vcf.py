@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.test.utils import override_settings
     from django.utils.encoding import smart_str
     from django.utils.translation import ugettext as _
@@ -16,6 +17,8 @@ try:
 
     from creme.persons.models import Contact, Organisation, Address
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation)
 
     from ..forms import vcf as vcf_forms
     from ..vcf_lib import readOne as read_vcf
@@ -25,12 +28,14 @@ except Exception as e:
 
 
 class VcfImportTestCase(CremeTestCase):
-    IMPORT_URL = '/vcfs/vcf'
+#    IMPORT_URL = '/vcfs/vcf'
 
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
         cls.populate('persons')
+
+        cls.IMPORT_URL = reverse('vcfs__import')
 
     def _post_step0(self, content):
         tmpfile = NamedTemporaryFile()
@@ -309,6 +314,7 @@ end:vcard""" % {'box':     box,
         self.assertEqual(fields['email'].help_text,    help_prefix + vobj.email.value)
         self.assertEqual(fields['url_site'].help_text, help_prefix + vobj.url.value)
 
+    @skipIfCustomOrganisation
     def test_parsing_vcf04(self):
         "Existing Organisation"
         self.login()
@@ -373,6 +379,9 @@ END:VCARD""" % {'first_name': first_name,
                          vobj.adr.value.street
                         )
 
+    @skipIfCustomContact    
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf00(self):
         self.login()
 
@@ -425,6 +434,8 @@ END:VCARD"""
                                          )
         self.assertRedirects(response, contact.get_absolute_url())
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf01(self):
         self.login()
 
@@ -458,6 +469,9 @@ END:VCARD"""
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count,    Organisation.objects.count())
 
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf02(self):
         self.login()
 
@@ -504,6 +518,8 @@ ORG:Corporate\nEND:VCARD"""
                                 mobile=mobile, fax=fax, email=email, url_site=url_site
                                )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf03(self):
         self.login()
 
@@ -564,6 +580,8 @@ END:VCARD"""
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
         self.assertRedirects(response, contact.get_absolute_url())
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf04(self):
         self.login()
 
@@ -621,6 +639,8 @@ END:VCARD"""
                                          )
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
+    @skipIfCustomContact
+    @skipIfCustomAddress
     def test_add_contact_vcf05(self):
         self.login()
 
@@ -673,6 +693,9 @@ END:VCARD"""
                                          )
         self.assertEqual(contact.billing_address, address)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf06(self):
         self.login()
         contact_count = Contact.objects.count()
@@ -751,6 +774,8 @@ END:VCARD"""
         self.assertEqual(contact.billing_address, c_addr)
         self.assertEqual(orga.billing_address,    o_addr)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf07(self):
         self.login()
 
@@ -802,6 +827,7 @@ END:VCARD"""
 
         self.assertEqual(contact_count, Contact.objects.count())
 
+    @skipIfCustomContact
     def test_add_contact_vcf08(self):
         self.login()
 
@@ -849,6 +875,8 @@ END:VCARD"""
 
         self.assertEqual(contact_count, Contact.objects.count())
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_add_contact_vcf09(self):
         self.login()
 
@@ -882,6 +910,9 @@ END:VCARD""" % name
         self.assertFormError(response, 'form', 'work_fax',      validation_text)
         self.assertFormError(response, 'form', 'work_url_site', validation_text)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf10(self):
         self.login()
 
@@ -958,6 +989,9 @@ END:VCARD""" % name
         self.assertEqual(billing_address.zipcode,    adr.code)
         self.assertEqual(billing_address.department, adr.region)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf11(self):
         self.login()
 
@@ -1021,6 +1055,9 @@ END:VCARD""" % name
 
         self.assertEqual(orga.billing_address, address)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf12(self):
         self.login()
 
@@ -1085,6 +1122,7 @@ PHOTO:""" \
                                 url_site='http://www.url.com/',
                                )
 
+    @skipIfCustomContact
     def test_add_contact_vcf13(self):
         self.login()
 
@@ -1125,6 +1163,9 @@ PHOTO:""" \
                                 last_name=last_name, position=position_id,
                                )
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_add_contact_vcf14(self):
         self.login()
 
@@ -1178,6 +1219,7 @@ PHOTO;TYPE=JPEG:""" \
         self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
         contact.image.image.delete()
 
+    @skipIfCustomContact
     def test_add_contact_vcf15(self):
         self.login()
 
@@ -1218,6 +1260,7 @@ END:VCARD""" % path
         self.assertEqual(_(u'Image of %s') % contact, image.name)
         image.delete()
 
+    @skipIfCustomContact
     def test_add_contact_vcf16(self):
         self.login()
 
@@ -1239,6 +1282,7 @@ END:VCARD"""
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Image.objects.count())
 
+    @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10240) #(10 kB)
     def test_add_contact_vcf17(self):
         self.login()

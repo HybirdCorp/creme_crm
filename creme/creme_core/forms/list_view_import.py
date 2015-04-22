@@ -66,6 +66,7 @@ logger = logging.getLogger(__name__)
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
+                                    #TODO: reverse('documents__create_document_from_widget', args=(1,))
                                     create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
