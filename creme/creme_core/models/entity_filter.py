@@ -373,14 +373,7 @@ class EntityFilter(Model): #CremeModel ???
                 # Staff users cannot be owner in order to stay 'invisible'.
                 raise ValueError('EntityFilter.create(): the owner cannot be a staff user.')
         elif user == 'admin':
-            user_qs = User.objects.order_by('id')
-            try:
-                user = user_qs.filter(is_superuser=True, is_staff=False)[0]
-            except IndexError:
-                try:
-                    user = user_qs.filter(is_superuser=True)[0]
-                except IndexError:
-                    user = user_qs[0]
+            user = User.objects.get_admin()
 
         ct = ContentType.objects.get_for_model(model)
 

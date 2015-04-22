@@ -329,6 +329,14 @@ class CremeUserManager(BaseUserManager):
 
     # TODO: create_staff_user ??
 
+    def get_admin(self):
+        user_qs = self.get_queryset().order_by('id')
+
+        return user_qs.filter(is_superuser=True, is_staff=False).first() or \
+               user_qs.filter(is_superuser=True).first() or \
+               user_qs[0]
+
+
 #class UserProfile(Model):
 class CremeUser(AbstractBaseUser):
     username     = CharField(_('Username'), max_length=30, unique=True,
