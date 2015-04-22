@@ -34,8 +34,7 @@ from ..models import Product, Service, Category, SubCategory
 
 
 @login_required
-@permission_required('products')
-@permission_required('products.add_product')
+@permission_required(('products', 'products.add_product'))
 def add(request):
     return add_entity(request, ProductCreateForm,
                       extra_template_dict={'submit_label': _('Save the product')},

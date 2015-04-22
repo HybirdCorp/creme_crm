@@ -28,8 +28,7 @@ from ..models import Ticket, Priority, Criticity
 
 
 @login_required
-@permission_required('tickets')
-@permission_required('tickets.add_ticket')
+@permission_required(('tickets', 'tickets.add_ticket'))
 def add(request):
     return add_entity(request, TicketCreateForm,
                       extra_initial={'priority':  Priority.objects.first(),
@@ -46,7 +45,9 @@ def edit(request, ticket_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
-    return view_entity(request, ticket_id, Ticket, '/tickets/ticket', 'tickets/view_ticket.html')
+    return view_entity(request, ticket_id, Ticket, '/tickets/ticket',
+                       'tickets/view_ticket.html',
+                      )
 
 @login_required
 @permission_required('tickets')

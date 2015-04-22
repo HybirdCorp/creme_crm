@@ -31,7 +31,7 @@ from creme.creme_core.views.generic import (add_entity, edit_entity,
         view_entity, list_view, inner_popup, add_to_entity)
 
 from ..forms.report import (ReportCreateForm, ReportEditForm,
-                            LinkFieldToReportForm, ReportFieldsForm,)
+        LinkFieldToReportForm, ReportFieldsForm)
 from ..models import Report, Field
 
 
@@ -39,8 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required('reports')
-@permission_required('reports.add_report')
+@permission_required(('reports', 'reports.add_report'))
 def add(request):
     return add_entity(request, ReportCreateForm, template="reports/add_report.html", #TODO: improve widgets & drop this template
                       extra_template_dict={'submit_label': _('Save the report'),
@@ -57,7 +56,9 @@ def edit(request, report_id):
 @login_required
 @permission_required('reports')
 def detailview(request, report_id):
-    return view_entity(request, report_id, Report, '/reports/report', 'reports/view_report.html')
+    return view_entity(request, report_id, Report, '/reports/report',
+                       'reports/view_report.html',
+                      )
 
 @login_required
 @permission_required('reports')

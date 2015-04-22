@@ -33,8 +33,7 @@ from ..models import Graph
 
 
 @login_required
-@permission_required('graphs')
-@permission_required('graphs.add_graph')
+@permission_required(('graphs', 'graphs.add_graph'))
 def add(request):
     return add_entity(request, GraphForm,
                       extra_template_dict={'submit_label': _('Save the graph')},

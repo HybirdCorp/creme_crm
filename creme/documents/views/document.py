@@ -31,8 +31,7 @@ from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, Docu
 
 
 @login_required
-@permission_required('documents')
-@permission_required('documents.add_document')
+@permission_required(('documents', 'documents.add_document'))
 def add(request):
     folder = Folder.objects.first()
 
@@ -43,8 +42,7 @@ def add(request):
                      )
 
 @login_required
-@permission_required('documents')
-@permission_required('documents.add_document')
+@permission_required(('documents', 'documents.add_document'))
 def add_related(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
@@ -66,7 +64,9 @@ def edit(request, document_id):
 @login_required
 @permission_required('documents')
 def detailview(request, object_id):
-    return view_entity(request, object_id, Document, '/documents/document', 'documents/view_document.html')
+    return view_entity(request, object_id, Document, '/documents/document',
+                       'documents/view_document.html',
+                      )
 
 @login_required
 @permission_required('documents')

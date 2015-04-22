@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,7 @@ from ..models.graph import ReportGraph
 #TODO: use add_to_entity() generic view => Post TODO: Doesn't fit to the needs (credential admin instead of change/link)
 
 @login_required
-@permission_required('reports')
-@permission_required('reports.can_admin')
+@permission_required(('reports', 'reports.can_admin'))
 def add_graph_instance_block(request, graph_id):
     graph = get_object_or_404(ReportGraph, pk=graph_id)
 

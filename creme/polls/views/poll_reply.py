@@ -39,7 +39,7 @@ from creme.persons.models import Contact, Organisation
 from ..core import MultiEnumPollLineType
 from ..models import PollForm, PollReply, PollReplyLine, PollCampaign
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
-                                PollReplyFillForm, PersonAddRepliesForm)
+        PollReplyFillForm, PersonAddRepliesForm)
 from ..utils import ReplySectionTree, NodeStyle
 
 
@@ -47,8 +47,7 @@ logger = logging.getLogger(__name__)
 
 #TODO: change url (reply->replies or add_several ??)
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollreply')
+@permission_required(('polls', 'polls.add_pollreply'))
 def add(request):
     #return add_entity(request, PollRepliesCreateForm)
 
@@ -75,8 +74,7 @@ def add(request):
                  )
 
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollreply')
+@permission_required(('polls', 'polls.add_pollreply'))
 def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
     pform = get_object_or_404(PollForm, pk=pform_id)
     user = request.user
@@ -90,8 +88,7 @@ def add_from_pform(request, pform_id): #TODO: factorise ? (see documents.views)
                                )
 
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollreply')
+@permission_required(('polls', 'polls.add_pollreply'))
 def add_from_campaign(request, campaign_id): #TODO: factorise ?
     campaign = get_object_or_404(PollCampaign, pk=campaign_id)
     user = request.user
@@ -105,8 +102,7 @@ def add_from_campaign(request, campaign_id): #TODO: factorise ?
                                )
 
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollreply')
+@permission_required(('polls', 'polls.add_pollreply'))
 def add_from_person(request, person_id):
     person = get_object_or_404(CremeEntity, pk=person_id)
     user = request.user
@@ -142,8 +138,7 @@ def listview(request):
     return list_view(request, PollReply, extra_dict={'add_url': '/polls/poll_reply/add'})
 
 @login_required
-@permission_required('polls')
-@permission_required('persons')
+@permission_required(('polls', 'persons'))
 def link_to_person(request, person_id):
     return add_to_entity(request, person_id, PersonAddRepliesForm,
                          ugettext('Existing replies for <%s>'), link_perm=True,

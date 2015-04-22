@@ -37,8 +37,7 @@ from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOIC
 
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_invoice')
+@permission_required(('billing', 'billing.add_invoice'))
 def add(request):
     return add_entity(request, InvoiceCreateForm,
                       extra_initial={'status': DEFAULT_DRAFT_INVOICE_STATUS},
@@ -46,8 +45,7 @@ def add(request):
                      )
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_invoice')
+@permission_required(('billing', 'billing.add_invoice'))
 def add_from_detailview(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     request.user.has_perm_to_change_or_die(entity)
@@ -60,8 +58,7 @@ def add_from_detailview(request, entity_id):
                                )
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_invoice')
+@permission_required(('billing', 'billing.add_invoice'))
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, InvoiceCreateForm,
                                ugettext(u"Add an invoice for <%s>"),

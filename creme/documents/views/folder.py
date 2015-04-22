@@ -28,16 +28,15 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity
 from creme.creme_core.views.generic.listview import list_view
 
-from ..models import Folder
 from ..forms.folder import FolderForm
+from ..models import Folder
 
 
 logger = logging.getLogger(__name__)
 
 
 @login_required
-@permission_required('documents')
-@permission_required('documents.add_folder')
+@permission_required(('documents', 'documents.add_folder'))
 def add(request):
     return add_entity(request, FolderForm,
                       extra_template_dict={'submit_label': _('Save the folder')},
@@ -51,7 +50,9 @@ def edit(request, folder_id):
 @login_required
 @permission_required('documents')
 def detailview(request, folder_id):
-    return view_entity(request, folder_id, Folder, '/documents/folder', 'documents/view_folder.html')
+    return view_entity(request, folder_id, Folder, '/documents/folder',
+                       'documents/view_folder.html',
+                      )
 
 @login_required
 @permission_required('documents')

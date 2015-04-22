@@ -38,8 +38,7 @@ from ..models import Event, EventType
 
 
 @login_required
-@permission_required('events')
-@permission_required('events.add_event')
+@permission_required(('events', 'events.add_event'))
 def add(request):
     return add_entity(request, EventForm,
                       extra_initial={'type': EventType.objects.first()},
@@ -265,9 +264,7 @@ def set_presence_status(request, event_id, contact_id):
     return HttpResponse('', content_type='text/javascript')
 
 @login_required
-@permission_required('events')
-@permission_required('opportunities')
-@permission_required('opportunities.add_opportunity')
+@permission_required(('events', 'opportunities', 'opportunities.add_opportunity'))
 def add_opportunity(request, event_id, contact_id):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)

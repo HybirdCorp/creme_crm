@@ -33,7 +33,8 @@ from creme.creme_core.views import generic
 from creme.crudity.views.actions import fetch
 
 from ..blocks import mail_waiting_sync_block, mail_spam_sync_block
-from ..constants import MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING
+from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
+        MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING)
 from ..forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
 from ..forms.template import TEMPLATES_VARS
 from ..models import LightWeightEmail, EntityEmail
@@ -85,7 +86,9 @@ def set_emails_status(request, status):
 
     for email in EntityEmail.objects.filter(id__in=request.POST.getlist('ids')):
         if not has_perm(email):
-            errors.append(ugettext(u'You are not allowed to edit this entity: %s') % email.allowed_unicode(user))
+            errors.append(ugettext(u'You are not allowed to edit this entity: %s') %
+                            email.allowed_unicode(user)
+                         )
         else:
             email.status = status
             email.save()
@@ -139,8 +142,7 @@ def listview(request):
     return generic.list_view(request, EntityEmail)
 
 @login_required
-@permission_required('emails')
-@permission_required('emails.add_entityemail')
+@permission_required(('emails', 'emails.add_entityemail'))
 def create_n_send(request, entity_id):
     return generic.add_to_entity(request, entity_id, EntityEmailForm,
                                  title=_(u'Sending an email to <%s>'),
@@ -150,8 +152,7 @@ def create_n_send(request, entity_id):
 #TODO: use a wizard
 #      it seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 @login_required
-@permission_required('emails')
-@permission_required('emails.add_entityemail')
+@permission_required(('emails', 'emails.add_entityemail'))
 def create_from_template_n_send(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
@@ -215,7 +216,9 @@ def resend_mails(request): #TODO: unit test
 @login_required
 @permission_required('emails')
 def popupview(request, mail_id):
-    return generic.view_real_entity(request, mail_id, '/emails/mail', 'emails/view_entity_mail_popup.html')
+    return generic.view_real_entity(request, mail_id, '/emails/mail',
+                                    'emails/view_entity_mail_popup.html',
+                                   )
 
 @login_required
 @permission_required('emails')

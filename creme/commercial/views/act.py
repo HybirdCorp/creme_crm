@@ -40,8 +40,7 @@ from ..models import (ActType, Act, ActObjective, MarketSegment,
 
 
 @login_required
-@permission_required('commercial')
-@permission_required('commercial.add_act')
+@permission_required(('commercial', 'commercial.add_act'))
 def add(request):
     return generic.add_entity(request, forms.ActForm,
                               extra_initial={'act_type': ActType.objects.first(),
@@ -51,8 +50,7 @@ def add(request):
                              )
 
 @login_required
-@permission_required('commercial')
-@permission_required('commercial.add_actobjectivepattern')
+@permission_required(('commercial', 'commercial.add_actobjectivepattern'))
 def add_objective_pattern(request):
     return generic.add_entity(request, forms.ObjectivePatternForm,
                               extra_template_dict={'submit_label': _('Save the objective pattern')},
@@ -96,8 +94,7 @@ def listview_objective_pattern(request):
                             )
 
 @login_required
-@permission_required('opportunities')
-@permission_required('opportunities.add_opportunity')
+@permission_required(('opportunities', 'opportunities.add_opportunity'))
 def add_opportunity(request, act_id):
     act = get_object_or_404(Act, pk=act_id)
     user = request.user
