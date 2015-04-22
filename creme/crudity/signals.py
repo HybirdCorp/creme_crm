@@ -43,16 +43,5 @@ def post_save_setting_value(sender, instance, **kwargs):
             backend.is_sandbox_by_user = instance.value
 
         if instance.value:
-#            WaitingAction.objects.filter(user=None).update(user=User.objects.filter(is_superuser=True).order_by('-pk')[0])
-
-            #TODO: move to a method in User's manager
-            user_qs = get_user_model().objects.order_by('id')
-            try:
-                user = user_qs.filter(is_superuser=True, is_staff=False)[0]
-            except IndexError:
-                try:
-                    user = user_qs.filter(is_superuser=True)[0]
-                except IndexError:
-                    user = user_qs[0]
-
-            WaitingAction.objects.filter(user=None).update(user=user)
+            WaitingAction.objects.filter(user=None) \
+                                 .update(user=get_user_model().objects.get_admin())
