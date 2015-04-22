@@ -235,18 +235,18 @@ def _sync_with_user(sender, instance, created, **kwargs):
     if getattr(instance, '_disable_sync_with_contact', False):
         return
 
-    #when received during 'syncdb' it fails because the Contact table does not exist
-    with atomic():
-        try:
-            if created:
-                instance._linked_contact_cache = _create_linked_contact(instance)
-            else:
-                update_model_instance(instance.linked_contact,
-                                      last_name=instance.last_name,
-                                      first_name=instance.first_name,
-                                      email=instance.email,
-                                     )
-        except DatabaseError as e:
-            logger.warn('Can not create linked contact for this user: %s (if it is the first user,'
-                        ' do not worry because it is normal) (%s)', instance, e
-                       )
+    ##when received during 'syncdb' it fails because the Contact table does not exist
+    #with atomic():
+    try:
+        if created:
+            instance._linked_contact_cache = _create_linked_contact(instance)
+        else:
+            update_model_instance(instance.linked_contact,
+                                  last_name=instance.last_name,
+                                  first_name=instance.first_name,
+                                  email=instance.email,
+                                 )
+    except DatabaseError as e:
+        logger.warn('Can not create linked contact for this user: %s (if it is the first user,'
+                    ' do not worry because it is normal) (%s)', instance, e
+                   )
