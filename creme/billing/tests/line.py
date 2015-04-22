@@ -14,8 +14,10 @@ try:
     from creme.creme_core.models import Relation, SetCredentials, Vat, HeaderFilter
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
     from creme.products.models import Product, Service # Category, SubCategory
+    from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
     from ..models import *
     from ..constants import *
@@ -27,6 +29,7 @@ except Exception as e:
 __all__ = ('LineTestCase',)
 
 
+@skipIfCustomOrganisation
 class LineTestCase(_BillingTestCase):
     clean_files_in_teardown = False
 
@@ -37,6 +40,7 @@ class LineTestCase(_BillingTestCase):
         #cls.populate('creme_config', 'products', 'billing')
         cls.populate('products', 'billing')
 
+    @skipIfCustomProduct
     def test_add_product_lines01(self):
         "Multiple adding"
         self.login()
@@ -240,6 +244,7 @@ class LineTestCase(_BillingTestCase):
         self.assertFalse(self.refresh(invoice).product_lines)
         self.assertFalse(ProductLine.objects.exists())
 
+    @skipIfCustomService
     def test_add_service_lines01(self):
         "Multiple adding"
         self.login()
@@ -388,6 +393,7 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(invoice, product_line.related_document)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
 
+    @skipIfCustomProduct
     def test_related_item01(self):
         self.login()
 
@@ -405,6 +411,7 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
         self.assertIsNone(product_line.related_item)
 
+    @skipIfCustomProduct
     def test_product_line_clone(self):
         self.login()
 

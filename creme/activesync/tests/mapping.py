@@ -18,6 +18,8 @@ try:
 
     from creme.persons.models import Address, Contact, Organisation, Civility
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.tests.base import (skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation)
 
     #from ..mappings.utils import serialize_entity
     #from ..mappings.contact import CREME_CONTACT_MAPPING
@@ -47,6 +49,9 @@ class MappingTestCase(CremeTestCase):
 
         return return_content
 
+    @skipIfCustomAddress
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_contact_serialization01(self):
         #TODO: Check contact image
         user = get_user_model().objects.create(username='user')

@@ -27,8 +27,10 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views import generic
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 
-from creme.persons.models import Organisation
+from creme.persons import get_organisation_model
+#from creme.persons.models import Organisation
 
+from .. import get_strategy_model
 from ..models import (Strategy, MarketSegmentDescription,
         CommercialAsset, CommercialAssetScore, MarketSegmentCharm, MarketSegmentCharmScore)
 from ..forms import strategy as forms
@@ -64,7 +66,8 @@ def listview(request):
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
                                  ugettext(u"New market segment for <%s>"),
-                                 entity_class=Strategy
+#                                 entity_class=Strategy
+                                 entity_class=get_strategy_model(),
                                 )
 
 @login_required
@@ -72,7 +75,8 @@ def add_segment(request, strategy_id):
 def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
                                  ugettext(u"New market segment for <%s>"),
-                                 entity_class=Strategy
+#                                 entity_class=Strategy
+                                 entity_class=get_strategy_model(),
                                 )
 
 @login_required
@@ -80,7 +84,8 @@ def link_segment(request, strategy_id):
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
                                  ugettext(u"New commercial asset for <%s>"),
-                                 entity_class=Strategy
+#                                 entity_class=Strategy
+                                 entity_class=get_strategy_model(),
                                 )
 
 @login_required
@@ -88,7 +93,8 @@ def add_asset(request, strategy_id):
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
                                  ugettext(u"New segment charm for <%s>"),
-                                 entity_class=Strategy
+#                                 entity_class=Strategy
+                                 entity_class=get_strategy_model(),
                                 )
 
 @login_required
@@ -96,7 +102,8 @@ def add_charm(request, strategy_id):
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
                                  ugettext(u"New organisation for <%s>"),
-                                 entity_class=Strategy
+#                                 entity_class=Strategy
+                                 entity_class=get_strategy_model(),
                                 )
 
 @login_required
@@ -123,7 +130,8 @@ def edit_charm(request, charm_id):
 @login_required
 @permission_required('commercial')
 def delete_evalorga(request, strategy_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+#    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy = get_object_or_404(get_strategy_model(), pk=strategy_id)
     request.user.has_perm_to_change_or_die(strategy)
 
     orga_id = get_from_POST_or_404(request.POST, 'id', int)
@@ -137,11 +145,13 @@ def delete_evalorga(request, strategy_id):
     return redirect(strategy)
 
 def _get_strategy_n_orga(request, strategy_id, orga_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+#    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy = get_object_or_404(get_strategy_model(), pk=strategy_id)
     has_perm = request.user.has_perm_to_view_or_die
     has_perm(strategy)
 
-    orga = get_object_or_404(Organisation, pk=orga_id)
+#    orga = get_object_or_404(Organisation, pk=orga_id)
+    orga = get_object_or_404(get_organisation_model(), pk=orga_id)
     has_perm(orga)
 
     return strategy, orga
@@ -167,7 +177,8 @@ def orga_synthesis(request, strategy_id, orga_id):
 @login_required
 @permission_required('commercial')
 def _set_score(request, strategy_id, method_name):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+#    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy = get_object_or_404(get_strategy_model(), pk=strategy_id)
     request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST
@@ -192,7 +203,8 @@ def set_charm_score(request, strategy_id):
 @login_required
 @permission_required('commercial')
 def set_segment_category(request, strategy_id):
-    strategy = get_object_or_404(Strategy, pk=strategy_id)
+#    strategy = get_object_or_404(Strategy, pk=strategy_id)
+    strategy = get_object_or_404(get_strategy_model(), pk=strategy_id)
     request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST

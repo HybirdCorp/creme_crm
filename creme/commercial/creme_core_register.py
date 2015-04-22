@@ -18,19 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui import (creme_menu, block_registry, button_registry,
         icon_registry, bulk_update_registry)
 from creme.creme_core.registry import creme_registry
 
+from . import get_act_model, get_pattern_model, get_strategy_model
 from .blocks import blocks_list
 from .buttons import complete_goal_button
-from .models import (Act, ActObjectivePattern, Strategy,
-        ActObjectivePatternComponent, MarketSegmentDescription)
+#from .models import (Act, ActObjectivePattern, Strategy,
+#        ActObjectivePatternComponent, MarketSegmentDescription)
+from .models import ActObjectivePatternComponent, MarketSegmentDescription
 from .setting_keys import notification_key, orga_approaches_key
 
+
+Act = get_act_model()
+ActObjectivePattern = get_pattern_model()
+Strategy = get_strategy_model()
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')
 creme_registry.register_entity_models(Act, ActObjectivePattern, Strategy)
@@ -38,12 +46,18 @@ creme_registry.register_entity_models(Act, ActObjectivePattern, Strategy)
 reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
 reg_item('/commercial/',                      _(u'Portal of commercial strategy'), 'commercial')
 reg_item('/commercial/market_segments',       _(u'All market segments'),           'commercial')
-reg_item('/commercial/acts',                  _(u'All commercial actions'),        'commercial')
-reg_item('/commercial/act/add',               Act.creation_label,                  'commercial.add_act')
-reg_item('/commercial/strategies',            _(u'All strategies'),                'commercial')
-reg_item('/commercial/strategy/add',          Strategy.creation_label,             'commercial.add_strategy')
-reg_item('/commercial/objective_patterns',    _(u'All objective patterns'),        'commercial')
-reg_item('/commercial/objective_pattern/add', ActObjectivePattern.creation_label,  'commercial.add_actobjectivepattern')
+#reg_item('/commercial/acts',                  _(u'All commercial actions'),        'commercial')
+#reg_item('/commercial/act/add',               Act.creation_label,                  'commercial.add_act')
+#reg_item('/commercial/strategies',            _(u'All strategies'),                'commercial')
+#reg_item('/commercial/strategy/add',          Strategy.creation_label,             'commercial.add_strategy')
+#reg_item('/commercial/objective_patterns',    _(u'All objective patterns'),        'commercial')
+#reg_item('/commercial/objective_pattern/add', ActObjectivePattern.creation_label,  'commercial.add_actobjectivepattern')
+reg_item(reverse('commercial__list_acts'),       _(u'All commercial actions'),       'commercial')
+reg_item(reverse('commercial__create_act'),      Act.creation_label,                 build_creation_perm(Act))
+reg_item(reverse('commercial__list_strategies'), _(u'All strategies'),               'commercial')
+reg_item(reverse('commercial__create_strategy'), Strategy.creation_label,            build_creation_perm(Strategy))
+reg_item(reverse('commercial__list_patterns'),   _(u'All objective patterns'),       'commercial')
+reg_item(reverse('commercial__create_pattern'),  ActObjectivePattern.creation_label, build_creation_perm(ActObjectivePattern))
 
 reg_item = creme_menu.get_app_item('persons').register_item
 reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')

@@ -7,6 +7,7 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.core.exceptions import ValidationError
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
@@ -17,7 +18,8 @@ try:
 
     from creme.media_managers.models import Image
 
-    from .base import _BaseTestCase
+    from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation)
     from ..models import Contact, Organisation, Address, Position, Civility, Sector
     from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 except Exception as e:
@@ -27,9 +29,10 @@ except Exception as e:
 __all__ = ('ContactTestCase',)
 
 
+@skipIfCustomContact
 class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
-    ADD_URL = '/persons/contact/add'
-    ADD_RELATED_URL = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
+#    ADD_URL = '/persons/contact/add'
+#    ADD_RELATED_URL = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
 
     lv_import_data = {
             'step': 1,
@@ -63,12 +66,26 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
         }
 
+    #def _build_addrelated_uri(self, orga_id, rtype_id, url):
+        #return reverse('persons__create_related_contact', args=(orga_id, rtype_id)) \
+               #+ '?callback_url=' + url
+    def _build_addrelated_uri(self, orga_id, rtype_id=None, url='/'):
+        #return reverse('persons__create_related_contact',
+                       #kwargs={'orga_id': orga_id, 'rtype_id': rtype_id},
+                      #) + '?callback_url=' + url
+        kwargs = {'orga_id': orga_id}
+
+        if rtype_id:
+            kwargs['rtype_id'] = rtype_id
+
+        return reverse('persons__create_related_contact', kwargs=kwargs) + '?callback_url=' + url
+
     #TODO: in creme_core ??
     def _build_delete_url(self, entity):
         return '/creme_core/entity/delete/%s' % entity.id
 
-    def _build_edit_url(self, contact):
-        return '/persons/contact/edit/%s' % contact.id
+#    def _build_edit_url(self, contact):
+#        return '/persons/contact/edit/%s' % contact.id
 
     def test_unicode(self):
         first_name = 'Spike'
@@ -104,7 +121,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_createview01(self):
         self.login()
 
-        url = self.ADD_URL
+#        url = self.ADD_URL
+        url = reverse('persons__create_contact')
         self.assertGET200(url)
 
         count = Contact.objects.count()
@@ -128,6 +146,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('/persons/contact/%s' % contact.id, abs_url)
         self.assertRedirects(response, abs_url)
 
+    @skipIfCustomAddress
     def test_createview02(self):
         "With addresses"
         self.login()
@@ -135,7 +154,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = 'Spike'
         b_address = 'In the Bebop.'
         s_address = 'In the Bebop (bis).'
-        response = self.client.post(self.ADD_URL, follow=True,
+#        response = self.client.post(self.ADD_URL, follow=True,
+        response = self.client.post(reverse('persons__create_contact'), follow=True,
                                     data={'user':                     self.user.pk,
                                           'first_name':               first_name,
                                           'last_name':                'Spiegel',
@@ -160,7 +180,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = 'Faye'
         contact = Contact.objects.create(user=self.user, first_name=first_name, last_name='Valentine')
 
-        url = self._build_edit_url(contact)
+#        url = self._build_edit_url(contact)
+        url = contact.get_edit_absolute_url()
         self.assertGET200(url)
 
         last_name = 'Spiegel'
@@ -178,13 +199,15 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRedirects(response, contact.get_absolute_url())
 
+    @skipIfCustomAddress
     def test_editview02(self):
         "Edit addresses"
         self.login()
         user = self.user
         first_name = 'Faye'
         last_name  = 'Valentine'
-        self.assertPOST200(self.ADD_URL, follow=True,
+#        self.assertPOST200(self.ADD_URL, follow=True,
+        self.assertPOST200(reverse('persons__create_contact'), follow=True,
                            data={'user':                     user.pk,
                                  'first_name':               first_name,
                                  'last_name':                last_name,
@@ -198,7 +221,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         state   = 'Solar system'
         country = 'Mars'
-        self.assertNoFormError(self.client.post(self._build_edit_url(contact), follow=True,
+#        self.assertNoFormError(self.client.post(self._build_edit_url(contact), follow=True,
+        self.assertNoFormError(self.client.post(contact.get_edit_absolute_url(), follow=True,
                                                 data={'user':                     user.pk,
                                                       'first_name':               first_name,
                                                       'last_name':                last_name,
@@ -217,11 +241,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_editview03(self):
         "Contact is a user => sync"
-        self.login()
-        user = self.user
+        user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
 
-        url = self._build_edit_url(contact)
+#        url = self._build_edit_url(contact)
+        url = contact.get_edit_absolute_url()
         response = self.assertPOST200(url, follow=True,
                                       data={'user':      user.id,
                                             'last_name': contact.last_name,
@@ -324,7 +348,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         spike   = create_contact(first_name='Spike',   last_name='Spiegel')
         vicious = create_contact(first_name='Vicious', last_name='Badguy', is_deleted=True)
 
-        response = self.assertGET200('/persons/contacts')
+#        response = self.assertGET200('/persons/contacts')
+        response = self.assertGET200(Contact.get_lv_absolute_url())
 
         with self.assertNoException():
             contacts_page = response.context['entities']
@@ -337,15 +362,17 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn(spike, contacts_set)
         self.assertNotIn(vicious, contacts_set)
 
+    @skipIfCustomOrganisation
     def test_create_linked_contact01(self):
-        self.login()
+        user = self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Acme')
+        orga = Organisation.objects.create(user=user, name='Acme')
         redir = orga.get_absolute_url()
-        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
-                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                      'url':      redir,
-                                     }
+#        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
+#                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
+#                                      'url':      redir,
+#                                     }
+        uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, redir)
         self.assertGET200(uri)
 
         first_name = 'Bugs'
@@ -353,7 +380,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(uri, follow=True,
                                     data={'orga_overview': 'dontcare',
                                           'relation':      'dontcare',
-                                          'user':          self.user.pk,
+                                          'user':          user.pk,
                                           'first_name':    first_name,
                                           'last_name':     last_name,
                                          }
@@ -365,7 +392,32 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
         self.assertEqual(last_name, contact.last_name)
 
+    @skipIfCustomOrganisation
     def test_create_linked_contact02(self):
+        "RelationType not fixed"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        uri = self._build_addrelated_uri(orga.id, url=orga.get_absolute_url())
+        self.assertGET200(uri)
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.client.post(uri, follow=True,
+                                    data={'orga_overview': 'dontcare',
+                                          'relation':      REL_SUB_EMPLOYED_BY,
+                                          'user':          user.pk,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
+
+    @skipIfCustomOrganisation
+    def test_create_linked_contact03(self):
         "No LINK credentials"
         self.login(is_superuser=False, creatable_models=[Contact])
 
@@ -380,10 +432,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertTrue(self.user.has_perm_to_view(orga))
         self.assertFalse(self.user.has_perm_to_link(orga))
 
-        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
-                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                      'url':      orga.get_absolute_url(),
-                                     }
+#        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
+#                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
+#                                      'url':      orga.get_absolute_url(),
+#                                     }
+        uri = self._build_addrelated_uri(orga.id, REL_OBJ_EMPLOYED_BY, orga.get_absolute_url())
         self.assertGET403(uri)
 
         get_ct = ContentType.objects.get_for_model
@@ -402,30 +455,41 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                            }
                                      )
         self.assertFormError(response, 'form', 'user',
-                             [_(u'You are not allowed to link with the «%s» of this user.') % 
+                             _(u'You are not allowed to link with the «%s» of this user.') % 
                                 _(u'Contacts')
-                             ]
                             )
 
-    def test_create_linked_contact03(self):
+    @skipIfCustomOrganisation
+    def test_create_linked_contact04(self):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
-        url = self.ADD_RELATED_URL
-
-        self.assertGET404(url % {'orga_id':  1024, #doesn't exist
-                                 'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                 'url':      orga.get_absolute_url(),
-                                }
+#        url = self.ADD_RELATED_URL
+#
+#        self.assertGET404(url % {'orga_id':  1024, #doesn't exist
+#                                 'rtype_id': REL_OBJ_EMPLOYED_BY,
+#                                 'url':      orga.get_absolute_url(),
+#                                }
+#                         )
+#        self.assertGET404(url % {'orga_id':  orga.id,
+#                                 'rtype_id': 'IDONOTEXIST',
+#                                 'url':      orga.get_absolute_url(),
+#                                }
+#                        )
+        self.assertGET404(self._build_addrelated_uri(1024, #doesn't exist
+                                                     REL_OBJ_EMPLOYED_BY,
+                                                     orga.get_absolute_url(),
+                                                   )
                          )
-        self.assertGET404(url % {'orga_id':  orga.id, #doesn't exist
-                                 'rtype_id': 'IDONOTEXIST',
-                                 'url':      orga.get_absolute_url(),
-                                }
+        self.assertGET404(self._build_addrelated_uri(orga.id,
+                                                     'IDONOTEXIST',
+                                                     orga.get_absolute_url(),
+                                                    )
                         )
 
     #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
 
+    @skipIfCustomAddress
     def test_clone(self):
         "Addresses & is_user are problematic"
         self.login()
@@ -477,8 +541,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertAddressOnlyContentEqual(address, address2)
 
     def test_delete01(self):
-        self.login()
-        naruto = Contact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
+        user = self.login()
+        naruto = Contact.objects.create(user=user, first_name='Naruto', last_name='Uzumaki')
         url = self._build_delete_url(naruto)
         self.assertPOST200(url, follow=True)
 
@@ -492,8 +556,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete02(self):
         "Can not delete if the Contact corresponds to an user"
-        self.login()
-        user = self.user
+        user = self.login()
         #naruto = Contact.objects.create(user=user, is_user=user, is_deleted=True,
                                         #first_name='Naruto', last_name='Uzumaki'
                                        #)
@@ -504,8 +567,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete03(self):
         "Can not trash if the Contact corresponds to an user"
-        self.login()
-        user = self.user
+        user = self.login()
         #naruto = Contact.objects.create(user=user, is_user=user,
                                         #first_name='Naruto', last_name='Uzumaki'
                                        #)
@@ -520,7 +582,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_quickform01(self):
         "2 Contacts created"
-        self.login()
+        user = self.login()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
@@ -547,10 +609,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
                                                'form-INITIAL_FORMS': 0,
                                                'form-MAX_NUM_FORMS': u'',
-                                               'form-0-user':        self.user.id,
+                                               'form-0-user':        user.id,
                                                'form-0-first_name':  data[0][0],
                                                'form-0-last_name':   data[0][1],
-                                               'form-1-user':        self.user.id,
+                                               'form-1-user':        user.id,
                                                'form-1-first_name':  data[1][0],
                                                'form-1-last_name':   data[1][1],
                                               }
@@ -564,6 +626,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         for first_name, last_name in data:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
+    @skipIfCustomOrganisation
     def test_quickform02(self):
         "2 Contacts & 1 Organisation created"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
@@ -608,6 +671,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
 
+    @skipIfCustomOrganisation
     def test_quickform03(self):
         "2 Contacts created and link with an existing Organisation"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
@@ -800,6 +864,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormsetError(response, 'formset', 0, field=None, errors=None)
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
+    @skipIfCustomOrganisation
     def test_quickform08(self):
         "Multiple Organisations found"
         self.login()
@@ -824,6 +889,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                 [_(u'Several Organisations with this name have been found.')]
                                )
 
+    @skipIfCustomOrganisation
     def test_quickform09(self):
         "Multiple Organisations found, only one linkable (so we use it)"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
@@ -855,6 +921,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
 
+    @skipIfCustomOrganisation
     def test_quickform10(self):
         "Multiple Organisations found, but none of them is linkable"
         self.login(is_superuser=False, creatable_models=[Contact, Organisation])
@@ -914,6 +981,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                 ]
                                )
 
+    @skipIfCustomOrganisation
     def test_quickform12(self):
         "Multiple Organisations found, only one is not deleted (so we use it)"
         self.login()
@@ -941,6 +1009,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
 
+    @skipIfCustomAddress
     def test_merge01(self):
         "Merging addresses"
         self.login()
@@ -1088,6 +1157,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('Merged country 2',    shipping_address.country)
         self.assertEqual('Merged department 2', shipping_address.department)
 
+    @skipIfCustomAddress
     def test_merge02(self):
         "Merging addresses -> empty addresses"
         self.login()
@@ -1382,6 +1452,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertDoesNotExist(image)
         self.assertIsNone(self.refresh(harlock).image)
 
+    @skipIfCustomAddress
     def test_csv_import01(self):
         user = self.login()
 
@@ -1416,6 +1487,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
             self.assertEqual(user, contact.user)
             self.assertIsNone(contact.billing_address)
 
+    @skipIfCustomAddress
     def test_csv_import02(self):
         "Address"
         user = self.login()
@@ -1459,6 +1531,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         asuka = self.get_object_or_fail(Contact, last_name=lines[2][1], first_name=lines[2][0])
         self.assertIsNone(asuka.billing_address)
 
+    @skipIfCustomAddress
     def test_csv_import03(self):
         "Update (with address)"
         user = self.login()

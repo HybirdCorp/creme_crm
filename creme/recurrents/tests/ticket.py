@@ -6,6 +6,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.formats import date_format
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -15,12 +16,14 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
 
+    from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
     if apps.is_installed('creme.tickets'):
         from creme.tickets.models import Ticket, TicketTemplate, Status, Priority, Criticity
         tickets_installed = True
     else:
         tickets_installed = False
 
+    from .base import skipIfCustomGenerator
     from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
     from ..models import RecurrentGenerator #Periodicity
 except Exception as e:
@@ -30,6 +33,7 @@ except Exception as e:
 __all__ = ('RecurrentsTicketsTestCase',)
 
 
+@skipIfCustomGenerator
 class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -79,9 +83,11 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         return date_period_registry.get_period('weeks', 1)
 
     @skipIfNotInstalled('creme.tickets')
+    @skipIfCustomTicketTemplate
     def test_createview(self):
         user = self.user
-        url = '/recurrents/generator/add'
+#        url = '/recurrents/generator/add'
+        url = reverse('recurrents__create_generator')
         self.assertGET200(url)
 
         name = 'Recurrent tickets'
@@ -253,7 +259,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         gen1 = create_gen(name='Gen1')
         gen2 = create_gen(name='Gen2') 
 
-        response = self.assertGET200('/recurrents/generators')
+#        response = self.assertGET200('/recurrents/generators')
+        response = self.assertGET200(RecurrentGenerator.get_lv_absolute_url())
 
         with self.assertNoException():
             gens_page = response.context['entities']
@@ -262,6 +269,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual({gen1, gen2}, set(gens_page.object_list))
 
     @skipIfNotInstalled('creme.tickets')
+    @skipIfCustomTicket
+    @skipIfCustomTicketTemplate
     def test_command01(self):
         "first_generation in the past + (no generation yet (ie last_generation is None)"
         self.assertFalse(Ticket.objects.all())
@@ -290,6 +299,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertEqual(gen.first_generation, gen.last_generation)
 
     @skipIfNotInstalled('creme.tickets')
+    @skipIfCustomTicket
+    @skipIfCustomTicketTemplate
     def test_command02(self):
         "last_generation is not far enough"
         tpl = self._create_ticket_template()
@@ -305,6 +316,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertFalse(Ticket.objects.all())
 
     @skipIfNotInstalled('creme.tickets')
+    @skipIfCustomTicket
+    @skipIfCustomTicketTemplate
     def test_command03(self):
         "last_generation is far enough"
         tpl = self._create_ticket_template()

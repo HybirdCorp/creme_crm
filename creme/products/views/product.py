@@ -28,6 +28,7 @@ from creme.creme_core.utils import jsonify, get_from_POST_or_404
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
+from .. import get_product_model, get_service_model
 from ..forms.base import AddImagesForm
 from ..forms.product import ProductCreateForm, ProductEditForm
 from ..models import Product, Service, Category, SubCategory
@@ -71,7 +72,8 @@ def get_subcategories(request, category_id):
 def add_images(request, product_id):
     return add_to_entity(request, product_id, AddImagesForm,
                          ugettext('New images for <%s>'),
-                         entity_class=Product,
+#                         entity_class=Product,
+                         entity_class=get_product_model(),
                         )
 
 @login_required
@@ -80,7 +82,8 @@ def remove_image(request, entity_id):
     img_id = get_from_POST_or_404(request.POST, 'id')
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    if not isinstance(entity, (Product, Service)):
+#    if not isinstance(entity, (Product, Service)):
+    if not isinstance(entity, (get_product_model(), get_service_model())):
         raise Http404('Entity should be a Product/Service')
 
     request.user.has_perm_to_change_or_die(entity)

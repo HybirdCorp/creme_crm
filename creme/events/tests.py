@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
+skip_event_tests = False
+
 try:
     #from datetime import date, datetime
     from functools import partial
+    from unittest import skipIf
 
+    from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
-    from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
@@ -18,14 +22,21 @@ try:
 
     from creme.opportunities.models import Opportunity, SalesPhase
 
+    from . import event_model_is_custom
     from .models import Event, EventType
     from .constants import *
+
+    skip_event_tests = event_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+def skipIfCustomEvent(test_func):
+    return skipIf(skip_event_tests, 'Custom Event model in use')(test_func)
+
+@skipIfCustomEvent
 class EventsTestCase(CremeTestCase):
-    ADD_URL = '/events/event/add'
+#    ADD_URL = '/events/event/add'
     format_str    = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"}]'
     format_str_5x = '[{"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
                     ' {"rtype": "%s", "ctype": "%s", "entity": "%s"},' \
@@ -39,6 +50,8 @@ class EventsTestCase(CremeTestCase):
         cls.populate('persons', 'opportunities', 'events') #'persons' -> HeaderFilters
         #if not SalesPhase.objects.exists():
             #SalesPhase.objects.create(name='Forthcoming', order=1)
+
+        cls.ADD_URL = reverse('events__create_event')
 
     def _build_link_contacts_url(self, event):
         return '/events/event/%s/link_contacts' % event.id
@@ -94,7 +107,8 @@ class EventsTestCase(CremeTestCase):
         etype = EventType.objects.all()[0]
         event = self._create_event(name, etype)
 
-        url = '/events/event/edit/%s' % event.id
+#        url = '/events/event/edit/%s' % event.id
+        url = event.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -118,7 +132,8 @@ class EventsTestCase(CremeTestCase):
         event1 = self._create_event('Eclipse', etype)
         event2 = self._create_event('Show', etype)
 
-        response = self.assertGET200('/events/events')
+#        response = self.assertGET200('/events/events')
+        response = self.assertGET200(Event.get_lv_absolute_url())
 
         with self.assertNoException():
             events_page = response.context['entities']

@@ -21,32 +21,37 @@
 import logging
 
 from django.apps import apps
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
         icon_registry, import_form_registry, smart_columns_registry)
 from creme.creme_core.models import RelationType
 from creme.creme_core.registry import creme_registry
 
-
+from . import get_opportunity_model
 from .blocks import blocks_list, OpportunityBlock
 from .buttons import linked_opportunity_button
 from .constants import REL_SUB_TARGETS
 from .forms.lv_import import get_csv_form_builder
-from .models import Opportunity
+#from .models import Opportunity
 from .setting_keys import quote_key
 
 
 logger = logging.getLogger(__name__)
+Opportunity = get_opportunity_model()
 
 creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')
 creme_registry.register_entity_models(Opportunity)
 
 reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
 reg_item('/opportunities/',                _(u'Portal of opportunities'), 'opportunities')
-reg_item('/opportunities/opportunities',   _(u'All opportunities'),       'opportunities')
-reg_item('/opportunities/opportunity/add', Opportunity.creation_label,    'opportunities.add_opportunity')
+#reg_item('/opportunities/opportunities',   _(u'All opportunities'),       'opportunities')
+#reg_item('/opportunities/opportunity/add', Opportunity.creation_label,    'opportunities.add_opportunity')
+reg_item(reverse('opportunities__list_opportunities'), _(u'All opportunities'),    'opportunities')
+reg_item(reverse('opportunities__create_opportunity'), Opportunity.creation_label, build_creation_perm(Opportunity))
 
 block_registry.register_4_model(Opportunity, OpportunityBlock())
 button_registry.register(linked_opportunity_button)

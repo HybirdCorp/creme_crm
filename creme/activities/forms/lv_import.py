@@ -39,7 +39,8 @@ from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 
-from creme.persons.models import Contact, Organisation, Civility
+from creme.persons import get_contact_model, get_organisation_model
+from creme.persons.models import Civility #Contact, Organisation, 
 
 from ..constants import (ACTIVITYTYPE_INDISPO, NARROW, FLOATING, FLOATING_TIME,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT)
@@ -48,6 +49,8 @@ from .activity_type import ActivityTypeField
 
 
 logger = logging.getLogger(__name__)
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
 
 MODE_MULTICOLUMNS   = 1
 MODE_SPLITTEDCOLUMN = 2

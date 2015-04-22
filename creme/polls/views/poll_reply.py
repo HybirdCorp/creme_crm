@@ -23,9 +23,9 @@ import logging
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
-from django.utils.html import escape
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
@@ -36,6 +36,7 @@ from creme.creme_core.utils.media import creme_media_themed_url as media_url
 
 from creme.persons.models import Contact, Organisation
 
+from .. import get_pollreply_model
 from ..core import MultiEnumPollLineType
 from ..models import PollForm, PollReply, PollReplyLine, PollCampaign
 from ..forms.poll_reply import (PollRepliesCreateForm, PollReplyEditForm,
@@ -172,7 +173,8 @@ def _format_previous_answered_question(preply_id, line, style):
 @login_required
 @permission_required('polls')
 def edit_line_wizard(request, preply_id, line_id):
-    preply = get_object_or_404(PollReply, pk=preply_id)
+#    preply = get_object_or_404(PollReply, pk=preply_id)
+    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -232,7 +234,8 @@ def edit_line_wizard(request, preply_id, line_id):
 @login_required
 @permission_required('polls')
 def fill(request, preply_id):
-    preply = get_object_or_404(PollReply, pk=preply_id)
+#    preply = get_object_or_404(PollReply, pk=preply_id)
+    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)
@@ -285,7 +288,10 @@ def fill(request, preply_id):
 @login_required
 @permission_required('polls')
 def clean(request):
-    preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
+#    preply = get_object_or_404(PollReply, pk=get_from_POST_or_404(request.POST, 'id'))
+    preply = get_object_or_404(get_pollreply_model(),
+                               pk=get_from_POST_or_404(request.POST, 'id'),
+                              )
 
     request.user.has_perm_to_change_or_die(preply)
 
@@ -319,7 +325,8 @@ def edit_line(request, preply_id, line_id):
     #    oblige us to transform PollReplyLine in a True auxiliary model
     #    (get_related_entity() method), so the delete view could be called without
     #    our consent
-    preply = get_object_or_404(PollReply, pk=preply_id)
+#    preply = get_object_or_404(PollReply, pk=preply_id)
+    preply = get_object_or_404(get_pollreply_model(), pk=preply_id)
     user = request.user
 
     user.has_perm_to_change_or_die(preply)

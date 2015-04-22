@@ -6,6 +6,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Address, Organisation
+    from creme.persons.tests.base import skipIfCustomAddress, skipIfCustomOrganisation
 
     from ..models import Town, GeoAddress
     from ..populate import Populator, CSVPopulator
@@ -247,6 +248,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
         self.assertTown(get_town(zipcode='01630'), zipcode='01630', name='Péron', slug='peron', longitude=5.93333, latitude=46.2)
         self.assertTown(get_town(zipcode='97630'), zipcode='97630', name='Acoua', slug='acoua', longitude=45.0645, latitude=-12.7239)
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_create_geoaddress_no_town(self):
         user = self.login()
 
@@ -282,6 +285,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
                               draggable=True, geocoded=False,
                              )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_create_geoaddress_with_town(self):
         user = self.login()
         self.populator.populate_towns([self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],

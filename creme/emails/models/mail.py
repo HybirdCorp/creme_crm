@@ -20,21 +20,23 @@
 
 import logging
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import IntegrityError
-from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
-        TextField, DateTimeField, ForeignKey, ManyToManyField)
+from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField,
+        CharField, TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db.transaction import atomic
 #from django.db import transaction, IntegrityError
+from django.template.defaultfilters import removetags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.template.defaultfilters import removetags
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
-from creme.documents.models import Document
+#from creme.documents.models import Document
 
-from ..utils import generate_id, EMailSender
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
+from ..utils import generate_id, EMailSender
 from .signature import EmailSignature
 
 
@@ -72,15 +74,18 @@ class _Email(CremeModel):
 
 
 
-class EntityEmail(_Email, CremeEntity):
+#class EntityEmail(_Email, CremeEntity):
+class AbstractEntityEmail(_Email, CremeEntity):
     identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, editable=False, default=generate_id)#TODO: lambda for this
     body_html   = TextField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+#    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'))
 
     creation_label = _('Add an email')
 
     class Meta:
+        abstract = True
         app_label = "emails"
         verbose_name = _(u'Email')
         verbose_name_plural = _(u'Emails')
@@ -126,15 +131,21 @@ class EntityEmail(_Email, CremeEntity):
                             }
 
     def get_absolute_url(self):
-        return u"/emails/mail/%s" % self.pk
+#        return u"/emails/mail/%s" % self.pk
+        return reverse('emails__view_email', args=(self.pk,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/emails/mails"
+#        return "/emails/mails"
+        return reverse('emails__list_emails')
 
-    @staticmethod
-    def create_n_send_mail(sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
-        email = EntityEmail(sender=sender,
+    #TODO: in a manager ?
+    #@staticmethod
+    #def create_n_send_mail(sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
+    @classmethod
+    def create_n_send_mail(cls, sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
+        #email = EntityEmail(sender=sender,
+        email = cls(sender=sender,
                             recipient=recipient,
                             subject=subject,
                             body=body,
@@ -172,6 +183,11 @@ class EntityEmail(_Email, CremeEntity):
 
         if sender.send(self):
             logger.debug("Mail sent to %s", self.recipient)
+
+
+class EntityEmail(AbstractEntityEmail):
+    class Meta(AbstractEntityEmail.Meta):
+        swappable = 'EMAILS_EMAIL_MODEL'
 
 
 class EntityEmailSender(EMailSender):

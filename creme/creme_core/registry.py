@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import logging
 
 from django.conf import settings
@@ -33,13 +34,14 @@ class NotRegistered(Exception):
 
 
 class CremeApp(object):
-    __slots__ = ('name', 'verbose_name', 'url', 'credentials')
+    __slots__ = ('name', 'verbose_name', 'url', 'credentials', 'extended_app')
 
-    def __init__(self, name, verbose_name, url, credentials):
+    def __init__(self, name, verbose_name, url, credentials, extended_app=None):
         self.name = name
         self.verbose_name = verbose_name
         self.url = url
         self.credentials = credentials
+        self.extended_app = extended_app
 
 
 class CremeRegistry(object):
@@ -51,10 +53,19 @@ class CremeRegistry(object):
     def __init__(self):
         self._entity_models = []
         self._apps = {}
+        self._extending_apps = defaultdict(list)
         self._generic_registry = {}
 
-    def register_app(self, name, verbose_name, url=None, credentials=CRED_REGULAR|CRED_ADMIN):
-        self._apps[name] = CremeApp(name, verbose_name, url, credentials)
+    def register_app(self, name, verbose_name, url=None,
+                     credentials=CRED_REGULAR|CRED_ADMIN,
+                     extended_app=None,
+                    ):
+        if extended_app is not None:
+            #TODO: check that's a valid app name
+            credentials = self.CRED_NONE
+            self._extending_apps[extended_app].append(name)
+
+        self._apps[name] = CremeApp(name, verbose_name, url, credentials, extended_app)
 
     def get_app(self, name):
         app = self._apps.get(name)
@@ -63,6 +74,9 @@ class CremeRegistry(object):
             raise NotRegistered("%s.get_app(): No app registered with this name: %s" % (self.__class__, name))
 
         return app
+
+    def get_extending_apps(self, name):
+        return iter(self._extending_apps[name])
 
     def iter_apps(self):
         return self._apps.itervalues()

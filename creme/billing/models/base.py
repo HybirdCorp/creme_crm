@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from itertools import chain
 import logging
 #import warnings
 
+from django.conf import settings
 from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -32,7 +33,7 @@ from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models import CremeEntity, Relation, Currency
 from creme.creme_core.models.fields import MoneyField
 
-from creme.persons.models import Address
+#from creme.persons.models import Address
 
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
         REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
@@ -55,11 +56,13 @@ class Base(CremeEntity):
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+#    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
                                   related_name='BillingAddress_set', #TODO: remove ? (with '+')
                                   blank=True, null=True, editable=False,
                                  ).set_tags(enumerable=False)
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+#    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
                                   related_name='ShippingAddress_set', #TODO: remove ? (with '+')
                                   blank=True, null=True, editable=False,
                                  ).set_tags(enumerable=False)

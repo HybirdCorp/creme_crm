@@ -27,11 +27,13 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CTypeForeignKey
 
-from creme.persons.models import Organisation
+from creme.persons import get_organisation_model
+#from creme.persons.models import Organisation
 
 
 class ConfigBillingAlgo(CremeModel):
-    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
+#    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     name_algo    = CharField(_(u"Algo name"), max_length=400)
     #ct           = ForeignKey(ContentType)
     ct           = CTypeForeignKey()
@@ -41,7 +43,8 @@ class ConfigBillingAlgo(CremeModel):
 
 
 class SimpleBillingAlgo(Model):
-    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
+#    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     last_number  = IntegerField()
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
     #ct           = ForeignKey(ContentType)
@@ -59,8 +62,8 @@ if apps.is_installed('creme.billing'): #useful for tests (this file could be loa
     from django.db.models.signals import post_save
     from django.dispatch import receiver
 
-    from creme.creme_core.models import CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import CremeProperty
 
     @receiver(post_save, sender=CremeProperty)
     def _simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):
@@ -74,7 +77,7 @@ if apps.is_installed('creme.billing'): #useful for tests (this file could be loa
         get_ct = ContentType.objects.get_for_model
 
         if instance.type_id == PROP_IS_MANAGED_BY_CREME and \
-           instance.creme_entity.entity_type_id == get_ct(Organisation).id:
+           instance.creme_entity.entity_type_id == get_ct(get_organisation_model()).id:
             orga = instance.creme_entity.get_real_entity()
 
             if not ConfigBillingAlgo.objects.filter(organisation=orga):

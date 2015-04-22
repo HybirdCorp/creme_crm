@@ -21,6 +21,7 @@
 from random import randint
 #import re
 
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -33,7 +34,8 @@ from .other_models import FolderCategory
 
 MAXINT = 100000
 
-class Folder(CremeEntity):
+#class Folder(CremeEntity):
+class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
     title         = CharField(_(u'Title'), max_length=100, unique=True)
     description   = TextField(_(u'Description'), null=True, blank=True)
@@ -50,6 +52,7 @@ class Folder(CremeEntity):
     creation_label = _('Add a folder')
 
     class Meta:
+        abstract = True
         app_label = 'documents'
         verbose_name = _(u'Folder')
         verbose_name_plural = _(u'Folders')
@@ -59,15 +62,17 @@ class Folder(CremeEntity):
         return self.title
 
     def get_absolute_url(self):
-        return "/documents/folder/%s" % self.id
+#        return "/documents/folder/%s" % self.id
+        return reverse('documents__view_folder', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/documents/folder/edit/%s" % self.id
+#        return "/documents/folder/edit/%s" % self.id
+        return reverse('documents__edit_folder', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/documents/folders"
+#        return "/documents/folders"
+        return reverse('documents__list_folders')
 
     def _pre_save_clone(self, source):
         max_length = self._meta.get_field('title').max_length
@@ -82,7 +87,8 @@ class Folder(CremeEntity):
             self._pre_save_clone(source)
 
     def get_actions(self, user):
-        actions = super(Folder, self).get_actions(user)
+#        actions = super(Folder, self).get_actions(user)
+        actions = super(AbstractFolder, self).get_actions(user)
 
         actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
                                               ugettext(u"Explore"),
@@ -115,3 +121,8 @@ class Folder(CremeEntity):
             parents.extend(parent.get_parents())
 
         return parents
+
+
+class Folder(AbstractFolder):
+    class Meta(AbstractFolder.Meta):
+        swappable = 'DOCUMENTS_FOLDER_MODEL'

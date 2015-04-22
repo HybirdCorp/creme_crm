@@ -38,7 +38,8 @@ from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
 from ..models import Activity, Calendar
@@ -164,7 +165,10 @@ def user_calendar(request):
 def get_users_activities(request, calendar_ids):
     user = request.user
     calendar_ids = calendar_ids.split(',')
-    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #NB: list() to avoid inner query
+#    contacts = list(Contact.objects.exclude(is_user=None).values_list('id', flat=True)) #NB: list() to avoid inner query
+    contacts = list(get_contact_model().objects.exclude(is_user=None)
+                                       .values_list('id', flat=True)
+                   ) #NB: list() to avoid inner query
 
     users_cal_ids = _filter_authorized_calendars(user, calendar_ids)
 

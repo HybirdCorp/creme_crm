@@ -49,7 +49,7 @@ try:
 #    if apps.is_installed('creme.emails'):
 #        from creme.emails.models import EmailCampaign, MailingList
 
-    from .base import BaseReportsTestCase
+    from .base import BaseReportsTestCase, skipIfCustomReport
     from .fake_models import FakeFolder as Folder, FakeDocument as Document
 
     from ..constants import (RFT_FIELD, RFT_CUSTOM, RFT_RELATION, RFT_FUNCTION,
@@ -70,6 +70,7 @@ except Exception as e:
 __all__ = ('ReportTestCase',)
 
 
+@skipIfCustomReport
 class ReportTestCase(BaseReportsTestCase):
     def assertHeaders(self, names, report):
         self.assertEqual(names, [f.name for f in report.get_children_fields_flat()])
@@ -496,7 +497,8 @@ class ReportTestCase(BaseReportsTestCase):
                    self._create_report('Report#2'),
                   ]
 
-        response = self.assertGET200('/reports/reports')
+#        response = self.assertGET200('/reports/reports')
+        response = self.assertGET200(Report.get_lv_absolute_url())
 
         with self.assertNoException():
             reports_page = response.context['entities']

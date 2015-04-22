@@ -5,9 +5,10 @@ try:
 
     from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from ..models import PollForm, PollFormLine, PollFormLineCondition
-    from ..forms.fields import PollFormLineConditionsField
+    from .base import skipIfCustomPollForm
     from ..core import PollLineType
+    from ..forms.fields import PollFormLineConditionsField
+    from ..models import PollForm, PollFormLine, PollFormLineCondition
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -58,6 +59,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
 
         return line1, line2
 
+    @skipIfCustomPollForm
     def test_clean_invalid_source01(self):
         line1, line2 = self._create_lines()
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
@@ -67,6 +69,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
                                                           }
                                        )
 
+    @skipIfCustomPollForm
     def test_clean_invalid_source02(self):
         "Only ENUM & MULTI_ENUM for now"
         line1, line2 = self._create_lines()
@@ -81,6 +84,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
                                                           }
                                        )
 
+    @skipIfCustomPollForm
     def test_clean_invalid_choice(self):
         line1, line2 = self._create_lines()
         self.assertFieldValidationError(PollFormLineConditionsField, 'invalidchoice',
@@ -90,6 +94,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
                                                           }
                                        )
 
+    @skipIfCustomPollForm
     def test_ok01(self):
         line1, line2 = self._create_lines()
         field = PollFormLineConditionsField(sources=[line1, line2])
@@ -106,6 +111,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(PollFormLineCondition.EQUALS, condition.operator)
         self.assertEqual('1',                          condition.raw_answer)
 
+    @skipIfCustomPollForm
     def test_ok02(self):
         "Several conditions, sources property"
         line1, line2 = self._create_lines()

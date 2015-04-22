@@ -9,6 +9,7 @@ try:
 
     from creme.persons.constants import REL_SUB_PROSPECT
     from creme.persons.models import Organisation, Address
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..models import QuoteStatus, Quote, ServiceLine
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -20,6 +21,7 @@ except Exception as e:
 __all__ = ('QuoteTestCase',)
 
 
+@skipIfCustomOrganisation
 class QuoteTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
@@ -132,9 +134,11 @@ class QuoteTestCase(_BillingTestCase):
 
         self.assertDeleteStatusKO(status, 'quote_status', quote)
 
+    @skipIfCustomAddress
     def test_csv_import(self):
         self._aux_test_csv_import(Quote, QuoteStatus)
 
+    @skipIfCustomAddress
     def test_clone(self):
         user = self.user
 

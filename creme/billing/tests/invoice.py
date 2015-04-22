@@ -18,6 +18,7 @@ try:
 
     from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..models import *
     from ..constants import *
@@ -29,6 +30,7 @@ except Exception as e:
 __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
 
 
+@skipIfCustomOrganisation
 class InvoiceTestCase(_BillingTestCase):
     #@classmethod
     #def setUpClass(cls):
@@ -82,6 +84,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.create_invoice('Invoice002', source, target, currency)
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, source)
 
+    @skipIfCustomAddress
     def test_createview02(self):
         self.login()
 
@@ -544,6 +547,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
+    @skipIfCustomAddress
     def test_clone(self):
         self.login()
 
@@ -726,10 +730,12 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
         self.assertIsNone(invoice.additional_info)
 
+    @skipIfCustomAddress
     def test_csv_import(self):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus)
 
+    @skipIfCustomAddress
     def test_csv_import_update01(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
@@ -737,6 +743,7 @@ class InvoiceTestCase(_BillingTestCase):
                                          override_shipping_addr=True,
                                         )
 
+    @skipIfCustomAddress
     def test_csv_import_update02(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
@@ -744,6 +751,7 @@ class InvoiceTestCase(_BillingTestCase):
                                          override_shipping_addr=False,
                                         )
 
+    @skipIfCustomAddress
     def test_csv_import_update03(self):
         self.login()
         self._aux_test_csv_import_update(Invoice, InvoiceStatus,
@@ -751,11 +759,13 @@ class InvoiceTestCase(_BillingTestCase):
                                          override_billing_addr=True,
                                         )
 
+    @skipIfCustomAddress
     def test_csv_import_update04(self):
         self.login()
         self._aux_test_csv_import(Invoice, InvoiceStatus, update=True)
 
 
+@skipIfCustomOrganisation
 class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self): #setUpClass does not work here
         #_BillingTestCase.setUp(self)

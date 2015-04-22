@@ -24,7 +24,8 @@ from django.forms import CharField
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCreatorEntityField
 
-from creme.persons.models import Organisation
+from creme.persons import get_organisation_model
+#from creme.persons.models import Organisation
 
 from ..models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
 
@@ -119,7 +120,8 @@ class SegmentCreateForm(_SegmentForm):
 
 
 class AddOrganisationForm(CremeForm):
-    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=Organisation)
+#    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=Organisation)
+    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=get_organisation_model())
 
     def __init__(self, entity, *args, **kwargs):
         super(AddOrganisationForm, self).__init__(*args, **kwargs)

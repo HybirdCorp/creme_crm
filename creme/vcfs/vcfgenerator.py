@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,25 +18,36 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 """Generate a vCard from Contact object"""
 
-from creme.persons.models import Address
+from creme.persons import get_address_model
+#from creme.persons.models import Address
 
 from .vcf_lib import vCard
 from .vcf_lib.vcard import Address as VcfAddress, Name as VcfName
 
 
+Address = get_address_model()
+
+
 class VcfGenerator(object):
     def __init__(self, contact):
-        self.first_name = contact.first_name    or ''
-        self.last_name = contact.last_name
-        self.civility = contact.civility
-        self.phone = contact.phone
-        self.mobile = contact.mobile            or ''
-        self.fax = contact.fax                  or ''
-        self.email = contact.email              or ''
-        self.url = contact.url_site             or ''
+#        self.first_name = contact.first_name    or ''
+#        self.last_name = contact.last_name
+#        self.civility = contact.civility
+#        self.phone = contact.phone
+#        self.mobile = contact.mobile            or ''
+#        self.fax = contact.fax                  or ''
+#        self.email = contact.email              or ''
+#        self.url = contact.url_site             or ''
+        self.first_name = getattr(contact, 'first_name', None) or ''
+        self.last_name  = getattr(contact, 'last_name', None) or ''
+        self.civility   = getattr(contact, 'civility', None)
+        self.phone      = getattr(contact, 'phone', None) #TODO: or ''  ??
+        self.mobile     = getattr(contact, 'mobile', None) or ''
+        self.fax        = getattr(contact, 'fax', None) or ''
+        self.email      = getattr(contact, 'email', None) or ''
+        self.url        = getattr(contact, 'url_site', None) or ''
 
         # TODO Manage several employers
         #employer = contact.get_employers()[:1]

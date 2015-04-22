@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,10 +37,16 @@ from creme.creme_core.views.file_handling import handle_uploaded_file, MAXINT
 
 from creme.media_managers.models import Image
 
-from creme.persons.models import Organisation, Position, Contact, Civility, Address
+from creme.persons import get_organisation_model, get_contact_model, get_address_model
+from creme.persons.models import Position, Civility #Organisation, Contact
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from ..utils import get_b64encoded_img_of_max_weight
+
+
+Organisation = get_organisation_model()
+Contact = get_contact_model()
+Address = get_address_model()
 
 
 def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):

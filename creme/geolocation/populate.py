@@ -38,7 +38,8 @@ from creme.creme_core.models import BlockDetailviewLocation, BlockMypageLocation
 from creme.creme_core.utils import safe_unicode
 from creme.creme_core.utils.chunktools import iter_as_chunk
 
-from creme.persons.models import Contact, Organisation, Address
+from creme.persons import get_contact_model, get_organisation_model, get_address_model
+#from creme.persons.models import Contact, Organisation, Address
 
 from .blocks import persons_maps_block, persons_filter_maps_block, who_is_around_maps_block
 from .constants import DEFAULT_SEPARATING_NEIGHBOURS
@@ -231,7 +232,8 @@ class Populator(BasePopulator):
             logger.warn(e)
 
     def populate_addresses(self):
-        GeoAddress.populate_geoaddresses(Address.objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
+#        GeoAddress.populate_geoaddresses(Address.objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
+        GeoAddress.populate_geoaddresses(get_address_model().objects.filter(Q(zipcode__isnull=False) | Q(city__isnull=False)))
 
     def populate(self):
         already_populated = SettingValue.objects.filter(key_id=NEIGHBOURHOOD_DISTANCE.id).exists()
@@ -246,6 +248,9 @@ class Populator(BasePopulator):
         self.populate_addresses()
 
         if not already_populated:
+            Contact = get_contact_model()
+            Organisation = get_organisation_model()
+
             BlockDetailviewLocation.create(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Organisation)
             BlockDetailviewLocation.create(block_id=persons_maps_block.id_, order=70, zone=BlockDetailviewLocation.LEFT, model=Contact)
             BlockDetailviewLocation.create(block_id=who_is_around_maps_block.id_, order=600, zone=BlockDetailviewLocation.BOTTOM, model=Organisation)
@@ -258,4 +263,3 @@ class Populator(BasePopulator):
             if root:
                 logger.info('Creme core is installed => the block PersonsFilterMap can be activated')
                 BlockMypageLocation.create(block_id=persons_filter_maps_block.id_, order=8, user=root)
-

@@ -26,6 +26,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
+from .. import get_smscampaign_model
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
 from ..models import SMSCampaign
 
@@ -46,7 +47,8 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('sms')
 def delete(request, id):
-    campaign = get_object_or_404(SMSCampaign, pk=id)
+#    campaign = get_object_or_404(SMSCampaign, pk=id)
+    campaign = get_object_or_404(get_smscampaign_model(), pk=id)
     request.user.has_perm_to_delete_or_die(campaign)
 
     callback_url = campaign.get_lv_absolute_url()
@@ -70,13 +72,15 @@ def listview(request):
 def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
                          ugettext(u'New messaging lists for <%s>'),
-                         entity_class=SMSCampaign,
+#                         entity_class=SMSCampaign,
+                         entity_class=get_smscampaign_model(),
                         )
 
 @login_required
 @permission_required('sms')
 def delete_messaging_list(request, campaign_id):
-    campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
+#    campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
+    campaign = get_object_or_404(get_smscampaign_model(), pk=campaign_id)
     request.user.has_perm_to_change_or_die(campaign)
 
     campaign.lists.remove(request.POST.get('id'))

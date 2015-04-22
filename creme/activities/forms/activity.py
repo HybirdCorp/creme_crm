@@ -39,7 +39,8 @@ from creme.creme_core.utils.dates import make_aware_dt
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from creme.assistants.models import Alert
 
@@ -50,6 +51,7 @@ from .activity_type import ActivityTypeField
 
 
 logger = logging.getLogger(__name__)
+Contact = get_contact_model()
 
 
 class _ActivityForm(CremeEntityForm):

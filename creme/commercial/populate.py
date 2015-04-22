@@ -32,8 +32,10 @@ from creme.creme_core.models import (RelationType, CremePropertyType, SettingVal
         BlockDetailviewLocation, SearchConfigItem, ButtonMenuItem, HeaderFilter)
 from creme.creme_core.utils import create_if_needed
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
+from . import get_act_model, get_pattern_model, get_strategy_model
 from .blocks import *
 from .buttons import complete_goal_button
 from .constants import *
@@ -50,6 +52,11 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_SOLD_BY).exists()
 
+        Act = get_act_model()
+        ActObjectivePattern = get_pattern_model()
+        Strategy = get_strategy_model()
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
 
         RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
                             (REL_OBJ_SOLD_BY,       _(u'has been sold by')))

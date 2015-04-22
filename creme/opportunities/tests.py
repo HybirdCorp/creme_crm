@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
+skip_opportunity_tests = False
+
 try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
+    from unittest import skipIf
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.db.models import Max
     from django.utils.translation import ugettext as _
 
@@ -17,14 +21,17 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
-    from creme.documents.models import Document
+    from creme.documents import get_document_model
+#    from creme.documents.models import Document
 
+    from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.models import Organisation, Contact
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
 
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-    from creme.products.models import Product, Service
+    from creme.products import get_product_model, get_service_model
 
     if apps.is_installed('creme.billing'):
         from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine, QuoteStatus
@@ -34,15 +41,23 @@ try:
     else:
         skip_billing = True
 
+    from . import opportunity_model_is_custom
     from .models import Opportunity, SalesPhase, Origin
     from .constants import *
+
+    skip_opportunity_tests = opportunity_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+def skipIfCustomOpportunity(test_func):
+    return skipIf(skip_opportunity_tests, 'Custom opportunity model in use')(test_func)
+
+
+@skipIfCustomOpportunity
 class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
-    ADD_URL = '/opportunities/opportunity/add'
-    ADDTO_URL = '/opportunities/opportunity/add_to/%s'
+#    ADD_URL = '/opportunities/opportunity/add'
+#    ADDTO_URL = '/opportunities/opportunity/add_to/%s'
 
     @classmethod
     def setUpClass(cls):
@@ -85,6 +100,14 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                              #'dyn_relations',
                             }
 
+        try:
+            cls.ADD_URL = reverse('opportunities__create_opportunity')
+        except Exception as e:
+            print('Error in OpportunitiesTestCase.setUpClass(): %s' % e)
+
+    def _build_addrelated_url(self, entity):
+        return reverse('opportunities__create_related_opportunity', args=(entity.id,))
+
     def _genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
@@ -113,6 +136,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Opportunity)
         relation_types = {rtype.id: rtype for rtype in RelationType.get_compatible_ones(ct)}
+
+        Contact      = get_contact_model()
+        Organisation = get_organisation_model()
+
+        Product = get_product_model()
+        Service = get_service_model()
 
         self.assertNotIn(REL_SUB_TARGETS, relation_types)
         self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
@@ -166,6 +195,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
         self.assertGET200('/opportunities/')
 
+    @skipIfCustomOrganisation
     def test_createview01(self):
         user = self.login()
 
@@ -203,6 +233,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
+    @skipIfCustomOrganisation
     def test_createview02(self):
         user = self.login()
 
@@ -271,6 +302,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                             )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
+    @skipIfCustomOrganisation
     def test_createview04(self):
         "LINK credentials error"
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
@@ -298,6 +330,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'target',  fmt1 % (fmt2 % target.id))
         self.assertFormError(response, 'form', 'emitter', fmt1 % (fmt2 % emitter.id))
 
+    @skipIfCustomOrganisation
     def test_createview05(self):
         "Emitter not managed by Creme"
         self.login()
@@ -316,11 +349,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                              _('Select a valid choice. That choice is not one of the available choices.')
                             )
 
+    @skipIfCustomOrganisation
     def test_add_to_orga01(self):
         user = self.login()
 
         target, emitter = self._create_target_n_emitter()
-        url = self.ADDTO_URL % target.id
+#        url = self.ADDTO_URL % target.id
+        url = self._build_addrelated_url(target)
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
@@ -356,6 +391,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
+    @skipIfCustomOrganisation
     def test_add_to_orga02(self):
         user = self.login()
 
@@ -394,14 +430,17 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
 
         target = Organisation.objects.create(user=self.user, name='Target renegade')
-        self.assertGET403(self.ADDTO_URL % target.id)
+#        self.assertGET403(self.ADDTO_URL % target.id)
+        self.assertGET403(self._build_addrelated_url(target))
 
+    @skipIfCustomContact
     def test_add_to_contact01(self):
         "Target is a Contact"
         user = self.login()
 
         target, emitter = self._create_target_n_emitter(contact=True)
-        url = self.ADDTO_URL % target.id
+#        url = self.ADDTO_URL % target.id
+        url = self._build_addrelated_url(target)
         self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
@@ -437,6 +476,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
+    @skipIfCustomContact
     def test_add_to_contact02(self):
         "Popup version"
         user = self.login()
@@ -465,6 +505,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
+    @skipIfCustomContact
     def test_add_to_contact03(self):
         "User can not link to the Contact target"
         self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
@@ -478,7 +519,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
 
         target = Contact.objects.create(user=self.user, first_name='Target', last_name='Renegade')
-        self.assertGET403(self.ADDTO_URL % target.id)
+#        self.assertGET403(self.ADDTO_URL % target.id)
+        self.assertGET403(self._build_addrelated_url(target))
 
     def test_add_to_something01(self):
         "Target is not a Contact/Organisation"
@@ -490,7 +532,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
-        url = self.ADDTO_URL % target.id
+#        url = self.ADDTO_URL % target.id
+        url = self._build_addrelated_url(target)
         self.assertGET200(url) #TODO: is it normal ??
 
         response = self.client.post(url, data={'user':         user.pk,
@@ -504,6 +547,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'target', _(u'This content type is not allowed.'))
         self.assertEqual(opportunity_count, Opportunity.objects.count())#No new opportunity was created
 
+    @skipIfCustomOrganisation
     def test_editview01(self):
         user = self.login()
 
@@ -549,6 +593,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertStillExists(target_rel)
         self.assertRelationCount(1, opp, REL_SUB_TARGETS, target)
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
     def test_editview02(self):
         user = self.login()
 
@@ -576,6 +622,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertDoesNotExist(target_rel)
         self.assertRelationCount(1, target2, REL_SUB_PROSPECT, emitter)
 
+    @skipIfCustomOrganisation
     def test_listview(self):
         self.login()
 
@@ -590,6 +637,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(2, opps_page.paginator.count)
         self.assertEqual({opp1, opp2}, set(opps_page.object_list))
 
+    @skipIfCustomOrganisation
     def test_delete01(self):
         "Cannot delete the target & the source"
         self.login()
@@ -609,6 +657,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertStillExists(opp)
         self.assertEqual(emitter, self.refresh(opp).emitter)
 
+    @skipIfCustomOrganisation
     def test_delete02(self):
         "Can delete the Opportunity"
         self.login()
@@ -646,6 +695,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                     )
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_generate_new_doc01(self):
         self.login()
 
@@ -672,6 +722,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_generate_new_doc02(self):
         self.login()
 
@@ -699,6 +750,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_generate_new_doc03(self):
         self.login()
 
@@ -724,6 +776,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, emitter)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_generate_new_doc_error01(self):
         "Invalid target type"
         self.login()
@@ -735,6 +788,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(contact_count, Contact.objects.count()) #no Contact created
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_generate_new_doc_error02(self):
         "Credentials problems"
         self.login(is_superuser=False, allowed_apps=['billing', 'opportunities'],
@@ -769,6 +823,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                 )
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_current_quote_1(self):
         self.login()
 
@@ -806,6 +861,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         sv.save()
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_current_quote_2(self):
         "Refresh the estimated_sales when we change which quote is the current"
         user = self.login()
@@ -849,6 +905,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(opportunity.made_sales, quote2.total_no_vat) # 300
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_current_quote_3(self):
         user = self.login()
 
@@ -872,6 +929,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(opportunity.estimated_sales, estimated_sales) # 69
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_current_quote_4(self):
         user = self.login()
         self._set_quote_config(True)
@@ -890,6 +948,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomOrganisation
     def test_current_quote_5(self):
         user = self.login()
         self._set_quote_config(True)
@@ -914,6 +973,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual(0, self.refresh(opportunity).estimated_sales)
 
+    @skipIfCustomOrganisation
     def test_get_weighted_sales(self):
         self.login()
 
@@ -948,6 +1008,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(currency, opp.currency)
 
+    @skipIfCustomContact
     def test_csv_import01(self):
         user = self.login()
 
@@ -1199,7 +1260,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         "Creation credentials for Organisation & SalesPhase are forbidden."
         self.login(is_superuser=False,
                    allowed_apps=['persons', 'documents', 'opportunities'],
-                   creatable_models=[Opportunity, Document], #not Organisation
+#                   creatable_models=[Opportunity, Document], #not Organisation
+                   creatable_models=[Opportunity, get_document_model()], #not Organisation
                   )
         role = self.role
         SetCredentials.objects.create(role=role,
@@ -1254,6 +1316,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.post(url, data=dict(data, target_persons_organisation_create=True))
         self.assertNoFormError(response)
 
+    @skipIfCustomOrganisation
     def test_csv_import06(self):
         "Update"
         user = self.login()
@@ -1387,6 +1450,7 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
         self.assertDoesNotExist(sp)
 
+    @skipIfCustomOpportunity
     def test_delete02(self):
         user = self.login()
 
@@ -1424,6 +1488,7 @@ class OriginTestCase(CremeTestCase):
 
         self.assertPOST404('/creme_config/opportunities/origin/down/%s' % origin1.id)
 
+    @skipIfCustomOpportunity
     def test_delete(self):
         "Set to null"
         origin = Origin.objects.create(name='Web site')

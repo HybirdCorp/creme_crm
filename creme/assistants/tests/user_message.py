@@ -12,6 +12,8 @@ try:
 
     from creme.creme_core.tests.base import skipIfNotInstalled
 
+    from creme.persons.tests.base import skipIfCustomContact
+
     from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
     from ..models import UserMessage, UserMessagePriority
     from ..constants import PRIO_NOT_IMP_PK
@@ -197,6 +199,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertFalse(UserMessage.objects.all())
 
     @skipIfNotInstalled('creme.activities')
+    @skipIfCustomContact
     def test_activity_createview01(self):
         "Test activity form hooking"
         from creme.persons.models import Contact

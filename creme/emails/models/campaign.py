@@ -18,22 +18,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from .mailing_list import MailingList
+#from .mailing_list import MailingList
 from .recipient import EmailRecipient
 
 
-class EmailCampaign(CremeEntity):
+#class EmailCampaign(CremeEntity):
+class AbstractEmailCampaign(CremeEntity):
     name          = CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
-    mailing_lists = ManyToManyField(MailingList, verbose_name=_(u'Related mailing lists'))
+#    mailing_lists = ManyToManyField(MailingList, verbose_name=_(u'Related mailing lists'))
+    mailing_lists = ManyToManyField(settings.EMAILS_MLIST_MODEL, verbose_name=_(u'Related mailing lists'))
 
     creation_label = _('Add an emailing campaign')
 
     class Meta:
+        abstract = True
         app_label = "emails"
         verbose_name = _(u"Emailing campaign")
         verbose_name_plural = _(u"Emailing campaigns")
@@ -43,14 +48,17 @@ class EmailCampaign(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/emails/campaign/%s" % self.id
+#        return "/emails/campaign/%s" % self.id
+        return reverse('emails__view_campaign', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/emails/campaign/edit/%s" % self.id
+#        return "/emails/campaign/edit/%s" % self.id
+        return reverse('emails__edit_campaign', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/emails/campaigns"
+#        return "/emails/campaigns"
+        return reverse('emails__list_campaigns')
 
     def all_recipients(self):
         #merge all the mailing_lists and their children
@@ -76,3 +84,8 @@ class EmailCampaign(CremeEntity):
         update(lambda ml: ml.organisations)
 
         return recipients.iteritems()
+
+
+class EmailCampaign(AbstractEmailCampaign):
+    class Meta(AbstractEmailCampaign.Meta):
+        swappable = 'EMAILS_CAMPAIGN_MODEL'

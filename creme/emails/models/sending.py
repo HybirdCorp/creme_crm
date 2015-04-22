@@ -34,13 +34,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
-from creme.documents.models import Document
+#from creme.documents.models import Document
 
 from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from ..utils import generate_id, EMailSender, ImageFromHTMLError
 from .mail import _Email, ID_LENGTH
-from .campaign import EmailCampaign
-from .signature import  EmailSignature
+#from .campaign import EmailCampaign
+from .signature import EmailSignature
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +69,8 @@ SENDING_STATES = {
 
 class EmailSending(CremeModel):
     sender        = EmailField(_(u"Sender address"), max_length=100)
-    campaign      = ForeignKey(EmailCampaign, verbose_name=pgettext_lazy('emails', u'Related campaign'),
+#    campaign      = ForeignKey(EmailCampaign, verbose_name=pgettext_lazy('emails', u'Related campaign'),
+    campaign      = ForeignKey(settings.EMAILS_CAMPAIGN_MODEL, verbose_name=pgettext_lazy('emails', u'Related campaign'),
                                related_name='sendings_set', editable=False,
                               )
     type          = PositiveSmallIntegerField(verbose_name=_(u"Sending type"))
@@ -82,7 +83,8 @@ class EmailSending(CremeModel):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
                              blank=True, null=True, editable=False,
                             )
-    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
+#    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
+    attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), editable=False)
 
     class Meta:
         app_label = "emails"

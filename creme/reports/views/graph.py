@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@ from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_
                          RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK
                         )
 
+from .. import get_rgraph_model
 from ..core.graph import RGRAPH_HANDS_MAP # fetch_graph_from_instance_block
 from ..forms.graph import ReportGraphForm
 from ..models import ReportGraph
@@ -130,7 +131,8 @@ def _check_order(order):
 def fetch_graph(request, graph_id, order):
     _check_order(order)
 
-    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
+#    x, y = get_object_or_404(ReportGraph, pk=graph_id).fetch(order=order)
+    x, y = get_object_or_404(get_rgraph_model(), pk=graph_id).fetch(order=order)
 
     return {'x': x, 'y': y, 'graph_id': graph_id} #TODO: graph_id useful ??
 
@@ -141,8 +143,8 @@ def fetch_graph_from_instanceblock(request, instance_block_id, entity_id, order)
 
     instance_block = get_object_or_404(InstanceBlockConfigItem, pk=instance_block_id) #TODO: rename
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    #x, y = fetch_graph_from_instance_block(instance_block, entity, order=order)
-    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
+#    x, y = ReportGraph.get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
+    x, y = get_rgraph_model().get_fetcher_from_instance_block(instance_block).fetch_4_entity(entity, order)
 
     #TODO: send error too ?
     return {'x': x, 'y': y}

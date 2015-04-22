@@ -11,10 +11,11 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.activities.models import Activity
-    from creme.activities.constants import (REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY,
-                                            REL_SUB_LINKED_2_ACTIVITY,
-                                            ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
+    from creme.activities.constants import (REL_SUB_ACTIVITY_SUBJECT,
+            REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY,
+            ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
 
+    from .base import skipIfCustomOrganisation, skipIfCustomContact
     from ..models import *
     from ..constants import *
     from ..blocks import NeglectedOrganisationsBlock
@@ -25,6 +26,7 @@ except Exception as e:
 __all__ = ('BlocksTestCase',)
 
 
+@skipIfCustomOrganisation
 class BlocksTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -122,6 +124,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel(subject_entity=user_contact, type_id=REL_SUB_PART_2_ACTIVITY)
         self.assertEqual(2, len(self._get_neglected_orgas())) #and not 1
 
+    @skipIfCustomContact
     def test_neglected_block04(self):
         "A people linked to customer is linked to a future activity"
         user = self.user
@@ -154,6 +157,7 @@ class BlocksTestCase(CremeTestCase):
                   )
         self.assertFalse(self._get_neglected_orgas())
 
+    @skipIfCustomContact
     def test_neglected_block05(self):
         "2 people linked to customer are linked to a future activity"
         user = self.user
@@ -190,6 +194,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel(subject_entity=employee, object_entity=meeting, type_id=REL_SUB_ACTIVITY_SUBJECT)
         self.assertFalse(self._get_neglected_orgas())
 
+    @skipIfCustomContact
     def test_neglected_block06(self):
         "Future activity, but not with managed organisation !"
         user = self.user

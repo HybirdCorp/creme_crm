@@ -32,6 +32,7 @@ from creme.creme_core.views import generic
 
 from creme.crudity.views.actions import fetch
 
+from .. import get_entityemail_model
 from ..blocks import mail_waiting_sync_block, mail_spam_sync_block
 from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM,
         MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING)
@@ -208,7 +209,8 @@ def create_from_template_n_send(request, entity_id):
 def resend_mails(request): #TODO: unit test
     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
-    for email in EntityEmail.objects.filter(pk__in=ids):
+#    for email in EntityEmail.objects.filter(pk__in=ids):
+    for email in get_entityemail_model().objects.filter(pk__in=ids):
         email.send()
 
     return {}
@@ -224,6 +226,7 @@ def popupview(request, mail_id):
 @permission_required('emails')
 def get_entity_mail_body(request, entity_id): #TODO: rename entity_id -> mail_id
     """Used to show an html document in an iframe """
-    email = get_object_or_404(EntityEmail, pk=entity_id)
+#    email = get_object_or_404(EntityEmail, pk=entity_id)
+    email = get_object_or_404(get_entityemail_model(), pk=entity_id)
     request.user.has_perm_to_view_or_die(email)
     return HttpResponse(email.get_body())

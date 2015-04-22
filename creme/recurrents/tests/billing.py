@@ -5,6 +5,7 @@ try:
 
     from django.apps import apps
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.constants import DEFAULT_VAT
@@ -21,6 +22,7 @@ try:
     else:
         billing_installed = False
 
+    from .base import skipIfCustomGenerator
     from ..models import RecurrentGenerator #Periodicity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -29,8 +31,9 @@ except Exception as e:
 __all__ = ('RecurrentsBillingTestCase',)
 
 
+@skipIfCustomGenerator
 class RecurrentsBillingTestCase(CremeTestCase):
-    ADD_URL = '/recurrents/generator/add'
+#    ADD_URL = '/recurrents/generator/add'
 
     @classmethod
     def setUpClass(cls):
@@ -43,6 +46,8 @@ class RecurrentsBillingTestCase(CremeTestCase):
         cls.populate(*apps)
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
+
+        cls.ADD_URL = reverse('recurrents__create_generator')
 
     def _aux_test_create(self, model, status_model, target_has_addresses=False):
         self.login()

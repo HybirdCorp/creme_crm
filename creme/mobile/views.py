@@ -41,6 +41,7 @@ from creme.creme_core.utils.dates import make_aware_dt, get_dt_from_json_str
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_entity
 
+from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Contact, Organisation
 
@@ -185,6 +186,9 @@ def persons_portal(request):
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
 
+    Contact = get_contact_model()
+    Organisation = get_organisation_model()
+
     return render(request, 'mobile/directory.html',
                   {'favorite_contacts': cred_filter(Contact.objects.filter(is_deleted=False,
                                                                            mobile_favorite__user=user,
@@ -231,6 +235,9 @@ def search_person(request):
 
     if len(search) < 3:
         raise ConflictError(_('Your search is too short.')) #TODO: client-side validation
+
+    Contact = get_contact_model()
+    Organisation = get_organisation_model()
 
     #TODO: populate employers
     contacts = EntityCredentials.filter(
@@ -392,12 +399,14 @@ def phonecall_panel(request):
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person)
 
-    if isinstance(person, Contact):
+#    if isinstance(person, Contact):
+    if isinstance(person, get_contact_model()):
         context['called_contact'] = person
 
         if not pcall:
           context['participant_contacts'] = [person]
-    elif isinstance(person, Organisation):
+#    elif isinstance(person, Organisation):
+    elif isinstance(person, get_organisation_model()):
         context['called_orga'] = person
 
         if not pcall:
@@ -438,7 +447,8 @@ def _get_person_or_404(person_id, user):
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person) #TODO: test
 
-    if not isinstance(person, (Contact, Organisation)):
+#    if not isinstance(person, (Contact, Organisation)):
+    if not isinstance(person, (get_contact_model(), get_organisation_model())):
         raise Http404('"person_id" must be the ID of a Contact/Organisation')
 
     return person
@@ -463,6 +473,7 @@ def _add_participants(activity, persons):
                               subject_entity=activity, user=activity.user,
                               #type_id=REL_OBJ_PART_2_ACTIVITY TODO: when orga can participate
                              )
+    Contact = get_contact_model()
 
     #TODO: when orga can participate
     for person in persons:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,16 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import SearchConfigItem, HeaderFilter
 #from creme.creme_core.utils import create_if_needed
 
-from .models import RecurrentGenerator # Periodicity
+from . import get_rgenerator_model
+#from .models import RecurrentGenerator # Periodicity
 
 
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        RecurrentGenerator = get_rgenerator_model()
+
         #create_if_needed(Periodicity, {'pk': 1}, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
         #create_if_needed(Periodicity, {'pk': 2}, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
         #create_if_needed(Periodicity, {'pk': 3}, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))

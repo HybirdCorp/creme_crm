@@ -37,10 +37,12 @@ from creme.creme_core.models import (RelationType, CremeProperty, CremePropertyT
         RelationBlockItem, BlockDetailviewLocation, BlockPortalLocation)
 from creme.creme_core.utils import create_if_needed
 
+from . import get_contact_model, get_organisation_model
 from .blocks import *
 from .buttons import *
 from .constants import *
-from .models import *
+#from .models import *
+from .models import Civility, Sector, Position, StaffSize, LegalForm
 
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,9 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_EMPLOYED_BY).exists()
         managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
+
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
 
         rt_map = {}
         for rt_info in [((REL_SUB_EMPLOYED_BY,       _(u'is an employee of'),          [Contact]),

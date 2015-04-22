@@ -2,5 +2,5 @@
 
 from .other_models import Category, SubCategory
 
-from .product import Product
-from .service import Service
+from .product import AbstractProduct, Product
+from .service import AbstractService, Service

@@ -14,6 +14,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.gui.field_printers import field_printers_registry
 
+    from creme.persons.tests.base import skipIfCustomContact
     from creme.persons.models import Contact
 
     from .models import *
@@ -196,6 +197,7 @@ class MediaManagersTestCase(CremeTestCase):
         #TODO: improve this test....
 
     #TODO: remove when hack in creme_core has been removed
+    @skipIfCustomContact
     def test_field_printers01(self):
         "Field printer with FK on Image"
         user = self.login()
@@ -215,6 +217,7 @@ class MediaManagersTestCase(CremeTestCase):
                         )
 
     #TODO: remove when hack in creme_core has been removed
+    @skipIfCustomContact
     def test_field_printers02(self):
         "Field printer with FK on Image + credentials"
         from creme.creme_core.auth.entity_credentials import EntityCredentials

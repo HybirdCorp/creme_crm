@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ import logging
 from creme.creme_core.gui.block import Block, QuerysetBlock
 from creme.creme_core.models import SettingValue
 
-from creme.persons.models.contact import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models.contact import Contact
 
 from .models.active_sync import (UserSynchronizationHistory,
         USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE)
@@ -205,7 +206,8 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                                                                 .select_related('entity_ct'),
                                               history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
-                                              contact_klass=Contact,
+#                                              contact_klass=Contact,
+                                              contact_klass=get_contact_model(),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk),
                                              )
 

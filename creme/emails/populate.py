@@ -31,9 +31,12 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, SearchConfigItem, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, ButtonMenuItem, HeaderFilter)
 
-from creme.persons.models import Organisation, Contact
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Organisation, Contact
 
-from .models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
+from . import (get_emailcampaign_model, get_entityemail_model,
+        get_emailtemplate_model, get_mailinglist_model)
+#from .models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
 from .blocks import *
 from .buttons import entityemail_link_button
 from .constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
@@ -48,6 +51,14 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_MAIL_RECEIVED).exists()
+
+        EmailCampaign = get_emailcampaign_model()
+        EmailTemplate = get_emailtemplate_model()
+        EntityEmail   = get_entityemail_model()
+        MailingList   = get_mailinglist_model()
+
+        Contact = get_contact_model()
+        Organisation = get_organisation_model()
 
         SettingValue.create_if_needed(key=emailcampaign_sender, user=None, value="")
 

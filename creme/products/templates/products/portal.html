@@ -3,5 +3,6 @@
 {% load creme_core_tags %}
 {% block logo %}<img src="{% creme_media_url 'images/product_64.png' %}" alt=""/>{% endblock %}
 {% block title %}{% trans "Products & Services portal" %}{% endblock %}
-{% block list_url %}/products/products{% endblock %}
+{% comment %}{% block list_url %}/products/products{% endblock %}{% endcomment %}
+{% block list_url %}{% url 'products__list_products' %}{% endblock %}
 {% block list_msg %}{% trans "List of products" %}{% endblock %}

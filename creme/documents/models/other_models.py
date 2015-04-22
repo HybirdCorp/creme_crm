@@ -25,7 +25,6 @@ from creme.creme_core.models import CremeModel
 
 
 class FolderCategory(CremeModel):
-    """Category for the folders"""
     name = CharField(_(u'Category name'), max_length=100, unique=True)
 
     def __unicode__(self):

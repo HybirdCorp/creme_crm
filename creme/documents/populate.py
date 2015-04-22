@@ -31,7 +31,9 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilter
 from creme.creme_core.utils import create_if_needed
 
-from .models import Document, FolderCategory, Folder
+from . import get_document_model, get_folder_model, folder_model_is_custom
+#from .models import Document, FolderCategory, Folder
+from .models import FolderCategory
 from .blocks import folder_docs_block #linked_docs_block
 from .constants import *
 
@@ -45,6 +47,8 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists()
 
+        Document = get_document_model()
+        Folder   = get_folder_model()
 
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
                             (REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
@@ -55,14 +59,14 @@ class Populator(BasePopulator):
         entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=unicode(DOCUMENTS_FROM_ENTITIES_NAME))
         create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
 
-        if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
-            Folder.objects.create(user=get_user_model().objects.get(pk=1),
-                                  title="Creme", category=entities_cat,
-                                  description=_(u"Folder containing all the documents related to entities"),
-                                 )
-        else:
-            logger.info("A Folder with title 'Creme' already exists => no re-creation")
-
+        if not folder_model_is_custom():
+            if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??
+                Folder.objects.create(user=get_user_model().objects.get(pk=1),
+                                    title="Creme", category=entities_cat,
+                                    description=_(u"Folder containing all the documents related to entities"),
+                                    )
+            else:
+                logger.info("A Folder with title 'Creme' already exists => no re-creation")
 
 
         HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document,

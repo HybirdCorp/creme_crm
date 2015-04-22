@@ -6,6 +6,7 @@ try:
     from json import loads as json_load
 
 #    from django.apps import apps
+    from django.core.urlresolvers import reverse
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _, pgettext
 
@@ -31,10 +32,10 @@ try:
 #        from creme.billing.models import Invoice
 #        from creme.billing.constants import REL_SUB_BILL_RECEIVED
 
-    from .base import BaseReportsTestCase
+    from .base import BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph
     from .fake_models import FakeFolder as Folder, FakeDocument as Document
 
-    from ..blocks import ReportGraphBlock
+    #from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder
     from ..models import Field, Report, ReportGraph
     from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
@@ -47,6 +48,8 @@ except Exception as e:
 __all__ = ('ReportGraphTestCase',)
 
 
+@skipIfCustomReport
+@skipIfCustomRGraph
 class ReportGraphTestCase(BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -68,13 +71,15 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(json_arg, qfilter)
 
     def _build_add_graph_url(self, report):
-        return '/reports/graph/%s/add' % report.id
+#        return '/reports/graph/%s/add' % report.id
+        return reverse('reports__create_graph', args=(report.id,))
 
     def _build_add_block_url(self, rgraph):
         return '/reports/graph/%s/block/add' % rgraph.id
 
     def _build_edit_url(self, rgraph):
-        return '/reports/graph/edit/%s'  % rgraph.id
+#        return '/reports/graph/edit/%s' % rgraph.id
+        return reverse('reports__edit_graph', args=(rgraph.id,))
 
     def _builf_fetch_url(self, rgraph, order='ASC'):
         return '/reports/graph/fetch_graph/%s/%s' % (rgraph.id, order)
@@ -1685,6 +1690,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item01(self):
         "No link"
+        from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_block_config_item()
@@ -1705,6 +1711,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item02(self):
         "Link: regular field"
+        from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
         create_ibci = rgraph.create_instance_block_config_item
 
@@ -1730,6 +1737,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item03(self):
         "Link: relation type"
+        from ..blocks import ReportGraphBlock
         report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Number of created contacts / year',
@@ -1760,6 +1768,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
 #    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
+        from ..blocks import ReportGraphBlock
         rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
@@ -1852,6 +1861,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_add_graph_instance_block02(self):
         "Volatile column (RFT_FIELD)"
+        from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
 
         url = self._build_add_block_url(rgraph)
@@ -1974,6 +1984,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_add_graph_instance_block03(self):
         "Volatile column (RFT_RELATION)"
+        from ..blocks import ReportGraphBlock
         user = self.user
         report = self._create_simple_contacts_report()
         rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)

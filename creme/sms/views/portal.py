@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,14 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import app_portal
 
-from ..models import SMSCampaign, MessagingList, Sending, SMSAccount
+from .. import get_smscampaign_model, get_messaginglist_model
+#from ..models import SMSCampaign, MessagingList, Sending, SMSAccount
+from ..models import Sending, SMSAccount
 
 
 def portal(request):
+    SMSCampaign   = get_smscampaign_model()
+    MessagingList = get_messaginglist_model()
     stats = ((_('Number of campaigns'),       SMSCampaign.objects.count()),
              (_('Number of messaging lists'), MessagingList.objects.count()),
              (_("Number of sendings"),        Sending.objects.count()),

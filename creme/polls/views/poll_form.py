@@ -30,10 +30,11 @@ from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, edit_related_to_entity, view_entity, list_view)
 
-from ..models import PollForm, PollFormSection, PollFormLine
+from .. import get_pollform_model
 from ..forms.poll_form import (PollFormForm, PollFormLineCreateForm, PollFormLineEditForm,
-                               PollFormSectionCreateForm, PollFormSectionEditForm,
-                               PollFormLineConditionsForm)
+        PollFormSectionCreateForm, PollFormSectionEditForm,
+        PollFormLineConditionsForm)
+from ..models import PollForm, PollFormSection, PollFormLine
 from ..utils import StatsTree, NodeStyle #TODO: templatetag instead ?
 
 
@@ -64,7 +65,10 @@ def listview(request):
 @login_required
 @permission_required('polls')
 def add_line(request, pform_id):
-    return add_to_entity(request, pform_id, PollFormLineCreateForm, _(u'New question for <%s>'))
+    return add_to_entity(request, pform_id, PollFormLineCreateForm,
+                         _(u'New question for <%s>'),
+                         entity_class=get_pollform_model(),
+                        )
 
 @login_required
 @permission_required('polls')
@@ -103,14 +107,19 @@ def edit_line_conditions(request, line_id):
         raise Http404('You can not add condition to a disabled line.')
 
     return add_to_entity(request, line.pform_id, PollFormLineConditionsForm,
-                         _(u'Condition for <%s>'), entity_class=PollForm,
+                         _(u'Condition for <%s>'),
+                         #entity_class=PollForm,
+                         entity_class=get_pollform_model(),
                          initial={'line': line}
                         )
 
 @login_required
 @permission_required('polls')
 def add_section(request, pform_id):
-    return add_to_entity(request, pform_id, PollFormSectionCreateForm, _(u'New section for <%s>'))
+    return add_to_entity(request, pform_id, PollFormSectionCreateForm,
+                         _(u'New section for <%s>'),
+                         entity_class=get_pollform_model(),
+                        )
 
 @login_required
 @permission_required('polls')
@@ -125,8 +134,10 @@ def add_section_child(request, section_id):
     parent_section = get_object_or_404(PollFormSection, pk=section_id)
 
     return add_to_entity(request, parent_section.pform_id, PollFormSectionCreateForm,
-                         _(u'New section for <%s>'), entity_class=PollForm,
-                         initial={'parent': parent_section}
+                         _(u'New section for <%s>'),
+                         #entity_class=PollForm,
+                         entity_class=get_pollform_model(),
+                         initial={'parent': parent_section},
                         )
 
 @login_required
@@ -135,14 +146,17 @@ def add_line_to_section(request, section_id):
     section = get_object_or_404(PollFormSection, pk=section_id)
 
     return add_to_entity(request, section.pform_id, PollFormLineCreateForm,
-                         _(u'New question for <%s>'), entity_class=PollForm,
-                         initial={'section': section}
+                         _(u'New question for <%s>'),
+                         #entity_class=PollForm,
+                         entity_class=get_pollform_model(),
+                         initial={'section': section},
                         )
 
 @login_required
 @permission_required('polls')
 def stats(request, pform_id):
-    pform = get_object_or_404(PollForm, pk=pform_id)
+#    pform = get_object_or_404(PollForm, pk=pform_id)
+    pform = get_object_or_404(get_pollform_model(), pk=pform_id)
 
     return render(request, 'polls/stats.html',
                   {'nodes': StatsTree(pform),

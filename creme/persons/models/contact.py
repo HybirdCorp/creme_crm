@@ -25,6 +25,7 @@ import warnings
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
         DateField, EmailField, URLField, SET_NULL) #ProtectedError
 from django.db.models.signals import post_save
@@ -40,15 +41,17 @@ from creme.creme_core.utils import update_model_instance
 
 from creme.media_managers.models import Image
 
+from ..import get_contact_model, get_address_model, get_organisation_model
 from ..constants import REL_OBJ_EMPLOYED_BY
-from .address import Address
+#from .address import Address
 from .other_models import Civility, Position, Sector
 
 
 logger = logging.getLogger(__name__)
 
 
-class Contact(CremeEntity):
+#class Contact(CremeEntity):
+class AbstractContact(CremeEntity):
     civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True, on_delete=SET_NULL)
     last_name       = CharField(_(u'Last name'), max_length=100)  #NB: same max_length than CremeUser.last_name
     first_name      = CharField(_(u'First name'), max_length=100, blank=True, null=True)  #NB: same max_length than CremeUser.first_name
@@ -62,11 +65,13 @@ class Contact(CremeEntity):
     email           = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False).set_tags(viewable=False) #TODO: remove this field
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+#    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
                                   blank=True, null=True,  editable=False,
                                   related_name='billing_address_contact_set', #TODO: remove ? (with '+')
                                  ).set_tags(enumerable=False) #clonable=False useless
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+#    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
                                   blank=True, null=True, editable=False,
                                   related_name='shipping_address_contact_set',
                                  ).set_tags(enumerable=False)
@@ -86,6 +91,7 @@ class Contact(CremeEntity):
     creation_label = _('Add a contact')
 
     class Meta:
+        abstract = True
         app_label = "persons"
         ordering = ('last_name', 'first_name')
         verbose_name = _(u'Contact')
@@ -127,35 +133,41 @@ class Contact(CremeEntity):
                 raise ValidationError(ugettext('This Contact is related to a user and must have an e-mail address.'))
 
     def get_employers(self):
-        from .organisation import Organisation
-        return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
+#        from .organisation import Organisation
+#        return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)
+        return get_organisation_model().objects.filter(relations__type=REL_OBJ_EMPLOYED_BY,
+                                                       relations__object_entity=self.id,
+                                                      )
 
     def get_absolute_url(self):
-        return "/persons/contact/%s" % self.id
+#        return "/persons/contact/%s" % self.id
+        return reverse('persons__view_contact', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/persons/contact/edit/%s" % self.id
+#        return "/persons/contact/edit/%s" % self.id
+        return reverse('persons__edit_contact', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/persons/contacts"
+#        return "/persons/contacts"
+        return reverse('persons__list_contacts')
 
-    @staticmethod
-    def get_user_contact_or_mock(user):
-        warnings.warn("Contact.get_user_contact_or_mock() is deprecated ; use User.linked_contact instead.",
-                      DeprecationWarning
-                     )
-
-        try:
-            contact = Contact.objects.get(is_user=user)
-        except Contact.DoesNotExist:
-            contact = Contact()
-        return contact
+#    @staticmethod
+#    def get_user_contact_or_mock(user):
+#        warnings.warn("Contact.get_user_contact_or_mock() is deprecated ; use User.linked_contact instead.",
+#                      DeprecationWarning
+#                     )
+#
+#        try:
+#            contact = Contact.objects.get(is_user=user)
+#        except Contact.DoesNotExist:
+#            contact = Contact()
+#        return contact
 
     def delete(self):
         self._check_deletion() #should not be useful (trashing should be blocked too)
-        super(Contact, self).delete()
+#        super(Contact, self).delete()
+        super(AbstractContact, self).delete()
 
     #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):
@@ -173,11 +185,14 @@ class Contact(CremeEntity):
             self.save()
 
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
-        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+#        for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
+        for address in get_address_model().objects.filter(object_id=source.id) \
+                                                  .exclude(pk__in=excl_source_addr_ids):
             address.clone(self)
 
     def save(self, *args, **kwargs):
-        super(Contact, self).save(*args, **kwargs)
+#        super(Contact, self).save(*args, **kwargs)
+        super(AbstractContact, self).save(*args, **kwargs)
 
         rel_user = self.is_user
         if rel_user:
@@ -191,13 +206,20 @@ class Contact(CremeEntity):
 
     def trash(self):
         self._check_deletion()
-        super(Contact, self).trash()
+#        super(Contact, self).trash()
+        super(AbstractContact, self).trash()
+
+
+class Contact(AbstractContact):
+    class Meta(AbstractContact.Meta):
+        swappable = 'PERSONS_CONTACT_MODEL'
 
 
 # Manage the related User ------------------------------------------------------
 
 def _create_linked_contact(user):
-    return Contact.objects.create(user=user, is_user=user,
+#    return Contact.objects.create(user=user, is_user=user,
+    return get_contact_model().objects.create(user=user, is_user=user,
                                   last_name=user.last_name or user.username.title(),
                                   first_name=user.first_name or _('N/A'),
                                   email=user.email or _('replaceMe@byYourAddress.com'),
@@ -211,7 +233,8 @@ def _get_linked_contact(self):
     contact = getattr(self, '_linked_contact_cache', None)
 
     if contact is None:
-        contacts = Contact.objects.filter(is_user=self)[:2]
+#        contacts = Contact.objects.filter(is_user=self)[:2]
+        contacts = get_contact_model().objects.filter(is_user=self)[:2]
 
         if not contacts:
             logger.critical('User "%s" has no related Contact => we create it', self.username)

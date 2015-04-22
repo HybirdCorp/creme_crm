@@ -4,5 +4,6 @@
 
 {% block logo %}<img src="{% creme_media_url 'images/contact_64.png' %}" alt="{% trans "Contact" %}"/>{% endblock %}
 {% block title %}{% trans "Accounts & contacts portal" %}{% endblock %}
-{% block list_url %}/persons/contacts{% endblock %}
+{% comment %}{% block list_url %}/persons/contacts{% endblock %}{% endcomment %}
+{% block list_url %}{% url 'persons__list_contacts' %}{% endblock %}
 {% block list_msg %}{% trans "List of contacts" %}{% endblock %}

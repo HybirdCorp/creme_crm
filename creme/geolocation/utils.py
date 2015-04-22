@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014  Hybird
+#    Copyright (C) 2014-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,8 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.models import SettingValue
 
-from creme.persons.models import Address
+from creme.persons import get_address_model
+#from creme.persons.models import Address
 
 
 def address_as_dict(address):
@@ -75,7 +76,8 @@ def address_title(address):
 
 def addresses_from_persons(queryset, user):
     entities = EntityCredentials.filter(user, queryset.filter(is_deleted=False))
-    addresses = Address.objects.filter(content_type_id=ContentType.objects.get_for_model(queryset.model).id)
+#    addresses = Address.objects.filter(content_type_id=ContentType.objects.get_for_model(queryset.model).id)
+    addresses = get_address_model().objects.filter(content_type_id=ContentType.objects.get_for_model(queryset.model).id)
 
     # get address ids which owner has billing or shipping or both
     billing_shipping_ids = entities.filter(Q(billing_address__isnull=False) | Q(shipping_address__isnull=False))\

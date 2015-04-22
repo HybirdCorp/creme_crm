@@ -8,7 +8,9 @@ try:
     from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-    from creme.persons.models import Organisation, Contact
+    from creme.persons import get_contact_model
+    from creme.persons.models import Organisation #, Contact
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import QuoteStatus, InvoiceStatus, ProductLine
     from ..function_fields import (get_total_pending,
@@ -22,6 +24,7 @@ except Exception as e:
 __all__ = ('FunctionFieldTestCase',)
 
 
+@skipIfCustomOrganisation
 class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
@@ -79,7 +82,8 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         with self.assertNoException():
             off_mngr = Organisation.function_fields
-            cff_mngr = Contact.function_fields
+#            cff_mngr = Contact.function_fields
+            cff_mngr = get_contact_model().function_fields
 
         for funf in chain(off_mngr, cff_mngr):
             self.assertIsInstance(funf, FunctionField)

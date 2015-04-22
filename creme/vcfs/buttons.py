@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2014  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 
 class GenerateVcfButton(Button):
@@ -31,6 +32,8 @@ class GenerateVcfButton(Button):
     template_name = 'vcfs/templatetags/button_generate_vcf.html'
 
     def get_ctypes(self):
-        return (Contact,)
+        #return (Contact,)
+        return (get_contact_model(),)
+
 
 generate_vcf_button = GenerateVcfButton()

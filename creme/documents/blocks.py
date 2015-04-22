@@ -26,10 +26,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import Relation #CremeEntity
 from creme.creme_core.gui.block import QuerysetBlock
 
-from .models import Folder, Document
+from . import get_document_model, get_folder_model
+#from .models import Folder, Document
 from .constants import REL_SUB_RELATED_2_DOC
 
 
+Document = get_document_model()
 _CT_DOC = ContentType.objects.get_for_model(Document)
 
 
@@ -38,7 +40,8 @@ class FolderDocsBlock(QuerysetBlock):
     dependencies  = (Document,)
     verbose_name  = _(u'Folder documents')
     template_name = 'documents/templatetags/block_documents.html'
-    target_ctypes = (Folder,)
+#    target_ctypes = (Folder,)
+    target_ctypes = (get_folder_model(),)
 
     def detailview_display(self, context):
         folder_id = context['object'].id

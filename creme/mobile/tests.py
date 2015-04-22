@@ -10,6 +10,7 @@ try:
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now, localtime
     from django.utils.translation import ugettext as _
 
@@ -19,6 +20,7 @@ try:
 
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
             REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
@@ -36,8 +38,8 @@ except Exception as e:
 class MobileTestCase(CremeTestCase):
     PORTAL_URL              = '/mobile/'
     PERSONS_PORTAL_URL      = '/mobile/persons'
-    CREATE_CONTACT_URL      = '/mobile/contact/add'
-    CREATE_ORGA_URL         = '/mobile/organisation/add'
+#    CREATE_CONTACT_URL      = '/mobile/contact/add'
+#    CREATE_ORGA_URL         = '/mobile/organisation/add'
     SEARCH_PERSON_URL       = '/mobile/person/search'
     ACTIVITIES_PORTAL_URL   = '/mobile/activities'
     PCALL_PANEL_URL         = '/mobile/phone_call/panel'
@@ -51,10 +53,13 @@ class MobileTestCase(CremeTestCase):
         CremeTestCase.setUpClass()
         cls.populate('persons', 'activities') #'mobile'
 
+        cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')
+        cls.CREATE_ORGA_URL    = reverse('mobile__create_organisation')
+
     def login(self, is_superuser=True, other_is_owner=False):
-        super(MobileTestCase, self).login(is_superuser,
-                                          allowed_apps=['activities', 'persons'],
-                                         ) #'creme_core'
+        return super(MobileTestCase, self).login(is_superuser,
+                                                  allowed_apps=['activities', 'persons'],
+                                                 ) #'creme_core'
 
     def _build_start_url(self, activity):
         return '/mobile/activity/%s/start' % activity.id
@@ -217,6 +222,8 @@ class MobileTestCase(CremeTestCase):
         self.assertContains(response, m1.title)
         self.assertContains(response, m3.title)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_persons(self):
         self.login()
 
@@ -250,6 +257,8 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual([kof], orgas)
         self.assertContains(response, kof)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_create_contact01(self):
         self.login()
 
@@ -273,6 +282,8 @@ class MobileTestCase(CremeTestCase):
 
         self.assertRedirects(response, self.PERSONS_PORTAL_URL)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_create_contact02(self):
         self.login()
         first_name = 'May'
@@ -311,6 +322,7 @@ class MobileTestCase(CremeTestCase):
 
         self.assertEqual([may], list(f.entity.get_real_entity() for f in self.user.mobile_favorite.all()))
 
+    @skipIfCustomOrganisation
     def test_create_orga01(self):
         self.login()
 
@@ -335,6 +347,7 @@ class MobileTestCase(CremeTestCase):
 
         self.assertRedirects(response, self.PERSONS_PORTAL_URL)
 
+    @skipIfCustomOrganisation
     def test_create_orga02(self):
         self.login()
         name = 'Fatal Fury Inc.'
@@ -371,6 +384,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(0, len(contacts))
         self.assertEqual(0, len(orgas))
 
+    @skipIfCustomContact
     def test_search_persons02(self):
         self.login()
 
@@ -390,6 +404,8 @@ class MobileTestCase(CremeTestCase):
         self.assertContains(response, shinji.first_name)
         self.assertContains(response, shinji.mobile)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_search_persons03(self):
         "Search in organisations which employ ('employed by')"
         self.login()
@@ -414,6 +430,8 @@ class MobileTestCase(CremeTestCase):
         response = self.assertGET200(url, data={'search': may.last_name[:4]})
         self.assertEqual([may], list(response.context['contacts']))
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_search_persons04(self):
         "Search in organisations which employ ('managed by')"
         self.login()
@@ -624,6 +642,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(30, len(factivities))
         self.assertEqual(31, fact_count)
 
+    @skipIfCustomContact
     def test_phone_call_panel01(self):
         "Create with the number of a contact"
         self.login()
@@ -664,6 +683,7 @@ class MobileTestCase(CremeTestCase):
         self.assertNotIn('participant_organisations', context)
         self.assertEqual(self.user.linked_contact.id, user_contact_id)
 
+    @skipIfCustomOrganisation
     def test_phone_call_panel02(self):
         "Create with the number of an organisation"
         self.login()
@@ -694,6 +714,8 @@ class MobileTestCase(CremeTestCase):
         self.assertNotIn('participant_contacts', context)
         self.assertEqual([zalem], orgas)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_phone_call_panel03(self):
         "Update an existing phone call"
         self.login()
@@ -833,6 +855,7 @@ class MobileTestCase(CremeTestCase):
                                 }
                           )
 
+    @skipIfCustomOrganisation
     def test_phone_call_wf_failed05(self):
         "Phone call is created (with organisation)"
         self.login()
@@ -912,6 +935,7 @@ class MobileTestCase(CremeTestCase):
         #self.assertEqual(1,  end.day - today)
         self.assertEqual(tomorrow, end.day)
 
+    @skipIfCustomContact
     def test_phone_call_wf_postponed02(self):
         "Phone calls are created (with contact)"
         self.login()
@@ -1137,6 +1161,7 @@ class MobileTestCase(CremeTestCase):
                          pcall.title
                         )
 
+    @skipIfCustomContact
     def test_mark_as_favorite(self):
         self.login()
         may = Contact.objects.create(user=self.user, first_name='May',
@@ -1152,6 +1177,7 @@ class MobileTestCase(CremeTestCase):
         self.assertPOST200(url)
         self.get_object_or_fail(MobileFavorite, entity=may, user=self.user) #not 2 objects
 
+    @skipIfCustomContact
     def test_unmark_favorite(self):
         self.login()
         may = Contact.objects.create(user=self.user, first_name='May',

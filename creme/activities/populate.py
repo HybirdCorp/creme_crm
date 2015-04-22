@@ -34,7 +34,8 @@ from creme.creme_core.models import (RelationType, ButtonMenuItem, SearchConfigI
         HeaderFilter, EntityFilter, EntityFilterCondition)
 from creme.creme_core.utils import create_if_needed
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 
 from .blocks import (participants_block, subjects_block, future_activities_block,
                      past_activities_block, related_calendar_block)
@@ -52,6 +53,9 @@ class Populator(BasePopulator):
 
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_LINKED_2_ACTIVITY).exists()
+
+        Contact      = get_contact_model()
+        Organisation = get_organisation_model()
 
         create_rtype = RelationType.create
         create_rtype((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),

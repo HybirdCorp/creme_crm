@@ -35,6 +35,7 @@ from creme.creme_core.forms.widgets import Label
 
 from creme.persons.models import Contact, Organisation
 
+from .. import get_pollreply_model
 from ..models import PollForm, PollReply, PollCampaign
 
 
@@ -162,7 +163,8 @@ class PollReplyEditForm(CremeEntityForm):
 
 
 class PersonAddRepliesForm(CremeForm):
-    replies = MultiCreatorEntityField(label=_(u'Replies'), model=PollReply) #TODO: qfilter to exclude linked replies ??
+#    replies = MultiCreatorEntityField(label=_(u'Replies'), model=PollReply) #TODO: qfilter to exclude linked replies ??
+    replies = MultiCreatorEntityField(label=_(u'Replies'), model=get_pollreply_model()) #TODO: qfilter to exclude linked replies ??
 
     def __init__(self, entity, *args, **kwargs):
         super(PersonAddRepliesForm, self).__init__(*args, **kwargs)

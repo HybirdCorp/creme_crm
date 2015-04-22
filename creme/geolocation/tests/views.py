@@ -10,6 +10,8 @@ try:
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
 
     from creme.persons.models import Organisation, Contact # Address
+    from creme.persons.tests.base import (skipIfCustomAddress,
+            skipIfCustomContact, skipIfCustomOrganisation)
 
     from ..models import GeoAddress, Town
     from ..utils import address_as_dict
@@ -31,6 +33,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     def build_set_address_url(self, address_id):
         return self.SET_ADDRESS_URL % address_id
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_set_address_info(self):
         user = self.login()
 
@@ -64,6 +68,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertEqual(1, len(geoaddresses))
         self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data)
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_set_address_info_GET_request(self):
         user = self.login()
 
@@ -73,6 +79,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertEqual(1, GeoAddress.objects.count())
         self.assertGET404(self.build_set_address_url(address.id))
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_set_address_info_without_geoaddress(self):
         user = self.login()
 
@@ -121,6 +129,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                                 }
                           )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_set_address_info_missing_argument(self):
         user = self.login()
 
@@ -151,6 +161,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertEqual(1, len(geoaddresses))
         self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data)
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_set_address_info_credentials(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
@@ -182,7 +194,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                                 }
                           )
 
-
+@skipIfCustomOrganisation
+@skipIfCustomAddress
 class GetAddressesTestCase(GeoLocationBaseTestCase):
     GET_ADDRESSES_URL = '/geolocation/get_addresses_from_filter/%s'
 
@@ -211,6 +224,7 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
+    @skipIfCustomContact
     def test_get_addresses_priority(self):
         user = self.login()
 
@@ -365,6 +379,8 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         orga5 = create_orga(name='E', user=user)
         self.AUBAGNE_MAIRIE = create_baddr(orga5, address='Maire Aubagne', zipcode='13400', town=u'Aubagne', geoloc=(43.295783, 5.565589))
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_get_neighbours(self):
         self.login()
         self.populate_addresses(self.user)
@@ -397,6 +413,8 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_get_neighbours_distance(self):
         self.login()
         self.populate_addresses(self.user)
@@ -437,6 +455,8 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_get_neighbours_filtered(self):
         user = self.login()
         self.populate_addresses(user)
@@ -476,6 +496,9 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
+    @skipIfCustomAddress
     def test_get_neighbours_credentials(self):
         self.maxDiff = None
 
@@ -518,6 +541,8 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
                                      ]
                                     )
 
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
     def test_get_neighbours_invalid_filter(self):
         user = self.login()
         self.populate_addresses(user)

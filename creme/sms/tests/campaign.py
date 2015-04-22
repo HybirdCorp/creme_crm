@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.tests.base import CremeTestCase
 
     from ..models import SMSCampaign
+    from .base import skipIfCustomSMSCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -11,11 +14,13 @@ except Exception as e:
 __all__ = ('SMSCampaignTestCase',)
 
 
+@skipIfCustomSMSCampaign
 class SMSCampaignTestCase(CremeTestCase):
     def test_createview(self):
         user = self.login()
 
-        url = '/sms/campaign/add'
+#        url = '/sms/campaign/add'
+        url = reverse('sms__create_campaign')
         self.assertGET200(url)
 
         name = 'Camp#1'

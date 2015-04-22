@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,16 @@ from creme.documents.models import Document
 
 from creme.crudity.blocks import CrudityQuerysetBlock
 
+from . import (get_emailcampaign_model, get_entityemail_model,
+        get_emailtemplate_model, get_mailinglist_model)
 from .constants import *
-from .models import *
+#from .models import *
+from .models import EmailSignature, EmailRecipient, EmailSending, LightWeightEmail
+
+
+EmailCampaign = get_emailcampaign_model()
+EntityEmail   = get_entityemail_model()
+MailingList   = get_mailinglist_model()
 
 
 class EntityEmailBlock(SimpleBlock):
@@ -134,7 +142,8 @@ class AttachmentsBlock(_RelatedEntitesBlock):
     dependencies  = (Document,)
     verbose_name  = _(u'Attachments')
     template_name = 'emails/templatetags/block_attachments.html'
-    target_ctypes = (EmailTemplate,)
+#    target_ctypes = (EmailTemplate,)
+    target_ctypes = (get_emailtemplate_model(),)
 
     def _get_queryset(self, entity): #entity=mailtemplate
         return entity.attachments.all()

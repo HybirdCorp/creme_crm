@@ -9,6 +9,7 @@ try:
     from creme.creme_core.models import Relation
 
     from creme.persons.models import Organisation
+    from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import (TemplateBase, Invoice, InvoiceStatus,
             Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
@@ -22,6 +23,7 @@ except Exception as e:
 __all__ = ('TemplateBaseTestCase',)
 
 
+@skipIfCustomOrganisation
 class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
         self.login()

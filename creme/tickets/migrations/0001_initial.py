@@ -69,6 +69,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status', to='tickets.Status')),
             ],
             options={
+                'swappable': 'TICKETS_TICKET_MODEL',
                 'ordering': ('title',),
                 'verbose_name': 'Ticket',
                 'verbose_name_plural': 'Tickets',
@@ -87,6 +88,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status', to='tickets.Status')),
             ],
             options={
+                'swappable': 'TICKETS_TEMPLATE_MODEL',
                 'ordering': ('title',),
                 'verbose_name': 'Ticket template',
                 'verbose_name_plural': 'Ticket templates',

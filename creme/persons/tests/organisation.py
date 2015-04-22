@@ -4,13 +4,15 @@ try:
     from functools import partial
 
     #from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-    from .base import _BaseTestCase
+    from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
+            skipIfCustomOrganisation)
     from ..models import *
     from ..constants import *
 except Exception as e:
@@ -20,6 +22,7 @@ except Exception as e:
 __all__ = ('OrganisationTestCase',)
 
 
+@skipIfCustomOrganisation
 class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step':     1,
@@ -67,7 +70,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_createview01(self):
         user = self.login()
 
-        url = '/persons/organisation/add'
+#        url = '/persons/organisation/add'
+        url = reverse('persons__create_organisation')
         self.assertGET200(url)
 
         count = Organisation.objects.count()
@@ -91,12 +95,14 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('/persons/organisation/%s' % orga.id, abs_url)
         self.assertRedirects(response, abs_url)
 
+    @skipIfCustomAddress
     def test_editview01(self):
         user = self.login()
 
         name = 'Bebop'
         orga = Organisation.objects.create(user=user, name=name)
-        url = '/persons/organisation/edit/%s' % orga.id
+#        url = '/persons/organisation/edit/%s' % orga.id
+        url = orga.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -122,7 +128,8 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
 
-        response = self.assertGET200('/persons/organisations')
+#        response = self.assertGET200('/persons/organisations')
+        response = self.assertGET200(Organisation.get_lv_absolute_url())
 
         with self.assertNoException():
             orgas_page = response.context['entities']
@@ -133,6 +140,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn(nerv, orgas_set)
         self.assertIn(acme, orgas_set)
 
+    @skipIfCustomAddress
     def test_clone(self):
         "Addresses are problematic"
         user = self.login()
@@ -200,6 +208,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_become_customer01(self):
         self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
 
+    @skipIfCustomContact
     def test_become_customer02(self):
         "Credentials errors"
         user = self.login(is_superuser=False)
@@ -289,6 +298,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         response = self.client.get('/persons/leads_customers')
         self.assertEqual(0, response.context['entities'].paginator.count)
 
+    @skipIfCustomAddress
     def test_merge01(self):
         "Merging addresses"
         user = self.login()
@@ -448,8 +458,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual('Merged country 2',    shipping_address.country)
         self.assertEqual('Merged department 2', shipping_address.department)
 
+    @skipIfCustomAddress
     def test_merge02(self):
-        "Merging addresses"
+        "Merging addresses (no existing address)"
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -523,8 +534,9 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertIsNone(orga01.shipping_address)
 
+    @skipIfCustomAddress
     def test_merge03(self):
-        "Merging addresses"
+        "Merging addresses (existing address for one Organisation)"
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -632,6 +644,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.staff_size)
 
+    @skipIfCustomAddress
     def test_csv_import01(self):
         user = self.login()
 
@@ -665,6 +678,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNotNone(shipping_address)
         self.assertEqual(city2, shipping_address.city)
 
+    @skipIfCustomAddress
     def test_csv_import02(self):
         "Update (with address)"
         user = self.login()

@@ -33,6 +33,7 @@ from creme.creme_core.views import generic
 from creme.opportunities.forms.opportunity import OpportunityCreateForm
 from creme.opportunities.models import Opportunity
 
+from .. import get_act_model, get_pattern_model
 from ..constants import REL_SUB_COMPLETE_GOAL
 from ..forms import act as forms
 from ..models import (ActType, Act, ActObjective, MarketSegment,
@@ -96,7 +97,8 @@ def listview_objective_pattern(request):
 @login_required
 @permission_required(('opportunities', 'opportunities.add_opportunity'))
 def add_opportunity(request, act_id):
-    act = get_object_or_404(Act, pk=act_id)
+#    act = get_object_or_404(Act, pk=act_id)
+    act = get_object_or_404(get_act_model(), pk=act_id)
     user = request.user
 
     user.has_perm_to_link_or_die(act)
@@ -130,7 +132,9 @@ def add_opportunity(request, act_id):
 @permission_required('commercial')
 def _add_objective(request, act_id, form_class):
     return generic.add_to_entity(request, act_id, form_class,
-                                 ugettext(u'New objective for <%s>'), entity_class=Act
+                                 ugettext(u'New objective for <%s>'),
+#                                 entity_class=Act,
+                                 entity_class=get_act_model(),
                                 )
 
 def add_objective(request, act_id):
@@ -143,7 +147,9 @@ def add_objectives_from_pattern(request, act_id):
 @permission_required('commercial')
 def add_pattern_component(request, objpattern_id):
     return generic.add_to_entity(request, objpattern_id, forms.PatternComponentForm,
-                                 ugettext(u'New objective for <%s>'), entity_class=ActObjectivePattern
+                                 ugettext(u'New objective for <%s>'),
+#                                 entity_class=ActObjectivePattern,
+                                 entity_class=get_pattern_model(),
                                 )
 
 @login_required
@@ -186,7 +192,8 @@ def add_parent_pattern_component(request, component_id):
 @login_required
 @permission_required('commercial')
 def edit_objective(request, objective_id):
-    return generic.edit_related_to_entity(request, objective_id, ActObjective, forms.ObjectiveForm,
+    return generic.edit_related_to_entity(request, objective_id, ActObjective,
+                                          forms.ObjectiveForm,
                                           ugettext(u'Objective for <%s>'),
                                          )
 

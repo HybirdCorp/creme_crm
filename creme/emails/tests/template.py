@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
-    from .base import _EmailsTestCase
+    from .base import _EmailsTestCase, skipIfCustomEmailTemplate
     from ..models import EmailTemplate
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -12,12 +13,14 @@ except Exception as e:
 __all__ = ('TemplatesTestCase',)
 
 
+@skipIfCustomEmailTemplate
 class TemplatesTestCase(_EmailsTestCase):
     def setUp(self):
         self.login()
 
     def test_createview01(self): #TODO: test attachments & images
-        url = '/emails/template/add'
+#        url = '/emails/template/add'
+        url = reverse('emails__create_template')
         self.assertGET200(url)
 
         name      = 'my_template'
@@ -41,7 +44,8 @@ class TemplatesTestCase(_EmailsTestCase):
 
     def test_createview02(self):
         "Validation error"
-        response = self.assertPOST200('/emails/template/add', follow=True,
+#        response = self.assertPOST200('/emails/template/add', follow=True,
+        response = self.assertPOST200(reverse('emails__create_template'), follow=True,
                                       data={'user':      self.user.pk,
                                             'name':      'my_template',
                                             'subject':   'Insert a joke *here*',
@@ -67,7 +71,8 @@ class TemplatesTestCase(_EmailsTestCase):
         body    = 'blablabla'
         template = EmailTemplate.objects.create(user=self.user, name=name, subject=subject, body=body)
 
-        url = '/emails/template/edit/%s' % template.id
+#        url = '/emails/template/edit/%s' % template.id
+        url = template.get_edit_absolute_url()
         self.assertGET200(url)
 
         name    = name.title()
@@ -89,9 +94,8 @@ class TemplatesTestCase(_EmailsTestCase):
         self.assertEqual('',      template.body_html)
 
     def test_listview(self):
-        response = self.assertGET200('/emails/templates')
+#        response = self.assertGET200('/emails/templates')
+        response = self.assertGET200(EmailTemplate.get_lv_absolute_url())
 
         with self.assertNoException():
             response.context['entities']
-
-

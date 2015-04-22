@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import models, migrations
 
 
@@ -13,7 +14,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='GeoAddress',
             fields=[
-                ('address', models.OneToOneField(primary_key=True, serialize=False, to='persons.Address', verbose_name='Address')),
+                #('address', models.OneToOneField(primary_key=True, serialize=False, to='persons.Address', verbose_name='Address')),
+                ('address', models.OneToOneField(primary_key=True, serialize=False, to=settings.PERSONS_ADDRESS_MODEL, verbose_name='Address')),
                 ('latitude', models.FloatField(null=True, verbose_name='Latitude', blank=True)),
                 ('longitude', models.FloatField(null=True, verbose_name='Longitude', blank=True)),
                 ('draggable', models.BooleanField(default=True, verbose_name='Is this marker draggable in maps ?')),

@@ -24,8 +24,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic.popup import inner_popup
 
+from .. import get_rgraph_model
 from ..forms.blocks import GraphInstanceBlockForm
-from ..models.graph import ReportGraph
+#from ..models.graph import ReportGraph
 
 
 #TODO: use add_to_entity() generic view => Post TODO: Doesn't fit to the needs (credential admin instead of change/link)
@@ -33,7 +34,8 @@ from ..models.graph import ReportGraph
 @login_required
 @permission_required(('reports', 'reports.can_admin'))
 def add_graph_instance_block(request, graph_id):
-    graph = get_object_or_404(ReportGraph, pk=graph_id)
+#    graph = get_object_or_404(ReportGraph, pk=graph_id)
+    graph = get_object_or_404(get_rgraph_model(), pk=graph_id)
 
     if request.method == 'POST':
         graph_form = GraphInstanceBlockForm(graph=graph, user=request.user, data=request.POST)

@@ -2,6 +2,6 @@
 
 from .other_models import *
 
-from .address import Address
-from .contact import Contact
-from .organisation import Organisation
+from .address import AbstractAddress, Address
+from .contact import AbstractContact, Contact
+from .organisation import AbstractOrganisation, Organisation

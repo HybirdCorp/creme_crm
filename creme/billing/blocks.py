@@ -27,14 +27,19 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.gui.block import Block, SimpleBlock, QuerysetBlock
 from creme.creme_core.models import SettingValue, CremeEntity, Relation
 
+from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.blocks import AddressBlock
-from creme.persons.models import Contact, Organisation
+#from creme.persons.models import Contact, Organisation
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
 from .constants import *
 from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
 from .models import *
+
+Contact      = get_contact_model()
+Organisation = get_organisation_model()
 
 
 class BillingBlock(Block):
@@ -100,7 +105,8 @@ class ProductLinesBlock(_LineBlock):
     template_name       = 'billing/templatetags/block_product_line.html'
     line_model          = ProductLine
     line_type           = PRODUCT_LINE_TYPE
-    related_item_ct     = ContentType.objects.get_for_model(Product)
+#    related_item_ct     = ContentType.objects.get_for_model(Product)
+    related_item_ct     = ContentType.objects.get_for_model(get_product_model())
     related_item_label  = _(u'Product')
 
     def _get_document_lines(self, document):
@@ -113,7 +119,8 @@ class ServiceLinesBlock(_LineBlock):
     template_name       = 'billing/templatetags/block_service_line.html'
     line_model          = ServiceLine
     line_type           = SERVICE_LINE_TYPE
-    related_item_ct     = ContentType.objects.get_for_model(Service)
+#    related_item_ct     = ContentType.objects.get_for_model(Service)
+    related_item_ct     = ContentType.objects.get_for_model(get_service_model())
     related_item_label  = _(u'Service')
 
     def _get_document_lines(self, document):

@@ -8,6 +8,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities.models import Activity
     from creme.activities.constants import ACTIVITYTYPE_MEETING
@@ -26,6 +27,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    @skipIfCustomContact
     def test_mapping_update_contact01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -43,6 +45,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         mapping = CremeExchangeMapping.objects.get(user=user, creme_entity_id=contact.id)
         self.assertTrue(mapping.is_creme_modified)
 
+    @skipIfCustomContact
     def test_mapping_delete_contact01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -56,6 +59,8 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         contact.delete()
         self.assertTrue(self.refresh(mapping).was_deleted)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_mapping_create_relation_contact_orga01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -73,6 +78,8 @@ class ActiveSyncModelsTestCase(CremeTestCase):
 
         self.assertTrue(self.refresh(mapping).is_creme_modified)
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_mapping_delete_relation_contact_orga01(self):
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -125,13 +132,12 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         meeting.delete()
         self.assertTrue(self.refresh(mapping).was_deleted)
 
+    @skipIfCustomContact
     def test_user_synchronization_history01(self):#test the property and the cache
         u = UserSynchronizationHistory()
         self.assertIsNone(u.entity)
 
-        user = self.user
-        contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
-        #ct_contact = ContentType.objects.get_for_model(contact)
+        contact = Contact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
 
         u.entity = contact
         self.assertEqual(contact, u.entity)#Set

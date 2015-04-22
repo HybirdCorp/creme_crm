@@ -4,5 +4,6 @@
 
 {% block logo %}<img src="{% creme_media_url 'images/email_64.png' %}" alt="{% trans "Emails" %}"/>{% endblock %}
 {% block title %}{% trans "Emails & Campaigns portal" %}{% endblock %}
-{% block list_url %}/emails/campaigns{% endblock %}
+{% comment %}{% block list_url %}/emails/campaigns{% endblock %}{% endcomment %}
+{% block list_url %}{% url 'emails__list_campaigns' %}{% endblock %}
 {% block list_msg %}{% trans "List of campaigns" %}{% endblock %}

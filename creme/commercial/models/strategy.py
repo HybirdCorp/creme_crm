@@ -20,20 +20,23 @@
 
 from future_builtins import zip
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, PositiveSmallIntegerField,
         ForeignKey, ManyToManyField)
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
 
-from creme.persons.models import Organisation
+#from creme.persons.models import Organisation
 
 from .market_segment import MarketSegment
 
 
-__all__ = ('Strategy', 'MarketSegmentDescription', 'MarketSegmentCategory',
-           'CommercialAsset', 'CommercialAssetScore', 'MarketSegmentCharm',
-           'MarketSegmentCharmScore',
+__all__ = ('AbstractStrategy', 'Strategy',
+           'MarketSegmentDescription', 'MarketSegmentCategory',
+           'CommercialAsset', 'CommercialAssetScore',
+           'MarketSegmentCharm', 'MarketSegmentCharmScore',
           )
 
 _CATEGORY_MAP = {
@@ -44,20 +47,24 @@ _CATEGORY_MAP = {
     }
 
 
-class Strategy(CremeEntity):
+#class Strategy(CremeEntity):
+class AbstractStrategy(CremeEntity):
     name            = CharField(_(u"Name"), max_length=100)
-    evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
+#    evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
+    evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL, null=True, editable=False)
 
     creation_label = _('Add a strategy')
 
     class Meta:
+        abstract = True
         app_label = "commercial"
         verbose_name = _(u'Commercial strategy')
         verbose_name_plural = _(u'Commercial strategies')
         ordering = ('name',)
 
     def __init__(self, *args, **kwargs):
-        super(Strategy, self).__init__(*args, **kwargs)
+#        super(Strategy, self).__init__(*args, **kwargs)
+        super(AbstractStrategy, self).__init__(*args, **kwargs)
         self._clear_caches()
 
     def __unicode__(self):
@@ -83,17 +90,21 @@ class Strategy(CremeEntity):
         self.assets.all().delete()
         self.charms.all().delete()
 
-        super(Strategy, self).delete()
+#        super(Strategy, self).delete()
+        super(AbstractStrategy, self).delete()
 
     def get_absolute_url(self):
-        return "/commercial/strategy/%s" % self.id
+#        return "/commercial/strategy/%s" % self.id
+        return reverse('commercial__view_strategy', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/commercial/strategy/edit/%s" % self.id
+#        return "/commercial/strategy/edit/%s" % self.id
+        return reverse('commercial__edit_strategy', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/commercial/strategies"
+#        return "/commercial/strategies"
+        return reverse('commercial__list_strategies')
 
     def _get_assets_scores_objects(self, orga):
         scores = self._assets_scores_map.get(orga.id)
@@ -300,8 +311,14 @@ class Strategy(CremeEntity):
         self._segments_categories.pop(orga.id, None) #clean cache
 
 
+class Strategy(AbstractStrategy):
+    class Meta(AbstractStrategy.Meta):
+        swappable = 'COMMERCIAL_STRATEGY_MODEL'
+
+
 class MarketSegmentDescription(CremeModel):
-    strategy  = ForeignKey(Strategy, related_name='segment_info', editable=False)
+#    strategy  = ForeignKey(Strategy, related_name='segment_info', editable=False)
+    strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info', editable=False)
     segment   = ForeignKey(MarketSegment)
     product   = TextField(_(u'Product'), blank=True, null=True)
     place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
@@ -338,7 +355,8 @@ class MarketSegmentDescription(CremeModel):
 
 class CommercialAsset(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-    strategy = ForeignKey(Strategy, related_name='assets', editable=False)
+#    strategy = ForeignKey(Strategy, related_name='assets', editable=False)
+    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='assets', editable=False)
 
     class Meta:
         app_label = "commercial"
@@ -359,7 +377,8 @@ class CommercialAssetScore(CremeModel):
     score        = PositiveSmallIntegerField()
     segment_desc = ForeignKey(MarketSegmentDescription)
     asset        = ForeignKey(CommercialAsset)
-    organisation = ForeignKey(Organisation)
+#    organisation = ForeignKey(Organisation)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"
@@ -371,7 +390,8 @@ class CommercialAssetScore(CremeModel):
 
 class MarketSegmentCharm(CremeModel):
     name     = CharField(_(u"Name"), max_length=100)
-    strategy = ForeignKey(Strategy, related_name='charms', editable=False)
+#    strategy = ForeignKey(Strategy, related_name='charms', editable=False)
+    strategy = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='charms', editable=False)
 
     class Meta:
         app_label = "commercial"
@@ -392,7 +412,8 @@ class MarketSegmentCharmScore(CremeModel):
     score        = PositiveSmallIntegerField()
     segment_desc = ForeignKey(MarketSegmentDescription)
     charm        = ForeignKey(MarketSegmentCharm)
-    organisation = ForeignKey(Organisation)
+#    organisation = ForeignKey(Organisation)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"
@@ -406,7 +427,8 @@ class MarketSegmentCategory(CremeModel):
     category     = PositiveSmallIntegerField()
     strategy     = ForeignKey(Strategy)
     segment_desc = ForeignKey(MarketSegmentDescription)
-    organisation = ForeignKey(Organisation)
+#    organisation = ForeignKey(Organisation)
+    organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL)
 
     class Meta:
         app_label = "commercial"

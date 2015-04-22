@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db.models import CharField, BooleanField, TextField, ForeignKey #PositiveIntegerField
 from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -25,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
 
-from creme.persons.models import Organisation
+#from creme.persons.models import Organisation
 
 
 class SettlementTerms(CremeModel):
@@ -131,7 +132,8 @@ class PaymentInformation(CremeModel):
     bic                   = CharField(_(u'BIC'), max_length=100, blank=True, null=True)
 
     is_default            = BooleanField(_(u'Is default?'), default=False)
-    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'),
+#    organisation          = ForeignKey(Organisation, verbose_name=_(u'Target organisation'),
+    organisation          = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Target organisation'),
                                        related_name='PaymentInformationOrganisation_set',
                                       )
 

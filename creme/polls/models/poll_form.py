@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2014  Hybird
+#    Copyright (C) 2012-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,8 @@
 
 from functools import partial
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, BooleanField, NullBooleanField,
         PositiveIntegerField, PositiveSmallIntegerField, ForeignKey, SET_NULL, ProtectedError)
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -27,17 +29,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.utils import split_filter
 
+from .. import get_pollform_model, get_pollreply_model
 from .base import _PollLine
 from .poll_type import PollType
 
 
-class PollForm(CremeEntity):
+#class PollForm(CremeEntity):
+class AbstractPollForm(CremeEntity):
     name = CharField(_(u'Name'), max_length=220)
     type = ForeignKey(PollType, verbose_name=_(u'Type'), null=True, blank=True, on_delete=SET_NULL)
 
     creation_label = _('Add a form')
 
     class Meta:
+        abstract = True
         app_label = 'polls'
         verbose_name = _(u'Form of poll')
         verbose_name_plural = _(u'Forms of poll')
@@ -47,14 +52,17 @@ class PollForm(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return '/polls/poll_form/%s' % self.id
+#        return '/polls/poll_form/%s' % self.id
+        return reverse('polls__view_form', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return '/polls/poll_form/edit/%s' % self.id
+#        return '/polls/poll_form/edit/%s' % self.id
+        return reverse('polls__edit_form', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/polls/poll_forms'
+#        return '/polls/poll_forms'
+        return reverse('polls__list_forms')
 
     def _post_clone(self, source):
         source.duplicate_tree(self, source.lines.filter(disabled=False))
@@ -96,21 +104,26 @@ class PollForm(CremeEntity):
     def duplicate_tree(self, instance, pform_lines):
         from .poll_reply import PollReplyLineCondition, PollReplyLine
 
-        instance_classname = instance.__class__.__name__
+#        instance_classname = instance.__class__.__name__
 
-        if instance_classname == "PollForm":
+#        if instance_classname == "PollForm":
+        if isinstance(instance, get_pollform_model()):
             create_line = partial(PollFormLine.objects.create, pform=instance)
             create_cond = PollFormLineCondition.objects.create
-        elif instance_classname == "PollReply":
+            reply_tree = False
+#        elif instance_classname == "PollReply":
+        elif isinstance(instance, get_pollreply_model()):
             create_line = partial(PollReplyLine.objects.create, preply=instance)
             create_cond = PollReplyLineCondition.objects.create
+            reply_tree = True
 
         section_matches = self._build_section_matches(instance)
 
         line_matches = {} #PollFormLine.id -> PollReplyLined
 
         for i, line in enumerate(pform_lines, start=1):
-            extra_args = {'pform_line': line} if instance_classname == "PollReply" else {}
+#            extra_args = {'pform_line': line} if instance_classname == "PollReply" else {}
+            extra_args = {'pform_line': line} if reply_tree else {}
             line_matches[line.id] = create_line(section=section_matches.get(line.section_id),
                                                 order=i,
                                                 type=line.type,
@@ -129,8 +142,14 @@ class PollForm(CremeEntity):
         return instance
 
 
+class PollForm(AbstractPollForm):
+    class Meta(AbstractPollForm.Meta):
+        swappable = 'POLLS_FORM_MODEL'
+
+
 class PollFormSection(CremeModel):
-    pform  = ForeignKey(PollForm, editable=False, related_name='sections')
+#    pform  = ForeignKey(PollForm, editable=False, related_name='sections')
+    pform  = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='sections')
     parent = ForeignKey('self', editable=False, null=True) #, related_name='children'
     order  = PositiveIntegerField(editable=False, default=1)
     name   = CharField(_(u'Name'), max_length=250)
@@ -169,7 +188,8 @@ class PollFormSection(CremeModel):
 
 
 class PollFormLine(CremeModel, _PollLine):
-    pform        = ForeignKey(PollForm, editable=False, related_name='lines')
+#    pform        = ForeignKey(PollForm, editable=False, related_name='lines')
+    pform        = ForeignKey(settings.POLLS_FORM_MODEL, editable=False, related_name='lines')
     section      = ForeignKey(PollFormSection, editable=False, null=True) #, related_name='lines'
     order        = PositiveIntegerField(editable=False, default=1)
     disabled     = BooleanField(default=False, editable=False)

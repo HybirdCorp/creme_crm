@@ -10,8 +10,10 @@ try:
     from creme.creme_core.models import Language
 
     from creme.documents.models import Document, Folder
+    from creme.documents.tests.base import skipIfCustomFolder, skipIfCustomDocument
 
     from creme.persons.models import Contact
+    from creme.persons.tests.base import skipIfCustomContact
 
     from creme.activities.models import Activity
     from creme.activities.constants import ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_MEETING
@@ -84,6 +86,7 @@ class InputsTestCase(InputsBaseTestCase):
                          wactions[0].get_data()
                         )
 
+    @skipIfCustomContact
     def test_create_email_input04(self):
         "Text mail with creation (unsandboxed)"
         user = self.user
@@ -111,6 +114,7 @@ class InputsTestCase(InputsBaseTestCase):
         self.assertEqual(user, ce.user)
         self.assertEqual(self.create_datetime(year=2003, month=2, day=1), ce.created)
 
+    @skipIfCustomContact
     def test_create_email_input05(self):
         "Html mail sandboxed"
         user = self.user
@@ -144,6 +148,7 @@ class InputsTestCase(InputsBaseTestCase):
                          WaitingAction.objects.all()[0].get_data()
                         )
 
+    @skipIfCustomContact
     def test_create_email_input06(self):
         "Html mail with creation"
         user = self.user
@@ -454,6 +459,7 @@ description3=[[<br>]]
         self.assertEqual({u"user_id": u"%s" % user.id, u"created": u"01/02/2003"}, wa.get_data())
         self.assertEqual(user, wa.user)
 
+    @skipIfCustomContact
     def test_create_email_input14(self):
         "Text mail un-sandboxed but by user"
         user = self.user
@@ -499,6 +505,7 @@ description3=[[<br>]]
         self.assertEqual(other_user, History.objects.all()[0].user)
         self.assertEqual(user, ce.user)#Sandbox by user doesn't have to change the assignation set in the mail
 
+    @skipIfCustomContact
     def test_create_email_input15(self):
         "Text mail sandboxed by user and created later"
         user = self.user
@@ -538,6 +545,7 @@ description3=[[<br>]]
         self.assertEqual(user, Contact.objects.get(~Q(pk__in=existing_c)).user)
         self.assertEqual(other_user, History.objects.all()[0].user)
 
+    @skipIfCustomContact
     def test_create_email_input16(self):
         "Text mail with creation"
         user = self.user
@@ -635,6 +643,7 @@ description3=[[<br>]]
                                            )
         self.assertEqual(superuser2, email_input.get_owner(True, sender="another_user@cremecrm.com"))
 
+    @skipIfCustomContact
     def test_create_contact01(self):
         "Text mail sandboxed"
         user = self.user
@@ -756,6 +765,7 @@ description3=[[<br>]]
                         )
 
 
+@skipIfCustomContact
 class InfopathInputEmailTestCase(InputsBaseTestCase):
     clean_files_in_teardown = True
 
@@ -1344,6 +1354,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual("A plumber", contact.description)
         self.assertEqual(set(languages[:2]), set(contact.language.all()))
 
+    @skipIfCustomFolder
+    @skipIfCustomDocument
     def test_create_document01(self):
         "Sandboxed with image"
         user = self.user

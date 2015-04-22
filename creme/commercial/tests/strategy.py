@@ -5,12 +5,13 @@ try:
     from json import loads as load_json
 
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
 
     from creme.persons.models import Organisation
 
     from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
     from ..models import *
-    from .base import CommercialBaseTestCase
+    from .base import CommercialBaseTestCase, skipIfCustomStrategy
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -18,6 +19,7 @@ except Exception as e:
 __all__ = ('StrategyTestCase',)
 
 
+@skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase):
     def _create_segment_desc(self, strategy, name, product=''):
         self.assertPOST200('/commercial/strategy/%s/add/segment/' % strategy.id,
@@ -46,7 +48,8 @@ class StrategyTestCase(CommercialBaseTestCase):
                           )
 
     def test_strategy_create(self):
-        url = '/commercial/strategy/add'
+#        url = '/commercial/strategy/add'
+        url = reverse('commercial__create_strategy')
         self.assertGET200(url)
 
         name = 'Strat#1'
@@ -68,7 +71,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         name = 'Strat#1'
         strategy = Strategy.objects.create(user=self.user, name=name)
 
-        url = '/commercial/strategy/edit/%s' % strategy.id
+#        url = '/commercial/strategy/edit/%s' % strategy.id
+        url = strategy.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -83,7 +87,8 @@ class StrategyTestCase(CommercialBaseTestCase):
     def test_listview(self):
         create_strategy = partial(Strategy.objects.create, user=self.user)
         strategies = {create_strategy(name='Strat#1'), create_strategy(name='Strat#2')}
-        response = self.assertGET200('/commercial/strategies')
+#        response = self.assertGET200('/commercial/strategies')
+        response = self.assertGET200(reverse('commercial__list_strategies'))
 
         with self.assertNoException():
             strategies_page = response.context['entities']

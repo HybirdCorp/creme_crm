@@ -657,48 +657,49 @@ class CredentialsTestCase(CremeTestCase):
         user.is_superuser = True
         self.assertTrue(user.has_perm('persons.export_contact'))
 
+    #TODO: test extending apps
     def test_app_creds01(self):
         user = self.user
         role = self._create_role('Salesman', users=[user])
 
-        has_perm = user.has_perm
-        self.assertFalse(has_perm('creme_core'))
-        self.assertFalse(has_perm('foobar'))
+        self.assertFalse(user.has_perm('creme_core'))
+        self.assertFalse(user.has_perm('foobar'))
         self.assertFalse(role.allowed_apps)
 
-        has_perm_to_access = user.has_perm_to_access
-        self.assertFalse(has_perm_to_access('creme_core'))
-        self.assertFalse(has_perm_to_access('foobar'))
+        self.assertFalse(user.has_perm_to_access('creme_core'))
+        self.assertFalse(user.has_perm_to_access('foobar'))
 
         role.allowed_apps = ['creme_core', 'foobar']
         role.save()
 
-        role = self.refresh(role)
+        user = self.refresh(user)
+        #role = self.refresh(role)
+        role = user.role
         allowed_apps = role.allowed_apps
         self.assertEqual(2, len(allowed_apps))
         self.assertIn('creme_core', allowed_apps)
         self.assertIn('foobar',     allowed_apps)
 
-        #user.role = role #refresh object
-        self.assertTrue(has_perm('creme_core'))
-        self.assertTrue(has_perm('foobar'))
-        self.assertFalse(has_perm('quux'))
+        self.assertEqual(allowed_apps, role.extended_allowed_apps)
 
-        self.assertTrue(has_perm_to_access('creme_core'))
-        self.assertTrue(has_perm_to_access('foobar'))
-        self.assertFalse(has_perm_to_access('quux'))
+        self.assertTrue(user.has_perm('creme_core'))
+        self.assertTrue(user.has_perm('foobar'))
+        self.assertFalse(user.has_perm('quux'))
 
+        self.assertTrue(user.has_perm_to_access('creme_core'))
+        self.assertTrue(user.has_perm_to_access('foobar'))
+        self.assertFalse(user.has_perm_to_access('quux'))
+
+    #TODO: test extending apps
     def test_app_creds02(self):
         "Admin_4_apps"
         user = self.user
         role = self._create_role('CEO', users=[user])
 
-        has_perm_to_admin = user.has_perm_to_admin
-        has_perm = user.has_perm
-        self.assertFalse(has_perm_to_admin('creme_core'))
-        self.assertFalse(has_perm_to_admin('foobar'))
-        self.assertFalse(has_perm('creme_core.can_admin'))
-        self.assertFalse(has_perm('foobar.can_admin'))
+        self.assertFalse(user.has_perm_to_admin('creme_core'))
+        self.assertFalse(user.has_perm_to_admin('foobar'))
+        self.assertFalse(user.has_perm('creme_core.can_admin'))
+        self.assertFalse(user.has_perm('foobar.can_admin'))
         self.assertFalse(role.admin_4_apps)
 
         with self.assertRaises(PermissionDenied) as cm:
@@ -710,19 +711,21 @@ class CredentialsTestCase(CremeTestCase):
         role.admin_4_apps = ['creme_core', 'foobar']
         role.save()
 
-        role = self.refresh(role)
-        admin_4_apps = role.admin_4_apps
+        user = self.refresh(user)
+        role = user.role
+        admin_4_apps = user.role.admin_4_apps
         self.assertEqual(2, len(admin_4_apps))
         self.assertIn('creme_core', admin_4_apps)
         self.assertIn('foobar',     admin_4_apps)
 
-        #user.role = role #refresh object
-        self.assertTrue(has_perm_to_admin('creme_core'))
-        self.assertTrue(has_perm_to_admin('foobar'))
-        self.assertFalse(has_perm_to_admin('quux'))
-        self.assertTrue(has_perm('creme_core.can_admin'))
-        self.assertTrue(has_perm('foobar.can_admin'))
-        self.assertFalse(has_perm('quux.can_admin'))
+        self.assertEqual(admin_4_apps, role.extended_admin_4_apps)
+
+        self.assertTrue(user.has_perm_to_admin('creme_core'))
+        self.assertTrue(user.has_perm_to_admin('foobar'))
+        self.assertFalse(user.has_perm_to_admin('quux'))
+        self.assertTrue(user.has_perm('creme_core.can_admin'))
+        self.assertTrue(user.has_perm('foobar.can_admin'))
+        self.assertFalse(user.has_perm('quux.can_admin'))
 
         with self.assertNoException():
              user.has_perm_to_admin_or_die('creme_core')
@@ -736,9 +739,9 @@ class CredentialsTestCase(CremeTestCase):
                          unicode(cm.exception)
                         )
 
-        self.assertTrue(has_perm('creme_core'))
-        self.assertTrue(has_perm('foobar'))
-        self.assertFalse(has_perm('quux'))
+        self.assertTrue(user.has_perm('creme_core'))
+        self.assertTrue(user.has_perm('foobar'))
+        self.assertFalse(user.has_perm('quux'))
 
     def test_app_creds03(self):
         "Super user"

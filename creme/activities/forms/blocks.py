@@ -33,7 +33,8 @@ from creme.creme_core.forms.validators import validate_linkable_entities, valida
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.models import RelationType, Relation
 
-from creme.persons.models import Contact
+from creme.persons import get_contact_model
+#from creme.persons.models import Contact
 
 from ..constants import *
 from ..models import Calendar
@@ -41,6 +42,7 @@ from ..utils import check_activity_collisions
 
 
 logger = logging.getLogger(__name__)
+Contact = get_contact_model()
 
 
 class ParticipantCreateForm(CremeForm):

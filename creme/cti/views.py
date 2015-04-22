@@ -31,7 +31,8 @@ from creme.creme_core.models import CremeEntity, RelationType, Relation, EntityC
 from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 from creme.creme_core.views.generic import add_entity
 
-from creme.persons.models import Contact, Organisation
+from creme.persons import get_contact_model, get_organisation_model
+#from creme.persons.models import Contact, Organisation
 from creme.persons.forms.contact import ContactForm
 from creme.persons.forms.organisation import OrganisationForm
 
@@ -63,6 +64,8 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
                                     )
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
+
+    Contact = get_contact_model()
 
     # if the entity is a contact with related user, should add the phone call to his calendar
     if isinstance(entity, Contact) and entity.is_user:
@@ -107,16 +110,21 @@ def respond_to_a_call(request):
     user = request.user
     filter_viewable = EntityCredentials.filter
 
-    callers = list(filter_viewable(user, Contact.objects.filter(Q(phone=number) | Q(mobile=number))))
-    callers.extend(filter_viewable(user, Organisation.objects.filter(phone=number)))
+    #TODO: get dynamically are PhoneField
+#    callers = list(filter_viewable(user, Contact.objects.filter(Q(phone=number) | Q(mobile=number))))
+#    callers.extend(filter_viewable(user, Organisation.objects.filter(phone=number)))
+    callers = list(filter_viewable(user, get_contact_model().objects.filter(Q(phone=number) | Q(mobile=number))))
+    callers.extend(filter_viewable(user, get_organisation_model().objects.filter(phone=number)))
 
     can_create = user.has_perm_to_create
 
     return render(request, 'cti/respond_to_a_call.html',
                   {'callers':              callers,
                    'number':               number,
-                   'can_create_contact':   can_create(Contact),
-                   'can_create_orga':      can_create(Organisation),
+#                   'can_create_contact':   can_create(Contact),
+#                   'can_create_orga':      can_create(Organisation),
+                   'can_create_contact':   can_create(get_contact_model()),
+                   'can_create_orga':      can_create(get_organisation_model()),
                    'can_create_activity':  can_create(Activity),
                   }
                  )

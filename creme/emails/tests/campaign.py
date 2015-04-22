@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from .base import _EmailsTestCase
+    from django.core.urlresolvers import reverse
+
+    from .base import _EmailsTestCase, skipIfCustomEmailCampaign
     from ..models import EmailCampaign
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -9,12 +11,15 @@ except Exception as e:
 
 __all__ = ('CampaignTestCase',)
 
+
+@skipIfCustomEmailCampaign
 class CampaignTestCase(_EmailsTestCase):
     def setUp(self):
         self.login()
 
     def test_create(self):
-        url = '/emails/campaign/add'
+#        url = '/emails/campaign/add'
+        url = reverse('emails__create_campaign')
         self.assertGET200(url)
 
         name     = 'my_campaign'
@@ -30,7 +35,8 @@ class CampaignTestCase(_EmailsTestCase):
         name = 'my_campaign'
         camp = EmailCampaign.objects.create(user=self.user, name=name)
 
-        url = '/emails/campaign/edit/%s' % camp.id
+#        url = '/emails/campaign/edit/%s' % camp.id
+        url = camp.get_edit_absolute_url()
         self.assertGET200(url)
 
         name += '_edited'
@@ -43,7 +49,8 @@ class CampaignTestCase(_EmailsTestCase):
         self.assertEqual(name, self.refresh(camp).name)
 
     def test_listview(self):
-        response = self.assertGET200('/emails/campaigns')
+#        response = self.assertGET200('/emails/campaigns')
+        response = self.assertGET200(EmailCampaign.get_lv_absolute_url())
 
         with self.assertNoException():
             response.context['entities']

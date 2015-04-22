@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.db import models, migrations
 import django.db.models.deletion
+
 import creme.creme_core.models.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('activities', '0001_initial'),
         ('creme_core', '0001_initial'),
@@ -87,7 +88,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='creme_core.CremeEntity')),
                 ('hourly_cost', models.PositiveIntegerField(null=True, verbose_name='Hourly cost (in \u20ac)', blank=True)),
-                ('linked_contact', models.ForeignKey(verbose_name='Contact', to='persons.Contact')),
+                #('linked_contact', models.ForeignKey(verbose_name='Contact', to='persons.Contact')),
+                ('linked_contact', models.ForeignKey(verbose_name='Contact', to=settings.PERSONS_CONTACT_MODEL)),
                 ('task', models.ForeignKey(related_name='resources_set', verbose_name='Task', to='projects.ProjectTask')),
             ],
             options={

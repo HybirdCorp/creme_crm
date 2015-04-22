@@ -18,33 +18,44 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
         icon_registry, quickforms_registry, import_form_registry,
         bulk_update_registry, merge_form_registry, smart_columns_registry)
 
+from . import get_contact_model, get_organisation_model
 from .constants import REL_SUB_EMPLOYED_BY, REL_OBJ_EMPLOYED_BY
 from .blocks import block_list, ContactBlock, OrganisationBlock
 from .buttons import button_list
 from .forms.quick import ContactQuickForm, OrganisationQuickForm
 from .forms.lv_import import get_csv_form_builder
 from .forms.merge import get_merge_form_builder
-from .models import Contact, Organisation
+#from .models import Contact, Organisation
 
+
+Contact = get_contact_model()
+Organisation = get_organisation_model()
 
 creme_registry.register_entity_models(Contact, Organisation)
 creme_registry.register_app('persons', _(u'Accounts and Contacts'), '/persons')
 
 reg_item = creme_menu.register_app('persons', '/persons/').register_item
 reg_item('/persons/',                 _(u'Portal of accounts and contacts'),     'persons')
-reg_item('/persons/contacts',         _(u'All contacts'),                        'persons')
-reg_item('/persons/leads_customers',  _(u'My customers / prospects / suspects'), 'persons')
-reg_item('/persons/contact/add',      Contact.creation_label,                    'persons.add_contact')
-reg_item('/persons/organisations',    _(u'All organisations'),                   'persons')
-reg_item('/persons/organisation/add', Organisation.creation_label,               'persons.add_organisation')
+#reg_item('/persons/contacts',         _(u'All contacts'),                        'persons')
+#reg_item('/persons/leads_customers',  _(u'My customers / prospects / suspects'), 'persons')
+#reg_item('/persons/contact/add',      Contact.creation_label,                    'persons.add_contact')
+#reg_item('/persons/organisations',    _(u'All organisations'),                   'persons')
+#reg_item('/persons/organisation/add', Organisation.creation_label,               'persons.add_organisation')
+reg_item(reverse('persons__list_contacts'),       _(u'All contacts'),                        'persons')
+reg_item(reverse('persons__create_contact'),      Contact.creation_label,                    build_creation_perm(Contact))
+reg_item(reverse('persons__leads_customers'),     _(u'My customers / prospects / suspects'), 'persons')
+reg_item(reverse('persons__list_organisations'),  _(u'All organisations'),                   'persons')
+reg_item(reverse('persons__create_organisation'), Organisation.creation_label,               build_creation_perm(Organisation))
 
 button_registry.register(*button_list)
 

@@ -6,6 +6,7 @@ try:
     from creme.creme_core.models.entity_filter import EntityFilter, EntityFilterCondition
     from creme.persons.constants import FILTER_MANAGED_ORGA
     from creme.persons.models import Organisation, Contact
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from ..blocks import _MapBlock
     from .base import GeoLocationBaseTestCase
@@ -15,6 +16,8 @@ except Exception as e:
 __all__ = ('_MapBlockTestCase',)
 
 
+@skipIfCustomContact
+@skipIfCustomOrganisation
 class _MapBlockTestCase(GeoLocationBaseTestCase):
     def setUp(self):
         super(_MapBlockTestCase, self).setUp()

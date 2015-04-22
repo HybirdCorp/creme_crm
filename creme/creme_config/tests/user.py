@@ -17,6 +17,7 @@ try:
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.persons.tests.base import skipIfCustomOrganisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
     from creme.persons.models import Contact, Organisation
 
@@ -36,6 +37,7 @@ def skipIfNotCremeUser(test_func):
                  )(test_func)
 
 
+@skipIfCustomOrganisation
 class UserTestCase(CremeTestCase):
     ADD_URL = '/creme_config/user/add/'
     ADD_TEAM_URL = '/creme_config/team/add/'

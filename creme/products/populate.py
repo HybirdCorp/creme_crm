@@ -29,8 +29,10 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import SearchConfigItem, HeaderFilter, BlockDetailviewLocation
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
+from . import get_product_model, get_service_model
 from .blocks import images_block
-from .models import Product, Service, Category, SubCategory
+#from .models import Product, Service, Category, SubCategory
+from .models import Category, SubCategory
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +42,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
+        Product = get_product_model()
+        Service = get_service_model()
+
         create_hf = HeaderFilter.create
         create_hf(pk='products-hf_product', name=_(u'Product view'), model=Product,
                   cells_desc=[(EntityCellRegularField, {'name': 'images__name'}),

@@ -13,6 +13,7 @@ try:
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             SetCredentials, Relation, RelationType, Currency)
 
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
     from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
@@ -26,6 +27,7 @@ except Exception as e:
 __all__ = ('ConvertTestCase',)
 
 
+@skipIfCustomOrganisation
 class ConvertTestCase(_BillingTestCase):
     @classmethod
     def setUpClass(cls):
@@ -37,6 +39,7 @@ class ConvertTestCase(_BillingTestCase):
                         data={'type': dest_type}, follow=True
                        )
 
+    @skipIfCustomAddress
     def test_convert01(self):
         self.login()
 

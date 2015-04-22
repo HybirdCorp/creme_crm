@@ -4,11 +4,14 @@ try:
     from functools import partial
     from datetime import date
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.models import CremePropertyType
 
     from creme.commercial.models import MarketSegment
 
-    from .base import _PollsTestCase
+    from .base import (_PollsTestCase, skipIfCustomPollCampaign,
+            skipIfCustomPollForm, skipIfCustomPollReply)
     from ..blocks import pcampaign_replies_block
     from ..models import PollCampaign, PollForm, PollReply
 except Exception as e:
@@ -18,6 +21,7 @@ except Exception as e:
 __all__ = ('PollCampaignsTestCase', )
 
 
+@skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase):
     def setUp(self):
         self.login()
@@ -37,7 +41,8 @@ class PollCampaignsTestCase(_PollsTestCase):
         user = self.user
         self.assertFalse(PollCampaign.objects.all())
 
-        url = '/polls/campaign/add'
+#        url = '/polls/campaign/add'
+        url = reverse('polls__create_campaign')
         self.assertGET200(url)
 
         name = 'Campaign#1'
@@ -116,6 +121,8 @@ class PollCampaignsTestCase(_PollsTestCase):
 
         return pform, camp
 
+    @skipIfCustomPollForm
+    @skipIfCustomPollReply
     def test_create_preply01(self):
         "Create several replies linked to the campaign"
         pform, camp = self._create_pform_n_campaign()
@@ -136,11 +143,14 @@ class PollCampaignsTestCase(_PollsTestCase):
             preply = self.get_object_or_fail(PollReply, name="%s#%s" % (name, i))
             self.assertEqual(camp, preply.campaign)
 
+    @skipIfCustomPollForm
+    @skipIfCustomPollReply
     def test_create_preply02(self):
         "Create several replies linked to a given campaign"
         pform, camp = self._create_pform_n_campaign()
 
-        url = '/polls/poll_reply/add_from_campaign/%s' % camp.id
+#        url = '/polls/poll_reply/add_from_campaign/%s' % camp.id
+        url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
         self.assertGET200(url)
 
         name = 'Reply'

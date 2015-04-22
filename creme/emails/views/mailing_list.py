@@ -27,10 +27,11 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 
+from .. import get_mailinglist_model
 from ..models import MailingList
 from ..forms.mailing_list import (MailingListForm, AddChildForm,
-                                  AddContactsForm, AddOrganisationsForm,
-                                  AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
+        AddContactsForm, AddOrganisationsForm,
+        AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
 
 
 @login_required
@@ -61,42 +62,53 @@ def listview(request):
 @permission_required('emails')
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
-                         ugettext('New contacts for <%s>'), entity_class=MailingList,
+                         ugettext('New contacts for <%s>'),
+#                         entity_class=MailingList,
+                         entity_class=get_mailinglist_model(),
                         )
 
 @login_required
 @permission_required('emails')
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
-                         ugettext('New contacts for <%s>'), entity_class=MailingList,
+                         ugettext('New contacts for <%s>'),
+#                         entity_class=MailingList,
+                         entity_class=get_mailinglist_model(),
                         )
 
 @login_required
 @permission_required('emails')
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
-                         ugettext('New organisations for <%s>'), entity_class=MailingList,
+                         ugettext('New organisations for <%s>'),
+#                         entity_class=MailingList,
+                         entity_class=get_mailinglist_model(),
                         )
 
 @login_required
 @permission_required('emails')
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
-                         ugettext('New organisations for <%s>'), entity_class=MailingList,
+                         ugettext('New organisations for <%s>'),
+#                         entity_class=MailingList,
+                         entity_class=get_mailinglist_model(),
                         )
 
 @login_required
 @permission_required('emails')
 def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
-                         ugettext('New child lists for <%s>'), entity_class=MailingList,
+                         ugettext('New child lists for <%s>'),
+#                         entity_class=MailingList,
+                         entity_class=get_mailinglist_model(),
                         )
 
 @login_required
 @permission_required('emails')
 def _delete_aux(request, ml_id, deletor):
     subobject_id = get_from_POST_or_404(request.POST, 'id')
-    ml = get_object_or_404(MailingList, pk=ml_id)
+#    ml = get_object_or_404(MailingList, pk=ml_id)
+    ml = get_object_or_404(get_mailinglist_model(), pk=ml_id)
 
     request.user.has_perm_to_change_or_die(ml)
 

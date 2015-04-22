@@ -18,27 +18,37 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, block_registry, icon_registry,
         bulk_update_registry, quickforms_registry)
 
+from . import get_document_model, get_folder_model
 from .blocks import folder_docs_block, linked_docs_block
 from .forms.quick import DocumentQuickForm
 from .forms.folder import ParentFolderBulkForm
-from .models import Document, Folder
+#from .models import Document, Folder
 
+
+Document = get_document_model()
+Folder   = get_folder_model()
 
 creme_registry.register_entity_models(Document, Folder)
 creme_registry.register_app('documents', _(u'Documents'), '/documents')
 
 reg_item = creme_menu.register_app('documents', '/documents/').register_item
 reg_item('/documents/',             _(u'Portal of documents'), 'documents')
-reg_item('/documents/documents',    _(u'All documents'),       'documents')
-reg_item('/documents/document/add', Document.creation_label,   'documents.add_document')
-reg_item('/documents/folders',      _(u'All folders'),         'documents')
-reg_item('/documents/folder/add',   Folder.creation_label,     'documents.add_folder')
+#reg_item('/documents/documents',    _(u'All documents'),       'documents')
+#reg_item('/documents/document/add', Document.creation_label,   'documents.add_document')
+#reg_item('/documents/folders',      _(u'All folders'),         'documents')
+#reg_item('/documents/folder/add',   Folder.creation_label,     'documents.add_folder')
+reg_item(reverse('documents__list_documents'),  _(u'All documents'),     'documents')
+reg_item(reverse('documents__create_document'), Document.creation_label, build_creation_perm(Document))
+reg_item(reverse('documents__list_folders'),    _(u'All folders'),       'documents')
+reg_item(reverse('documents__create_folder'),   Folder.creation_label,   build_creation_perm(Folder))
 
 block_registry.register(folder_docs_block, linked_docs_block)
 

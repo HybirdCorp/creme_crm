@@ -33,7 +33,7 @@ from creme.creme_core.models.fields import CreationDateTimeField, CTypeForeignKe
 
 from creme.activities.models import Activity
 
-from creme.persons.models.contact import Contact
+#from creme.persons.models.contact import Contact
 
 from ..utils import generate_guid
 
@@ -342,11 +342,11 @@ class AS_Folder(CremeModel):
 from ..signals import (post_save_activesync_handler, post_delete_activesync_handler,
                        post_save_relation_employed_by, post_delete_relation_employed_by)
 
-post_save.connect(post_save_activesync_handler,     sender=Contact)
-#post_save.connect(post_save_activesync_handler,     sender=Meeting)
+#post_save.connect(post_save_activesync_handler,     sender=Contact)
+post_save.connect(post_save_activesync_handler,     sender=settings.PERSONS_CONTACT_MODEL)
 post_save.connect(post_save_activesync_handler,     sender=Activity)
-post_delete.connect(post_delete_activesync_handler, sender=Contact)
-#post_delete.connect(post_delete_activesync_handler, sender=Meeting)
+#post_delete.connect(post_delete_activesync_handler, sender=Contact)
+post_delete.connect(post_delete_activesync_handler, sender=settings.PERSONS_CONTACT_MODEL)
 post_delete.connect(post_delete_activesync_handler, sender=Activity)
 post_save.connect(post_save_relation_employed_by, sender=Relation)
 post_delete.connect(post_delete_relation_employed_by, sender=Relation)
