@@ -32,8 +32,7 @@ from ..forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
 
 @login_required
-@permission_required('emails')
-@permission_required('emails.add_emailtemplate')
+@permission_required(('emails', 'emails.add_emailtemplate'))
 def add(request):
     return add_entity(request, EmailTemplateForm,
                       extra_template_dict={'submit_label': _('Save the template')},
@@ -47,7 +46,9 @@ def edit(request, template_id):
 @login_required
 @permission_required('emails')
 def detailview(request, template_id):
-    return view_entity(request, template_id, EmailTemplate, '/emails/template', 'emails/view_template.html')
+    return view_entity(request, template_id, EmailTemplate, '/emails/template',
+                       'emails/view_template.html',
+                      )
 
 @login_required
 @permission_required('emails')

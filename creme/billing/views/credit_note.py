@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,16 +23,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import Relation
-from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_to_entity, edit_model_with_popup
+from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
+        view_entity, add_to_entity, edit_model_with_popup)
 
-from creme.billing.models import CreditNote
-from creme.billing.forms.credit_note import CreditNoteCreateForm, CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm
 from creme.billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
+from creme.billing.forms.credit_note import (CreditNoteCreateForm,
+        CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm)
+from creme.billing.models import CreditNote
 
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_creditnote')
+@permission_required(('billing', 'billing.add_creditnote'))
 def add(request):
     return add_entity(request, CreditNoteCreateForm, extra_initial={'status': 1},
                       extra_template_dict={'submit_label': _('Save the credit note')},
@@ -66,7 +67,9 @@ def listview(request):
 @login_required
 @permission_required('billing')
 def add_related_credit_note(request, base_id):
-    return add_to_entity(request, base_id, CreditNoteRelatedForm, _(u"Credit notes for <%s>"), link_perm=True)
+    return add_to_entity(request, base_id, CreditNoteRelatedForm,
+                         _(u"Credit notes for <%s>"), link_perm=True,
+                        )
 
 @login_required
 @permission_required('billing')

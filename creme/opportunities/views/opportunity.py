@@ -31,8 +31,7 @@ from ..models import Opportunity, SalesPhase
 
 
 @login_required
-@permission_required('opportunities')
-@permission_required('opportunities.add_opportunity')
+@permission_required(('opportunities', 'opportunities.add_opportunity'))
 def add(request):
     return add_entity(request, OpportunityCreateForm,
                       extra_initial={'sales_phase': SalesPhase.objects.first()},
@@ -40,8 +39,7 @@ def add(request):
                      )
 
 @login_required
-@permission_required('opportunities')
-@permission_required('opportunities.add_opportunity')
+@permission_required(('opportunities', 'opportunities.add_opportunity'))
 def add_to(request, ce_id, inner_popup=False):
     centity = get_object_or_404(CremeEntity, pk=ce_id).get_real_entity()
     user = request.user

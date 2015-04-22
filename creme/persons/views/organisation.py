@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,7 @@ from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPP
 
 
 @login_required
-@permission_required('persons')
-@permission_required('persons.add_organisation')
+@permission_required(('persons', 'persons.add_organisation'))
 def add(request):
     return add_entity(request, OrganisationForm, template='persons/add_organisation_form.html',
                       extra_template_dict={'submit_label': _('Save the organisation')},

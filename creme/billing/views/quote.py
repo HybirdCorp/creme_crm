@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,16 +29,14 @@ from creme.billing.forms.quote import QuoteCreateForm, QuoteEditForm
 
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_quote')
+@permission_required(('billing', 'billing.add_quote'))
 def add(request):
     return add_entity(request, QuoteCreateForm, extra_initial={'status': 1},
                       extra_template_dict={'submit_label': _('Save the quote')},
                      )
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_quote')
+@permission_required(('billing', 'billing.add_quote'))
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
                                ugettext(u"Add a quote for <%s>"), status_id=1,

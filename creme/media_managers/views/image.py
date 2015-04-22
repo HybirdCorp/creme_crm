@@ -30,13 +30,12 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         list_view_popup_from_widget, view_entity)
 from creme.creme_core.utils import jsonify
 
-from ..models import Image
 from ..forms.image import ImageCreateForm, ImageEditForm
+from ..models import Image
 
 
 @login_required
-@permission_required('media_managers')
-@permission_required('media_managers.add_image')
+@permission_required(('media_managers', 'media_managers.add_image'))
 def add(request):
     #req_get = request.GET.get
     #kwargs = {}
@@ -64,7 +63,9 @@ def edit(request, image_id):
 @permission_required('media_managers')
 def detailview(request, image_id):
     #'size':     image_size(image, max_h=2000, max_w=500)
-    return view_entity(request, image_id, Image, '/media_managers/image', 'media_managers/view_image.html')
+    return view_entity(request, image_id, Image, '/media_managers/image',
+                       'media_managers/view_image.html',
+                      )
 
 #@login_required
 #@permission_required('media_managers')

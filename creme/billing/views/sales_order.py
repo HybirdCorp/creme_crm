@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,22 +23,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
+from creme.billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 from creme.billing.models import SalesOrder
 from creme.billing.views.workflow import _add_with_relations
-from creme.billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_salesorder')
+@permission_required(('billing', 'billing.add_salesorder'))
 def add(request):
     return add_entity(request, SalesOrderCreateForm, extra_initial={'status': 1},
                       extra_template_dict={'submit_label': _('Save the sales order')},
                      )
 
 @login_required
-@permission_required('billing')
-@permission_required('billing.add_salesorder')
+@permission_required(('billing', 'billing.add_salesorder'))
 def add_with_relations(request, target_id, source_id):
     return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm,
                                ugettext(u"Add a sales order for <%s>"), status_id=1,

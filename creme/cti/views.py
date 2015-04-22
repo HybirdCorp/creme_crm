@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,8 +122,7 @@ def respond_to_a_call(request):
                  )
 
 @login_required
-@permission_required('persons')
-@permission_required('persons.add_contact')
+@permission_required(('persons', 'persons.add_contact'))
 def add_contact(request, number):
     return add_entity(request, ContactForm,
                       template="persons/add_contact_form.html",
@@ -131,8 +130,7 @@ def add_contact(request, number):
                      )
 
 @login_required
-@permission_required('persons')
-@permission_required('persons.add_organisation')
+@permission_required(('persons', 'persons.add_organisation'))
 def add_orga(request, number):
     return add_entity(request, OrganisationForm,
                       template="persons/add_organisation_form.html",
@@ -140,9 +138,11 @@ def add_orga(request, number):
                      )
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add_phonecall(request, entity_id):
-    pcall = _build_phonecall(request.user, entity_id, ACTIVITYSUBTYPE_PHONECALL_INCOMING, _(u'Call from %s'))
+    pcall = _build_phonecall(request.user, entity_id,
+                             ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                             _(u'Call from %s'),
+                            )
 
     return redirect(pcall)

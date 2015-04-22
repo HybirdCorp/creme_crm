@@ -72,8 +72,7 @@ def _add_activity(request, form_class,
                  )
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add(request):
     return _add_activity(request, ActivityCreateForm)
 
@@ -84,8 +83,7 @@ _TYPES_MAP = {
     }
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add_fixedtype(request, act_type):
     type_id = _TYPES_MAP.get(act_type)
 
@@ -95,8 +93,7 @@ def add_fixedtype(request, act_type):
     return _add_activity(request, ActivityCreateForm, type_id=type_id)
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add_indisponibility(request):
     return _add_activity(request, IndisponibilityCreateForm,
                          content_template='activities/frags/indispo_form_content.html',
@@ -104,8 +101,7 @@ def add_indisponibility(request):
                         )
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add_related(request, entity_id):
     act_type_id = request.GET.get('activity_type')
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
@@ -132,8 +128,7 @@ def add_related(request, entity_id):
                         )
 
 @login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
+@permission_required(('activities', 'activities.add_activity'))
 def add_popup(request):
     if request.method == 'POST':
         form = CalendarActivityCreateForm(user=request.user, data=request.POST,

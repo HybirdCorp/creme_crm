@@ -32,8 +32,7 @@ from ..models import MessagingList
 
 
 @login_required
-@permission_required('sms')
-@permission_required('sms.add_messaginglist')
+@permission_required(('sms', 'sms.add_messaginglist'))
 def add(request):
     return add_entity(request, MessagingListForm,
                       extra_template_dict={'submit_label': _('Save the messaging list')},
@@ -47,7 +46,9 @@ def edit(request, mlist_id):
 @login_required
 @permission_required('sms')
 def detailview(request, mlist_id):
-    return view_entity(request, mlist_id, MessagingList, '/sms/messaging_list', 'sms/view_messaginglist.html')
+    return view_entity(request, mlist_id, MessagingList, '/sms/messaging_list',
+                       'sms/view_messaginglist.html'
+                      )
 
 @login_required
 @permission_required('sms')

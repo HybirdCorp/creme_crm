@@ -38,8 +38,7 @@ from ..utils import StatsTree, NodeStyle #TODO: templatetag instead ?
 
 
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollform')
+@permission_required(('polls', 'polls.add_pollform'))
 def add(request):
     return add_entity(request, PollFormForm,
                       extra_template_dict={'submit_label': _('Save the form of poll')},

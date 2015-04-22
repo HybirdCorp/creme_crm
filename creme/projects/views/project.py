@@ -31,8 +31,7 @@ from ..models import Project, ProjectStatus
 
 
 @login_required
-@permission_required('projects')
-@permission_required('projects.add_project')
+@permission_required(('projects', 'projects.add_project'))
 def add(request):
     return add_entity(request, ProjectCreateForm,
                       extra_initial={'status': ProjectStatus.objects.first()},
@@ -52,7 +51,9 @@ def listview(request):
 @login_required
 @permission_required('projects')
 def detailview(request, project_id):
-    return view_entity(request, project_id, Project, '/projects/project', 'projects/view_project.html')
+    return view_entity(request, project_id, Project, '/projects/project',
+                       'projects/view_project.html',
+                      )
 
 @login_required
 @POST_only

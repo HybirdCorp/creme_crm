@@ -34,8 +34,7 @@ from ..forms.mailing_list import (MailingListForm, AddChildForm,
 
 
 @login_required
-@permission_required('emails')
-@permission_required('emails.add_mailinglist')
+@permission_required(('emails', 'emails.add_mailinglist'))
 def add(request):
     return add_entity(request, MailingListForm,
                       extra_template_dict={'submit_label': _('Save the mailing list')},

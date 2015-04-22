@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,15 +30,13 @@ from creme.creme_core.utils import get_from_POST_or_404, jsonify
 from creme.persons.models import Organisation
 
 from ..models import (Strategy, MarketSegmentDescription,
-                               CommercialAsset, CommercialAssetScore,
-                               MarketSegmentCharm, MarketSegmentCharmScore)
+        CommercialAsset, CommercialAssetScore, MarketSegmentCharm, MarketSegmentCharmScore)
 from ..forms import strategy as forms
 from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
 @login_required
-@permission_required('commercial')
-@permission_required('commercial.add_strategy')
+@permission_required(('commercial', 'commercial.add_strategy'))
 def add(request):
     return generic.add_entity(request, forms.StrategyForm,
                               extra_template_dict={'submit_label': _('Save the strategy')},
@@ -53,7 +51,7 @@ def edit(request, strategy_id):
 @permission_required('commercial')
 def detailview(request, strategy_id):
     return generic.view_entity(request, strategy_id, Strategy, '/commercial/strategy',
-                               template='commercial/view_strategy.html'
+                               template='commercial/view_strategy.html',
                               )
 
 @login_required

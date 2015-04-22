@@ -34,8 +34,9 @@ def contact_listview(request):
     return generic.list_view(request, fake_models.FakeContact)
 
 @login_required
-@permission_required('creme_core')
-@permission_required('creme_core.add_fakeorganisation')
+#@permission_required('creme_core')
+#@permission_required('creme_core.add_fakeorganisation')
+@permission_required(('creme_core', 'creme_core.add_fakeorganisation'))
 def organisation_add(request):
     return generic.add_entity(request, fake_forms.FakeOrganisationForm)
 

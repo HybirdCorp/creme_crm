@@ -27,13 +27,12 @@ from creme.creme_core.views.generic import (add_entity, add_to_entity,
         edit_entity, view_entity, list_view)
 from creme.creme_core.utils import get_from_POST_or_404
 
-from ..models import EmailCampaign
 from ..forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddMLForm
+from ..models import EmailCampaign
 
 
 @login_required
-@permission_required('emails')
-@permission_required('emails.add_emailcampaign')
+@permission_required(('emails', 'emails.add_emailcampaign'))
 def add(request):
     return add_entity(request, CampaignCreateForm,
                       extra_template_dict={'submit_label': _('Save the emailing campaign')},
@@ -47,7 +46,9 @@ def edit(request, campaign_id):
 @login_required
 @permission_required('emails')
 def detailview(request, campaign_id):
-    return view_entity(request, campaign_id, EmailCampaign, '/emails/campaign', 'emails/view_campaign.html')
+    return view_entity(request, campaign_id, EmailCampaign, '/emails/campaign',
+                       'emails/view_campaign.html',
+                      )
 
 @login_required
 @permission_required('emails')

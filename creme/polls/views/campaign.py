@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,7 @@ from ..models import PollCampaign
 
 
 @login_required
-@permission_required('polls')
-@permission_required('polls.add_pollcampaign')
+@permission_required(('polls', 'polls.add_pollcampaign'))
 def add(request):
     return add_entity(request, PollCampaignForm,
                       extra_template_dict={'submit_label': _('Save the campaign of polls')},

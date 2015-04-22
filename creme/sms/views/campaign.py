@@ -31,8 +31,7 @@ from ..models import SMSCampaign
 
 
 @login_required
-@permission_required('sms')
-@permission_required('sms.add_smscampaign')
+@permission_required(('sms', 'sms.add_smscampaign'))
 def add(request):
     return add_entity(request, CampaignCreateForm,
                       extra_template_dict={'submit_label': _('Save the SMS campaign')},
