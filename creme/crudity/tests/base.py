@@ -16,7 +16,8 @@ from ..inputs.base import CrudityInput
 
 
 class FakeFetcher(CrudityFetcher):
-    pass
+    def fetch(self, *args, **kwargs):
+        return []
 
 
 class FakeInput(CrudityInput):

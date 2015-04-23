@@ -29,9 +29,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('InputsTestCase', 'InfopathInputEmailTestCase')
-
-
 class InputsBaseTestCase(CrudityTestCase):
     def _get_pop_email(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
         return PopEmail(body=body, body_html=body_html, senders=senders, tos=tos, ccs=ccs,
