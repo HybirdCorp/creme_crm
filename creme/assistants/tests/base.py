@@ -5,29 +5,10 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import FakeContact as Contact
-    from creme.creme_core.models import SettingValue
 
     #from creme.persons.models import Contact
-
-    from ..constants import MIN_HOUR_4_TODO_REMINDER
-    from ..models import UserMessagePriority
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
-
-__all__ = ('AssistantsAppTestCase',)
-
-
-class AssistantsAppTestCase(CremeTestCase):
-    def test_populate(self):
-        self.populate('assistants')
-        self.assertEqual(3, UserMessagePriority.objects.count())
-
-        #self.autodiscover()
-
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
-        self.assertEqual('assistants', sv.key.app_label)
-        self.assertEqual(9, sv.value)
 
 
 class AssistantsTestCase(CremeTestCase):

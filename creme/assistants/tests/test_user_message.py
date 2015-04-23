@@ -52,6 +52,9 @@ class UserMessageTestCase(AssistantsTestCase):
                                    )
         self.assertNoFormError(response)
 
+    def test_populate(self):
+        self.assertEqual(3, UserMessagePriority.objects.count())
+
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
 

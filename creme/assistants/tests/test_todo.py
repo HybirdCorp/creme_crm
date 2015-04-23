@@ -75,6 +75,11 @@ class TodoTestCase(AssistantsTestCase):
                                                      )
         self._create_todo('Todo03', 'Description03', user=user02)
 
+    def test_populate(self):
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        self.assertEqual('assistants', sv.key.app_label)
+        self.assertEqual(9, sv.value)
+
     def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
 
