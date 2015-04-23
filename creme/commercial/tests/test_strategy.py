@@ -16,9 +16,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('StrategyTestCase',)
-
-
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase):
     def _create_segment_desc(self, strategy, name, product=''):

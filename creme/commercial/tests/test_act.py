@@ -27,9 +27,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ActTestCase',)
-
-
 @skipIfCustomAct
 class ActTestCase(CommercialBaseTestCase):
 #    ADD_URL = '/commercial/act/add'
