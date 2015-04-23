@@ -11,9 +11,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CommercialTestCase',)
-
-
 class CommercialTestCase(CremeTestCase):
     ADD_SALESMAN_URL = '/commercial/salesman/add'
     SALESMEN_URL = '/commercial/salesmen'
