@@ -22,9 +22,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ProductTestCase',)
-
-
 @skipIfCustomProduct
 class ProductTestCase(_ProductsTestCase):
     def test_populate(self):

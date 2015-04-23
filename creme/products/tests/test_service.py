@@ -18,9 +18,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ServiceTestCase',)
-
-
 @skipIfCustomService
 class ServiceTestCase(_ProductsTestCase):
     def test_createview(self):
