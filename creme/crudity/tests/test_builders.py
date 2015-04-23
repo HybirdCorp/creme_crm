@@ -26,7 +26,7 @@ try:
     from ..builders.infopath import InfopathFormBuilder, InfopathFormField
     from ..registry import crudity_registry #CRUDityRegistry
     from .base import (CrudityTestCase, ContactFakeBackend, DocumentFakeBackend,
-                       FakeFetcher, FakeInput)
+            FakeFetcher, FakeInput)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -38,9 +38,6 @@ except OSError as e:
     if e.errno == os.errno.ENOENT:
         lcabMissing = True
         print 'It seems that "lcab" is not installed -> skip some tests'
-
-
-__all__ = ('InfopathFormBuilderTestCase', 'InfopathFormFieldTestCase')
 
 
 #TODO use test models instead of skipping

@@ -18,10 +18,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CrudityViewsTestCase',)
-
-
-#TODO: use test models isntead of skipping
+#TODO: use test models instead of skipping
 
 
 class CrudityViewsTestCase(CrudityTestCase):

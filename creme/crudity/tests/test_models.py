@@ -18,9 +18,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('WaitingActionTestCase',)
-
-
 class WaitingActionTestCase(CrudityTestCase):
     @classmethod
     def setUpClass(cls):
