@@ -24,9 +24,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ConvertTestCase',)
-
-
 @skipIfCustomOrganisation
 class ConvertTestCase(_BillingTestCase):
     @classmethod

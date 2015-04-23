@@ -27,9 +27,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
-
-
 @skipIfCustomOrganisation
 class InvoiceTestCase(_BillingTestCase):
     #@classmethod

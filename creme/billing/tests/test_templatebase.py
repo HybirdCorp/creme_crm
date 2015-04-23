@@ -20,9 +20,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('TemplateBaseTestCase',)
-
-
 @skipIfCustomOrganisation
 class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
