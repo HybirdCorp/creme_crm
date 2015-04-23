@@ -12,9 +12,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CategoryFieldTestCase',)
-
-
 class CategoryFieldTestCase(FieldTestCase):
     format_str = '{"category": %s, "subcategory": %s}'
 
