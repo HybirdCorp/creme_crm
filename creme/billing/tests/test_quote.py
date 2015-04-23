@@ -18,9 +18,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('QuoteTestCase',)
-
-
 @skipIfCustomOrganisation
 class QuoteTestCase(_BillingTestCase):
     def setUp(self):
