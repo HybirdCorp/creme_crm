@@ -19,9 +19,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('GenericModelConfigTestCase',)
-
-
 class GenericModelConfigTestCase(CremeTestCase):
     DOWN_URL = '/creme_config/creme_core/fake_sector/down/%s'
     UP_URL   = '/creme_config/creme_core/fake_sector/up/%s'

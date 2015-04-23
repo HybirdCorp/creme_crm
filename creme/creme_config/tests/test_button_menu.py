@@ -14,9 +14,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('ButtonMenuConfigTestCase',)
-
-
 class ButtonMenuConfigTestCase(CremeTestCase):
     ADD_URL = '/creme_config/button_menu/add/'
     DEL_URL = '/creme_config/button_menu/delete'

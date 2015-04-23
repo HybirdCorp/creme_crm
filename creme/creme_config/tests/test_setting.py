@@ -10,9 +10,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('SettingTestCase',)
-
-
 #TODO: clean registry in teardDown....
 class SettingTestCase(CremeTestCase):
     def setUp(self):

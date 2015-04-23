@@ -9,9 +9,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('HistoryConfigTestCase',)
-
-
 class HistoryConfigTestCase(CremeTestCase):
     ADD_URL = '/creme_config/history/add/'
 

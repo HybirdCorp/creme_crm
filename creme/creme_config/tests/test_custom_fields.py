@@ -15,9 +15,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CustomFieldsTestCase',)
-
-
 class CustomFieldsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):

@@ -6,9 +6,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PortalTestCase',)
-
-
 class PortalTestCase(CremeTestCase):
     def test_portal(self):
 #        self.populate('creme_core', 'creme_config')

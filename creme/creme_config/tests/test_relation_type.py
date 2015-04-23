@@ -15,9 +15,6 @@ except Exception, e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('RelationTypeTestCase', 'SemiFixedRelationTypeTestCase')
-
-
 class RelationTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/relation_type/add/'
     DEL_URL = '/creme_config/relation_type/delete'
