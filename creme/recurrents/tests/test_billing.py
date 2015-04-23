@@ -28,9 +28,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('RecurrentsBillingTestCase',)
-
-
 @skipIfCustomGenerator
 class RecurrentsBillingTestCase(CremeTestCase):
 #    ADD_URL = '/recurrents/generator/add'
