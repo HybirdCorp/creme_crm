@@ -13,9 +13,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PropertyTypeTestCase',)
-
-
 class PropertyTypeTestCase(CremeTestCase):
     ADD_URL = '/creme_config/property_type/add/'
 

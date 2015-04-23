@@ -22,9 +22,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('UserRoleTestCase',)
-
-
 class UserRoleTestCase(CremeTestCase):
     ADD_URL = '/creme_config/role/add/'
     DEL_CREDS_URL = '/creme_config/role/delete_credentials'

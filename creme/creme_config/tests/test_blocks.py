@@ -26,9 +26,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('BlocksConfigTestCase',)
-
-
 class BlocksConfigTestCase(CremeTestCase):
     ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
     DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'

@@ -10,9 +10,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('PreferedMenuTestCase',)
-
-
 class PreferedMenuTestCase(CremeTestCase):
     items_info = [{'url': '/creme_config/test_view1', 'label': u"Test view1"},
                   {'url': '/creme_config/test_view2', 'label': u"Test view2"},

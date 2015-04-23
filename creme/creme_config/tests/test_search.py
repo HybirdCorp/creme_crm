@@ -16,9 +16,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('SearchConfigTestCase',)
-
-
 class SearchConfigTestCase(CremeTestCase):
     ADD_URL = '/creme_config/search/add/'
 

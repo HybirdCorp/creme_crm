@@ -28,9 +28,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('UserTestCase', 'UserSettingsTestCase')
-
-
 def skipIfNotCremeUser(test_func):
     return skipIf(settings.AUTH_USER_MODEL != 'creme_core.CremeUser',
                   "Skip this test which uses CremeUser model"

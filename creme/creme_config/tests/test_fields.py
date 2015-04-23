@@ -15,9 +15,6 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('CreatorModelChoiceFieldTestCase', )
-
-
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
     ADD_URL = '/creme_config/creme_core/fake_position/add_widget/'
 
@@ -47,7 +44,7 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
                                                     first_name='Joe',
                                                     last_name='Average',
                                                     email='averagejoe@company.com',
-                                                  )
+                                                   )
         user.role = role
 
         field.user = user
@@ -116,27 +113,29 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
 
     def test_filtered_queryset01(self):
         "No action"
-        field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=1))
+        pk = Position.objects.first().pk
+        field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=pk))
 
         with self.assertNoException():
             choices = list(field.choices)
 
         self.assertEqual([(u'', u'---------'),
-                          (1, Position.objects.get(pk=1).title),
+                          (pk, Position.objects.get(pk=pk).title),
                          ],
                          choices
                         )
 
     def test_filtered_queryset02(self):
         "With action"
-        field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=1))
+        pk = Position.objects.first().pk
+        field = CreatorModelChoiceField(queryset=Position.objects.filter(pk=pk))
         field.user = self._create_superuser()
 
         with self.assertNoException():
             options = field.widget.delegate._get_options()
 
         self.assertEqual([(u'', u'---------'),
-                          (1, Position.objects.get(pk=1).title),
+                          (pk, Position.objects.get(pk=pk).title),
                          ],
                          options
                         )
