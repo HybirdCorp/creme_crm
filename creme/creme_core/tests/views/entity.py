@@ -12,6 +12,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth import get_user_model
     from django.core.exceptions import ValidationError
+    from django.db.models import Max
     from django.utils.translation import ugettext as _
 
     from .base import ViewsTestCase
@@ -1015,7 +1016,8 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertListEqual(list(image2.categories.all()), categories[:1])
 
         url = self.build_bulkedit_url([image, image2], 'categories')
-        invalid_pk = 12
+        #invalid_pk = 12
+        invalid_pk = (MediaCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
         response = self.client.post(url, data={'field_value': [categories[0].pk, invalid_pk]})
         self.assertFormError(response, 'form', 'field_value',
                              _('Select a valid choice. %(value)s is not one of the available choices.') % {

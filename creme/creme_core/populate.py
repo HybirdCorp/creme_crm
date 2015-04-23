@@ -117,6 +117,6 @@ class Populator(BasePopulator):
             for value in values:
                 create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
-    if settings.TESTS_ON:
-        from .tests import fake_populate
-        fake_populate.populate()
+        if settings.TESTS_ON:
+            from .tests import fake_populate
+            fake_populate.populate()
