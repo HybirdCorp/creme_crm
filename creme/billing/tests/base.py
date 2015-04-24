@@ -9,7 +9,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (Relation, Currency,
             CremePropertyType, CremeProperty) #Vat
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME # DEFAULT_VAT

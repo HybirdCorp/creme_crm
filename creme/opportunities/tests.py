@@ -15,7 +15,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
-    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import (CremeEntity, RelationType, Relation,
             CremeProperty, SetCredentials, Currency, SettingValue)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
