@@ -13,7 +13,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import RelationType, HeaderFilter
 
     from creme.persons import get_contact_model

@@ -6,7 +6,7 @@ try:
     #from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
 
-    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
