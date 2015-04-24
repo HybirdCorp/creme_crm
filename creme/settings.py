@@ -10,7 +10,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 JAVASCRIPT_DEBUG = DEBUG
 
-TESTS_ON = len(argv) > 1 and (argv[1] in ('test', 'test_creme'))
+TESTS_ON = len(argv) > 1 and argv[1] == 'test'
 FORCE_JS_TESTVIEW = False
 
 ADMINS = (
