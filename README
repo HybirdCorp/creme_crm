@@ -10,7 +10,7 @@ DEPENDENCIES:
     - Core
         - Python 2.7
         - Django 1.7
-        - Django-mediagenerator 1.10
+        - Django-mediagenerator 1.12
         - pytz
         - python-dateutil 1.5
         - Pillow 2.7
