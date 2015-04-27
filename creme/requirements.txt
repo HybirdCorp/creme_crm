@@ -1,7 +1,7 @@
 django>=1.7,<1.8
 MySQL-python==1.2.3
 Pillow>=2.7,<2.8
-django-mediagenerator==1.10.4
+django-mediagenerator==1.12
 #gdata==2.0.15
 #lxml==2.3
 pycrypto>=2.6,<2.7
