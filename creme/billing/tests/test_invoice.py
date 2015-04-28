@@ -771,9 +771,13 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
 
     def test_delete01(self):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        product_line  = ProductLine.objects.create(user=self.user,
+                                                   related_document=invoice,
+                                                   on_the_fly_item='My product',
+                                                  )
         service_line = ServiceLine.objects.create(user=self.user,
                                                   related_document=invoice,
-                                                  on_the_fly_item='Flyyyyy',
+                                                  on_the_fly_item='My service',
                                                  )
 
         b_addr = invoice.billing_address
@@ -784,6 +788,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
 
         invoice.delete()
         self.assertDoesNotExist(invoice)
+        self.assertDoesNotExist(product_line)
         self.assertDoesNotExist(service_line)
 
         #self.get_object_or_fail(Organisation, pk=source.pk)

@@ -29,7 +29,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         Service = get_service_model()
 
         billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        lines_clases = [Line, ProductLine, ServiceLine]
+        lines_clases = [ProductLine, ServiceLine] #Line
         self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
         self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
         self.get_relationtype_or_fail(REL_SUB_HAS_LINE,          billing_classes, lines_clases)

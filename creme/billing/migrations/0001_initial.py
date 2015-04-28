@@ -129,14 +129,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CreditNote',
             fields=[
-                ('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                #('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                ('base_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of credit note', to='billing.CreditNoteStatus')),
             ],
             options={
                 'verbose_name': 'Credit note',
                 'verbose_name_plural': 'Credit notes',
             },
-            bases=('billing.base',),
+            #bases=('billing.base',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='SettlementTerms',
@@ -171,7 +173,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Invoice',
             fields=[
-                ('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                #('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                ('base_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of invoice', to='billing.InvoiceStatus')),
                 ('payment_type', models.ForeignKey(verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
             ],
@@ -179,7 +182,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Invoice',
                 'verbose_name_plural': 'Invoices',
             },
-            bases=('billing.base',),
+            #bases=('billing.base',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='Line',
@@ -212,7 +216,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Product line',
                 'verbose_name_plural': 'Product lines',
             },
-            bases=('billing.line',),
+            #bases=('billing.line',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='QuoteStatus',
@@ -234,7 +239,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Quote',
             fields=[
-                ('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                #('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                ('base_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
                 ('acceptation_date', models.DateField(null=True, verbose_name='Acceptation date', blank=True)),
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of quote', to='billing.QuoteStatus')),
             ],
@@ -242,7 +248,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Quote',
                 'verbose_name_plural': 'Quotes',
             },
-            bases=('billing.base',),
+            #bases=('billing.base',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='SalesOrderStatus',
@@ -263,14 +270,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SalesOrder',
             fields=[
-                ('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                #('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                ('base_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
             ],
             options={
                 'verbose_name': 'Salesorder',
                 'verbose_name_plural': 'Salesorders',
             },
-            bases=('billing.base',),
+            #bases=('billing.base',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='ServiceLine',
@@ -281,7 +290,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Service line',
                 'verbose_name_plural': 'Service lines',
             },
-            bases=('billing.line',),
+            #bases=('billing.line',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.CreateModel(
             name='SimpleBillingAlgo',
@@ -300,7 +310,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TemplateBase',
             fields=[
-                ('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                #('base_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
+                ('base_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='billing.Base')),
                 ('status_id', models.PositiveIntegerField(editable=False)),
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
             ],
@@ -308,7 +319,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Template',
                 'verbose_name_plural': 'Templates',
             },
-            bases=('billing.base',),
+            #bases=('billing.base',),
+            bases=(models.Model,), #TODO: ('creme_core.cremeentity',) in creme1.7
         ),
         migrations.AlterUniqueTogether(
             name='simplebillingalgo',

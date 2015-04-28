@@ -31,12 +31,12 @@ from .constants import REL_SUB_BILL_RECEIVED
 from .function_fields import hook_organisation
 from .forms.lv_import import get_import_form_builder
 from .models import (Invoice, Quote, SalesOrder, CreditNote, TemplateBase,
-        Line, ServiceLine, ProductLine, PaymentInformation) #Base
+        ServiceLine, ProductLine, PaymentInformation) #Line Base
 from .setting_keys import payment_info_key
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
-creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, Line, ServiceLine, ProductLine)
+creme_registry.register_entity_models(Invoice, Quote, SalesOrder, CreditNote, ServiceLine, ProductLine) #Line
 
 reg_item = creme_menu.register_app('billing', '/billing/').register_item
 reg_item('/billing/',                _(u'Portal of billing'),   'billing')
@@ -48,7 +48,7 @@ reg_item('/billing/quote/add',       Quote.creation_label,      'billing.add_quo
 reg_item('/billing/quotes',          _(u'All quotes'),          'billing')
 reg_item('/billing/credit_note/add', CreditNote.creation_label, 'billing.add_creditnote')
 reg_item('/billing/credit_note',     _(u'All credit notes'),    'billing')
-reg_item('/billing/lines',           _(u'All lines'),           'billing')
+#reg_item('/billing/lines',           _(u'All lines'),           'billing')
 reg_item('/billing/product_lines',   _(u'All product lines'),   'billing')
 reg_item('/billing/service_lines',   _(u'All service lines'),   'billing')
 
@@ -72,7 +72,9 @@ reg_import_form(Invoice,    get_import_form_builder)
 reg_import_form(Quote,      get_import_form_builder)
 reg_import_form(SalesOrder, get_import_form_builder)
 
-bulk_update_registry.register(Line, exclude=['on_the_fly_item'])
+#bulk_update_registry.register(Line, exclude=['on_the_fly_item'])
+bulk_update_registry.register(ProductLine, exclude=['on_the_fly_item'])
+bulk_update_registry.register(ServiceLine, exclude=['on_the_fly_item'])
 bulk_update_registry.register(PaymentInformation, exclude=['organisation']) #TODO: tags modifiable=False ??
 
 setting_key_registry.register(payment_info_key)

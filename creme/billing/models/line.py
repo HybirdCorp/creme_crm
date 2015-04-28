@@ -23,8 +23,8 @@ from functools import partial
 import logging
 
 from django.core.exceptions import ValidationError
-from django.db.models import (CharField, IntegerField, DecimalField, BooleanField,
-                              TextField, PositiveIntegerField, ForeignKey, PROTECT)
+from django.db.models import (CharField, DecimalField, BooleanField, TextField,
+        PositiveIntegerField, ForeignKey, PROTECT) #IntegerField
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -34,27 +34,28 @@ from creme.creme_core.models import CremeEntity, Relation, Vat
 from creme.creme_core.core.function_field import FunctionField
 
 from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
-        DISCOUNT_UNIT, LINE_TYPES, DEFAULT_DECIMAL, DEFAULT_QUANTITY)
+        DISCOUNT_UNIT, DEFAULT_DECIMAL, DEFAULT_QUANTITY) # LINE_TYPES
 from ..utils import round_to_2
 
 
 logger = logging.getLogger(__name__)
 
 
-class _LineTypeField(FunctionField):
-    name         = "get_verbose_type"
-    verbose_name = _(u'Line type')
-    has_filter   = True
-    choices      = LINE_TYPES.items()
-
-    @classmethod
-    def filter_in_result(cls, search_string):
-        return Q(type=search_string)
+#class _LineTypeField(FunctionField):
+#    name         = "get_verbose_type"
+#    verbose_name = _(u'Line type')
+#    has_filter   = True
+#    choices      = LINE_TYPES.items()
+#
+#    @classmethod
+#    def filter_in_result(cls, search_string):
+#        return Q(type=search_string)
 
 
 #TODO: use a smart workflow engine to update the BillingModel only once when several lines are edited
 #      for the moment when have to re-save the model manually.
 
+#class Line(CremeEntity):
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=True, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
@@ -69,17 +70,18 @@ class Line(CremeEntity):
                                           )
     total_discount  = BooleanField(_('Total discount ?'), editable=False, default=False)
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
-    type            = IntegerField(_(u'Type'), blank=False, null=False,
-                                   choices=LINE_TYPES.items(), editable=False,
-                                  ).set_tags(viewable=False)
+#    type            = IntegerField(_(u'Type'), blank=False, null=False,
+#                                   choices=LINE_TYPES.items(), editable=False,
+#                                  ).set_tags(viewable=False)
 
-    function_fields = CremeEntity.function_fields.new(_LineTypeField())
+#    function_fields = CremeEntity.function_fields.new(_LineTypeField())
     creation_label = _('Add a line')
 
     _related_document = False
     _related_item = None
 
     class Meta:
+        abstract = True
         app_label = 'billing'
         verbose_name = _(u'Line')
         verbose_name_plural = _(u'Lines')
@@ -210,12 +212,12 @@ class Line(CremeEntity):
         assert self.pk is None, 'Line.related_item(setter): line is already saved (can not change any more).'
         self._related_item = entity
 
-    @staticmethod
-    def get_lv_absolute_url():
-        return '/billing/lines'
+#    @staticmethod
+#    def get_lv_absolute_url():
+#        return '/billing/lines'
 
-    def get_verbose_type(self):
-        return LINE_TYPES.get(self.type, "")
+#    def get_verbose_type(self):
+#        return LINE_TYPES.get(self.type, "")
 
     def save(self, *args, **kwargs):
         if not self.pk: #creation

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,8 @@ class TemplateBase(Base):
 
     creation_label = pgettext_lazy('billing', u'Add a template') #XXX: BEWARE Remove context if this item is added in the menu (problem with PreferredMenuItem)
 
-    class Meta:
+#    class Meta:
+    class Meta(Base.Meta):
         app_label = 'billing'
         verbose_name = pgettext_lazy('billing', u'Template')
         verbose_name_plural = pgettext_lazy('billing', u'Templates')
