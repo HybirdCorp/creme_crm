@@ -223,8 +223,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         self.assertFormError(response, 'form', 'relations',
                              #_(u'An entity can not be linked to itself : %s') % subject
-                             _(u'An entity can not be linked to itself : %(link_themselves)s') % {
-                                    'link_themselves': subject,
+                             _(u'An entity can not be linked to itself : %(entities)s') % {
+                                    'entities': subject,
                                 }
                             )
 
@@ -542,8 +542,8 @@ class RelationViewsTestCase(ViewsTestCase):
                              #_(u'An entity can not be linked to itself : %s') % (
                                     #'%s, %s' % (subject01, subject02)
                                   #)
-                            _(u'An entity can not be linked to itself : %(link_themselves)s') % {
-                                    'link_themselves': '%s, %s' % (subject01, subject02),
+                            _(u'An entity can not be linked to itself : %(entities)s') % {
+                                    'entities': '%s, %s' % (subject01, subject02),
                                   }
                             )
 
