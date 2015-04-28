@@ -401,12 +401,49 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFormError(post(data=data), 'form', 'sending_date',
                              _(u"Sending date required for a deferred sending")
                             )
+
+        msg = _(u"Sending date must be is the future")
         self.assertFormError(post(data=dict(data,
                                             sending_date=(now_dt - timedelta(days=1)).strftime('%Y-%m-%d')
                                            )
                                  ),
-                             'form', 'sending_date', _(u"Sending date must be is the future")
+                             'form', 'sending_date', msg,
                             )
+        self.assertFormError(post(data=dict(data,
+                                            sending_date=now_dt.strftime('%Y-%m-%d'),
+                                           )
+                                 ),
+                             'form', 'sending_date', msg,
+                            )
+
+    def test_create05(self):
+        "Test deferred (today)"
+        user = self.login()
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
+
+        now_dt = now()
+        sending_date = now_dt + timedelta(hours=1) #today if we run the test before 23h...
+
+        naive_sending_date = make_naive(sending_date, get_current_timezone())
+        data = {'sender':   'vicious@reddragons.mrs',
+                'type':     SENDING_TYPE_DEFERRED,
+                'template': template.id,
+               }
+
+        post = partial(self.client.post, self._build_add_url(camp))
+        self.assertNoFormError(post(data=dict(data,
+                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              hour=naive_sending_date.hour,
+                                              minute=naive_sending_date.minute,
+                                             )
+                                   )
+                              )
+
+        with self.assertNoException():
+            sending = self.refresh(camp).sendings_set.all()[0]
+
+        self.assertDatetimesAlmostEqual(sending_date, sending.sending_date, seconds=60)
 
     def test_inneredit(self):
         user = self.login()
