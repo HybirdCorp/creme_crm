@@ -57,7 +57,8 @@ class BillingBlock(Block):
 
 
 class _LineBlock(SimpleBlock):
-    dependencies        = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    dependencies        = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    relation_type_deps  = (REL_SUB_HAS_LINE, )
     target_ctypes       = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     line_model          = "OVERLOAD_ME"
 #    line_type           = "OVERLOAD_ME"
