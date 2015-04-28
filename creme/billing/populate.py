@@ -62,7 +62,7 @@ class Populator(BasePopulator):
         Service = get_service_model()
 
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        line_entities = [Line, ProductLine, ServiceLine]
+        line_entities = [ProductLine, ServiceLine] # Line
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
                             (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
                             is_internal=True
@@ -206,27 +206,28 @@ class Populator(BasePopulator):
         create_hf('billing-hf_template',   _(u'Template view'),    TemplateBase, status=False)
 
 
-        def create_hf_lines(hf_pk, name, model, include_type=True):
+#        def create_hf_lines(hf_pk, name, model, include_type=True):
+        def create_hf_lines(hf_pk, name, model):
             cells_desc = [EntityCellRegularField.build(model=model, name='on_the_fly_item'),
                           EntityCellRegularField.build(model=model, name='quantity'),
                           EntityCellRegularField.build(model=model, name='unit_price'),
                           #EntityCellRegularField.build(model=model, name='is_paid'),
                          ]
 
-            if include_type:
-                cells_desc.append(EntityCellFunctionField.build(model, 'get_verbose_type'))
+#            if include_type:
+#                cells_desc.append(EntityCellFunctionField.build(model, 'get_verbose_type'))
 
             HeaderFilter.create(pk=hf_pk, name=name, model=model, cells_desc=cells_desc)
 
-        create_hf_lines('billing-hg_lines',         _(u"Lines view"),         Line)
-        create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine, include_type=False)
-        create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine, include_type=False)
+#        create_hf_lines('billing-hg_lines',         _(u"Lines view"),         Line)
+        create_hf_lines('billing-hg_product_lines', _(u"Product lines view"), ProductLine) #include_type=False
+        create_hf_lines('billing-hg_service_lines', _(u"Service lines view"), ServiceLine) #include_type=False
 
 
         for model in (Invoice, CreditNote, Quote, SalesOrder):
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
-        for model in (Line, ProductLine, ServiceLine):
+        for model in (ProductLine, ServiceLine): #Line
             SearchConfigItem.create_if_needed(model, [], disabled=True)
 
         SettingValue.create_if_needed(key=payment_info_key, user=None, value=True)
@@ -327,9 +328,10 @@ class Populator(BasePopulator):
                     BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
                     BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
-            BlockDetailviewLocation.create(block_id=payment_information_block.id_,       order=300, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
-            BlockDetailviewLocation.create(block_id=received_invoices_block.id_,         order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-            BlockDetailviewLocation.create(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=payment_information_block.id_, order=300, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+            BlockDetailviewLocation.create(block_id=received_invoices_block.id_,   order=14,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+#            BlockDetailviewLocation.create(block_id=received_billing_document_block.id_, order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=received_quotes_block.id_,     order=18,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
 
             if apps.is_installed('creme.reports'):

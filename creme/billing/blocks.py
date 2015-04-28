@@ -57,10 +57,10 @@ class BillingBlock(Block):
 
 
 class _LineBlock(SimpleBlock):
-    dependencies        = (Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
-    target_ctypes       = (Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase) #TODO: Base ??
+    dependencies        = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    target_ctypes       = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     line_model          = "OVERLOAD_ME"
-    line_type           = "OVERLOAD_ME"
+#    line_type           = "OVERLOAD_ME"
     related_item_ct     = "OVERLOAD_ME"
     related_item_label  = "OVERLOAD_ME"
 
@@ -104,7 +104,7 @@ class ProductLinesBlock(_LineBlock):
     verbose_name        = _(u'Product lines')
     template_name       = 'billing/templatetags/block_product_line.html'
     line_model          = ProductLine
-    line_type           = PRODUCT_LINE_TYPE
+#    line_type           = PRODUCT_LINE_TYPE
 #    related_item_ct     = ContentType.objects.get_for_model(Product)
     related_item_ct     = ContentType.objects.get_for_model(get_product_model())
     related_item_label  = _(u'Product')
@@ -118,7 +118,7 @@ class ServiceLinesBlock(_LineBlock):
     verbose_name        = _(u'Service lines')
     template_name       = 'billing/templatetags/block_service_line.html'
     line_model          = ServiceLine
-    line_type           = SERVICE_LINE_TYPE
+#    line_type           = SERVICE_LINE_TYPE
 #    related_item_ct     = ContentType.objects.get_for_model(Service)
     related_item_ct     = ContentType.objects.get_for_model(get_service_model())
     related_item_label  = _(u'Service')
@@ -150,11 +150,11 @@ class CreditNoteBlock(QuerysetBlock):
 
 class TotalBlock(Block):
     id_                 = SimpleBlock.generate_id('billing', 'total')
-    dependencies        = (ProductLine, ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    dependencies        = (ProductLine, ServiceLine, Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
     verbose_name        = _(u'Total')
     template_name       = 'billing/templatetags/block_total.html'
-    target_ctypes       = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ??
+    target_ctypes       = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
@@ -170,7 +170,7 @@ class TargetBlock(SimpleBlock):
     dependencies  = (Invoice, CreditNote, SalesOrder, Quote, TemplateBase)
     verbose_name  = _(u'Target organisation')
     template_name = 'billing/templatetags/block_target.html'
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ??
+    target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
 
 class ReceivedInvoicesBlock(QuerysetBlock):
@@ -194,33 +194,93 @@ class ReceivedInvoicesBlock(QuerysetBlock):
                 ))
 
 
-class ReceivedBillingDocumentBlock(QuerysetBlock):
-    id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
-    dependencies  = (Relation, CreditNote, Quote, SalesOrder)
+#class ReceivedBillingDocumentBlock(QuerysetBlock):
+#    id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
+#    dependencies  = (Relation, CreditNote, Quote, SalesOrder)
+#    relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
+#    verbose_name  = _(u"Received billing documents")
+#    template_name = 'billing/templatetags/block_received_billing_document.html'
+#    target_ctypes = (Contact, Organisation)
+#    order_by      = '-expiration_date'
+#
+#    def detailview_display(self, context):
+#        person_id = context['object'].id
+#        get_ct = ContentType.objects.get_for_model
+#        btc = self.get_block_template_context(
+#                    context,
+#                    Base.objects.filter(relations__object_entity=person_id,
+#                                        relations__type=REL_SUB_BILL_RECEIVED,
+#                                       )
+#                                .exclude(entity_type__in=[get_ct(TemplateBase),
+#                                                          get_ct(Invoice),
+#                                                         ]
+#                                        ),
+#                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
+#                )
+#
+#        CremeEntity.populate_real_entities(btc['page'].object_list)
+#
+#        return self._render(btc)
+class _ReceivedBillingDocumentsBlock(QuerysetBlock):
+    #id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
+    #dependencies  = (Relation, ...)
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
     target_ctypes = (Contact, Organisation)
     order_by      = '-expiration_date'
 
+    _billing_model = None #OVERLOAD ME
+    _title         = _('%s Received billing document') #OVERLOAD ME
+    _title_plural  = _('%s Received billing documents') #OVERLOAD ME
+    _empty_msg     = _('No received billing document for the moment') #OVERLOAD ME
+
     def detailview_display(self, context):
         person_id = context['object'].id
-        get_ct = ContentType.objects.get_for_model
-        btc = self.get_block_template_context(
+
+        return self._render(self.get_block_template_context(
                     context,
-                    Base.objects.filter(relations__object_entity=person_id,
-                                        relations__type=REL_SUB_BILL_RECEIVED,
-                                       )
-                                .exclude(entity_type__in=[get_ct(TemplateBase),
-                                                          get_ct(Invoice),
-                                                         ]
-                                        ),
+                    self._billing_model.objects.filter(relations__object_entity=person_id,
+                                                       relations__type=REL_SUB_BILL_RECEIVED,
+                                                      ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person_id),
-                )
+                    title=self._title,
+                    title_plural=self._title_plural,
+                    empty_msg=self._empty_msg,
+                ))
 
-        CremeEntity.populate_real_entities(btc['page'].object_list)
 
-        return self._render(btc)
+class ReceivedQuotesBlock(_ReceivedBillingDocumentsBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'received_quotes')
+    dependencies  = (Relation, Quote)
+    verbose_name  = _(u"Received quotes")
+
+    _billing_model = Quote
+    _title         = _('%s Received quote')
+    _title_plural  = _('%s Received quotes')
+    _empty_msg     = _('No received quote for the moment')
+
+
+class ReceivedSalesOrdersBlock(_ReceivedBillingDocumentsBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'received_sales_orders')
+    dependencies  = (Relation, SalesOrder)
+    verbose_name  = _(u"Received sales orders")
+
+    _billing_model = SalesOrder
+    _title         = _('%s Received sales order')
+    _title_plural  = _('%s Received sales orders')
+    _empty_msg     = _('No received sales order for the moment')
+
+
+class ReceivedCreditNotesBlock(_ReceivedBillingDocumentsBlock):
+    id_           = QuerysetBlock.generate_id('billing', 'received_credit_notes')
+    dependencies  = (Relation, CreditNote)
+    verbose_name  = _(u"Received credit notes")
+
+    _billing_model = CreditNote
+    _title         = _('%s Received credit note')
+    _title_plural  = _('%s Received credit notes')
+    _empty_msg     = _('No received credit note for the moment')
 
 
 class PaymentInformationBlock(QuerysetBlock):
@@ -258,7 +318,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u"Default payment information")
     template_name = "billing/templatetags/block_billing_payment_information.html"
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ?
+    target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
     dependencies  = (Relation, PaymentInformation)
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
     order_by      = 'name'
@@ -283,7 +343,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
 
 class BillingAddressBlock(AddressBlock):
     id_  = Block.generate_id('billing', 'address')
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder, TemplateBase) #TODO: Base ?
+    target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
 
 class PersonsStatisticsBlock(Block):
@@ -311,7 +371,8 @@ target_block                    = TargetBlock()
 received_invoices_block         = ReceivedInvoicesBlock()
 payment_information_block       = PaymentInformationBlock()
 billing_payment_block           = BillingPaymentInformationBlock()
-received_billing_document_block = ReceivedBillingDocumentBlock()
+#received_billing_document_block = ReceivedBillingDocumentBlock()
+received_quotes_block           = ReceivedQuotesBlock()
 billing_address_block           = BillingAddressBlock()
 persons_statistics_block        = PersonsStatisticsBlock()
 
@@ -324,7 +385,10 @@ block_list = (
         received_invoices_block,
         payment_information_block,
         billing_payment_block,
-        received_billing_document_block,
+#        received_billing_document_block,
+        received_quotes_block,
+        ReceivedSalesOrdersBlock(),
+        ReceivedCreditNotesBlock(),
         billing_address_block,
         persons_statistics_block,
     )

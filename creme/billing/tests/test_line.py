@@ -75,111 +75,6 @@ class LineTestCase(_BillingTestCase):
 
         self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
 
-    # def test_add_product_lines02(self):
-    #     "On-the-fly"
-    #     self.login()
-    #
-    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-    #     url = '/billing/%s/product_line/add_on_the_fly' % invoice.id
-    #     self.assertGET200(url)
-    #
-    #     unit_price = Decimal('1.0')
-    #     name = 'Awesomo'
-    #     response = self.client.post(url, data={'on_the_fly_item': name,
-    #                                            'comment':         'no comment !',
-    #                                            'quantity':        1,
-    #                                            'unit_price':      unit_price,
-    #                                            'unit':            'Box',
-    #                                            'discount':        Decimal(),
-    #                                            'discount_unit':   1,
-    #                                            'vat_value':       Vat.objects.get(value='0.0').id,
-    #                                          }
-    #                                )
-    #     self.assertNoFormError(response)
-    #
-    #     lines = invoice.product_lines
-    #     self.assertEqual(1, len(lines))
-    #
-    #     line = lines[0]
-    #     self.assertEqual(name, line.on_the_fly_item)
-    #     self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
-    #     self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
-    #
-    #     self.assertEqual(unit_price, invoice._get_total())
-    #     self.assertEqual(unit_price, invoice._get_total_with_tax())
-
-    # def test_add_product_lines03(self):
-    #     "On-the-fly + product creation"
-    #     self.login()
-    #
-    #     self.assertEqual(0, Product.objects.count())
-    #
-    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-    #     unit_price = Decimal('1.0')
-    #     name    = 'Awesomo'
-    #     cat, subcat = self.create_cat_n_subcat()
-    #     response = self.client.post('/billing/%s/product_line/add_on_the_fly' % invoice.id,
-    #                                 data={'on_the_fly_item':    name,
-    #                                       'comment':            'no comment !',
-    #                                       'quantity':           1,
-    #                                       'unit_price':         unit_price,
-    #                                       'unit':               'Box',
-    #                                       'discount':           Decimal(),
-    #                                       'discount_unit':      1,
-    #                                       'vat_value':          Vat.objects.get(value='0.0').id,
-    #                                       'has_to_register_as': 'on',
-    #                                       'sub_category':       '{"category":%s, "subcategory":%s}' % (cat.id, subcat.id)
-    #                                      }
-    #                                )
-    #     self.assertNoFormError(response)
-    #
-    #     product = self.get_object_or_fail(Product, name=name)
-    #     self.assertEqual(cat,        product.category)
-    #     self.assertEqual(subcat,     product.sub_category)
-    #     self.assertEqual(unit_price, product.unit_price)
-    #
-    #     lines = invoice.product_lines
-    #     self.assertEqual(1, len(lines))
-    #
-    #     line = lines[0]
-    #     self.assertFalse(line.on_the_fly_item)
-    #     self.assertEqual(product, line.related_item)
-
-    # def test_add_product_lines04(self):
-    #     "On-the-fly + product creation + no creation creds"
-    #     self.login(is_superuser=False, allowed_apps=['persons', 'billing'],
-    #                creatable_models=[Invoice, Contact, Organisation] #not 'Product'
-    #               )
-    #
-    #     SetCredentials.objects.create(role=self.role,
-    #                                   value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-    #                                         EntityCredentials.DELETE | EntityCredentials.LINK   |
-    #                                         EntityCredentials.UNLINK,
-    #                                   set_type=SetCredentials.ESET_OWN
-    #                                  )
-    #
-    #     invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-    #     cat    = Category.objects.create(name='Cat', description='DESCRIPTION')
-    #     subcat = SubCategory.objects.create(name='Cat', description='DESCRIPTION', category=cat)
-    #     response = self.assertPOST200('/billing/%s/product_line/add_on_the_fly' % invoice.id,
-    #                                   data={'on_the_fly_item':     'Awesomo',
-    #                                         'comment':             'no comment !',
-    #                                         'quantity':            1,
-    #                                         'unit_price':          Decimal('1.0'),
-    #                                         'discount':            Decimal(),
-    #                                         'discount_unit':       1,
-    #                                         'vat_value':           Vat.objects.get(value='0.0').id,
-    #                                         'has_to_register_as':  'on',
-    #                                         'category':            cat.id,
-    #                                         'sub_category':        subcat.id,
-    #                                        }
-    #                                )
-    #     self.assertFormError(response, 'form', 'has_to_register_as',
-    #                          [_(u'You are not allowed to create this entity')]
-    #                         )
-    #     self.assertFalse(invoice.product_lines)
-    #     self.assertFalse(Product.objects.exists())
-
     def test_listviews(self):
         self.login()
 
@@ -195,16 +90,16 @@ class LineTestCase(_BillingTestCase):
         sline2 = create_sline(related_document=invoice2, on_the_fly_item='FlyS2')
 
         #---------------------------------------------------------------------
-        response = self.assertGET200('/billing/lines')
-
-        with self.assertNoException():
-            lines_page = response.context['entities']
-
-        self.assertEqual(4, lines_page.paginator.count)
-
-        real_lines = [l.get_real_entity() for l in lines_page.object_list]
-        self.assertIn(pline1, real_lines)
-        self.assertIn(sline2, real_lines)
+#        response = self.assertGET200('/billing/lines')
+#
+#        with self.assertNoException():
+#            lines_page = response.context['entities']
+#
+#        self.assertEqual(4, lines_page.paginator.count)
+#
+#        real_lines = [l.get_real_entity() for l in lines_page.object_list]
+#        self.assertIn(pline1, real_lines)
+#        self.assertIn(sline2, real_lines)
 
         #---------------------------------------------------------------------
         response = self.assertGET200('/billing/product_lines')
@@ -453,23 +348,23 @@ class LineTestCase(_BillingTestCase):
                          set(rel_filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=service).values_list('subject_entity', flat=True))
                         )
 
-    def test_get_verbose_type(self):
-        self.login()
-
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        kwargs = {'user': self.user, 'related_document': invoice}
-        pl = ProductLine.objects.create(on_the_fly_item="otf1", unit_price=Decimal("1"), **kwargs)
-        verbose_type = _(u"Product")
-        self.assertEqual(verbose_type, unicode(pl.get_verbose_type()))
-
-        funf = pl.function_fields.get('get_verbose_type')
-        self.assertIsNotNone(funf)
-        self.assertEqual(verbose_type, funf(pl).for_html())
-
-        sl = ServiceLine.objects.create(on_the_fly_item="otf2", unit_price=Decimal("4"), **kwargs)
-        verbose_type = _(u"Service")
-        self.assertEqual(verbose_type, unicode(sl.get_verbose_type()))
-        self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl).for_html())
+#    def test_get_verbose_type(self):
+#        self.login()
+#
+#        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+#        kwargs = {'user': self.user, 'related_document': invoice}
+#        pl = ProductLine.objects.create(on_the_fly_item="otf1", unit_price=Decimal("1"), **kwargs)
+#        verbose_type = _(u"Product")
+#        self.assertEqual(verbose_type, unicode(pl.get_verbose_type()))
+#
+#        funf = pl.function_fields.get('get_verbose_type')
+#        self.assertIsNotNone(funf)
+#        self.assertEqual(verbose_type, funf(pl).for_html())
+#
+#        sl = ServiceLine.objects.create(on_the_fly_item="otf2", unit_price=Decimal("4"), **kwargs)
+#        verbose_type = _(u"Service")
+#        self.assertEqual(verbose_type, unicode(sl.get_verbose_type()))
+#        self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl).for_html())
 
     # def test_inline_edit(self):
     #     self.login()
@@ -645,7 +540,7 @@ class LineTestCase(_BillingTestCase):
 
     def test_csv_import(self):
         self.login()
-        self.assertGET404(self._build_import_url(Line))
+#        self.assertGET404(self._build_import_url(Line))
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
 
@@ -808,7 +703,8 @@ class LineTestCase(_BillingTestCase):
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
-                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        #'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-cremeentity_ptr':  service_line.id,
                                                         'service_line_formset-0-user':             self.user.id,
                                                         'service_line_formset-0-on_the_fly_item':  name,
                                                         'service_line_formset-0-unit_price':       unit_price,
@@ -851,7 +747,8 @@ class LineTestCase(_BillingTestCase):
                                                         'product_line_formset-INITIAL_FORMS':      1,
                                                         'product_line_formset-MAX_NUM_FORMS':      u'',
                                                         'product_line_formset-0-DELETE':           True,
-                                                        'product_line_formset-0-line_ptr':         product_line.id,
+                                                        #'product_line_formset-0-line_ptr':         product_line.id,
+                                                        'product_line_formset-0-cremeentity_ptr':  product_line.id,
                                                         'product_line_formset-0-user':             self.user.id,
                                                         'product_line_formset-0-on_the_fly_item':  "whatever",
                                                         'product_line_formset-0-unit_price':       "whatever",
@@ -905,7 +802,8 @@ class LineTestCase(_BillingTestCase):
                                                 'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                 'service_line_formset-INITIAL_FORMS':      1,
                                                 'service_line_formset-MAX_NUM_FORMS':      u'',
-                                                'service_line_formset-0-line_ptr':         service_line.id,
+                                                #'service_line_formset-0-line_ptr':         service_line.id,
+                                                'service_line_formset-0-cremeentity_ptr':  service_line.id,
                                                 'service_line_formset-0-user':             self.user.id,
                                                 'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
                                                 'service_line_formset-0-unit_price':       '100.0',
@@ -934,7 +832,8 @@ class LineTestCase(_BillingTestCase):
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
-                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        #'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-cremeentity_ptr':  service_line.id,
                                                         'service_line_formset-0-user':             self.user.id,
                                                         'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
                                                         'service_line_formset-0-unit_price':       '100.0',
@@ -968,7 +867,8 @@ class LineTestCase(_BillingTestCase):
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
-                                                        'service_line_formset-0-line_ptr':         service_line.id,
+                                                        #'service_line_formset-0-line_ptr':         service_line.id,
+                                                        'service_line_formset-0-cremeentity_ptr':  service_line.id,
                                                         'service_line_formset-0-user':             self.user.id,
                                                         'service_line_formset-0-on_the_fly_item':  'on the fly service updated',
                                                         'service_line_formset-0-unit_price':       '100.0',
@@ -1038,61 +938,61 @@ class LineTestCase(_BillingTestCase):
         self.assertGET(400, build_url(pline, 'total_discount'))
         self.assertGET(400, build_url(pline, 'discount_unit'))
 
-    def test_search_functionfield(self):
-        "LineTypeField"
-        user = self.login()
-        invoice = Invoice.objects.create(user=user, name='Invoice',
-                                         expiration_date=date(year=2012, month=12, day=15),
-                                         status=InvoiceStatus.objects.all()[0],
-                                        )
-
-        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
-        pline1 = create_pline(on_the_fly_item='Fly1')
-        pline2 = create_pline(on_the_fly_item='Fly2')
-
-        create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
-        sline1 = create_sline(on_the_fly_item='Fly3')
-        sline2 = create_sline(on_the_fly_item='Fly4')
-
-        func_field = Line.function_fields.get('get_verbose_type')
-
-        HeaderFilter.create(pk='test-hf_orga', name='Orga view', model=Organisation,
-                            cells_desc=[EntityCellRegularField.build(model=Organisation, name='name'),
-                                        EntityCellFunctionField(func_field),
-                                       ],
-                           )
-
-        def _get_entities_set(response):
-            with self.assertNoException():
-                entities_page = response.context['entities']
-
-            return set(entities_page.object_list)
-
-        url = Line.get_lv_absolute_url()
-        response = self.assertGET200(url)
-        ids = {l.id for l in _get_entities_set(response)}
-        self.assertIn(pline1.id, ids)
-        self.assertIn(pline2.id, ids)
-        self.assertIn(sline1.id, ids)
-        self.assertIn(sline2.id, ids)
-
-        def post(line_type):
-            return self.assertPOST200(url, data={'_search': 1,
-                                                 'regular_field-name': '',
-                                                 'function_field-%s' % func_field.name: line_type,
-                                                }
-                                     )
-
-        response = post(PRODUCT_LINE_TYPE)
-        ids = {l.id for l in _get_entities_set(response)}
-        self.assertIn(pline1.id,    ids)
-        self.assertIn(pline2.id,    ids)
-        self.assertNotIn(sline1.id, ids)
-        self.assertNotIn(sline2.id, ids)
-
-        response = post(SERVICE_LINE_TYPE)
-        ids = {l.id for l in _get_entities_set(response)}
-        self.assertNotIn(pline1.id, ids)
-        self.assertNotIn(pline2.id, ids)
-        self.assertIn(sline1.id,    ids)
-        self.assertIn(sline2.id,    ids)
+#    def test_search_functionfield(self):
+#        "LineTypeField"
+#        user = self.login()
+#        invoice = Invoice.objects.create(user=user, name='Invoice',
+#                                         expiration_date=date(year=2012, month=12, day=15),
+#                                         status=InvoiceStatus.objects.all()[0],
+#                                        )
+#
+#        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
+#        pline1 = create_pline(on_the_fly_item='Fly1')
+#        pline2 = create_pline(on_the_fly_item='Fly2')
+#
+#        create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
+#        sline1 = create_sline(on_the_fly_item='Fly3')
+#        sline2 = create_sline(on_the_fly_item='Fly4')
+#
+#        func_field = Line.function_fields.get('get_verbose_type')
+#
+#        HeaderFilter.create(pk='test-hf_orga', name='Orga view', model=Organisation,
+#                            cells_desc=[EntityCellRegularField.build(model=Organisation, name='name'),
+#                                        EntityCellFunctionField(func_field),
+#                                       ],
+#                           )
+#
+#        def _get_entities_set(response):
+#            with self.assertNoException():
+#                entities_page = response.context['entities']
+#
+#            return set(entities_page.object_list)
+#
+#        url = Line.get_lv_absolute_url()
+#        response = self.assertGET200(url)
+#        ids = {l.id for l in _get_entities_set(response)}
+#        self.assertIn(pline1.id, ids)
+#        self.assertIn(pline2.id, ids)
+#        self.assertIn(sline1.id, ids)
+#        self.assertIn(sline2.id, ids)
+#
+#        def post(line_type):
+#            return self.assertPOST200(url, data={'_search': 1,
+#                                                 'regular_field-name': '',
+#                                                 'function_field-%s' % func_field.name: line_type,
+#                                                }
+#                                     )
+#
+#        response = post(PRODUCT_LINE_TYPE)
+#        ids = {l.id for l in _get_entities_set(response)}
+#        self.assertIn(pline1.id,    ids)
+#        self.assertIn(pline2.id,    ids)
+#        self.assertNotIn(sline1.id, ids)
+#        self.assertNotIn(sline2.id, ids)
+#
+#        response = post(SERVICE_LINE_TYPE)
+#        ids = {l.id for l in _get_entities_set(response)}
+#        self.assertNotIn(pline1.id, ids)
+#        self.assertNotIn(pline2.id, ids)
+#        self.assertIn(sline1.id,    ids)
+#        self.assertIn(sline2.id,    ids)

@@ -20,19 +20,20 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from ..constants import SERVICE_LINE_TYPE
+#from ..constants import SERVICE_LINE_TYPE
 from .line import Line
 
 
 class ServiceLine(Line):
     creation_label = _('Add a service line')
 
-    def __init__(self, *args, **kwargs):
-        super(ServiceLine, self).__init__(*args, **kwargs)
-        self.type = SERVICE_LINE_TYPE
+#    def __init__(self, *args, **kwargs):
+#        super(ServiceLine, self).__init__(*args, **kwargs)
+#        self.type = SERVICE_LINE_TYPE
 
-    class Meta:
-        app_label = 'billing'
+#    class Meta:
+    class Meta(Line.Meta):
+#        app_label = 'billing'
         verbose_name = _(u'Service line')
         verbose_name_plural = _(u'Service lines')
 

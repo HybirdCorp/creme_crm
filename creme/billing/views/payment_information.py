@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,13 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.utils import jsonify
 
-from creme.billing.models import Base, PaymentInformation
+from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
+        CreditNote, TemplateBase) #Base
 from creme.billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
 
 
@@ -52,8 +54,12 @@ def edit(request, payment_information_id):
 @POST_only
 def set_default(request, payment_information_id, billing_id):
     pi      = get_object_or_404(PaymentInformation, pk=payment_information_id)
-    billing_doc = get_object_or_404(Base, pk=billing_id)
+#    billing_doc = get_object_or_404(Base, pk=billing_id)
+    billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
     user    = request.user
+
+    if not isinstance(billing_doc, (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)):
+        raise Http404('This entity is not a billing document')
 
     organisation = pi.get_related_entity()
     user.has_perm_to_view_or_die(organisation)

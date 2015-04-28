@@ -36,11 +36,11 @@ from creme.creme_core.models.fields import MoneyField
 #from creme.persons.models import Address
 
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-        REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
+        REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
         REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
 from ..utils import round_to_2
 
-from .line import Line
+#from .line import Line
 from .product_line import ProductLine
 from .service_line import ServiceLine
 from .algo import ConfigBillingAlgo
@@ -58,26 +58,32 @@ class Base(CremeEntity):
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=DEFAULT_DECIMAL)
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
-                                  related_name='BillingAddress_set', #TODO: remove ? (with '+')
+#                                  related_name='BillingAddress_set',
+                                  related_name='+',
                                   blank=True, null=True, editable=False,
                                  ).set_tags(enumerable=False)
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
-                                  related_name='ShippingAddress_set', #TODO: remove ? (with '+')
+#                                  related_name='ShippingAddress_set',
+                                  related_name='+',
                                   blank=True, null=True, editable=False,
                                  ).set_tags(enumerable=False)
-    currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
+    currency         = ForeignKey(Currency, verbose_name=_(u'Currency'),
+#                                  related_name='Currency_set',
+                                  related_name='+',
+                                  default=DEFAULT_CURRENCY_PK, on_delete=PROTECT,
+                                 )
     comment          = TextField(_(u'Comment'), blank=True, null=True)
-    #total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    #total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_vat        = MoneyField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = MoneyField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'),
-                                  related_name='AdditionalInformation_set',
+#                                  related_name='AdditionalInformation_set',
+                                  related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
                                  ).set_tags(clonable=False)
     payment_terms    = ForeignKey(PaymentTerms, verbose_name=_(u'Payment Terms'),
-                                  related_name='PaymentTerms_set',
+#                                  related_name='PaymentTerms_set',
+                                  related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
                                  ).set_tags(clonable=False)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
@@ -92,6 +98,7 @@ class Base(CremeEntity):
     _creditnotes_cache = None
 
     class Meta:
+        abstract = True
         app_label = 'billing'
         ordering = ('name',)
 
@@ -99,7 +106,8 @@ class Base(CremeEntity):
         return self.name
 
     def _pre_delete(self):
-        lines = list(Line.objects.filter(relations__object_entity=self.id))
+#        lines = list(Line.objects.filter(relations__object_entity=self.id))
+        lines = list(chain(self.product_lines, self.service_lines))
 
         for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
                                                           REL_SUB_BILL_RECEIVED,
@@ -193,7 +201,9 @@ class Base(CremeEntity):
     #TODO: remove (crappy api, no cache....)
     # Could replace get_x_lines()
     def get_lines(self, klass):
-        return klass.objects.filter(relations__object_entity=self.id)
+        return klass.objects.filter(relations__object_entity=self.id,
+                                    relations__type=REL_OBJ_HAS_LINE,
+                                   )
 
     def get_product_lines_total_price_exclusive_of_tax(self): #TODO: inline ???
         return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
