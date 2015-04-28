@@ -103,15 +103,16 @@ class SendingCreateForm(CremeModelForm):
             sending_date = cleaned_data['sending_date']
 
             if sending_date is None:
-                #self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
                 self.add_error('sending_date', _(u"Sending date required for a deferred sending"))
-            elif sending_date < now():
-                #self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
-                self.add_error('sending_date', _(u"Sending date must be is the future"))
             else:
-                cleaned_data['sending_date'] = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
-                                                                    minute=int(cleaned_data.get('minute') or 0),
-                                                                   )
+                sending_date = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
+                                                    minute=int(cleaned_data.get('minute') or 0),
+                                                   )
+
+                if sending_date < now():
+                    self.add_error('sending_date', _(u'Sending date must be is the future'))
+                else:
+                    cleaned_data['sending_date'] = sending_date
         else:
             cleaned_data['sending_date'] = now()
 
