@@ -368,7 +368,7 @@ class CremeUserManager(BaseUserManager):
 class CremeUser(AbstractBaseUser):
     username     = CharField(_('Username'), max_length=30, unique=True,
                              help_text=_('Required. 30 characters or fewer. '
-                                         'Letters, numbers and @/./+/-/_ characters'
+                                         'Letters, digits and @/./+/-/_ only.'
                                         ),
                              validators=[RegexValidator(re_compile('^[\w.@+-]+$'),
                                                         _('Enter a valid username.'),
@@ -380,21 +380,21 @@ class CremeUser(AbstractBaseUser):
     last_name    = CharField(_(u'Last name'), max_length=100, blank=True)
     email        = EmailField(_('Email address'), blank=True)
     date_joined  = DateTimeField(_('Date joined'), default=now).set_tags(viewable=False)
-    is_active    = BooleanField(_('Is active ?'), default=True,
+    is_active    = BooleanField(_('Is active?'), default=True,
                                 #help_text=_('Designates whether this user should be treated as '
                                             #'active. Unselect this instead of deleting accounts.'
                                            #), TODO
                                ).set_tags(viewable=False)
-    is_staff     = BooleanField(_('Is staff ?'), default=False,
+    is_staff     = BooleanField(_('Is staff?'), default=False,
                                 #help_text=_('Designates whether the user can log into this admin site.'), TODO
                                ).set_tags(viewable=False)
-    is_superuser = BooleanField(_('Is superuser?'), default=False,
+    is_superuser = BooleanField(_('Is a superuser?'), default=False,
                                 #help_text=_('If True, can create groups & events.') TODO
                                ).set_tags(viewable=False)
     role         = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True,
                               on_delete=PROTECT,
                              ).set_tags(viewable=False)
-    is_team      = BooleanField(verbose_name=_(u'Is a team ?'), default=False).set_tags(viewable=False)
+    is_team      = BooleanField(verbose_name=_(u'Is a team?'), default=False).set_tags(viewable=False)
     #children      = ManyToManyField('self', verbose_name=_(u'Child mailing lists'), symmetrical=False, related_name='parents_set')
     teammates_set = ManyToManyField('self', verbose_name=_(u'Teammates'),
                                     symmetrical=False, related_name='teams_set',
