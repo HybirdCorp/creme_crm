@@ -288,6 +288,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
     def test_clone01(self):
+        "Title remains unique"
         user = self.login()
         title = 'ticket'
         ticket = Ticket.objects.create(user=user, title=title, description="d",
@@ -300,25 +301,30 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         for i in xrange(100):
             clone = ticket.clone()
-            ticket = stack[-1]
-            self.assertNotEqual(ticket.title, clone.title)
+            self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
     def test_clone02(self):
+        "The cloned ticket is open"
         user = self.login()
-        title = 'ticket'
-        ticket = Ticket.objects.create(user=user, title=title, description="d",
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0]
-                                      )
-        stack = [ticket]
-        stack_append = stack.append
 
-        for i in xrange(100):
-            clone = ticket.clone()
-            self.assertNotEqual(stack[-1].title, clone.title)
-            stack_append(clone)
+        get_status = Status.objects.get
+        status_open   = get_status(pk=OPEN_PK)
+        status_closed = get_status(pk=CLOSED_PK)
+
+        ticket = Ticket.objects.create(user=user, title='ticket', description="d",
+                                       status=status_open,
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+
+        ticket.status = status_closed
+        ticket.save()
+        self.assertIsNotNone(ticket.closing_date)
+
+        clone = ticket.clone()
+        self.assertEqual(status_open, clone.status)
+        self.assertIsNone(clone.closing_date)
 
     def test_delete_status(self):
         user = self.login()
