@@ -24,28 +24,30 @@
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
-from creme.creme_core.forms import CremeForm, CremeModelForm, EntityCTypeChoiceField
+from creme.creme_core.forms import (CremeForm, CremeModelForm,
+        EntityCTypeChoiceField, MultiEntityCTypeChoiceField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label, DynamicSelect
 from creme.creme_core.models import CremeUser, UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils import creme_entity_content_types
+#from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.utils.unicode_collation import collator
 
 
-_ALL_ENTITIES = list(creme_entity_content_types())
+#_ALL_ENTITIES = list(creme_entity_content_types())
 
-def sorted_entity_models_choices(): #TODO: factorise with other modules ??
-    #return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: t[1])
-    sort_key = collator.sort_key
-    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: sort_key(t[1]))
+#def sorted_entity_models_choices():
+#    sort_key = collator.sort_key
+#    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: sort_key(t[1]))
 
 def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
     return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
 
 
 class UserRoleCreateForm(CremeModelForm):
-    creatable_ctypes  = EmptyMultipleChoiceField(label=_(u'Creatable resources'))
-    exportable_ctypes = EmptyMultipleChoiceField(label=_(u'Exportable resources'))
+#    creatable_ctypes  = EmptyMultipleChoiceField(label=_(u'Creatable resources'))
+#    exportable_ctypes = EmptyMultipleChoiceField(label=_(u'Exportable resources'))
+    creatable_ctypes  = MultiEntityCTypeChoiceField(label=_(u'Creatable resources'), required=False)
+    exportable_ctypes = MultiEntityCTypeChoiceField(label=_(u'Exportable resources'), required=False)
     allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
     admin_4_apps      = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
 
@@ -57,9 +59,9 @@ class UserRoleCreateForm(CremeModelForm):
         super(UserRoleCreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
 
-        models_choices = sorted_entity_models_choices()
-        fields['creatable_ctypes'].choices  = models_choices
-        fields['exportable_ctypes'].choices = models_choices
+#        models_choices = sorted_entity_models_choices()
+#        fields['creatable_ctypes'].choices  = models_choices
+#        fields['exportable_ctypes'].choices = models_choices
 
         #sort_key = collator.sort_key
         #apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()),
