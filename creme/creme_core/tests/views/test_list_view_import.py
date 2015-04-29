@@ -13,6 +13,7 @@ try:
             FakeCivility as Civility, FakePosition as Position, FakeSector as Sector)
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
             RelationType, Relation, CustomField, CustomFieldEnumValue)
+    from creme.creme_core.utils import update_model_instance
 
 #    from creme.persons.models import Contact, Organisation, Position, Sector
 
@@ -802,14 +803,18 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
         ptype2 = create_ptype(str_pk='test-blue_haired', text='Has blue hairs')
 
-        rei_info   = {'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111'}
-        asuka_info = {'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222'}
+        rei_info   = {'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111', 'email': '\t '}
+        asuka_info = {'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222', 'email': ''}
 
+        rei_mobile = '54554'
+        rei_email  = 'rei.ayanami@nerv.jp'
         rei = Contact.objects.get_or_create(first_name=rei_info['first_name'],
                                             last_name=rei_info['last_name'],
                                             defaults={'user': user},
                                            )[0]
         self.assertNotEqual(rei_info['phone'], rei.phone)
+
+        update_model_instance(rei, mobile=rei_mobile, email=rei_email)
 
         #This relation & this property should not be duplicated
         Relation.objects.create(subject_entity=rei, type=loves, object_entity=shinji, user=user)
@@ -826,8 +831,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         count = Contact.objects.count()
-        doc = self._build_csv_doc([(d['first_name'], d['last_name'], d['phone'])
-                                    for d in (rei_info, asuka_info)
+        doc = self._build_csv_doc([(d['first_name'], d['last_name'], d['phone'], d['email'])
+                                        for d in (rei_info, asuka_info)
                                   ]
                                  )
         response = self.client.post(self._build_import_url(Contact),
@@ -837,6 +842,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                               #first_name_colselect=1,
                                               #last_name_colselect=2,
                                               phone_colselect=3,
+                                              email_colselect=4,
                                               property_types=[ptype1.id, ptype2.id],
                                               fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"},'
                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"}]'% (
@@ -859,6 +865,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         rei = self.refresh(rei)
         self.assertEqual(rei_info['phone'], rei.phone)
+        self.assertEqual(rei_mobile,        rei.mobile) # value not erased (no column)
+        self.assertEqual(rei_email,         rei.email) # value not erased (empty cell)
         self.assertRelationCount(1, rei, loves.id, gendo)
         self.assertRelationCount(1, rei, loves.id, shinji) #<== not 2 !
         self.get_object_or_fail(CremeProperty, type=ptype2, creme_entity=rei.id)
