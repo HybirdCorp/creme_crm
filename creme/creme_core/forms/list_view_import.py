@@ -1118,6 +1118,8 @@ class ImportForm(CremeModelForm):
         key_fields = frozenset(get_cleaned('key_fields'))
         i = 0
 
+        is_empty_value = lambda s: s is None or isinstance(s, basestring) and not s.strip()
+
         for i, line in enumerate(filter(None, lines), start=1):
             try:
                 instance = model_class()
@@ -1126,13 +1128,20 @@ class ImportForm(CremeModelForm):
                 extr_values = []
                 for fname, extractor in extractor_fields:
                     extr_value, err_msg = extractor.extract_value(line)
-                    extr_values.append((fname, extr_value))
+#                    extr_values.append((fname, extr_value))
+
+                    # TODO: Extractor.extract_value() should return a ExtractedValue
+                    #       instead of a tuple (an so we could remove the ugly following line...)
+                    is_empty = not extractor._column_index or is_empty_value(line[extractor._column_index - 1])
+                    extr_values.append((fname, extr_value, is_empty))
+
                     append_error(line, err_msg, instance)
 
                 if key_fields:
                     try:
                         instance = model_class.objects.get(**dict((fname, extr_value) 
-                                                                    for fname, extr_value in extr_values
+#                                                                    for fname, extr_value in extr_values
+                                                                    for fname, extr_value, __ in extr_values
                                                                         if fname in key_fields
                                                                  )
                                                           )
@@ -1152,7 +1161,11 @@ class ImportForm(CremeModelForm):
                 for fname, cleaned_value in regular_fields:
                     setattr(instance, fname, cleaned_value)
 
-                for fname, extr_value in extr_values:
+#                for fname, extr_value in extr_values:
+                for fname, extr_value, is_empty in extr_values:
+                    if updated and is_empty:
+                        continue
+
                     setattr(instance, fname, extr_value)
 
                 self._pre_instance_save(instance, line)

@@ -688,8 +688,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         city2 = 'Crater city'
 
         bebop = Organisation.objects.create(user=user, name=name)
+
+        country = 'Mars'
         create_address = partial(Address.objects.create,
-                                 address='XXX', country='Mars',
+                                 address='XXX', country=country,
                                  owner=bebop,
                                  #object_id=bebop.id,
                                  #content_type=ContentType.objects.get_for_model(Organisation),
@@ -724,6 +726,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         addr1 = self.refresh(addr1)
         self.assertEqual(city1, addr1.city)
         self.assertEqual(address_val1, addr1.address)
+        self.assertEqual(country,      addr1.country) # value not erased
 
         addr2 = self.refresh(addr2)
         self.assertEqual(city2, addr2.city)
