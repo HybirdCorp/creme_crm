@@ -47,7 +47,7 @@ class _ResolvingDurationField(FunctionField):
 class TicketMixin(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100, blank=True, null=False, unique=True)
     description  = TextField(_(u'Description'))
-    status       = ForeignKey(Status, verbose_name=_(u'Status'), on_delete=PROTECT)
+    status       = ForeignKey(Status, verbose_name=_(u'Status'), on_delete=PROTECT).set_tags(clonable=False)
     priority     = ForeignKey(Priority, verbose_name=_(u'Priority'), on_delete=PROTECT)
     criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), on_delete=PROTECT)
     solution     = TextField(_(u'Solution'), blank=True, null=False)
@@ -69,7 +69,7 @@ class TicketMixin(CremeEntity):
 
 #class Ticket(AbstractTicket):
 class AbstractTicket(TicketMixin):
-    closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True, editable=False)
+    closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True, editable=False).set_tags(clonable=False)
 
     function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
     creation_label = _('Add a ticket')
@@ -105,11 +105,11 @@ class AbstractTicket(TicketMixin):
 
         return ''
 
-    def _pre_save_clone(self, source):
-#        super(Ticket, self)._pre_save_clone(source)
-        super(AbstractTicket, self)._pre_save_clone(source)
-        if self.status_id == CLOSED_PK:
-            self.closing_date = self.created = self.modified = now()
+#    def _pre_save_clone(self, source):
+##        super(Ticket, self)._pre_save_clone(source)
+#        super(AbstractTicket, self)._pre_save_clone(source)
+#        if self.status_id == CLOSED_PK:
+#            self.closing_date = self.created = self.modified = now()
 
     def save(self, *args, **kwargs):
         if self.pk:
