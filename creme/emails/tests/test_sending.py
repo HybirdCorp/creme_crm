@@ -359,10 +359,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(message.attachments)
 
         self.assertEqual({contact.email, orga1.email, orga2.email},
-                         set(recipient
+                         {recipient
                                 for message in messages
                                     for recipient in message.recipients()
-                            )
+                         }
                         )
 
     def test_create04(self):
