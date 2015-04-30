@@ -214,7 +214,7 @@ def portal_app(request, app_name):
 @login_required
 @jsonify
 def reload_block(request, ct_id):
-    ct_id = int(ct_id)
+#    ct_id = int(ct_id)
     model = get_ct_or_404(ct_id).model_class()
     app_name = model._meta.app_label
 
@@ -223,7 +223,8 @@ def reload_block(request, ct_id):
     context = RequestContext(request)
     context.update({
             'model':      model,
-            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+#            'model_name': config_registry.get_app(app_name).get_model_conf(ct_id).name_in_url,
+            'model_name': config_registry.get_app(app_name).get_model_conf(model=model).name_in_url,
             'app_name':   app_name,
         })
 

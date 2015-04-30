@@ -336,8 +336,9 @@ class ExtractorField(Field):
             app_name = model._meta.app_label
 
             try:
-                config_registry.get_app(app_name) \
-                               .get_model_conf(ContentType.objects.get_for_model(model).id)
+#                config_registry.get_app(app_name) \
+#                               .get_model_conf(ContentType.objects.get_for_model(model).id)
+                config_registry.get_app(app_name).get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
                 pass
             else:

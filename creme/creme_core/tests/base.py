@@ -211,6 +211,13 @@ class _CremeTestCase(object):
 
         return index
 
+    def assertIsSubclass(self, cls, parent_cls, msg=None):
+        if not issubclass(cls, parent_cls):
+            if msg is None:
+                msg = '{0} is not a subclass of {1} [list of parent classes {2}'.format(cls, parent_cls, cls.__mro__)
+
+            self.fail(msg)
+
     def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
         """Warning : this method has not the same behaviour than assertFormError()
         It checks both error and no error tests.

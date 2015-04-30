@@ -100,6 +100,7 @@ class AppConfigRegistry(object):
         self.name = name
         self.verbose_name = verbose_name
         self._models = {}
+        self._excluded_models = set()
         self._blocks = []
 
     @property
@@ -107,16 +108,31 @@ class AppConfigRegistry(object):
         return generate_portal_url(self.name)
 
     def register_model(self, model, model_name_in_url, form_class=None):
-        ct_id = ContentType.objects.get_for_model(model).id
-        self._models[ct_id] = ModelConfig(model, model_name_in_url, form_class)
+#        ct_id = ContentType.objects.get_for_model(model).id
+#        self._models[ct_id] = ModelConfig(model, model_name_in_url, form_class)
+        # NB: the key is the model & not the ContentType.id, because these IDs
+        #     are not always consistent with the test-models.
+        if model not in self._excluded_models:
+            self._models[model] = ModelConfig(model, model_name_in_url, form_class)
 
         return self
 
-    def get_model_conf(self, ct_id):
-        model_conf = self._models.get(ct_id)
+    def get_model_conf(self, ct_id=None, model=None):
+#        model_conf = self._models.get(ct_id)
+        if model is None:
+            assert ct_id is not None
+            warnings.warn("AppConfigRegistry.get_model_conf(): 'ct_id' argument "
+                          "is deprecated ; use the 'model' argument instead.",
+                          DeprecationWarning
+                         )
+
+            model = ContentType.objects.get_for_id(ct_id).model_class()
+
+        model_conf = self._models.get(model)
 
         if model_conf is None:
-            raise NotRegisteredInConfig("No model registered with this id: %s" % ct_id)
+#            raise NotRegisteredInConfig("No model registered with this id: %s" % ct_id)
+            raise NotRegisteredInConfig('Model %s is not registered' % model)
 
         return model_conf
 
@@ -126,7 +142,11 @@ class AppConfigRegistry(object):
     def register_block(self, block):
         self._blocks.append(block)
 
-    #@property TODO
+    def unregister_model(self, model):
+        self._models.pop(model, None)
+        self._excluded_models.add(model)
+
+    #@property TODO: + return a iterator
     def blocks(self):
         return self._blocks
 
@@ -154,7 +174,7 @@ class _ConfigRegistry(object):
         app_name corresponds to the app_label for an app, excepted when this app
         'extends' (see creme_registry) another app. In this case, the app_name
         is the app_label of the extended app.
-        So we get only AppConfigRegistry for an app & all its extending apps.
+        So we get only one AppConfigRegistry for an app & all its extending apps.
         """
         return creme_registry.get_app(app_label).extended_app or app_label
 
@@ -195,6 +215,21 @@ class _ConfigRegistry(object):
     def register_userblocks(self, *blocks_to_register):
         self._userblocks.extend(blocks_to_register)
 
+    def unregister(self, *to_unregister): #TODO: factorise with register()
+        """
+        @param to_unregister Sequence of DjangoModels)
+        """
+        app_registries = self._apps
+
+        for model in to_unregister:
+            app_name = self._get_app_name(model._meta.app_label)
+            app_conf = app_registries.get(app_name)
+
+            if app_conf is None:
+                app_registries[app_name] = app_conf = self._build_app_conf_registry(app_name)
+
+            app_conf.unregister_model(model)
+
     @property
     def userblocks(self):
         return iter(self._userblocks)
@@ -203,7 +238,12 @@ class _ConfigRegistry(object):
 config_registry = _ConfigRegistry()
 
 logger.debug('creme_config: populate registry')
-for config_import in find_n_import("creme_config_register", ['to_register', 'blocks_to_register', 'userblocks_to_register']):
+for config_import in find_n_import('creme_config_register',
+                                   ['to_register', 'to_unregister',
+                                    'blocks_to_register', 'userblocks_to_register',
+                                   ]
+                                  ):
     config_registry.register(*getattr(config_import, "to_register", ()))
+    config_registry.unregister(*getattr(config_import, "to_unregister", ()))
     config_registry.register_blocks(*getattr(config_import, "blocks_to_register", ()))
     config_registry.register_userblocks(*getattr(config_import, "userblocks_to_register", ()))

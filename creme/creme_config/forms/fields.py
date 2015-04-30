@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from django.forms.models import ModelChoiceField
 from django.utils.translation import ugettext as _
 
@@ -88,10 +88,11 @@ class CreatorModelChoiceField(ModelChoiceField):
 
         model = self.queryset.model
         app_name = model._meta.app_label
-        model_ct_id = ContentType.objects.get_for_model(model).id
+#        model_ct_id = ContentType.objects.get_for_model(model).id
 
         try:
-            model_name = config_registry.get_app(app_name).get_model_conf(model_ct_id).name_in_url
+#            model_name = config_registry.get_app(app_name).get_model_conf(model_ct_id).name_in_url
+            model_name = config_registry.get_app(app_name).get_model_conf(model=model).name_in_url
         except (KeyError, NotRegisteredInConfig):
             pass #we will use a classical ModelChoiceField
         else:
