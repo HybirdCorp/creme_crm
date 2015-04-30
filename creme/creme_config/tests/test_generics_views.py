@@ -3,18 +3,22 @@
 try:
     from json import JSONEncoder, loads
 
-    from django.conf import settings
+    from django.apps import apps
+#    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
+    from creme.creme_core.gui.block import Block
+    from creme.creme_core.forms import CremeModelForm
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.fake_models import (FakeCivility as Civility,
-            FakeSector as Sector)
+            FakeSector as Sector, FakePosition as Position)
 
 #    from creme.persons.models import Civility
 
 #    from creme.billing.models import InvoiceStatus
 
     from ..blocks import generic_models_block
+    from ..registry import _ConfigRegistry, NotRegisteredInConfig
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -39,6 +43,118 @@ class GenericModelConfigTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    def test_registry_register_model(self):
+        class SectorForm(CremeModelForm):
+            class Meta(CremeModelForm.Meta):
+                model = Sector
+
+        registry = _ConfigRegistry()
+        registry.register((Civility, 'civility'),
+                          (Sector,   'sector', SectorForm),
+                         )
+
+        with self.assertNoException():
+            app_conf = registry.get_app('creme_core')
+
+        with self.assertNoException():
+            model_conf = app_conf.get_model_conf(model=Civility)
+        self.assertEqual('civility', model_conf.name_in_url)
+        self.assertIsSubclass(model_conf.model_form, CremeModelForm)
+        self.assertEqual('Test civility', model_conf.verbose_name)
+
+        with self.assertNoException():
+            model_conf = app_conf.get_model_conf(model=Sector)
+        self.assertIsSubclass(model_conf.model_form, SectorForm)
+
+        with self.assertNoException():
+            model_conf = app_conf.get_model_conf(ContentType.objects.get_for_model(Sector).id)
+
+        self.assertEqual('sector', model_conf.name_in_url)
+
+    def test_registry_unregister_model01(self):
+        "Unregister after the registration"
+        registry = _ConfigRegistry()
+        registry.register((Civility, 'civility'),
+                          (Sector,   'sector'),
+                          (Position, 'position'),
+                         )
+        registry.unregister(Civility, Position)
+
+        with self.assertNoException():
+            app_conf = registry.get_app('creme_core')
+
+        get_model_conf = app_conf.get_model_conf
+
+        with self.assertNoException():
+            get_model_conf(model=Sector)
+
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Civility)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Position)
+
+    def test_registry_unregister_model02(self):
+        "Unregister before the registration"
+        registry = _ConfigRegistry()
+        registry.unregister(Civility, Position)
+        registry.register((Civility, 'civility'),
+                          (Sector,   'sector'),
+                          (Position, 'position'),
+                         )
+
+        with self.assertNoException():
+            app_conf = registry.get_app('creme_core')
+
+        get_model_conf = app_conf.get_model_conf
+
+        with self.assertNoException():
+            get_model_conf(model=Sector)
+
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Civility)
+        self.assertRaises(NotRegisteredInConfig, get_model_conf, model=Position)
+
+    def test_registry_register_blocks(self):
+        class TestBlock1(Block):
+            id_ = Block.generate_id('creme_config', 'test_config_registry1')
+
+        class TestBlock2(Block):
+            id_ = Block.generate_id('creme_config', 'test_config_registry2')
+
+        block1 = TestBlock1()
+        block2 = TestBlock2()
+
+        registry = _ConfigRegistry()
+        registry.register_blocks(('creme_core', block1),
+                                 ('documents',  block2),
+                                )
+
+        with self.assertNoException():
+            app_conf = registry.get_app('creme_core')
+
+        blocks = app_conf.blocks()
+        self.assertIn(block1,    blocks)
+        self.assertNotIn(block2, blocks)
+
+        with self.assertNoException():
+            app_conf = registry.get_app('documents')
+
+        blocks = app_conf.blocks()
+        self.assertIn(block2,    blocks)
+        self.assertNotIn(block1, blocks)
+
+    def test_registry_register_userblocks(self):
+        class TestUserBlock1(Block):
+            id_ = Block.generate_id('creme_config', 'test_config_registry1')
+
+        class TestUserBlock2(Block):
+            id_ = Block.generate_id('creme_config', 'test_config_registry2')
+
+        block1 = TestUserBlock1()
+        block2 = TestUserBlock2()
+        registry = _ConfigRegistry()
+
+        registry.register_userblocks(block1, block2)
+        self.assertIn(block1, registry.userblocks)
+        self.assertIn(block2, registry.userblocks)
+
     def test_portals(self):
         self.assertGET200('/creme_config/creme_core/portal/')
         self.assertGET200('/creme_config/creme_core/fake_civility/portal/')
@@ -46,7 +162,8 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         self.assertGET404('/creme_config/unexsitingapp/portal/')
 
-        if 'creme.persons' in settings.INSTALLED_APPS:
+#        if 'creme.persons' in settings.INSTALLED_APPS:
+        if apps.is_installed('creme.persons'):
             self.assertGET200('/creme_config/persons/portal/')
             self.assertGET200('/creme_config/persons/civility/portal/')
             self.assertGET404('/creme_config/persons/unexistingmodel/portal/')

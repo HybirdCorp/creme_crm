@@ -58,7 +58,8 @@ def json_list_enumerable(request, ct_id):
             raise Http404(u"You are not allowed to access to the app '%s'" % app_name)
 
         try:
-            config_registry.get_app(app_name).get_model_conf(ct.id)
+#            config_registry.get_app(app_name).get_model_conf(ct.id)
+            config_registry.get_app(app_name).get_model_conf(model=model)
         except (KeyError, NotRegisteredInConfig):
             #raise Http404(_(u"Content type is not registered in config"))
             raise Http404(u"Content type is not registered in config")
