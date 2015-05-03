@@ -42,21 +42,15 @@ class MiscViewsTestCase(ViewsTestCase):
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
-    def test_clean(self):
-        self.login()
-
-        #with self.assertNoException():
-            #response = self.client.get('/creme_core/clean/', follow=True)
-
-        #self.assertEqual(200, response.status_code)
-        #self.assertRedirects(response, '/creme_login/')
-
-        #reverse() forces all views to load & can detect some errors
-        #will be useless when test covers all code
-        #Problem: it 'artificially' increases coverage rate
-        from django.core.urlresolvers import reverse
-        with self.assertNoException():
-            reverse('creme_logout')
+#    def test_clean(self):
+#        self.login()
+#
+#        #reverse() forces all views to load & can detect some errors
+#        #will be useless when test covers all code
+#        #Problem: it 'artificially' increases coverage rate
+#        from django.core.urlresolvers import reverse
+#        with self.assertNoException():
+#            reverse('creme_logout')
 
     def test_logout(self):
         self.login()
