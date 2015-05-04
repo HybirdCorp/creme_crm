@@ -31,7 +31,8 @@ from creme.creme_core.utils import get_ct_or_404 #jsonify
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 
-from creme.products.models import Product, Service
+from creme.products import get_product_model, get_service_model
+#from creme.products.models import Product, Service
 
 #from ..constants import PRODUCT_LINE_TYPE
 from ..models import Line, ProductLine, ServiceLine
@@ -76,9 +77,9 @@ def add_to_catalog(request, line_id):
 
     #TODO: method in Line instead ?
     if isinstance(line, ProductLine):
-        related_item_class = Product 
+        related_item_class = get_product_model()
     elif isinstance(line, ServiceLine):
-        related_item_class = Service
+        related_item_class = get_service_model()
     else:
         raise Http404('This entity is not a billing line')
 
