@@ -805,6 +805,11 @@ GEOLOCATION_TOWNS = ((join(CREME_ROOT, 'geolocation/data/towns.france.csv.zip'),
 #APPS CONFIGURATION [END]#######################################################
 
 try:
+    from project_settings import *
+except ImportError:
+    pass
+
+try:
     from local_settings import *
 except ImportError:
     pass
