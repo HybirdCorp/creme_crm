@@ -134,6 +134,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of credit note', to='billing.CreditNoteStatus')),
             ],
             options={
+                'swappable': 'BILLING_CREDIT_NOTE_MODEL',
                 'verbose_name': 'Credit note',
                 'verbose_name_plural': 'Credit notes',
             },
@@ -179,6 +180,7 @@ class Migration(migrations.Migration):
                 ('payment_type', models.ForeignKey(verbose_name='Settlement terms', blank=True, to='billing.SettlementTerms', null=True)),
             ],
             options={
+                'swappable': 'BILLING_INVOICE_MODEL',
                 'verbose_name': 'Invoice',
                 'verbose_name_plural': 'Invoices',
             },
@@ -213,6 +215,7 @@ class Migration(migrations.Migration):
                 ('line_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Line')),
             ],
             options={
+                'swappable': 'BILLING_PRODUCT_LINE_MODEL',
                 'verbose_name': 'Product line',
                 'verbose_name_plural': 'Product lines',
             },
@@ -245,6 +248,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of quote', to='billing.QuoteStatus')),
             ],
             options={
+                'swappable': 'BILLING_QUOTE_MODEL',
                 'verbose_name': 'Quote',
                 'verbose_name_plural': 'Quotes',
             },
@@ -275,6 +279,7 @@ class Migration(migrations.Migration):
                 ('status', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Status of salesorder', to='billing.SalesOrderStatus')),
             ],
             options={
+                'swappable': 'BILLING_SALES_ORDER_MODEL',
                 'verbose_name': 'Salesorder',
                 'verbose_name_plural': 'Salesorders',
             },
@@ -287,6 +292,7 @@ class Migration(migrations.Migration):
                 ('line_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='billing.Line')),
             ],
             options={
+                'swappable': 'BILLING_SERVICE_LINE_MODEL',
                 'verbose_name': 'Service line',
                 'verbose_name_plural': 'Service lines',
             },
@@ -316,6 +322,7 @@ class Migration(migrations.Migration):
                 ('ct', creme.creme_core.models.fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
             ],
             options={
+                'swappable': 'BILLING_TEMPLATE_BASE_MODEL',
                 'verbose_name': 'Template',
                 'verbose_name_plural': 'Templates',
             },

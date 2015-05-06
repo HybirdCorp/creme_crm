@@ -5,6 +5,8 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.models import Currency
 
     from creme.persons.constants import REL_SUB_PROSPECT
@@ -13,19 +15,21 @@ try:
 
     from ..models import QuoteStatus, Quote, ServiceLine
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase
+    from .base import _BillingTestCase, skipIfCustomQuote, skipIfCustomServiceLine
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 @skipIfCustomOrganisation
+@skipIfCustomQuote
 class QuoteTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):
-        self.assertGET200('/billing/quote/add')
+#        self.assertGET200('/billing/quote/add')
+        self.assertGET200(reverse('billing__create_quote'))
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
@@ -136,6 +140,7 @@ class QuoteTestCase(_BillingTestCase):
         self._aux_test_csv_import(Quote, QuoteStatus)
 
     @skipIfCustomAddress
+    @skipIfCustomServiceLine
     def test_clone(self):
         user = self.user
 

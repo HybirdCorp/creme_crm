@@ -28,10 +28,12 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.billing.models import SalesOrder, Invoice, TemplateBase
+from creme.billing import get_invoice_model, get_sales_order_model, get_template_base_model
+#from creme.billing.models import SalesOrder, Invoice, TemplateBase
 
 
-_CLASS_MAP = {'sales_order': SalesOrder, 'invoice': Invoice}
+#_CLASS_MAP = {'sales_order': SalesOrder, 'invoice': Invoice}
+_CLASS_MAP = {'sales_order': get_sales_order_model(), 'invoice': get_invoice_model()}
 
 
 @login_required
@@ -47,6 +49,8 @@ def convert(request, document_id):
         raise Http404('Error: "type" argument must be in : %s' % ', '.join(_CLASS_MAP.iterkeys()))
 
     user.has_perm_to_create_or_die(dest_class)
+
+    TemplateBase = get_template_base_model()
 
     with atomic():
         if isinstance(src, TemplateBase): #TODO: unitest

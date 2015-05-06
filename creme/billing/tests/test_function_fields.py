@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from itertools import chain
     import datetime
+    from itertools import chain
 
-    from creme.creme_core.models import CremeProperty
-    from creme.creme_core.core.function_field import FunctionField
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.core.function_field import FunctionField
+    from creme.creme_core.models import CremeProperty
 
     from creme.persons import get_contact_model
     from creme.persons.models import Organisation #, Contact
     from creme.persons.tests.base import skipIfCustomOrganisation
 
-    from ..models import QuoteStatus, InvoiceStatus, ProductLine
     from ..function_fields import (get_total_pending,
-                                   get_total_won_quote_last_year,
-                                   get_total_won_quote_this_year)
-    from .base import _BillingTestCase
+            get_total_won_quote_last_year, get_total_won_quote_this_year)
+    from ..models import QuoteStatus, InvoiceStatus, ProductLine
+    from .base import (_BillingTestCase, skipIfCustomProductLine,
+            skipIfCustomQuote, skipIfCustomInvoice)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -26,15 +26,16 @@ class FunctionFieldTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
         self.login()
-        self.won_status = QuoteStatus.objects.create(name='won_status',
-                                                     won=True)
+        self.won_status = QuoteStatus.objects.create(name='won_status', won=True)
         self.pending_payment_status = InvoiceStatus.objects.create(name='pending_payment',
-                                                                    pending_payment=True)
+                                                                   pending_payment=True,
+                                                                  )
         self.today_date = datetime.date.today()
 
     def _set_manages_by_creme(self, entity):
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME,
-                                     creme_entity=entity)
+                                     creme_entity=entity,
+                                    )
 
     def create_line(self, related_document, unit_price, quantity):
         return ProductLine.objects.create(user=self.user,
@@ -42,8 +43,10 @@ class FunctionFieldTestCase(_BillingTestCase):
                                           related_document=related_document,
                                           unit_price=unit_price,
                                           quantity=quantity,
-                                          )
+                                         )
 
+    @skipIfCustomInvoice
+    @skipIfCustomProductLine
     def test_get_total_pending(self):
         invoice, source, target = self.create_invoice_n_orgas("SWAG")
         invoice.status = self.pending_payment_status
@@ -53,6 +56,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(invoice, 5000, 1)
         self.assertEqual(5000, get_total_pending(target))
 
+    @skipIfCustomQuote
+    @skipIfCustomProductLine
     def test_get_total_won_quote_last_year(self):
         quote, source, target = self.create_quote_n_orgas("YOLO")
         quote.status = self.won_status
@@ -64,6 +69,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_last_year(target))
 
+    @skipIfCustomQuote
+    @skipIfCustomProductLine
     def test_get_total_won_quote_this_year(self):
         quote, source, target = self.create_quote_n_orgas("YOLO")
         quote.status = self.won_status
@@ -74,6 +81,7 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.create_line(quote, 5000, 1)
         self.assertEqual(5000, get_total_won_quote_this_year(target))
 
+    @skipIfCustomQuote
     def test_functionfields(self):
         quote, source, target = self.create_quote_n_orgas("YOLO")
 

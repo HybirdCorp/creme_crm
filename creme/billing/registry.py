@@ -90,7 +90,8 @@ for app_config in apps.get_app_configs():
 class RelationTypeConverterRegistry(object):
     """ This registry is used when converting a billing document into another billing document.
     The relationtypes which contenttypes doesn't match after the conversion also have to be
-    converted into a compatible one."""
+    converted into a compatible one.
+    """
     def __init__(self):
         self._registry = defaultdict(dict)
 

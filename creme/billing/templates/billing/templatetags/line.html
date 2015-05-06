@@ -53,7 +53,7 @@
                                 <img src="{% creme_media_url 'images/delete_16.png' %}" border="0" title="{% trans "flag for delete" %}" alt="{% trans "flag for delete" %}">
                             </a>
                             <br /><br />
-                            <a onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ ct_id }}');">
+                            <a onclick="creme.billing.restoreInitialValues({{form.instance.id}}, '{{form.prefix}}', '{{ct_id}}');">
                                 <img src="{% creme_media_url 'images/refresh_16.png' %}" border="0" title="{% trans "reset" %}" alt="{% trans "reset" %}">
                             </a>
                         </th>

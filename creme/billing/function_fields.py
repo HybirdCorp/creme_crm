@@ -27,12 +27,16 @@ from creme.creme_core.core.function_field import FunctionField, FunctionFieldRes
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Organisation, Contact
 
+from . import get_invoice_model, get_quote_model
 from .constants import REL_OBJ_BILL_RECEIVED, REL_OBJ_BILL_ISSUED
-from .models import Invoice, Quote
+#from .models import Invoice, Quote
 
 
 Contact      = get_contact_model()
 Organisation = get_organisation_model()
+
+Invoice      = get_invoice_model()
+Quote        = get_quote_model()
 
 
 def sum_totals_no_vat(model, entity, **kwargs):

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,27 +27,31 @@ from .templatebase import TemplateBase
 from .other_models import SalesOrderStatus
 
 
-class SalesOrder(Base):
+#class SalesOrder(Base):
+class AbstractSalesOrder(Base):
     status = ForeignKey(SalesOrderStatus, verbose_name=_(u'Status of salesorder'), on_delete=PROTECT)
 
     creation_label = _('Add a sales order')
 
 #    class Meta:
     class Meta(Base.Meta):
-        app_label = 'billing'
+#        app_label = 'billing'
+        abstract = True
         verbose_name = _(u'Salesorder')
         verbose_name_plural = _(u'Salesorders')
 
     def get_absolute_url(self):
-        return "/billing/sales_order/%s" % self.id
+#        return "/billing/sales_order/%s" % self.id
+        return reverse('billing__view_order', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/billing/sales_order/edit/%s" % self.id
+#        return "/billing/sales_order/edit/%s" % self.id
+        return reverse('billing__edit_order', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
-        return "/billing/sales_orders"
+#        return "/billing/sales_orders"
+        return reverse('billing__list_orders')
 
     def build(self, template):
         # Specific recurrent generation rules
@@ -60,4 +65,10 @@ class SalesOrder(Base):
 
         self.status_id = status_id
 
-        return super(SalesOrder, self).build(template)
+#        return super(SalesOrder, self).build(template)
+        return super(AbstractSalesOrder, self).build(template)
+
+
+class SalesOrder(AbstractSalesOrder):
+    class Meta(AbstractSalesOrder.Meta):
+        swappable = 'BILLING_SALES_ORDER_MODEL'

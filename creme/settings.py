@@ -666,6 +666,14 @@ PRODUCTS_SERVICE_MODEL = 'products.Service'
 RECURRENTS_RGENERATOR_MODEL = 'recurrents.RecurrentGenerator'
 
 #BILLING -----------------------------------------------------------------------
+BILLING_CREDIT_NOTE_MODEL   = 'billing.CreditNote'
+BILLING_INVOICE_MODEL       = 'billing.Invoice'
+BILLING_PRODUCT_LINE_MODEL  = 'billing.ProductLine'
+BILLING_QUOTE_MODEL         = 'billing.Quote'
+BILLING_SALES_ORDER_MODEL   = 'billing.SalesOrder'
+BILLING_SERVICE_LINE_MODEL  = 'billing.ServiceLine'
+BILLING_TEMPLATE_BASE_MODEL = 'billing.TemplateBase'
+
 QUOTE_NUMBER_PREFIX = "DE"
 INVOICE_NUMBER_PREFIX = "FA"
 SALESORDER_NUMBER_PREFIX = "BC"

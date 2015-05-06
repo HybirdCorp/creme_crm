@@ -28,9 +28,13 @@ from creme.creme_core.utils import jsonify
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme.creme_core.views.decorators import POST_only
 
-from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
-        CreditNote, TemplateBase) #Base
-from creme.billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
+from creme.billing import (get_invoice_model, get_quote_model,
+        get_sales_order_model, get_credit_note_model, get_template_base_model)
+#from creme.billing.models import (PaymentInformation, Invoice, Quote, SalesOrder,
+#        CreditNote, TemplateBase) #Base
+from creme.billing.models import PaymentInformation
+from creme.billing.forms.payment_information import (PaymentInformationCreateForm,
+        PaymentInformationEditForm)
 
 
 @login_required
@@ -58,7 +62,12 @@ def set_default(request, payment_information_id, billing_id):
     billing_doc = get_object_or_404(CremeEntity, pk=billing_id).get_real_entity()
     user    = request.user
 
-    if not isinstance(billing_doc, (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)):
+#    if not isinstance(billing_doc, (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)):
+    if not isinstance(billing_doc, (get_invoice_model(), get_quote_model(),
+                                    get_sales_order_model(), get_credit_note_model(),
+                                    get_template_base_model(),
+                                   )
+                     ):
         raise Http404('This entity is not a billing document')
 
     organisation = pi.get_related_entity()

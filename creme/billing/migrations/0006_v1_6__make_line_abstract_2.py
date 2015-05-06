@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 
+from creme.billing import product_line_model_is_custom, service_line_model_is_custom
+
 
 def copy_old_fields(apps, schema_editor):
     field_names = (
@@ -18,7 +20,12 @@ def copy_old_fields(apps, schema_editor):
             'vat_value',
         )
 
-    for model_name in ('ProductLine', 'ServiceLine'):
+    for model_name, custom_func in [('ProductLine', product_line_model_is_custom),
+                                    ('ServiceLine', service_line_model_is_custom),
+                                   ]:
+        if custom_func():
+            continue
+
         for instance in apps.get_model('billing', model_name).objects.all():
             line_instance = instance.line_ptr
 

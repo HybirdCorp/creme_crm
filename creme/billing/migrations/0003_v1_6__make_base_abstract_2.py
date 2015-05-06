@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 #from django.db.models import F
 
+from creme.billing import (credit_note_model_is_custom, invoice_model_is_custom,
+    quote_model_is_custom, sales_order_model_is_custom, template_base_model_is_custom)
+
 
 def copy_old_fields(apps, schema_editor):
     field_names = (
@@ -24,9 +27,16 @@ def copy_old_fields(apps, schema_editor):
             'payment_info_id',
         )
 
-    for model_name in ('Invoice', 'Quote', 'SalesOrder', 'CreditNote', 'TemplateBase'):
-        # NB: It cannot be done with F expressions because it does not work with field from JOIN
+    for model_name, custom_func in [('Invoice',      invoice_model_is_custom),
+                                    ('Quote',        quote_model_is_custom),
+                                    ('SalesOrder',   sales_order_model_is_custom),
+                                    ('CreditNote',   credit_note_model_is_custom),
+                                    ('TemplateBase', template_base_model_is_custom),
+                                   ]:
+        if custom_func():
+            continue
 
+        # NB: It cannot be done with F expressions because it does not work with field from JOIN
         for instance in apps.get_model('billing', model_name).objects.all():
             base_instance = instance.base_ptr
 

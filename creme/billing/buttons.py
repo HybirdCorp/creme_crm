@@ -25,7 +25,13 @@ from creme.creme_core.gui.button_menu import Button
 from creme.persons import get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
-from .models import Quote, Invoice, SalesOrder
+from . import get_invoice_model, get_quote_model, get_sales_order_model
+#from .models import Quote, Invoice, SalesOrder
+
+
+Invoice      = get_invoice_model()
+Quote        = get_quote_model()
+SalesOrder   = get_sales_order_model()
 
 
 class GenerateInvoiceNumberButton(Button):
@@ -34,7 +40,7 @@ class GenerateInvoiceNumberButton(Button):
     template_name = 'billing/templatetags/button_generate_invoice_number.html'
 
     def get_ctypes(self):
-        from .models import Invoice
+#        from .models import Invoice
         return (Invoice,)
 
     def has_perm(self, context):

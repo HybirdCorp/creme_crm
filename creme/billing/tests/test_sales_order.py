@@ -4,18 +4,21 @@ try:
     from datetime import date
     from decimal import Decimal
 
+    from django.core.urlresolvers import reverse
+
     from creme.creme_core.models import Currency
 
     from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from ..models import SalesOrderStatus, SalesOrder
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase
+    from .base import _BillingTestCase, skipIfCustomSalesOrder
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 @skipIfCustomOrganisation
+@skipIfCustomSalesOrder
 class SalesOrderTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
@@ -23,7 +26,8 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def create_salesorder(self, name, source, target, currency=None, status=None): #TODO inline (used once)
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post('/billing/sales_order/add', follow=True,
+#        response = self.client.post('/billing/sales_order/add', follow=True,
+        response = self.client.post(reverse('billing__create_order'), follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
                                           'issuing_date':    '2012-1-5',
@@ -46,7 +50,8 @@ class SalesOrderTestCase(_BillingTestCase):
         return order, source, target
 
     def test_createview01(self):
-        self.assertGET200('/billing/sales_order/add')
+#        self.assertGET200('/billing/sales_order/add')
+        self.assertGET200(reverse('billing__create_order'))
 
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
@@ -61,7 +66,8 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_linked(self):
         source, target = self.create_orgas()
-        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
+#        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
+        url = reverse('billing__create_related_order', args=(target.id, source.id))
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -132,7 +138,8 @@ class SalesOrderTestCase(_BillingTestCase):
         order1 = self.create_salesorder_n_orgas('Order1')[0]
         order2 = self.create_salesorder_n_orgas('Order2')[0]
 
-        response = self.assertGET200('/billing/sales_orders')
+#        response = self.assertGET200('/billing/sales_orders')
+        response = self.assertGET200(reverse('billing__list_orders'))
 
         with self.assertNoException():
             orders_page = response.context['entities']

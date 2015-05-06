@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,22 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, exists
 from os import makedirs
+from os.path import join, exists
 import subprocess
 
-from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
+from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template import loader, Context
-from django.http import HttpResponseRedirect
-from django.conf import settings
+from django.utils.encoding import smart_str
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
 
+from creme.billing import get_invoice_model
 #from creme.billing.constants import CURRENCY #TODO: use it ?
-from creme.billing.models import Invoice
+#from creme.billing.models import Invoice
 
 
 @login_required
@@ -43,14 +44,16 @@ def export_as_pdf(request, base_id):
     source = entity.get_source().get_real_entity()
     target = entity.get_target().get_real_entity()
 
-    if isinstance(entity, Invoice):
-        template_file = 'billing/templates/invoice.tex'
-    else:
-        template_file = 'billing/templates/billings.tex'
+#    if isinstance(entity, Invoice):
+#        template_file = 'billing/templates/invoice.tex'
+#    else:
+#        template_file = 'billing/templates/billings.tex'
+    template_name = 'invoice' if isinstance(entity, get_invoice_model()) else 'billings'
 
     document_name = _(entity._meta.verbose_name)
 
-    t = loader.get_template(template_file)
+#    t = loader.get_template(template_file)
+    t = loader.get_template('billing/templates/%s.tex' % template_name)
     context = Context({
             'plines':        entity.product_lines,
             'slines':        entity.service_lines,

@@ -24,6 +24,7 @@ from creme.creme_core.models.entity import CremeEntity
 from creme.creme_core.views.generic import add_model_with_popup
 
 
+#TODO: get the billing model in order to avoid a query
 def _add_with_relations(request, target_id, source_id, form, title, status_id=None):
     target = get_object_or_404(CremeEntity, pk=target_id).get_real_entity()
     has_perm = request.user.has_perm_to_link_or_die

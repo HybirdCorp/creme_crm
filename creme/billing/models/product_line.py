@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 #from ..constants import PRODUCT_LINE_TYPE
 from .line import Line
 
 
-class ProductLine(Line):
+#class ProductLine(Line):
+class AbstractProductLine(Line):
     creation_label = _('Add a product line')
 
 #    def __init__(self, *args, **kwargs):
@@ -34,6 +36,7 @@ class ProductLine(Line):
 #    class Meta:
     class Meta(Line.Meta):
 #        app_label = 'billing'
+        abstract = True
         verbose_name = _(u'Product line')
         verbose_name_plural = _(u'Product lines')
 
@@ -45,4 +48,10 @@ class ProductLine(Line):
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/billing/product_lines'
+#        return '/billing/product_lines'
+        return reverse('billing__list_product_lines')
+
+
+class ProductLine(AbstractProductLine):
+    class Meta(AbstractProductLine.Meta):
+        swappable = 'BILLING_PRODUCT_LINE_MODEL'

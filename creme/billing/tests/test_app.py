@@ -13,9 +13,13 @@ try:
 
     from creme.products import get_product_model, get_service_model
 
+    from .. import (get_invoice_model, get_quote_model, get_sales_order_model,
+            get_credit_note_model, get_template_base_model,
+            get_product_line_model, get_service_line_model)
     from ..blocks import persons_statistics_block
     from ..constants import *
-    from ..models import *
+    from ..models import (InvoiceStatus, SalesOrderStatus, CreditNoteStatus,
+            ConfigBillingAlgo, SimpleBillingAlgo)
     from .base import _BillingTestCase
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -28,8 +32,17 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         Product = get_product_model()
         Service = get_service_model()
 
-        billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        lines_clases = [ProductLine, ServiceLine] #Line
+        Invoice    = get_invoice_model()
+        Quote      = get_quote_model()
+        SalesOrder = get_sales_order_model()
+
+#        billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
+#        lines_clases = [ProductLine, ServiceLine] #Line
+        billing_classes = [Invoice, Quote, SalesOrder,
+                           get_credit_note_model(), get_template_base_model(),
+                          ]
+        lines_clases = [get_product_line_model(), get_service_line_model()] #Line
+
         self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
         self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
         self.get_relationtype_or_fail(REL_SUB_HAS_LINE,          billing_classes, lines_clases)
@@ -59,6 +72,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
     @skipIfCustomOrganisation
     def test_algoconfig(self):
         self.login()
+
+        Invoice    = get_invoice_model()
+        Quote      = get_quote_model()
+        SalesOrder = get_sales_order_model()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
 

@@ -21,6 +21,7 @@
 from datetime import timedelta #date
 import logging
 
+from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField #ForeignKey
 from django.utils.translation import pgettext_lazy
 #from django.contrib.contenttypes.models import ContentType
@@ -34,8 +35,8 @@ from .base import Base
 logger = logging.getLogger(__name__)
 
 
-class TemplateBase(Base):
-    #ct        = ForeignKey(ContentType).set_tags(viewable=False)
+#class TemplateBase(Base):
+class AbstractTemplateBase(Base):
     ct        = CTypeForeignKey(editable=False).set_tags(viewable=False)
     status_id = PositiveIntegerField(editable=False).set_tags(viewable=False) #TODO: avoid deletion of status
 
@@ -43,22 +44,28 @@ class TemplateBase(Base):
 
 #    class Meta:
     class Meta(Base.Meta):
-        app_label = 'billing'
+#        app_label = 'billing'
+        abstract = True
         verbose_name = pgettext_lazy('billing', u'Template')
         verbose_name_plural = pgettext_lazy('billing', u'Templates')
 
     def get_absolute_url(self):
-        return "/billing/template/%s" % self.id
+#        return "/billing/template/%s" % self.id
+        return reverse('billing__view_template', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/billing/template/edit/%s" % self.id
+#        return "/billing/template/edit/%s" % self.id
+        return reverse('billing__edit_template', args=(self.id,))
 
     def get_delete_absolute_url(self):
-        return '' #means that TemplateBase can not be deleted directly (because it is closely linked to its RecurrentGenerator)
+        # Means that TemplateBase can not be deleted directly
+        # (because it is closely linked to its RecurrentGenerator)
+        return '' 
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/billing/templates"
+#        return "/billing/templates"
+        return reverse('billing__list_template')
 
     def get_generator(self):
         from creme.recurrents.models import RecurrentGenerator
@@ -81,7 +88,8 @@ class TemplateBase(Base):
         instance = instance_class()
         instance.build(self)
 
-        # Common rules for the recurrent generation of a "base" object for billing app. See base's child for specific rules
+        # Common rules for the recurrent generation of a "base" object for billing app.
+        # See base's child for specific rules
         instance.generate_number()
         instance.expiration_date = instance.issuing_date + timedelta(days=30) #TODO: user configurable rules ???
 
@@ -97,4 +105,10 @@ class TemplateBase(Base):
         # Specific generation rules
         self.status_id = 1
         self.ct = new_ct
-        return super(TemplateBase, self).build(template)
+#        return super(TemplateBase, self).build(template)
+        return super(AbstractTemplateBase, self).build(template)
+
+
+class TemplateBase(AbstractTemplateBase):
+    class Meta(AbstractTemplateBase.Meta):
+        swappable = 'BILLING_TEMPLATE_BASE_MODEL'

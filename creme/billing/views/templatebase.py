@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.shortcuts import get_object_or_404
-#from django.http import HttpResponseRedirect
-
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 
-from creme.billing.models import TemplateBase
 from creme.billing.forms.templatebase import TemplateBaseEditForm
+from creme.billing.models import TemplateBase
 
 
 @login_required
@@ -52,20 +49,3 @@ def detailview(request, template_id):
 @permission_required('billing')
 def listview(request):
     return list_view(request, TemplateBase, extra_dict={'add_url': '/recurrents/generator/add'})
-
-#@login_required
-#@permission_required('recurrents')
-#def delete(request, template_id):
-    #user = request.user
-
-    #template = get_object_or_404(TemplateBase, pk=template_id)
-    #user.has_perm_to_delete_or_die(template)
-
-    #generator = template.get_generator()
-    #user.has_perm_to_delete_or_die(generator)
-
-    #if generator: # WTF ??
-        #generator.delete()
-    #template.delete()
-
-    #return HttpResponseRedirect('/recurrents/generators')
