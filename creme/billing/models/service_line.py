@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 #from ..constants import SERVICE_LINE_TYPE
 from .line import Line
 
 
-class ServiceLine(Line):
+#class ServiceLine(Line):
+class AbstractServiceLine(Line):
     creation_label = _('Add a service line')
 
 #    def __init__(self, *args, **kwargs):
@@ -34,6 +36,7 @@ class ServiceLine(Line):
 #    class Meta:
     class Meta(Line.Meta):
 #        app_label = 'billing'
+        abstract = True
         verbose_name = _(u'Service line')
         verbose_name_plural = _(u'Service lines')
 
@@ -45,4 +48,10 @@ class ServiceLine(Line):
 
     @staticmethod
     def get_lv_absolute_url():
-        return '/billing/service_lines'
+#        return '/billing/service_lines'
+        return reverse('billing__list_service_lines')
+
+
+class ServiceLine(AbstractServiceLine):
+    class Meta(AbstractServiceLine.Meta):
+        swappable = 'BILLING_SERVICE_LINE_MODEL'

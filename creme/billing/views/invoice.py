@@ -26,14 +26,14 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
         view_entity, add_model_with_popup)
-from creme.creme_core.views.decorators import POST_only
 
+from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
+from creme.billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
 from creme.billing.models import Invoice, InvoiceStatus
 from creme.billing.views.workflow import _add_with_relations
-from creme.billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
-from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
 
 
 @login_required
@@ -57,6 +57,7 @@ def add_from_detailview(request, entity_id):
                                         },
                                )
 
+#TODO: merge with add_from_detailview (target & source as optionnal arg -- GET arg ?)
 @login_required
 @permission_required(('billing', 'billing.add_invoice'))
 def add_with_relations(request, target_id, source_id):

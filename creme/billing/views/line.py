@@ -34,9 +34,11 @@ from creme.creme_core.views.generic import add_to_entity, list_view, inner_popup
 from creme.products import get_product_model, get_service_model
 #from creme.products.models import Product, Service
 
+from .. import get_product_line_model, get_service_line_model
 #from ..constants import PRODUCT_LINE_TYPE
+from ..forms.line import (ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
+        LineEditForm, AddToCatalogForm)
 from ..models import Line, ProductLine, ServiceLine
-from ..forms.line import ProductLineMultipleAddForm, ServiceLineMultipleAddForm, LineEditForm, AddToCatalogForm
 
 
 @login_required
@@ -76,9 +78,9 @@ def add_to_catalog(request, line_id):
     line = get_object_or_404(CremeEntity, pk=line_id).get_real_entity()
 
     #TODO: method in Line instead ?
-    if isinstance(line, ProductLine):
+    if isinstance(line, get_product_line_model()):
         related_item_class = get_product_model()
-    elif isinstance(line, ServiceLine):
+    elif isinstance(line, get_service_line_model()):
         related_item_class = get_service_model()
     else:
         raise Http404('This entity is not a billing line')
@@ -106,8 +108,10 @@ def add_to_catalog(request, line_id):
 
 
 LINE_FORMSET_PREFIX = {
-    ProductLine : 'product_line_formset',
-    ServiceLine : 'service_line_formset',
+#    ProductLine : 'product_line_formset',
+#    ServiceLine : 'service_line_formset',
+    get_product_line_model(): 'product_line_formset',
+    get_service_line_model(): 'service_line_formset',
 }
 
 @POST_only

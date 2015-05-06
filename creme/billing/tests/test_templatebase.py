@@ -15,12 +15,14 @@ try:
             Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
             AdditionalInformation, PaymentTerms)
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import _BillingTestCase
+    from .base import (_BillingTestCase, skipIfCustomTemplateBase,
+            skipIfCustomInvoice, skipIfCustomQuote, skipIfCustomSalesOrder)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 @skipIfCustomOrganisation
+@skipIfCustomTemplateBase
 class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
         self.login()
@@ -43,6 +45,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         return tpl
 
+    @skipIfCustomInvoice
     def test_create_invoice01(self):
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
         comment = '*Insert a comment here*'
@@ -67,6 +70,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(date.today(), invoice.issuing_date)
         self.assertEqual(invoice.issuing_date + timedelta(days=30), invoice.expiration_date)
 
+    @skipIfCustomInvoice
     def test_create_invoice02(self):
         "Bad status id"
         pk = 12
@@ -79,6 +83,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         self.assertEqual(1, invoice.status_id)
 
+    @skipIfCustomQuote
     def test_create_quote01(self):
         quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
         comment = '*Insert an nice comment here*'
@@ -91,6 +96,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(comment, quote.comment)
         self.assertEqual(quote_status, quote.status)
 
+    @skipIfCustomQuote
     def test_create_quote02(self):
         "Bad status id"
         pk = 8
@@ -106,6 +112,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(pk,    status.id)
         self.assertEqual('N/A', status.name)
 
+    @skipIfCustomSalesOrder
     def test_create_order01(self):
         order_status = self.get_object_or_fail(SalesOrderStatus, pk=4)
         tpl = self._create_templatebase(SalesOrder, order_status.id)
@@ -116,6 +123,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertIsInstance(order, SalesOrder)
         self.assertEqual(order_status, order.status)
 
+    @skipIfCustomSalesOrder
     def test_create_order02(self):
         "Bad status id"
         pk = 8

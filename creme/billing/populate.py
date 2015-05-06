@@ -41,13 +41,29 @@ from creme.persons import get_contact_model, get_organisation_model
 from creme.products import get_product_model, get_service_model
 #from creme.products.models import Product, Service
 
+from . import (get_credit_note_model, get_invoice_model, get_quote_model,
+        get_sales_order_model, get_template_base_model,
+        get_product_line_model, get_service_line_model)
 from .blocks import *
 from .buttons import *
 from .constants import *
-from .models import *
+#from .models import *
+from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
+        SettlementTerms, AdditionalInformation, PaymentTerms)
 from .setting_keys import payment_info_key
 
+
 logger = logging.getLogger(__name__)
+
+
+CreditNote   = get_credit_note_model()
+Invoice      = get_invoice_model()
+Quote        = get_quote_model()
+SalesOrder   = get_sales_order_model()
+TemplateBase = get_template_base_model()
+
+ProductLine = get_product_line_model()
+ServiceLine = get_service_line_model()
 
 
 class Populator(BasePopulator):

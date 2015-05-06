@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 
+skip_cnote_tests    = False
+skip_invoice_tests  = False
+skip_quote_tests    = False
+skip_order_tests    = False
+skip_template_tests = False
+skip_pline_tests    = False
+skip_sline_tests    = False
+
 try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
+    from unittest import skipIf
 
     from django.conf import settings
+    from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -18,10 +28,41 @@ try:
 
     from creme.products.models import Product, Service, Category, SubCategory
 
+    from .. import *
     from ..constants import *
     from ..models import *
+
+    skip_cnote_tests    = credit_note_model_is_custom()
+    skip_invoice_tests  = invoice_model_is_custom()
+    skip_quote_tests    = quote_model_is_custom()
+    skip_order_tests    = sales_order_model_is_custom()
+    skip_template_tests = template_base_model_is_custom()
+    skip_pline_tests    = product_line_model_is_custom()
+    skip_sline_tests    = service_line_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
+
+
+def skipIfCustomCreditNote(test_func):
+    return skipIf(skip_cnote_tests, 'Custom CreditNote model in use')(test_func)
+
+def skipIfCustomInvoice(test_func):
+    return skipIf(skip_invoice_tests, 'Custom Invoice model in use')(test_func)
+
+def skipIfCustomQuote(test_func):
+    return skipIf(skip_quote_tests, 'Custom Quote model in use')(test_func)
+
+def skipIfCustomSalesOrder(test_func):
+    return skipIf(skip_order_tests, 'Custom SalesOrder model in use')(test_func)
+
+def skipIfCustomTemplateBase(test_func):
+    return skipIf(skip_template_tests, 'Custom TemplateBase model in use')(test_func)
+
+def skipIfCustomProductLine(test_func):
+    return skipIf(skip_pline_tests, 'Custom ProductLine model in use')(test_func)
+
+def skipIfCustomServiceLine(test_func):
+    return skipIf(skip_sline_tests, 'Custom ServiceLine model in use')(test_func)
 
 
 class _BillingTestCaseMixin(object):
@@ -44,7 +85,8 @@ class _BillingTestCaseMixin(object):
     def create_invoice(self, name, source, target, currency=None, discount=Decimal(), user=None):
         user = user or self.user
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post('/billing/invoice/add', follow=True,
+#        response = self.client.post('/billing/invoice/add', follow=True,
+        response = self.client.post(reverse('billing__create_invoice'), follow=True,
                                     data={'user':            user.pk,
                                           'name':            name,
                                           'issuing_date':    '2010-9-7',
@@ -77,7 +119,8 @@ class _BillingTestCaseMixin(object):
     def create_quote(self, name, source, target, currency=None, status=None):
         status = status or QuoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
-        response = self.client.post('/billing/quote/add', follow=True,
+#        response = self.client.post('/billing/quote/add', follow=True,
+        response = self.client.post(reverse('billing__create_quote'), follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
                                           'issuing_date':    '2011-3-15',

@@ -10,7 +10,7 @@ try:
     from creme.persons.tests.base import skipIfCustomOrganisation
 
     from ..models import PaymentInformation
-    from .base import _BillingTestCase
+    from .base import _BillingTestCase, skipIfCustomInvoice
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -65,7 +65,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
-        url = '/billing/payment_information/edit/%s' % pi.id
+        url = '/billing/payment_information/edit/%s' % pi.id #TODO: get_edit_absolute_url()
         self.assertGET200(url)
 
         rib_key = "00"
@@ -125,6 +125,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         pi_12.delete()
         self.assertIs(True, self.refresh(pi_11).is_default)
 
+    @skipIfCustomInvoice
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
@@ -133,6 +134,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertPOST200(url)
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 
+    @skipIfCustomInvoice
     def test_set_default_in_invoice02(self):
         sega = Organisation.objects.create(user=self.user, name=u"Sega")
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
@@ -152,6 +154,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         assertPostStatus(404, pi_sega)
         assertPostStatus(200, pi_sony)
 
+    @skipIfCustomInvoice
     def test_set_default_in_invoice03(self):
         "Trashed organisation"
         invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
@@ -162,6 +165,7 @@ class PaymentInformationTestCase(_BillingTestCase):
         self.assertPOST403('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
         self.assertNotEqual(pi_sony, self.refresh(invoice).payment_info)
 
+    @skipIfCustomInvoice
     def test_set_null_in_invoice01(self):
         sega = Organisation.objects.create(user=self.user, name=u"Sega")
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')

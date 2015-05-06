@@ -34,12 +34,25 @@ from creme.persons.blocks import AddressBlock
 from creme.products import get_product_model, get_service_model
 #from creme.products.models import Product, Service
 
+from . import (get_credit_note_model, get_invoice_model, get_quote_model,
+        get_sales_order_model, get_template_base_model,
+        get_product_line_model, get_service_line_model)
 from .constants import *
 from .function_fields import get_total_pending, get_total_won_quote_last_year, get_total_won_quote_this_year
-from .models import *
+from .models import PaymentInformation
+
 
 Contact      = get_contact_model()
 Organisation = get_organisation_model()
+
+CreditNote   = get_credit_note_model()
+Invoice      = get_invoice_model()
+Quote        = get_quote_model()
+SalesOrder   = get_sales_order_model()
+TemplateBase = get_template_base_model()
+
+ProductLine = get_product_line_model()
+ServiceLine = get_service_line_model()
 
 
 class BillingBlock(Block):
