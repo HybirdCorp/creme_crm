@@ -4,7 +4,7 @@ try:
     from datetime import date
     from decimal import Decimal
     from functools import partial
-    from json.encoder import JSONEncoder
+    from json import dumps as json_dump
 
     from django.core.urlresolvers import reverse
     from django.utils.translation import ugettext as _
@@ -545,7 +545,7 @@ class LineTestCase(_BillingTestCase):
         discount_unit = DISCOUNT_PERCENT
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
                                     #TODO: json.dumps
-                                    data={service_line.entity_type_id: JSONEncoder().encode({
+                                    data={service_line.entity_type_id: json_dump({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
@@ -589,7 +589,7 @@ class LineTestCase(_BillingTestCase):
         quantity = '2'
         unit = 'month'
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    data={product_line.entity_type_id: JSONEncoder().encode({
+                                    data={product_line.entity_type_id: json_dump({
                                                         'product_line_formset-TOTAL_FORMS':        len(invoice.product_lines) + 1,
                                                         'product_line_formset-INITIAL_FORMS':      1,
                                                         'product_line_formset-MAX_NUM_FORMS':      u'',
@@ -646,7 +646,7 @@ class LineTestCase(_BillingTestCase):
                                                  )
 
         self.assertPOST403('/billing/%s/multi_save_lines' % invoice.id,
-                           data={service_line.entity_type_id: JSONEncoder().encode({
+                           data={service_line.entity_type_id: json_dump({
                                                 'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                 'service_line_formset-INITIAL_FORMS':      1,
                                                 'service_line_formset-MAX_NUM_FORMS':      u'',
@@ -677,7 +677,7 @@ class LineTestCase(_BillingTestCase):
 
         discount_unit = DISCOUNT_LINE_AMOUNT
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    data={service_line.entity_type_id: JSONEncoder().encode({
+                                    data={service_line.entity_type_id: json_dump({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',
@@ -713,7 +713,7 @@ class LineTestCase(_BillingTestCase):
                                                  )
 
         response = self.client.post('/billing/%s/multi_save_lines' % invoice.id,
-                                    data={service_line.entity_type_id: JSONEncoder().encode({
+                                    data={service_line.entity_type_id: json_dump({
                                                         'service_line_formset-TOTAL_FORMS':        len(invoice.service_lines),
                                                         'service_line_formset-INITIAL_FORMS':      1,
                                                         'service_line_formset-MAX_NUM_FORMS':      u'',

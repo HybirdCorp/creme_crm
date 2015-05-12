@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-from json.encoder import JSONEncoder
+from json import dumps as json_dump
 from types import GeneratorType
 #import warnings
 
@@ -476,8 +476,7 @@ class EntitySelector(TextInput):
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
         qfilter = attrs.pop('qfilter', None)
-        #TODO: jdon.dumps
-        context['qfilter'] = escape(JSONEncoder().encode(qfilter)) if qfilter else ''
+        context['qfilter'] = escape(json_dump(qfilter)) if qfilter else ''
 
         html_output = """
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" 
@@ -654,7 +653,7 @@ class TinyMCEEditor(Textarea):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-jqueryplugin', attrs)
 
-        plugin_options = JSONEncoder().encode({
+        plugin_options = json_dump({
             "mode": "textareas",
             "script_url": '%stiny_mce/tiny_mce.js' % settings.MEDIA_URL,
             "convert_urls": False,
@@ -706,75 +705,6 @@ class ColorPickerWidget(TextInput):
         context = widget_render_context('ui-creme-jqueryplugin', attrs)
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
-
-
-#class ListViewWidget(TextInput):
-    #"""A list view many-to-many widget
-    #Examples of usage in a form definition :
-        #mailing_list = fields.CremeEntityField(required=False, model=MailingList, q_filter=None)
-        #mailing_list = fields.MultiCremeEntityField(required=False, model=MailingList, q_filter=None)
-    #@param q_filter Has to be a list of dict => {'pk__in':[1,2], 'name__contains':'toto'} or None
-    #"""
-    #def __init__(self, attrs=None, q_filter=None, model=None, separator=','):
-        #warnings.warn("ListViewWidget class is deprecated.", DeprecationWarning)
-        #super(ListViewWidget, self).__init__(attrs)
-        #self.q_filter  = q_filter
-        #self._o2m      = 1
-        #self._model    = model
-        #self._ct_id    = None if model is None else ContentType.objects.get_for_model(model).id
-        #self.separator = separator
-
-    #@property
-    #def o2m(self):
-        #return self._o2m
-
-    #@o2m.setter
-    #def o2m(self, o2m):
-        #self._o2m = o2m
-
-    #@property
-    #def model(self):
-        #return self._model
-
-    #@model.setter
-    #def model(self, model):
-        #self._model = model
-        #if model is not None:
-            #self._ct_id = ContentType.objects.get_for_model(model).id
-
-    #def render(self, name, value, attrs=None):
-        #attrs = self.build_attrs(attrs, name=name)
-        #attrs['o2m']   = self.o2m
-        #attrs['ct_id'] = self._ct_id
-
-        #id_input = attrs.get('id')
-
-        #encode = JSONEncoder().encode
-
-        #return mark_safe("""%(input)s
-                #<script type="text/javascript">
-                    #$(document).ready(function() {
-                        #creme.lv_widget.init_widget('%(id)s','%(qfilter)s', %(js_attrs)s);
-                        #creme.lv_widget.handleSelection(%(value)s, '%(id)s');
-                    #});
-                #</script>""" % {
-                    #'input':    super(ListViewWidget, self).render(name, "", attrs),
-                    #'id':       id_input,
-                    #'qfilter':  encode(self.q_filter),
-                    #'js_attrs': encode([{'name': k, 'value': v} for k, v in self.attrs.iteritems()]),
-                    #'value':    encode(value),
-                #})
-
-    #def value_from_datadict(self, data, files, name):
-        #value = data.get(name, None)
-
-        #if value:
-            #if self.separator in value:
-                #return [v for v in data[name].split(self.separator) if v]
-
-            #return [value]
-
-        #return None
 
 
 class UnorderedMultipleChoiceWidget(SelectMultiple):

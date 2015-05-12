@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import JSONEncoder
+from json import dumps as json_dump
 
 from django.core.exceptions import PermissionDenied
 from django.forms.formsets import formset_factory
@@ -85,9 +85,8 @@ def json_quickform_response(instance):
                 'added':[(instance.id, unicode(instance))],
                }
 
-    #TODO: json.dumps
-    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response),
-                        content_type="text/html", status=200,
+    return HttpResponse(u'<json>%s</json>' % json_dump(response),
+                        content_type="text/html",
                        )
 
 @login_required

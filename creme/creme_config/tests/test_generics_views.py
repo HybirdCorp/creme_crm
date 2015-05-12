@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import JSONEncoder, loads
+    from json import dumps as json_dump, loads as json_load
 
     from django.apps import apps
 #    from django.conf import settings
@@ -221,7 +221,7 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def assertWidgetResponse(self, response, instance):
         #TODO: json.dumps
-        self.assertEqual(u'<json>%s</json>' % JSONEncoder().encode({
+        self.assertEqual(u'<json>%s</json>' % json_dump({
                             'added': [[instance.id, unicode(instance)]], 
                             'value': instance.id
                          }), 
@@ -358,7 +358,7 @@ class GenericModelConfigTestCase(CremeTestCase):
                                     )
 
         with self.assertNoException():
-            result = loads(response.content)
+            result = json_load(response.content)
 
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))

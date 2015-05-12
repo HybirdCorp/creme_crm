@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import JSONEncoder
+from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
@@ -52,7 +52,7 @@ class FolderDocsBlock(QuerysetBlock):
                         #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
                         update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder_id),
                         ct_id=_CT_DOC.id,
-                        q_filter=JSONEncoder().encode(q_dict), #TODO: json.dumps ??
+                        q_filter=json_dump(q_dict),
                        )
                    )
 

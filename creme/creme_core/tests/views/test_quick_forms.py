@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from json import JSONEncoder
+    from json import dumps as json_dump
 
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
@@ -201,7 +201,7 @@ class QuickFormTestCase(CremeTestCase):
         self.assertEqual(count + 1, Contact.objects.count())
 
         contact = self.get_object_or_fail(Contact, last_name=last_name, email=email)
-        self.assertEqual('<json>%s</json>' % JSONEncoder().encode({
+        self.assertEqual('<json>%s</json>' % json_dump({
                                 "added": [[contact.id, unicode(contact)]], 
                                 "value": contact.id
                             }),

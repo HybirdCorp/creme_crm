@@ -22,7 +22,7 @@ from future_builtins import map
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
-from json import loads as jsonloads, JSONEncoder
+from json import loads as json_load, dumps as json_dump
 from re import compile as compile_re
 import warnings
 
@@ -127,7 +127,7 @@ class JSONField(CharField):
             return self._return_none_or_raise(self.required)
 
         try:
-            data = jsonloads(value)
+            data = json_load(value)
         except Exception:
             raise ValidationError(self.error_messages['invalidformat'],
                                   code='invalidformat',
@@ -139,8 +139,7 @@ class JSONField(CharField):
         return data
 
     def format_json(self, value):
-        #TODO: json.dumps
-        return JSONEncoder().encode(value)
+        return json_dump(value)
 
     #TODO: can we remove this hack with the new widget api (since django 1.2) ??
     def from_python(self, value):

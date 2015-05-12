@@ -22,7 +22,7 @@ import logging
 import warnings
 import traceback
 import sys
-from json import JSONEncoder
+from json import dumps as json_dump
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 #from django.db.models.query_utils import Q
@@ -134,7 +134,7 @@ def jsonify(func):
             msg = unicode(e)
             status = 400
         else:
-            msg = JSONEncoder().encode(rendered) #TODO: json.dumps
+            msg = json_dump(rendered)
 
         return HttpResponse(msg, content_type='text/javascript', status=status)
 
