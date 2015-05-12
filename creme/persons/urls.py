@@ -38,7 +38,7 @@ if not organisation_model_is_custom():
 if not address_model_is_custom():
     urlpatterns += patterns('creme.persons.views.address',
         url(r'^address/add/(?P<entity_id>\d+)$',          'add',          name='persons__create_address'),
-        url(r'^address/add/billing/(?P<entity_id>\d+)$',  'add_billing',  name='persons__create_biling_address'),
+        url(r'^address/add/billing/(?P<entity_id>\d+)$',  'add_billing',  name='persons__create_billing_address'),
         url(r'^address/add/shipping/(?P<entity_id>\d+)$', 'add_shipping', name='persons__create_shipping_address'),
         url(r'^address/edit/(?P<address_id>\d+)',         'edit',         name='persons__edit_address'),
     )

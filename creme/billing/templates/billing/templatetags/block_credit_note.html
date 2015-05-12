@@ -9,8 +9,8 @@
             {% endblock %}
         </th>
         <th class="actions">
-            <div class="buttons">
-                {% get_line_linker at_url '/billing/credit_note/add_related_to/{{ object.id }}/' with_label _("Link to existing credit notes") with_perms link_perm %}
+            <div class="buttons">{% url 'billing__create_related_cnote' object.id as creation_url %}
+                {% get_line_linker at_url creation_url with_label _("Link to existing credit notes") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
@@ -32,8 +32,8 @@
                     {% if credit_note_view_perm %}
                         <th class="block_header_line_dark" align="center" width="2%">
                             {{forloop.counter}}
-                            &nbsp;
-                            {% get_line_unlinker at_url '/billing/credit_note/delete_related/{{ credit_note.pk }}/from/{{ object.pk }}/' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{credit_note.pk}} }" with_perms unlink_perm|and_op:credit_note_unlink_perm %}
+                            &nbsp;{% url 'billing__delete_related_cnote' credit_note.pk object.pk as unlink_url %}
+                            {% get_line_unlinker at_url unlink_url with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{credit_note.pk}} }" with_perms unlink_perm|and_op:credit_note_unlink_perm %}
                         </th>
 
                         <td class="{{row_color}}" align="center">{% widget_entity_hyperlink credit_note user %}</td>
@@ -43,7 +43,7 @@
                             {% if credit_note.comment %}
                                 {{credit_note.comment|linebreaksbr}}
                             {% endif %}
-                            {% get_line_editor at_url '/billing/credit_note/editcomment/{{credit_note.id}}/' with_perms credit_note_edit_perm %}
+                            {% url 'billing__edit_cnote_comment' credit_note.id as edit_comment_url %}{% get_line_editor at_url edit_comment_url with_perms credit_note_edit_perm %}
                         </td>
                         <td class="{{row_color}}" align="center">{% print_field object=credit_note field='issuing_date' %}</td>
                         <td class="{{row_color}}" align="center">{% print_field object=credit_note field='expiration_date' %}</td>

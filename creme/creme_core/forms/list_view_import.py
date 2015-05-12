@@ -27,6 +27,7 @@ from os.path import splitext
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.db.models import Q, ManyToManyField, BooleanField as ModelBooleanField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
@@ -43,10 +44,7 @@ from creme.creme_core.forms.base import _CUSTOM_NAME
 from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.models import (CremePropertyType, CremeProperty,
         RelationType, Relation, CremeEntity, EntityCredentials,
-        CustomField, CustomFieldValue,
-        #CustomFieldEnum
-        CustomFieldEnumValue,
-        )
+        CustomField, CustomFieldValue, CustomFieldEnumValue) #CustomFieldEnum
 from creme.creme_core.registry import import_backend_registry
 from creme.creme_core.utils.collections import LimitedList
 #from creme.creme_core.views.entity import EXCLUDED_FIELDS
@@ -66,8 +64,8 @@ logger = logging.getLogger(__name__)
 class UploadForm(CremeForm):
     step       = IntegerField(widget=HiddenInput)
     document   = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    #TODO: reverse('documents__create_document_from_widget', args=(1,))
-                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
+                                    #create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
+                                    create_action_url=reverse('documents__create_document_from_widget', args=(1,)),
                                    )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
                               help_text=_(u'Does the first line of the line contain '

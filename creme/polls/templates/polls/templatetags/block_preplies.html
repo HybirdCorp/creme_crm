@@ -9,8 +9,9 @@
             {% if propose_creation %}
                 <div class="buttons">
                     {% block line_adders %}
+                        {% url 'polls__create_reply_from_pform' object.id as creation_url %}
                         {% has_perm_to link object as link_perm %}{% has_perm_to create ct_reply as creation_perm %}
-                        {% get_line_adder at_url '/polls/poll_reply/add_from_pform/{{object.id}}' with_label _("Add replies") with_perms link_perm|and_op:creation_perm %}
+                        {% get_line_adder at_url creation_url with_label _("Add replies") with_perms link_perm|and_op:creation_perm %}
                     {% endblock  %}
                 </div>
             {% endif %}

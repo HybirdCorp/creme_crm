@@ -5,8 +5,8 @@
     {% get_block_header colspan=3 %}
         <th class="label">{% get_block_title _("%s Other address") _("%s Others addresses") 'info_48.png' _('Other Address') %}</th>
         <th class="actions">
-            <div class="buttons">
-                {% get_line_adder at_url '/persons/address/add/{{object.id}}' with_label _("Add an address") with_perms has_perm %}
+            <div class="buttons">{% url 'persons__create_address' object.id as add_addr_url %}
+                {% get_line_adder at_url add_addr_url with_label _("Add an address") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}

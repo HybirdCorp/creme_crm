@@ -16,7 +16,7 @@ if not opportunity_model_is_custom():
         url(r'^opportunity/add$',                         'add',      name='opportunities__create_opportunity'),
         url(r'^opportunity/add_to/(?P<ce_id>\d+)$',       'add_to',   name='opportunities__create_related_opportunity'),
         url(r'^opportunity/add_to/(?P<ce_id>\d+)/popup$', 'add_to', {'inner_popup': True},
-            name='opportunities__create_related_opportunity_popup'
+            name='opportunities__create_related_opportunity_popup',
            ),
         url(r'^opportunity/edit/(?P<opp_id>\d+)$',        'edit',       name='opportunities__edit_opportunity'),
         url(r'^opportunity/(?P<opp_id>\d+)$',             'detailview', name='opportunities__view_opportunity'),
