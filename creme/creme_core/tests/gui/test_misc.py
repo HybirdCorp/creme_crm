@@ -13,10 +13,13 @@ try:
     from django.utils.translation import ugettext as _, pgettext
 
     from ..base import CremeTestCase # skipIfNotInstalled
+    from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_DISCOUNT_UNIT
     from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation,
             FakeImage as Image, FakePosition as Position,
             FakeImageCategory as MediaCategory,
-            FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList)
+            FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList,
+            FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.field_printers import field_printers_registry
     from creme.creme_core.gui.last_viewed import LastViewedItem
@@ -382,3 +385,32 @@ class GuiTestCase(CremeTestCase):
         get_csv_val  = field_printers_registry.get_csv_field_value
         self.assertEqual(_('No'),  get_csv_val(casca, 'is_a_nerd', user))
         self.assertEqual(_('Yes'), get_csv_val(judo, 'is_a_nerd', user))
+
+    def test_field_printers07(self):
+        "Numerics Field"
+        user = self.login()
+
+        # Integer
+        capital = 12345
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='Hawk', capital=capital)
+        orga2 = create_orga(name='God hand')
+
+        get_csv_val  = field_printers_registry.get_csv_field_value
+        self.assertEqual(capital, get_csv_val(orga1, 'capital', user))
+        self.assertEqual('',      get_csv_val(orga2, 'capital', user))
+
+        # Decimal & integer with choices
+        invoice = FakeInvoice.objects.create(user=user, name='Swords & shields')
+
+        create_line = partial(FakeInvoiceLine.objects.create, user=user, invoice=invoice)
+        line1 = create_line(item='Swords',  quantity='3.00', unit_price='125.6', discount_unit=FAKE_PERCENT_UNIT)
+        line2 = create_line(item='Shields', quantity='2.00', unit_price='53.4',  discount_unit=None)
+
+        self.assertEqual('3.00',  get_csv_val(line1, 'quantity',   user))
+        self.assertEqual('125.6', get_csv_val(line1, 'unit_price', user))
+        self.assertEqual(FAKE_DISCOUNT_UNIT[FAKE_PERCENT_UNIT],
+                         get_csv_val(line1, 'discount_unit', user)
+                        )
+        self.assertEqual('', get_csv_val(line2, 'discount_unit', user))
