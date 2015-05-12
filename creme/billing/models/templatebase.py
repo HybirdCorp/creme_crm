@@ -65,7 +65,7 @@ class AbstractTemplateBase(Base):
     @staticmethod
     def get_lv_absolute_url():
 #        return "/billing/templates"
-        return reverse('billing__list_template')
+        return reverse('billing__list_templates')
 
     def get_generator(self):
         from creme.recurrents.models import RecurrentGenerator
