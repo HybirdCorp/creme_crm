@@ -129,14 +129,22 @@ class AbstractAct(CremeEntity):
         return relopps
 
     def _post_save_clone(self, source):
-        #TODO: use bulk_create() when django 1.4
-        ActObjective_create = ActObjective.objects.create
-        for act_objective in ActObjective.objects.filter(act=source):
-            ActObjective_create(name=act_objective.name,
-                                act=self,
-                                counter=act_objective.counter,
-                                counter_goal=act_objective.counter_goal,
-                                ctype=act_objective.ctype)
+        #ActObjective_create = ActObjective.objects.create
+        #for act_objective in ActObjective.objects.filter(act=source):
+            #ActObjective_create(name=act_objective.name,
+                                #act=self,
+                                #counter=act_objective.counter,
+                                #counter_goal=act_objective.counter_goal,
+                                #ctype=act_objective.ctype)
+        ActObjective.objects.bulk_create([
+                ActObjective(name=objective.name,
+                             act=self,
+                             counter=objective.counter,
+                             counter_goal=objective.counter_goal,
+                             ctype=objective.ctype,
+                            )
+                for objective in ActObjective.objects.filter(act=source).order_by('id')
+            ])
 
 
 class Act(AbstractAct):

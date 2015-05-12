@@ -13,6 +13,7 @@ try:
             EntityFilter, EntityFilterCondition)
 
     from creme.persons.models import Contact, Organisation
+    from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.opportunities.models import Opportunity, SalesPhase
     from creme.opportunities.tests import skipIfCustomOpportunity
@@ -123,7 +124,7 @@ class ActTestCase(CommercialBaseTestCase):
                                   goal='GOAL', start=date(2010, 11, 25),
                                   due_date=date(2011, 12, 26),
                                   act_type=ActType.objects.create(title='Show'),
-                                  segment = self._create_segment(),
+                                  segment=self._create_segment(),
                                  )
 
     def test_edit(self):
@@ -206,6 +207,7 @@ class ActTestCase(CommercialBaseTestCase):
 #        self.assertGET200('/commercial/act/%s' % act.id)
         self.assertGET200(act.get_absolute_url())
 
+    @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_create_linked_opportunity(self):
         act = self.create_act()
@@ -561,6 +563,8 @@ class ActTestCase(CommercialBaseTestCase):
                                                )
         self.assertGET409(self._build_create_related_entity_url(objective))
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_count_relations01(self):
         user = self.user
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
@@ -595,6 +599,8 @@ class ActTestCase(CommercialBaseTestCase):
         orga02.trash()
         self.assertEqual(1, self.refresh(objective).get_count())
 
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
     def test_count_relations02(self):
         "With filter"
         user = self.user
@@ -640,6 +646,35 @@ class ActTestCase(CommercialBaseTestCase):
         completes_goal(subject_entity=contact)
         self.assertEqual(2, self.refresh(objective).get_count())
 
+    def assertObjectivesEqual(self, obj_a, obj_b):
+        self.assertEqual(obj_a.name,         obj_b.name)
+        self.assertEqual(obj_a.counter,      obj_b.counter)
+        self.assertEqual(obj_a.counter_goal, obj_b.counter_goal)
+        self.assertEqual(obj_a.ctype,        obj_b.ctype)
+
+    def test_clone(self):
+        act = self.create_act()
+
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation, is_custom=True)
+
+        create_obj = partial(ActObjective.objects.create, act=act) 
+        obj1 = create_obj(name='Hello counter')
+        obj2 = create_obj(name='Orga counter', counter_goal=2, filter=efilter,
+                          ctype=ContentType.objects.get_for_model(Organisation),
+                         )
+
+        cloned = act.clone()
+        self.assertEqual(act.name,     cloned.name)
+        self.assertEqual(act.due_date, cloned.due_date)
+        self.assertEqual(act.segment,  cloned.segment)
+
+        cloned_objs = ActObjective.objects.filter(act=cloned).order_by('name')
+        self.assertEqual(2, len(cloned_objs))
+
+        self.assertObjectivesEqual(obj1, cloned_objs[0])
+        self.assertObjectivesEqual(obj2, cloned_objs[1])
+
+    @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_related_opportunities(self):
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
@@ -694,6 +729,7 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.get_object_or_fail(Act, pk=act.pk)
         self.assertEqual(atype, act.act_type)
 
+    @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_link_to_activity(self):
         user = self.user
