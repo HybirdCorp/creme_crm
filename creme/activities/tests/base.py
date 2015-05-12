@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
 
-from json.encoder import JSONEncoder
+from json import dumps as json_dump
 
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -21,4 +21,4 @@ class _ActivitiesTestCase(CremeTestCase):
                                               ) #'creme_core'
 
     def _acttype_field_value(self, atype_id, subtype_id=None):
-        return JSONEncoder().encode({'type': atype_id, 'sub_type': subtype_id}) #TODO: json.dumps
+        return json_dump({'type': atype_id, 'sub_type': subtype_id})

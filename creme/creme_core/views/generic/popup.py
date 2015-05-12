@@ -20,7 +20,7 @@
 
 from itertools import chain
 #from logging import debug
-from json import JSONEncoder
+from json import dumps as json_dump
 
 from django.http import HttpResponse
 from django.template.context import RequestContext
@@ -63,8 +63,7 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
                                           #'whoami':          request.REQUEST.get('whoami'),
                                           'whoami':          POST.get('whoami') or GET.get('whoami'),
                                           'callback_url':    callback_url,
-                                          #TODO: json.dumps
-                                          'reload':          JSONEncoder().encode(reload),
+                                          'reload':          json_dump(reload),
                                           'persisted':       tpl_persist,
                                           'delegate_reload': delegate_reload,
                                          },

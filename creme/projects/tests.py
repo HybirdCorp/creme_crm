@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json.encoder import JSONEncoder
+    from json import dumps as json_dump
 
     from django.utils.formats import date_format
     from django.utils.timezone import now
@@ -51,7 +51,7 @@ class ProjectsTestCase(CremeTestCase):
         return '/projects/task/%s/resource/add' % task.id
 
     def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
-        return JSONEncoder().encode({'type': atype, 'sub_type': sub_type}) #TODO: json.dumps ??
+        return json_dump({'type': atype, 'sub_type': sub_type})
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,

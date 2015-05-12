@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json import JSONEncoder
+    from json import dumps as json_dump
 
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
@@ -467,7 +467,7 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertIsNone(doc.description)
         self.assertEqual(folder, doc.folder)
 
-        self.assertEqual(u'<json>%s</json>' % JSONEncoder().encode({
+        self.assertEqual(u'<json>%s</json>' % json_dump({
                                 'added': [[doc.id, unicode(doc)]],
                                 'value': doc.id,
                             }),

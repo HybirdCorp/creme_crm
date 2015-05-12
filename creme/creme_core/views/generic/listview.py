@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json import JSONDecoder
+from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -88,12 +88,11 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
 def _build_extrafilter(request, extra_filter=None):
     json_q_filter = request.GET.get('q_filter')
-    #TODO: json.loads
-    q_filter = _clean_value(json_q_filter, JSONDecoder().decode, {})
+    q_filter = _clean_value(json_q_filter, json_load, {})
 
     if not q_filter:
         json_q_filter = request.POST.get('q_filter', '{}')
-        q_filter = _clean_value(json_q_filter, JSONDecoder().decode, {})
+        q_filter = _clean_value(json_q_filter, json_load, {})
 
     filter = get_q_from_dict(q_filter)
 

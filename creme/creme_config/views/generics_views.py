@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-from json import JSONEncoder
+from json import dumps as json_dump
 
 from django.db.models import FieldDoesNotExist, IntegerField
 from django.db.models.deletion import ProtectedError
@@ -96,7 +96,7 @@ def add_model_from_widget(request, app_name, model_name):
     instance = form.instance
     response = {'value': instance.id, 'added': [(instance.id, unicode(instance))]}
 
-    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response), #TODO: json.dumps
+    return HttpResponse(u'<json>%s</json>' % json_dump(response),
                         content_type="text/html",
                        )
 

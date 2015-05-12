@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from json.encoder import JSONEncoder
+from json import dumps as json_dump
 
 from django.template import Library
 from django.utils.html import escape
@@ -82,11 +82,9 @@ def print_node_chart(context, node, diameter=100):
         #data = [[label, 1]]
         #legends = [legend]
 
-    #TODO: json.dumps
-    encode = JSONEncoder().encode
     context.update({
-                'chart_data':     mark_safe(encode([data])),
-                'chart_labels':   mark_safe(encode(legends)),
+                'chart_data':     mark_safe(json_dump([data])),
+                'chart_labels':   mark_safe(json_dump(legends)),
                 'chart_diameter': diameter,
                 'chart_width':    max(diameter * 2 + 50, diameter + max_legend_length * 9),
                 'chart_height':   max(diameter + 75, 80 + 25 * count),

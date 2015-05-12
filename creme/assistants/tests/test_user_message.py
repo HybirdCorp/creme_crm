@@ -2,7 +2,7 @@
 
 try:
     from functools import partial
-    from json.encoder import JSONEncoder
+    from json import dumps as json_dump
 
     from django.conf import settings
     from django.contrib.auth import get_user_model
@@ -239,11 +239,10 @@ class UserMessageTestCase(AssistantsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':                user.pk,
                                           'title':               title,
-                                          #TODO: json.dumps
-                                          'type_selector':       JSONEncoder().encode({'type': ACTIVITYTYPE_MEETING,
-                                                                                       'sub_type': ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                                                                      }
-                                                                                     ),
+                                          'type_selector':       json_dump({'type': ACTIVITYTYPE_MEETING,
+                                                                            'sub_type': ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                           }
+                                                                          ),
                                           'start':               '2010-1-10',
                                           'my_participation':    True,
                                           'my_calendar':         my_calendar.pk,
