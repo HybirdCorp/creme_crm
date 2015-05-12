@@ -26,7 +26,7 @@
         {% endfor %}
         <tr class="content">
             <th class="{% cycle header_color %} th_info"><h2>{% trans "Resolving duration" %}</h2></th>
-            <td class="{% cycle row_color %} td_info"><h2>{{object.get_resolving_duration}}</h2></td>
+            <td class="{% cycle row_color %} td_info" colspan="2"><h2>{{object.get_resolving_duration}}</h2></td>
         </tr>
     </tbody>
 </table>
