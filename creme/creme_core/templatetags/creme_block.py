@@ -199,28 +199,39 @@ def _do_line_creator(parser, token, template_path):
         raise TemplateSyntaxError("%r tag had invalid arguments" % tag_name)
 
     url, label_str, perm_str = match.groups()
-
-    first_char = url[0]
-    if not (first_char == url[-1] and first_char in ('"', "'")):
-        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
-
     compile_filter = parser.compile_filter
 
-    return LineCreatorNode(url=url[1:-1],
+    first_char = url[0]
+#    if not (first_char == url[-1] and first_char in ('"', "'")):
+#        raise TemplateSyntaxError("%r tag's url argument should be in quotes" % tag_name)
+    if first_char in ('"', "'"): # URL is a quoted (template) string
+        if first_char != url[-1]:
+            raise TemplateSyntaxError("%r tag's url argument should end with a "
+                                      "quote if it's a template string" % tag_name
+                                     )
+
+        url_var = InnerTemplateVar(Template(url[1:-1]))
+    else: # URL is a variable node
+        url_var = TemplateLiteral(compile_filter(url), url)
+
+    return LineCreatorNode(url_var=url_var, #url=url[1:-1],
                            label_var=TemplateLiteral(compile_filter(label_str), label_str),
                            perm_var=TemplateLiteral(compile_filter(perm_str), perm_str),
-                           template_path=template_path
+                           template_path=template_path,
                           )
 
 class LineCreatorNode(TemplateNode):
-    def __init__(self, url,  label_var, perm_var, template_path):
+#    def __init__(self, url,  label_var, perm_var, template_path):
+    def __init__(self, url_var, label_var, perm_var, template_path):
         self.template  = get_template(template_path)
-        self.url_tpl   = Template(url)
+#        self.url_tpl   = Template(url)
+        self.url_var   = url_var
         self.perm_var  = perm_var
         self.label_var = label_var
 
     def render(self, context):
-        context['action_url'] = self.url_tpl.render(context)
+#        context['action_url'] = self.url_tpl.render(context)
+        context['action_url'] = self.url_var.eval(context)
         context['label']      = self.label_var.eval(context)
         context['line_perm']  = self.perm_var.eval(context)
 
@@ -228,7 +239,12 @@ class LineCreatorNode(TemplateNode):
 
 @register.tag(name="get_line_adder")
 def do_line_adder(parser, token):
-    """Eg: {% get_line_adder at_url '/app/model/add/{{object.id}}/' with_label _("New Stuff") with_perms has_perm %}"""
+    """Eg:
+    {% get_line_adder at_url '/app/model/add/{{object.id}}/' with_label _("New Stuff") with_perms has_perm %}
+
+    {% url 'my_app__add_my_model' object.id as my_url %}
+    {% get_line_adder at_url my_url with_label _("New Stuff") with_perms has_perm %}
+    """
     return _do_line_creator(parser, token, 'creme_core/templatetags/widgets/block_line_adder.html')
 
 @register.tag(name="get_line_linker")
@@ -309,25 +325,44 @@ def _do_line_suppr(parser, token, template_path):
 
     suppr_url, post_args, perm_str = match.groups()
 
-    for group in (suppr_url, post_args):
-        first_char = group[0]
-        if not (first_char == group[-1] and first_char in ('"', "'")):
-            raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
+#    for group in (suppr_url, post_args):
+#        first_char = group[0]
+#        if not (first_char == group[-1] and first_char in ('"', "'")):
+#            raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
 
-    return LineSuppressorNode(url=suppr_url[1:-1], post_args=post_args[1:-1],
+    first_char = suppr_url[0]
+    if first_char in ('"', "'"): # URL is a quoted (template) string
+        if first_char != suppr_url[-1]:
+            raise TemplateSyntaxError("%r tag's url argument should end with a "
+                                      "quote if it's a template string" % tag_name
+                                     )
+
+        url_var = InnerTemplateVar(Template(suppr_url[1:-1]))
+    else: # URL is a variable node
+        url_var = TemplateLiteral(parser.compile_filter(suppr_url), suppr_url)
+
+    first_char = post_args[0]
+    if not (first_char == post_args[-1] and first_char in ('"', "'")):
+        raise TemplateSyntaxError("%r tag's argument should be in quotes" % tag_name)
+
+    return LineSuppressorNode(url_var=url_var, #url=suppr_url[1:-1],
+                              post_args=post_args[1:-1],
                               perm_var=TemplateLiteral(parser.compile_filter(perm_str), perm_str),
-                              template_path=template_path
+                              template_path=template_path,
                              )
 
 class LineSuppressorNode(TemplateNode):
-    def __init__(self, url, post_args, perm_var, template_path):
+#    def __init__(self, url, post_args, perm_var, template_path):
+    def __init__(self, url_var, post_args, perm_var, template_path):
         self.template = get_template(template_path)
-        self.url_tpl  = Template(url)
+#        self.url_tpl  = Template(url)
+        self.url_var   = url_var
         self.args_tpl = Template(post_args)
         self.perm_var = perm_var
 
     def render(self, context):
-        context['action_url'] = self.url_tpl.render(context)
+#        context['action_url'] = self.url_tpl.render(context)
+        context['action_url'] = self.url_var.eval(context)
         context['post_args']  = self.args_tpl.render(context)
         context['line_perm']  = self.perm_var.eval(context)
 
@@ -335,7 +370,12 @@ class LineSuppressorNode(TemplateNode):
 
 @register.tag(name="get_line_deletor")
 def do_line_deletor(parser, token):
-    """Eg: {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
+    """Eg:
+    {% get_line_deletor at_url '/app/model/delete' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}
+
+    {% url 'my_app__delete_model' as delete_url %}
+    {% get_line_deletor at_url delete_url with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}
+    """
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_deletor.html')
 
 @register.tag(name="get_line_unlinker")

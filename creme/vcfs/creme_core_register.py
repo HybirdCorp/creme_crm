@@ -36,7 +36,6 @@ creme_registry.register_app('vcfs', _(u'Vcfs'), credentials=creme_registry.CRED_
 #creme_menu.get_app_item('persons').register_item('/vcfs/vcf', _(u'Import contact from VCF file'), 'persons.add_contact')
 creme_menu.get_app_item('persons').register_item(reverse('vcfs__import'),
                                                  _(u'Import contact from VCF file'),
-                                                 #'persons.add_contact',
                                                  build_creation_perm(get_contact_model()),
                                                 )
 

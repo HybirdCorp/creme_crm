@@ -9,7 +9,7 @@
 {% block add_buttons %}
     {% has_perm_to change object as has_perm %}
     {% comment %}{% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}{% endcomment %}
-    {% get_line_adder at_url '/billing/{{object.id}}/product_line/add_multiple' with_label _("Add one or more product") with_perms has_perm %}
+    {% url 'billing__create_product_lines' object.id as creation_url %}{% get_line_adder at_url creation_url with_label _("Add one or more product") with_perms has_perm %}
 {% endblock %}
 
 {% block empty_msg %}{% trans "No product in this document" %}{% endblock %}

@@ -100,7 +100,7 @@ class AddressTestCase(CremeTestCase):
         self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
 
 #        url = '/persons/address/add/billing/%s' % orga.id
-        url = reverse('persons__create_biling_address', args=(orga.id,))
+        url = reverse('persons__create_billing_address', args=(orga.id,))
         self.assertGET200(url)
 
         addr_value = '21 jump street'
