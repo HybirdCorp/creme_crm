@@ -66,14 +66,18 @@ class SalesOrderTestCase(_BillingTestCase):
 
     def test_create_linked(self):
         source, target = self.create_orgas()
-#        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
-        url = reverse('billing__create_related_order', args=(target.id, source.id))
+##        url = '/billing/sales_order/add/%s/source/%s' % (target.id, source.id)
+#        url = reverse('billing__create_related_order', args=(target.id, source.id))
+        url = reverse('billing__create_related_order', args=(target.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+        self.assertEqual({'status': 1,
+                          #'source': str(source.id),
+                          'target': target
+                         },
                          form.initial
                         )
 

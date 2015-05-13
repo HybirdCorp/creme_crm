@@ -1,14 +1,19 @@
 {% load i18n %}
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% trans which_document as img_title %}
+{% comment %} {% trans which_document as img_title %} {% endcomment %}
 {% if link_perm %}
+{% comment %}
     <a class="menu_button" onclick="creme.billing.linkToDocument('{{become_url}}/source/', {{managed_orga|optionize_model_iterable:'dict'|jsonify}});">
         <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+{% endcomment %}
+    <a class="menu_button" onclick="creme.dialogs.form('{% url url_name object.id %}', {reloadOnSuccess: true}).open({width:'80%'});">
+        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" />
         {{verbose_name}}
     </a>
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+        {% comment %}<img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{% endcomment %}
+        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{model_vname}}" alt="{{model_vname}}" />
         {{verbose_name}}
     </span>
 {% endif %}
