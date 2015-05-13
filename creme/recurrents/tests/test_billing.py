@@ -14,13 +14,11 @@ try:
 
     from creme.persons.models import Organisation, Address
 
-    if apps.is_installed('creme.billing'):
-        from creme.billing.models import (Invoice, InvoiceStatus, TemplateBase,
-                Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
-                CreditNote, CreditNoteStatus)
-        billing_installed = True
-    else:
-        billing_installed = False
+    from creme.billing.models import (Invoice, InvoiceStatus, TemplateBase,
+            Quote, QuoteStatus, SalesOrder, SalesOrderStatus,
+            CreditNote, CreditNoteStatus)
+    from creme.billing.tests.base import (skipIfCustomInvoice, skipIfCustomQuote,
+            skipIfCustomSalesOrder, skipIfCustomCreditNote)
 
     from .base import skipIfCustomGenerator
     from ..models import RecurrentGenerator #Periodicity
@@ -35,12 +33,12 @@ class RecurrentsBillingTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps = ['recurrents']
+        apps_2_pop = ['recurrents']
 
-        if billing_installed:
-            apps.append('billing')
+        if apps.is_installed('creme.billing'):
+            apps_2_pop.append('billing')
 
-        cls.populate(*apps)
+        cls.populate(*apps_2_pop)
 
         Vat.objects.get_or_create(is_default=True, defaults={'value': DEFAULT_VAT})
 
@@ -160,22 +158,27 @@ class RecurrentsBillingTestCase(CremeTestCase):
             self.assertFalse(shipping_address.city)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomInvoice
     def test_create_invoice01(self):
         self._aux_test_create(Invoice, InvoiceStatus)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomInvoice
     def test_create_invoice02(self):
         self._aux_test_create(Invoice, InvoiceStatus, target_has_addresses=True)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomQuote
     def test_create_quote(self):
         self._aux_test_create(Quote, QuoteStatus)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomSalesOrder
     def test_create_order(self):
         self._aux_test_create(SalesOrder, SalesOrderStatus)
 
     @skipIfNotInstalled('creme.billing')
+    @skipIfCustomCreditNote
     def test_create_note(self):
         self._aux_test_create(CreditNote, CreditNoteStatus)
 
