@@ -16,12 +16,8 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
     from creme.creme_core.utils.date_period import date_period_registry, DatePeriod
 
+    from creme.tickets.models import Ticket, TicketTemplate, Status, Priority, Criticity
     from creme.tickets.tests import skipIfCustomTicket, skipIfCustomTicketTemplate
-    if apps.is_installed('creme.tickets'):
-        from creme.tickets.models import Ticket, TicketTemplate, Status, Priority, Criticity
-        tickets_installed = True
-    else:
-        tickets_installed = False
 
     from .base import skipIfCustomGenerator
     from ..management.commands.recurrents_gendocs import Command as GenDocsCommand
@@ -35,13 +31,13 @@ class RecurrentsTicketsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        apps = ['recurrents']
+        apps_2_pop = ['recurrents']
 
-        if tickets_installed:
-            apps.append('tickets')
+        if apps.is_installed('creme.tickets'):
+            apps_2_pop.append('tickets')
             cls.ct = ContentType.objects.get_for_model(Ticket)
 
-        cls.populate(*apps)
+        cls.populate(*apps_2_pop)
 
     def setUp(self):
         self.login()
