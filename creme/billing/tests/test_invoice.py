@@ -177,55 +177,58 @@ class InvoiceTestCase(_BillingTestCase):
                              [link_error % (not_viewable_error % target.id)]
                             )
 
-    def test_create_from_a_detailview01(self):
-        user = self.login()
+#    def test_create_from_a_detailview01(self):
+#        user = self.login()
+#
+#        name = 'Invoice001'
+#        #source = Organisation.objects.create(user=self.user, name='Source Orga')
+#        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+#        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+#        target = Organisation.objects.create(user=user, name='Target Orga')
+#
+##        url = '/billing/invoice/add/%s' % target.id
+#        url = reverse('billing__create_invoice_for_target', args=(target.id,))
+#        response = self.assertGET200(url)
+#
+#        with self.assertNoException():
+#            form = response.context['form']
+#
+#        self.assertEqual(source.id, form['source'].field.initial)
+#        #self.assertEqual(target.id, form['target'].field.initial) #TODO: should work ?
+#        self.assertEqual(target, form.initial.get('target'))
+#
+#        currency = Currency.objects.all()[0]
+#        response = self.client.post(url, follow=True,
+#                                    data={'user':            user.pk,
+#                                          'name':            name,
+#                                          'issuing_date':    '2010-9-7',
+#                                          'expiration_date': '2010-10-13',
+#                                          'status':          1,
+#                                          'currency':        currency.pk,
+#                                          'discount':        Decimal(),
+#                                          'source':          source.id,
+#                                          'target':          self.genericfield_format_entity(target),
+#                                         }
+#                                   )
+#        self.assertNoFormError(response)
+#
+#        invoice = self.get_object_or_fail(Invoice, name=name)
+#        self.assertEqual(target, invoice.get_target().get_real_entity())
 
-        name = 'Invoice001'
-        #source = Organisation.objects.create(user=self.user, name='Source Orga')
-        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
-        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
-        target = Organisation.objects.create(user=user, name='Target Orga')
-
-#        url = '/billing/invoice/add/%s' % target.id
-        url = reverse('billing__create_invoice_for_target', args=(target.id,))
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            form = response.context['form']
-
-        self.assertEqual(source.id, form['source'].field.initial)
-        #self.assertEqual(target.id, form['target'].field.initial) #TODO: should work ?
-        self.assertEqual(target, form.initial.get('target'))
-
-        currency = Currency.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'user':            user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2010-9-7',
-                                          'expiration_date': '2010-10-13',
-                                          'status':          1,
-                                          'currency':        currency.pk,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        invoice = self.get_object_or_fail(Invoice, name=name)
-        self.assertEqual(target, invoice.get_target().get_real_entity())
-
-    def test_create_linked(self):
+    def test_create_related(self):
         user = self.login()
         source, target = self.create_orgas()
 #        url = '/billing/invoice/add/%s/source/%s' % (target.id, source.id)
-        url = reverse('billing__create_related_invoice', args=(target.id, source.id))
+        url = reverse('billing__create_related_invoice', args=(target.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+        self.assertEqual({'status': 1,
+                          #'source': str(source.id),
+                          'target': target,
+                         },
                          form.initial
                         )
 
@@ -249,8 +252,8 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertEqual(date(year=2013, month=12, day=15), invoice.issuing_date)
         self.assertEqual(date(year=2014, month=1,  day=22), invoice.expiration_date)
-        self.assertEqual(currency,                         invoice.currency)
-        self.assertEqual(status,                           invoice.status)
+        self.assertEqual(currency, invoice.currency)
+        self.assertEqual(status,   invoice.status)
 
         self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)

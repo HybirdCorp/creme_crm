@@ -22,7 +22,7 @@ from datetime import date
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ #, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
@@ -33,7 +33,7 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, list_view,
 from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
 from creme.billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
 from creme.billing.models import Invoice, InvoiceStatus
-from creme.billing.views.workflow import _add_with_relations
+from creme.billing.views.workflow import generic_add_related #_add_with_relations
 
 
 @login_required
@@ -44,27 +44,33 @@ def add(request):
                       extra_template_dict={'submit_label': _('Save the invoice')},
                      )
 
+#@login_required
+#@permission_required(('billing', 'billing.add_invoice'))
+#def add_from_detailview(request, entity_id):
+#    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+#    request.user.has_perm_to_change_or_die(entity)
+#
+#    return add_model_with_popup(request, InvoiceCreateForm,
+#                                title=ugettext(u"Add an invoice for <%s>") % entity,
+#                                initial={'target': entity,
+#                                         'status': DEFAULT_DRAFT_INVOICE_STATUS,
+#                                        },
+#                               )
+#
+#@login_required
+#@permission_required(('billing', 'billing.add_invoice'))
+#def add_with_relations(request, target_id, source_id):
+#    return _add_with_relations(request, target_id, source_id, InvoiceCreateForm,
+#                               ugettext(u"Add an invoice for <%s>"),
+#                               status_id=DEFAULT_DRAFT_INVOICE_STATUS,
+#                              )
 @login_required
 @permission_required(('billing', 'billing.add_invoice'))
-def add_from_detailview(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    request.user.has_perm_to_change_or_die(entity)
-
-    return add_model_with_popup(request, InvoiceCreateForm,
-                                title=ugettext(u"Add an invoice for <%s>") % entity,
-                                initial={'target': entity,
-                                         'status': DEFAULT_DRAFT_INVOICE_STATUS,
-                                        },
-                               )
-
-#TODO: merge with add_from_detailview (target & source as optionnal arg -- GET arg ?)
-@login_required
-@permission_required(('billing', 'billing.add_invoice'))
-def add_with_relations(request, target_id, source_id):
-    return _add_with_relations(request, target_id, source_id, InvoiceCreateForm,
-                               ugettext(u"Add an invoice for <%s>"),
-                               status_id=DEFAULT_DRAFT_INVOICE_STATUS,
-                              )
+def add_related(request, target_id):
+   return generic_add_related(request, target_id=target_id, form=InvoiceCreateForm,
+                              title=_(u"Add an invoice for «%s»"),
+                              status_id=DEFAULT_DRAFT_INVOICE_STATUS,
+                             )
 
 @login_required
 @permission_required('billing')

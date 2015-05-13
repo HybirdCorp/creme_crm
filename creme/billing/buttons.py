@@ -22,11 +22,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
 
-from creme.persons import get_organisation_model
+from creme.persons import get_organisation_model, get_contact_model
 #from creme.persons.models import Contact, Organisation
 
 from . import get_invoice_model, get_quote_model, get_sales_order_model
-#from .models import Quote, Invoice, SalesOrder
+from .models import Base #Quote, Invoice, SalesOrder
 
 
 Invoice      = get_invoice_model()
@@ -50,29 +50,30 @@ class GenerateInvoiceNumberButton(Button):
         return not bool(entity.number)
 
 
-#TODO: rename 'become' (surely copied-pasted)
 class _AddBillingDocumentButton(Button):
     template_name   = 'billing/templatetags/button_add_billing_document.html'
-    model_to_create = "OVERLOADME"
+    model_to_create = Base #overload
+    url_name        = 'OVERLOADME'
 
     def get_ctypes(self):
         #return (Organisation, Contact)
-        from creme.persons import get_contact_model, get_organisation_model
         return (get_organisation_model(), get_contact_model())
 
     def has_perm(self, context):
         return context['user'].has_perm_to_create(self.model_to_create)
 
-    def ok_4_display(self, entity):
-#        self.__managed_orga = Organisation.get_all_managed_by_creme()
-        self.__managed_orga = get_organisation_model().get_all_managed_by_creme()
-        return bool(self.__managed_orga)
+#    def ok_4_display(self, entity):
+##        self.__managed_orga = Organisation.get_all_managed_by_creme()
+#        self.__managed_orga = get_organisation_model().get_all_managed_by_creme()
+#        return bool(self.__managed_orga)
 
     def render(self, context):
-        context['managed_orga'] = self.__managed_orga
+#        context['managed_orga'] = self.__managed_orga
         context['verbose_name'] = self.verbose_name
-        context['which_document'] = self.model_to_create.__name__.lower()
-        context['become_url'] = self.become_url % context['object'].id
+#        context['which_document'] = self.model_to_create.__name__.lower()
+#        context['become_url'] = self.become_url % context['object'].id
+        context['model_vname'] = self.model_to_create._meta.verbose_name
+        context['url_name'] = self.url_name
 
         return super(_AddBillingDocumentButton, self).render(context)
 
@@ -82,7 +83,8 @@ class AddInvoiceButton(_AddBillingDocumentButton):
     id_             = Button.generate_id('billing', 'add_invoice')
     verbose_name    = _(u'Add a related invoice')
     permission      = 'billing.add_invoice'
-    become_url      = "/billing/invoice/add/%s"
+#    become_url      = "/billing/invoice/add/%s"
+    url_name      = 'billing__create_related_invoice'
 
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
@@ -90,15 +92,16 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
     id_             = Button.generate_id('billing', 'add_salesorder')
     verbose_name    = _(u'Add a related sales order')
     permission      = 'billing.add_salesorder'
-    become_url      = "/billing/sales_order/add/%s"
-
+#    become_url      = "/billing/sales_order/add/%s"
+    url_name        = 'billing__create_related_order'
 
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
     id_             = Button.generate_id('billing', 'add_quote')
     verbose_name    = _(u'Add a related quote')
     permission      = 'billing.add_quote'
-    become_url      = "/billing/quote/add/%s"
+#    become_url      = "/billing/quote/add/%s"
+    url_name        = 'billing__create_related_quote'
 
 
 generate_invoice_number_button  = GenerateInvoiceNumberButton()

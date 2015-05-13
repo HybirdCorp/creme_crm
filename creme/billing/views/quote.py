@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _ # ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from creme.billing.models import Quote
-from creme.billing.views.workflow import _add_with_relations
 from creme.billing.forms.quote import QuoteCreateForm, QuoteEditForm
+from creme.billing.views.workflow import generic_add_related #_add_with_relations
 
 
 @login_required
@@ -35,11 +35,17 @@ def add(request):
                       extra_template_dict={'submit_label': _('Save the quote')},
                      )
 
+#@login_required
+#@permission_required(('billing', 'billing.add_quote'))
+#def add_with_relations(request, target_id, source_id):
+#    return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
+#                               ugettext(u"Add a quote for <%s>"), status_id=1,
+#                              )
 @login_required
 @permission_required(('billing', 'billing.add_quote'))
-def add_with_relations(request, target_id, source_id):
-    return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
-                               ugettext(u"Add a quote for <%s>"), status_id=1,
+def add_related(request, target_id):
+    return generic_add_related(request, target_id, form=QuoteCreateForm,
+                               title=_(u"Add a quote for «%s»"), status_id=1,
                               )
 
 @login_required

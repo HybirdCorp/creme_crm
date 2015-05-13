@@ -25,31 +25,34 @@ urlpatterns = patterns('creme.billing.views',
 
 if not invoice_model_is_custom():
     urlpatterns += patterns('creme.billing.views.invoice',
-        url(r'^invoices$',                                                 'listview',            name='billing__list_invoices'),
-        url(r'^invoice/add$',                                              'add',                 name='billing__create_invoice'),
-        url(r'^invoice/add/(?P<entity_id>\d+)$',                           'add_from_detailview', name='billing__create_invoice_for_target'),
-        url(r'^invoice/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations',  name='billing__create_related_invoice'), #TODO: merge with billing__create_invoice_for_target
-        url(r'^invoice/edit/(?P<invoice_id>\d+)$',                         'edit',                name='billing__edit_invoice'),
-        url(r'^invoice/generate_number/(?P<invoice_id>\d+)$',              'generate_number',     name='billing__generate_invoice_number'),
-        url(r'^invoice/(?P<invoice_id>\d+)$',                              'detailview',          name='billing__view_invoice'),
+        url(r'^invoices$',                                    'listview',        name='billing__list_invoices'),
+        url(r'^invoice/add$',                                 'add',             name='billing__create_invoice'),
+#        url(r'^invoice/add/(?P<entity_id>\d+)$',                           'add_from_detailview', name='billing__create_invoice_for_target'),
+#        url(r'^invoice/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations',  name='billing__create_related_invoice'),
+        url(r'^invoice/add/(?P<target_id>\d+)$',              'add_related',     name='billing__create_related_invoice'),
+        url(r'^invoice/edit/(?P<invoice_id>\d+)$',            'edit',            name='billing__edit_invoice'),
+        url(r'^invoice/generate_number/(?P<invoice_id>\d+)$', 'generate_number', name='billing__generate_invoice_number'),
+        url(r'^invoice/(?P<invoice_id>\d+)$',                 'detailview',      name='billing__view_invoice'),
     )
 
 if not quote_model_is_custom():
     urlpatterns += patterns('creme.billing.views.quote',
-        url(r'^quotes$',                                                 'listview',           name='billing__list_quotes'),
-        url(r'^quote/add$',                                              'add',                name='billing__create_quote'),
-        url(r'^quote/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_quote'),
-        url(r'^quote/edit/(?P<quote_id>\d+)$',                           'edit',               name='billing__edit_quote'),
-        url(r'^quote/(?P<quote_id>\d+)$',                                'detailview',         name='billing__view_quote'),
+        url(r'^quotes$',                       'listview',    name='billing__list_quotes'),
+        url(r'^quote/add$',                    'add',         name='billing__create_quote'),
+#        url(r'^quote/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_quote'),
+        url(r'^quote/add/(?P<target_id>\d+)$', 'add_related', name='billing__create_related_quote'),
+        url(r'^quote/edit/(?P<quote_id>\d+)$', 'edit',        name='billing__edit_quote'),
+        url(r'^quote/(?P<quote_id>\d+)$',      'detailview',  name='billing__view_quote'),
     )
 
 if not sales_order_model_is_custom():
     urlpatterns += patterns('creme.billing.views.sales_order',
-        url(r'^sales_orders$',                                                 'listview',           name='billing__list_orders'),
-        url(r'^sales_order/add$',                                              'add',                name='billing__create_order'),
-        url(r'^sales_order/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_order'),
-        url(r'^sales_order/edit/(?P<order_id>\d+)$',                           'edit',               name='billing__edit_order'),
-        url(r'^sales_order/(?P<order_id>\d+)$',                                'detailview',         name='billing__view_order'),
+        url(r'^sales_orders$',                       'listview',    name='billing__list_orders'),
+        url(r'^sales_order/add$',                    'add',         name='billing__create_order'),
+#        url(r'^sales_order/add/(?P<target_id>\d+)/source/(?P<source_id>\d+)$', 'add_with_relations', name='billing__create_related_order'),
+        url(r'^sales_order/add/(?P<target_id>\d+)$', 'add_related', name='billing__create_related_order'),
+        url(r'^sales_order/edit/(?P<order_id>\d+)$', 'edit',        name='billing__edit_order'),
+        url(r'^sales_order/(?P<order_id>\d+)$',      'detailview',  name='billing__view_order'),
     )
 
 if not credit_note_model_is_custom():

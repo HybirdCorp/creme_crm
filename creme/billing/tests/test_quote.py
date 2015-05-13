@@ -42,15 +42,19 @@ class QuoteTestCase(_BillingTestCase):
         quote, source, target = self.create_quote_n_orgas('My Quote Two')
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
 
-    def test_create_linked(self):
+    def test_create_related(self):
         source, target = self.create_orgas()
-        url = '/billing/quote/add/%s/source/%s' % (target.id, source.id)
+#        url = '/billing/quote/add/%s/source/%s' % (target.id, source.id)
+        url = reverse('billing__create_related_quote', args=(target.id,))
         response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertEqual({'status': 1, 'source': str(source.id), 'target': target},
+        self.assertEqual({'status': 1,
+                          #'source': str(source.id),
+                          'target': target,
+                         },
                          form.initial
                         )
 
@@ -74,17 +78,18 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.get_object_or_fail(Quote, name=name)
         self.assertEqual(date(year=2013, month=12, day=14), quote.issuing_date)
         self.assertEqual(date(year=2014, month=1,  day=21), quote.expiration_date)
-        self.assertEqual(currency,                         quote.currency)
-        self.assertEqual(status,                           quote.status)
+        self.assertEqual(currency, quote.currency)
+        self.assertEqual(status,   quote.status)
 
         self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
-        
+
     def test_editview(self):
         name = 'my quote'
         quote, source, target = self.create_quote_n_orgas(name)
 
-        url = '/billing/quote/edit/%s' % quote.id
+#        url = '/billing/quote/edit/%s' % quote.id
+        url = quote.get_edit_absolute_url()
         self.assertGET200(url)
 
         name     = name.title()
@@ -117,7 +122,8 @@ class QuoteTestCase(_BillingTestCase):
         quote1 = self.create_quote_n_orgas('Quote1')[0]
         quote2 = self.create_quote_n_orgas('Quote2')[0]
 
-        response = self.assertGET200('/billing/quotes')
+#        response = self.assertGET200('/billing/quotes')
+        response = self.assertGET200(Quote.get_lv_absolute_url())
 
         with self.assertNoException():
             quotes_page = response.context['entities']

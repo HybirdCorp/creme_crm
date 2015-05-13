@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,209 +21,6 @@
  */
 
 creme.billing = creme.billing || {};
-
-// Commented 1/7/2013 (view has been commented too)
-// creme.billing.lineAutoPopulateSelection = function(id, targetInputId, nodesToPopulate) {
-//     var $form = $('#' + targetInputId).parents('form');
-//     var fields = nodesToPopulate.values;
-//
-//     creme.ajax.json.post(
-//         '/creme_core/entity/json',
-//         {
-//             pk:     id[0],
-//             fields: fields
-//         },
-//         function(data) {
-//             for(var i in fields) {
-//                 var field = nodesToPopulate.values[i];
-//                 var node = $form.find('[' + nodesToPopulate.attr + '=' + field + ']');
-//                 if(node.size() > 0) {
-//                     node.val(data[0].fields[field]);
-//                 }
-//             }
-//         }
-//     );
-// }
-
-//creme.billing.enableCheckAllBoxes = function(checkbox) {
-//    var table = checkbox.parents("tbody:first");
-//
-//    if(checkbox.is(':checked')) {
-//        $('td input[name="select_one"]', table).check();
-//    } else {
-//        $('td input[name="select_one"]', table).uncheck();
-//    }
-//}
-
-//creme.billing.get_selected_lines = function() { //todo: rename (camelCase)
-//    var selected_lines_ids = new Array();
-//    var lines = $('[name="select_one"]');
-//
-//    lines.each(function () {
-//        var currentLine = $(this);
-//        if(currentLine.is(':checked'))
-//            selected_lines_ids.push(currentLine.val());
-//    })
-//    return selected_lines_ids;
-//}
-
-//creme.billing.multipleLineDelete = function(reload_url) {
-//    var selected_lines_ids = creme.billing.get_selected_lines();
-//
-//    if(selected_lines_ids.length == 0){
-//        creme.utils.showDialog(gettext("Nothing is selected."));
-//        return;
-//    }
-//
-//    var ajax_opts = {
-//        'complete': function(data, status) {
-//                creme.blocks.reload(reload_url);
-//        }
-//    };
-//
-//    creme.utils.ajaxDelete('/creme_core/entity/delete/multi', {'ids' : selected_lines_ids.toString()}, ajax_opts, gettext("Are you sure ?"));
-//}
-
-//creme.billing.bulkLineUpdate = function(reload_url, ct_id) {
-//    var selected_lines_ids = creme.billing.get_selected_lines();
-//
-//    if(selected_lines_ids.length == 0){
-//        creme.utils.showDialog(gettext("Nothing is selected."));
-//        return;
-//    }
-//
-//    var ajax_opts = {
-//        'data' : {'persist' : new Array('ids'), 'ids' : selected_lines_ids}
-//    };
-//
-//    var options = {'beforeClose' : function() {creme.blocks.reload(reload_url);}}
-//
-//    creme.utils.showInnerPopup('/creme_core/entity/bulk_update/' + ct_id + '/', options, undefined, ajax_opts);
-//}
-
-//creme.billing.checkPositiveDecimal = function(value) {
-//    return value.match(/^[0-9]+(\.[0-9]{1,2}){0,1}$/) ? null : "This is not a positive decimal number !";
-//}
-//
-//creme.billing.checkPositiveInteger = function(value) {
-//    return value.match(/^[0-9]+$/) ? null : "This is not a positive integer !";
-//}
-//
-//creme.billing.checkDecimal = function(value) {
-//    return value.match(/^[\-]{0,1}[0-9]+(\.[0-9]{1,2}){0,1}$/) ? null : "This is not a decimal number !";
-//}
-//
-//creme.billing.checkPercent = function(value) {
-//    // 100[.][0-99] ou [0-99][.][0-99]
-//    // /^(100(\.[0]{1,2}){0,1}|[0-9]{1,2}(\.[0-9]{1,2}){0,1})$/
-//    return value.match(/^(100(\.[0]{1,2}){0,1}|[0-9]{1,2}(\.[0-9]{1,2}){0,1})$/) ? null : "This is not a percentage !";
-//}
-//
-//creme.billing.checkValue = function(value) {
-//    return value ? null : gettext("A value is needed for this field !");
-//}
-
-//creme.billing.printLinesErrors = function(target, table, reload_url) {
-//    target.addClass('line-error');
-//    var message_one = gettext("Some errors were found on your lines. Click => ");
-//    var message_two = gettext("here");
-//    var message_three = "<a onclick='creme.blocks.reload(\"" + reload_url + "\");'><b>" + message_two + "</b></a> ";
-//    var message_four = gettext("<= to restore the last coherent state. An error correction will restabilize all other ones.");
-//    target.html(message_one + message_three + message_four);
-//
-//    var ul = $('<ul/>');
-//
-//    $("td.discount-functional-error", table).each(function() {
-//        ul.append($('<li/>').html("<font color=red><b>" + $(this).attr("discount-functional-errormessage") + "</b></font>"));
-//    });
-//
-//    target.append(ul);
-//}
-
-//creme.billing.validateDiscount = function(line) {
-//    var discount_unit   = parseInt($('select[name=discount_unit]', line).val());
-//    var discount_total  = parseInt($('select[name=total_discount]', line).val());
-//    var discount_value  = parseFloat($('input[name=discount]', line).val());
-//    var unit_price      = parseFloat($('input[name=unit_price]',line).val());
-//    var quantity        = parseInt($('input[name=quantity]', line).val());
-//
-//    if (creme.billing.checkPercent($('input[name=discount]', line).val()) !== null && discount_unit == 1) {
-//        return gettext("Invalid percentage.");
-//    }
-//    if (discount_total == 1 && discount_unit == 2 && discount_value > unit_price * quantity) {
-//        return gettext("Your discount amount is superior than the amount of the line where you try to apply it.");
-//    }
-//    if (discount_total == 2 && discount_unit == 2 && discount_value > unit_price) {
-//        return gettext("Your unit discount is superior than the unit price of the product/service of the line where you try to apply it.");
-//    }
-//
-//    return null;
-//}
-
-//creme.billing.validateDiscountForm = function(line, reload_url) {
-//    var tbody = line.parents('tbody:first');
-//    var table_errors = $('td#error_lines', line.parents('table:first'));
-//
-//    var form_error = creme.billing.validateDiscount(line);
-//
-//    if (form_error != null) {
-//        var line_error_message_first = gettext("On the line");
-//        var error_message = line_error_message_first + " <" + $('input#line_number', line).val() + "> : " + form_error;
-//        $('td#discount_td', line).addClass('discount-functional-error')
-//                                 .attr('discount-functional-errormessage', error_message);
-//
-//        creme.billing.printLinesErrors(table_errors, tbody, reload_url);
-//        return false;
-//    }
-//
-//    table_errors.removeClass('line-error');
-//    $('td#discount_td', line).removeClass('discount-functional-error')
-//                             .removeAttr('discount-functional-errormessage');
-//
-//    return true;
-//}
-
-//creme.billing.mapInputs = function (form) {
-//    var data = {};
-//
-//    $('input:enabled, select:enabled', form).each(function()
-//    {
-//        var key = $(this).attr('name');
-//        var value = $(this).val()
-//        if (key !== undefined && value !== undefined)
-//            data[key] = value;
-//    });
-//    return data;
-//}
-
-//creme.billing.submitLine = function(input, reload_url, validator) {
-//    var line = input.parents('tr.content:first');
-//
-//    if (validator != null) {
-//        var error = validator(input.val());
-//    } else {
-//        var error = null;
-//    }
-//
-//    var isDiscountFormValid = creme.billing.validateDiscountForm(line, reload_url);
-//
-//    if(error === null) {
-//        if(isDiscountFormValid) {
-//            var defaults = {
-//                'success': function(data, status) {
-//                    creme.blocks.reload(reload_url);
-//                }
-//            }
-//            var datas = creme.billing.mapInputs(line);
-//            creme.ajax.submit(line, creme.billing.mapInputs(line), defaults);
-//            $(input).removeClass('creme-field-error');
-//            $(input).removeAttr('creme-field-errormessage');
-//        }
-//    } else {
-//        $(input).addClass('creme-field-error');
-//        $(input).attr('creme-field-errormessage', gettext(error));
-//    }
-//}
 
 creme.billing.selectDefaultPayment = function(payment_id, invoice_id, reload_url) {
     creme.blocks.ajaxPOSTQuery('/billing/payment_information/set_default/%s/%s'.format(payment_id, invoice_id),
@@ -636,6 +433,7 @@ creme.billing.serializeForm = function(form) {
     return data;
 }
 
+//TODO: rename (eg: multiSaveLines)...
 creme.billing.multi_save_lines = function (document_id) {
 //     creme.dialogs.confirm(gettext("Do you really want to save all the modifications done on the lines of this document ?"))
 //                  .onOk(function() {
@@ -657,70 +455,6 @@ creme.billing.multi_save_lines = function (document_id) {
                     });
                 })
                .start();
-//                  }).open();
-
-/*
-    var buttons = {};
-
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-    buttons[gettext("Yes")] = function() {
-        $(this).dialog("destroy");
-        $(this).remove();
-
-        var forms = $('tbody[id^=form_id_]');
-        var data = {};
-        var blocks_reload = new Array();
-        var i = 0;
-
-        // todo do not ask confirmation to leave the page in this precise case
-        forms.each(function() {
-            if ($(this).hasClass('form_modified')) {
-                var ct_id = $(this).attr('ct_id');
-
-                var form_datas = {};
-                creme.billing.inputs($(this)).each(function() {
-                    var item = creme.billing.serializeInput($(this), false);
-
-                    if (item !== undefined) {
-                        form_datas[item.key] = item.value;
-                    }
-                });
-
-                data[ct_id] = $.toJSON(form_datas);
-
-                blocks_reload[i] = $(this).attr('reload_url') + creme.utils.getBlocksDeps($(this).attr('block_name'));
-                i = i + 1;
-            }
-        });
-
-        $.ajax({
-            type: "POST",
-            url: '/billing/' + document_id + '/multi_save_lines',
-            data : data,
-            dataType : "json",
-            error : function(request, textStatus, errorThrown){
-                if(request.status == 409){
-                    creme.utils.loading('loading', true, {});
-                    creme.utils.showDialog(unescape(request.responseText), {'title': gettext("Errors report")});
-                }
-            },
-            beforeSend: function(request) {
-                creme.utils.loading('loading', false, {});
-            },
-            success : function(request, txtStatus) {
-                if (blocks_reload.length != 0) {
-                    for(var i = 0; i < blocks_reload.length; i++) {
-                        creme.blocks.reload(blocks_reload[i]);
-                    }
-                } else {
-                    creme.utils.loading('loading', true, {});
-                }
-            }
-        });
-    }
-
-    creme.utils.showDialog(gettext("Do you really want to save all the modifications done on the lines of this document ?"), {buttons: buttons, title:gettext("Confirmation")});
-*/
 }
 
 creme.billing.updateBlockTotals = function(currency) {
@@ -775,18 +509,19 @@ creme.billing.generateInvoiceNumber = function(billing_id) {
 }
 
 creme.billing.linkToDocument = function(url, organisations) {
+    console.warn('This functions is deprecated.');
     if (Object.isEmpty(organisations))
         return;
 
     if (organisations.length === 1) {
-        creme.dialogs.form(url + organisations[0].value, {reloadOnSuccess:true}).open({width:'80%'});
+        creme.dialogs.form(url + organisations[0].value, {reloadOnSuccess: true}).open({width:'80%'});
         return;
     }
 
     creme.dialogs.choice(gettext('Who is the source, managed by Creme, for your billing document ?'),
                          {choices:organisations, title: gettext('Billing')})
                  .onOk(function(event, orga_id) {
-                     creme.dialogs.form(url + orga_id, {reloadOnSuccess:true}).open({width:'80%'});
+                     creme.dialogs.form(url + orga_id, {reloadOnSuccess: true}).open({width:'80%'});
                   })
                  .open();
 }
