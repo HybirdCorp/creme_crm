@@ -90,7 +90,12 @@ class Populator(BasePopulator):
         if apps.is_installed('creme.billing'):
             logger.info('Billing app is installed => we create relationships between Opportunities & billing models')
 
-            from creme.billing.models import SalesOrder, Invoice, Quote
+            from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
+#            from creme.billing.models import SalesOrder, Invoice, Quote
+
+            Invoice    = get_invoice_model()
+            Quote      = get_quote_model()
+            SalesOrder = get_sales_order_model()
 
             create_rtype((REL_SUB_LINKED_SALESORDER, _(u"is associate with the opportunity"),     [SalesOrder]),
                          (REL_OBJ_LINKED_SALESORDER, _(u"has generated the salesorder"),          [Opportunity]))

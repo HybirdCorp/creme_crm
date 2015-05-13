@@ -35,13 +35,22 @@ from creme.persons.workflow import transform_target_into_customer, transform_tar
 from creme.products import get_product_model
 #from creme.products.models import Product
 
+from creme.billing import (get_invoice_model, get_quote_model, get_sales_order_model,
+        get_product_line_model, get_service_line_model)
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
+#from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 
 from .. import get_opportunity_model
 #from ..constants import REL_SUB_CURRENT_DOC
 from ..constants import *
 #from ..models import Opportunity
+
+
+Invoice     = get_invoice_model()
+Quote       = get_quote_model()
+SalesOrder  = get_sales_order_model()
+ProductLine = get_product_line_model()
+ServiceLine = get_service_line_model()
 
 
 @login_required
