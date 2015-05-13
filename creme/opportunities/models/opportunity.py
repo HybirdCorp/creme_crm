@@ -264,17 +264,21 @@ class Opportunity(AbstractOpportunity):
 
 
 if apps.is_installed('creme.billing'):
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.signals import post_save, post_delete
     from django.dispatch import receiver
 
     from creme.creme_core.models import SettingValue
 
-    from creme.billing.models import Quote
+    from creme.billing import get_quote_model
+#    from creme.billing.models import Quote
 
+    #Quote = get_quote_model() TODO: when signal connection is done in AppConfig's ready()
 
     def _get_current_quote_ids(self):
-        ct = ContentType.objects.get_for_model(Quote)
+        #ct = ContentType.objects.get_for_model(Quote)
+        ct = ContentType.objects.get_for_model(get_quote_model())
         return Relation.objects.filter(object_entity=self.id,
                                        type=REL_SUB_CURRENT_DOC,
                                        subject_entity__entity_type=ct,
@@ -284,7 +288,8 @@ if apps.is_installed('creme.billing'):
     Opportunity.get_current_quote_ids = _get_current_quote_ids
 
     def update_sales(opp):
-        quotes = Quote.objects.filter(id__in=opp.get_current_quote_ids(),
+        #quotes = Quote.objects.filter(id__in=opp.get_current_quote_ids(),
+        quotes = get_quote_model().objects.filter(id__in=opp.get_current_quote_ids(),
                                       total_no_vat__isnull=False,
                                      )
         opp.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
@@ -303,7 +308,8 @@ if apps.is_installed('creme.billing'):
 
     # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
     # If one day it does we will only have to add senders to the signal
-    @receiver(post_save, sender=Quote)
+#    @receiver(post_save, sender=Quote)
+    @receiver(post_save, sender=settings.BILLING_QUOTE_MODEL)
     def _handle_current_quote_change(sender, instance, **kwargs):
         if use_current_quote():
             relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
@@ -319,5 +325,6 @@ if apps.is_installed('creme.billing'):
         if instance.type_id == REL_SUB_CURRENT_DOC:
             doc = instance.subject_entity.get_real_entity()
 
-            if isinstance(doc, Quote) and use_current_quote():
+            #if isinstance(doc, Quote) and use_current_quote():
+            if isinstance(doc, get_quote_model()) and use_current_quote():
                 update_sales(instance.object_entity.get_real_entity())

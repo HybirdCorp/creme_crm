@@ -72,8 +72,9 @@ smart_columns_registry.register_model(Opportunity).register_field('name') \
 if apps.is_installed('creme.billing'):
     from .constants import REL_SUB_LINKED_SALESORDER, REL_SUB_LINKED_INVOICE, REL_SUB_LINKED_QUOTE
 
+    from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
     from creme.billing.registry import relationtype_converter
-    from creme.billing.models import Quote, Invoice, SalesOrder
+#    from creme.billing.models import Quote, Invoice, SalesOrder
 
     get_rtype = RelationType.objects.get
 
@@ -86,6 +87,10 @@ if apps.is_installed('creme.billing'):
                     "It can happen during unitests or during the 'populate' phase. Otherwise, has the database correctly been populated?", e
                    )
     else:
+        Invoice    = get_invoice_model()
+        Quote      = get_quote_model()
+        SalesOrder = get_sales_order_model()
+
         register_rtype = relationtype_converter.register
         register_rtype(Quote,      linked_quote,      SalesOrder, linked_salesorder)
         register_rtype(Quote,      linked_quote,      Invoice,    linked_invoice)

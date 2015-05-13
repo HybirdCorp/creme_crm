@@ -180,8 +180,12 @@ blocks_list = (
 
 
 if apps.is_installed('creme.billing'):
-    from creme.billing.models import Quote, Invoice, SalesOrder
+    from creme.billing import get_invoice_model, get_quote_model, get_sales_order_model
+#    from creme.billing.models import Quote, Invoice, SalesOrder
 
+    Invoice    = get_invoice_model()
+    Quote      = get_quote_model()
+    SalesOrder = get_sales_order_model()
 
     class QuotesBlock(_LinkedStuffBlock):
         id_                = QuerysetBlock.generate_id('opportunities', 'quotes')
