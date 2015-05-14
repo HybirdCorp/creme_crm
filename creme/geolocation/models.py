@@ -27,8 +27,6 @@ from django.db.models import (Model, FloatField, BooleanField,
 from django.db.transaction import atomic
 
 from django.db.models.query_utils import Q
-from django.db.models.signals import post_save, post_delete
-from django.dispatch.dispatcher import receiver
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
@@ -236,50 +234,3 @@ class Town(Model):
                 towns = filter(lambda c: c.slug == slug, towns)[:1]
 
             yield towns[0] if len(towns) == 1 else None
-
-
-#@receiver(post_delete, sender=Address)
-@receiver(post_delete, sender=settings.PERSONS_ADDRESS_MODEL)
-def _dispose_geoaddresses(sender, instance, **kwargs):
-#    sid = transaction.savepoint()
-#
-#    try:
-#        instance.geoaddress.delete()
-#    except GeoAddress.DoesNotExist:
-#        transaction.savepoint_rollback(sid)
-#    else:
-#        transaction.savepoint_commit(sid)
-    try:
-        #with atomic(): #NB: seems useless (it seems DoesNotExist do not corrupt the current transaction even with PostGreSQL)
-        instance.geoaddress.delete()
-    except GeoAddress.DoesNotExist:
-        pass
-
-#@receiver(post_save, sender=Address)
-@receiver(post_save, sender=settings.PERSONS_ADDRESS_MODEL)
-def _update_geoaddresses(sender, instance, **kwargs):
-#    sid = transaction.savepoint()
-#
-#    try:
-#        geoaddress = instance.geoaddress
-#    except GeoAddress.DoesNotExist:
-#        transaction.savepoint_rollback(sid)
-#        #instance.geoaddress = # NB: not useful with django1.5+
-#        geoaddress = GeoAddress(address=instance)
-#        sid = transaction.savepoint()
-#
-#    town = Town.search(instance)
-#
-#    geoaddress.set_town_position(town)
-#    geoaddress.save()
-#
-#    transaction.savepoint_commit(sid)
-    try:
-        #with atomic(): #NB: see above
-        geoaddress = instance.geoaddress
-    except GeoAddress.DoesNotExist:
-        #instance.geoaddress = # NB: not useful with django1.5+
-        geoaddress = GeoAddress(address=instance)
-
-    geoaddress.set_town_position(Town.search(instance))
-    geoaddress.save()
