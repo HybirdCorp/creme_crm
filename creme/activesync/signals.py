@@ -21,33 +21,42 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
-#from creme.persons.models import Contact
+
+from creme.activities.models import Activity
+
+from .models import CremeExchangeMapping
 
 
 logger = logging.getLogger(__name__)
+Contact = get_contact_model()
 
 
 def _get_mapping_from_creme_entity_id(id_):
-    from .models import CremeExchangeMapping
     try:
         return CremeExchangeMapping.objects.get(creme_entity_id=id_)
     except CremeExchangeMapping.DoesNotExist as e:
-        #logger.error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
         logger.debug(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
 
-
+@receiver(post_save, sender=Contact)
+@receiver(post_save, sender=Activity)
 def post_save_activesync_handler(sender, instance, created, **kwargs):
-    #If a Contact is created no operation is needed because AirSync command handle automaticaly
-    if not created:#The contact is modified by creme
+    # If a Contact is created no operation is needed because AirSync command handles automatically.
+    if not created: #The contact is modified by Creme
         c_x_mapping = _get_mapping_from_creme_entity_id(instance.pk)
+
         if c_x_mapping is not None:
             c_x_mapping.is_creme_modified = True
-            c_x_mapping.save()
+            c_x_mapping.save() #TODO: only 'is_creme_modified' field ??
 
-
+@receiver(post_delete, sender=Contact)
+@receiver(post_delete, sender=Activity)
 def post_delete_activesync_handler(sender, instance, **kwargs):
     c_x_mapping = _get_mapping_from_creme_entity_id(instance.pk)
 
@@ -57,18 +66,16 @@ def post_delete_activesync_handler(sender, instance, **kwargs):
         c_x_mapping.was_deleted = True
         c_x_mapping.save()
 
-
-#Catching the save of the relation between a Contact and his employer
+# Catching the save of the relation between a Contact and his employer
+@receiver(post_save, sender=Relation)
 def post_save_relation_employed_by(sender, instance, **kwargs):
     if instance.type_id == REL_SUB_EMPLOYED_BY:
-        contact = instance.subject_entity
-#        post_save_activesync_handler(Contact, contact, False)
-        post_save_activesync_handler(get_contact_model(), contact, False)
+        post_save_activesync_handler(Contact, instance.subject_entity, False)
 
-#Catching the delete of the relation between a Contact and his employer
+# Catching the delete of the relation between a Contact and his employer
+@receiver(post_delete, sender=Relation)
 def post_delete_relation_employed_by(sender, instance, **kwargs):
     if instance.type_id == REL_SUB_EMPLOYED_BY:
-        contact = instance.subject_entity
-        #We just say to the mapping that the contact was modified so we use the post_save_activesync_handler and not the delete one
-#        post_save_activesync_handler(Contact, contact, False)
-        post_save_activesync_handler(get_contact_model(), contact, False)
+        # We just say to the mapping that the contact was modified,
+        # so we use the post_save_activesync_handler and not the delete one.
+        post_save_activesync_handler(Contact, instance.subject_entity, False)
