@@ -25,12 +25,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
-from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _
 
-from .. import get_address_model
-from creme.creme_core.models import CremeEntity, CremeModel
-from creme.creme_core.signals import pre_merge_related
+from creme.creme_core.models import CremeModel #CremeEntity
 
 
 #class Address(CremeModel):
@@ -44,6 +41,7 @@ class AbstractAddress(CremeModel):
     state      = CharField(_(u"State"), max_length=100, blank=True, null=True)
     country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)
 
+    #TODO: use a real ForeignKey to CremeEntity (+ remove signal handlers )
     content_type = ForeignKey(ContentType, related_name="object_set", editable=False).set_tags(viewable=False)
     object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
@@ -97,21 +95,3 @@ class AbstractAddress(CremeModel):
 class Address(AbstractAddress):
     class Meta(AbstractAddress.Meta):
         swappable = 'PERSONS_ADDRESS_MODEL'
-
-
-#TODO: with a real ForeignKey can not we remove these handlers ??
-def _dispose_addresses(sender, instance, **kwargs):
-#    Address.objects.filter(object_id=instance.id).delete()
-    get_address_model().objects.filter(object_id=instance.id).delete()
-
-def _handle_merge(sender, other_entity, **kwargs):
-    #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
-    excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
-
-#    for address in Address.objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
-    for address in get_address_model().objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
-        address.owner = sender
-        address.save()
-
-post_delete.connect(_dispose_addresses, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)

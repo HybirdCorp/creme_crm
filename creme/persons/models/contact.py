@@ -28,10 +28,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
         DateField, EmailField, URLField, SET_NULL) #ProtectedError
-from django.db.models.signals import post_save
-from django.db.transaction import atomic
-from django.db.utils import DatabaseError
-from django.dispatch import receiver
+#from django.db.transaction import atomic
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
@@ -249,27 +246,3 @@ def _get_linked_contact(self):
     self._linked_contact_cache = contact
 
     return contact
-
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def _sync_with_user(sender, instance, created, **kwargs):
-    if instance.is_team:
-        return
-
-    if getattr(instance, '_disable_sync_with_contact', False):
-        return
-
-    ##when received during 'syncdb' it fails because the Contact table does not exist
-    #with atomic():
-    try:
-        if created:
-            instance._linked_contact_cache = _create_linked_contact(instance)
-        else:
-            update_model_instance(instance.linked_contact,
-                                  last_name=instance.last_name,
-                                  first_name=instance.first_name,
-                                  email=instance.email,
-                                 )
-    except DatabaseError as e:
-        logger.warn('Can not create linked contact for this user: %s (if it is the first user,'
-                    ' do not worry because it is normal) (%s)', instance, e
-                   )
