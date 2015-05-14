@@ -20,18 +20,12 @@
 
 from pickle import loads, dumps
 
-from django.db.models.signals import post_save
 from django.db.models import TextField, CharField #ForeignKey
 #from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import CremeModel, SettingValue
+from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
-
-from creme.crudity.signals import post_save_setting_value
-
-
-__all__ = ("WaitingAction",)
 
 
 class WaitingAction(CremeModel):
@@ -67,5 +61,3 @@ class WaitingAction(CremeModel):
             return (False, ugettext(u"You are not allowed to validate/delete the waiting action <%s>") % self.id)
 
         return (True, ugettext(u"OK"))
-
-post_save.connect(post_save_setting_value, sender=SettingValue)
