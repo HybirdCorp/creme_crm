@@ -24,9 +24,8 @@ import logging
 #import warnings
 
 from django.conf import settings
-from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
+from django.db.models import (CharField, TextField, ForeignKey, DateField,
+        DecimalField, SET_NULL, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -37,7 +36,7 @@ from creme.creme_core.models.fields import MoneyField
 
 from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
         REL_SUB_HAS_LINE, REL_OBJ_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
-        REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
+        REL_OBJ_CREDIT_NOTE_APPLIED, DEFAULT_DECIMAL)
 from ..utils import round_to_2
 
 #from .line import Line
@@ -327,12 +326,3 @@ class Base(CremeEntity):
         self.total_vat    = self._get_total_with_tax()
         self.total_no_vat = self._get_total()
         return super(Base, self).save(*args, **kwargs)
-
-
-#@receiver(post_save,   sender=Relation)
-#@receiver(post_delete, sender=Relation)
-@receiver((post_save, post_delete), sender=Relation)
-def _manage_linked_credit_notes(sender, instance, **kwargs):
-    """Invoice calculated totals have to be refreshed."""
-    if instance.type_id == REL_SUB_CREDIT_NOTE_APPLIED:
-        instance.object_entity.get_real_entity().save()
