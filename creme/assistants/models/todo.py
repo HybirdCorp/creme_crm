@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from collections import defaultdict
 
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
-from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -29,7 +28,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-from creme.creme_core.signals import pre_merge_related
 
 
 class ToDo(CremeModel):
@@ -42,6 +40,7 @@ class ToDo(CremeModel):
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
     user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
 
+    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -80,19 +79,6 @@ class ToDo(CremeModel):
 
     def get_related_entity(self): #for generic views
         return self.creme_entity
-
-
-#TODO: can delete this with  a WeakForeignKey ??
-def _dispose_entity_todos(sender, instance, **kwargs):
-    ToDo.objects.filter(entity_id=instance.id).delete()
-
-def _handle_merge(sender, other_entity, **kwargs):
-    for todo in ToDo.objects.filter(entity_id=other_entity.id):
-        todo.creme_entity = sender
-        todo.save()
-
-pre_delete.connect(_dispose_entity_todos, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)
 
 
 class _GetTodos(FunctionField):
