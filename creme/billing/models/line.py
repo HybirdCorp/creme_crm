@@ -238,11 +238,3 @@ class Line(CremeEntity):
 
         #TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
         self.related_document.save() #update totals
-
-
-#TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
-@receiver(post_delete, sender=Relation)
-def _manage_line_deletion(sender, instance, **kwargs):
-    """Invoice calculated totals have to be refreshed"""
-    if instance.type_id == REL_OBJ_HAS_LINE:
-        instance.object_entity.get_real_entity().save()
