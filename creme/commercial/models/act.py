@@ -18,16 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
-
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, PositiveIntegerField,
         DateField, BooleanField, ForeignKey, PROTECT)
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
@@ -35,8 +31,6 @@ from creme.creme_core.models.fields import CTypeForeignKey
 
 from creme.opportunities import get_opportunity_model
 #from creme.opportunities.models import Opportunity
-
-from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
 
 from .. import get_act_model
 from ..constants import REL_SUB_COMPLETE_GOAL
@@ -345,28 +339,3 @@ class ActObjectivePatternComponent(CremeModel):
 
         for sub_aopc in self.children.all():
             sub_aopc.clone(pattern, me)
-
-
-#Catching the save of the relation between an activity and an opportunity as a subject
-@receiver(post_save, sender=Relation)
-def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
-    if instance.type_id == REL_OBJ_ACTIVITY_SUBJECT:
-        object_entity = instance.object_entity
-        get_ct = ContentType.objects.get_for_model
-
-#        if object_entity.entity_type == get_ct(Opportunity):
-        if object_entity.entity_type == get_ct(get_opportunity_model()):
-            relations = Relation.objects.filter(subject_entity=object_entity,
-                                                type=REL_SUB_COMPLETE_GOAL,
-#                                                object_entity__entity_type=get_ct(Act)
-                                                object_entity__entity_type=get_ct(get_act_model())
-                                               )
-
-            create_relation = partial(Relation.objects.create,
-                                      subject_entity=instance.subject_entity,
-                                      type_id=REL_SUB_COMPLETE_GOAL,
-                                      user=instance.user
-                                     )
-
-            for relation in relations:
-                create_relation(object_entity=relation.object_entity)

@@ -21,15 +21,12 @@
 #import logging
 
 from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
-from django.db.models.signals import pre_delete, post_save
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel # CremeEntity
 from creme.creme_core.models.fields import CreationDateTimeField
-from creme.creme_core.signals import pre_merge_related
 
 from creme.activities.models import Activity
 
@@ -42,6 +39,7 @@ class CommercialApproach(CremeModel):
 
     related_activity    = ForeignKey(Activity, null=True, editable=False)
 
+    #TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -68,21 +66,3 @@ class CommercialApproach(CremeModel):
     def get_approaches_for_ctypes(ct_ids):
         return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
                                  .select_related('related_activity')
-
-
-#TODO: with a real ForeignKey can not we remove these handlers ??
-@receiver(pre_delete, sender=CremeEntity)
-def _dispose_entity_comapps(sender, instance, **kwargs):
-    CommercialApproach.objects.filter(entity_id=instance.id).delete()
-
-@receiver(pre_merge_related)
-def _handle_merge(sender, other_entity, **kwargs):
-    for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
-        commapp.creme_entity = sender
-        commapp.save()
-
-@receiver(post_save) #TODO: sender=Activity (after activities refactoring)
-def _sync_with_activity(sender, instance, created, **kwargs):
-    #TODO: optimise (only if title has changed - factorise with HistoryLine ??)
-    if not created and isinstance(instance, Activity):
-        CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
