@@ -22,12 +22,10 @@ import logging
 
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
         TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, Relation, SettingValue
+from creme.creme_core.models import CremeEntity, SettingValue #Relation
 
 from ..constants import *
 from .calendar import Calendar
@@ -241,57 +239,3 @@ END:VEVENT
     def _pre_delete(self):
         for relation in self.relations.filter(type=REL_OBJ_PART_2_ACTIVITY):
             relation._delete_without_transaction()
-
-
-@receiver(post_delete, sender=Relation)
-def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
-    type_id = instance.type_id
-
-    if type_id == REL_SUB_PART_2_ACTIVITY:
-        contact  = instance.subject_entity.get_real_entity()
-        activity = instance.object_entity.get_real_entity()
-    elif type_id == REL_OBJ_PART_2_ACTIVITY:
-        contact  = instance.object_entity.get_real_entity()
-        activity = instance.subject_entity.get_real_entity()
-    else:
-        return
-
-    if contact.is_user:
-        # Why only from default calendar?
-        # activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))
-        for calendar_id in activity.calendars.filter(user=contact.is_user).values_list('id', flat=True): 
-            activity.calendars.remove(calendar_id)
-
-@receiver(post_save, sender=Relation)
-def _set_orga_as_subject(sender, instance, **kwargs):
-    from functools import partial
-    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
-    from creme.persons.models import Organisation
-
-    if instance.type_id != REL_SUB_PART_2_ACTIVITY:
-        return
-
-    #NB: when a Relation is created, it is saved twice in order to set the link
-    #    with its symmetric instance
-    if instance.symmetric_relation_id is None:
-        return
-
-    activity = instance.object_entity.get_real_entity()
-
-    if not activity.is_auto_orga_subject_enabled():
-        return
-
-    create_rel = partial(Relation.objects.get_or_create,
-                         type_id=REL_SUB_ACTIVITY_SUBJECT,
-                         object_entity=activity,
-                         defaults={'user': instance.user},
-                        )
-
-    for orga in Organisation.objects.filter(relations__type__in=(REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES),
-                                            relations__object_entity=instance.subject_entity_id,
-                                           ) \
-                                    .exclude(is_deleted=False,
-                                             properties__type=PROP_IS_MANAGED_BY_CREME,
-                                            ):
-        create_rel(subject_entity=orga)
