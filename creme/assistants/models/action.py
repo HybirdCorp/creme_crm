@@ -18,15 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
-from django.db.models.signals import pre_delete
+from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
+        ForeignKey, PositiveIntegerField)
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel # CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
-from creme.creme_core.signals import pre_merge_related
 
 
 class Action(CremeModel):
@@ -38,6 +37,7 @@ class Action(CremeModel):
     deadline            = DateTimeField(_(u"Deadline"))
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
 
+    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="action_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -93,16 +93,3 @@ class Action(CremeModel):
 
     def get_related_entity(self): #for generic views
         return self.creme_entity
-
-
-#TODO: with a real ForeignKey can not we remove these handlers ??
-def _dispose_entity_actions(sender, instance, **kwargs):
-    Action.objects.filter(entity_id=instance.id).delete()
-
-def _handle_merge(sender, other_entity, **kwargs):
-    for action in Action.objects.filter(entity_id=other_entity.id):
-        action.creme_entity = sender
-        action.save()
-
-pre_delete.connect(_dispose_entity_actions, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)

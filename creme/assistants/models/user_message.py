@@ -19,16 +19,14 @@
 ################################################################################
 
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-                              ForeignKey, PositiveIntegerField, PROTECT)
-from django.db.models.signals import pre_delete
+        ForeignKey, PositiveIntegerField, PROTECT)
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel # CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.signals import pre_merge_related
 
 
 class UserMessagePriority(CremeModel):
@@ -55,6 +53,7 @@ class UserMessage(CremeModel):
 
     email_sent = BooleanField(default=False)
 
+    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, null=True)
     entity_id           = PositiveIntegerField(null=True)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -128,16 +127,3 @@ class UserMessage(CremeModel):
         for msg in usermessages:
             msg.email_sent = True
             msg.save()
-
-
-#TODO: can delete this with  a WeakForeignKey ??
-def _dispose_entity_mesages(sender, instance, **kwargs):
-    UserMessage.objects.filter(entity_id=instance.id).delete()
-
-def _handle_merge(sender, other_entity, **kwargs):
-    for msg in UserMessage.objects.filter(entity_id=other_entity.id):
-        msg.creme_entity = sender
-        msg.save()
-
-pre_delete.connect(_dispose_entity_mesages, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)

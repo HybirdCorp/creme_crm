@@ -22,7 +22,6 @@ from collections import defaultdict
 
 from django.db.models import (CharField, TextField, BooleanField, DateTimeField,
         ForeignKey, PositiveIntegerField)
-from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -31,7 +30,6 @@ from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey
 from creme.creme_core.core.function_field import (FunctionField, FunctionFieldResult,
         FunctionFieldResultsList)
-from creme.creme_core.signals import pre_merge_related
 
 
 class Alert(CremeModel):
@@ -41,6 +39,7 @@ class Alert(CremeModel):
     reminded            = BooleanField(editable=False, default=False) #need by creme_core.core.reminder
     trigger_date        = DateTimeField(_(u"Trigger date"))
 
+    #TODO: use a True ForeignKey to CremeEntity (do not forget to remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="alert_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
@@ -72,19 +71,6 @@ class Alert(CremeModel):
 
     def get_related_entity(self): #for generic views
         return self.creme_entity
-
-
-#TODO: can delete this with  a WeakForeignKey ??
-def _dispose_entity_alerts(sender, instance, **kwargs):
-    Alert.objects.filter(entity_id=instance.id).delete()
-
-def _handle_merge(sender, other_entity, **kwargs):
-    for alert in Alert.objects.filter(entity_id=other_entity.id):
-        alert.creme_entity = sender
-        alert.save()
-
-pre_delete.connect(_dispose_entity_alerts, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)
 
 
 class _GetAlerts(FunctionField):
