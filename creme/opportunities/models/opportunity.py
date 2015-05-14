@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+#import logging
 from functools import partial
 #import warnings
 
@@ -27,7 +27,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.transaction import atomic
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
-        DateField, PROTECT, SET_NULL, Sum, BooleanField)
+        DateField, PROTECT, SET_NULL,  BooleanField)
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -45,7 +45,7 @@ from creme.products import get_product_model, get_service_model
 from ..constants import *
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
 class _TurnoverField(FunctionField):
@@ -257,74 +257,21 @@ class AbstractOpportunity(CremeEntity):
                 create_relation(subject_entity=self._opp_target, type_id=REL_OBJ_TARGETS)
                 transform_target_into_prospect(self.emitter, target, self.user)
 
+    if apps.is_installed('creme.billing'):
+        def get_current_quote_ids(self):
+            from django.contrib.contenttypes.models import ContentType
+
+            from creme.billing import get_quote_model
+
+            ct = ContentType.objects.get_for_model(get_quote_model())
+
+            return Relation.objects.filter(object_entity=self.id,
+                                           type=REL_SUB_CURRENT_DOC,
+                                           subject_entity__entity_type=ct,
+                                          ) \
+                                   .values_list('subject_entity_id', flat=True)
+
 
 class Opportunity(AbstractOpportunity):
     class Meta(AbstractOpportunity.Meta):
         swappable = 'OPPORTUNITIES_OPPORTUNITY_MODEL'
-
-
-if apps.is_installed('creme.billing'):
-    from django.conf import settings
-    from django.contrib.contenttypes.models import ContentType
-    from django.db.models.signals import post_save, post_delete
-    from django.dispatch import receiver
-
-    from creme.creme_core.models import SettingValue
-
-    from creme.billing import get_quote_model
-#    from creme.billing.models import Quote
-
-    #Quote = get_quote_model() TODO: when signal connection is done in AppConfig's ready()
-
-    def _get_current_quote_ids(self):
-        #ct = ContentType.objects.get_for_model(Quote)
-        ct = ContentType.objects.get_for_model(get_quote_model())
-        return Relation.objects.filter(object_entity=self.id,
-                                       type=REL_SUB_CURRENT_DOC,
-                                       subject_entity__entity_type=ct,
-                                      ) \
-                               .values_list('subject_entity_id', flat=True)
-
-    Opportunity.get_current_quote_ids = _get_current_quote_ids
-
-    def update_sales(opp):
-        #quotes = Quote.objects.filter(id__in=opp.get_current_quote_ids(),
-        quotes = get_quote_model().objects.filter(id__in=opp.get_current_quote_ids(),
-                                      total_no_vat__isnull=False,
-                                     )
-        opp.estimated_sales = quotes.aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        opp.made_sales      = quotes.filter(status__won=True) \
-                                    .aggregate(Sum('total_no_vat'))['total_no_vat__sum'] or 0
-        opp.save()
-
-    def use_current_quote():
-        try:
-            use_current_quote = SettingValue.objects.get(key_id=SETTING_USE_CURRENT_QUOTE).value
-        except SettingValue.DoesNotExist:
-            logger.critical("Populate for opportunities has not been run !")
-            use_current_quote = False
-
-        return use_current_quote
-
-    # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
-    # If one day it does we will only have to add senders to the signal
-#    @receiver(post_save, sender=Quote)
-    @receiver(post_save, sender=settings.BILLING_QUOTE_MODEL)
-    def _handle_current_quote_change(sender, instance, **kwargs):
-        if use_current_quote():
-            relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
-
-            if relations: #TODO: useless
-                for r in relations:
-                    update_sales(r.object_entity.get_real_entity())
-
-    #@receiver(post_delete, sender=Relation)
-    #@receiver(post_save, sender=Relation)
-    @receiver((post_save, post_delete), sender=Relation)
-    def _handle_current_quote_set(sender, instance, **kwargs):
-        if instance.type_id == REL_SUB_CURRENT_DOC:
-            doc = instance.subject_entity.get_real_entity()
-
-            #if isinstance(doc, Quote) and use_current_quote():
-            if isinstance(doc, get_quote_model()) and use_current_quote():
-                update_sales(instance.object_entity.get_real_entity())
