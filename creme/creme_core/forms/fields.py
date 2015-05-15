@@ -238,7 +238,8 @@ class GenericEntityField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
+#    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
+    def __init__(self, models=(), autocomplete=False, *args, **kwargs):
         super(GenericEntityField, self).__init__(*args, **kwargs)
         self._autocomplete = autocomplete
         self.allowed_models = models
@@ -248,8 +249,17 @@ class GenericEntityField(JSONField):
         return self._allowed_models
 
     @allowed_models.setter
-    def allowed_models(self, allowed=()):
-        self._allowed_models = allowed if allowed else list()
+#    def allowed_models(self, allowed=()):
+    def allowed_models(self, allowed):
+        "@param allowed An iterable of models (ie: classes inheriting django.db.Model)."
+#        self._allowed_models = allowed if allowed else list()
+        if not hasattr(allowed, '__iter__'):
+            warnings.warn("GenericEntityField.allowed_models property should take an iterable.",
+                          DeprecationWarning
+                         )
+            allowed = ()
+
+        self._allowed_models = list(allowed)
         self._build_widget()
 
     @property
@@ -308,7 +318,8 @@ class GenericEntityField(JSONField):
 class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
-    def __init__(self, models=None, autocomplete=False, unique=True, *args, **kwargs):
+#    def __init__(self, models=None, autocomplete=False, unique=True, *args, **kwargs):
+    def __init__(self, models=(), autocomplete=False, unique=True, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, autocomplete, *args, **kwargs)
         self.unique = unique
 
