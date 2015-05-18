@@ -158,7 +158,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'creme.creme_core.middleware.exceptions.Ajax500Middleware', #it must be last middleware that catch all exceptions 
+    'creme.creme_core.middleware.exceptions.Ajax500Middleware', #it must be last middleware that catch all exceptions
     'creme.creme_core.middleware.exceptions.Ajax404Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
     'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
@@ -352,7 +352,7 @@ LOGGING = {
         'file':    LOGGING_FILE_HANDLER,
     },
     'loggers': {
-        '': LOGGING_DEFAULT_LOGGER  # the empty key '' means that all logs are redirected to this logger. 
+        '': LOGGING_DEFAULT_LOGGER  # the empty key '' means that all logs are redirected to this logger.
     },
 }
 
@@ -622,6 +622,10 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/widgets/container.js',
 )
 
+# Optional js bundles for extending projects.
+# Beware to clashes with existing bundles ('main.js', 'l10n.js').
+CREME_OPT_JS_BUNDLES = ()
+
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
     #'js':  'mediagenerator.filters.closure.Closure', #NB: Closure causes compilation errors...
@@ -843,6 +847,8 @@ MEDIA_BUNDLES = (
                 )
 if FORCE_JS_TESTVIEW:
     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
+
+MEDIA_BUNDLES += CREME_OPT_JS_BUNDLES
 
 CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
 MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
