@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Step 1: fields of base are added with temporary names in final classes (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)
+        # Step 1: fields of base are added in final classes (Invoice, Quote, SalesOrder, CreditNote, TemplateBase)
 
         # Step 1.1: FK to CremeEntity
         migrations.AddField(

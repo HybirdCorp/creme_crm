@@ -43,7 +43,8 @@ def copy_old_fields(apps, schema_editor):
             for field_name in field_names:
                 #setattr(instance, field_name, getattr(instance, 'base_ptr.' + field_name))
                 setattr(instance, field_name, getattr(base_instance, field_name))
-                instance.save()
+
+            instance.save()
 
 
 class Migration(migrations.Migration):
