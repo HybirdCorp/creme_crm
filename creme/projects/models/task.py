@@ -105,11 +105,14 @@ class ProjectTask(Activity):
         return self.working_periods
 
     def get_task_cost(self):
-        total = 0
-        effective_duration = self.get_effective_duration()
-        for res in self.get_resources():
-            total += res.hourly_cost
-        return total * effective_duration
+#        total = 0
+#        effective_duration = self.get_effective_duration()
+#        for res in self.get_resources():
+#            total += res.hourly_cost
+#        return total * effective_duration
+        return sum(period.duration * (period.resource.hourly_cost or 0)
+                        for period in self.get_working_periods()
+                  )
 
     def get_effective_duration(self, format='h'):
         if self.effective_duration is None:

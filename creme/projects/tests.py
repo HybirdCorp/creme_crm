@@ -44,7 +44,7 @@ class ProjectsTestCase(CremeTestCase):
                                                    *args, **kwargs
                                                   )
 
-    def _build_add_ask_url(self, project):
+    def _build_add_task_url(self, project):
         return '/projects/project/%s/task/add' % project.id
 
     def _build_add_resource_url(self, task):
@@ -89,7 +89,7 @@ class ProjectsTestCase(CremeTestCase):
 
     def create_task(self, project, title, status=None, atype=ACTIVITYTYPE_TASK, sub_type=None):
         status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
-        response = self.client.post(self._build_add_ask_url(project), follow=True,
+        response = self.client.post(self._build_add_task_url(project), follow=True,
                                     data={'user':          self.user.id,
                                           'title':         title,
                                           'start':         '2010-10-11',
@@ -236,7 +236,7 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01')[0]
 
-        url = self._build_add_ask_url(project)
+        url = self._build_add_task_url(project)
         self.assertGET200(url)
 
         tstatus = TaskStatus.objects.all()[0]
@@ -312,7 +312,7 @@ class ProjectsTestCase(CremeTestCase):
         project02 = self.create_project('Eva02')[0]
 
         task01 = self.create_task(project01, 'Title')
-        response = self.client.post(self._build_add_ask_url(project02), #follow=True,
+        response = self.client.post(self._build_add_task_url(project02), #follow=True,
                                     data={'user':          user.id,
                                           'title':         'head',
                                           'start':         '2010-10-11',
@@ -338,7 +338,7 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
         tstatus = TaskStatus.objects.all()[0]
 
-        url = self._build_add_ask_url(project)
+        url = self._build_add_task_url(project)
         self.assertGET200(url)
         self.assertPOST200(url, follow=True,
                            data={'user':                user.id,
@@ -392,7 +392,7 @@ class ProjectsTestCase(CremeTestCase):
         title = 'Head'
         atype = ACTIVITYTYPE_MEETING
         stype = ACTIVITYSUBTYPE_MEETING_MEETING
-        response = self.client.post(self._build_add_ask_url(project), follow=True,
+        response = self.client.post(self._build_add_task_url(project), follow=True,
                                     data={'user':          user.id,
                                           'title':         title,
                                           'start':         '2013-7-1',
@@ -918,5 +918,62 @@ class ProjectsTestCase(CremeTestCase):
         self.assertStillExists(project)
         task = self.assertStillExists(task)
         self.assertEqual(status, task.tstatus)
+
+    def test_task_cost_n_duration(self):
+        "With several working periods"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'legs')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        worker1 = create_contact(first_name='Yui',     last_name='Ikari')
+        worker2 = create_contact(first_name='Ritsuko', last_name='Akagi')
+        worker3 = create_contact(first_name='Rei',     last_name='Ayanami')
+
+        url = self._build_add_resource_url(task)
+
+        def create_resource(worker, hourly_cost):
+            response = self.client.post(url, follow=True,
+                                        data={'user':           user.id,
+                                              'linked_contact': worker.id,
+                                              'hourly_cost':    hourly_cost,
+                                             }
+                                       )
+            self.assertNoFormError(response)
+
+        create_resource(worker1, 100)
+        create_resource(worker2, 150)
+        create_resource(worker3, '')
+
+        resources = {res.linked_contact_id: res for res in task.resources_set.all()}
+        self.assertEqual(3, len(resources))
+
+        with self.assertNoException():
+            resource1 = resources[worker1.id]
+            resource2 = resources[worker2.id]
+            resource3 = resources[worker3.id]
+
+        self.assertIsNone(resource3.hourly_cost)
+
+        def create_wperiod(resource, duration):
+            response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
+                                        data={'resource':   resource.id,
+                                              'start_date': '2010-10-11',
+                                              'end_date':   '2010-10-12',
+                                              'duration':   duration,
+                                             }
+                                       )
+            self.assertNoFormError(response)
+
+        create_wperiod(resource1, 8)
+        create_wperiod(resource2, 3)
+        create_wperiod(resource3, 12)
+
+        self.assertEqual(8 + 3 + 12, task.get_effective_duration())
+
+        cost = task.get_task_cost()
+        self.assertEqual(8 * 100 + 3 * 150 + 12 * 0, cost)
+        self.assertEqual(cost, project.get_project_cost())
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()
