@@ -31,7 +31,8 @@ def copy_old_fields(apps, schema_editor):
 
             for field_name in field_names:
                 setattr(instance, field_name, getattr(line_instance, field_name))
-                instance.save()
+
+            instance.save()
 
 def remove_old_links(apps, schema_editor):
     # No more 'All lines' view ; so we want to avoid menu items which could cause a 404 error.
