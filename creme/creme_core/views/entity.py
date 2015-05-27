@@ -569,7 +569,15 @@ def delete_entity(request, entity_id):
     if request.is_ajax():
         return HttpResponse(content_type='text/javascript')
 
-    return HttpResponseRedirect(entity.get_lv_absolute_url())
+#    return HttpResponseRedirect(entity.get_lv_absolute_url())
+    if hasattr(entity, 'get_lv_absolute_url'):
+        url = entity.get_lv_absolute_url()
+    elif hasattr(entity, 'get_related_entity'):
+        url = entity.get_related_entity().get_absolute_url()
+    else:
+        url = '/'
+
+    return HttpResponseRedirect(url)
 
 @login_required
 def delete_related_to_entity(request, ct_id):

@@ -70,7 +70,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProjectTask',
             fields=[
-                ('activity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='activities.Activity')),
+                #('activity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='activities.Activity')),
+                ('activity_ptr', models.OneToOneField(parent_link=False, auto_created=True, primary_key=True, serialize=False, to='activities.Activity')),
                 ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 ('parent_tasks', models.ManyToManyField(related_name='children_set', null=True, editable=False, to='projects.ProjectTask', blank=True)),
                 ('project', models.ForeignKey(related_name='tasks_set', editable=False, to='projects.Project', verbose_name='Project')),
@@ -81,7 +82,8 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Task of project',
                 'verbose_name_plural': 'Tasks of project',
             },
-            bases=('activities.activity',),
+            #bases=('activities.activity',),
+            bases=(models.Model,), #TODO: ('creme_core.CremeEntity',) in creme1.7
         ),
         migrations.CreateModel(
             name='Resource',

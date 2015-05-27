@@ -20,46 +20,64 @@
 
 from itertools import chain
 
-from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
+from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
+        ForeignKey, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
-#from creme.creme_core.models import Relation
+from creme.creme_core.models import CremeEntity, Relation
 
-from creme.activities.models import Activity
-from creme.activities.constants import NARROW #REL_SUB_PART_2_ACTIVITY
+#from creme.activities.models import Activity
+#from creme.activities.constants import NARROW
 
-from ..constants import COMPLETED_PK, CANCELED_PK
+from ..constants import COMPLETED_PK, CANCELED_PK, REL_OBJ_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
 from .project import Project
 from .taskstatus import TaskStatus
 
 
-class ProjectTask(Activity):
+#class ProjectTask(Activity):
+#    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
+#    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
+#    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False,
+#                                   related_name='children_set', editable=False,
+#                                  )
+##    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #already have activity duration in Activity
+#    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
+#
+#    class Meta:
+#        app_label = 'projects'
+#        verbose_name = _(u'Task of project')
+#        verbose_name_plural = _(u'Tasks of project')
+#        ordering = Activity._meta.ordering #NB: sadly it seems that inheriting from Activity.Meta does not work.
+#
+#    def __init__ (self, *args , **kwargs):
+#        super(ProjectTask, self).__init__(*args, **kwargs)
+#        self.floating_type = NARROW
+class ProjectTask(CremeEntity):
+    title        = CharField(_(u'Title'), max_length=100)
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
-    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False,
+    parent_tasks = ManyToManyField('self', blank=True, null=True, symmetrical=False,
                                    related_name='children_set', editable=False,
                                   )
-#    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #already have activity duration in Activity
+    start        = DateTimeField(_(u'Start'), blank=True, null=True)
+    end          = DateTimeField(_(u'End'), blank=True, null=True)
+    duration     = PositiveIntegerField(_(u'Duration (in hours)'), blank=True, null=True) #TODO: null=False (required in form) (idem with start/end)
+    description  = TextField(_(u'Description'), blank=True, null=True)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
-
-    effective_duration = None
-    resources          = None
-    working_periods    = None
-    parents            = None
 
     class Meta:
         app_label = 'projects'
         verbose_name = _(u'Task of project')
         verbose_name_plural = _(u'Tasks of project')
-        ordering = Activity._meta.ordering #NB: sadly it seems that inheriting from Activity.Meta does not work.
+        ordering = ('-start',)
 
-    def __init__ (self, *args , **kwargs):
-        super(ProjectTask, self).__init__(*args, **kwargs)
-        self.floating_type = NARROW
+    effective_duration = None
+    resources          = None
+#    working_periods    = None
+    parents            = None
 
-    #def _pre_delete(self):
-        #for relation in Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY, object_entity=self):
-            #relation._delete_without_transaction()
+    def __unicode__(self):
+        return self.title
 
     def get_absolute_url(self):
         return "/projects/task/%s" % self.id
@@ -67,14 +85,24 @@ class ProjectTask(Activity):
     def get_edit_absolute_url(self):
         return "/projects/task/edit/%s" % self.id
 
+    def get_related_entity(self):
+        return self.project
+
+    def _pre_delete(self):
+        for resource in self.get_resources():
+            resource.delete()
+
+        for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
+            relation._delete_without_transaction()
+
+#    def delete(self):
+#        for resource in self.get_resources():
+#            resource.delete()
+#        super(ProjectTask, self).delete()
+
     @property
     def safe_duration(self):
         return self.duration or 0
-
-    def delete(self):
-        for resource in self.get_resources():
-            resource.delete()
-        super(ProjectTask, self).delete()
 
     def get_parents(self):
         if self.parents is None:
@@ -96,27 +124,46 @@ class ProjectTask(Activity):
 
     def get_resources(self):
         if self.resources is None:
-            self.resources = self.resources_set.all()
+#            self.resources = self.resources_set.all()
+            self.resources = self.resources_set.select_related('linked_contact')
         return self.resources
 
-    def get_working_periods(self):
-        if self.working_periods is None:
-            self.working_periods = self.tasks_set.all()
-        return self.working_periods
+#    def get_working_periods(self):
+#        if self.working_periods is None:
+#            self.working_periods = self.tasks_set.all()
+#        return self.working_periods
+    @property
+    def related_activities(self):
+        activities = [r.object_entity.get_real_entity()
+                            for r in self.get_relations(REL_OBJ_LINKED_2_PTASK,
+                                                        real_obj_entities=True,
+                                                       )
+                     ]
+        resource_per_contactid = {r.linked_contact_id: r for r in self.get_resources()}
+        contact_ids = dict(
+                Relation.objects.filter(type=REL_SUB_PART_AS_RESOURCE,
+                                        object_entity__in=[a.id for a in activities],
+                                       )
+                                .values_list('object_entity_id', 'subject_entity_id')
+            )
+
+        for activity in activities:
+            activity.projects_resource = resource_per_contactid[contact_ids[activity.id]]
+
+        return activities
 
     def get_task_cost(self):
-#        total = 0
-#        effective_duration = self.get_effective_duration()
-#        for res in self.get_resources():
-#            total += res.hourly_cost
-#        return total * effective_duration
-        return sum(period.duration * (period.resource.hourly_cost or 0)
-                        for period in self.get_working_periods()
+#        return sum(period.duration * (period.resource.hourly_cost or 0)
+#                        for period in self.get_working_periods()
+#                  )
+        return sum((activity.duration or 0) * activity.projects_resource.hourly_cost
+                        for activity in self.related_activities
                   )
 
     def get_effective_duration(self, format='h'):
         if self.effective_duration is None:
-            self.effective_duration = sum(period.duration for period in self.get_working_periods())
+#            self.effective_duration = sum(period.duration for period in self.get_working_periods())
+            self.effective_duration = sum(activity.duration or 0 for activity in self.related_activities)
 
         if format == '%':
             duration = self.duration
@@ -134,15 +181,15 @@ class ProjectTask(Activity):
     def _clone_m2m(self, source):#Handled manually in clone_scope
         pass
 
-    def _pre_save_clone(self, source):#Busy hasn't the same semantic here
-        pass
+#    def _pre_save_clone(self, source):#Busy hasn't the same semantic here
+#        pass
 
     def _post_save_clone(self, source):
         for resource in source.get_resources():
             resource.clone_for_task(self)
 
-        for working_period in source.get_working_periods():
-            working_period.clone(self)
+#        for working_period in source.get_working_periods():
+#            working_period.clone(self)
 
     @staticmethod
     def clone_scope(tasks, project):
@@ -158,17 +205,16 @@ class ProjectTask(Activity):
             new_task = task.clone()
             new_task.project = project
             new_task.save()
+            #new_task = task.clone(project) TODO
 
             context[task.id] = {'new_pk':     new_task.id, 
                                 'o_children': project_task_filter(parent_tasks=task.id)
                                                 .values_list('pk', flat=True),
                                }
-#            context[new_task.id] = task.id
 
         new_links = {values['new_pk']: [context[old_child_id]['new_pk']
                                             for old_child_id in values['o_children']
                                        ]
-                        #for old_key, values in context.iteritems()
                         for values in context.itervalues()
                     }
 

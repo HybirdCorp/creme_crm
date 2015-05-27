@@ -4,17 +4,6 @@
 
 {% block page_title %}{{object}} - {% endblock %}
 
-{% comment %} COMMENTED on 22-01-2014
-{% block extrahead %}
-    <script type="text/javascript">
-        // TODO : move this in creme.blocks and initialize with bindEvents method
-        $(document).ready(function() {
-            creme.utils.bindShowHideTbody();
-        });
-    </script>
-{% endblock %}
-{% endcomment %}
-
 {% block bodyclass %}{% if object.is_deleted %}class="is_deleted"{% endif %}{% endblock %}
 
 {% block before_content_1 %}<div class="detailview">

@@ -16,13 +16,14 @@ try:
     from creme.persons.models import Contact
     from creme.persons.tests.base import skipIfCustomContact
 
-    from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
+    from creme.activities.constants import (NARROW, REL_SUB_PART_2_ACTIVITY,
             ACTIVITYTYPE_TASK, ACTIVITYTYPE_MEETING,
-            ACTIVITYSUBTYPE_MEETING_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION) # NARROW
-    from creme.activities.models import Activity #Calendar
+            ACTIVITYSUBTYPE_MEETING_MEETING) #ACTIVITYSUBTYPE_MEETING_QUALIFICATION
+    from creme.activities.models import Activity, Calendar
 
-    from .models import Project, ProjectStatus, ProjectTask, TaskStatus, Resource, WorkingPeriod
-    from .constants import NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER, REL_OBJ_PROJECT_MANAGER
+    from .models import Project, ProjectStatus, ProjectTask, TaskStatus, Resource # WorkingPeriod
+    from .constants import (NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER,
+            REL_OBJ_PROJECT_MANAGER, REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -31,6 +32,8 @@ except Exception as e:
 class ProjectsTestCase(CremeTestCase):
     ADD_PROJECT_URL = '/projects/project/add'
     ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
+    DELETE_RESOURCE_URL = '/projects/resource/delete'
+    DELETE_ACTIVITY_URL = '/projects/activity/delete'
 
     @classmethod
     def setUpClass(cls):
@@ -50,8 +53,44 @@ class ProjectsTestCase(CremeTestCase):
     def _build_add_resource_url(self, task):
         return '/projects/task/%s/resource/add' % task.id
 
+    def _build_add_activity_url(self, task):
+        return '/projects/task/%s/activity/add' % task.id
+
+    def _build_edit_activity_url(self, activity):
+        return '/projects/activity/edit/%s' % activity.id
+
     def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
         return json_dump({'type': atype, 'sub_type': sub_type})
+
+    def create_resource(self, task, contact, hourly_cost=100):
+        response = self.client.post(self._build_add_resource_url(task),
+                                    follow=True,
+                                    data={'user':           self.user.id,
+                                          #'linked_contact': contact.id,
+                                          'contact': contact.id,
+                                          'hourly_cost':    hourly_cost,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+    def create_activity(self, resource, start='2015-05-19', end='2015-06-03',
+                        duration='8', atype=None, busy='', errors=False,
+                       ):
+        response = self.client.post(self._build_add_activity_url(resource.task), follow=True,
+                                    data={'resource':      resource.id,
+                                          'start':         start,
+                                          'end':           end,
+                                          'duration':      duration,
+                                          'type_selector': atype or self._build_type_value(),
+                                          'user':          self.user.id,
+                                          'busy':          busy,
+                                         }
+                                   )
+
+        if not errors:
+            self.assertNoFormError(response)
+
+        return response
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,
@@ -230,9 +269,7 @@ class ProjectsTestCase(CremeTestCase):
         "Create 2 tasks without collisions"
         user = self.login()
 
-        #contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
-        #contact = self.get_object_or_fail(Contact, is_user=user)
-        contact = user.linked_contact
+#        contact = user.linked_contact
 
         project = self.create_project('Eva01')[0]
 
@@ -250,9 +287,9 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':                 '2010-10-11 17:00',
                                           'duration':            duration,
                                           'tstatus':             tstatus.id,
-                                          'participating_users': user.id,
-                                          'busy':                True,
-                                          'type_selector':       self._build_type_value(),
+#                                          'participating_users': user.id,
+#                                          'busy':                True,
+#                                          'type_selector':       self._build_type_value(),
                                          }
                                     )
 
@@ -271,8 +308,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(title,   task1.title)
         self.assertEqual(1,       task1.order)
         self.assertEqual(tstatus, task1.tstatus)
-        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task1)
-        self.assertEqual(1, task1.calendars.count())
+#        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task1)
+#        self.assertEqual(1, task1.calendars.count())
 
         duration_2 = 180
         response = self.client.post(url, follow=True,
@@ -283,8 +320,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':            duration_2,
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'parent_tasks':        '[%d]' % task1.id,
-                                          'participating_users': user.id,
-                                          'type_selector':       self._build_type_value(),
+#                                          'participating_users': user.id,
+#                                          'type_selector':       self._build_type_value(),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -299,10 +336,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
         self.assertEqual(set(tasks), set(project.get_tasks()))
-        self.assertEqual(duration_1 + duration_2,   project.get_expected_duration())
+        self.assertEqual(duration_1 + duration_2, project.get_expected_duration())
 
-        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
-        self.assertEqual(1, task2.calendars.count())
+#        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
+#        self.assertEqual(1, task2.calendars.count())
 
     def test_task_createview02(self):
         "Can not be parented with task of an other project"
@@ -320,93 +357,89 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':      50,
                                           'tstatus':       TaskStatus.objects.all()[0].id,
                                           'parent_tasks':  '[%d]' % task01.id,
-                                          'type_selector': self._build_type_value(),
+#                                          'type_selector': self._build_type_value(),
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
                              _(u"This entity doesn't exist.")
                             )
 
-    def test_task_createview03(self):
-        "Create 2 tasks with a collision"
-        user = self.login()
-
-        #contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
-        #contact = self.get_object_or_fail(Contact, is_user=user)
-        contact = user.linked_contact
-
-        project = self.create_project('Eva01')[0]
-        tstatus = TaskStatus.objects.all()[0]
-
-        url = self._build_add_task_url(project)
-        self.assertGET200(url)
-        self.assertPOST200(url, follow=True,
-                           data={'user':                user.id,
-                                 'title':               'head',
-                                 'start':               '2010-10-11 15:00',
-                                 'end':                 '2010-10-11 17:00',
-                                 'duration':            50,
-                                 'tstatus':             tstatus.id,
-                                 'participating_users': user.id,
-                                 'busy':                True,
-                                 'type_selector':       self._build_type_value(),
-                                }
-                          )
-
-        #task2_start = get_dt_from_str('2010-10-11 16:59')
-        #task2_end = get_dt_from_str('2010-10-11 17:30')
-        task2_start = '2010-10-11 16:59'
-        task2_end   = '2010-10-11 17:30'
-        response = self.client.post(url, follow=True,
-                                    data={'user':                user.id,
-                                          'title':               'torso',
-                                          'start':               task2_start,
-                                          'end':                 task2_end,
-                                          'duration':            180,
-                                          'tstatus':             tstatus.id,
-                                          'participating_users': user.id,
-                                          'type_selector':       self._build_type_value(),
-                                         }
-                                   )
-
-        tasks = ProjectTask.objects.filter(project=project)
-        self.assertEqual(1, len(tasks))
-        task1 = tasks[0]
-
-        self.assertFormError(response, 'form', None,
-            _(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
-                    'participant': contact,
-                    'activity':    task1,
-                    #'start':       max(task2_start.time(), task1.start.time()),
-                    #'end':         min(task2_end.time(),   task1.end.time()),
-                    'start':       '16:59:00',
-                    'end':         '17:00:00',
-                }
-        )
-
-    def test_task_createview04(self):
-        "Create task with 'Meeting' type"
-        user = self.login()
-
-        project = self.create_project('Eva01')[0]
-        title = 'Head'
-        atype = ACTIVITYTYPE_MEETING
-        stype = ACTIVITYSUBTYPE_MEETING_MEETING
-        response = self.client.post(self._build_add_task_url(project), follow=True,
-                                    data={'user':          user.id,
-                                          'title':         title,
-                                          'start':         '2013-7-1',
-                                          'end':           '2013-7-14',
-                                          'duration':      50,
-                                          'tstatus':       TaskStatus.objects.all()[0].id,
-                                          'type_selector': self._build_type_value(atype, stype),
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        task = self.get_object_or_fail(ProjectTask, title=title, project=project)
-        self.assertEqual(atype, task.type_id)
-        self.assertEqual(stype, task.sub_type_id)
+#    def test_task_createview03(self):
+#        "Create 2 tasks with a collision"
+#        user = self.login()
+#
+#        #contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+#        #contact = self.get_object_or_fail(Contact, is_user=user)
+#        contact = user.linked_contact
+#
+#        project = self.create_project('Eva01')[0]
+#        tstatus = TaskStatus.objects.all()[0]
+#
+#        url = self._build_add_task_url(project)
+#        self.assertGET200(url)
+#        self.assertPOST200(url, follow=True,
+#                           data={'user':                user.id,
+#                                 'title':               'head',
+#                                 'start':               '2010-10-11 15:00',
+#                                 'end':                 '2010-10-11 17:00',
+#                                 'duration':            50,
+#                                 'tstatus':             tstatus.id,
+#                                 'participating_users': user.id,
+#                                 'busy':                True,
+#                                 'type_selector':       self._build_type_value(),
+#                                }
+#                          )
+#
+#        task2_start = '2010-10-11 16:59'
+#        task2_end   = '2010-10-11 17:30'
+#        response = self.client.post(url, follow=True,
+#                                    data={'user':                user.id,
+#                                          'title':               'torso',
+#                                          'start':               task2_start,
+#                                          'end':                 task2_end,
+#                                          'duration':            180,
+#                                          'tstatus':             tstatus.id,
+#                                          'participating_users': user.id,
+#                                          'type_selector':       self._build_type_value(),
+#                                         }
+#                                   )
+#
+#        tasks = ProjectTask.objects.filter(project=project)
+#        self.assertEqual(1, len(tasks))
+#        task1 = tasks[0]
+#
+#        self.assertFormError(response, 'form', None,
+#            _(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
+#                    'participant': contact,
+#                    'activity':    task1,
+#                    'start':       '16:59:00',
+#                    'end':         '17:00:00',
+#                }
+#        )
+#
+#    def test_task_createview04(self):
+#        "Create task with 'Meeting' type"
+#        user = self.login()
+#
+#        project = self.create_project('Eva01')[0]
+#        title = 'Head'
+#        atype = ACTIVITYTYPE_MEETING
+#        stype = ACTIVITYSUBTYPE_MEETING_MEETING
+#        response = self.client.post(self._build_add_task_url(project), follow=True,
+#                                    data={'user':          user.id,
+#                                          'title':         title,
+#                                          'start':         '2013-7-1',
+#                                          'end':           '2013-7-14',
+#                                          'duration':      50,
+#                                          'tstatus':       TaskStatus.objects.all()[0].id,
+#                                          'type_selector': self._build_type_value(atype, stype),
+#                                         }
+#                                   )
+#        self.assertNoFormError(response)
+#
+#        task = self.get_object_or_fail(ProjectTask, title=title, project=project)
+#        self.assertEqual(atype, task.type_id)
+#        self.assertEqual(stype, task.sub_type_id)
 
     def test_task_detailview(self):
         self.login()
@@ -415,33 +448,34 @@ class ProjectsTestCase(CremeTestCase):
         task = self.create_task(project, 'Title')
 
         url1 = task.get_absolute_url()
-        url2 = Activity.objects.get(id=task.id).get_absolute_url()
-        self.assertNotEqual(url1, url2)
+#        url2 = Activity.objects.get(id=task.id).get_absolute_url()
+#        self.assertNotEqual(url1, url2)
 
         response = self.assertGET200(url1)
         self.assertTemplateUsed(response, 'projects/view_task.html')
 
-        response = self.assertGET200(url2, follow=True)
-
-        with self.assertNoException():
-            instance = response.context['object']
-
-        self.assertIsInstance(instance, ProjectTask)
-        self.assertTemplateUsed(response, 'projects/view_task.html')
+#        response = self.assertGET200(url2, follow=True)
+#
+#        with self.assertNoException():
+#            instance = response.context['object']
+#
+#        self.assertIsInstance(instance, ProjectTask)
+#        self.assertTemplateUsed(response, 'projects/view_task.html')
 
     def test_task_editview01(self):
         user = self.login()
 
         project = self.create_project('Eva01')[0]
         task = self.create_task(project, 'Title')
-        url = '/projects/task/edit/%s' % task.id
+#        url = '/projects/task/edit/%s' % task.id
+        url = task.get_edit_absolute_url()
         self.assertGET200(url)
 
         title = 'Head'
         duration = 55
         tstatus  = TaskStatus.objects.all()[1]
-        atype = ACTIVITYTYPE_MEETING
-        stype = ACTIVITYSUBTYPE_MEETING_MEETING
+#        atype = ACTIVITYTYPE_MEETING
+#        stype = ACTIVITYSUBTYPE_MEETING_MEETING
         response = self.client.post(url, follow=True,
                                     data={'user':     user.id,
                                           'title':    title,
@@ -449,7 +483,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  tstatus.id,
-                                          'type_selector': self._build_type_value(atype, stype),
+#                                          'type_selector': self._build_type_value(atype, stype),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -458,8 +492,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
         self.assertEqual(tstatus,  task.tstatus)
-        self.assertEqual(atype,    task.type_id)
-        self.assertEqual(stype,    task.sub_type_id)
+#        self.assertEqual(atype,    task.type_id)
+#        self.assertEqual(stype,    task.sub_type_id)
 
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
@@ -476,7 +510,7 @@ class ProjectsTestCase(CremeTestCase):
                                #)
 
         #stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
-        #response = self.client.post('/projects/task/edit/%s' % task.id, follow=True, #TODO: factorise
+        #response = self.client.post('/projects/task/edit/%s' % task.id, follow=True,
                                     #data={'user':     self.user.id,
                                           #'title':    'Head',
                                           #'start':    '2013-5-16',
@@ -503,8 +537,8 @@ class ProjectsTestCase(CremeTestCase):
 
         title = 'Head'
         duration = 55
-        atype = ACTIVITYTYPE_MEETING
-        stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
+#        atype = ACTIVITYTYPE_MEETING
+#        stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
         response = self.client.post(url, follow=True,
                                     data={'user':     user.id,
                                           'title':    title,
@@ -512,7 +546,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'end':      '2012-6-17',
                                           'duration': duration,
                                           'tstatus':  TaskStatus.objects.all()[0].id,
-                                          'type_selector': self._build_type_value(atype, stype),
+#                                          'type_selector': self._build_type_value(atype, stype),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -520,8 +554,8 @@ class ProjectsTestCase(CremeTestCase):
         task = self.refresh(task)
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
-        self.assertEqual(atype,    task.type_id)
-        self.assertEqual(stype,    task.sub_type_id)
+#        self.assertEqual(atype,    task.type_id)
+#        self.assertEqual(stype,    task.sub_type_id)
 
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
@@ -587,7 +621,7 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(url % task01.id, data={'parents': '[%d]' % task03.id})
         self.assertFormError(response, 'form', 'parents',
-                             [_(u"This entity doesn't exist.")]
+                             _(u"This entity doesn't exist.")
                             )
 
     def test_duration01(self):
@@ -620,7 +654,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(0, task.get_delay())
         self.assertEqual(0, project.get_expected_duration())
 
-    def test_resource_n_period01(self):
+    def test_resource_n_activity01(self):
         "Creation views"
         user = self.login()
 
@@ -628,33 +662,39 @@ class ProjectsTestCase(CremeTestCase):
         task    = self.create_task(project, 'legs')
         self.assertFalse(task.resources_set.all())
 
-        url = self._build_add_resource_url(task)
-        self.assertGET200(url)
+        self.assertGET200(self._build_add_resource_url(task))
 
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
-        response = self.client.post(url, follow=True,
-                                    data={'user':           user.id,
-                                          'linked_contact': worker.id,
-                                          'hourly_cost':    100,
-                                         }
-                                   )
-        self.assertNoFormError(response)
+        self.create_resource(task, worker, hourly_cost=100)
 
         resources = list(task.resources_set.all())
         self.assertEqual(1, len(resources))
-
         resource = resources[0]
-        self.assertFalse(resource.workingperiod_set.exists())
+#        self.assertFalse(resource.workingperiod_set.exists())
 
-        response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
-                                    data={'resource':   resource.id,
-                                          'start_date': '2010-10-11',
-                                          'end_date':   '2010-10-12',
-                                          'duration':   8,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(1, resource.workingperiod_set.count())
+#        self.assertGET200('/projects/task/%s/period/add' % task.id)
+        self.assertGET200(self._build_add_activity_url(task))
+
+        atype = ACTIVITYTYPE_MEETING
+        stype = ACTIVITYSUBTYPE_MEETING_MEETING
+        self.create_activity(resource, duration='8', atype=self._build_type_value(atype, stype))
+#        self.assertEqual(1, resource.workingperiod_set.count())
+
+        activity = self.get_object_or_fail(Activity, title='Eva02 - legs - 001')
+
+        self.assertEqual(atype, activity.type_id)
+        self.assertEqual(stype, activity.sub_type_id)
+        self.assertEqual(NARROW, activity.floating_type)
+        self.assertEqual(8, activity.duration)
+        self.assertFalse(activity.busy)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2015, month=5, day=19), activity.start)
+        self.assertEqual(create_dt(year=2015, month=6, day=3),  activity.end)
+
+        self.assertRelationCount(1, activity, REL_SUB_LINKED_2_PTASK, task)
+        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
 
         self.assertEqual(8,   task.get_effective_duration())
         self.assertEqual(800, task.get_task_cost()) #8 * 100
@@ -665,27 +705,18 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(800, project.get_project_cost()) #8 * 100
         self.assertEqual(0,   project.get_delay())
 
-    def test_resource_n_period02(self):
-        "Edition views"
+    def test_resource_n_activity02(self):
+        "Edition views + Calendar"
         user = self.login()
 
-        project  = self.create_project('Eva02')[0]
-        task     = self.create_task(project, 'arms')
-        worker   = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
-        self.client.post(self._build_add_resource_url(task), follow=True,
-                         data={'user':           user.id,
-                               'linked_contact': worker.id,
-                               'hourly_cost':    100,
-                              }
-                        )
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
-        self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
-                         data={'resource':   resource.id,
-                               'start_date': '2010-10-11',
-                               'end_date':   '2010-10-12',
-                               'duration':   8,
-                              }
-                        )
+
+        self.create_activity(resource)
 
         #url = '/projects/resource/edit/%s' % resource.id
         url = resource.get_edit_absolute_url()
@@ -693,7 +724,8 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(url, follow=True,
                                     data={'user':           user.id,
-                                          'linked_contact': worker.id,
+                                          #'linked_contact': worker.id,
+                                          'contact': worker.id,
                                           'hourly_cost':    200,
                                          }
                                    )
@@ -702,27 +734,41 @@ class ProjectsTestCase(CremeTestCase):
         resource = self.refresh(resource)
         self.assertEqual(200, resource.hourly_cost)
 
-        wperiods = list(resource.workingperiod_set.all())
-        self.assertEqual(1, len(wperiods))
+#        wperiods = list(resource.workingperiod_set.all())
+#        self.assertEqual(1, len(wperiods))
+        activities = task.related_activities
+        self.assertEqual(1, len(activities))
 
-        wperiod = wperiods[0]
-        #url = '/projects/period/edit/%s' % wperiod.id
-        url = wperiod.get_edit_absolute_url()
+#        wperiod = wperiods[0]
+#        url = wperiod.get_edit_absolute_url()
+        activity = activities[0]
+        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+                         list(activity.calendars.all())
+                        )
+        url = self._build_edit_activity_url(activity)
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'resource':   resource.id,
-                                          'start_date': '2010-10-11',
-                                          'end_date':   '2010-10-12',
+                                          #'start_date': '2010-10-11',
+                                          #'end_date':   '2010-10-12',
+                                          'start':      '2010-10-11',
+                                          'end':        '2010-10-12',
                                           'duration':   10,
+                                          'user':       user.id,
+                                          'type_selector': self._build_type_value(),
                                          }
                                    )
         self.assertNoFormError(response)
 
-        wperiod = self.refresh(wperiod)
-        self.assertEqual(10, wperiod.duration)
+#        wperiod = self.refresh(wperiod)
+#        self.assertEqual(10, wperiod.duration)
+        activity = self.refresh(activity)
+        self.assertEqual(10, activity.duration)
+        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
 
-    def test_resource_n_period03(self):
+    def test_resource_n_activity03(self):
         "Not alive task"
         user = self.login()
 
@@ -735,15 +781,228 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/error.html')
 
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
-        response = self.client.post(url, follow=True,
+        self.create_resource(task, worker)
+
+        self.assertFalse(task.resources_set.all())
+        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+
+    def test_resource_n_activity04(self):
+        "Create 2 activities with a collision"
+        user = self.login()
+
+        project = self.create_project('Eva01')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        self.create_activity(resource, '2010-10-11 15:00', '2010-10-11 17:00', busy='on')
+        act1 = task.related_activities[0]
+        self.assertTrue(act1.busy)
+
+        response = self.create_activity(resource, '2010-10-11 16:59', '2010-10-11 17:30',
+                                        busy='on', errors=True,
+                                       )
+        self.assertEqual(1, len(self.refresh(task).related_activities))
+
+        self.assertFormError(response, 'form', None,
+            _(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
+                    'participant': worker,
+                    'activity':    act1,
+                    'start':       '16:59:00',
+                    'end':         '17:00:00',
+                }
+        )
+
+    def test_resource_n_activity05(self):
+        "Edition of activity: resource changes"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker1 = self.other_user.linked_contact
+        worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+
+        self.create_resource(task, worker1)
+        resource1 = task.resources_set.all()[0]
+
+        self.create_resource(task, worker2)
+        resource2 = task.resources_set.exclude(pk=resource1.id)[0]
+
+        data = {'resource':   resource1.id,
+                'start':      '2015-05-21',
+                'end':        '2015-05-22',
+                'duration':   10,
+                'user':       user.id,
+                'type_selector': self._build_type_value(),
+               }
+        self.client.post(self._build_add_activity_url(task), follow=True, data=data)
+        activities = task.related_activities
+        self.assertEqual(1, len(activities))
+
+        activity = activities[0]
+        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+                         list(activity.calendars.all())
+                        )
+
+        response = self.client.post(self._build_edit_activity_url(activity),
+                                    follow=True,
+                                    data=dict(data, resource=resource2.id),
+                                   )
+        self.assertNoFormError(response)
+
+        #activity = self.refresh(activity)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+
+        self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+
+        self.assertFalse(activity.calendars.all()) #alrigth the project Activities can be on no Calendar
+
+    def test_resource_n_activity06(self):
+        "Edition of activity: resource changes + keep_participating"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker1 = self.other_user.linked_contact
+        worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+
+        self.create_resource(task, worker1)
+        resource1 = task.resources_set.all()[0]
+
+        self.create_resource(task, worker2)
+        resource2 = task.resources_set.exclude(pk=resource1.id)[0]
+
+        data = {'resource':   resource1.id,
+                'start':      '2015-05-21',
+                'end':        '2015-05-22',
+                'duration':   10,
+                'user':       user.id,
+                'type_selector': self._build_type_value(),
+               }
+        self.client.post(self._build_add_activity_url(task), follow=True, data=data)
+        activities = task.related_activities
+        self.assertEqual(1, len(activities))
+
+        activity = activities[0]
+        response = self.client.post(self._build_edit_activity_url(activity),
+                                    follow=True,
+                                    data=dict(data,
+                                              resource=resource2.id,
+                                              keep_participating='on',
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+
+        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+
+        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+                         list(activity.calendars.all())
+                        )
+
+    def test_edit_resource01(self):
+        "Related contact partipates to activities"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task1 = self.create_task(project, 'arms')
+        task2 = self.create_task(project, 'legs')
+
+        worker1 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+        worker2 = self.other_user.linked_contact
+
+        self.create_resource(task1, worker1)
+        resource1 = task1.resources_set.all()[0]
+        self.create_activity(resource1)
+
+        self.create_resource(task2, worker1)
+        resource2 = task2.resources_set.all()[0]
+        self.create_activity(resource2)
+
+        response = self.client.post(resource1.get_edit_absolute_url(),
+                                    follow=True,
                                     data={'user':           user.id,
-                                          'linked_contact': worker.id,
-                                          'hourly_cost':    100,
+                                          #'linked_contact': worker2.id,
+                                          'contact': worker2.id,
+                                          'hourly_cost':    200,
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertFalse(task.resources_set.all())
-        self.assertTemplateUsed(response, 'creme_core/generics/error.html')
+
+        resource1 = self.refresh(resource1)
+        self.assertEqual(worker2, resource1.linked_contact)
+
+        # activity of the resource => changes
+        activities1 = task1.related_activities
+        self.assertEqual(1, len(activities1))
+        activity1 = activities1[0]
+
+        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity1)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity1)
+
+        self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity1)
+        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity1)
+
+        self.assertEqual([Calendar.get_user_default_calendar(self.other_user)],
+                         list(activity1.calendars.all())
+                        )
+
+        # activity of the other resource => no change
+        activities2 = task2.related_activities
+        self.assertEqual(1, len(activities2))
+        activity2 = activities2[0]
+
+        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity2)
+        self.assertRelationCount(1, worker1, REL_SUB_PART_AS_RESOURCE, activity2)
+
+    def test_edit_resource02(self):
+        "Related contact partipates to activities: old resource continues to participate"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task = self.create_task(project, 'arms')
+
+        worker1 = user.linked_contact
+        worker2 = self.other_user.linked_contact
+
+        self.create_resource(task, worker1)
+        resource1 = task.resources_set.all()[0]
+        self.create_activity(resource1)
+
+        response = self.client.post(resource1.get_edit_absolute_url(),
+                                    follow=True,
+                                    data={'user':        user.id,
+                                          'contact':     worker2.id,
+                                          'hourly_cost': 200,
+                                          'keep_participating': 'on',
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        resource1 = self.refresh(resource1)
+        self.assertEqual(worker2, resource1.linked_contact)
+
+        activities = task.related_activities
+        self.assertEqual(1, len(activities))
+        activity = activities[0]
+
+        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+
+        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+
+        get_cal = Calendar.get_user_default_calendar
+        self.assertEqual({get_cal(user), get_cal(self.other_user)},
+                         set(activity.calendars.all())
+                        )
 
     def test_project_close(self):
         self.login()
@@ -768,8 +1027,9 @@ class ProjectsTestCase(CremeTestCase):
     def _create_parented_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
         task = ProjectTask.objects.create(project=project, order=0, duration=0,
-                                          tstatus=status, user=self.user,
-                                          title=title, type_id=ACTIVITYTYPE_TASK,
+                                          tstatus=status, title=title,
+                                          user=self.user,
+                                          #type_id=ACTIVITYTYPE_TASK,
                                          )
 
         if parents is not None:
@@ -779,9 +1039,6 @@ class ProjectsTestCase(CremeTestCase):
 
     def _create_resource(self, contact, task):
         return Resource.objects.create(linked_contact=contact, user=self.user, task=task)
-
-    def _create_working_period(self, task, resource):
-        return WorkingPeriod.objects.create(task=task, resource=resource)
 
     def _titles_collections(self, tasks_qs, constructor):
         return constructor(tasks_qs.values_list('title', flat=True))
@@ -837,16 +1094,12 @@ class ProjectsTestCase(CremeTestCase):
         contact2 = Contact.objects.create(user=user)
 
         task1 = self._create_parented_task('1', project)
-        resource1 = self._create_resource(contact1, task1)
-        resource2 = self._create_resource(contact2, task1)
-        self._create_working_period(task1, resource1)
-        self._create_working_period(task1, resource2)
+        self._create_resource(contact1, task1)
+        self._create_resource(contact2, task1)
 
         task2 = self._create_parented_task('2', project)
-        resource3 = self._create_resource(contact1, task2)
-        resource4 = self._create_resource(contact2, task2)
-        self._create_working_period(task2, resource3)
-        self._create_working_period(task2, resource4)
+        self._create_resource(contact1, task2)
+        self._create_resource(contact2, task2)
 
         task3 = self._create_parented_task('3', project, [task1, task2])
         self._create_parented_task('4', project, [task3])
@@ -869,10 +1122,6 @@ class ProjectsTestCase(CremeTestCase):
         linked_contacts_set = lambda task: set(task.get_resources().values_list('linked_contact', flat=True))
         self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task1))
         self.assertEqual({contact1.pk, contact2.pk}, linked_contacts_set(c_task2))
-
-        resource_set = lambda task: set(task.get_working_periods().values_list('resource', flat=True))
-        self.assertEqual({resource1.pk, resource2.pk}, resource_set(c_task1))
-        self.assertEqual({resource3.pk, resource4.pk}, resource_set(c_task2))
 
     def _delete_project_status(self, status):
         return self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})
@@ -920,7 +1169,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(status, task.tstatus)
 
     def test_task_cost_n_duration(self):
-        "With several working periods"
+        "With several activities"
         user = self.login()
 
         project = self.create_project('Eva02')[0]
@@ -929,51 +1178,153 @@ class ProjectsTestCase(CremeTestCase):
         create_contact = partial(Contact.objects.create, user=user)
         worker1 = create_contact(first_name='Yui',     last_name='Ikari')
         worker2 = create_contact(first_name='Ritsuko', last_name='Akagi')
-        worker3 = create_contact(first_name='Rei',     last_name='Ayanami')
 
-        url = self._build_add_resource_url(task)
-
-        def create_resource(worker, hourly_cost):
-            response = self.client.post(url, follow=True,
-                                        data={'user':           user.id,
-                                              'linked_contact': worker.id,
-                                              'hourly_cost':    hourly_cost,
-                                             }
-                                       )
-            self.assertNoFormError(response)
-
-        create_resource(worker1, 100)
-        create_resource(worker2, 150)
-        create_resource(worker3, '')
+        self.create_resource(task, worker1, 100)
+        self.create_resource(task, worker2, 150)
 
         resources = {res.linked_contact_id: res for res in task.resources_set.all()}
-        self.assertEqual(3, len(resources))
+        self.assertEqual(2, len(resources))
 
         with self.assertNoException():
             resource1 = resources[worker1.id]
             resource2 = resources[worker2.id]
-            resource3 = resources[worker3.id]
 
-        self.assertIsNone(resource3.hourly_cost)
+        self.create_activity(resource1, duration=8)
+        self.create_activity(resource2, duration=3)
 
-        def create_wperiod(resource, duration):
-            response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
-                                        data={'resource':   resource.id,
-                                              'start_date': '2010-10-11',
-                                              'end_date':   '2010-10-12',
-                                              'duration':   duration,
-                                             }
-                                       )
-            self.assertNoFormError(response)
-
-        create_wperiod(resource1, 8)
-        create_wperiod(resource2, 3)
-        create_wperiod(resource3, 12)
-
-        self.assertEqual(8 + 3 + 12, task.get_effective_duration())
+        self.assertEqual(8 + 3, task.get_effective_duration())
 
         cost = task.get_task_cost()
-        self.assertEqual(8 * 100 + 3 * 150 + 12 * 0, cost)
+        self.assertEqual(8 * 100 + 3 * 150, cost)
         self.assertEqual(cost, project.get_project_cost())
+
+    def test_activity_title(self):
+        user = self.login()
+
+        project = self.create_project('Eva00')[0]
+        task    = self.create_task(project, 'head')
+        worker  = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+
+        self.create_resource(task, worker)
+        resource = task.get_resources()[0]
+
+        self.create_activity(resource, '2015-05-20', '2015-05-21')
+        self.create_activity(resource, '2015-05-22', '2015-05-23')
+        self.assertEqual({'Eva00 - head - 001', 'Eva00 - head - 002'},
+                         {a.title for a in task.related_activities}
+                        )
+
+    def test_delete_resource01(self):
+        "No related activity"
+        user = self.login()
+
+        project = self.create_project('Eva02')[0]
+        task1   = self.create_task(project, 'arms')
+        task2   = self.create_task(project, 'legs')
+        worker1 = self.other_user.linked_contact
+        worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
+
+        self.create_resource(task1, worker1)
+        resource1 = task1.resources_set.all()[0]
+
+        self.create_resource(task1, worker2)
+        resource2 = task1.resources_set.exclude(pk=resource1.id)[0]
+
+        self.create_resource(task2, worker1)
+        resource3 = task2.resources_set.all()[0]
+
+        self.create_activity(resource2)
+        activity = task1.related_activities[0]
+
+        # This activity is linked to the same contact, but not the same resource
+        # so it should not avoid the deletion of resource1
+        self.create_activity(resource3)
+
+        url = self.DELETE_RESOURCE_URL
+        data = {'id': resource1.id}
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertDoesNotExist(resource1)
+
+        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+
+    def test_delete_resource02(self):
+        "Related activity => 409"
+        self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        self.create_activity(resource)
+        activity = task.related_activities[0]
+
+        self.assertPOST409(self.DELETE_RESOURCE_URL, data={'id': resource.id})
+        self.assertStillExists(resource)
+
+        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY,  activity)
+        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
+
+    def test_edit_activity_error(self):
+        "Activity not related to a project task"
+        user = self.login()
+
+        activity = Activity.objects.create(user=user, title='My task',
+                                           type_id=ACTIVITYTYPE_TASK,
+                                          )
+        self.assertGET409(self._build_edit_activity_url(activity))
+
+    def test_delete_activity01(self):
+        "Activity not related to a project task"
+        user = self.login()
+
+        activity = Activity.objects.create(user=user, title='My task',
+                                           type_id=ACTIVITYTYPE_TASK,
+                                          )
+        url = self.DELETE_ACTIVITY_URL
+        data = {'id': activity.id}
+        self.assertGET404(url, data=data)
+        self.assertPOST409(url, data=data)
+
+    def test_delete_activity02(self):
+        "Activity not related to a project task"
+        self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        self.create_activity(resource)
+        activity = task.related_activities[0]
+
+        self.assertPOST200(self.DELETE_ACTIVITY_URL, data={'id': activity.id})
+        self.assertDoesNotExist(activity)
+
+    def test_delete_task(self):
+        self.login()
+
+        project = self.create_project('Eva02')[0]
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
+
+        self.create_resource(task, worker)
+        resource = task.resources_set.all()[0]
+
+        self.create_activity(resource)
+        activity = task.related_activities[0]
+
+        response = self.client.post('/creme_core/entity/delete/%s' % task.id)
+        self.assertDoesNotExist(task)
+        self.assertDoesNotExist(resource)
+        self.assertStillExists(activity)
+        self.assertRedirects(response, project.get_absolute_url())
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()
