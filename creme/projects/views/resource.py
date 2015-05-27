@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,14 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 
+from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..forms.resource import ResourceCreateForm, ResourceEditForm
 from ..models import Resource
-from .utils import _add_generic, _edit_generic
+from .utils import _add_generic, _edit_generic #TODO: these generic views are only here => 'inline' them
 
 
 @login_required
@@ -48,6 +51,13 @@ def delete(request): #TODO: generic delete ??
 
     request.user.has_perm_to_change_or_die(resource.task)
     #request.user.has_perm_to_delete_or_die(resource) #beware to change template if uncommented
+
+    if Relation.objects.filter(subject_entity=resource.linked_contact_id,
+                               type=REL_SUB_PART_AS_RESOURCE,
+                               object_entity__in=[a.id for a in resource.task.related_activities],
+                              ) \
+                       .exists():
+        raise ConflictError(_('This resource cannot be deleted, because it is linked to activities.'))
 
     resource.delete()
 

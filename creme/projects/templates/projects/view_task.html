@@ -1,2 +1,13 @@
 {% extends "creme_core/generics/view_entity.html" %}
+{% load i18n creme_core_tags %}
+
 {% block add_new_button %}{% endblock %}
+
+{% block entity_buttons %}
+    {% with project=object.project %}
+        <a href="{{project.get_absolute_url}}">
+            <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the project: '{{project}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+        </a>&nbsp;
+    {% endwith %}
+    {{block.super}}
+{% endblock %}

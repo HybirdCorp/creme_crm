@@ -28,7 +28,7 @@ from .blocks import block_list
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
-creme_registry.register_entity_models(Project, ProjectTask) #TODO: need to register ProjectTask ??
+creme_registry.register_entity_models(Project, ProjectTask)
 
 reg_item = creme_menu.register_app('projects', '/projects/').register_item
 reg_item('/projects/',            _('Portal of projects'), 'projects')

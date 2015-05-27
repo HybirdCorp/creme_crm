@@ -33,8 +33,12 @@ from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
+from creme.activities.models import Activity
+
 from .blocks import *
-from .constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
+from .constants import (REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
+        REL_SUB_LINKED_2_PTASK, REL_OBJ_LINKED_2_PTASK,
+        REL_SUB_PART_AS_RESOURCE, REL_OBJ_PART_AS_RESOURCE, TASK_STATUS)
 from .models import ProjectStatus, TaskStatus
 
 
@@ -48,8 +52,18 @@ class Populator(BasePopulator):
         already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
         Contact = get_contact_model()
 
-        RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
-                            (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]))
+        create_rtype = RelationType.create
+        create_rtype((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
+                     (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]),
+                    )
+        create_rtype((REL_SUB_LINKED_2_PTASK, _(u'is related to the task of project'), [Activity]),
+                     (REL_OBJ_LINKED_2_PTASK, _(u'includes the activity'),             [ProjectTask]),
+                     is_internal=True,
+                    )
+        create_rtype((REL_SUB_PART_AS_RESOURCE, _(u'is a resource of'),  [Contact]),
+                     (REL_OBJ_PART_AS_RESOURCE, _(u'has as a resource'), [Activity]),
+                     is_internal=True,
+                    )
 
 
         for pk, statusdesc in TASK_STATUS.iteritems():
@@ -106,7 +120,8 @@ class Populator(BasePopulator):
             create_bdl(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Project)
 
             create_bdl(block_id=task_resources_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
-            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+#            create_bdl(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+            create_bdl(block_id=task_activities_block.id_,     order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
             BlockDetailviewLocation.create_4_model_block(order=5,         zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
             create_bdl(block_id=task_extra_info.id_,           order=30,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
             create_bdl(block_id=customfields_block.id_,        order=40,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)

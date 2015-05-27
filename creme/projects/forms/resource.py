@@ -18,40 +18,83 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.forms.fields import BooleanField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import CreatorEntityField
+from creme.creme_core.models import Relation
 
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
+
+from ..constants import REL_SUB_PART_AS_RESOURCE
 from ..models import Resource
+from .task import _link_contact_n_activity
 
 
-class ResourceEditForm(CremeEntityForm):
+class ResourceCreateForm(CremeEntityForm):
+    contact = CreatorEntityField(label=_(u'Contact to be assigned to this task'),
+                                 model=get_contact_model(),
+                                )
+
     class Meta:
         model = Resource
-        exclude = CremeEntityForm.Meta.exclude + ('task', 'linked_contact')
 
     def __init__(self, task, *args, **kwargs):
-        super(ResourceEditForm, self).__init__(*args, **kwargs)
-        self.related_task = task
+        super(ResourceCreateForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        instance.task = task
 
+        other_resources = task.resources_set.all()
 
-class ResourceCreateForm(ResourceEditForm):
-    linked_contact = CreatorEntityField(label=_(u'Contact to be assigned to this task'),
-#                                        required=True, model=Contact)
-                                        model=get_contact_model(),
-                                       )
+        if instance.pk:
+            other_resources = other_resources.exclude(pk=instance.pk)
 
-    class Meta(ResourceEditForm.Meta):
-        exclude = CremeEntityForm.Meta.exclude + ('task',)
-
-    def __init__(self, task, *args, **kwargs):
-        super(ResourceCreateForm, self).__init__(task, *args, **kwargs)
-        self.fields['linked_contact'].q_filter = {'~pk__in': list(task.resources_set.all().values_list('linked_contact_id', flat=True))}
+        self.fields['contact'].q_filter = {
+                '~pk__in': list(other_resources.values_list('linked_contact_id', flat=True)),
+            }
 
     def save(self, *args, **kwargs):
-        self.instance.task = self.related_task
+        self.instance.linked_contact = self.cleaned_data['contact']
         return super(ResourceCreateForm, self).save(*args, **kwargs)
+
+
+class ResourceEditForm(ResourceCreateForm):
+    keep_participating = BooleanField(label=_('If the contact changes, the old one '
+                                              'keeps participating to the activities.'
+                                             ),
+                                      required=False,
+                                     )
+
+    def __init__(self, *args, **kwargs):
+        super(ResourceEditForm, self).__init__(*args, **kwargs)
+        self.old_contact = self.instance.linked_contact
+
+    def save(self, *args, **kwargs):
+        old_contact = self.old_contact
+        new_contact = self.cleaned_data['contact']
+
+        if old_contact != new_contact:
+            task_activities = self.instance.task.related_activities
+            activities_ids = {activity.id
+                                for activity in task_activities
+                                    if activity.projects_resource.linked_contact == old_contact
+                             }
+
+            atypes = [REL_SUB_PART_AS_RESOURCE]
+            if not self.cleaned_data.get('keep_participating'):
+                atypes.append(REL_SUB_PART_2_ACTIVITY)
+
+            for r in Relation.objects.filter(subject_entity=old_contact, type__in=atypes,
+                                             object_entity__in=[a.id for a in task_activities],
+                                            ): # NB: no delete() on queryset in order to send signals
+                r.delete()
+
+            for activity in task_activities:
+                if activity.id in activities_ids:
+                    _link_contact_n_activity(new_contact, activity, self.user)
+
+        return super(ResourceEditForm, self).save(*args, **kwargs)

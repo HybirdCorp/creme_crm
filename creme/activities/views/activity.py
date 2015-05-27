@@ -172,6 +172,7 @@ def detailview(request, activity_id):
                             #'activities/view_activity.html',
                            #)
 
+    #TODO: this hack should be useless (ProjectTask do not inherit from Activity) => view_entity()
     #TODO: create a generic view ? add this featue to _the_ generic detailview ??
     entity = get_object_or_404(Activity, pk=activity_id)
     real_entity = entity.get_real_entity()
@@ -190,6 +191,7 @@ def detailview(request, activity_id):
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
+    #TODO: use view_entity instead ? (see below)
     return view_real_entity(request, activity_id, '/activities/activity',
                             'activities/view_activity_popup.html',
                            )

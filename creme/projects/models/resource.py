@@ -31,9 +31,12 @@ from .task import ProjectTask
 
 class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
 #    linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
-    linked_contact  = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'))
-    hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), blank=True, null=True)
-    task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'), related_name='resources_set')
+    linked_contact  = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)
+    hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), default=0)
+    task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'),
+                                 related_name='resources_set', #TODO: rename 'resources'
+                                 editable=False,
+                                )
 
     creation_label = _('Add a resource')
 
@@ -51,14 +54,17 @@ class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use 
     def get_edit_absolute_url(self):
         return "/projects/resource/edit/%s" % self.id
 
-    def delete(self):
-        # delete first all working period related to this resource (functionnal constraint)
-        WorkingPeriod.objects.filter(task=self.task, resource=self).delete()
-        super(Resource, self).delete()
+    def get_related_entity(self):
+        return self.task
+
+#    def delete(self):
+#        # delete first all working period related to this resource (functionnal constraint)
+#        WorkingPeriod.objects.filter(task=self.task, resource=self).delete()
+#        super(Resource, self).delete()
 
     def clone_for_task(self, task):
         new_resource = self.clone()
         new_resource.task = task
         new_resource.save()
 
-from workingperiod import WorkingPeriod
+#from workingperiod import WorkingPeriod

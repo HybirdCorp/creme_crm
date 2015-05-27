@@ -15,8 +15,9 @@ urlpatterns = patterns('creme.projects.views',
 
     #Project: Task block
     (r'^project/(?P<project_id>\d+)/task/add', 'task.add'),
-    (r'^task/delete$',                         'task.delete'),
-    (r'^task/(?P<object_id>\d+)$',             'task.detailview'),
+#    (r'^task/delete$',                         'task.delete'),
+#    (r'^task/(?P<object_id>\d+)$',             'task.detailview'),
+    (r'^task/(?P<task_id>\d+)$',               'task.detailview'),
     (r'^task/edit/(?P<task_id>\d+)$',          'task.edit'),
     (r'^task/edit/(?P<task_id>\d+)/popup$',    'task.edit_popup'),#TODO: Merge with edit ?
     (r'^task/parent/delete$',                  'task.delete_parent'),
@@ -30,7 +31,10 @@ urlpatterns = patterns('creme.projects.views',
     (r'^resource/delete$',                     'resource.delete'),
 
     #Task: Working periods block
-    (r'^task/(?P<task_id>\d+)/period/add$', 'workingperiod.add'),
-    (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
-    (r'^period/delete$',                    'workingperiod.delete'),
+#    (r'^task/(?P<task_id>\d+)/period/add$', 'workingperiod.add'),
+#    (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
+#    (r'^period/delete$',                    'workingperiod.delete'),
+    (r'^task/(?P<task_id>\d+)/activity/add$', 'task.add_activity'),
+    (r'^activity/edit/(?P<activity_id>\d+)$', 'task.edit_activity'),
+    (r'^activity/delete$',                    'task.delete_activity'),
 )

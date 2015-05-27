@@ -266,6 +266,23 @@ def ellipsis(s, length):
 
     return s
 
+def ellipsis_multi(strings, length):
+    str_2_truncate = [[len(s), s] for s in strings]
+    total_len = sum(elt[0] for elt in str_2_truncate)
+
+    for i in xrange(max(0, total_len - length)):
+        max_idx = -1
+        max_value = -1
+
+        for idx, elt in enumerate(str_2_truncate):
+            if elt[0] > max_value:
+                max_value = elt[0]
+                max_idx = idx
+
+        str_2_truncate[max_idx][0] -= 1
+
+    return [ellipsis(elt[1], elt[0]) for elt in str_2_truncate]
+
 def is_testenvironment(request):
     return request.META.get('SERVER_NAME') == 'testserver'
 

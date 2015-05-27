@@ -13,7 +13,7 @@ try:
     from creme.creme_core.models import PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, split_filter,
         create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
-        safe_unicode, safe_unicode_error, int_2_roman)
+        safe_unicode, safe_unicode_error, int_2_roman, ellipsis, ellipsis_multi)
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
         get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict,
         get_dt_from_json_str, dt_to_json_str)
@@ -229,6 +229,27 @@ class MiscTestCase(CremeTestCase):
                         )
         self.assertEqual('MM',      int_2_roman(2000))
         self.assertEqual('MCMXCIX', int_2_roman(1999))
+
+    def test_ellipsis(self):
+        self.assertEqual('123456789', ellipsis('123456789', 9))
+        self.assertEqual(u'1234567…', ellipsis('123456789', 8))
+
+    def test_ellipsis_multi(self):
+        self.assertEqual(['a', 'b'],
+                         ellipsis_multi(['a', 'b'], 10)
+                        )
+        self.assertEqual(['123456789', 'b'],
+                         ellipsis_multi(['123456789', 'b'], 10)
+                        )
+        self.assertEqual([u'1234567…', 'b'],
+                         ellipsis_multi(['123456789', 'b'], 9)
+                        )
+        self.assertEqual([u'1234…', '12', '12'],
+                         ellipsis_multi(['123456', '12', '12'], 9)
+                        )
+        self.assertEqual([u'12…', '12', u'123…'], # [u'123…', '12', u'12…'] would be better...
+                         ellipsis_multi(['123456', '12', '12345'], 9)
+                        )
 
 
 class DependenceSortTestCase(CremeTestCase): #TODO: SimpleTestCase

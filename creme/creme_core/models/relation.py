@@ -194,7 +194,7 @@ class RelationType(CremeModel):
 
 #TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
 class Relation(CremeAbstractEntity):
-    type               = ForeignKey(RelationType, blank=True, null=True)
+    type               = ForeignKey(RelationType, blank=True, null=True) #TODO: nullable=False
     symmetric_relation = ForeignKey('self', blank=True, null=True)
     subject_entity     = ForeignKey(CremeEntity, related_name='relations', on_delete=PROTECT)
     object_entity      = ForeignKey(CremeEntity, related_name='relations_where_is_object', on_delete=PROTECT)
