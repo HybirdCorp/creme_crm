@@ -1,4 +1,4 @@
-{% load i18n %}{% comment %}TODO: with start=activity.start end=...{% endcomment %}
+{% load i18n %}
 {% with start_date=activity.start|date:"SHORT_DATE_FORMAT" end_date=activity.end|date:"SHORT_DATE_FORMAT" start_hour=activity.start|date:"H:i" end_hour=activity.end|date:"H:i" %}
     {%  if activity.start.day != activity.end.day %}
         {% blocktrans %}Begin {{start_date}} at {{start_hour}}<br>

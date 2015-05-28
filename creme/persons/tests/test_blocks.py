@@ -14,6 +14,7 @@ try:
     from creme.activities.constants import (REL_SUB_ACTIVITY_SUBJECT,
             REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY,
             ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from .base import skipIfCustomOrganisation, skipIfCustomContact
     from ..models import *
@@ -79,6 +80,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
+    @skipIfCustomActivity
     def test_neglected_block02(self):
         user = self.user
         mng_orga = Organisation.objects.all()[0]
@@ -103,6 +105,7 @@ class BlocksTestCase(CremeTestCase):
         create_rel(subject_entity=user_contact, type=get_rtype(pk=REL_SUB_PART_2_ACTIVITY))
         self.assertEqual([customer01.id], [orga.id for orga in self._get_neglected_orgas()])
 
+    @skipIfCustomActivity
     def test_neglected_block03(self):
         "Past activity => orga is still neglected"
         user = self.user
@@ -125,6 +128,7 @@ class BlocksTestCase(CremeTestCase):
         self.assertEqual(2, len(self._get_neglected_orgas())) #and not 1
 
     @skipIfCustomContact
+    @skipIfCustomActivity
     def test_neglected_block04(self):
         "A people linked to customer is linked to a future activity"
         user = self.user
@@ -158,6 +162,7 @@ class BlocksTestCase(CremeTestCase):
         self.assertFalse(self._get_neglected_orgas())
 
     @skipIfCustomContact
+    @skipIfCustomActivity
     def test_neglected_block05(self):
         "2 people linked to customer are linked to a future activity"
         user = self.user
@@ -195,6 +200,7 @@ class BlocksTestCase(CremeTestCase):
         self.assertFalse(self._get_neglected_orgas())
 
     @skipIfCustomContact
+    @skipIfCustomActivity
     def test_neglected_block06(self):
         "Future activity, but not with managed organisation !"
         user = self.user

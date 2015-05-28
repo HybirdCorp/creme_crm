@@ -16,7 +16,7 @@ try:
     from creme.persons.models import Contact, Civility, Organisation
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
-    from .base import _ActivitiesTestCase
+    from .base import _ActivitiesTestCase, skipIfCustomActivity
     from ..forms.lv_import import (_PATTERNS, _pattern_FL, _pattern_CFL,
             MultiColumnsParticipantsExtractor, SplittedColumnParticipantsExtractor,
             SubjectsExtractor)
@@ -31,6 +31,7 @@ except Exception as e:
 __all__ = ('CSVImportActivityTestCase',)
 
 
+@skipIfCustomActivity
 class CSVImportActivityTestCase(_ActivitiesTestCase, CSVImportBaseTestCaseMixin):
     lv_import_data = {
             'step': 1,

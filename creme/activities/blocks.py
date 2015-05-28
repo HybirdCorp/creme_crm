@@ -29,12 +29,15 @@ from creme.creme_core.gui.block import QuerysetBlock, list4url
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
-from .models import Activity, Calendar
+from . import get_activity_model
+from .models import Calendar # Activity
 from .constants import *
 
 
 Contact      = get_contact_model()
 Organisation = get_organisation_model()
+
+Activity = get_activity_model()
 
 
 class ParticipantsBlock(QuerysetBlock):

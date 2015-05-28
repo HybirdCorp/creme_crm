@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns
+from django.conf.urls import patterns, url
+
+from creme.activities import activity_model_is_custom
+
 
 urlpatterns = patterns('creme.projects.views',
     (r'^$', 'portal.portal'),
@@ -34,7 +37,11 @@ urlpatterns = patterns('creme.projects.views',
 #    (r'^task/(?P<task_id>\d+)/period/add$', 'workingperiod.add'),
 #    (r'^period/edit/(?P<period_id>\d+)$',   'workingperiod.edit'),
 #    (r'^period/delete$',                    'workingperiod.delete'),
-    (r'^task/(?P<task_id>\d+)/activity/add$', 'task.add_activity'),
-    (r'^activity/edit/(?P<activity_id>\d+)$', 'task.edit_activity'),
     (r'^activity/delete$',                    'task.delete_activity'),
 )
+
+if not activity_model_is_custom():
+    urlpatterns += patterns('creme.projects.views.task',
+        url(r'^task/(?P<task_id>\d+)/activity/add$', 'add_activity',  name='projects__create_activity'),
+        url(r'^activity/edit/(?P<activity_id>\d+)$', 'edit_activity', name='projects__edit_activity'),
+    )

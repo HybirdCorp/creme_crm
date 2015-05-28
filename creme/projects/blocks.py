@@ -23,10 +23,14 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import Relation #CremeEntity
 from creme.creme_core.gui.block import SimpleBlock, PaginatedBlock, QuerysetBlock
 
-from creme.activities.models import Activity
+from creme.activities import get_activity_model
+#from creme.activities.models import Activity
 
 from .constants import REL_OBJ_LINKED_2_PTASK
 from .models import Project, ProjectTask, Resource #, WorkingPeriod
+
+
+Activity = get_activity_model()
 
 
 class ProjectExtraInfo(SimpleBlock):

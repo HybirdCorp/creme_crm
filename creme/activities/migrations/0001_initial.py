@@ -101,6 +101,7 @@ class Migration(migrations.Migration):
                 ('calendars', models.ManyToManyField(verbose_name='Calendars', null=True, editable=False, to='activities.Calendar', blank=True)),
             ],
             options={
+                'swappable': 'ACTIVITIES_ACTIVITY_MODEL',
                 'ordering': ('-start',),
                 'verbose_name': 'Activity',
                 'verbose_name_plural': 'Activities',

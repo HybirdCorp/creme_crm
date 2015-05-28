@@ -20,6 +20,7 @@
 
 import logging
 
+from django.core.urlresolvers import reverse
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField,
         TextField, BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
 from django.utils.timezone import now
@@ -27,6 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, SettingValue #Relation
 
+from .. import get_activity_model
 from ..constants import *
 from .calendar import Calendar
 from .other_models import ActivityType, ActivitySubType, Status
@@ -35,7 +37,8 @@ from .other_models import ActivityType, ActivitySubType, Status
 logger = logging.getLogger(__name__)
 
 
-class Activity(CremeEntity):
+#class Activity(CremeEntity):
+class AbstractActivity(CremeEntity):
     "Activity : task, meeting, phone call, indisponibility, ..."
     title         = CharField(_(u'Title'), max_length=100)
     start         = DateTimeField(_(u'Start'), blank=True, null=True)
@@ -65,6 +68,7 @@ class Activity(CremeEntity):
     creation_label = _('Add an activity')
 
     class Meta:
+        abstract = True
         app_label = 'activities'
         verbose_name = _(u'Activity')
         verbose_name_plural = _(u'Activities')
@@ -105,14 +109,17 @@ END:VEVENT
         return self.title
 
     def get_absolute_url(self):
-        return "/activities/activity/%s" % self.id
+#        return "/activities/activity/%s" % self.id
+        return reverse('activities__view_activity', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/activities/activity/edit/%s" % self.id
+#        return "/activities/activity/edit/%s" % self.id
+        return reverse('activities__edit_activity', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/activities/activities"
+#        return "/activities/activities"
+        return reverse('activities__list_activities')
 
     def get_participant_relations(self):
         return self.get_relations(REL_OBJ_PART_2_ACTIVITY, real_obj_entities=True)
@@ -127,11 +134,13 @@ END:VEVENT
     def get_linkedto_relations(self):
         return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
 
+    # TODO: move to manager the following methods
     #TODO: test
     @staticmethod
     def _get_linked_aux(entity):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(is_deleted=False,
+#        return Activity.objects.filter(is_deleted=False,
+        return get_activity_model().objects.filter(is_deleted=False,
                                        relations__object_entity=entity,
                                        relations__type__in=types,
                                       ) \
@@ -141,7 +150,8 @@ END:VEVENT
     @staticmethod
     def _get_linked_for_ctypes_aux(ct_ids):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(is_deleted=False,
+#        return Activity.objects.filter(is_deleted=False,
+        return get_activity_model().objects.filter(is_deleted=False,
                                        relations__object_entity__entity_type__in=ct_ids,
                                        relations__type__in=types,
                                       ) \
@@ -154,7 +164,8 @@ END:VEVENT
         entities = [orga]
         entities.extend(orga.get_managers().values_list('id', flat=True))
         entities.extend(orga.get_employees().values_list('id', flat=True))
-        return Activity.objects.filter(is_deleted=False,
+#        return Activity.objects.filter(is_deleted=False,
+        return get_activity_model().objects.filter(is_deleted=False,
                                        relations__object_entity__in=entities,
                                        relations__type__in=types,
                                       ) \
@@ -162,27 +173,33 @@ END:VEVENT
 
     @staticmethod
     def get_future_linked(entity, today): #TODO end greater than today or floating type equal to floating
+#        return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
         return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     @staticmethod
     def get_future_linked_for_ctypes(ct_ids, today):
-        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
+#        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
+        return get_activity_model()._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @staticmethod
     def get_future_linked_for_orga(orga, today):
-        return Activity._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
+#        return Activity._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
+        return get_activity_model()._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
 
     @staticmethod
     def get_past_linked(entity, today):
-        return Activity._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
+#        return Activity._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
+        return get_activity_model()._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
     @staticmethod
     def get_past_linked_for_ctypes(ct_ids, today):
-        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
+#        return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
+        return get_activity_model()._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
 
     @staticmethod
     def get_past_linked_for_orga(orga, today):
-        return Activity._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
+#        return Activity._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
+        return get_activity_model()._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
 
     def handle_all_day(self):
         if self.is_all_day:
@@ -229,13 +246,21 @@ END:VEVENT
             total += 1
         if self.get_linkedto_relations():
             total += 1
-        if Activity.display_review() and self.minutes:
+#        if Activity.display_review() and self.minutes:
+        if self.display_review() and self.minutes:
             total += 1
+
         return total
 
     def _copy_relations(self, source):
-        super(Activity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+#        super(Activity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+        super(AbstractActivity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 
     def _pre_delete(self):
         for relation in self.relations.filter(type=REL_OBJ_PART_2_ACTIVITY):
             relation._delete_without_transaction()
+
+
+class Activity(AbstractActivity):
+    class Meta(AbstractActivity.Meta):
+        swappable = 'ACTIVITIES_ACTIVITY_MODEL'

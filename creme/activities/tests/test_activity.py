@@ -7,6 +7,7 @@ try:
     #from django.contrib.auth.models import User
     from django.contrib.auth import get_user_model
     from django.contrib.contenttypes.models import ContentType
+    from django.core.urlresolvers import reverse
     from django.forms.utils import ValidationError
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
@@ -25,7 +26,7 @@ try:
 
     from creme.assistants.models import Alert
 
-    from .base import _ActivitiesTestCase
+    from .base import _ActivitiesTestCase, skipIfCustomActivity
     from ..constants import *
     from ..models import *
     from ..utils import check_activity_collisions
@@ -36,6 +37,7 @@ except Exception as e:
 __all__ = ('ActivityTestCase',)
 
 
+@skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
     ADD_URL         = '/activities/activity/add'
     ADD_POPUP_URL   = '/activities/activity/add_popup'
@@ -55,8 +57,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def _buid_add_subjects_url(self, activity):
         return '/activities/activity/%s/subject/add' % activity.id
 
-    def _buid_edit_url(self, activity):
-        return '/activities/activity/edit/%s' % activity.id
+#    def _buid_edit_url(self, activity):
+#        return '/activities/activity/edit/%s' % activity.id
 
     def _build_nolink_setcreds(self):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -959,7 +961,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       object_entity=activity,
                                      )
 
-        url = self._buid_edit_url(activity)
+#        url = self._buid_edit_url(activity)
+        url = activity.get_edit_absolute_url()
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -996,17 +999,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         title = 'act01'
-
-#        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
-#        act_type = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session',
-#                                    default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
-#                                   )
-#
-#        ACTIVITYTYPE_ACTIVITY2 = 'activities-activity_custom_2'
-#        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY2, name='Karate session',
-#                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
-#                        )
-
         create_dt = self.create_datetime
         activity = Activity.objects.create(user=user, title=title,
                                            start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
@@ -1017,37 +1009,22 @@ class ActivityTestCase(_ActivitiesTestCase):
 
 #        url = self._buid_edit_url(activity)
         title += '_edited'
-        data = {'user':  user.pk, #TODO: inline
-                'title': title,
-                'start': '2011-2-22',
-               }
-        fvalue = self._acttype_field_value #TODO: inline
-#        response = self.assertPOST200(url, follow=True,
-#                                      data=dict(data, type_selector=fvalue(ACTIVITYTYPE_MEETING,
-#                                                                           ACTIVITYSUBTYPE_MEETING_NETWORK,
-#                                                                          )
-#                                               )
-#                                     )
-#        self.assertFormError(response, 'form', 'type_selector', 
-#                             _('This type causes constraint error.'),
-#                            )
-
         self.assertNoFormError(self.client.post(
-                self._buid_edit_url(activity), follow=True,
-                 data=dict(data,
-#                           type_selector=fvalue(ACTIVITYTYPE_PHONECALL,
-#                                                ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-#                                               )
-                           type_selector=fvalue(ACTIVITYTYPE_MEETING,
-                                                ACTIVITYSUBTYPE_MEETING_NETWORK,
-                                               )
-                          )
+#                self._buid_edit_url(activity),
+                activity.get_edit_absolute_url(),
+                follow=True,
+                data={'user':  user.pk,
+                      'title': title,
+                      'start': '2011-2-22',
+                      'type_selector': self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                  ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                 ),
+                     }
             ))
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
         self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
-        #self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, activity.sub_type_id)
         self.assertEqual(ACTIVITYTYPE_MEETING,            activity.type_id)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
 
@@ -1077,7 +1054,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                             )
 
         response = self.assertPOST200(
-                self._buid_edit_url(task01), follow=True,
+#                self._buid_edit_url(task01),
+                task01.get_edit_absolute_url(),
+                follow=True,
                 data={'user':          user.pk,
                       'title':         task01.title,
                       'busy':          True,
@@ -1104,7 +1083,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         task = self._create_activity_by_view(start='2013-7-25')
         self.assertEqual(FLOATING_TIME, task.floating_type)
 
-        response = self.assertGET200(self._buid_edit_url(task))
+#        response = self.assertGET200(self._buid_edit_url(task))
+        response = self.assertGET200(task.get_edit_absolute_url())
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -1113,27 +1093,6 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertIsNone(start_time_f.initial)
         self.assertIsNone(end_time_f.initial)
-
-    #def test_editview05(self):
-        #"Edit FLOATING activity"
-        #task = self._create_task_by_view()
-        #self.assertIsNone(task.start)
-        #self.assertIsNone(task.end)
-        #self.assertEqual(FLOATING, task.floating_type)
-
-        #atype = task.type
-        #self.assertEqual(0,          atype.default_day_duration)
-        #self.assertEqual('00:15:00', atype.default_hour_duration)
-
-        #response = self.client.post(self._buid_edit_url(task), follow=True,
-                                    #data={'user':  self.user.pk,
-                                          #'title': task.title,
-                                          #'start':      '2013-4-17',
-                                          #'start_time': '14:30:00',
-                                          ##'end':        '2013-4-17',
-                                         #}
-                                   #)
-        #self.assertNoFormError(response)
 
     def test_editview05(self):
         "Edit an Indisponibility: type cannot be changed, sub_type can"
@@ -1146,7 +1105,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            type_id=ACTIVITYTYPE_INDISPO,
                                           )
 
-        url = self._buid_edit_url(activity)
+#        url = self._buid_edit_url(activity)
+        url = activity.get_edit_absolute_url()
         fvalue = self._acttype_field_value
         data = {'user':       user.pk,
                 'title':      activity.title,
@@ -1523,7 +1483,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                           ),
                ]
 
-        response = self.assertGET200('/activities/activities')
+#        response = self.assertGET200('/activities/activities')
+        response = self.assertGET200(Activity.get_lv_absolute_url())
 
         with self.assertNoException():
             activities_page = response.context['entities']
@@ -1533,7 +1494,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(set(acts), set(activities_page.object_list))
 
         #Phone calls
-        response = self.assertGET200('/activities/phone_calls')
+#        response = self.assertGET200('/activities/phone_calls')
+        response = self.assertGET200(reverse('activities__list_phone_calls'))
 
         with self.assertNoException():
             pcalls_page = response.context['entities']
@@ -1541,7 +1503,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual([acts[0]], list(pcalls_page.object_list))
 
         #Meetings
-        response = self.assertGET200('/activities/meetings')
+#        response = self.assertGET200('/activities/meetings')
+        response = self.assertGET200(reverse('activities__list_meetings'))
 
         with self.assertNoException():
             meetings_page = response.context['entities']

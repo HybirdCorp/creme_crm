@@ -25,6 +25,7 @@ import logging
 from json import loads as jsonloads, dumps as jsondumps
 
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.utils.timezone import now, make_naive, get_current_timezone
@@ -41,14 +42,16 @@ from creme.creme_core.views.generic import add_model_with_popup, edit_model_with
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
+from .. import get_activity_model
 from ..forms.calendar import CalendarForm, ActivityCalendarLinkerForm
-from ..models import Activity, Calendar
+from ..models import Calendar #Activity
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 from ..constants import (FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO,
         REL_OBJ_PART_2_ACTIVITY, DEFAULT_CALENDAR_COLOR, NARROW, MAX_ELEMENT_SEARCH)
 
 
 logger = logging.getLogger(__name__)
+Activity = get_activity_model()
 
 
 def _activity_2_dict(activity, user):
@@ -67,7 +70,8 @@ def _activity_2_dict(activity, user):
             'title':        activity.get_title_for_calendar(),
             'start':        start.isoformat(),
             'end':          end.isoformat(),
-            'url':          "/activities/activity/%s/popup" % activity.pk,
+#            'url':          "/activities/activity/%s/popup" % activity.pk,
+            'url':          reverse('activities__view_activity_popup', args=(activity.pk,)),
             'calendar_color': "#%s" % (activity.calendar.get_color or DEFAULT_CALENDAR_COLOR),
             'allDay' :      is_all_day,
             'editable':     user.has_perm_to_change(activity),

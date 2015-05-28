@@ -17,6 +17,7 @@ try:
     from creme.persons.tests.base import skipIfCustomContact, skipIfCustomOrganisation
 
     from creme.activities.models import Activity, ActivityType
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from .base import (_PollsTestCase, skipIfCustomPollForm,
             skipIfCustomPollReply, skipIfCustomPollCampaign)
@@ -667,6 +668,7 @@ class PollRepliesTestCase(_PollsTestCase):
                              _(u'Some entities are not editable: %s') % preply
                             )
 
+    @skipIfCustomActivity
     def test_link_to_error02(self):
         "Want to link to an Activity (not a Contact/Organisation)"
         self.login()
@@ -715,6 +717,7 @@ class PollRepliesTestCase(_PollsTestCase):
         user = self.login()
         self._aux_test_create_from_person(Organisation.objects.create(user=user, name='Gaimos'))
 
+    @skipIfCustomActivity
     def test_create_from_person03(self):
         "From an Activity --> error"
         self.login()

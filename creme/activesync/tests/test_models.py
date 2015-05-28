@@ -12,6 +12,7 @@ try:
 
     from creme.activities.models import Activity
     from creme.activities.constants import ACTIVITYTYPE_MEETING
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
@@ -101,6 +102,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         rel.delete()
         self.assertTrue(self.refresh(mapping).is_creme_modified)
 
+    @skipIfCustomActivity
     def test_mapping_update_meeting01(self):
         user = self.user
         meeting = Activity.objects.create(user=user, title="Meeting with Peach", type_id=ACTIVITYTYPE_MEETING)
@@ -119,6 +121,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         mapping = CremeExchangeMapping.objects.get(user=user, creme_entity_id=meeting.id)
         self.assertTrue(mapping.is_creme_modified)
 
+    @skipIfCustomActivity
     def test_mapping_delete_meeting01(self):
         user = self.user
         meeting = Activity.objects.create(user=user, title="Meeting with Peach", type_id=ACTIVITYTYPE_MEETING)

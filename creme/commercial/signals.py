@@ -27,8 +27,9 @@ from django.dispatch import receiver
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.signals import pre_merge_related
 
+from creme.activities import get_activity_model
 from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
-from creme.activities.models import Activity
+#from creme.activities.models import Activity
 
 from creme.opportunities import get_opportunity_model
 
@@ -69,7 +70,8 @@ def handle_merge(sender, other_entity, **kwargs):
         commapp.creme_entity = sender
         commapp.save()
 
-@receiver(post_save, sender=Activity)
+#@receiver(post_save, sender=Activity)
+@receiver(post_save, sender=get_activity_model())
 def sync_with_activity(sender, instance, created, **kwargs):
     #TODO: optimise (only if title has changed - factorise with HistoryLine ??)
     if not created:

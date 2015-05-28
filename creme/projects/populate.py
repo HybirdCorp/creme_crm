@@ -33,7 +33,8 @@ from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
-from creme.activities.models import Activity
+from creme.activities import get_activity_model
+#from creme.activities.models import Activity
 
 from .blocks import *
 from .constants import (REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
@@ -51,6 +52,7 @@ class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
         Contact = get_contact_model()
+        Activity = get_activity_model()
 
         create_rtype = RelationType.create
         create_rtype((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),

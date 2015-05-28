@@ -17,6 +17,7 @@ try:
 
     from creme.activities.models import Activity
     from creme.activities.constants import ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_MEETING
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from ..backends.models import CrudityBackend
     from ..fetchers.pop import PopEmail
@@ -706,6 +707,7 @@ description3=[[<br>]]
         self.assertEqual(date(year=1987, month=8, day=2), contact.birthday)
         self.assertEqual("A plumber", contact.description)
 
+    @skipIfCustomActivity
     def test_create_activity01(self): #TODO: move some validation code from Activity form to model (start<end etc...)
         "Datetimes with or without timezone"
         self.populate('activities')

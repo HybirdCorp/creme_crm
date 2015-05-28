@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.activities.models import Activity
+from creme.activities import get_activity_model
+#from creme.activities.models import Activity
 
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
@@ -30,6 +31,7 @@ from .utils import serialize_entity
 
 
 Contact = get_contact_model()
+Activity = get_activity_model()
 
 #Mapping between AS folder types and creme types
 FOLDERS_TYPES_CREME_TYPES_MAPPING = {

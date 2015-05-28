@@ -29,6 +29,7 @@ try:
             ACTIVITYTYPE_PHONECALL,
             ACTIVITYSUBTYPE_PHONECALL_OUTGOING, ACTIVITYSUBTYPE_PHONECALL_FAILED)
     from creme.activities.models import Activity, Calendar
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.mobile.models import MobileFavorite
 except Exception as e:
@@ -43,10 +44,10 @@ class MobileTestCase(CremeTestCase):
     SEARCH_PERSON_URL       = '/mobile/person/search'
     ACTIVITIES_PORTAL_URL   = '/mobile/activities'
     PCALL_PANEL_URL         = '/mobile/phone_call/panel'
-    WF_FAILED_URL           = '/mobile/phone_call/failed'
-    WF_POSTPONED_URL        = '/mobile/phone_call/postponed'
-    WF_LASTED5MIN_URL       = '/mobile/phone_call/lasted_5_minutes'
-    WF_JUSTDONE_URL         = '/mobile/phone_call/just_done'
+#    WF_FAILED_URL           = '/mobile/phone_call/failed'
+#    WF_POSTPONED_URL        = '/mobile/phone_call/postponed'
+#    WF_LASTED5MIN_URL       = '/mobile/phone_call/lasted_5_minutes'
+#    WF_JUSTDONE_URL         = '/mobile/phone_call/just_done'
 
     @classmethod
     def setUpClass(cls):
@@ -55,6 +56,11 @@ class MobileTestCase(CremeTestCase):
 
         cls.CREATE_CONTACT_URL = reverse('mobile__create_contact')
         cls.CREATE_ORGA_URL    = reverse('mobile__create_organisation')
+
+        cls.WF_FAILED_URL     = reverse('mobile__pcall_wf_failed')
+        cls.WF_POSTPONED_URL  = reverse('mobile__pcall_wf_postponed')
+        cls.WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
+        cls.WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
     def login(self, is_superuser=True, other_is_owner=False):
         return super(MobileTestCase, self).login(is_superuser,
@@ -173,6 +179,7 @@ class MobileTestCase(CremeTestCase):
         response = self.assertGET200('/mobile/logout/', follow=True)
         self.assertRedirects(response, settings.LOGIN_URL)
 
+    @skipIfCustomActivity
     def test_portal(self):
         self.login()
         contact = self.user.linked_contact
@@ -455,6 +462,7 @@ class MobileTestCase(CremeTestCase):
 
 #TODO: smart word splitting ; special chars like " ??
 
+    @skipIfCustomActivity
     def test_start_activity01(self):
         "Start & end are past"
         self.login()
@@ -474,6 +482,7 @@ class MobileTestCase(CremeTestCase):
 
         self.assertRedirects(response, '/mobile/#activity_%s' % meeting.id)
 
+    @skipIfCustomActivity
     def test_start_activity02(self):
         "Start & end are in the future"
         self.login()
@@ -491,6 +500,7 @@ class MobileTestCase(CremeTestCase):
         self.assertGreater(meeting.end, meeting.start)
         self.assertEqual(old_end, meeting.end)
 
+    @skipIfCustomActivity
     def test_start_activity03(self):
         "Floating time activity"
         self.login()
@@ -519,6 +529,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(end, meeting.end)
         self.assertEqual(NARROW, meeting.floating_type)
 
+    @skipIfCustomActivity
     def test_start_activity04(self):
         "Floating activity"
         self.login()
@@ -532,6 +543,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(f_act.type.as_timedelta(), f_act.end - f_act.start)
         self.assertEqual(NARROW, f_act.floating_type)
 
+    @skipIfCustomActivity
     def test_stop_activity01(self):
         self.login()
 
@@ -549,6 +561,7 @@ class MobileTestCase(CremeTestCase):
 
         self.assertRedirects(response, self.PORTAL_URL)
 
+    @skipIfCustomActivity
     def test_stop_activity02(self):
         "Start is in the future => error"
         self.login()
@@ -558,6 +571,7 @@ class MobileTestCase(CremeTestCase):
                                       )
         self.assertPOST409(self._build_stop_url(meeting))
 
+    @skipIfCustomActivity
     def test_activities_portal01(self):
         self.login()
         contact = self.user.linked_contact
@@ -623,6 +637,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual([tom2, tom1], tomorrow_act)
         self.assertContains(response, tom2.title)
 
+    @skipIfCustomActivity
     def test_activities_portal02(self):
         "Floating count when truncated"
         self.login()
@@ -716,6 +731,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
+    @skipIfCustomActivity
     def test_phone_call_panel03(self):
         "Update an existing phone call"
         self.login()
@@ -756,6 +772,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual({gally, contact}, set(contacts))
         self.assertEqual([kuzu], orgas)
 
+    @skipIfCustomActivity
     def test_phone_call_wf_done(self):
         self.login()
         contact = self.user.linked_contact
@@ -775,6 +792,7 @@ class MobileTestCase(CremeTestCase):
         meeting = self._create_meeting('Meeting#1', participant=contact)
         self.assertPOST404(url_fmt % meeting.id)
 
+    @skipIfCustomActivity
     def test_phone_call_wf_failed01(self):
         self.login()
 
@@ -799,6 +817,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(start, pcall.start)
         self.assertEqual(start, pcall.end)
 
+    @skipIfCustomActivity
     def test_phone_call_wf_failed02(self):
         "Not a Phone call => error"
         self.login()
@@ -806,6 +825,7 @@ class MobileTestCase(CremeTestCase):
         meeting = self._create_meeting('Meeting#1', participant=self.user.linked_contact)
         self.assertPOST404(self.WF_FAILED_URL, data={'pcall_id': meeting.id})
 
+    @skipIfCustomActivity
     def test_phone_call_wf_failed03(self):
         "Phone call is created (with contact)"
         self.login()
@@ -880,6 +900,7 @@ class MobileTestCase(CremeTestCase):
                          ]
                         )
 
+    @skipIfCustomActivity
     def test_phone_call_wf_postponed01(self):
         self.login()
 
@@ -1005,6 +1026,7 @@ class MobileTestCase(CremeTestCase):
                          pp_pcall.title
                         )
 
+    @skipIfCustomActivity
     def test_phone_call_wf_lasted5min01(self):
         self.login()
 
@@ -1026,6 +1048,7 @@ class MobileTestCase(CremeTestCase):
         self.assertEqual(create_dt(minute=30, second=28), pcall.start)
         self.assertEqual(create_dt(minute=35, second=28), pcall.end)
 
+    @skipIfCustomActivity
     def test_phone_call_wf_lasted5min02(self):
         "Bad date format"
         self.login()
@@ -1039,6 +1062,7 @@ class MobileTestCase(CremeTestCase):
                                 }
                           )
 
+    @skipIfCustomActivity
     def test_phone_call_wf_lasted5min03(self):
         "Phone call is created (with contact)"
         self.login()
@@ -1080,6 +1104,7 @@ class MobileTestCase(CremeTestCase):
                                 }
                           )
 
+    @skipIfCustomActivity
     def test_phone_call_wf_lasted5min05(self):
         "call_start + 5 minutes > now()"
         self.login()
@@ -1101,6 +1126,7 @@ class MobileTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(start, pcall.start) #NB: MySQL does not record milliseconds...
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
+    @skipIfCustomActivity
     def test_phone_call_wf_just_done01(self):
         self.login()
         contact = self.user.linked_contact
@@ -1131,6 +1157,7 @@ class MobileTestCase(CremeTestCase):
                                      }
                           )
 
+    @skipIfCustomActivity
     def test_phone_call_wf_just_done02(self):
         self.login()
         other_contact = self.other_user.linked_contact

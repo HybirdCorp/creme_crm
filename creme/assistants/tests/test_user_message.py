@@ -7,12 +7,15 @@ try:
     from django.conf import settings
     from django.contrib.auth import get_user_model
     from django.core import mail
+    from django.core.urlresolvers import reverse
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import skipIfNotInstalled
 
     from creme.persons.tests.base import skipIfCustomContact
+
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from ..management.commands.usermessages_send import Command as UserMessagesSendCommand
     from ..models import UserMessage, UserMessagePriority
@@ -203,6 +206,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
     @skipIfNotInstalled('creme.activities')
     @skipIfCustomContact
+    @skipIfCustomActivity
     def test_activity_createview01(self):
         "Test activity form hooking"
         from creme.persons.models import Contact
@@ -225,7 +229,8 @@ class UserMessageTestCase(AssistantsTestCase):
         genma = create_contact(first_name='Genma', last_name='Saotome')
         akane = create_contact(first_name='Akane', last_name='Tendo')
 
-        url = '/activities/activity/add'
+#        url = '/activities/activity/add'
+        url = reverse('activities__create_activity')
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -285,7 +290,8 @@ class UserMessageTestCase(AssistantsTestCase):
     @skipIfNotInstalled('creme.activities')
     def test_activity_createview02(self):
         "Pop-up form is not hooked"
-        response = self.assertGET200('/activities/activity/add_popup')
+#        response = self.assertGET200('/activities/activity/add_popup')
+        response = self.assertGET200(reverse('activities__create_activity_popup'))
 
         with self.assertNoException():
             fields = response.context['form'].fields

@@ -6,6 +6,7 @@ try:
 
     from django.conf import settings
     from django.core import mail
+    from django.core.urlresolvers import reverse
     #from django.test.utils import override_settings
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
@@ -19,10 +20,12 @@ try:
     from creme.persons.constants import (REL_SUB_CUSTOMER_SUPPLIER,
             REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
     from creme.persons.models import Organisation, Contact
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomContact
 
     from creme.activities.models import Activity, Status, Calendar
     from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
             ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION)
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from creme.opportunities.models import Opportunity, SalesPhase
     from creme.opportunities.tests import skipIfCustomOpportunity
@@ -111,12 +114,15 @@ class CommercialApproachTestCase(CremeTestCase):
         for commapp in commapps:
             self.assertEqual(orga01, commapp.creme_entity)
 
+    @skipIfCustomActivity
     def test_create_from_activity01(self):
         "No subjects"
         #self.login()
 
         user = self.user
-        url = '/activities/activity/add'
+#        url = '/activities/activity/add'
+        url = reverse('activities__create_activity')
+
         self.assertGET200(url)
 
         #Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user) #me
@@ -142,6 +148,9 @@ class CommercialApproachTestCase(CremeTestCase):
         self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
+    @skipIfCustomActivity
     def test_create_from_activity02(self):
         #self.login()
         user = self.user
@@ -156,7 +165,8 @@ class CommercialApproachTestCase(CremeTestCase):
         title = 'Meeting #01'
         description = 'Stuffs about the fighting'
         my_calendar = Calendar.get_user_default_calendar(user)
-        response = self.client.post('/activities/activity/add', follow=True,
+#        response = self.client.post('/activities/activity/add', follow=True,
+        response = self.client.post(reverse('activities__create_activity'), follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
                                           'type_selector':    '{"type": "%s", "sub_type": "%s"}' % (
@@ -191,6 +201,7 @@ class CommercialApproachTestCase(CremeTestCase):
             self.assertEqual(description, comapp.description)
             self.assertAlmostEqual(now_value, comapp.creation_date, delta=timedelta(seconds=10))
 
+    @skipIfCustomActivity
     def test_sync_with_activity(self):
         #self.login()
 
@@ -237,6 +248,8 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertDoesNotExist(comapp)
 
     #@override_settings(BLOCK_SIZE=5) useless, because the setting value is already read when we override this
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
     @skipIfCustomOpportunity
     def test_block01(self):
         approaches_block.page_size = 5
@@ -316,6 +329,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
         return mngd_orga, customer
 
+    @skipIfCustomOrganisation
     def test_command01(self):
         "Customer has no CommercialApproach"
         self._send_mails()
@@ -345,6 +359,7 @@ class CommercialApproachTestCase(CremeTestCase):
                          [recipient for msg in messages for recipient in msg.recipients()]
                         )
 
+    @skipIfCustomOrganisation
     def test_command02(self):
         "A commapp is linked to the customer"
         mngd_orga, customer = self._build_orgas()
@@ -357,6 +372,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOrganisation
     def test_command03(self):
         "The linked Commapp is to old"
         mngd_orga, customer = self._build_orgas()
@@ -372,6 +388,8 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertEqual(1, len(mail.outbox))
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
     def test_command04(self):
         "A commapp is linked to a manager"
         mngd_orga, customer = self._build_orgas()
@@ -390,6 +408,8 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
     def test_command05(self):
         "A commapp is linked to a employee"
         mngd_orga, customer = self._build_orgas()
@@ -408,6 +428,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_command06(self):
         "A commapp is linked to an Opportunity*"
@@ -426,6 +447,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOrganisation
     def test_command07(self):
         "Ignore the managed orga that are customer of another managed orga"
         mngd_orga, customer = self._build_orgas()
@@ -437,6 +459,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self._send_mails()
         self.assertFalse(mail.outbox)
 
+    @skipIfCustomOrganisation
     def test_command08(self):
         "DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW setting"
         sv = self.get_object_or_fail(SettingValue, key_id=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED)

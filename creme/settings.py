@@ -659,6 +659,9 @@ DEFAULT_TIME_TODO_REMIND = 120
 REPORTS_REPORT_MODEL = 'reports.Report'
 REPORTS_GRAPH_MODEL  = 'reports.ReportGraph'
 
+#ACTIVITIES --------------------------------------------------------------------
+ACTIVITIES_ACTIVITY_MODEL = 'activities.Activity'
+
 #GRAPHS ------------------------------------------------------------------------
 GRAPHS_GRAPH_MODEL = 'graphs.Graph'
 
