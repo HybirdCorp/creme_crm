@@ -32,6 +32,7 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import (add_to_entity,add_model_with_popup,
         view_entity, edit_entity, edit_model_with_popup) #edit_related_to_entity
 
+from creme.activities import get_activity_model
 from creme.activities.models import Activity
 
 from ..constants import REL_SUB_PART_AS_RESOURCE, REL_SUB_LINKED_2_PTASK
@@ -130,7 +131,8 @@ def edit_activity(request, activity_id):
 @login_required
 @permission_required('projects')
 def delete_activity(request):
-    activity = get_object_or_404(Activity, pk=request.POST.get('id'))
+#    activity = get_object_or_404(Activity, pk=request.POST.get('id'))
+    activity = get_object_or_404(get_activity_model(), pk=request.POST.get('id'))
     get_rel = Relation.objects.get
 
     try:

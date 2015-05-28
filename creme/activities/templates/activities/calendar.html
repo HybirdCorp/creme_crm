@@ -5,12 +5,12 @@
 {% block extrahead %}
     <script type='text/javascript'>
         $(document).ready(function() {
-            creme.activities.calendar.fullCalendar('{{events_url}}');
+{% comment %}creme.activities.calendar.fullCalendar('{{events_url}}');{% endcomment %}
+            creme.activities.calendar.fullCalendar('{{events_url}}', '{% url "activities__create_activity_popup" %}');
             creme.activities.calendar.loadCalendarEventListeners('{{user_username}}', {{creme_calendars_by_user|safe}});
         });
     </script>
 {% endblock %}
-
 {% block content %}
     <div class='calendar_container'>
         <div class='menu_calendar toggle-target'>
@@ -25,7 +25,7 @@
                     {% endif %}
                     <div class="floating_activities menu_sub_element_list toggle-target">
                         {% for floating_activity in floating_activities %}
-                            <div class='floating_event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-color="#{{floating_activity.calendar.color}}">
+                            <div class='floating_event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}" data-color="#{{floating_activity.calendar.color}}">
                                 <div class="colored_square" style="background-color:#{{floating_activity.calendar.color}};"></div>
                                 <span>{{floating_activity.title}}</span>
                             </div>

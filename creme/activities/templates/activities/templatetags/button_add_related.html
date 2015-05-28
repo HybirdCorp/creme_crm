@@ -1,6 +1,7 @@
 {% load i18n %}{% load creme_core_tags activities_tags %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
-    <a class="menu_button" href="/activities/activity/add_related/{{object.id}}{% if activity_type %}?activity_type={{activity_type}}{% endif %}">
+    {% comment %}<a class="menu_button" href="/activities/activity/add_related/{{object.id}}{% if activity_type %}?activity_type={{activity_type}}{% endif %}">{% endcomment %}
+    <a class="menu_button" href="{% url 'activities__create_related_activity' object.id %}{% if activity_type %}?activity_type={{activity_type}}{% endif %}">
         {% get_activity_icon activity_type 'medium' %}{{verbose_name}}
     </a>
 {% else %}

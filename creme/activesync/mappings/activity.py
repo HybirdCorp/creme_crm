@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,9 @@ from creme.creme_core.models import Relation
 from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
                                          #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt, get_utc_now, get_naive_dt_from_tzdate
 
-from creme.activities.models import Activity, Calendar
+from creme.activities import get_activity_model
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
+from creme.activities.models import Calendar #Activity
 
 from ..models import AS_Folder, EntityASData
 from ..utils import generate_guid, encode_AS_timezone
@@ -234,8 +235,8 @@ def save_meeting(data, user, folder, *args, **kwargs):
     """Save a meeting from a populated data dict
         @Returns : A saved meeting instance
     """
-
-    meeting = Activity(user=user, type_id=ACTIVITYTYPE_MEETING)
+#    meeting = Activity(user=user, type_id=ACTIVITYTYPE_MEETING)
+    meeting = get_activity_model()(user=user, type_id=ACTIVITYTYPE_MEETING)
     calendar = get_calendar(folder, user)
     _set_meeting_from_data(meeting, data, user, folder)
 
@@ -278,7 +279,3 @@ def pre_serialize_meeting(value, c_field, xml_field, f_class, entity):
 
     if c_field == "Timezone":
         return encode_AS_timezone(settings.TIME_ZONE) #In case of adding from Creme
-
-
-
-

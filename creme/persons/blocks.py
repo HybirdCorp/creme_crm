@@ -27,9 +27,10 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
 from creme.creme_core.models import Relation #CremeEntity
 
+from creme.activities import get_activity_model
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
         REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
-from creme.activities.models import Activity
+#from creme.activities.models import Activity
 
 from . import get_address_model, get_contact_model, get_organisation_model
 #from .models import Contact, Organisation, Address
@@ -39,7 +40,7 @@ from .constants import *
 Address = get_address_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()
-
+Activity = get_activity_model()
 
 class ContactBlock(SimpleBlock):
     template_name = 'persons/templatetags/block_contact.html'

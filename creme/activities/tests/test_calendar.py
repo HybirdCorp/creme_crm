@@ -13,7 +13,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials
 
-    from .base import _ActivitiesTestCase
+    from .base import _ActivitiesTestCase, skipIfCustomActivity
     from ..models import Calendar, Activity
     from ..constants import *
 except Exception as e:
@@ -152,6 +152,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual([def_cal], list(my_cals))
         self.assertEqual(user.username, user_name)
 
+    @skipIfCustomActivity
     def test_user_calendar02(self):
         user = self.login()
         other_user = self.other_user
@@ -339,6 +340,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertPOST403(self.DEL_CALENDAR_URL, data={'id': cal.id})
 
+    @skipIfCustomActivity
     def test_delete_calendar05(self):
         "reassign activities calendars"
         user = self.login()
@@ -356,6 +358,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act = self.refresh(act)
         self.assertEqual([default_calendar], list(act.calendars.all()))
 
+    @skipIfCustomActivity
     def test_change_activity_calendar01(self):
         "Reassign activity calendar"
         user = self.login()
@@ -381,6 +384,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         response = self.assertGET200(activity_url)
         self.assertContains(response, cal.name)
 
+    @skipIfCustomActivity
     def test_change_activity_calendar02(self):
         "Multiple calendars => error (waiting the rigth solution)"
         user = self.login()
@@ -397,6 +401,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET409(url)
         self.assertPOST409(url, data={'calendar': cal2.id})
 
+    @skipIfCustomActivity
     def test_change_activity_calendar03(self):
         "Credentials: user can always change its calendars"
         user = self.login(is_superuser=False)
@@ -434,6 +439,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertEqual([], data)
 
+    @skipIfCustomActivity
     def test_get_users_activities02(self):
         "One user, several activities"
         user = self.login()
@@ -536,6 +542,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                         )
         self.assertEqual(act4.id, data[3]['id'])
 
+    @skipIfCustomActivity
     def test_get_users_activities03(self):
         "2 Users, 2 Calendars, Indisponibilities"
         user = self.login()
@@ -593,6 +600,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                                                    )
                         )
 
+    @skipIfCustomActivity
     def test_update_activity_date01(self):
         user = self.login()
 
@@ -621,6 +629,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual(new_end,   act.end)
         self.assertEqual(NARROW,    act.floating_type)
 
+    @skipIfCustomActivity
     def test_update_activity_date02(self):
         "Collision"
         user = self.login()
@@ -655,6 +664,7 @@ class CalendarTestCase(_ActivitiesTestCase):
                              }
                        )
 
+    @skipIfCustomActivity
     def test_update_activity_date03(self):
         "allDay"
         user = self.login()

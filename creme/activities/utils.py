@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,9 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import Relation
 
+from . import get_activity_model
 from .constants import REL_SUB_PART_2_ACTIVITY, NARROW, FLOATING_TIME
-from .models import Activity
+#from .models import Activity
 
 
 def get_last_day_of_a_month(date):
@@ -70,7 +71,8 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
         #activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
         busy_args = {} if busy else {'busy': True}
         #TODO: test is_deleted=True
-        activity_collisions = Activity.objects.filter(collision_test,
+        #activity_collisions = Activity.objects.filter(collision_test,
+        activity_collisions = get_activity_model().objects.filter(collision_test,
                                                       is_deleted=False,
                                                       pk__in=activity_ids,
                                                       floating_type__in=(NARROW, FLOATING_TIME),

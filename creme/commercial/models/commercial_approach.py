@@ -20,6 +20,7 @@
 
 #import logging
 
+from django.conf import settings
 from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -28,7 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.models import CremeModel # CremeEntity
 from creme.creme_core.models.fields import CreationDateTimeField
 
-from creme.activities.models import Activity
+#from creme.activities.models import Activity
 
 
 class CommercialApproach(CremeModel):
@@ -37,7 +38,8 @@ class CommercialApproach(CremeModel):
     description         = TextField(_(u'Description'), blank=True, null=True)
     creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
 
-    related_activity    = ForeignKey(Activity, null=True, editable=False)
+#    related_activity    = ForeignKey(Activity, null=True, editable=False)
+    related_activity    = ForeignKey(settings.ACTIVITIES_ACTIVITY_MODEL, null=True, editable=False)
 
     #TODO: use real ForeignKey to CremeEntity ( + remove the signal handlers)
     entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)

@@ -37,11 +37,12 @@ from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model, get_organisation_model
 #from creme.persons.models import Contact, Organisation
 
+from . import get_activity_model
 from .blocks import (participants_block, subjects_block, future_activities_block,
-                     past_activities_block, related_calendar_block)
+        past_activities_block, related_calendar_block)
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import *
-from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
+from .models import ActivityType, ActivitySubType, Status, Calendar #Activity
 from .setting_keys import review_key, auto_subjects_key
 
 
@@ -56,6 +57,8 @@ class Populator(BasePopulator):
 
         Contact      = get_contact_model()
         Organisation = get_organisation_model()
+
+        Activity = get_activity_model()
 
         create_rtype = RelationType.create
         create_rtype((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),

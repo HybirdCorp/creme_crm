@@ -36,6 +36,7 @@ from creme.creme_core.views.generic import view_real_entity, list_view, inner_po
 from creme.persons import get_contact_model
 #from creme.persons.models import Contact
 
+from .. import get_activity_model
 from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING,
         ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
@@ -72,10 +73,10 @@ def _add_activity(request, form_class,
                   }
                  )
 
-@login_required
-@permission_required(('activities', 'activities.add_activity'))
-def add(request):
-    return _add_activity(request, ActivityCreateForm)
+#@login_required
+#@permission_required(('activities', 'activities.add_activity'))
+#def add(request):
+#    return _add_activity(request, ActivityCreateForm)
 
 _TYPES_MAP = {
         "meeting":   ACTIVITYTYPE_MEETING,
@@ -85,11 +86,19 @@ _TYPES_MAP = {
 
 @login_required
 @permission_required(('activities', 'activities.add_activity'))
-def add_fixedtype(request, act_type):
-    type_id = _TYPES_MAP.get(act_type)
+#def add_fixedtype(request, act_type):
+#    type_id = _TYPES_MAP.get(act_type)
+#
+#    if not type_id:
+#        raise Http404('No activity type matches with: %s' % act_type)
+def add(request, act_type=None):
+    if act_type is None:
+        type_id = None
+    else:
+        type_id = _TYPES_MAP.get(act_type)
 
-    if not type_id:
-        raise Http404('No activity type matches with: %s' % act_type)
+        if not type_id:
+            raise Http404('No activity type matches with: %s' % act_type)
 
     return _add_activity(request, ActivityCreateForm, type_id=type_id)
 
@@ -216,7 +225,8 @@ def listview(request, type_id=None):
 @permission_required('activities')
 def download_ical(request, ids):
     #TODO: is_deleted=False ??
-    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
+#    activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
+    activities = EntityCredentials.filter(queryset=get_activity_model().objects.filter(pk__in=ids.split(',')),
                                           user=request.user
                                          )
     response = HttpResponse(get_ical(activities), content_type="text/calendar")

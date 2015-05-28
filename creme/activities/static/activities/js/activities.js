@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -29,29 +29,7 @@ creme.activities.exportAsICal = function(list) {
     document.location.href = '/activities/activities/%s/ical'.format(selection);
 }
 
-// creme.activities.ajax = {};
-
 creme.activities.calendar = {};
-
-// creme.activities.calendar.loading = function(bool) {
-//     if (bool) {
-//         $('#loading_col').remove();
-//     } else {
-//         $('.fc-header-left').find('tr').append($('<td id="loading_col"><img src="' + creme_media_url("images/wait.gif") + '"/>' + gettext("Loading...") + '</td>'));
-//     }
-// }
-
-/*
-creme.activities.calendar.loading = function(bool) {
-    if (bool) {
-        $('#loading_col').remove();
-    } else {
-      var loadingImage = $('<img>').attr ('src', creme_media_url ('images/wait.gif'));
-      $('<td id="loading_col">').append (loadingImage, '<span>' + gettext ("Loading...") + '</span>')
-                                .appendTo ('.fc-header-left tr');
-    }
-}
-*/
 
 creme.activities.calendar.loading = function(loading_done) {
   $('.calendar .loading-indicator').css('visibility', loading_done ? 'hidden' : 'visible');
@@ -161,16 +139,18 @@ creme.activities.calendar.loadCalendarEventListeners = function(user, creme_cale
         var element = $(this);
         var calendar = element.attr('data-calendar');
         var type = element.attr('data-type');
-        var event_id = element.attr('data-id');
+//         var event_id = element.attr('data-id');
         var color = element.attr('data-color');
         var event = {
-            id: event_id,
+//             id: event_id,
+            id: element.attr('data-id'),
             title: $.trim(element.text()),
             type: type,
             user: user,
             calendar: calendar,
             className: 'event event-' + calendar,
-            url: "/activities/activity/%s/popup".replace("%s", event_id),
+//             url: "/activities/activity/%s/popup".replace("%s", event_id),
+            url: element.attr('data-popup_url'),
             calendar_color: color
         };
 
@@ -238,7 +218,8 @@ creme.activities.calendar.positionNavigationWidget = function() {
     $('.fc-header-center table').css ('left', '-' + titleWidth + 'px');
 }
 
-creme.activities.calendar.fullCalendar = function(events_url) {
+// creme.activities.calendar.fullCalendar = function(events_url) {
+creme.activities.calendar.fullCalendar = function(events_url, creation_url) {
     $('.calendar').fullCalendar({
         weekends: true,
         header: {
@@ -363,7 +344,8 @@ creme.activities.calendar.fullCalendar = function(events_url) {
                 'minute': date.getMinutes()
             };
 
-            creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess: true}, data).open({width: '80%'});
+//             creme.dialogs.form('/activities/activity/add_popup', {reloadOnSuccess: true}, data).open({width: '80%'});
+            creme.dialogs.form(creation_url, {reloadOnSuccess: true}, data).open({width: '80%'});
         },
         eventRender: function(event, element, view) {
             var container = element.find('a');

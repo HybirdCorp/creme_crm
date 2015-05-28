@@ -22,8 +22,8 @@ from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.base import CremeModelForm, CremeForm
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.forms.base import CremeModelForm, CremeForm
 from creme.creme_core.forms.fields import ColorField
 
 from ..models import Calendar

@@ -20,6 +20,7 @@ try:
 
     from creme.activities.models import Activity
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, ACTIVITYTYPE_MEETING
+    from creme.activities.tests.base import skipIfCustomActivity
 
     from ..models import *
     from ..constants import REL_SUB_COMPLETE_GOAL
@@ -730,6 +731,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(atype, act.act_type)
 
     @skipIfCustomOrganisation
+    @skipIfCustomActivity
     @skipIfCustomOpportunity
     def test_link_to_activity(self):
         user = self.user

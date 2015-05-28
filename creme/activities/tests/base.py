@@ -1,8 +1,22 @@
  # -*- coding: utf-8 -*-
 
-from json import dumps as json_dump
+skip_activities_tests = False
 
-from creme.creme_core.tests.base import CremeTestCase
+try:
+    from json import dumps as json_dump
+    from unittest import skipIf
+
+    from creme.creme_core.tests.base import CremeTestCase
+
+    from .. import activity_model_is_custom
+
+    skip_activities_tests = activity_model_is_custom()
+except Exception as e:
+    print('Error in <%s>: %s' % (__name__, e))
+
+
+def skipIfCustomActivity(test_func):
+    return skipIf(skip_activities_tests, 'Custom Activity model in use')(test_func)
 
 
 class _ActivitiesTestCase(CremeTestCase):

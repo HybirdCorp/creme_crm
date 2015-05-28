@@ -15,12 +15,13 @@ try:
 
     from creme.activities.models import Activity, Calendar, ActivityType, ActivitySubType
     from creme.activities.constants import *
+    from creme.activities.tests.base import skipIfCustomActivity
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 class CTITestCase(CremeTestCase):
-    ADD_PCALL_URL = '/cti/add_phonecall'
+#    ADD_PCALL_URL = '/cti/add_phonecall'
     RESPOND_URL = '/cti/respond_to_a_call'
 
     @classmethod
@@ -29,8 +30,11 @@ class CTITestCase(CremeTestCase):
         cls.populate('creme_core', 'activities')
         #cls.autodiscover()
 
+        cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
+
     def _buid_add_pcall_url(self, contact):
-        return '/cti/phonecall/add/%s' % contact.id
+#        return '/cti/phonecall/add/%s' % contact.id
+        return reverse('cti__create_phonecall', args=(contact.id,))
 
     def login(self):
         user = super(CTITestCase, self).login()
@@ -109,6 +113,7 @@ class CTITestCase(CremeTestCase):
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
+    @skipIfCustomActivity
     def test_add_phonecall02(self):
         "No contact"
         self.login()
@@ -212,6 +217,7 @@ class CTITestCase(CremeTestCase):
         self.get_object_or_fail(Organisation, phone=phone)
 
     @skipIfCustomContact
+    @skipIfCustomActivity
     def test_create_phonecall01(self):
         user = self.login()
 
@@ -236,6 +242,7 @@ class CTITestCase(CremeTestCase):
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
+    @skipIfCustomActivity
     def test_create_phonecall02(self):
         user = self.login()
 
@@ -250,6 +257,7 @@ class CTITestCase(CremeTestCase):
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
+    @skipIfCustomActivity
     def test_create_phonecall03(self):
         user = self.login()
 

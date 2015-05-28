@@ -29,13 +29,15 @@ from creme.creme_core.models import Relation
 from creme.persons import get_contact_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-from creme.activities.models import Activity
+from creme.activities import get_activity_model
+#from creme.activities.models import Activity
 
 from .models import CremeExchangeMapping
 
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
+Activity = get_activity_model()
 
 
 def _get_mapping_from_creme_entity_id(id_):

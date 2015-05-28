@@ -82,16 +82,3 @@ class Status(CremeModel):
         verbose_name = _(u'Status of activity')
         verbose_name_plural = _(u'Statuses of activity')
         ordering = ('name',)
-
-
-#class PhoneCallType(CremeModel):
-#    name        = CharField(_(u"Call type"), max_length=100, blank=True, null=True)
-#    description = TextField(_(u'Description'))
-#
-#    def __unicode__(self):
-#        return self.name
-#
-#    class Meta:
-#        app_label = 'activities'
-#        verbose_name = _("Phonecall type")
-#        verbose_name_plural = _(u"Phonecall types")

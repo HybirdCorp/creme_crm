@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
+from creme.activities import activity_model_is_custom
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
 
@@ -44,10 +45,18 @@ def copy_old_fields(apps, schema_editor):
             'description',
         )
 
-    #TODO: if custom task => do nothing
-    #TODO: if custom activity => do nothing
+    tasks = apps.get_model('projects', 'ProjectTask').objects.all()
 
-    for instance in apps.get_model('projects', 'ProjectTask').objects.all():
+    if not tasks:
+        return
+
+    if activity_model_is_custom():
+        print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py copy_old_fields():' \
+             ' cannot copy Activities fields because the model is custom. You should fix it with your custom model.'
+
+    #TODO: if custom task => do nothing
+
+    for instance in tasks:
         activity_instance = instance.activity_ptr
         instance.id = activity_instance.pk
 
@@ -63,14 +72,16 @@ def create_activities(apps, schema_editor):
     if not WorkingPeriod.objects.exists():
         return
 
+    if activity_model_is_custom():
+        print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py create_activities():' \
+             ' cannot create Activities because the model is custom. You should fix it with your custom model.'
+
     RelationType = get_model('creme_core',   'RelationType')
     Relation     = get_model('creme_core',   'Relation')
     Activity     = get_model('activities',   'Activity')
     Calendar     = get_model('activities',   'Calendar')
     ProjectTask  = get_model('projects',     'ProjectTask')
     ContentType  = get_model('contenttypes', 'ContentType')
-
-    #TODO: if custom activity => do nothing + error message
 
     rtype_part = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)
 

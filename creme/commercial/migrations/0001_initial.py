@@ -126,7 +126,8 @@ class Migration(migrations.Migration):
                 ('creation_date', creme.creme_core.models.fields.CreationDateTimeField(default=django.utils.timezone.now, verbose_name='Creation date', editable=False, blank=True)),
                 ('entity_id', models.PositiveIntegerField(editable=False)),
                 ('entity_content_type', models.ForeignKey(related_name='comapp_entity_set', editable=False, to='contenttypes.ContentType')),
-                ('related_activity', models.ForeignKey(editable=False, to='activities.Activity', null=True)),
+                #('related_activity', models.ForeignKey(editable=False, to='activities.Activity', null=True)),
+                ('related_activity', models.ForeignKey(editable=False, to=settings.ACTIVITIES_ACTIVITY_MODEL, null=True)),
             ],
             options={
                 'verbose_name': 'Commercial approach',

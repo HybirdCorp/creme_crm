@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.gui.field_printers import simple_print
 from creme.creme_core.utils.media import creme_media_themed_url
@@ -29,8 +30,11 @@ def print_phone(entity, fval, user, field):
     if not fval:
         return simple_print(entity, fval, user, field)
 
-    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
-            'url':    settings.ABCTI_URL,
+#    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
+    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(external_url)s', %(creme_url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
+#            'url':    settings.ABCTI_URL,
+            'external_url': settings.ABCTI_URL,
+            'creme_url':    reverse('cti__create_phonecall_as_caller'),
             'number': fval,
             'id':     entity.id,
             'label':  _(u'Call'),

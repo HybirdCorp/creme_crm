@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,11 +27,14 @@ from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404
 
+from .. import get_activity_model
 from ..models import Activity
 from ..forms.blocks import ParticipantCreateForm, SubjectCreateForm
 from ..constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
-                         REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+        REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 
+
+Activity = get_activity_model()
 
 @login_required
 @permission_required('activities')

@@ -43,14 +43,15 @@ from creme.creme_core.views.generic import add_entity
 
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
-from creme.persons.models import Contact, Organisation
+#from creme.persons.models import Contact, Organisation
 
+from creme.activities import get_activity_model
 from creme.activities.constants import (NARROW, FLOATING_TIME, FLOATING,
         REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT,
         ACTIVITYTYPE_PHONECALL,
         ACTIVITYSUBTYPE_PHONECALL_FAILED, ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         STATUS_IN_PROGRESS, STATUS_DONE, STATUS_CANCELLED)
-from creme.activities.models import Activity, Calendar
+from creme.activities.models import Calendar #Activity
 
 from .forms import MobileContactCreateForm, MobileOrganisationCreateForm
 from .models import MobileFavorite
@@ -58,6 +59,7 @@ from .templatetags.mobile_tags import orga_subjects
 
 
 logger = logging.getLogger(__name__)
+Activity = get_activity_model()
 
 #TODO: in constants.py ? in settings ??
 FLOATING_SIZE = 30
