@@ -40,7 +40,7 @@ class ResourceCreateForm(CremeEntityForm):
                                  model=get_contact_model(),
                                 )
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = Resource
 
     def __init__(self, task, *args, **kwargs):
