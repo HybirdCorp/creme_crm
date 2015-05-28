@@ -39,7 +39,7 @@
 
         {% for form in formset %}
             <tr style="display: none">
-                <td>{{form.user}} {{form.DELETE}} {{form.line_ptr}}</td>
+                <td>{{form.user}} {{form.DELETE}} {% comment %}{{form.line_ptr}}{% endcomment %}{{form.cremeentity_ptr}}</td>
             </tr>
 
             <tr class="content">
@@ -83,7 +83,7 @@
 
                     <table class="linetable-container empty_form_inputs_{{ct_id}}">
                         <tr>
-                            <td style="display: none"> {{form.user}} {{form.DELETE}} {{form.line_ptr}} </td>
+                            <td style="display: none"> {{form.user}} {{form.DELETE}} {% comment %}{{form.line_ptr}}{% endcomment %}{{form.cremeentity_ptr}}</td>
 
                             <th class="block_header_line_light linetable-header" align="center" width="2%" id="line_content_{{ct_id}}_{{form.prefix}}">
                                 <a onclick="creme.billing.hideEmptyForm('{{ ct_id }}', '{{formset.prefix}}', {{item_count}});">
