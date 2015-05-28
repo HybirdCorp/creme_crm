@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms.utils import flatatt
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-from .base import CremeAbstractEntity
+from .base import CremeAbstractEntity, _SEARCH_FIELD_MAX_LENGTH
 
 
 logger = logging.getLogger(__name__)
@@ -370,7 +370,7 @@ class CremeEntity(CremeAbstractEntity):
                         setattr(entity, fname, attr_values[attr_id])
 
     def save(self, *args, **kwargs):
-        self.header_filter_search_field = self._search_field_value()
+        self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
         super(CremeEntity, self).save(*args, **kwargs)
         logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
