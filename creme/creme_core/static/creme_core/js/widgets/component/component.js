@@ -45,6 +45,14 @@ creme.component.extend = function(parent, content)
 
 creme.component.is = function(constructor, parent)
 {
+    if (!(constructor instanceof Object)) {
+        return false;
+    }
+
+    if (!Object.isFunc(constructor)) {
+        constructor = Object.getPrototypeOf(constructor);
+    }
+
     if (parent === Object || constructor === parent)
         return true;
 

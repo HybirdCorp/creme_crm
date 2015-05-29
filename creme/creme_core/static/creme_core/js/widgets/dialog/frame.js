@@ -21,7 +21,9 @@ creme.dialog = creme.dialog || {};
 creme.dialog.Frame = creme.component.Component.sub({
     _init_: function(options)
     {
-        var options = options || {};
+        var options = $.extend({
+                          autoActivate: true,
+                      }, options || {});
 
         this._overlay = new creme.dialog.Overlay();
         this._overlayDelay = 200;
@@ -29,6 +31,7 @@ creme.dialog.Frame = creme.component.Component.sub({
         this._backend = options.backend || new creme.ajax.Backend({dataType: 'html'});
         this._events = new creme.component.EventHandler();
         this._json = new creme.utils.JSON();
+        this._autoActivate = options.autoActivate;
     },
 
     on: function(event, listener) {
@@ -41,7 +44,7 @@ creme.dialog.Frame = creme.component.Component.sub({
     },
 
     onCleanup: function(listener) {
-        return this.on('clear', listener);
+        return this.on('cleanup', listener);
     },
 
     onFetchDone: function(listener) {
@@ -89,6 +92,20 @@ creme.dialog.Frame = creme.component.Component.sub({
         return {content: response, type: 'text/html'};
     },
 
+    _deactivateContent: function(content)
+    {
+        if (this._autoActivate) {
+            creme.widget.shutdown(content);
+        }
+    },
+
+    _activateContent: function(content)
+    {
+        if (this._autoActivate) {
+            creme.widget.ready(content);
+        }
+    },
+
     fill: function(data, action)
     {
         var self = this;
@@ -103,10 +120,12 @@ creme.dialog.Frame = creme.component.Component.sub({
             overlay.unbind(delegate).update(false);
 
             this._events.trigger('cleanup', [delegate, action], this);
+            this._deactivateContent(delegate);
             delegate.empty();
             overlay.bind(delegate);
 
             delegate.append($(data.content));
+            this._activateContent(delegate);
         } catch(e) {
         }
 
