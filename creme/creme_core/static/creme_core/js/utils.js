@@ -519,7 +519,7 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
                      .onOk(function() {query.start();})
                      .onClose(function() {self.cancel();})
                      .open({width:250, height:150});
-    });
+    }, options);
 
     if (options.reloadOnSuccess) {
         action.onDone(function(event, data) {creme.utils.reload();});

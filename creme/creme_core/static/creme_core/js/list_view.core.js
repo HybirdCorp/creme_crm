@@ -193,7 +193,13 @@
                             $(this).parents('ul').find('ul').slideToggle('slide');
                          });
 
-                    creme.menu.HNavIt(self.find('.lv-row-action-list'));
+                    creme.menu.HNavIt(self.find('.lv-row-action-list'), {}, {
+                        done: function() {
+                            if (this.options().link.is('.lv_reload')) {
+                                me.reload();
+                            }
+                        }
+                    });
                 }
 
                 /***************** Row selection part *****************/
