@@ -9,38 +9,38 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-25 14:54+0200\n"
+"POT-Creation-Date: 2015-05-29 17:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:7 creme_core_register.py:30 models/project.py:48
+#: apps.py:7 creme_core_register.py:36 models/project.py:51
 msgid "Projects"
 msgstr "Projets"
 
-#: blocks.py:35
+#: blocks.py:43
 msgid "Extra project information"
 msgstr "Informations supplémentaires sur un projet"
 
-#: blocks.py:44
+#: blocks.py:52
 msgid "Extra project task information"
 msgstr "Informations supplémentaires sur une tâche de projet"
 
-#: blocks.py:55
+#: blocks.py:60
 msgid "Parents of a task"
 msgstr "Parents d'une tâche"
 
-#: blocks.py:72
+#: blocks.py:77
 msgid "Tasks of a project"
 msgstr "Tâches d'un projet"
 
-#: blocks.py:92
+#: blocks.py:97
 msgid "Resources assigned to a task"
 msgstr "Ressource(s) affectée(s) à une tâche"
 
-#: blocks.py:115
+#: blocks.py:120
 msgid "Activities for this task"
 msgstr "Activités pour cette tâche"
 
@@ -84,11 +84,11 @@ msgstr "Terminée"
 msgid "The task is finished"
 msgstr "La tâche est terminée"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:40
 msgid "Portal of projects"
 msgstr "Portail des projets"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:43
 msgid "All projects"
 msgstr "Lister les projets"
 
@@ -108,87 +108,87 @@ msgstr "Responsable(s) du projet"
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:66 forms/task.py:196
+#: forms/resource.py:66 forms/task.py:200
 msgid ""
 "If the contact changes, the old one keeps participating to the activities."
 msgstr ""
 "Si le contact change, l'ancien contact continue de participer aux activités."
 
-#: forms/task.py:60 forms/task.py:176 models/task.py:62
+#: forms/task.py:62 forms/task.py:179 models/task.py:65
 msgid "Start"
 msgstr "Début"
 
-#: forms/task.py:61 forms/task.py:177 models/task.py:63
+#: forms/task.py:63 forms/task.py:180 models/task.py:66
 msgid "End"
 msgstr "Fin"
 
-#: forms/task.py:105 forms/task.py:154
-#: templates/projects/templatetags/block_tasks.html:23
+#: forms/task.py:107 forms/task.py:156
+#: templates/projects/templatetags/block_tasks.html:26
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
-#: forms/task.py:175
+#: forms/task.py:178
 msgid "Allocated resource"
 msgstr "Ressource affectée"
 
-#: forms/task.py:178 templates/projects/templatetags/block_activities.html:25
+#: forms/task.py:181 templates/projects/templatetags/block_activities.html:28
 msgid "Type"
 msgstr "Type"
 
-#: models/project.py:33
+#: models/project.py:35
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:34 models/projectstatus.py:30 models/task.py:65
+#: models/project.py:36 models/projectstatus.py:31 models/task.py:68
 #: models/taskstatus.py:31
 msgid "Description"
 msgstr "Description"
 
-#: models/project.py:35 templates/projects/templatetags/block_tasks.html:22
+#: models/project.py:37 templates/projects/templatetags/block_tasks.html:25
 msgid "Status"
 msgstr "Statut"
 
-#: models/project.py:36
+#: models/project.py:38
 msgid "Estimated start"
 msgstr "Début prévisionnel"
 
-#: models/project.py:37
+#: models/project.py:39
 msgid "Estimated end"
 msgstr "Fin prévisionnelle"
 
-#: models/project.py:38
+#: models/project.py:40
 msgid "Effective end date"
 msgstr "Fin effective"
 
-#: models/project.py:43
+#: models/project.py:45
 msgid "Add a project"
 msgstr "Ajouter un projet"
 
-#: models/project.py:47 models/task.py:57 templates/projects/portal.html:4
+#: models/project.py:50 models/task.py:60 templates/projects/portal.html:4
 msgid "Project"
 msgstr "Projet"
 
-#: models/project.py:73
+#: models/project.py:80
 #, python-format
 msgid "Start (%(start)s) must be before end (%(end)s)."
 msgstr "La date de début (%(start)s) doit être avant la date de fin (%(end)s)."
 
-#: models/projectstatus.py:28 models/taskstatus.py:29
+#: models/projectstatus.py:29 models/taskstatus.py:29
 #: templates/projects/templatetags/block_parent_tasks.html:16
-#: templates/projects/templatetags/block_tasks.html:17
+#: templates/projects/templatetags/block_tasks.html:20
 msgid "Name"
 msgstr "Nom"
 
-#: models/projectstatus.py:29 models/taskstatus.py:30
+#: models/projectstatus.py:30 models/taskstatus.py:30
 msgid "Color"
 msgstr "Couleur"
 
-#: models/projectstatus.py:31 models/task.py:58 models/taskstatus.py:33
-#: templates/projects/templatetags/block_tasks.html:16
+#: models/projectstatus.py:32 models/task.py:61 models/taskstatus.py:33
+#: templates/projects/templatetags/block_tasks.html:19
 msgid "Order"
 msgstr "Ordre"
 
-#: models/projectstatus.py:38 models/projectstatus.py:39
+#: models/projectstatus.py:39 models/projectstatus.py:40
 msgid "Status of project"
 msgstr "Statut(s) de projet"
 
@@ -201,39 +201,39 @@ msgstr "Contact"
 msgid "Hourly cost (in €)"
 msgstr "Coût horaire (en €)"
 
-#: models/resource.py:36
+#: models/resource.py:37
 msgid "Task"
 msgstr "Tâche"
 
-#: models/resource.py:41
+#: models/resource.py:42
 msgid "Add a resource"
 msgstr "Ajouter une ressource"
 
-#: models/resource.py:45
+#: models/resource.py:46
 msgid "Resource of project"
 msgstr "Ressource de projet"
 
-#: models/resource.py:46
+#: models/resource.py:47
 msgid "Resources of project"
 msgstr "Ressources de projet"
 
-#: models/task.py:56
+#: models/task.py:59
 msgid "Title"
 msgstr "Titre"
 
-#: models/task.py:64
+#: models/task.py:67
 msgid "Duration (in hours)"
 msgstr "Durée (en heures)"
 
-#: models/task.py:66
+#: models/task.py:69
 msgid "Task situation"
 msgstr "Situation de la tâche"
 
-#: models/task.py:70
+#: models/task.py:74
 msgid "Task of project"
 msgstr "Tâche d'un projet"
 
-#: models/task.py:71
+#: models/task.py:75
 msgid "Tasks of project"
 msgstr "Tâches d'un projet"
 
@@ -245,96 +245,96 @@ msgstr "Statut de tâche"
 msgid "Statuses of task"
 msgstr "Statuts de tâche"
 
-#: populate.py:56
+#: populate.py:62
 msgid "is one of the leaders of this project"
 msgstr "est un des responsables du projet"
 
-#: populate.py:57
+#: populate.py:63
 msgid "has as leader"
 msgstr "a pour responsable"
 
-#: populate.py:59
+#: populate.py:65
 msgid "is related to the task of project"
 msgstr "est lié à la tâche de projet"
 
-#: populate.py:60
+#: populate.py:66
 msgid "includes the activity"
 msgstr "inclut l'activité"
 
-#: populate.py:63
+#: populate.py:69
 msgid "is a resource of"
 msgstr "est une ressource de"
 
-#: populate.py:64
+#: populate.py:70
 msgid "has as a resource"
 msgstr "a en tant que ressource"
 
-#: populate.py:76
+#: populate.py:82
 msgid "Project view"
 msgstr "Vue de Projet"
 
-#: populate.py:83
+#: populate.py:89
 msgid "Task view"
 msgstr "Vue de Tâche"
 
-#: populate.py:90
+#: populate.py:96
 msgid "Resource view"
 msgstr "Vue de Ressource"
 
-#: populate.py:104
+#: populate.py:110
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
-#: populate.py:104
+#: populate.py:110
 msgid "Response to an invitation to tender"
 msgstr "Un appel d'offre a été lancé"
 
-#: populate.py:105
+#: populate.py:111
 msgid "Initialization"
 msgstr "Initialisation"
 
-#: populate.py:105
+#: populate.py:111
 msgid "The project is starting"
 msgstr "Le projet démarre"
 
-#: populate.py:106
+#: populate.py:112
 msgid "Preliminary phase"
 msgstr "Avant-phase"
 
-#: populate.py:106
+#: populate.py:112
 msgid "The project is in the process of analysis and design"
 msgstr "Le projet est en phase d'analyse et de conception"
 
-#: populate.py:107
+#: populate.py:113
 msgid "Achievement"
 msgstr "Réalisation"
 
-#: populate.py:107
+#: populate.py:113
 msgid "The project is being implemented"
 msgstr "Le projet est en phase de réalisation"
 
-#: populate.py:108
+#: populate.py:114
 msgid "Tests"
 msgstr "Tests"
 
-#: populate.py:108
+#: populate.py:114
 msgid "The project is in the testing process (unit / integration / functional)"
 msgstr ""
 "Le projet est en phase de tests (unitaires / intégration / fonctionnels)"
 
-#: populate.py:109
+#: populate.py:115
 msgid "User acceptance tests"
 msgstr "Recette"
 
-#: populate.py:109
+#: populate.py:115
 msgid "The project is in the user acceptance testing process"
 msgstr "Le projet est en recette"
 
-#: populate.py:110
+#: populate.py:116
 msgid "Finished"
 msgstr "Terminé"
 
-#: populate.py:110
+#: populate.py:116
 msgid "The project is finished"
 msgstr "Le projet est terminé"
 
@@ -352,7 +352,7 @@ msgstr "%(duration)sh: temps restant %(abs_delay)sh"
 msgid "Projects portal"
 msgstr "Portail Projet"
 
-#: templates/projects/portal.html:7
+#: templates/projects/portal.html:9
 msgid "List of projects"
 msgstr "Liste des projets"
 
@@ -370,40 +370,40 @@ msgstr "%s Activités liées"
 msgid "Activities"
 msgstr "Activités"
 
-#: templates/projects/templatetags/block_activities.html:10
+#: templates/projects/templatetags/block_activities.html:13
 msgid "New activity"
 msgstr "Nouvelle activité"
 
-#: templates/projects/templatetags/block_activities.html:19
+#: templates/projects/templatetags/block_activities.html:22
 #, python-format
 msgid "You can't add a working périod because this task is %(status)s"
 msgstr ""
 "Vous ne pouvez pas ajouter de périodes travaillées car cette tâche est "
 "%(status)s"
 
-#: templates/projects/templatetags/block_activities.html:26
+#: templates/projects/templatetags/block_activities.html:29
 msgid "Between"
 msgstr "Entre"
 
-#: templates/projects/templatetags/block_activities.html:27
+#: templates/projects/templatetags/block_activities.html:30
 msgid "And"
 msgstr "Et"
 
-#: templates/projects/templatetags/block_activities.html:28
+#: templates/projects/templatetags/block_activities.html:31
 msgid "Duration (hours)"
 msgstr "Durée (heures)"
 
-#: templates/projects/templatetags/block_activities.html:29
+#: templates/projects/templatetags/block_activities.html:32
 msgid "Concerned resource(s)"
 msgstr "Ressource(s) concernée(s)"
 
-#: templates/projects/templatetags/block_activities.html:30
+#: templates/projects/templatetags/block_activities.html:33
 #: templates/projects/templatetags/block_resources.html:27
-#: templates/projects/templatetags/block_tasks.html:25
+#: templates/projects/templatetags/block_tasks.html:28
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/projects/templatetags/block_activities.html:49
+#: templates/projects/templatetags/block_activities.html:55
 msgid "No related activity for this task"
 msgstr "Pas d'activité lié à cette tâche"
 
@@ -507,27 +507,27 @@ msgstr "%s Tâche associée au projet"
 msgid "%s Related Tasks"
 msgstr "%s Tâches associées au projet"
 
-#: templates/projects/templatetags/block_tasks.html:9
+#: templates/projects/templatetags/block_tasks.html:12
 msgid "New task"
 msgstr "Nouvelle tâche"
 
-#: templates/projects/templatetags/block_tasks.html:20
+#: templates/projects/templatetags/block_tasks.html:23
 msgid "Estimated duration (hours)"
 msgstr "Durée prévue (heures)"
 
-#: templates/projects/templatetags/block_tasks.html:21
+#: templates/projects/templatetags/block_tasks.html:24
 msgid "Effective duration (hours)"
 msgstr "Durée effective (heures)"
 
-#: templates/projects/templatetags/block_tasks.html:24
+#: templates/projects/templatetags/block_tasks.html:27
 msgid "Cost"
 msgstr "Coût"
 
-#: templates/projects/templatetags/block_tasks.html:42
+#: templates/projects/templatetags/block_tasks.html:47
 msgid "No parent task"
 msgstr "Aucune tâche parente"
 
-#: templates/projects/templatetags/block_tasks.html:69
+#: templates/projects/templatetags/block_tasks.html:79
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
 
@@ -548,11 +548,11 @@ msgstr "Retour au projet: '%(project)s'"
 msgid "Back"
 msgstr "Retour"
 
-#: views/portal.py:29
-msgid "Number de projects"
+#: views/portal.py:31
+msgid "Number of projects"
 msgstr "Nombre de projet(s)"
 
-#: views/project.py:38
+#: views/project.py:39
 msgid "Save the project"
 msgstr "Enregistrer le projet"
 
@@ -570,31 +570,31 @@ msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
 "activités."
 
-#: views/task.py:48
+#: views/task.py:50
 #, python-format
 msgid "Add a task to <%s>"
 msgstr "Ajouter une tâche à <%s>"
 
-#: views/task.py:119
+#: views/task.py:125
 #, python-format
 msgid "New activity related to <%s>"
 msgstr "Nouvelle activité liée à <%s>"
 
-#: views/task.py:151
+#: views/task.py:158
 msgid "Can not be deleted because of its dependencies."
 msgstr "Ne peut pas être supprimé à cause des ses dépendances."
 
-#: views/task.py:154
+#: views/task.py:161
 #, python-format
 msgid "The deletion caused an unexpected error [%s]."
 msgstr "La suppression a provoqué une erreur inattendue [%s]."
 
 # Already in creme_core
-#: views/task.py:156
+#: views/task.py:163
 msgid "Operation successfully completed"
 msgstr ""
 
-#: views/utils.py:49
+#: views/utils.py:51
 #, python-format
 msgid ""
 "You can't add a resources or a working period to a task which has status <%s>"
