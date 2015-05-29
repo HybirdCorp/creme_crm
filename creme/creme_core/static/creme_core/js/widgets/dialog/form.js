@@ -35,12 +35,12 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
         this.validator(validator);
 
-        var update_buttons = function() {
+        var disable_buttons = function() {
             self._updateButtonState("send", false);
             self._updateButtonState("cancel", true, false);
         };
 
-        this.frame().on('before-submit before-fetch', update_buttons);
+        this.frame().on('before-submit before-fetch', disable_buttons);
 
         this._submitListeners = {
             done: $.proxy(this._onSubmitDone, this),
@@ -73,6 +73,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         var self = this;
         var dialog = this.dialog();
         var form = $('form:first', this.content());
+        var html5_errors = $(form).validateHTML5();
+
+        if (Object.isEmpty(html5_errors) === false) {
+            return this;
+        }
 
         this.frame().submit('', {}, form, this._submitListeners);
         return this;

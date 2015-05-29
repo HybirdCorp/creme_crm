@@ -6,7 +6,7 @@ div.submit_buttons a {
     padding-left: 20px;
 }
 
-input[type="text"], input[type="password"] {
+input[type="text"], input[type="password"], input[type="number"] {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border: 1px solid #6eaac4;
@@ -32,6 +32,13 @@ textarea:disabled, textarea[readonly] {
     background: #ffffff;/*#F4FAFD;*/
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+}
+
+input[type="text"]:invalid,
+input[type="password"]:invalid,
+input[type="number"]:invalid,
+textarea:invalid {
+    border: 1px solid #ff0000;
 }
 
 ul.radio_select {
