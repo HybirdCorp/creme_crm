@@ -57,15 +57,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
         frame.bind($('<div>').data('creme-dialog', this)
                              .addClass('ui-creme-dialog-frame'));
     },
-    
+
     _onFrameCleanup: function() {
-        creme.widget.shutdown(this.frame().delegate().children());
+        this._events.trigger('frame-cleanup', [this.frame()], this);
     },
-    
+
     _onFrameUpdate: function()
     {
-        creme.widget.ready(this.frame().delegate().children());
-
         if (this.options.fitFrame)
             this.fitToFrameSize();
 
@@ -348,6 +346,34 @@ creme.dialog.redirect = function(url, from) {
         dialog.fetch(url);
     }
 }
+
+creme.dialog.DialogAction = creme.component.Action.sub({
+    _init_: function(options) {
+        this._super_(creme.component.Action, '_init_', this._openPopup, options);
+    },
+
+    dialog: function() {
+        return this._dialog;
+    },
+
+    _onClose: function()
+    {
+        delete this._dialog;
+        this._dialog = undefined;
+
+        this.done();
+    },
+
+    _openPopup: function(options)
+    {
+        var self = this;
+        var options = $.extend(this.options(), options || {});
+
+        this._dialog = new creme.dialog.Dialog(options).onClose(function() {self._onClose();})
+                                                       .open();
+    }
+});
+
 
 creme.dialogs = creme.dialogs || {};
 

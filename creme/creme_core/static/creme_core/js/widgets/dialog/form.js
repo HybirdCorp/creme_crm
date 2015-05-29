@@ -209,6 +209,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
     _openPopup: function(options)
     {
         var self = this;
+        var options = $.extend(this.options(), options || {});
 
         new creme.dialog.FormDialog(options).onFormSuccess(function(event, data) {self._onSubmit(data);})
                                             .onClose(function() {self.cancel();})

@@ -142,6 +142,25 @@ creme.component.Action = creme.component.Component.sub({
         return Object.property(this, '_options', options);
     },
 
+    listen: function(source)
+    {
+        var self = this;
+
+        source.onDone(function(event, data) {
+            self.done(data);
+        });
+
+        source.onFail(function(event, data) {
+            self.fail(data);
+        });
+
+        source.onCancel(function(event, data) {
+            self.cancel(data);
+        });
+
+        return this;
+    },
+
     after: function(source)
     {
         var self = this;
@@ -158,6 +177,12 @@ creme.component.Action = creme.component.Component.sub({
             self.cancel(data);
         });
 
+        return this;
+    },
+
+    before: function(target)
+    {
+        target.after(this);
         return this;
     }
 });
@@ -184,3 +209,35 @@ creme.component.TimeoutAction = creme.component.Action.sub({
         }
     }
 });
+
+
+creme.component.ActionRegistry = creme.component.Component.sub({
+    _init_: function() {
+        this._actions = {};
+    },
+
+    register: function(key, action)
+    {
+        if (this._actions[key] !== undefined)
+            throw new Error('action "%s" is already registered'.format(key));
+
+        if (!(Object.isFunc(action.is) && action.is(creme.component.Action)))
+            throw new Error('"%s" is not an creme.component.Action'.format(action));
+
+        this._actions[key] = action;
+    },
+
+    unregister: function(key)
+    {
+        if (this._actions[key] === undefined)
+            throw new Error('action "%s" is not registered'.format(key));
+
+        delete this._actions[key];
+    },
+
+    get: function(key) {
+        return this._actions[key];
+    }
+});
+
+creme.component.actions = new creme.component.ActionRegistry();
