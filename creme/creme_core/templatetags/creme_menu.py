@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ class MenuItem(object):
         self.has_perm = has_perm
 
     def __unicode__(self):
-        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.perm)
+        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.has_perm)
 
 
 class MenuAppItem(object):
@@ -61,7 +61,7 @@ class MenuAppItem(object):
             self.sort_key = collator.sort_key(self.app_name)
 
     def __unicode__(self):
-        return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.app_url)
+        return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.url)
 
     def __cmp__(self, other):
         force_order1 = self.force_order
