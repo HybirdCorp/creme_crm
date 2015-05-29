@@ -961,6 +961,17 @@ $.fn.selected = function(select) {
 	});
 };
 
+$.fn.validateHTML5 = function()
+{
+    var errors = {};
+
+    $('*:invalid', this).each(function(index, item) {
+        errors[$(this).prop('name')] = item.validationMessage;
+    });
+
+    return errors;
+}
+
 // expose debug var
 $.fn.ajaxSubmit.debug = false;
 
