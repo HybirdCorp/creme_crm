@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+skip_projects_tests = False
+skip_tasks_tests = False
+
 try:
     from functools import partial
     from json import dumps as json_dump
+    from unittest import skipIf
 
     from django.core.urlresolvers import reverse
     from django.utils.formats import date_format
@@ -23,16 +27,28 @@ try:
     from creme.activities.models import Activity, Calendar
     from creme.activities.tests.base import skipIfCustomActivity
 
+    from . import project_model_is_custom, task_model_is_custom
     from .models import Project, ProjectStatus, ProjectTask, TaskStatus, Resource # WorkingPeriod
     from .constants import (NOT_STARTED_PK, COMPLETED_PK, REL_SUB_PROJECT_MANAGER,
             REL_OBJ_PROJECT_MANAGER, REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE)
+
+    skip_projects_tests = project_model_is_custom()
+    skip_tasks_tests = task_model_is_custom()
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
+def skipIfCustomProject(test_func):
+    return skipIf(skip_projects_tests, 'Custom Project model in use')(test_func)
+
+def skipIfCustomTask(test_func):
+    return skipIf(skip_tasks_tests, 'Custom ProjectTask model in use')(test_func)
+
+
 @skipIfCustomContact
+@skipIfCustomProject
 class ProjectsTestCase(CremeTestCase):
-    ADD_PROJECT_URL = '/projects/project/add'
+#    ADD_PROJECT_URL = '/projects/project/add'
     ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
     DELETE_RESOURCE_URL = '/projects/resource/delete'
     DELETE_ACTIVITY_URL = '/projects/activity/delete'
@@ -43,6 +59,8 @@ class ProjectsTestCase(CremeTestCase):
         #cls.populate('creme_core', 'creme_config', 'activities', 'projects')
         cls.populate('creme_core', 'activities', 'projects')
 
+        cls.ADD_PROJECT_URL = reverse('projects__create_project')
+
     def login(self, is_superuser=True, *args, **kwargs):
         return super(ProjectsTestCase, self).login(is_superuser,
                                                    allowed_apps=['projects'],
@@ -50,7 +68,8 @@ class ProjectsTestCase(CremeTestCase):
                                                   )
 
     def _build_add_task_url(self, project):
-        return '/projects/project/%s/task/add' % project.id
+#        return '/projects/project/%s/task/add' % project.id
+        return reverse('projects__create_task', args=(project.id,))
 
     def _build_add_resource_url(self, task):
         return '/projects/task/%s/resource/add' % task.id
@@ -225,7 +244,8 @@ class ProjectsTestCase(CremeTestCase):
 
         self.create_project('Eva00')
         self.create_project('Eva01')
-        self.assertGET200('/projects/projects')
+#        self.assertGET200('/projects/projects')
+        self.assertGET200(reverse('projects__list_projects'))
 
     def _build_inner_edit_url(self, entity, field): #TODO: in creme_core ??
         url = '/creme_core/entity/edit/inner/%(ct)s/%(id)s/field/%(field)s'
@@ -269,6 +289,7 @@ class ProjectsTestCase(CremeTestCase):
                          self.refresh(project).start_date
                         )
 
+    @skipIfCustomTask
     def test_task_createview01(self):
         "Create 2 tasks without collisions"
         user = self.login()
@@ -345,6 +366,7 @@ class ProjectsTestCase(CremeTestCase):
 #        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
 #        self.assertEqual(1, task2.calendars.count())
 
+    @skipIfCustomTask
     def test_task_createview02(self):
         "Can not be parented with task of an other project"
         user = self.login()
@@ -445,6 +467,7 @@ class ProjectsTestCase(CremeTestCase):
 #        self.assertEqual(atype, task.type_id)
 #        self.assertEqual(stype, task.sub_type_id)
 
+    @skipIfCustomTask
     def test_task_detailview(self):
         self.login()
 
@@ -466,6 +489,7 @@ class ProjectsTestCase(CremeTestCase):
 #        self.assertIsInstance(instance, ProjectTask)
 #        self.assertTemplateUsed(response, 'projects/view_task.html')
 
+    @skipIfCustomTask
     def test_task_editview01(self):
         user = self.login()
 
@@ -503,40 +527,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
         self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
-    #def test_task_editview02(self):
-        #"Meeting type"
-        #self.login()
-
-        #atype = ACTIVITYTYPE_MEETING
-        #task = self.create_task(self.create_project('Eva01')[0],
-                                #'Title', atype=atype,
-                                #sub_type=ACTIVITYSUBTYPE_MEETING_MEETING,
-                               #)
-
-        #stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
-        #response = self.client.post('/projects/task/edit/%s' % task.id, follow=True,
-                                    #data={'user':     self.user.id,
-                                          #'title':    'Head',
-                                          #'start':    '2013-5-16',
-                                          #'end':      '2013-6-17',
-                                          #'duration': 60,
-                                          #'tstatus':  TaskStatus.objects.all()[1].id,
-                                          ##'sub_type': stype,
-                                         #}
-                                   #)
-        #self.assertNoFormError(response)
-
-        #task = self.refresh(task)
-        #self.assertEqual(atype, task.type_id)
-        #self.assertEqual(stype, task.sub_type_id)
-
+    @skipIfCustomTask
     def test_task_editview_popup01(self):
         "Popup version"
         user = self.login()
 
         project = self.create_project('Eva01')[0]
         task = self.create_task(project, 'Title')
-        url = '/projects/task/edit/%s/popup' % task.id
+#        url = '/projects/task/edit/%s/popup' % task.id
+        url = reverse('projects__edit_task_popup', args=(task.id,))
         self.assertGET200(url)
 
         title = 'Head'
@@ -565,6 +564,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
         self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
+    @skipIfCustomTask
     def test_task_add_parent01(self):
         self.login()
 
@@ -588,6 +588,7 @@ class ProjectsTestCase(CremeTestCase):
                              _(u"This entity doesn't exist.")
                             )
 
+    @skipIfCustomTask
     def test_task_add_parent02(self):
         "Error task that belongs to another project"
         self.login()
@@ -605,6 +606,7 @@ class ProjectsTestCase(CremeTestCase):
                              _(u"This entity doesn't exist.")
                             )
 
+    @skipIfCustomTask
     def test_task_add_parent03(self):
         "Cycle error"
         self.login()
@@ -628,6 +630,7 @@ class ProjectsTestCase(CremeTestCase):
                              _(u"This entity doesn't exist.")
                             )
 
+    @skipIfCustomTask
     def test_duration01(self):
         self.login()
         project = self.create_project('Eva01')[0]
@@ -642,6 +645,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(-50, task.get_delay())
         self.assertEqual(50, project.get_expected_duration())
 
+    @skipIfCustomTask
     def test_duration02(self):
         self.login()
         project = self.create_project('Eva01')[0]
@@ -659,6 +663,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(0, project.get_expected_duration())
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity01(self):
         "Creation views"
         user = self.login()
@@ -711,6 +716,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(0,   project.get_delay())
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity02(self):
         "Edition views + Calendar"
         user = self.login()
@@ -775,6 +781,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity03(self):
         "Not alive task"
         user = self.login()
@@ -794,6 +801,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/error.html')
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity04(self):
         "Create 2 activities with a collision"
         user = self.login()
@@ -824,6 +832,7 @@ class ProjectsTestCase(CremeTestCase):
         )
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity05(self):
         "Edition of activity: resource changes"
         user = self.login()
@@ -871,6 +880,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFalse(activity.calendars.all()) #alrigth the project Activities can be on no Calendar
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_resource_n_activity06(self):
         "Edition of activity: resource changes + keep_participating"
         user = self.login()
@@ -918,6 +928,7 @@ class ProjectsTestCase(CremeTestCase):
                         )
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_edit_resource01(self):
         "Related contact partipates to activities"
         user = self.login()
@@ -974,6 +985,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker1, REL_SUB_PART_AS_RESOURCE, activity2)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_edit_resource02(self):
         "Related contact partipates to activities: old resource continues to participate"
         user = self.login()
@@ -1016,6 +1028,7 @@ class ProjectsTestCase(CremeTestCase):
                          set(activity.calendars.all())
                         )
 
+    @skipIfCustomTask
     def test_project_close(self):
         self.login()
 
@@ -1061,6 +1074,7 @@ class ProjectsTestCase(CremeTestCase):
     def _tasks_pk_set(self, project):
         return set(project.get_tasks().values_list('pk', flat=True))
 
+    @skipIfCustomTask
     def test_project_clone01(self):
         self.login()
         project = self.create_project('Project')[0]
@@ -1098,6 +1112,7 @@ class ProjectsTestCase(CremeTestCase):
                          titles_set(get_task(title='all 2').get_parents())
                         )
 
+    @skipIfCustomTask
     def test_project_clone02(self):
         user = self.login()
 
@@ -1145,6 +1160,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(200, self._delete_project_status(status).status_code)
         self.assertDoesNotExist(status)
 
+    @skipIfCustomTask
     def test_delete_project_status02(self):
         self.login()
 
@@ -1167,6 +1183,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(200, self._delete_task_status(status).status_code)
         self.assertDoesNotExist(status)
 
+    @skipIfCustomTask
     def test_delete_task_status02(self):
         self.login()
 
@@ -1181,6 +1198,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(status, task.tstatus)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_task_cost_n_duration(self):
         "With several activities"
         user = self.login()
@@ -1212,6 +1230,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(cost, project.get_project_cost())
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_activity_title(self):
         user = self.login()
 
@@ -1229,6 +1248,7 @@ class ProjectsTestCase(CremeTestCase):
                         )
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_delete_resource01(self):
         "No related activity"
         user = self.login()
@@ -1266,6 +1286,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_delete_resource02(self):
         "Related activity => 409"
         self.login()
@@ -1310,6 +1331,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertPOST409(url, data=data)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_delete_activity02(self):
         "Activity not related to a project task"
         self.login()
@@ -1328,6 +1350,7 @@ class ProjectsTestCase(CremeTestCase):
         self.assertDoesNotExist(activity)
 
     @skipIfCustomActivity
+    @skipIfCustomTask
     def test_delete_task(self):
         self.login()
 

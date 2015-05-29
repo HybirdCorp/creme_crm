@@ -23,7 +23,8 @@ from django.shortcuts import get_object_or_404
 
 from creme.creme_core.views.generic import inner_popup
 
-from ..models import ProjectTask
+from .. import get_task_model
+#from ..models import ProjectTask
 
 
 def error_popup(request, message):
@@ -38,7 +39,8 @@ def error_popup(request, message):
 
 #TODO: improve add_to_entity (see:"if not task.is_alive() etc...") ???
 def _add_generic(request, form, task_id, title):
-    task = get_object_or_404(ProjectTask, pk=task_id)
+#    task = get_object_or_404(ProjectTask, pk=task_id)
+    task = get_object_or_404(get_task_model(), pk=task_id)
     user = request.user
 
     user.has_perm_to_change_or_die(task)

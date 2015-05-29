@@ -20,6 +20,7 @@
 
 from itertools import chain
 
+from django.core.urlresolvers import reverse
 from django.db.models import (CharField, TextField, DateTimeField, PositiveIntegerField,
         ForeignKey, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
@@ -52,12 +53,14 @@ from .taskstatus import TaskStatus
 #    def __init__ (self, *args , **kwargs):
 #        super(ProjectTask, self).__init__(*args, **kwargs)
 #        self.floating_type = NARROW
-class ProjectTask(CremeEntity):
+
+#class ProjectTask(CremeEntity):
+class AbstractProjectTask(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100)
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False) #TODO: null = False ?
     parent_tasks = ManyToManyField('self', blank=True, null=True, symmetrical=False,
-                                   related_name='children_set', editable=False,
+                                   related_name='children_set', editable=False, #TODO; rename children ?
                                   )
     start        = DateTimeField(_(u'Start'), blank=True, null=True)
     end          = DateTimeField(_(u'End'), blank=True, null=True)
@@ -66,6 +69,7 @@ class ProjectTask(CremeEntity):
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
     class Meta:
+        abstract = True
         app_label = 'projects'
         verbose_name = _(u'Task of project')
         verbose_name_plural = _(u'Tasks of project')
@@ -80,10 +84,12 @@ class ProjectTask(CremeEntity):
         return self.title
 
     def get_absolute_url(self):
-        return "/projects/task/%s" % self.id
+#        return "/projects/task/%s" % self.id
+        return reverse('projects__view_task', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/projects/task/edit/%s" % self.id
+#        return "/projects/task/edit/%s" % self.id
+        return reverse('projects__edit_task', args=(self.id,))
 
     def get_related_entity(self):
         return self.project
@@ -221,3 +227,8 @@ class ProjectTask(CremeEntity):
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):
                 sub_task.parent_tasks.add(task)
+
+
+class ProjectTask(AbstractProjectTask):
+    class Meta(AbstractProjectTask.Meta):
+        swappable = 'PROJECTS_TASK_MODEL'

@@ -28,12 +28,13 @@ from creme.creme_core.models import CremeEntity
 
 from .task import ProjectTask
 
-
+#NB: no AbstractResource because resource should probably not be a CremeEntity at all...
 class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use a CreatorEntityField in WorkingPeriods' form
 #    linked_contact  = ForeignKey(Contact, verbose_name=_(u'Contact'))
     linked_contact  = ForeignKey(settings.PERSONS_CONTACT_MODEL, verbose_name=_(u'Contact'), editable=False)
     hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), default=0)
-    task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'),
+    #task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'),
+    task            = ForeignKey(settings.PROJECTS_TASK_MODEL, verbose_name=_(u'Task'),
                                  related_name='resources_set', #TODO: rename 'resources'
                                  editable=False,
                                 )

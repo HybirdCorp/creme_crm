@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,22 +18,30 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.urlresolvers import reverse_lazy as reverse
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from .models import Project, ProjectTask
+from . import get_project_model, get_task_model
+#from .models import Project, ProjectTask
 from .blocks import block_list
 
+
+Project     = get_project_model()
+ProjectTask = get_task_model()
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')
 creme_registry.register_entity_models(Project, ProjectTask)
 
 reg_item = creme_menu.register_app('projects', '/projects/').register_item
 reg_item('/projects/',            _('Portal of projects'), 'projects')
-reg_item('/projects/projects',    _('All projects'),       'projects')
-reg_item('/projects/project/add', Project.creation_label,  'projects.add_project')
+#reg_item('/projects/projects',    _('All projects'),       'projects')
+#reg_item('/projects/project/add', Project.creation_label,  'projects.add_project')
+reg_item(reverse('projects__list_projects'),  _('All projects'),       'projects')
+reg_item(reverse('projects__create_project'), Project.creation_label,  build_creation_perm(Project))
 
 block_registry.register(*block_list)
 

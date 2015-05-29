@@ -36,11 +36,12 @@ from creme.persons import get_contact_model
 from creme.activities import get_activity_model
 #from creme.activities.models import Activity
 
+from . import get_project_model, get_task_model
 from .blocks import *
 from .constants import (REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
         REL_SUB_LINKED_2_PTASK, REL_OBJ_LINKED_2_PTASK,
         REL_SUB_PART_AS_RESOURCE, REL_OBJ_PART_AS_RESOURCE, TASK_STATUS)
-from .models import ProjectStatus, TaskStatus
+from .models import ProjectStatus, TaskStatus, Resource
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +54,9 @@ class Populator(BasePopulator):
         already_populated = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER).exists()
         Contact = get_contact_model()
         Activity = get_activity_model()
+
+        Project     = get_project_model()
+        ProjectTask = get_task_model()
 
         create_rtype = RelationType.create
         create_rtype((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
