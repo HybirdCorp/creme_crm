@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import CremeModel
 from creme.creme_core.models.fields import BasicAutoField
 
+
 class ProjectStatus(CremeModel):
     name        = CharField(_("Name"), max_length=100)
     color_code  = CharField(_("Color"), max_length=100, blank=True, null=True)

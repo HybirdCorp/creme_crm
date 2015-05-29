@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -29,7 +30,8 @@ from creme.creme_core.models import CremeEntity
 from .projectstatus import ProjectStatus
 
 
-class Project(CremeEntity):
+#class Project(CremeEntity):
+class AbstractProject(CremeEntity):
     name                = CharField(_(u'Name of the project'), max_length=100)
     description         = TextField(_(u'Description'), blank=True, null=True)
     status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
@@ -43,6 +45,7 @@ class Project(CremeEntity):
     creation_label = _('Add a project')
 
     class Meta:
+        abstract = True
         app_label = 'projects'
         verbose_name = _(u'Project')
         verbose_name_plural = _(u'Projects')
@@ -52,21 +55,25 @@ class Project(CremeEntity):
         return self.name
 
     def get_absolute_url(self):
-        return "/projects/project/%s" % self.id
+#        return "/projects/project/%s" % self.id
+        return reverse('projects__view_project', args=(self.id,))
 
     def get_edit_absolute_url(self):
-        return "/projects/project/edit/%s" % self.id
+#        return "/projects/project/edit/%s" % self.id
+        return reverse('projects__edit_project', args=(self.id,))
 
     @staticmethod
     def get_lv_absolute_url():
-        return "/projects/projects"
+#        return "/projects/projects"
+        return reverse('projects__list_projects')
 
     ##### ------------------ #####
     ##### Business functions #####
     ##### ------------------ #####
 
     def clean(self):
-        super(Project, self).clean()
+#        super(Project, self).clean()
+        super(AbstractProject, self).clean()
 
         #TODO: refactor if start/end can not be null
         if self.start_date and self.end_date and self.start_date >= self.end_date:
@@ -79,7 +86,9 @@ class Project(CremeEntity):
     def delete(self):
         for task in self.get_tasks():
             task.delete()
-        super(Project, self).delete()
+
+#        super(Project, self).delete()
+        super(AbstractProject, self).delete()
 
     def get_tasks(self):
         if self.tasks_list is None:
@@ -119,3 +128,8 @@ class Project(CremeEntity):
     def _post_save_clone(self, source):
         from creme.projects.models.task import ProjectTask
         ProjectTask.clone_scope(source.get_tasks(), self)
+
+
+class Project(AbstractProject):
+    class Meta(AbstractProject.Meta):
+        swappable = 'PROJECTS_PROJECT_MODEL'

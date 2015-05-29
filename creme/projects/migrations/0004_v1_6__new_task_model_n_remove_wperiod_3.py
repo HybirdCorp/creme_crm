@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models, migrations, connection
 
+from .. import task_model_is_custom
+
 
 deferred_queries = []
 
@@ -12,7 +14,13 @@ deferred_queries = []
 # cremeentity_ptr (the removing of activity_ptr indeed), because of contraints
 # of ForeignKeys referencing ProjectTasks => we have to rebuild these contraints.
 def delete_mysql_fucking_constraints(apps, schema_editor):
+
     if 'mysql' in settings.DATABASES['default']['ENGINE']:
+        if task_model_is_custom():
+            print 'Error in projects/migrations/0004_v1_6__new_task_model_n_remove_wperiod_3.py delete_mysql_fucking_constraints():' \
+                 ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
+            return
+
         import re
 
         regex = re.compile('CONSTRAINT `(?P<constraint>.*)` FOREIGN KEY \(`(?P<field>.*)`\) REFERENCES `projects_projecttask`')

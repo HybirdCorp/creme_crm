@@ -19,13 +19,14 @@
 ################################################################################
 
 from django.http import Http404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.decorators import POST_only
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
 
+from .. import get_project_model
 from ..forms.project import ProjectCreateForm, ProjectEditForm
 from ..models import Project, ProjectStatus
 
@@ -59,7 +60,8 @@ def detailview(request, project_id):
 @POST_only
 @permission_required('projects')
 def close(request, project_id):
-    project = Project.objects.get(pk=project_id)
+#    project = Project.objects.get(pk=project_id)
+    project = get_object_or_404(get_project_model(), pk=project_id)
 
     request.user.has_perm_to_change_or_die(project)
 

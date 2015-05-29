@@ -6,6 +6,8 @@ from django.db import migrations
 from creme.activities import activity_model_is_custom
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
+from .. import task_model_is_custom
+
 
 REL_SUB_LINKED_2_PTASK = 'projects-subject_linked_2_projecttask'
 REL_OBJ_LINKED_2_PTASK = 'projects-object_linked_2_projecttask'
@@ -45,6 +47,11 @@ def copy_old_fields(apps, schema_editor):
             'description',
         )
 
+    if task_model_is_custom():
+        print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py copy_old_fields():' \
+              ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
+        return
+
     tasks = apps.get_model('projects', 'ProjectTask').objects.all()
 
     if not tasks:
@@ -74,7 +81,13 @@ def create_activities(apps, schema_editor):
 
     if activity_model_is_custom():
         print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py create_activities():' \
-             ' cannot create Activities because the model is custom. You should fix it with your custom model.'
+              ' cannot create Activities because the model is custom. You should fix it with your custom model.'
+        return
+
+    if task_model_is_custom():
+        print 'Error in projects/migrations/0003_v1_6__new_task_model_n_remove_wperiod_2.py create_activities():' \
+              ' cannot use ProjectTask because the model is custom. You should fix it with your custom model.'
+        return
 
     RelationType = get_model('creme_core',   'RelationType')
     Relation     = get_model('creme_core',   'Relation')

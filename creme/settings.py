@@ -795,6 +795,10 @@ ABCTI_URL = 'http://127.0.0.1:8087'
 #VCF ---------------------------------------------------------------------------
 VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
 
+#PROJECTS ----------------------------------------------------------------------
+PROJECTS_PROJECT_MODEL = 'projects.Project'
+PROJECTS_TASK_MODEL    = 'projects.ProjectTask'
+
 #POLLS -------------------------------------------------------------------------
 POLLS_CAMPAIGN_MODEL = 'polls.PollCampaign'
 POLLS_FORM_MODEL     = 'polls.PollForm'

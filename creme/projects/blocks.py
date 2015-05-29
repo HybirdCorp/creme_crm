@@ -26,11 +26,15 @@ from creme.creme_core.gui.block import SimpleBlock, PaginatedBlock, QuerysetBloc
 from creme.activities import get_activity_model
 #from creme.activities.models import Activity
 
+from . import get_project_model, get_task_model
 from .constants import REL_OBJ_LINKED_2_PTASK
-from .models import Project, ProjectTask, Resource #, WorkingPeriod
+from .models import Resource #, WorkingPeriod, Project, ProjectTask
 
 
 Activity = get_activity_model()
+
+Project     = get_project_model()
+ProjectTask = get_task_model()
 
 
 class ProjectExtraInfo(SimpleBlock):
@@ -48,9 +52,6 @@ class TaskExtraInfo(SimpleBlock):
     verbose_name  = _(u'Extra project task information')
     template_name = 'projects/templatetags/block_task_extra_info.html'
     target_ctypes = (ProjectTask,)
-
-    #def detailview_display(self, context):
-        #return self._render(self.get_block_template_context(context)) #todo: move to Block.detailview_display() ??
 
 
 class ParentTasksBlock(QuerysetBlock):

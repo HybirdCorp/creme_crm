@@ -35,9 +35,10 @@ from creme.creme_core.views.generic import (add_to_entity,add_model_with_popup,
 from creme.activities import get_activity_model
 from creme.activities.models import Activity
 
+from .. import get_project_model, get_task_model
 from ..constants import REL_SUB_PART_AS_RESOURCE, REL_SUB_LINKED_2_PTASK
 from ..forms.task import TaskCreateForm, TaskEditForm, TaskAddParentForm, RelatedActivityCreateForm, RelatedActivityEditForm
-from ..models import Project, ProjectTask
+from ..models import ProjectTask #Project
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,9 @@ logger = logging.getLogger(__name__)
 @permission_required(('projects', 'projects.add_projecttask'))
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
-                         _(u'Add a task to <%s>'), entity_class=Project,
+                         _(u'Add a task to <%s>'),
+#                         entity_class=Project,
+                         entity_class=get_project_model(),
                         )
 
 @login_required
@@ -74,7 +77,8 @@ def edit_popup(request, task_id):
 @login_required
 @permission_required('projects')
 def add_parent(request, task_id):
-    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm)
+#    return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm)
+    return edit_model_with_popup(request, {'pk': task_id}, get_task_model(), TaskAddParentForm)
 
 #@login_required
 #@permission_required('projects')
@@ -98,7 +102,8 @@ def add_parent(request, task_id):
 def delete_parent(request):
     POST = request.POST
     parent_id = get_from_POST_or_404(POST, 'parent_id')
-    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
+#    task = get_object_or_404(ProjectTask, pk=get_from_POST_or_404(POST, 'id'))
+    task = get_object_or_404(get_task_model(), pk=get_from_POST_or_404(POST, 'id'))
     user = request.user
 
     #user.has_perm_to_change_or_die(task.project) #beware: modify block_tasks.html template if uncommented....
