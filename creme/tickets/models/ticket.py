@@ -19,8 +19,10 @@
 ################################################################################
 
 from random import randint
+from datetime import timedelta
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.db.models import ForeignKey, CharField, TextField, DateTimeField, PROTECT
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -98,6 +100,15 @@ class AbstractTicket(TicketMixin):
     def get_lv_absolute_url():
 #        return "/tickets/tickets"
         return reverse('tickets__list_tickets')
+
+    def get_html_attrs(self, context):
+        attrs = super(AbstractTicket, self).get_html_attrs(context)
+
+        if self.status_id == OPEN_PK and \
+           (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY):
+            attrs['data-color'] = 'tickets-important'
+
+        return attrs
 
     def get_resolving_duration(self):
         if self.status_id == CLOSED_PK:

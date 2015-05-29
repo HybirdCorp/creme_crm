@@ -206,6 +206,19 @@ class CremeEntity(CremeAbstractEntity):
         """
         return "/creme_core/entity/delete/%s" % self.id
 
+    def get_html_attrs(self, context):
+        """Extra HTMl attributes for this entity.
+        @param context Context of the template (useful to stores re-usable values).
+        @return A dictionary.
+
+        Examples of overloading:
+            return {'style': 'background-color: red;'}
+
+            # Better, but needs additional CSS (see 'tickets' app).
+            return {'data-color': 'my_entity-important'}
+        """
+        return {}
+
     def get_related_entities(self, relation_type_id, real_entities=True):
         return [relation.object_entity.get_real_entity()
                     for relation in self.get_relations(relation_type_id, real_entities)
