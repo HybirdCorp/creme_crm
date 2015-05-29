@@ -28,7 +28,7 @@ from .. import get_project_model
 
 def portal(request):
     Project = get_project_model()
-    stats = ((_('Number de projects'),  Project.objects.count()),
+    stats = ((_('Number of projects'),  Project.objects.count()),
             )
 
     return app_portal(request, 'projects', 'projects/portal.html', Project, stats)
