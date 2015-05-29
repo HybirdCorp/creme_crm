@@ -225,6 +225,10 @@ def jsonify(value):
 def get_entity_summary(entity, user):
     return entity.get_entity_summary(user)
 
+@register.simple_tag(takes_context=True)
+def get_entity_html_attrs(context, entity):
+    return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
+
 
 #TAG : "templatize"-------------------------------------------------------------
 _templatize_re = compile_re(r'(.*?) as (\w+)')

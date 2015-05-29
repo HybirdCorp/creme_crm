@@ -111,7 +111,7 @@
     </thead>
     <tbody>
         {% for entity in entities.object_list %}
-            <tr class="selectable{% cycle ' odd' '' %}">
+            <tr class="selectable{% cycle ' odd' '' %}" {% get_entity_html_attrs entity %}>
                 {% if not o2m %}<td class="choices"><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
                 <td style="display:none;">
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />

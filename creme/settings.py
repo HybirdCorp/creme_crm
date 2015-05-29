@@ -437,6 +437,7 @@ CREME_OPT_CSS = ( #OPTIONNAL APPS
                  ('creme.commercial',  'commercial/css/commercial.css'),
                  ('creme.crudity',     'crudity/css/crudity.css'),
                  ('creme.geolocation', 'geolocation/css/geolocation.css'),
+                 ('creme.tickets',     'tickets/css/tickets.css'),
                 )
 
 CREME_I18N_JS = ('l10n.js',
@@ -785,6 +786,9 @@ PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures 
 #TICKETS -----------------------------------------------------------------------
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'
 TICKETS_TEMPLATE_MODEL = 'tickets.TicketTemplate'
+
+# If a Ticket is still open TICKETS_COLOR_DELAY days after its creation, it is red in the listview
+TICKETS_COLOR_DELAY = 7
 
 #EVENTS ------------------------------------------------------------------------
 EVENTS_EVENT_MODEL = 'events.Event'

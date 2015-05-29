@@ -4,12 +4,16 @@ skip_ticket_tests = False
 skip_tickettemplate_tests = False
 
 try:
+    from datetime import timedelta
+    from functools import partial
     from unittest import skipIf
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
     from django.db import transaction
     from django.db.utils import IntegrityError
+    from django.test.utils import override_settings
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
@@ -445,6 +449,28 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             self.assertEqual(criticities[i],  ticket.criticity)
             self.assertEqual(descriptions[i], ticket.description)
             self.assertEqual('',              ticket.solution)
+
+    @override_settings(TICKETS_COLOR_DELAY=7)
+    def test_ticket_color(self):
+        user = self.login()
+        get_status = Status.objects.get
+        create_ticket = partial(Ticket, #.objects.create,
+                                user=self.user,
+                                title='My ticket',
+                                description='Test description',
+                                status=get_status(pk=OPEN_PK),
+                                priority=Priority.objects.all()[0],
+                                criticity=Criticity.objects.all()[0],
+                               )
+
+        now_value = now()
+        self.assertEqual({}, create_ticket().get_html_attrs({'today': now_value}))
+
+        context = {'today': now_value + timedelta(days=8)}
+        self.assertEqual({'data-color': 'tickets-important'},
+                         create_ticket().get_html_attrs(context)
+                        )
+        self.assertFalse(create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context))
 
 
 @skipIfCustomTicket
