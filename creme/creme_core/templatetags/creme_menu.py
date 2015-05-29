@@ -44,7 +44,7 @@ class MenuItem(object):
         self.has_perm = has_perm
 
     def __unicode__(self):
-        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.url, self.name, self.has_perm)
+        return u'<MenuItem: name:%s url:%s perm:%s>' % (self.name, self.url, self.has_perm)
 
 
 class MenuAppItem(object):
