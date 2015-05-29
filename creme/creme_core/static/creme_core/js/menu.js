@@ -47,21 +47,21 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
 
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
     var options = options || {};
+    var listeners = listeners || {};
 
     $(trigger_selector).NavIt(options);
     $(trigger_selector).find('a').click(function(e) {
         e.preventDefault();
-        
+
         var $a = $(this);
         var confirm   = $a.hasClass('confirm');
         var action    = $a.hasClass('post') ? 'post' : 'get';
         var ajax      = $a.hasClass('ajax');
         var url       = $a.attr('href');
-        var listeners = listeners || {};
 
         if (ajax)
         {
-            var queryOptions = $.extend({action:action}, options.queryOptions || {}); 
+            var queryOptions = $.extend({action:action, link:$a}, options.queryOptions || {});
 
             if (confirm) {
                 creme.utils.confirmAjaxQuery(url, queryOptions)
