@@ -22,7 +22,9 @@ creme.component.Chosen = creme.component.Component.sub({
             multiple:  false,
             sortable:  false,
             allow_single_deselect: true, 
-            no_results_text:       gettext("No result")
+            no_results_text:       gettext("No result"),
+            placeholder_text_multiple: gettext("Select some options"),
+            placeholder_text_single: gettext("Select one option")
         }, options || {});
     },
 

@@ -291,6 +291,14 @@ msgstr "Capturer une image du graphique"
 msgid "No result"
 msgstr "Aucun résultat"
 
+#: static/creme_core/js/widgets/component/chosen.js:26
+msgid "Select some options"
+msgstr "Sélectionnez un ou plusieurs choix"
+
+#: static/creme_core/js/widgets/component/chosen.js:27
+msgid "Select one option"
+msgstr "Sélectionnez un choix"
+
 #: static/creme_core/js/widgets/dialog/confirm.js:24
 msgid "Confirm"
 msgstr "Confirmation"
