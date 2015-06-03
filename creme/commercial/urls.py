@@ -16,9 +16,10 @@ urlpatterns = patterns('creme.commercial.views',
     (r'^approach/add/(?P<entity_id>\d+)/$', 'commercial_approach.add'),
 
     #Segments
-    (r'^market_segments$',                          'market_segment.listview'),
-    (r'^market_segment/add$',                       'market_segment.add'),
-    (r'^market_segment/edit/(?P<segment_id>\d+)$',  'market_segment.edit'),
+    (r'^market_segments$',                           'market_segment.listview'),
+    (r'^market_segment/add$',                        'market_segment.add'),
+    (r'^market_segment/edit/(?P<segment_id>\d+)$',   'market_segment.edit'),
+    (r'^market_segment/delete/(?P<segment_id>\d+)$', 'market_segment.delete'),
 
     #Objectives & opportunities
     (r'^act/(?P<act_id>\d+)/add/objective$',               'act.add_objective'),

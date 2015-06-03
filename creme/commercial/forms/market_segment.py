@@ -18,11 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import atomic
+from django.forms import ModelChoiceField
 from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.models import CremePropertyType
+from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.models import CremePropertyType, Mutex
+from creme.creme_core.utils import replace_related_object
 
 from ..models import MarketSegment
 
@@ -84,3 +87,31 @@ class MarketSegmentForm(CremeModelForm):
                                                              )
 
         return super(MarketSegmentForm, self).save(*args, **kwargs)
+
+
+class SegmentReplacementForm(CremeForm):
+    to_segment = ModelChoiceField(label=_(u'Choose a segment to replace by'),
+                                  empty_label=None,
+                                  queryset=MarketSegment.objects.none(),
+                                 )
+
+    def __init__(self, *args, **kwargs):
+        super(SegmentReplacementForm, self).__init__(*args, **kwargs)
+        self.segment_2_delete = segment = self.initial['segment_to_delete']
+        self.fields['to_segment'].queryset = MarketSegment.objects.exclude(pk=segment.id)
+
+    def save(self, *args, **kwargs):
+        segment_2_delete = self.segment_2_delete
+        replacing_segment = self.cleaned_data['to_segment']
+        mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+
+        try:
+            with atomic():
+                replace_related_object(segment_2_delete, replacing_segment)
+                segment_2_delete.delete()
+
+                ptype_2_delete = segment_2_delete.property_type
+                replace_related_object(ptype_2_delete, replacing_segment.property_type)
+                ptype_2_delete.delete()
+        finally:
+            mutex.release()

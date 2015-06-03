@@ -10,22 +10,29 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}
-            <tr class="header">
-                {% get_column_header _('Name') 'name' %}
-                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
-            </tr>
-            {% for segment in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
-                    <td class="{{row_color}}">{{segment.name}}</td>
-                    <td class="{{row_color}} action">
-                        {% get_line_editor at_url segment.get_edit_absolute_url with_perms 1 %}
-                    </td>
+        {% with count=page.paginator.count %}
+            {% if count %}
+                <tr class="header">
+                    {% get_column_header _('Name') 'name' %}
+                    <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
-            {% endfor %}
-        {% else %}
-            <tr class="content empty"><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>
-        {% endif %}
+                {% for segment in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                    <tr class="content">
+                        <td class="{{row_color}}">{{segment.name}}</td>
+                        <td class="{{row_color}} action">
+                            {% get_line_editor at_url segment.get_edit_absolute_url with_perms 1 %}
+                            {% if count > 1 %}
+                                <a onclick="creme.blocks.form('/commercial/market_segment/delete/{{segment.id}}', {blockReloadUrl:{% get_block_reload_uri %}}).open();">
+                                    {% trans "Delete" as img_title %}<img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="content empty"><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>
+            {% endif %}
+        {% endwith %}
     </tbody>
     {% get_block_footer 2 %}
 </table>

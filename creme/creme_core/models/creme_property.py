@@ -23,7 +23,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from ..signals import pre_merge_related
+from ..signals import pre_merge_related, pre_replace_related
 from .base import CremeModel
 from .entity import CremeEntity
 
@@ -138,4 +138,23 @@ def _handle_merge(sender, other_entity, **kwargs):
         # property type is still related to the remaining entity). So we
         # disable the history for it.
         HistoryLine.disable(prop)
+        prop.delete()
+
+@receiver(pre_replace_related, sender=CremePropertyType)
+def _handle_replacement(sender, old_instance, new_instance, **kwargs):
+    """Delete 'Duplicated' CremeProperties (ie: one entity has 2 properties
+    with the old & the new types).
+    """
+    from django.db.models import Count
+
+    from .history import HistoryLine
+
+    # IDs of entities with duplicates
+    e_ids = CremeEntity.objects.filter(properties__type__in=[old_instance, new_instance]) \
+                                .annotate(prop_count=Count('properties')) \
+                                .filter(prop_count__gte=2) \
+                                .values_list('id', flat=True)
+
+    for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
+        HistoryLine.disable(prop) #see _handle_merge()
         prop.delete()
