@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,9 +29,10 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from ..auth.decorators import login_required
-from ..models import EntityFilter, RelationType
+from ..core.exceptions import ConflictError
 from ..gui.listview import ListViewState
 from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+from ..models import EntityFilter, RelationType, CremeEntity
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 from .generic import add_entity
 
@@ -53,10 +54,15 @@ def add(request, ct_id):
     if not request.user.has_perm(ct.app_label):
         raise PermissionDenied(_(u"You are not allowed to access to this app"))
 
+    model = ct.model_class()
+
+    if not issubclass(model, CremeEntity):
+        raise ConflictError(u'This model is not a entity model: %s' % model)
+
     try:
-        callback_url = ct.model_class().get_lv_absolute_url()
+        callback_url = model.get_lv_absolute_url()
     except AttributeError:
-        logger.debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
+        logger.debug('%s has no get_lv_absolute_url() method ?!' % model)
         callback_url = '/'
 
     return add_entity(request, EntityFilterCreateForm, callback_url,
