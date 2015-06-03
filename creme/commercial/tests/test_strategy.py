@@ -6,6 +6,9 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
+
+    from creme.creme_core.models import CremePropertyType
 
     from creme.persons.models import Organisation
 
@@ -18,13 +21,8 @@ except Exception as e:
 
 @skipIfCustomStrategy
 class StrategyTestCase(CommercialBaseTestCase):
-    def _create_segment_desc(self, strategy, name, product=''):
-        self.assertPOST200('/commercial/strategy/%s/add/segment/' % strategy.id,
-                           data={'name': name,
-                                 'product': product,
-                                }
-                          )
-        return strategy.segment_info.get(segment__name=name)
+    def _build_edit_segmentdesc_url(self, strategy, segment_desc):
+        return '/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment_desc.id)
 
     def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
         self.assertPOST200('/commercial/strategy/%s/set_asset_score' % strategy.id,
@@ -122,6 +120,57 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(promotion, description.promotion)
         self.assertIn(name, description.segment.property_type.text)
 
+    def test_segment_create01(self):
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+
+        url = self._build_add_segmentdesc_url(strategy)
+        self.assertGET200(url)
+
+        name = 'Industry'
+        product = 'Description about product...'
+        place = 'Description about place...'
+        price = 'Description about price...'
+        promotion = 'Description about promotion...'
+        description = self._create_segment_desc(strategy, name, product, place, price, promotion)
+
+        self.assertEqual(product,   description.product)
+        self.assertEqual(place,     description.place)
+        self.assertEqual(price,     description.price)
+        self.assertEqual(promotion, description.promotion)
+
+        industry = description.segment
+        self.assertEqual(name, industry.name)
+
+        # Collision with segment name
+        response = self.assertPOST200(url,
+                                      data={'name': name,
+                                            'product':   'Another' + product,
+                                            'place':     'Another' + place,
+                                            'price':     'Another' + price,
+                                            'promotion': 'Another' + promotion,
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'name',
+                             _(u'A segment with this name already exists')
+                            )
+
+    def test_segment_create02(self):
+        "Collision with property type name"
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+
+        name = 'Industry'
+        pname = _(u'is in the segment "%s"') % name
+        CremePropertyType.create('commercial-test_segment_create02', pname)
+
+        response = self.assertPOST200(self._build_add_segmentdesc_url(strategy),
+                                      data={'name': name},
+                                     )
+        self.assertFormError(response, 'form', 'name',
+                             _(u'A property with the name «%(name)s» already exists') % {
+                                 'name': pname,
+                             }
+                            )
+
     def test_segment_link(self):
         create_strategy = partial(Strategy.objects.create, user=self.user)
         strategy01 = create_strategy(name='Strat#1')
@@ -157,12 +206,12 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(price,     description.price)
         self.assertEqual(promotion, description.promotion)
 
-    def test_segment_edit(self):
+    def test_segment_edit01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         name = 'Industry'
         segment_desc = self._create_segment_desc(strategy, name)
 
-        url = '/commercial/strategy/%s/segment/edit/%s/' % (strategy.id, segment_desc.id)
+        url = self._build_edit_segmentdesc_url(strategy, segment_desc)
         self.assertGET200(url)
 
         name += ' of Cheese'
@@ -189,6 +238,28 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(price,     description.price)
         self.assertEqual(promotion, description.promotion)
         self.assertIn(name, description.segment.property_type.text)
+
+    def test_segment_edit02(self):
+        "No name change => no collision"
+        strategy = Strategy.objects.create(user=self.user, name='Strat#1')
+        name = 'Industry'
+        product = 'description about product'
+        segment_desc = self._create_segment_desc(strategy, name, product=product)
+
+        product = product.title()
+        response = self.client.post(self._build_edit_segmentdesc_url(strategy, segment_desc),
+                                    data={'name':    name,
+                                          'product': product,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        segment_desc = self.refresh(segment_desc)
+        self.assertEqual(product, segment_desc.product)
+
+        segment = segment_desc.segment
+        self.assertEqual(name, segment.name)
+        self.assertIn(name,    segment.property_type.text)
 
     def test_asset_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')

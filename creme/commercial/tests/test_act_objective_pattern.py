@@ -75,7 +75,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name += '_edited'
         average_sales *= 2
-        segment = self._create_segment()
+        segment = self._create_segment('Segment#2')
         response = self.client.post(url, follow=True,
                                     data={'user':          self.user.pk,
                                           'name':          name,
@@ -94,7 +94,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         create_patterns = partial(ActObjectivePattern.objects.create, user=self.user)
         patterns = [create_patterns(name='ObjPattern#%s' % i,
                                     average_sales=1000 * i,
-                                    segment=self._create_segment(),
+                                    segment=self._create_segment('Segment #%s' % i),
                                    ) for i in xrange(1, 4)
                    ]
 
