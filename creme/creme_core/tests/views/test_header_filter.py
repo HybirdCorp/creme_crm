@@ -227,6 +227,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(HeaderFilter, name=name)
 
+    def test_create06(self):
+        "Not an Entity type"
+        self.login()
+        self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
+
     #def test_edit01(self):
         #"Not editable"
         #self.login()

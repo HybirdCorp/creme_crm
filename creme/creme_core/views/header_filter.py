@@ -24,9 +24,10 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from ..auth.decorators import login_required
+from ..core.exceptions import ConflictError
 from ..forms.header_filter import HeaderFilterForm
 from ..gui.listview import ListViewState
-from ..models import HeaderFilter
+from ..models import HeaderFilter, CremeEntity
 from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify
 from .generic import add_entity
 
@@ -44,8 +45,13 @@ def add(request, content_type_id, extra_template_dict=None):
     if not request.user.has_perm(ct_entity.app_label):
         raise PermissionDenied(ugettext(u"You are not allowed to access to this app"))
 
+    model = ct_entity.model_class()
+
+    if not issubclass(model, CremeEntity):
+        raise ConflictError(u'This model is not a entity model: %s' % model)
+
     try:
-        callback_url = ct_entity.model_class().get_lv_absolute_url()
+        callback_url = model.get_lv_absolute_url()
     except AttributeError:
         callback_url = '/'
 

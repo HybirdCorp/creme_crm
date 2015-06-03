@@ -399,6 +399,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.get_object_or_fail(EntityFilter, name=name)
 
+    def test_create07(self):
+        "Not an Entity type"
+        self.login()
+        self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
+
     def test_create_currentuser_filter(self):
         self.login()
 
