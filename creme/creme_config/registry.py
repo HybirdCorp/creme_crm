@@ -166,8 +166,10 @@ class _ConfigRegistry(object):
     def _build_app_conf_registry(self, app_name):
         return AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
 
-    def get_app(self, app_name):
-        return self._apps[app_name]
+#    def get_app(self, app_name):
+    def get_app(self, app_label):
+#        return self._apps[app_name]
+        return self._apps[self._get_app_name(app_label)]
 
     def _get_app_name(self, app_label):
         """app_label is the key of the app in creme_registry/django apps registry
