@@ -125,7 +125,7 @@ class ActTestCase(CommercialBaseTestCase):
                                   goal='GOAL', start=date(2010, 11, 25),
                                   due_date=date(2011, 12, 26),
                                   act_type=ActType.objects.create(title='Show'),
-                                  segment=self._create_segment(),
+                                  segment=self._create_segment('Segment - %s' % name),
                                  )
 
     def test_edit(self):
@@ -138,7 +138,7 @@ class ActTestCase(CommercialBaseTestCase):
         cost = 100
         goal = 'Win'
         atype = ActType.objects.create(title='Demo')
-        segment = self._create_segment()
+        segment = self._create_segment('Segment#2')
         response = self.client.post(url, follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
@@ -168,7 +168,7 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.create_act()
 
         atype = ActType.objects.create(title='Demo')
-        segment = self._create_segment()
+        segment = self._create_segment('Segment#2')
         response = self.assertPOST200(act.get_edit_absolute_url(), follow=True,
                                       data={'user':            self.user.pk,
                                             'name':            'Act#1',

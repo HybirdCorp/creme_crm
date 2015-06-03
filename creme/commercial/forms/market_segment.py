@@ -21,12 +21,13 @@
 from django.forms.utils import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.models import CremePropertyType
 
 from ..models import MarketSegment
 
 
+#TODO: save/check unicity only if name has changed
 class MarketSegmentForm(CremeModelForm):
     error_messages = {
         'duplicated_name':     _(u'A segment with this name already exists'),
@@ -35,20 +36,28 @@ class MarketSegmentForm(CremeModelForm):
 
     class Meta:
         model = MarketSegment
-        #exclude = ('property_type',)
         fields = '__all__'
 
+    # TODO: move to MarketSegment.clean() [but the error would be global, & not for 'name' field]
     def clean_name(self):
         name = self.cleaned_data['name']
+        ptype_text = MarketSegment.generate_property_text(name)
 
-        if MarketSegment.objects.filter(name=name).exists():
+        instance = self.instance
+        segments = MarketSegment.objects.filter(name=name)
+        ptypes   = CremePropertyType.objects.filter(text=ptype_text)
+
+        if instance.pk:
+            segments = segments.exclude(pk=instance.pk)
+            ptypes   = ptypes.exclude(pk=instance.property_type_id)
+
+        if segments.exists():
             raise ValidationError(self.error_messages['duplicated_name'],
                                   code='duplicated_name',
                                  )
 
-        ptype_text = MarketSegment.generate_property_text(name)
 
-        if CremePropertyType.objects.filter(text=ptype_text).exists():
+        if ptypes.exists():
             raise ValidationError(self.error_messages['duplicated_property'],
                                   params={'name': ptype_text},
                                   code='duplicated_property',
@@ -59,10 +68,19 @@ class MarketSegmentForm(CremeModelForm):
         return name
 
     def save(self, *args, **kwargs):
-        # is_custom=False ==> CremePropertyType won't be deletable
-        self.instance.property_type = CremePropertyType.create('commercial-segment',
-                                                               self.ptype_text,
-                                                               generate_pk=True,
-                                                               is_custom=False,
-                                                              )
+        instance = self.instance
+
+        # TODO: move to MarketSegment.save() ?
+        if instance.pk: #edition
+            ptype = instance.property_type
+            ptype.text = self.ptype_text
+            ptype.save()
+        else:
+            # is_custom=False ==> CremePropertyType won't be deletable
+            instance.property_type = CremePropertyType.create('commercial-segment',
+                                                              self.ptype_text,
+                                                              generate_pk=True,
+                                                              is_custom=False,
+                                                             )
+
         return super(MarketSegmentForm, self).save(*args, **kwargs)

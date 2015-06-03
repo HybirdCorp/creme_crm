@@ -20,6 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField
+from django.forms.utils import ValidationError
 
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCreatorEntityField
@@ -74,11 +75,43 @@ class CharmForm(_AuxForm):
 class _SegmentForm(_AuxForm):
     name = CharField(label=_(u"Name"), max_length=100)
 
+    error_messages = {
+        'duplicated_name':     _(u'A segment with this name already exists'),
+        'duplicated_property': _(u'A property with the name «%(name)s» already exists'),
+    }
+
     blocks = FieldBlockManager(('general', _(u'General information'), ['name', 'product', 'place', 'price', 'promotion']))
 
     class Meta:
         model = MarketSegmentDescription
         exclude = _AuxForm.Meta.exclude + ('segment',)
+
+    #TODO: factorise with market_segment.MarketSegmentForm
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        ptype_text = MarketSegment.generate_property_text(name)
+
+        instance = self.instance
+        segments = MarketSegment.objects.filter(name=name)
+        ptypes   = CremePropertyType.objects.filter(text=ptype_text)
+
+        if instance.pk:
+            segment = instance.segment
+            segments = segments.exclude(pk=segment.pk)
+            ptypes   = ptypes.exclude(pk=segment.property_type_id)
+
+        if segments.exists():
+            raise ValidationError(self.error_messages['duplicated_name'],
+                                  code='duplicated_name',
+                                 )
+
+        if ptypes.exists():
+            raise ValidationError(self.error_messages['duplicated_property'],
+                                  params={'name': ptype_text},
+                                  code='duplicated_property',
+                                 )
+
+        return name
 
 
 class SegmentEditForm(_SegmentForm):

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-17 11:40+0100\n"
+"POT-Creation-Date: 2015-06-03 17:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -29,137 +29,79 @@ msgstr ""
 "Tous les participants (sauf les utilisateurs), les sujets et fiches reliées "
 "seront liés à une démarche commerciale"
 
-#: blocks.py:46 models/commercial_approach.py:52
-msgid "Commercial approaches"
-msgstr "Démarches commerciales"
-
-#: blocks.py:132 models/strategy.py:310
-msgid "Market segment descriptions"
-msgstr "descriptions de segment de marché"
-
-#: blocks.py:152 models/strategy.py:342
-msgid "Commercial assets"
-msgstr "Atouts commerciaux"
-
-#: blocks.py:172 models/strategy.py:375
-msgid "Segment charms"
-msgstr "Attraits de segment"
-
-#: blocks.py:192
-msgid "Evaluated organisations"
-msgstr "Sociétés évaluées"
-
-#: blocks.py:271
-msgid "Objectives of a Commercial Action"
-msgstr "Objectifs d'une Action Commerciale"
-
-#: blocks.py:299
-msgid "Opportunities related to a Commercial Action"
-msgstr "Opportunités reliées à une Action Commerciale"
-
-#: blocks.py:320
-msgid "Components of an Objective Pattern"
-msgstr "Compsants d'un Modèle d'Objectif"
-
-#: buttons.py:32
-msgid "Completes a goal (Commercial action)"
-msgstr "Remplit un but (Action Commerciale)"
-
-#: creme_core_register.py:35 models/strategy.py:53
+#: apps.py:9 creme_core_register.py:43 models/strategy.py:61
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
-#: creme_core_register.py:39
+#: blocks.py:53 models/commercial_approach.py:52
+msgid "Commercial approaches"
+msgstr "Démarches commerciales"
+
+#: blocks.py:140 models/strategy.py:331
+msgid "Market segment descriptions"
+msgstr "descriptions de segment de marché"
+
+#: blocks.py:160 models/strategy.py:364
+msgid "Commercial assets"
+msgstr "Atouts commerciaux"
+
+#: blocks.py:180 models/strategy.py:399
+msgid "Segment charms"
+msgstr "Attraits de segment"
+
+#: blocks.py:200
+msgid "Evaluated organisations"
+msgstr "Sociétés évaluées"
+
+#: blocks.py:279
+msgid "Objectives of a Commercial Action"
+msgstr "Objectifs d'une Action Commerciale"
+
+#: blocks.py:307
+msgid "Opportunities related to a Commercial Action"
+msgstr "Opportunités reliées à une Action Commerciale"
+
+#: blocks.py:328
+msgid "Components of an Objective Pattern"
+msgstr "Compsants d'un Modèle d'Objectif"
+
+#: buttons.py:33
+msgid "Completes a goal (Commercial action)"
+msgstr "Remplit un but (Action Commerciale)"
+
+#: creme_core_register.py:47
 msgid "Portal of commercial strategy"
 msgstr "Portail de la stratégie commerciale"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:48
 msgid "All market segments"
 msgstr "Lister les segments de marché"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:55
 msgid "All commercial actions"
 msgstr "Lister les actions commerciales"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:57
 msgid "All strategies"
 msgstr "Lister les plans commerciaux"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:59
 msgid "All objective patterns"
 msgstr "Lister les modèles d'objectif"
 
-#: creme_core_register.py:49
+#: creme_core_register.py:63
 msgid "All salesmen"
 msgstr "Lister les commerciaux"
 
-#: creme_core_register.py:50
+#: creme_core_register.py:64
 msgid "Add a salesman"
 msgstr "Ajouter un commercial"
 
-#: populate.py:53
-msgid "has sold"
-msgstr "a vendu"
-
-#: populate.py:54
-msgid "has been sold by"
-msgstr "a été vendu par"
-
-#: populate.py:55
-msgid "completes a goal of the commercial action"
-msgstr "remplit un but de l'action commerciale"
-
-#: populate.py:56
-msgid "is completed thanks to"
-msgstr "est remplie grace à"
-
-#: populate.py:59
-msgid "is a salesman"
-msgstr "est un commercial"
-
-#: populate.py:62
-msgid "Phone calls"
-msgstr "Appels téléphoniques"
-
-#: populate.py:62
-msgid "Show"
-msgstr "Salon"
-
-#: populate.py:62
-msgid "Demo"
-msgstr "Démo"
-
-#: populate.py:67
-msgid "Com Action view"
-msgstr "Vue d'Action Com"
-
-#: populate.py:73
-msgid "Strategy view"
-msgstr "Vue de stratégie"
-
-#: populate.py:76
-msgid "Objective pattern view"
-msgstr "Vue de Modèle d'objectif"
-
-#: setting_keys.py:12
-msgid "Enable email reminder for commercial approaches"
-msgstr "Activer le rappel pour les approches commerciales"
-
-#: setting_keys.py:16
-msgid ""
-"Display only organisations' commercial approaches on organisations' file. "
-"(Otherwise, display organisations', managers', employees', related "
-"opportunities' commercial approaches)"
-msgstr ""
-"Afficher uniquement les approches commerciales des sociétés sur les fiches "
-"des sociétés. (Dans le cas contraire, afficher également celles des "
-"responsables, employés et opportunités reliées à la société)"
-
-#: forms/act.py:34 models/act.py:64
+#: forms/act.py:34 models/act.py:63
 msgid "Start"
 msgstr "Début"
 
-#: forms/act.py:35 models/act.py:65
+#: forms/act.py:35 models/act.py:64
 msgid "Due date"
 msgstr "Échéance"
 
@@ -171,7 +113,7 @@ msgstr "Comptage de fiche"
 msgid "Do not count entity"
 msgstr "Ne pas compter de resource"
 
-#: forms/act.py:57
+#: forms/act.py:51
 msgid "Integer value the counter has to reach"
 msgstr "Valeur entière que le compteur doit atteindre"
 
@@ -187,7 +129,7 @@ msgstr "Modèle"
 msgid "Number of won opportunities"
 msgstr "Nombre d'opportunités remportées"
 
-#: forms/act.py:123 models/act.py:252
+#: forms/act.py:123 models/act.py:281
 #: templates/commercial/templatetags/block_components.html:20
 msgid "Success rate"
 msgstr "Taux de réussite"
@@ -196,43 +138,43 @@ msgstr "Taux de réussite"
 msgid "Percentage of success"
 msgstr "Pourcentage de réussite"
 
-#: forms/market_segment.py:40
+#: forms/market_segment.py:33 forms/strategy.py:79
 msgid "A segment with this name already exists"
 msgstr "Un segment avec ce nom existe déjà"
 
-#: forms/market_segment.py:47
+#: forms/market_segment.py:34 forms/strategy.py:80
 #, python-format
 msgid "A property with the name «%(name)s» already exists"
 msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 
-#: forms/strategy.py:74 models/act.py:132 models/act.py:190 models/act.py:246
-#: models/market_segment.py:28 models/strategy.py:46 models/strategy.py:336
-#: models/strategy.py:369
+#: forms/strategy.py:76 models/act.py:150 models/act.py:210 models/act.py:275
+#: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:357
+#: models/strategy.py:392
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:16
 #: templates/commercial/templatetags/block_objectives.html:16
 #: templates/commercial/templatetags/block_opportunities.html:20
 #: templates/commercial/templatetags/block_segment_info.html:17
-#: templates/commercial/templatetags/block_segments.html:16
+#: templates/commercial/templatetags/block_segments.html:15
 msgid "Name"
 msgstr "Nom"
 
-#: forms/strategy.py:76
+#: forms/strategy.py:83
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/strategy.py:122
+#: forms/strategy.py:157
 #: templates/commercial/templatetags/block_evalorgas.html:6
 msgid "Organisations"
 msgstr "Sociétés"
 
-#: management/commands/com_approaches_emails_send.py:122
+#: management/commands/com_approaches_emails_send.py:128
 #, python-format
 msgid "[CremeCRM] The organisation <%s> seems neglected"
 msgstr "[CremeCRM] La société <%s> semble délaissée"
 
-#: management/commands/com_approaches_emails_send.py:123
+#: management/commands/com_approaches_emails_send.py:129
 #, python-format
 msgid ""
 "It seems you haven't created a commercial approach for the organisation "
@@ -241,44 +183,44 @@ msgstr ""
 "Il semblerait que vous n'ayez pas crée d'approche commerciale pour la "
 "société «%(orga)s» depuis %(delay)s jours"
 
-#: models/act.py:46 models/commercial_approach.py:38
+#: models/act.py:44 models/commercial_approach.py:36
 #: templates/commercial/templatetags/block_approaches.html:19
 msgid "Title"
 msgstr "Titre"
 
-#: models/act.py:51
+#: models/act.py:49
 msgid "Type of Commercial Action"
 msgstr "Type d'Action Commerciale"
 
-#: models/act.py:52
+#: models/act.py:50
 msgid "Types of Commercial Actions"
 msgstr "Types d'Action Commerciales"
 
-#: models/act.py:60
+#: models/act.py:59
 msgid "Name of the commercial action"
 msgstr "Nom de l'action commerciale"
 
-#: models/act.py:61
+#: models/act.py:60
 msgid "Expected sales"
 msgstr "CA espéré"
 
-#: models/act.py:62
+#: models/act.py:61
 msgid "Cost of the commercial action"
 msgstr "Coût de l'action commerciale"
 
-#: models/act.py:63
+#: models/act.py:62
 msgid "Goal of the action"
 msgstr "But de l'action"
 
-#: models/act.py:66
+#: models/act.py:65
 msgid "Type"
 msgstr "Type"
 
-#: models/act.py:67 models/act.py:192
+#: models/act.py:66 models/act.py:212
 msgid "Related segment"
 msgstr "Segment concerné"
 
-#: models/act.py:69
+#: models/act.py:68
 msgid "Add a commercial action"
 msgstr "Ajouter une action commerciale"
 
@@ -291,60 +233,60 @@ msgstr "Action Commerciale"
 msgid "Commercial Actions"
 msgstr "Actions Commerciales"
 
-#: models/act.py:87
+#: models/act.py:88
 msgid "Due date can't be before start."
 msgstr "L'échéance ne peut être avant la date de début."
 
-#: models/act.py:134
+#: models/act.py:153
 #: templates/commercial/templatetags/block_objectives.html:17
 msgid "Counter"
 msgstr "Compteur"
 
-#: models/act.py:135
+#: models/act.py:154
 msgid "Value to reach"
 msgstr "Valeur à atteindre"
 
-#: models/act.py:137 models/act.py:248
+#: models/act.py:156 models/act.py:277
 msgid "Counted type"
 msgstr "Type compté"
 
-#: models/act.py:138 models/act.py:249
+#: models/act.py:157 models/act.py:278
 msgid "Filter on counted entities"
 msgstr "Filtre sur les fiches comptées"
 
-#: models/act.py:144
+#: models/act.py:163
 msgid "Commercial Objective"
 msgstr "Objectif Commercial"
 
-#: models/act.py:145
+#: models/act.py:164
 msgid "Commercial Objectives"
 msgstr "Objectifs Commerciaux"
 
-#: models/act.py:191
+#: models/act.py:211
 msgid "Average sales"
 msgstr "CA moyen"
 
-#: models/act.py:194
+#: models/act.py:214
 msgid "Add an objective pattern"
 msgstr "Ajouter un modèle d'objectif"
 
-#: models/act.py:199
+#: models/act.py:220
 msgid "Commercial objective pattern"
 msgstr "Modèle d'objectif commercial"
 
-#: models/act.py:200
+#: models/act.py:221
 msgid "Commercial objective patterns"
 msgstr "Modèles d'objectif commercial"
 
-#: models/commercial_approach.py:39
+#: models/commercial_approach.py:37
 msgid "Done ?"
 msgstr "Faite ?"
 
-#: models/commercial_approach.py:40
+#: models/commercial_approach.py:38
 msgid "Description"
 msgstr "Description"
 
-#: models/commercial_approach.py:41
+#: models/commercial_approach.py:39
 msgid "Creation date"
 msgstr "Date de création"
 
@@ -361,50 +303,108 @@ msgstr "Segment de marché"
 msgid "Market segments"
 msgstr "Segments de marché"
 
-#: models/market_segment.py:41
+#: models/market_segment.py:44
 #, python-format
 msgid "is in the segment \"%s\""
 msgstr "est du segment \"%s\""
 
-#: models/strategy.py:49
+#: models/strategy.py:56
 msgid "Add a strategy"
 msgstr "Ajouter un plan commercial"
 
-#: models/strategy.py:54
+#: models/strategy.py:62
 msgid "Commercial strategies"
 msgstr "Plans commerciaux"
 
-#: models/strategy.py:302
+#: models/strategy.py:323
 #: templates/commercial/templatetags/block_segment_info.html:18
 msgid "Product"
 msgstr "Produit"
 
-#: models/strategy.py:303
+#: models/strategy.py:324
 msgctxt "commercial-4p"
 msgid "Place"
 msgstr "Distribution"
 
-#: models/strategy.py:304
+#: models/strategy.py:325
 #: templates/commercial/templatetags/block_segment_info.html:21
 msgid "Price"
 msgstr "Prix"
 
-#: models/strategy.py:305
+#: models/strategy.py:326
 #: templates/commercial/templatetags/block_segment_info.html:22
 msgid "Promotion"
 msgstr "Publicité"
 
-#: models/strategy.py:309
+#: models/strategy.py:330
 msgid "Market segment description"
 msgstr "Description de segment de marché"
 
-#: models/strategy.py:341
+#: models/strategy.py:363
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:374
+#: models/strategy.py:398
 msgid "Segment charm"
 msgstr "Attrait de segment"
+
+#: populate.py:61
+msgid "has sold"
+msgstr "a vendu"
+
+#: populate.py:62
+msgid "has been sold by"
+msgstr "a été vendu par"
+
+#: populate.py:63
+msgid "completes a goal of the commercial action"
+msgstr "remplit un but de l'action commerciale"
+
+#: populate.py:64
+msgid "is completed thanks to"
+msgstr "est remplie grace à"
+
+#: populate.py:67
+msgid "is a salesman"
+msgstr "est un commercial"
+
+#: populate.py:70
+msgid "Phone calls"
+msgstr "Appels téléphoniques"
+
+#: populate.py:70
+msgid "Show"
+msgstr "Salon"
+
+#: populate.py:70
+msgid "Demo"
+msgstr "Démo"
+
+#: populate.py:75
+msgid "Com Action view"
+msgstr "Vue d'Action Com"
+
+#: populate.py:81
+msgid "Strategy view"
+msgstr "Vue de stratégie"
+
+#: populate.py:84
+msgid "Objective pattern view"
+msgstr "Vue de Modèle d'objectif"
+
+#: setting_keys.py:12
+msgid "Enable email reminder for commercial approaches"
+msgstr "Activer le rappel pour les approches commerciales"
+
+#: setting_keys.py:16
+msgid ""
+"Display only organisations' commercial approaches on organisations' file. "
+"(Otherwise, display organisations', managers', employees', related "
+"opportunities' commercial approaches)"
+msgstr ""
+"Afficher uniquement les approches commerciales des sociétés sur les fiches "
+"des sociétés. (Dans le cas contraire, afficher également celles des "
+"responsables, employés et opportunités reliées à la société)"
 
 #: templates/commercial/list_segments.html:5
 msgid "List of Market Segments"
@@ -444,7 +444,7 @@ msgstr "Synthèse de «%(orga)s» par «%(strategy)s»"
 msgid "Commercial portal"
 msgstr "Portail Commercial"
 
-#: templates/commercial/portal.html:7
+#: templates/commercial/portal.html:9
 msgid "List of commercial actions"
 msgstr "Liste des actions commerciales"
 
@@ -504,6 +504,7 @@ msgstr "Nouvel atout commercial"
 #: templates/commercial/templatetags/block_charms.html:17
 #: templates/commercial/templatetags/block_objectives.html:20
 #: templates/commercial/templatetags/block_segment_info.html:23
+#: templates/commercial/templatetags/block_segments.html:16
 msgid "Actions"
 msgstr "Actions"
 
@@ -524,7 +525,7 @@ msgstr "Segments"
 #: templates/commercial/templatetags/block_assets_matrix.html:26
 #: templates/commercial/templatetags/block_charms_matrix.html:26
 #: templates/commercial/templatetags/block_segment_info.html:40
-#: templates/commercial/templatetags/block_segments.html:23
+#: templates/commercial/templatetags/block_segments.html:27
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
@@ -717,7 +718,7 @@ msgid "Link to an existing opportunity"
 msgstr "Lier à des opportunités existantes"
 
 #: templates/commercial/templatetags/block_opportunities.html:13
-#: views/act.py:126
+#: views/act.py:124
 msgid "Add a linked opportunity"
 msgstr "Ajouter une opportunité liée"
 
@@ -760,7 +761,7 @@ msgid "%s Market segments"
 msgstr "%s Segments de marché"
 
 #: templates/commercial/templatetags/block_segment_info.html:9
-#: templates/commercial/templatetags/block_segments.html:10
+#: templates/commercial/templatetags/block_segments.html:8
 msgid "New segment"
 msgstr "Nouveau segment"
 
@@ -797,30 +798,30 @@ msgstr "Segment réservoir [2]"
 msgid "Abandoned segment"
 msgstr "Segment abandonné"
 
-#: views/act.py:51
+#: views/act.py:50
 msgid "Save the commercial action"
 msgstr "Enregistrer l'action commerciale"
 
-#: views/act.py:59
+#: views/act.py:57
 msgid "Save the objective pattern"
 msgstr "Enregistrer le modèle d'objectif"
 
-#: views/act.py:137 views/act.py:150
+#: views/act.py:135 views/act.py:150
 #, python-format
 msgid "New objective for <%s>"
 msgstr "Nouvel objectif pour <%s>"
 
-#: views/act.py:181
+#: views/act.py:183
 #, python-format
 msgid "New child objective for <%s>"
 msgstr "Nouvel objectif enfant pour <%s>"
 
-#: views/act.py:187
+#: views/act.py:189
 #, python-format
 msgid "New parent objective for <%s>"
 msgstr "Nouvel objectif parent pour <%s>"
 
-#: views/act.py:194
+#: views/act.py:197
 #, python-format
 msgid "Objective for <%s>"
 msgstr "Objectif pour <%s>"
@@ -830,19 +831,23 @@ msgstr "Objectif pour <%s>"
 msgid "New commercial approach for <%s>"
 msgstr "Nouvelle démarche commerciale pour <%s>"
 
-#: views/market_segment.py:33
+#: views/market_segment.py:34
 msgid "New market segment"
 msgstr "Nouveau segment de marché"
 
-#: views/portal.py:32
+#: views/portal.py:34
 msgid "Number of commercial actions"
 msgstr "Nombre d'actions commerciales"
 
-#: views/salesman.py:38
+#: views/portal.py:35
+msgid "Number of commercial strategies"
+msgstr "Nombre de plans commerciaux"
+
+#: views/salesman.py:37
 msgid "Save the salesman"
 msgstr "Enregistrer le commercial"
 
-#: views/salesman.py:47
+#: views/salesman.py:46
 msgid "List of salesmen"
 msgstr "Liste des commerciaux"
 
@@ -850,42 +855,42 @@ msgstr "Liste des commerciaux"
 msgid "Save the strategy"
 msgstr "Enregistrer le plan commercial"
 
-#: views/strategy.py:68 views/strategy.py:76
+#: views/strategy.py:68 views/strategy.py:77
 #, python-format
 msgid "New market segment for <%s>"
 msgstr "Nouveau segment pour <%s>"
 
-#: views/strategy.py:84
+#: views/strategy.py:86
 #, python-format
 msgid "New commercial asset for <%s>"
 msgstr "Nouvel atout pour <%s>"
 
-#: views/strategy.py:92
+#: views/strategy.py:95
 #, python-format
 msgid "New segment charm for <%s>"
 msgstr "Nouvel attrait pour <%s>"
 
-#: views/strategy.py:100
+#: views/strategy.py:104
 #, python-format
 msgid "New organisation for <%s>"
 msgstr "Nouvelle société pour <%s>"
 
-#: views/strategy.py:108
+#: views/strategy.py:113
 #, python-format
 msgid "Segment for <%s>"
 msgstr "Segment pour <%s>"
 
-#: views/strategy.py:115
+#: views/strategy.py:120
 #, python-format
 msgid "Asset for <%s>"
 msgstr "Atout pour <%s>"
 
-#: views/strategy.py:122
+#: views/strategy.py:127
 #, python-format
 msgid "Charm for <%s>"
 msgstr "Attrait pour <%s>"
 
-#: views/strategy.py:157
+#: views/strategy.py:165
 #, python-format
 msgid ""
 "This organisation <%(orga)s> is not (no more ?) evaluated by the strategy "
@@ -932,6 +937,3 @@ msgstr ""
 
 #~ msgid "Non paid"
 #~ msgstr "Non payée"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"

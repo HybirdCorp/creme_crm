@@ -319,7 +319,7 @@ class Strategy(AbstractStrategy):
 class MarketSegmentDescription(CremeModel):
 #    strategy  = ForeignKey(Strategy, related_name='segment_info', editable=False)
     strategy  = ForeignKey(settings.COMMERCIAL_STRATEGY_MODEL, related_name='segment_info', editable=False)
-    segment   = ForeignKey(MarketSegment)
+    segment   = ForeignKey(MarketSegment) #TODO: on_delete=PROTECT
     product   = TextField(_(u'Product'), blank=True, null=True)
     place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
     price     = TextField(_(u'Price'), blank=True, null=True)

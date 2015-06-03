@@ -7,7 +7,7 @@ skip_strategy_tests = False
 try:
     from unittest import skipIf
 
-    from creme.creme_core.models import CremePropertyType
+#    from creme.creme_core.models import CremePropertyType
     from creme.creme_core.tests.base import CremeTestCase
 
     from ..models import MarketSegment
@@ -31,6 +31,8 @@ def skipIfCustomStrategy(test_func):
 
 
 class CommercialBaseTestCase(CremeTestCase):
+    ADD_SEGMENT_URL = '/commercial/market_segment/add'
+
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
@@ -39,12 +41,31 @@ class CommercialBaseTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    def _build_add_segmentdesc_url(self, strategy):
+        return '/commercial/strategy/%s/add/segment/' % strategy.id
+
     #def _build_ctypefilter_field(self, ctype, efilter=None):
         #return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id, efilter.id if efilter else '')
     def _build_ctypefilter_field(self, ctype=None, efilter=None):
         return '{"ctype": "%s", "efilter": "%s"}' % (ctype.id if ctype else 0, efilter.id if efilter else '')
 
-    def _create_segment(self):
-        #TODO: use a true segment creation view ??
-        ptype = CremePropertyType.create('commercial-_prop_unitest', 'Segment type')
-        return MarketSegment.objects.create(name='Segment#1', property_type=ptype)
+#    def _create_segment(self):
+#        ptype = CremePropertyType.create('commercial-_prop_unitest', 'Segment type')
+#        return MarketSegment.objects.create(name='Segment#1', property_type=ptype)
+    def _create_segment(self, name='Segment#1'):
+        self.assertNoFormError(self.client.post(self.ADD_SEGMENT_URL, data={'name': name}))
+
+        return self.get_object_or_fail(MarketSegment, name=name)
+
+    def _create_segment_desc(self, strategy, name, product='', place='', price='', promotion=''):
+        response = self.client.post(self._build_add_segmentdesc_url(strategy),
+                                    data={'name': name,
+                                          'product': product,
+                                          'place': place,
+                                          'price': price,
+                                          'promotion': promotion,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        return strategy.segment_info.get(segment__name=name)
