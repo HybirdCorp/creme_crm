@@ -18,14 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import render
+import logging
+
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-from ..forms.market_segment import MarketSegmentForm
+from ..forms.market_segment import MarketSegmentForm, SegmentReplacementForm
 from ..models import MarketSegment
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -44,3 +51,20 @@ def edit(request, segment_id):
 @permission_required('commercial')
 def listview(request):
     return render(request, 'commercial/list_segments.html')
+
+@login_required
+@permission_required('commercial')
+def delete(request, segment_id):
+    if MarketSegment.objects.count() < 2:
+        raise ConflictError(_(u"You can't delete the last segment."))
+
+    segment = get_object_or_404(MarketSegment, id=segment_id)
+
+    try:
+        return add_model_with_popup(request, SegmentReplacementForm,
+                                    _(u'Delete and replace «%s»') % segment,
+                                    initial={'segment_to_delete': segment},
+                                   )
+    except Exception:
+        logger.exception('Error in MarketSegment deletion view')
+        return HttpResponse(_(u"You can't delete this segment."), status=400)

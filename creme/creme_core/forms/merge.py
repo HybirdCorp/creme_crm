@@ -32,8 +32,8 @@ from django.utils.translation import ugettext as _
 from ..models import CremeEntity, CustomField, CustomFieldValue
 from ..gui.merge import merge_form_registry
 from ..signals import pre_merge_related
+from ..utils import replace_related_object
 from .base import CremeForm, _CUSTOM_NAME
-
 
 logger = logging.getLogger(__name__)
 
@@ -203,12 +203,13 @@ class MergeEntitiesBaseForm(CremeForm):
         self._post_entity1_update(entity1, entity2, self.cleaned_data)
         pre_merge_related.send_robust(sender=entity1, other_entity=entity2)
 
-        for rel_objects in entity2._meta.get_all_related_objects():
-            field_name = rel_objects.field.name
-
-            for rel_object in getattr(entity2, rel_objects.get_accessor_name()).all():
-                setattr(rel_object, field_name, entity1)
-                rel_object.save()
+#        for rel_objects in entity2._meta.get_all_related_objects():
+#            field_name = rel_objects.field.name
+#
+#            for rel_object in getattr(entity2, rel_objects.get_accessor_name()).all():
+#                setattr(rel_object, field_name, entity1)
+#                rel_object.save()
+        replace_related_object(entity2, entity1)
 
         try:
             entity2.delete()

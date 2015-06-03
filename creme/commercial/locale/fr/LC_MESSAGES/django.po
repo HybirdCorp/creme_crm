@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-03 17:12+0200\n"
+"POT-Creation-Date: 2015-06-03 17:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -138,16 +138,20 @@ msgstr "Taux de réussite"
 msgid "Percentage of success"
 msgstr "Pourcentage de réussite"
 
-#: forms/market_segment.py:33 forms/strategy.py:79
+#: forms/market_segment.py:36 forms/strategy.py:81
 msgid "A segment with this name already exists"
 msgstr "Un segment avec ce nom existe déjà"
 
-#: forms/market_segment.py:34 forms/strategy.py:80
+#: forms/market_segment.py:37 forms/strategy.py:82
 #, python-format
 msgid "A property with the name «%(name)s» already exists"
 msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 
-#: forms/strategy.py:76 models/act.py:150 models/act.py:210 models/act.py:275
+#: forms/market_segment.py:93
+msgid "Choose a segment to replace by"
+msgstr "Choisissez un segment par lequel remplacer"
+
+#: forms/strategy.py:78 models/act.py:150 models/act.py:210 models/act.py:275
 #: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:357
 #: models/strategy.py:392
 #: templates/commercial/templatetags/block_assets.html:16
@@ -156,15 +160,15 @@ msgstr "Une propriété avec le nom «%(name)s» existe déjà"
 #: templates/commercial/templatetags/block_objectives.html:16
 #: templates/commercial/templatetags/block_opportunities.html:20
 #: templates/commercial/templatetags/block_segment_info.html:17
-#: templates/commercial/templatetags/block_segments.html:15
+#: templates/commercial/templatetags/block_segments.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: forms/strategy.py:83
+#: forms/strategy.py:85
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/strategy.py:157
+#: forms/strategy.py:159
 #: templates/commercial/templatetags/block_evalorgas.html:6
 msgid "Organisations"
 msgstr "Sociétés"
@@ -504,7 +508,7 @@ msgstr "Nouvel atout commercial"
 #: templates/commercial/templatetags/block_charms.html:17
 #: templates/commercial/templatetags/block_objectives.html:20
 #: templates/commercial/templatetags/block_segment_info.html:23
-#: templates/commercial/templatetags/block_segments.html:16
+#: templates/commercial/templatetags/block_segments.html:17
 msgid "Actions"
 msgstr "Actions"
 
@@ -525,7 +529,7 @@ msgstr "Segments"
 #: templates/commercial/templatetags/block_assets_matrix.html:26
 #: templates/commercial/templatetags/block_charms_matrix.html:26
 #: templates/commercial/templatetags/block_segment_info.html:40
-#: templates/commercial/templatetags/block_segments.html:27
+#: templates/commercial/templatetags/block_segments.html:33
 msgid "No market segment for the moment"
 msgstr "Aucun segment de marché enregistré pour le moment"
 
@@ -773,6 +777,10 @@ msgstr "Ajouter des segments existants"
 msgid "Place"
 msgstr "Distribution"
 
+#: templates/commercial/templatetags/block_segments.html:26
+msgid "Delete"
+msgstr "Supprimer"
+
 #: templates/commercial/templatetags/button_complete_goal.html:14
 #: templates/commercial/templatetags/button_complete_goal.html:19
 msgid "Completes a goal"
@@ -831,9 +839,22 @@ msgstr "Objectif pour <%s>"
 msgid "New commercial approach for <%s>"
 msgstr "Nouvelle démarche commerciale pour <%s>"
 
-#: views/market_segment.py:34
+#: views/market_segment.py:41
 msgid "New market segment"
 msgstr "Nouveau segment de marché"
+
+#: views/market_segment.py:59
+msgid "You can't delete the last segment."
+msgstr "Vous ne pouvez pas supprimer le dernier segment."
+
+#: views/market_segment.py:65
+#, python-format
+msgid "Delete and replace «%s»"
+msgstr "Supprimer et remplacer «%s»"
+
+#: views/market_segment.py:70
+msgid "You can't delete this segment."
+msgstr "Vous ne pouvez pas supprimer ce segment."
 
 #: views/portal.py:34
 msgid "Number of commercial actions"

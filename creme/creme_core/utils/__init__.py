@@ -33,6 +33,7 @@ from django.utils.translation import ugettext as _
 
 #from ..registry import creme_registry
 from ..core.exceptions import ConflictError
+from ..signals import pre_replace_related
 
 
 logger = logging.getLogger(__name__)
@@ -113,6 +114,28 @@ def update_model_instance(obj, **fields): #TODO: django 1.5: save only modified 
         obj.save()
 
     return save
+
+def replace_related_object(old_instance, new_instance):
+    "Replace the references to an instance by references to another one."
+    pre_replace_related.send(sender=old_instance.__class__,
+                             old_instance=old_instance,
+                             new_instance=new_instance,
+                            ) # send_robust() ??
+
+    for rel_objects in old_instance._meta.get_all_related_objects():
+        field_name = rel_objects.field.name
+
+        for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
+            setattr(rel_object, field_name, new_instance)
+            rel_object.save()
+
+    for rel_objects in old_instance._meta.get_all_related_many_to_many_objects():
+        field_name = rel_objects.field.name
+
+        for rel_object in getattr(old_instance, rel_objects.get_accessor_name()).all():
+            m2m_mngr = getattr(rel_object, field_name)
+            m2m_mngr.add(new_instance)
+            m2m_mngr.remove(old_instance)
 
 def jsonify(func):
     def _aux(*args, **kwargs):
