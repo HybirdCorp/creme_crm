@@ -23,12 +23,14 @@ from django.forms import CharField
 from django.forms.utils import ValidationError
 
 from creme.creme_core.models import CremePropertyType
-from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCreatorEntityField
+from creme.creme_core.forms import (CremeForm, CremeModelForm, CremeEntityForm,
+        FieldBlockManager, MultiCreatorEntityField)
 
 from creme.persons import get_organisation_model
 #from creme.persons.models import Organisation
 
-from ..models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
+from ..models import (Strategy, MarketSegment, MarketSegmentDescription,
+        CommercialAsset, MarketSegmentCharm)
 
 
 class StrategyForm(CremeEntityForm):
