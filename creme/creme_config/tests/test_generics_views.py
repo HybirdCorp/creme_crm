@@ -160,7 +160,7 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertGET200('/creme_config/creme_core/fake_civility/portal/')
         self.assertGET404('/creme_config/creme_core/unexistingmodel/portal/')
 
-        self.assertGET404('/creme_config/unexsitingapp/portal/')
+        self.assertGET404('/creme_config/unexistingapp/portal/')
 
 #        if 'creme.persons' in settings.INSTALLED_APPS:
         if apps.is_installed('creme.persons'):
