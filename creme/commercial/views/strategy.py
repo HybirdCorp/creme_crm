@@ -101,7 +101,7 @@ def add_charm(request, strategy_id):
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 ugettext(u"New organisation for <%s>"),
+                                 ugettext(u"New organisation(s) for <%s>"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
                                 )

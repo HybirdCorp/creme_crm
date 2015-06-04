@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-03 17:50+0200\n"
+"POT-Creation-Date: 2015-06-04 14:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Tous les participants (sauf les utilisateurs), les sujets et fiches reliées "
 "seront liés à une démarche commerciale"
 
-#: apps.py:9 creme_core_register.py:43 models/strategy.py:61
+#: apps.py:9 creme_core_register.py:43 models/strategy.py:64
 msgid "Commercial strategy"
 msgstr "Plan commercial"
 
@@ -37,15 +37,15 @@ msgstr "Plan commercial"
 msgid "Commercial approaches"
 msgstr "Démarches commerciales"
 
-#: blocks.py:140 models/strategy.py:331
+#: blocks.py:140 models/strategy.py:334
 msgid "Market segment descriptions"
 msgstr "descriptions de segment de marché"
 
-#: blocks.py:160 models/strategy.py:364
+#: blocks.py:160 models/strategy.py:367
 msgid "Commercial assets"
 msgstr "Atouts commerciaux"
 
-#: blocks.py:180 models/strategy.py:399
+#: blocks.py:180 models/strategy.py:402
 msgid "Segment charms"
 msgstr "Attraits de segment"
 
@@ -152,8 +152,8 @@ msgid "Choose a segment to replace by"
 msgstr "Choisissez un segment par lequel remplacer"
 
 #: forms/strategy.py:78 models/act.py:150 models/act.py:210 models/act.py:275
-#: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:357
-#: models/strategy.py:392
+#: models/market_segment.py:28 models/strategy.py:52 models/strategy.py:360
+#: models/strategy.py:395
 #: templates/commercial/templatetags/block_assets.html:16
 #: templates/commercial/templatetags/block_charms.html:16
 #: templates/commercial/templatetags/block_evalorgas.html:16
@@ -312,43 +312,47 @@ msgstr "Segments de marché"
 msgid "is in the segment \"%s\""
 msgstr "est du segment \"%s\""
 
-#: models/strategy.py:56
+#: models/strategy.py:55
+msgid "Evaluated organisation(s)"
+msgstr "Société(s) évaluée(s)"
+
+#: models/strategy.py:59
 msgid "Add a strategy"
 msgstr "Ajouter un plan commercial"
 
-#: models/strategy.py:62
+#: models/strategy.py:65
 msgid "Commercial strategies"
 msgstr "Plans commerciaux"
 
-#: models/strategy.py:323
+#: models/strategy.py:326
 #: templates/commercial/templatetags/block_segment_info.html:18
 msgid "Product"
 msgstr "Produit"
 
-#: models/strategy.py:324
+#: models/strategy.py:327
 msgctxt "commercial-4p"
 msgid "Place"
 msgstr "Distribution"
 
-#: models/strategy.py:325
+#: models/strategy.py:328
 #: templates/commercial/templatetags/block_segment_info.html:21
 msgid "Price"
 msgstr "Prix"
 
-#: models/strategy.py:326
+#: models/strategy.py:329
 #: templates/commercial/templatetags/block_segment_info.html:22
 msgid "Promotion"
 msgstr "Publicité"
 
-#: models/strategy.py:330
+#: models/strategy.py:333
 msgid "Market segment description"
 msgstr "Description de segment de marché"
 
-#: models/strategy.py:363
+#: models/strategy.py:366
 msgid "Commercial asset"
 msgstr "Atout commercial"
 
-#: models/strategy.py:398
+#: models/strategy.py:401
 msgid "Segment charm"
 msgstr "Attrait de segment"
 
@@ -641,8 +645,8 @@ msgid "%s Evaluated organisations"
 msgstr "%s Sociétés évaluées"
 
 #: templates/commercial/templatetags/block_evalorgas.html:9
-msgid "Add some existing organisations"
-msgstr "Ajouter des sociétés existantes"
+msgid "Add some organisations"
+msgstr "Ajouter des sociétés"
 
 #: templates/commercial/templatetags/block_evalorgas.html:17
 msgid "See evaluation"
@@ -893,8 +897,8 @@ msgstr "Nouvel attrait pour <%s>"
 
 #: views/strategy.py:104
 #, python-format
-msgid "New organisation for <%s>"
-msgstr "Nouvelle société pour <%s>"
+msgid "New organisation(s) for <%s>"
+msgstr "Nouvelle(s) société(s) pour <%s>"
 
 #: views/strategy.py:113
 #, python-format
