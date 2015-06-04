@@ -136,8 +136,8 @@
     }
   }
 
-  function workflowFailed() {_workflow("/mobile/phone_call/failed");}
-  function workflowPostponed() {_workflow("/mobile/phone_call/postponed");}
-  function workflowLasted5Minutes() {_workflow("/mobile/phone_call/lasted_5_minutes");}
-  function workflowJustDone() {_workflow("/mobile/phone_call/just_done");}
+  function workflowFailed() {_workflow("{% url 'mobile__pcall_wf_failed' %}");}
+  function workflowPostponed() {_workflow("{% url 'mobile__pcall_wf_postponed' %}");}
+  function workflowLasted5Minutes() {_workflow("{% url 'mobile__pcall_wf_lasted_5_minutes' %}");}
+  function workflowJustDone() {_workflow("{% url 'mobile__pcall_wf_just_done' %}");}
 </script>
