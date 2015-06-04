@@ -19,6 +19,7 @@ try:
     from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import RelationType, HeaderFilter
+    from creme.creme_core.templatetags.creme_date import timedelta_pprint
 
     from creme.persons import get_contact_model
     #from creme.persons.models import Contact
@@ -163,10 +164,45 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                 }
                             )
 
-    def test_editview01(self):
-        self.login()
+    def test_get_resolving_duration01(self):
+        "Resolving duration witk CLOSED_PK + closing_date=None (eg: CSV import)"
+        user = self.login()
 
-        ticket = Ticket.objects.create(user=self.user,
+        get_status = Status.objects.get
+        ticket = Ticket.objects.create(user=user,
+                                       title='title',
+                                       description='description',
+                                       status=get_status(pk=OPEN_PK),
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+        self.assertIsNone(ticket.closing_date)
+        self.assertEqual('', ticket.get_resolving_duration())
+
+        ticket.status = get_status(pk=CLOSED_PK)
+        ticket.save()
+        self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
+        self.assertEqual(timedelta_pprint(ticket.closing_date - ticket.created),
+                         ticket.get_resolving_duration()
+                        )
+
+    def test_get_resolving_duration02(self):
+        "Resolving duration witk CLOSED_PK + closing_date=None (eg: CSV import)"
+        user = self.login()
+
+        ticket = Ticket.objects.create(user=user,
+                                       title='title',
+                                       description='description',
+                                       status=Status.objects.get(pk=CLOSED_PK),
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+        self.assertEqual('?', ticket.get_resolving_duration())
+
+    def test_editview01(self):
+        user = self.login()
+
+        ticket = Ticket.objects.create(user=user,
                                        title='title',
                                        description='description',
                                        status=Status.objects.get(pk=OPEN_PK),
@@ -182,7 +218,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         priority    = Priority.objects.all()[1]
         criticity   = Criticity.objects.all()[1]
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'title':        title,
                                           'description':  description,
                                           'status':       INVALID_PK,
@@ -203,13 +239,13 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRedirects(response, ticket.get_absolute_url())
 
     def test_editview02(self):
-        self.login()
+        user = self.login()
 
         title       = 'Test ticket'
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-        ticket = Ticket.objects.create(user=self.user,
+        ticket = Ticket.objects.create(user=user,
                                        title=title,
                                        description=description,
                                        status=Status.objects.get(pk=OPEN_PK),
@@ -218,7 +254,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                       )
 
         response = self.client.post(ticket.get_edit_absolute_url(), follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'title':        title,
                                           'description':  description,
                                           'status':       CLOSED_PK,

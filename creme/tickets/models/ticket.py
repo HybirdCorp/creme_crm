@@ -112,7 +112,9 @@ class AbstractTicket(TicketMixin):
 
     def get_resolving_duration(self):
         if self.status_id == CLOSED_PK:
-            return  timedelta_pprint(self.closing_date - self.created)
+            closing_date = self.closing_date
+
+            return timedelta_pprint(closing_date - self.created) if closing_date else '?'
 
         return ''
 
