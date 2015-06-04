@@ -1,7 +1,8 @@
 {% load i18n %}{% load creme_core_tags %}
 {% trans "Invoice number" as img_title %}
 {% if has_perm %}
-    <a class="menu_button" onclick="creme.billing.generateInvoiceNumber({{object.id}});">
+{% comment %}<a class="menu_button" onclick="creme.billing.generateInvoiceNumber({{object.id}});">{% endcomment %}
+    <a class="menu_button" onclick="creme.billing.generateInvoiceNumber('{% url 'billing__generate_invoice_number' object.id %}');">
         <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
         {% trans "Generate the number of the Invoice" %}
     </a>

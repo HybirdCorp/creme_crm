@@ -217,7 +217,7 @@ creme.billing.showEmptyForm = function(btn, ct_id, prefix, line_count) {
     }
 }
 
-// TODO a utiliser si on veut essayer de faire une remontée inline des form error
+// TODO use this if we want to try to send form errors
 //creme.billing.submitBlock = function(block, url) {
 //    creme.ajax.post({
 //                'url': url,
@@ -265,37 +265,6 @@ creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
                   })
                  .open();
 }
-
-//creme.billing.restoreInitialValues = function (line_id, form_prefix, ct_id) {
-//    var buttons = {};
-//
-//    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-//    buttons[gettext("Yes")] = function() {
-//        $('input,select,textarea', $('.restorable_' + line_id)).each(function(){
-//            creme.billing.restoreValue($(this));
-//        });
-//
-//        var checkbox_name = form_prefix + '-DELETE';
-//        var delete_checkbox = $('#id_' + checkbox_name);
-//        var line_td = $('#line_content_' + line_id);
-//
-//        var to_delete = !delete_checkbox.is(':checked');
-//
-//        if (!to_delete) {
-//            delete_checkbox.uncheck();
-//            line_td.removeClass('td_error');
-//            line_td.addClass('block_header_line_dark');
-//        }
-//
-//        var tbodyform = $('tbody[id^="form_id_' + ct_id + '"]');
-//        tbodyform.toggleClass('form_modified', to_delete);
-//
-//        $(this).dialog("destroy");
-//        $(this).remove();
-//    }
-//
-//    creme.utils.showDialog(gettext("Do you really want to restore initial values of this line ?"), {buttons: buttons, title: gettext("Confirmation")});
-//}
 
 //TODO: it would be cool to share this code with Python (the same computing is done on Python side) (pyjamas ??)
 creme.billing.initBoundedFields = function (element, currency, global_discount) {
@@ -502,9 +471,13 @@ creme.billing.convertAs = function (billing_id, type) {
                       .start();
 }
 
-creme.billing.generateInvoiceNumber = function(billing_id) {
-    return creme.utils.ajaxQuery('/billing/invoice/generate_number/%s'.format(billing_id),
-                                 {action: 'post', warnOnFail: true, reloadOnSuccess: true})
+// creme.billing.generateInvoiceNumber = function(billing_id) {
+//     return creme.utils.ajaxQuery('/billing/invoice/generate_number/%s'.format(billing_id),
+//                                  {action: 'post', warnOnFail: true, reloadOnSuccess: true})
+//                       .start();
+// }
+creme.billing.generateInvoiceNumber = function(url) {
+    return creme.utils.ajaxQuery(url, {action: 'post', warnOnFail: true, reloadOnSuccess: true})
                       .start();
 }
 
