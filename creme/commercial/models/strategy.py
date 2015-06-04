@@ -51,7 +51,10 @@ _CATEGORY_MAP = {
 class AbstractStrategy(CremeEntity):
     name            = CharField(_(u"Name"), max_length=100)
 #    evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
-    evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL, null=True, editable=False)
+    evaluated_orgas = ManyToManyField(settings.PERSONS_ORGANISATION_MODEL,
+                                      verbose_name=_(u'Evaluated organisation(s)'),
+                                      null=True, editable=False,
+                                     )
 
     creation_label = _('Add a strategy')
 

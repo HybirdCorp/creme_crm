@@ -6,7 +6,7 @@
         <th class="label">{% get_block_title _('%s Evaluated organisation') _('%s Evaluated organisations') 'organisation_48.png' _('Organisations') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/commercial/strategy/{{object.id}}/add/organisation/' with_label _("Add some existing organisations") with_perms has_perm %}
+                {% get_line_linker at_url '/commercial/strategy/{{object.id}}/add/organisation/' with_label _("Add some organisations") with_perms has_perm %}
             </div>
         </th>
     {% end_get_block_header %}
