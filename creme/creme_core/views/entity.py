@@ -409,9 +409,9 @@ def empty_trash(request):
                                            CremeEntity.objects.filter(is_deleted=True),
                                            EntityCredentials.DELETE
                                           ):
-        #TODO:
-        #if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-            #errors[404].append(_('%s does not use the generic deletion view.') % entity.allowed_unicode(user))
+
+        # TODO: chunk + populate_real_entities
+        entity = entity.get_real_entity()
 
         try:
             entity.delete()

@@ -1181,6 +1181,25 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertDoesNotExist(rel)
         self.assertStillExists(musashi)
 
+    @skipIfCustomContact
+    def test_delete_all(self):
+        "Relations REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted (empty_trash)"
+        user = self.login()
+
+        activity = self._create_meeting()
+        activity.trash()
+
+        musashi = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
+        rel = Relation.objects.create(user=user, subject_entity=musashi,
+                                      type_id=REL_SUB_PART_2_ACTIVITY,
+                                      object_entity=activity,
+                                     )
+
+        self.assertPOST200('/creme_core/entity/trash/empty')
+        self.assertDoesNotExist(activity)
+        self.assertDoesNotExist(rel)
+        self.assertStillExists(musashi)
+
     def _aux_inner_edit_type(self, field_name):
         "Type (& subtype)"
         user = self.login()
