@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2014  Hybird
+    Copyright (C) 2009-2015  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -220,14 +220,14 @@ creme.reports.exportReport = function(link, report_id, title) {
                  .open({width:1024});
 }
 
-creme.reports.openGraphEdition = function(graph_id, reload_uri)
-{
-    creme.blocks.form('/reports/graph/edit/%s'.format(graph_id), {blockReloadUrl:reload_uri})
+// creme.reports.openGraphEdition = function(graph_id, reload_uri) {
+creme.reports.openGraphEdition = function(edition_url, graph_id, reload_uri) {
+//     creme.blocks.form('/reports/graph/edit/%s'.format(graph_id), {blockReloadUrl: reload_uri})
+    creme.blocks.form(edition_url, {blockReloadUrl: reload_uri})
                 .onFormSuccess(function() {
                      $('#graph-%s .ui-creme-plotselector'.format(graph_id)).creme().widget().resetBackend();
                  }).open();
 }
-
 
 creme.reports.PreviewController = creme.component.Component.sub({
     _init_: function(report)
