@@ -41,12 +41,13 @@ def json_list_enumerable(request, ct_id):
 
     if issubclass(model, EntityFilter):
         sort_key = collator.sort_key
-        key = lambda e: sort_key(e[2] + e[1])
+        key = lambda e: sort_key(e['group'] + e['label'])
 
-        return sorted([(filter.pk,
-                        '%s [%s]%s' % (filter.name, unicode(filter.entity_type), (' (%s)' % unicode(filter.user) if filter.is_private else '')),
-                        unicode(filter.entity_type),
-                       ) for filter in EntityFilter.objects.all()
+        return sorted([{'value': filter.pk,
+                        'label': filter.name,
+                        'help':  unicode(filter.entity_type) + (' (%s)' % unicode(filter.user) if filter.is_private else ''),
+                        'group': unicode(filter.entity_type),
+                       } for filter in EntityFilter.objects.all()
                       ],
                       key=key)
 

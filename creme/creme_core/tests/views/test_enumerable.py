@@ -73,7 +73,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.login()
 
         sort_key = collator.sort_key
-        key = lambda e: sort_key(e[2] + e[1])
+        key = lambda e: sort_key(e['group'] + e['label'])
 
         # create at least one filter
         efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
@@ -92,10 +92,11 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         url = self._build_enum_url(EntityFilter)
         response = self.assertGET200(url)
-        self.assertEqual(sorted([[f.id,
-                                  '%s [%s]%s' % (f.name, unicode(f.entity_type), (' (%s)' % unicode(f.user) if f.is_private else '')),
-                                  unicode(f.entity_type)
-                                 ] for f in EntityFilter.objects.all()
+        self.assertEqual(sorted([{'value': f.id,
+                                  'label': f.name,
+                                  'group': unicode(f.entity_type),
+                                  'help':  unicode(f.entity_type) + (' (%s)' % unicode(f.user) if f.is_private else ''),
+                                 } for f in EntityFilter.objects.all()
                                 ],
                                 key=key
                                ),

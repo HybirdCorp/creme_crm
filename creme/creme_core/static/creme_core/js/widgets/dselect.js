@@ -130,6 +130,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                     return {value: entry[0], label: entry[1]};
                 }
             } else if (entry.value && entry.label) {
+                if (entry.help) {
+                    entry.label = '<span>%s</span><span class="group-help">%s</span>'.format(entry.label, entry.help);
+                }
+
                 return entry;
             } else {
                 return {value: entry, label: '' + entry}

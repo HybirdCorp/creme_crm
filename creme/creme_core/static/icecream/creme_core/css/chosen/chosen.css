@@ -400,3 +400,17 @@
   direction: rtl;
 }
 /* @end */
+
+.chzn-results .group-help {
+    display:block;
+    opacity: 0.6;
+    font-size: 11px;
+    font-style: italic;
+}
+
+.chzn-choices .group-help {
+    display:block;
+    opacity: 0.8;
+    font-size: 11px;
+    font-style: italic;
+}
