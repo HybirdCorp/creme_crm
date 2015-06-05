@@ -86,8 +86,13 @@ class DynamicInput(TextInput):
     #input_type = 'hidden'
     #is_hidden = True
 
+class EnchancedSelectOptions(object):
+    class Choice(object):
+        def __init__(self, value, disabled=False, help=u''):
+            self.value = value
+            self.disabled = disabled
+            self.help = help
 
-class DynamicSelectOptions(object):
     def _set_options(self, options):
         if options is None:
             self.options = ()
@@ -113,14 +118,49 @@ class DynamicSelectOptions(object):
 
         return u'<span class="ui-creme-dselectlabel">%s</span>%s' % (self.label, output)
 
+    def render_enchanced_option(self, selected_choices, option_value, option_label):
+        if isinstance(option_value, self.Choice):
+            value = force_unicode(option_value.value)
+            selected = self.is_choice_selected(selected_choices, value)
+            return self.render_enchanced_choice(option_value, value, option_label, selected)
 
-class DynamicSelect(Select, DynamicSelectOptions):
+        return super(self.__class__, self).render_option(selected_choices, option_value, option_label)
+
+    def is_choice_selected(self, selected_choices, choice_value):
+        selected = False
+
+        if choice_value in selected_choices:
+            selected = True
+            if not self.allow_multiple_selected:
+                # Only allow for a single selection.
+                selected_choices.remove(choice_value)
+
+        return selected
+
+    def render_enchanced_choice(self, choice, value, label, selected):
+        selected_html = u' selected="selected"' if selected else u''
+        disabled_html = u' disabled' if choice.disabled else u''
+
+        help_html = u' help="%s"' % escape(choice.help) if choice.help else u''
+
+        return u'<option value="%s"%s%s%s>%s</option>' % (escape(value),
+                                                          disabled_html,
+                                                          selected_html,
+                                                          help_html,
+                                                          conditional_escape(force_unicode(label)),
+                                                         )
+
+
+class DynamicSelect(Select, EnchancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
         self.choices = options
+
+    def render_option(self, selected_choices, option_value, option_label):
+        return self.render_enchanced_option(selected_choices, option_value, option_label)
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
@@ -132,7 +172,7 @@ class DynamicSelect(Select, DynamicSelectOptions):
         return mark_safe(self.render_label(output, self.label))
 
 
-class DynamicSelectMultiple(SelectMultiple, DynamicSelectOptions):
+class DynamicSelectMultiple(SelectMultiple, EnchancedSelectOptions):
     def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelectMultiple, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
@@ -140,12 +180,15 @@ class DynamicSelectMultiple(SelectMultiple, DynamicSelectOptions):
         self.from_python = None
         self.choices = options
 
+    def render_option(self, selected_choices, option_value, option_label):
+        return self.render_enchanced_option(selected_choices, option_value, option_label)
+
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
 
         value = self.from_python(value) if self.from_python is not None else value
-        output = widget_render_input(SelectMultiple.render, self, name, value, context, url=self.url, multiple='multiple')
+        output = widget_render_input(SelectMultiple.render, self, name, value, context, url=self.url)
 
         return mark_safe(self.render_label(output, self.label))
 
@@ -707,46 +750,14 @@ class ColorPickerWidget(TextInput):
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
 
 
-class UnorderedMultipleChoiceWidget(SelectMultiple):
-    class Choice(object):
-        def __init__(self, value, disabled=False, help=u''):
-            self.value = value
-            self.disabled = disabled
-            self.help = help
-
+class UnorderedMultipleChoiceWidget(SelectMultiple, EnchancedSelectOptions):
     def __init__(self, attrs=None, choices=(), columntype='', filtertype=None):
         super(UnorderedMultipleChoiceWidget, self).__init__(attrs, choices)
         self.columntype = columntype
         self.filtertype = filtertype
 
-    def render_unordered_choice(self, selected_choices, choice, option_label):
-        # This code is part of method django.forms.widgets.Select.render_option()
-        # ==========================
-        option_value = force_unicode(choice.value)
-
-        if option_value in selected_choices:
-            selected_html = u' selected="selected"'
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-        # ==========================
-
-        disabled_html = u' disabled' if choice.disabled else u''
-        help_html = u' help="%s"' % escape(choice.help) if choice.help else u''
-
-        return u'<option value="%s"%s%s%s>%s</option>' % (escape(option_value),
-                                                          selected_html,
-                                                          disabled_html,
-                                                          help_html,
-                                                          conditional_escape(force_unicode(option_label)))
-
     def render_option(self, selected_choices, option_value, option_label):
-        if isinstance(option_value, self.Choice):
-            return self.render_unordered_choice(selected_choices, option_value, option_label)
-
-        return super(UnorderedMultipleChoiceWidget, self).render_option(selected_choices, option_value, option_label)
+        return self.render_enchanced_option(selected_choices, option_value, option_label)
 
     def render(self, name, value, attrs=None, choices=()):
         if not self.choices:

@@ -51,6 +51,45 @@ class DynamicSelectTestCase(FieldTestCase):
         self.assertListEqual([(id, str(id)) for id in xrange(10)],
                              select.choices)
 
+    def test_render_options(self):
+        select = DynamicSelect()
+        self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
+                         select.render_option([], 1, 'A'))
+
+        self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
+                         select.render_option(['1'], '1', 'A'))
+
+    def test_render_options_choices(self):
+        select = DynamicSelect()
+
+        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
+                         select.render_option(['2'], DynamicSelect.Choice(1, True, 'is disabled'), 'A'))
+
+        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (1, 'is disabled', 'A'),
+                         select.render_option(['1'], DynamicSelect.Choice(1, True, 'is disabled'), 'A'))
+
+        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (2, 'is enabled', 'B'),
+                         select.render_option(['2'], DynamicSelect.Choice(2, False, 'is enabled'), 'B'))
+
+    def test_render(self):
+        select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
+
+        self.assertEqual(u'<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="test" url="" widget="ui-creme-dselect">\n'
+                           u'<option value="1">A</option>\n'
+                           u'<option value="2" selected="selected">B</option>\n'
+                         u'</select>',
+                         select.render('test', 2))
+
+        select = DynamicSelect(options=[(DynamicSelect.Choice(1, True, 'disabled'), 'A'),
+                                        (DynamicSelect.Choice(2, False, 'item B'), 'B'),
+                                        (DynamicSelect.Choice(3, False, 'item C'), 'C')])
+
+        self.assertEqual(u'<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" name="test" url="" widget="ui-creme-dselect">\n'
+                           u'<option value="1" disabled help="disabled">A</option>\n'
+                           u'<option value="2" selected="selected" help="item B">B</option>\n'
+                           u'<option value="3" help="item C">C</option>\n'
+                         u'</select>',
+                         select.render('test', 2))
 
 class UnorderedMultipleChoiceTestCase(FieldTestCase):
     def test_option_list(self):
@@ -58,9 +97,27 @@ class UnorderedMultipleChoiceTestCase(FieldTestCase):
         self.assertEqual(2, select._choice_count())
         select.render('A', (2,), choices=select.choices)
 
+        self.assertEqual(u'<option value="%s">%s</option>' % (1, 'A'),
+                         select.render_option([], 1, 'A'))
+
+        self.assertEqual(u'<option value="%s" selected="selected">%s</option>' % (1, 'A'),
+                         select.render_option(['1'], '1', 'A'))
+
     def test_option_group_list(self):
         select = UnorderedMultipleChoiceWidget(choices=[('Group A', ((1, 'A'), (2, 'B'))),
                                                         ('Group B', ((3, 'C'), (4, 'D'), (5, 'E'))),])
         self.assertEqual(5, select._choice_count())
         select.render('A', (3, 4,), choices=select.choices)
+
+    def test_render_options_choices(self):
+        select = UnorderedMultipleChoiceWidget()
+
+        self.assertEqual(u'<option value="%s" disabled help="%s">%s</option>' % (1, 'is disabled', 'A'),
+                         select.render_option(['2'], UnorderedMultipleChoiceWidget.Choice(1, True, 'is disabled'), 'A'))
+
+        self.assertEqual(u'<option value="%s" disabled selected="selected" help="%s">%s</option>' % (1, 'is disabled', 'A'),
+                         select.render_option(['1'], UnorderedMultipleChoiceWidget.Choice(1, True, 'is disabled'), 'A'))
+
+        self.assertEqual(u'<option value="%s" selected="selected" help="%s">%s</option>' % (2, 'is enabled', 'B'),
+                         select.render_option(['2'], UnorderedMultipleChoiceWidget.Choice(2, False, 'is enabled'), 'B'))
 
