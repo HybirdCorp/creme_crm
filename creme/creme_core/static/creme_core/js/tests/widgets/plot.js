@@ -181,7 +181,7 @@ test('creme.widget.Plot.create (empty)', function() {
 
     creme.widget.create(element);
     assertReady(element);
-    assertNoPlot(this, element, 'No Data');
+    assertNoPlot(this, element, 'Error: No data specified');
 });
 
 test('creme.widget.Plot.create (invalid)', function() {
@@ -214,7 +214,7 @@ test('creme.widget.Plot.draw (empty)', function() {
     var widget = creme.widget.create(element);
 
     assertReady(element);
-    assertNoPlot(this, element, 'No Data');
+    assertNoPlot(this, element, 'Error: No data specified');
 
     this.resetMockEvents();
     stop(1);
@@ -224,7 +224,7 @@ test('creme.widget.Plot.draw (empty)', function() {
     });
 
     assertReady(element);
-    assertNoPlot(this, element, 'No Data');
+    assertNoPlot(this, element, 'Error: No data specified');
 });
 
 test('creme.widget.Plot.draw (valid)', function() {
