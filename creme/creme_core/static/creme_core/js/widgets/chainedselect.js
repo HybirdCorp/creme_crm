@@ -30,15 +30,25 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var self = this;
 
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+        this._context = {}
 
         this.selectors(element).each(function() {
             $(this).creme().create({backend: self.options.backend, disabled: !self._enabled}, undefined, true);
         });
 
-        this._dependency_change = function() {
-            //console.log('chainedselect._dependency_change > element:' + $(this).parent().attr('chained-name') + ' has changed. val:' + $(this).val());
-            self._reloadDependencies(element, $(this).parent().attr('chained-name'), $(this).creme().widget().cleanedval());
-            self._update(element);
+        this._dependency_change = function(e) {
+            var selector_name = $(this).parent().attr('chained-name');
+            var previous = self._context[selector_name]
+            var next = $(this).creme().widget().cleanedval();
+
+            //console.log(selector_name, '=> previous:', previous, 'next:', next, 'val:', $(this).val())
+
+            if (previous !== next)
+            {
+                //console.log('chainedselect._dependency_change > element:' + previous + ' has changed. val:' + next);
+                self._reloadDependencies(element, selector_name, next);
+                self._update(element);
+            }
         };
 
         this._dependency_change_multiple = function(e, data) {
@@ -64,15 +74,18 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var data = this.cleanedval(element);
 
         // reload all selectors from actual values in order to initialize them all
-        this._reloadSelectors(element, this._selectorValues(element));
+        var values = this._selectorValues(element);
+
+        this._reloadSelectors(element, values);
         this.selectors(element).bind('change', self._dependency_change);
         this.selectors(element).bind('change-multiple', self._dependency_change_multiple);
 
         // if empty data, get values from selector and try to force it in widget
         if (creme.object.isempty(data)) {
-            this.val(element, this._selectorValues(element));
+            this.val(element, values);
         } else {
             this._updateSelectors(element, data);
+            this._update(element);
         }
 
         element.addClass('widget-ready');
@@ -89,15 +102,17 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             var value = selector.creme().widget().cleanedval();
             var name = selector.parent().attr('chained-name');
 
-            //console.log('chainedselect._update > name="' + name + '", value="' + value + '", type=' + (typeof value));
+            //console.trace('chainedselect._selectorValues > name="' + name + '", value="' + value + '", type=' + (typeof value));
             data[name] = value;
         });
 
         return data;
     },
 
-    _update: function(element) {
-        creme.widget.input(element).val($.toJSON(this._selectorValues(element)));
+    _update: function(element)
+    {
+        this._context = this._selectorValues(element);
+        creme.widget.input(element).val($.toJSON(this._context));
     },
 
     _updateSelector: function(selector, data)
@@ -136,7 +151,8 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     _reloadDependencies: function(element, name, value)
     {
         var self = this;
-        var data = {};
+        var data = this._context;
+
         data[name] = value;
 
         //console.log('chainedselect._reloadDependencies >', name, ':', data[name]);

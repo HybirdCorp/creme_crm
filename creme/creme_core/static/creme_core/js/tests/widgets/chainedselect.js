@@ -301,7 +301,7 @@ test('creme.widgets.chainedselect.create (valid, no selector)', function() {
 
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), $.toJSON({ctype:'12'}));
+    equal(widget.val(), $.toJSON({}));
     equal(widget.selectors().length, 0);
     equal(widget.selector('ctype').length, 0);
 });
