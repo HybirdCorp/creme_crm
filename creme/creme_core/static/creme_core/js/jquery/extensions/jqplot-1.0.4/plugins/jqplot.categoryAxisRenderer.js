@@ -28,7 +28,7 @@
  *     "This code is unrestricted: you are free to use it however you like."
  * 
  */
-(function($) {   
+(function($) {
     /**
     *  class: $.jqplot.CategoryAxisRenderer
     *  A plugin for jqPlot to render a category style axis, with equal pixel spacing between y data values of a series.
@@ -362,6 +362,7 @@
         var w = 0;
         var h = 0;
         var lshow = (this._label == null) ? false : this._label.show;
+
         if (this.show) {
             var t = this._ticks;
             for (var i=0; i<t.length; i++) {
@@ -420,6 +421,33 @@
                 }
             }
         }  
+    };
+
+    /* HACK : evaluate axis thick in both SET and PACK methods ! */
+    var axisOuterThickness = function(axis)
+    {
+        var is_horizontal = (axis.name == 'xaxis' || axis.name == 'x2axis');
+        var thickness = 0,
+            group_thickness = 0,
+            label_thickness = 0;
+
+        axis._ticks.forEach(function(tick) {
+            if (tick.showLabel && (!tick.isMinorTick || axis.showMinorTicks)) {
+                var size = is_horizontal ? tick._elem.outerHeight(true) : tick._elem.outerWidth(true);
+                thickness = Math.max(thickness, size);
+            }
+        });
+
+        axis._groupLabels.forEach(function(label) {
+            var size = is_horizontal ? label.outerHeight(true) : label.outerWidth(true);
+            group_thickness = Math.max(group_thickness, size);
+        });
+
+        if (axis._label && axis._label.show) {
+            label_thickness = is_horizontal ? axis._label._elem.outerHeight(true) : axis._label._elem.outerWidth(true);
+        }
+
+        return thickness + group_thickness + label_thickness;
     };
 
     // called with scope of axis
@@ -542,6 +570,18 @@
                         }
                         var val = this.u2p(t.value) + shim + 'px';
                         t._elem.css('left', val);
+
+                        /* HACK : force text wrap of ticks ONLY WORKS WITH AxisTickRenderer */
+                        if (t.constructor == $.jqplot.AxisTickRenderer)
+                        {
+                            var distance = (this.u2p(ticks[i+1].value) - this.u2p(t.value));
+                            t._elem.css({'left': (this.u2p(t.value) - distance) +  'px',
+                                         'width': (distance * 2) + 'px',
+                                         'white-space': 'normal',
+                                         'text-align': 'center'});
+                        }
+                        /* *** */
+
                         t.pack();
                     }
                 }
@@ -664,7 +704,16 @@
 
                 }
             }
+
+            /* HACK : evaluate axis thick in both SET and PACK methods ! */
+            var thickness = axisOuterThickness(this);
+
+            if (this.name == 'xaxis' || this.name == 'x2axis') {
+                this._elem.css({height: thickness});
+            } else {
+                this._elem.css({width: thickness});
+            }
         }
-    };    
+    };
 
 })(jQuery);

@@ -3036,8 +3036,21 @@
                         legendPadding.right = this._gridPadding.right;
                     }
                 }
-                
+
+                axisHeight = ax.xaxis.getHeight();
                 ax.xaxis.pack({position:'absolute', bottom:this._gridPadding.bottom - ax.xaxis.getHeight(), left:0, width:this._width}, {min:this._gridPadding.left, max:this._width - this._gridPadding.right});
+
+                /* HACK : packing twice in order to get the correct axis label tickness */
+                if (ax.xaxis.show && ax.xaxis.renderer.axisOuterThickness) {
+                    thickness = ax.xaxis.renderer.axisOuterThickness(ax.xaxis);
+
+                    if (thickness > axisHeight) {
+                        thickness += 5;
+                        this._gridPadding.bottom += (thickness - axisHeight);
+                        ax.xaxis.pack({position:'absolute', bottom:this._gridPadding.bottom - thickness, left:0, width:this._width}, {min:this._gridPadding.left, max:this._width - this._gridPadding.right});
+                    }
+                }
+
                 ax.yaxis.pack({position:'absolute', top:0, left:this._gridPadding.left - ax.yaxis.getWidth(), height:this._height}, {min:this._height - this._gridPadding.bottom, max: this._gridPadding.top});
                 ax.x2axis.pack({position:'absolute', top:this._gridPadding.top - ax.x2axis.getHeight(), left:0, width:this._width}, {min:this._gridPadding.left, max:this._width - this._gridPadding.right});
                 for (i=8; i>0; i--) {
@@ -3045,7 +3058,7 @@
                 }
                 var ltemp = (this._width - this._gridPadding.left - this._gridPadding.right)/2.0 + this._gridPadding.left - ax.yMidAxis.getWidth()/2.0;
                 ax.yMidAxis.pack({position:'absolute', top:0, left:ltemp, zIndex:9, textAlign: 'center'}, {min:this._height - this._gridPadding.bottom, max: this._gridPadding.top});
-            
+
                 this.target.append(this.grid.createElement(this._gridPadding, this));
                 this.grid.draw();
                 
