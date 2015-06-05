@@ -683,7 +683,7 @@ class MultiRelationsExtractor(object):
 class RelationExtractorSelector(SelectorList):
     def __init__(self, columns, relation_types, attrs=None):
         chained_input = ChainedInput(attrs)
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'autocomplete': True}
 
         add = partial(chained_input.add_dselect, attrs=attrs)
         add("rtype",       options=relation_types, label=ugettext(u"The entity"))
@@ -1209,7 +1209,7 @@ class ImportForm4CremeEntity(ImportForm):
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)
-    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'), required=False)
+    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'), required=False, autocomplete=True)
     dyn_relations   = RelationExtractorField(label=_(u'Relationships from CSV'), required=False)
 
     blocks = FieldBlockManager(
