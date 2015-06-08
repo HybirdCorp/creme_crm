@@ -31,6 +31,7 @@ from . import get_document_model, get_folder_model
 from .constants import REL_SUB_RELATED_2_DOC
 
 
+Folder   = get_folder_model()
 Document = get_document_model()
 _CT_DOC = ContentType.objects.get_for_model(Document)
 
@@ -40,8 +41,7 @@ class FolderDocsBlock(QuerysetBlock):
     dependencies  = (Document,)
     verbose_name  = _(u'Folder documents')
     template_name = 'documents/templatetags/block_documents.html'
-#    target_ctypes = (Folder,)
-    target_ctypes = (get_folder_model(),)
+    target_ctypes = (Folder,)
 
     def detailview_display(self, context):
         folder_id = context['object'].id
@@ -55,6 +55,26 @@ class FolderDocsBlock(QuerysetBlock):
                         q_filter=json_dump(q_dict),
                        )
                    )
+
+
+class ChildFoldersBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('documents', 'child_folders')
+    dependencies  = (Folder,)
+    order_by      = 'title'
+    verbose_name  = _(u'Child Folders')
+    template_name = 'documents/templatetags/block_child_folders.html'
+    target_ctypes = (Folder,)
+
+    def detailview_display(self, context):
+        folder = context['object']
+
+        return self._render(self.get_block_template_context(
+                    context,
+                    Folder.objects.filter(parent_folder=folder),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
+                    folder_model=Folder,
+                   )
+                )
 
 
 class LinkedDocsBlock(QuerysetBlock):
@@ -85,4 +105,5 @@ class LinkedDocsBlock(QuerysetBlock):
 
 
 folder_docs_block = FolderDocsBlock()
+child_folders_block = ChildFoldersBlock()
 linked_docs_block = LinkedDocsBlock()

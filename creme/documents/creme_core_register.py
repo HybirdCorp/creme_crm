@@ -27,7 +27,7 @@ from creme.creme_core.gui import (creme_menu, block_registry, icon_registry,
         bulk_update_registry, quickforms_registry)
 
 from . import get_document_model, get_folder_model
-from .blocks import folder_docs_block, linked_docs_block
+from .blocks import folder_docs_block, child_folders_block, linked_docs_block
 from .forms.quick import DocumentQuickForm
 from .forms.folder import ParentFolderBulkForm
 #from .models import Document, Folder
@@ -50,7 +50,7 @@ reg_item(reverse('documents__create_document'), Document.creation_label, build_c
 reg_item(reverse('documents__list_folders'),    _(u'All folders'),       'documents')
 reg_item(reverse('documents__create_folder'),   Folder.creation_label,   build_creation_perm(Folder))
 
-block_registry.register(folder_docs_block, linked_docs_block)
+block_registry.register(folder_docs_block, child_folders_block, linked_docs_block)
 
 reg_icon = icon_registry.register
 reg_icon(Document, 'images/document_%(size)s.png')

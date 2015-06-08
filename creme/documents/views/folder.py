@@ -25,10 +25,10 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views.generic import add_entity, edit_entity, view_entity
+from creme.creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity
 from creme.creme_core.views.generic.listview import list_view
 
-from ..forms.folder import FolderForm
+from ..forms.folder import FolderForm, ChildFolderForm
 from ..models import Folder
 
 
@@ -41,6 +41,21 @@ def add(request):
     return add_entity(request, FolderForm,
                       extra_template_dict={'submit_label': _('Save the folder')},
                      )
+
+@login_required
+@permission_required(('documents', 'documents.add_folder'))
+def add_child(request, folder_id):
+    parent_folder = get_object_or_404(Folder, id=folder_id)
+    user = request.user
+
+    user.has_perm_to_link_or_die(parent_folder)
+
+    # TODO: improve generic view for submit_label=_('Save the folder')
+    return add_model_with_popup(request, ChildFolderForm,
+                                title=_(u'New child folder for <%s>') %
+                                    parent_folder.allowed_unicode(user),
+                                initial={'parent': parent_folder},
+                               )
 
 @login_required
 @permission_required('documents')

@@ -4,6 +4,7 @@ from django.conf.urls import patterns, url
 
 from . import document_model_is_custom, folder_model_is_custom
 
+
 urlpatterns = patterns('creme.documents.views',
     (r'^$', 'portal.portal'),
 
@@ -13,10 +14,11 @@ urlpatterns = patterns('creme.documents.views',
 
 if not folder_model_is_custom():
     urlpatterns += patterns('creme.documents.views.folder',
-        url(r'^folders$',                        'listview',   name='documents__list_folders'),
-        url(r'^folder/add$',                     'add',        name='documents__create_folder'),
-        url(r'^folder/edit/(?P<folder_id>\d+)$', 'edit',       name='documents__edit_folder'),
-        url(r'^folder/(?P<folder_id>\d+)$',      'detailview', name='documents__view_folder'),
+        url(r'^folders$',                             'listview',   name='documents__list_folders'),
+        url(r'^folder/add$',                          'add',        name='documents__create_folder'),
+        url(r'^folder/(?P<folder_id>\d+)/add/child$', 'add_child',  name='documents__create_child_folder'),
+        url(r'^folder/edit/(?P<folder_id>\d+)$',      'edit',       name='documents__edit_folder'),
+        url(r'^folder/(?P<folder_id>\d+)$',           'detailview', name='documents__view_folder'),
     )
 
 if not document_model_is_custom():

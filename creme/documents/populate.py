@@ -34,7 +34,7 @@ from creme.creme_core.utils import create_if_needed
 from . import get_document_model, get_folder_model, folder_model_is_custom
 #from .models import Document, FolderCategory, Folder
 from .models import FolderCategory
-from .blocks import folder_docs_block #linked_docs_block
+from .blocks import folder_docs_block, child_folders_block #linked_docs_block
 from .constants import *
 
 
@@ -88,11 +88,12 @@ class Populator(BasePopulator):
 
         if not already_populated:
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Folder)
-            BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
-            BlockDetailviewLocation.create(block_id=folder_docs_block.id_,  order=50,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
-            BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
-            BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
-            BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
+            BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=child_folders_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=folder_docs_block.id_,   order=60,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+            BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')

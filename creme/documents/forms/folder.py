@@ -28,18 +28,27 @@ from creme.creme_core.forms.fields import CreatorEntityField
 from ..models import Folder
 
 
-class FolderForm(CremeEntityForm):
-    parent_folder = CreatorEntityField(label=_(u'Parent folder'), model=Folder, required=False)
-
-    error_messages = {
-        'loop': _(u'This folder is one of the child folders of «%(folder)s»'),
-    }
-
+class _FolderForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Folder
         help_texts = {
             'category': _(u"The parent's category will be copied if you do not select one."),
         }
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        if not instance.category and instance.parent_folder:
+            instance.category = instance.parent_folder.category
+
+        return super(_FolderForm, self).save(*args, **kwargs)
+
+
+class FolderForm(_FolderForm):
+    parent_folder = CreatorEntityField(label=_(u'Parent folder'), model=Folder, required=False)
+
+    error_messages = {
+        'loop': _(u'This folder is one of the child folders of «%(folder)s»'),
+    }
 
     def __init__(self, *args, **kwargs):
         super(FolderForm, self).__init__(*args, **kwargs)
@@ -72,12 +81,14 @@ class FolderForm(CremeEntityForm):
 
         return parent_folder
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-        if not instance.category and instance.parent_folder:
-            instance.category = instance.parent_folder.category
 
-        return super(FolderForm, self).save(*args, **kwargs)
+class ChildFolderForm(_FolderForm):
+    class Meta(_FolderForm.Meta):
+        exclude = ('parent_folder',)
+
+    def __init__(self, *args, **kwargs):
+        super(ChildFolderForm, self).__init__(*args, **kwargs)
+        self.instance.parent_folder = self.initial.get('parent')
 
 
 class ParentFolderBulkForm(BulkDefaultEditForm):
