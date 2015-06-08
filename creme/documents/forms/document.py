@@ -103,9 +103,11 @@ class RelatedDocumentCreateForm(_DocumentBaseForm):
             entity_folder = get_folder(title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
                                                       _TITLE_MAX_LEN,
                                                      ), #beurkkk
-                                       defaults={'parent_folder': model_folder,
-                                                 'category':      category,
-                                                 'user':          user,
+                                       parent_folder=model_folder,
+                                       category=category,
+                                       defaults={'user':          user,
+#                                                 'parent_folder': model_folder,
+#                                                 'category':      category,
                                                 },
                                       ) [0]
         except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:

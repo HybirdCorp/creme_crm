@@ -18,16 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
+#import os
+from functools import partial
 from itertools import chain
+from os.path import basename
 
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme.documents.constants import (REL_OBJ_RELATED_2_DOC,
-        DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME)
+from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS #DOCUMENTS_FROM_EMAILS_NAME
 from creme.documents.models import Document, Folder, FolderCategory
 
 from creme.crudity.backends.models import CrudityBackend
@@ -36,8 +37,8 @@ from creme.crudity.inputs.email import CreateEmailInput
 from creme.crudity.models import History
 
 from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
-from .models import EntityEmail
 from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
+from .models import EntityEmail
 
 
 class EntityEmailBackend(CrudityBackend):
@@ -54,23 +55,25 @@ class EntityEmailBackend(CrudityBackend):
             current_user = CreateEmailInput.get_owner(True, sender=email.senders[0])
 
         current_user_id = current_user.id
-        cat_name = unicode(DOCUMENTS_FROM_EMAILS_NAME)
-
-        try:
-            folder_cat = FolderCategory.objects.get(name=cat_name)
-        except FolderCategory.DoesNotExist:
-            try:
-                folder_cat = FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS)
-            except FolderCategory.DoesNotExist:
-                folder_cat = FolderCategory.objects.create(pk=DOCUMENTS_FROM_EMAILS,
-                                                           name=cat_name,
-                                                          )
-
+#        cat_name = unicode(DOCUMENTS_FROM_EMAILS_NAME)
+#
+#        try:
+#            folder_cat = FolderCategory.objects.get(name=cat_name)
+#        except FolderCategory.DoesNotExist:
+#            try:
+#                folder_cat = FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS)
+#            except FolderCategory.DoesNotExist:
+#                folder_cat = FolderCategory.objects.create(pk=DOCUMENTS_FROM_EMAILS,
+#                                                           name=cat_name,
+#                                                          )
+        # TODO: only if at least one attachment
         folder = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {
                                                             'username': current_user.username,
                                                         },
+                                              category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
+                                              parent_folder=None,
                                               defaults={'user': current_user,
-                                                        'category': folder_cat,
+#                                                        'category': folder_cat,
                                                        }
                                              )[0]
 
@@ -87,23 +90,24 @@ class EntityEmailBackend(CrudityBackend):
         mail.genid_n_save()
 
         attachment_path = self.attachment_path
-        create_relation = Relation.objects.create
-
-        doc_description = _(u"Received with the mail %s") % (mail, )
+        # TODO: only if at least one attachment
+        create_relation = partial(Relation.objects.create, type_id=REL_OBJ_RELATED_2_DOC,
+                                  object_entity=mail, user_id=current_user_id,
+                                 )
+        create_doc = partial(Document.objects.create,
+                             user_id=current_user_id, folder=folder,
+                             description=_(u"Received with the mail %s") % mail,
+                            )
 
         for attachment in email.attachments:
-            filename, file = attachment
-            path = handle_uploaded_file(file, path=attachment_path, name=filename)
-            doc = Document.objects.create(title=u"%s (mail %s)" % (path.rpartition(os.sep)[2], mail.id),
-                                          description=doc_description,
-                                          filedata=path,
-                                          user_id=current_user_id,
-                                          folder=folder,
-                                         )
+            filename, file_ = attachment
+            path = handle_uploaded_file(file_, path=attachment_path, name=filename)
+#            doc = create_doc(title=u"%s (mail %s)" % (path.rpartition(os.sep)[2], mail.id),
+            doc = create_doc(title=u'%s (mail %s)' % (basename(path), mail.id),
+                             filedata=path,
+                            )
 
-            create_relation(subject_entity=doc, type_id=REL_OBJ_RELATED_2_DOC,
-                            object_entity=mail, user_id=current_user_id
-                           )
+            create_relation(subject_entity=doc)
 
         History.objects.create(entity=mail,
                                action="create",
