@@ -45,11 +45,12 @@ class _AuxForm(CremeModelForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(_AuxForm, self).__init__(*args, **kwargs)
-        self._strategy = entity
+#        self._strategy = entity
+        self.instance.strategy = entity
 
-    def save(self, *args, **kwargs):
-        self.instance.strategy = self._strategy
-        return super(_AuxForm, self).save(*args, **kwargs)
+#    def save(self, *args, **kwargs):
+#        self.instance.strategy = self._strategy
+#        return super(_AuxForm, self).save(*args, **kwargs)
 
 
 class SegmentLinkForm(_AuxForm):
