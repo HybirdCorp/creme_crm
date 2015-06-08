@@ -62,7 +62,6 @@ class CremeCoreConfig(AppConfig):
         original_fk_formfield = ForeignKey.formfield
 
         def new_fk_formfield(self, **kwargs):
-
             defaults = {'form_class': CreatorModelChoiceField}
             defaults.update(kwargs)
 

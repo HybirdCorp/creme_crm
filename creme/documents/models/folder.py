@@ -37,7 +37,8 @@ MAXINT = 100000
 #class Folder(CremeEntity):
 class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
-    title         = CharField(_(u'Title'), max_length=100, unique=True)
+#    title         = CharField(_(u'Title'), max_length=100, unique=True)
+    title         = CharField(_(u'Title'), max_length=100)
     description   = TextField(_(u'Description'), null=True, blank=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
@@ -54,6 +55,7 @@ class AbstractFolder(CremeEntity):
     class Meta:
         abstract = True
         app_label = 'documents'
+        unique_together = ('title', 'parent_folder', 'category')
         verbose_name = _(u'Folder')
         verbose_name_plural = _(u'Folders')
         ordering = ('title',)

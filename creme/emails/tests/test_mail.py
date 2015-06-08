@@ -131,9 +131,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual([orga.id], o_recipients.initial)
 
         folder = Folder.objects.create(user=user, title=u'Test folder', parent_folder=None,
-                                        category=FolderCategory.objects.create(name=u'Test category'),
-                                        )
-
+                                       category=FolderCategory.objects.create(name=u'Test category'),
+                                      )
 
         def create_doc(title, content):
             tmpfile = NamedTemporaryFile(suffix=".txt")

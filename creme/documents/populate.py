@@ -55,9 +55,9 @@ class Populator(BasePopulator):
                            )
 
 
-        #TODO: pk string + is_custom=False ??
-        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=unicode(DOCUMENTS_FROM_ENTITIES_NAME))
-        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME))
+        #TODO: pk string (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
+        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=unicode(DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False)
+        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=unicode(DOCUMENTS_FROM_EMAILS_NAME),   is_custom=False)
 
         if not folder_model_is_custom():
             if not Folder.objects.filter(title="Creme").exists(): #TODO: UUID ??

@@ -160,7 +160,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertGET404('/download_file/%s' % 'tmpLz48vy.txt')
 
     def test_editview(self):
-        self.login()
+        user = self.login()
 
         title       = 'Test doc'
         description = 'Test description'
@@ -178,11 +178,11 @@ class DocumentTestCase(_DocumentsTestCase):
         content     = content.upper()
         folder      = Folder.objects.create(title=u'Test folder', parent_folder=None,
                                             category=FolderCategory.objects.all()[0],
-                                            user=self.user,
+                                            user=user,
                                            )
 
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
+                                    data={'user':         user.pk,
                                           'title':        title,
                                           'description':  description,
                                           'folder':       folder.id,
@@ -198,20 +198,20 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertRedirects(response, doc.get_absolute_url())
 
     def test_add_related_document01(self):
-        self.login()
+        user = self.login()
 
         folders = Folder.objects.all()
         self.assertEqual(1, len(folders))
         root_folder = folders[0]
 
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=user)
 
         url = self._buid_addrelated_url(entity)
         self.assertGET200(url)
 
         def post(title):
             response = self.client.post(url, follow=True,
-                                        data={'user':         self.user.pk,
+                                        data={'user':         user.pk,
                                               'title':        title,
                                               'description':  'Test description',
                                               'filedata':     self._build_filedata('Yes I am the content '
@@ -344,6 +344,44 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(title.startswith(u'%s_AAAAAAA' % entity.id))
         self.assertTrue(title.endswith(u'…'))
 
+    def test_add_related_document06(self):
+        "Collision with Folder titles"
+        user = self.login()
+        entity = CremeEntity.objects.create(user=user)
+
+        creme_folder = self.get_object_or_fail(Folder, title='Creme')
+
+        #NB : collision with folders created by the view
+        create_folder = partial(Folder.objects.create, user=user)
+        my_ct_folder = create_folder(title=unicode(entity.entity_type))
+        my_entity_folder = create_folder(title=u'%s_%s' % (entity.id, entity))
+
+        title = 'Related doc'
+        response = self.client.post(self._buid_addrelated_url(entity), follow=True,
+                                    data={'user':           user.pk,
+                                            'title':        title,
+                                            'description':  'Test description',
+                                            'filedata':     self._build_filedata('Yes I am the content '
+                                                                                 '(DocumentTestCase.test_add_related_document06)'
+                                                                                )[0],
+                                            }
+                                )
+        self.assertNoFormError(response)
+
+        doc = self.get_object_or_fail(Document, title=title)
+
+        entity_folder = doc.folder
+        self.assertEqual(my_entity_folder.title, entity_folder.title)
+#        self.assertEqual(my_entity_folder, entity_folder)
+        self.assertNotEqual(my_entity_folder, entity_folder)
+
+        ct_folder = entity_folder.parent_folder
+        self.assertIsNotNone(ct_folder)
+        self.assertEqual(my_ct_folder.title, ct_folder.title)
+        self.assertNotEqual(my_ct_folder, ct_folder)
+
+        self.assertEqual(creme_folder, ct_folder.parent_folder)
+
     def test_listview(self):
         self.login()
 
@@ -368,10 +406,10 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_delete_category(self):
         "Set to null"
-        self.login()
+        user = self.login()
 
         cat = FolderCategory.objects.create(name='Manga')
-        folder = Folder.objects.create(user=self.user, title='One piece', category=cat)
+        folder = Folder.objects.create(user=user, title='One piece', category=cat)
 
         self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
         self.assertDoesNotExist(cat)
@@ -406,7 +444,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
                           )
 
     def test_add(self):
-        self.login()
+        user = self.login()
 
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
@@ -419,7 +457,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         folder = Folder.objects.all()[0]
 
         data = self.quickform_data(1)
-        self.quickform_data_append(data, 0, user=self.user.pk, filedata=file_obj, folder=folder.pk)
+        self.quickform_data_append(data, 0, user=user.pk, filedata=file_obj, folder=folder.pk)
 
         self.assertNoFormError(self.client.post(url, follow=True, data=data))
 
@@ -440,7 +478,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 @skipIfCustomFolder
 class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
     def test_add_from_widget(self):
-        self.login()
+        user = self.login()
 
         self.assertFalse(Document.objects.exists())
         self.assertTrue(Folder.objects.exists())
@@ -452,7 +490,7 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
         file_obj, file_name = self._build_filedata(content)
         response = self.client.post(url, follow=True,
-                                    data={'user':     self.user.pk,
+                                    data={'user':     user.pk,
                                           'filedata': file_obj,
                                          }
                                    )
@@ -462,7 +500,7 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        folder = get_csv_folder_or_create(self.user)
+        folder = get_csv_folder_or_create(user)
         self.assertEqual('upload/documents/%s' % file_name, doc.filedata.name)
         self.assertIsNone(doc.description)
         self.assertEqual(folder, doc.folder)
