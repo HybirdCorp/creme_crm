@@ -28,9 +28,12 @@ from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 class CreatorModelChoiceField(ModelChoiceField):
     def __init__(self, queryset, create_action_url=None, *args, **kwargs):
         super(CreatorModelChoiceField, self).__init__(queryset=queryset, *args, **kwargs)
-        #self.widget = ActionButtonList(delegate=DynamicSelect(options=self._get_choices))
-        self.user = None
-        self.create_action_url = create_action_url
+#        self.user = None
+#        self.create_action_url = create_action_url
+        # NB: we do not use the properties in order to avoid useless queries
+        #  (+ these queries can cause a crash if the related model has not been totally migrated)
+        self._user = None
+        self._create_action_url = create_action_url
 
     #@ModelChoiceField.queryset.setter
     #def queryset(self, queryset):
@@ -55,7 +58,6 @@ class CreatorModelChoiceField(ModelChoiceField):
     def user(self, user):
         #TODO: if None, use a Select as widget ??
         self._user = user
-        #self._build_actions()
         self._build_widget()
 
     def _build_create_action_url(self, app_name, model_name):
@@ -65,16 +67,6 @@ class CreatorModelChoiceField(ModelChoiceField):
         return '/creme_config/%s/%s/add_widget/' % (app_name, model_name)
 
     def _build_widget(self):
-        #self.widget = ActionButtonList(delegate=DynamicSelect(options=self._get_choices))
-        #self._build_actions()
-
-    #def _build_actions(self):
-        #if isinstance(self.widget, ActionButtonList):
-        #self.widget.clear_actions()
-
-        #if not hasattr(self, '_user') or self.user is None:
-            #return
-
         user = self.user
 
         if user is None:
