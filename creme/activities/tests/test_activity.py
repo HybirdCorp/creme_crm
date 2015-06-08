@@ -1182,7 +1182,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertStillExists(musashi)
 
     @skipIfCustomContact
-    def test_delete_all(self):
+    def test_delete_all01(self):
         "Relations REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted (empty_trash)"
         user = self.login()
 
@@ -1199,6 +1199,38 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertDoesNotExist(activity)
         self.assertDoesNotExist(rel)
         self.assertStillExists(musashi)
+
+    @skipIfCustomContact
+    def test_delete_all02(self):
+        """If an Activity & its participants are in the trash, the relationships
+        cannot avoid the trash emptying.
+        """
+        user = self.login()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        musashi = create_contact(first_name='Musashi', last_name='Miyamoto')
+
+        activity = self._create_meeting()
+
+        kojiro = create_contact(first_name='Kojiro',  last_name='Sasaki')
+        # we want that at least one contact tries to delete() before the activity
+        self.assertLess(musashi.id, activity.id)
+        self.assertLess(activity.id, kojiro.id)
+
+        create_rel = partial(Relation.objects.create, user=user,
+                             type_id=REL_SUB_PART_2_ACTIVITY, object_entity=activity,
+                            )
+        create_rel(subject_entity=musashi)
+        create_rel(subject_entity=kojiro)
+
+        activity.trash()
+        musashi.trash()
+        kojiro.trash()
+
+        self.assertPOST200('/creme_core/entity/trash/empty')
+        self.assertDoesNotExist(activity)
+        self.assertDoesNotExist(musashi)
+        self.assertDoesNotExist(kojiro)
 
     def _aux_inner_edit_type(self, field_name):
         "Type (& subtype)"
