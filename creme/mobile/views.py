@@ -68,6 +68,8 @@ FLOATING_SIZE = 30
 WORKED_HOURS = (7, 18)
 
 
+mobile_login_required = partial(login_required, login_url='/mobile/login/')
+
 def lw_exceptions(view):
     "Lightweight exceptions handling (templates are not the legacy ones)."
     @wraps(view)
@@ -127,7 +129,7 @@ def lw_ajax_exceptions(view):
     return _aux
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 def portal(request):
     user = request.user
 
@@ -182,7 +184,7 @@ def portal(request):
                  )
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 def persons_portal(request):
     #TODO: populate employers
     user = request.user
@@ -207,7 +209,7 @@ def persons_portal(request):
                  )
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 @permission_required('persons.add_contact')
 def create_contact(request):
     last_name = request.GET.get('last_name')
@@ -219,7 +221,7 @@ def create_contact(request):
                      )
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 @permission_required('persons.add_organisation')
 def create_organisation(request):
     name = request.GET.get('name')
@@ -231,7 +233,7 @@ def create_organisation(request):
                      )
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 def search_person(request):
     search = get_from_GET_or_404(request.GET, 'search')
 
@@ -275,7 +277,7 @@ def _get_page_url(request):
   return request.META.get('HTTP_REFERER', '/mobile/')
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 @POST_only
 def start_activity(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
@@ -294,7 +296,7 @@ def start_activity(request, activity_id):
     return HttpResponseRedirect('%s#activity_%s' % (_get_page_url(request), activity_id))
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 @POST_only
 def stop_activity(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
@@ -313,7 +315,7 @@ def stop_activity(request, activity_id):
     return HttpResponseRedirect(_get_page_url(request))
 
 @lw_exceptions
-@login_required
+@mobile_login_required
 def activities_portal(request):
     user = request.user
     cred_filter = partial(EntityCredentials.filter, user)
@@ -369,7 +371,7 @@ def _build_date_or_404(date_str):
     except ValueError as e:
         raise Http404(e)
 
-@login_required
+@mobile_login_required
 @lw_ajax_exceptions #TODO: remove and send popup with a close button instead
 def phonecall_panel(request):
     user = request.user
@@ -430,7 +432,7 @@ def _get_pcall(request):
 
     return pcall
 
-@login_required
+@mobile_login_required
 @POST_only
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(Activity,
@@ -488,7 +490,7 @@ def _add_participants(activity, persons):
         else:
             create_relation(object_entity=person, type_id=REL_OBJ_ACTIVITY_SUBJECT)
 
-@login_required
+@mobile_login_required
 @POST_only
 @jsonify
 def _phonecall_workflow_set_end(request, end_function):
@@ -566,7 +568,7 @@ def _set_pcall_as_failed(pcall, request):
 
     pcall.save()
 
-@login_required
+@mobile_login_required
 @POST_only
 @jsonify
 def phonecall_workflow_failed(request):
@@ -579,7 +581,7 @@ def phonecall_workflow_failed(request):
 
     return ''
 
-@login_required
+@mobile_login_required
 @POST_only
 @jsonify
 @atomic
@@ -609,7 +611,7 @@ def phonecall_workflow_postponed(request):
 
     return ''
 
-@login_required
+@mobile_login_required
 @POST_only
 def mark_as_favorite(request, entity_id):
     entity = get_object_or_404(CremeEntity, id=entity_id)
@@ -620,7 +622,7 @@ def mark_as_favorite(request, entity_id):
 
     return HttpResponse()
 
-@login_required
+@mobile_login_required
 @POST_only
 def unmark_favorite(request, entity_id):
     MobileFavorite.objects.filter(entity=entity_id, user=request.user).delete()
