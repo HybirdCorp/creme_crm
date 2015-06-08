@@ -34,7 +34,7 @@ class CremeCoreConfig(AppConfig):
     verbose_name = _(u'Core')
 
     def ready(self):
-        if 'migrate' in argv:
+        if 'migrate' in argv: # problem wit ContentType table which can be not created yet.
             return
 
         # We check the badly uninstalled apps
