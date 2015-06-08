@@ -38,6 +38,7 @@ from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseF
 from ..gui.bulk_update import bulk_update_registry, FieldNotAllowed
 from ..models import CremeEntity, EntityCredentials #CustomField
 from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
+from ..utils.chunktools import iter_as_slices
 from ..utils.meta import ModelFieldEnumerator
 from ..views.decorators import POST_only
 from ..views.generic import inner_popup, list_view_popup_from_widget
@@ -401,31 +402,45 @@ def trash(request):
 @POST_only
 def empty_trash(request):
     user = request.user
-    errors = [] #TODO: LimitedList
 
-    #NB: we do not use delete() method of queryset in order to send signals
-    for entity in EntityCredentials.filter(user,
-                                           #CremeEntity.objects.only_deleted(),
-                                           CremeEntity.objects.filter(is_deleted=True),
-                                           EntityCredentials.DELETE
-                                          ):
+    # We try to delete the remaining entities (which could not be deleted 
+    # because of relationships) when there are errors, while the previous 
+    # iteration managed to remove some entities.
+    # It will not work with cyclic references (but it is certainly very unusual).
+    while True:
+        progress = False
+        errors = [] #TODO: LimitedList
+        #NB: we do not use delete() method of queryset in order to send signals
+        entities = EntityCredentials.filter(user,
+                                            #CremeEntity.objects.only_deleted(),
+                                            CremeEntity.objects.filter(is_deleted=True),
+                                            EntityCredentials.DELETE,
+                                           )
 
-        # TODO: chunk + populate_real_entities
-        entity = entity.get_real_entity()
+        for entities_slice in iter_as_slices(entities, 1024):
+            CremeEntity.populate_real_entities(entities_slice)
 
-        try:
-            entity.delete()
-        except ProtectedError:
-            errors.append(_(u'"%s" can not be deleted because of its dependencies.') %
-                            entity.allowed_unicode(user)
-                         )
-        except Exception as e:
-            logger.exception('Error when trying to empty the trash')
-            errors.append(_(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
-                                'entity': entity.allowed_unicode(user),
-                                'error':  e,
-                            }
-                         )
+            for entity in entities_slice:
+                entity = entity.get_real_entity()
+
+                try:
+                    entity.delete()
+                except ProtectedError:
+                    errors.append(_(u'"%s" can not be deleted because of its dependencies.') %
+                                    entity.allowed_unicode(user)
+                                 )
+                except Exception as e:
+                    logger.exception('Error when trying to empty the trash')
+                    errors.append(_(u'"%(entity)s" deletion caused an unexpected error [%(error)s].') % {
+                                        'entity': entity.allowed_unicode(user),
+                                        'error':  e,
+                                    }
+                                 )
+                else:
+                    progress = True
+
+        if not errors or not progress:
+            break
 
     #TODO: factorise ??
     if not errors:
@@ -434,7 +449,7 @@ def empty_trash(request):
     else:
         status = 409
         message = _('The following entities cannot be deleted') + \
-                 u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
+                  u'<ul>%s</ul>' % u'\n'.join(u'<li>%s</li>' % msg for msg in errors)
 
     return HttpResponse(message, content_type='text/javascript', status=status)
 
