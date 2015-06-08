@@ -123,6 +123,31 @@ class FolderTestCase(_DocumentsTestCase):
         folder = self.get_object_or_fail(Folder, title=title)
         self.assertEqual(category, folder.category)
 
+    def test_create_child(self):
+        user = self.user
+
+        create_folder = partial(Folder.objects.create, user=user, parent_folder=None)
+        parent = create_folder(title=u'Parent folder', description='Parent description')
+        unused = create_folder(title=u'Unused parent', description='Unused description')
+
+        url = reverse('documents__create_child_folder', args=(parent.id,))
+        self.assertGET200(url)
+
+        title = 'Child folder'
+        description = 'Child description'
+        response = self.client.post(url, follow=True,
+                                    data={'user':          user.pk,
+                                          'title':         title,
+                                          'description':   description,
+                                          'parent_folder': unused.id, # should not be used
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        folder = self.get_object_or_fail(Folder, title=title)
+        self.assertEqual(description, folder.description)
+        self.assertEqual(parent,      folder.parent_folder)
+
     def test_editview01(self):
         title = u'Test folder'
         description = 'Test description'
