@@ -11,10 +11,12 @@ import creme.creme_core.models.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('creme_core', '0001_initial'),
-        ('persons', '0001_initial'),
         ('contenttypes', '0001_initial'),
-        ('activities', '0001_initial'),
+        ('creme_core', '0001_initial'),
+        #('persons', '0001_initial'),
+        migrations.swappable_dependency(settings.PERSONS_ORGANISATION_MODEL),
+        #('activities', '0001_initial'),
+        migrations.swappable_dependency(settings.ACTIVITIES_ACTIVITY_MODEL),
     ]
 
     operations = [

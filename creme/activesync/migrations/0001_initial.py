@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf import settings
+#from django.conf import settings
 from django.db import models, migrations
 import django.utils.timezone
 
@@ -12,7 +12,6 @@ import creme.activesync.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('auth', '0001_initial'),
         ('creme_core', '0001_initial'),

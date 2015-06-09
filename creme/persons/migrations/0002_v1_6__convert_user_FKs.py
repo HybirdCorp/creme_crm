@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('persons', '0001_initial'),
         ('creme_core', '0003_v1_6__convert_old_users'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [

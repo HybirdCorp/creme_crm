@@ -11,6 +11,7 @@ import creme.creme_core.models.fields
 class Migration(migrations.Migration):
     dependencies = [
         ('creme_core', '0003_v1_6__convert_old_users'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
