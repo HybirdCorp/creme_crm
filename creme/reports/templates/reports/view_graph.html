@@ -5,6 +5,8 @@
 
 {% block page_title %}{% blocktrans %}Rendered {{object}}{% endblocktrans %} - {% endblock %}
 
+{% block bodyclass %}{% if object.report.is_deleted %}class="is_deleted"{% endif %}{% endblock %}
+
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
@@ -12,6 +14,7 @@
             <td class="title">
                 <h1>
                     {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
+                    {% if object.report.is_deleted %} [{% trans "deleted" %}]{% endif %}
                 </h1>
             </td>
             <td class="actions">
