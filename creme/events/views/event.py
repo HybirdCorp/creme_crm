@@ -200,6 +200,7 @@ _FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
                          REL_SUB_NOT_CAME_EVENT,
                         )
 
+# TODO: remove the file 'events/list_events.html'
 @login_required
 @permission_required('events')
 #@permission_required('persons') ????
@@ -209,7 +210,8 @@ def list_contacts(request, event_id):
 
     request.user.has_perm_to_view_or_die(event)
 
-    return list_view(request, Contact, template='events/list_events.html',
+    return list_view(request, Contact,
+                     #template='events/list_events.html',
                      extra_dict={'list_title': _(u'List of contacts related to <%s>') % event,
                                  'add_url':    '/events/event/%s/link_contacts' % event_id,
                                 },
