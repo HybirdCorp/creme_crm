@@ -7,7 +7,8 @@ from django.db import models, migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('persons', '0001_initial'),
+        #('persons', '0001_initial'),
+        migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),
     ]
 
     operations = [

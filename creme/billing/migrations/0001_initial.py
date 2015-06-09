@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0001_initial'),
         ('creme_core', '0001_initial'),
-        ('persons', '0001_initial'),
+        #('persons', '0001_initial'),
+        migrations.swappable_dependency(settings.PERSONS_ORGANISATION_MODEL),
+        migrations.swappable_dependency(settings.PERSONS_ADDRESS_MODEL),
     ]
 
     operations = [

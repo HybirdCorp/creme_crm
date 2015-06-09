@@ -13,9 +13,12 @@ class Migration(migrations.Migration):
         #migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('auth', '0001_initial'),
         ('creme_core', '0001_initial'),
-        ('documents', '0001_initial'),
+        #('documents', '0001_initial'),
+        migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),
         ('media_managers', '0001_initial'),
-        ('persons', '0001_initial'),
+        #('persons', '0001_initial'),
+        migrations.swappable_dependency(settings.PERSONS_CONTACT_MODEL),
+        migrations.swappable_dependency(settings.PERSONS_ORGANISATION_MODEL),
     ]
 
     operations = [
