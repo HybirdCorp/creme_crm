@@ -62,9 +62,6 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     #TODO: method in ListViewState that returns the improved queryset
     queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
 
-    #return EntityCredentials.filter(request.user, queryset) \
-                            #.distinct() \
-                            #.order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
     queryset = EntityCredentials.filter(request.user, queryset).distinct()
     queryset = list_view_state.sort_query(queryset)
 
@@ -112,6 +109,7 @@ def _select_entityfilter(request, entity_filters, default_filter):
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
                       show_actions=True, extra_q=None, o2m=False, post_process=None,
+                      content_template='creme_core/frags/list_view_content.html',
                      ):
     """ Generic list_view wrapper / generator
     Accept only CremeEntity model and subclasses
@@ -183,7 +181,8 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'content_type':       ct,
         'content_type_id':    ct.id,
         'search':             search,
-        'list_view_template': 'creme_core/frags/list_view.html',
+        #'list_view_template': 'creme_core/frags/list_view.html',
+        'content_template':   content_template,
         'o2m':                o2m,
         'add_url':            None,
         'extra_bt_templates': None, # () instead ???,
@@ -196,13 +195,13 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         template_dict.update(extra_dict)
 
     if request.GET.get('ajax', False): #TODO: request.is_ajax() ?
-        template = 'creme_core/frags/list_view_content.html'
+#        template = 'creme_core/frags/list_view_content.html'
+        template = template_dict['content_template']
 
     if post_process:
         post_process(template_dict, request)
 
     #optimisation time !!
-    #hf.populate_entities(entities.object_list, request.user)
     hf.populate_entities(entities.object_list)
 
     return template, template_dict
@@ -219,6 +218,8 @@ def list_view(request, model, *args, **kwargs):
 
     return render(request, template_name, template_dict)
 
+#TODO: remove the file 'creme_core/frags/list_view_popup.html'
+#TODO: remove the file 'creme_core/generics/list_entities_popup.html'
 def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     """@param kwargs See list_view_content()"""
     ct = get_ct_or_404(ct_id)
@@ -228,32 +229,24 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
 
     #req_get = request.REQUEST.get
     req_get = lambda k, default=None: request.POST.get(k, default) or request.GET.get(k, default)
-
     o2m = bool(int(o2m))
-
-    #json_str_q_filter = str(req_get('q_filter', {}))
     kwargs['show_actions'] = bool(int(req_get('sa', False)))
-
-    extra_dict = {'list_view_template': 'creme_core/frags/list_view_popup.html',
+    extra_dict = {
+#                  'list_view_template': 'creme_core/frags/list_view_popup.html',
                   'js_handler':         req_get('js_handler'),
                   'js_arguments':       req_get('js_arguments'),
                   'whoami':             req_get('whoami'),
-#                  'q_filter':           json_str_q_filter,
                   'is_popup_view':      True,
                  }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
     extra_q = kwargs.pop('extra_q', None)
-#   extra_q = get_q_from_dict(JSONDecoder().decode(json_str_q_filter) or {})
-
-#    supplied_extra_q = kwargs.pop('extra_q', None)
-#    if supplied_extra_q:
-#        extra_q &= supplied_extra_q
 
     try:
         template_name, template_dict = list_view_content(request, ct.model_class(), extra_dict=extra_dict,
-                                                         template='creme_core/generics/list_entities_popup.html',
+#                                                         template='creme_core/generics/list_entities_popup.html',
+                                                         template='creme_core/frags/list_view.html',
                                                          extra_q=extra_q, o2m=o2m,
                                                          **kwargs
                                                         )

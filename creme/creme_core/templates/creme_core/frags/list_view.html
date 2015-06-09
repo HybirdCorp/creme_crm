@@ -1,43 +1,6 @@
-{% comment %}TODO : REMOVE IT !
-<script type="text/javascript">
-    $(document).ready(function () {
-        {% if whoami %}
-            creme.lv_widget.initialize({multiple: {{o2m|lower}}}, $('#{{whoami}}'));
-        {% else %}
-            creme.lv_widget.initialize({multiple: {{o2m|lower}}});
-        {% endif %}
-    });
-</script>
-<script type="text/javascript">
-    $(document).ready(function (){
-        $('form[name="list_view_form"]').list_view({
-            o2m: {{o2m|lower}},
-            kd_submitHandler : function (e, input, extra_data){
-                 e = (window.event)?window.event:e;
-
-                var key=(window.event)?e.keyCode:e.which;
-
-                if (key == 13) {
-                    $(input.form).list_view('getSubmit')(input, extra_data);
-                }
-                return true;
-            },
-            submitHandler : function (input, extra_data){
-                var options = {
-                    'action': '?ajax=true',
-                    'success':function(data, status) {
-                        $(input.form).empty().html(data);
-                    }
-                };
-                $(input.form).list_view('handleSubmit', input.form, options, input, extra_data);
-            }
-        });
-        $('.magnify').imageMagnifier();
-    });
-</script>
-{% endcomment %}
 {% block extrahead %}{% endblock %}
 <form action="" method="POST" name="list_view_form" class="ui-creme-widget widget-auto" widget="ui-creme-listview"
       {% if whoami %}whoami="{{whoami}}"{% endif %} {% if not o2m %}multiple{% endif %}>
-    {% include "creme_core/frags/list_view_content.html" %}
+{% comment %}{% include "creme_core/frags/list_view_content.html" %}{% endcomment %}
+    {% include content_template %}
 </form>
