@@ -23,17 +23,40 @@ import logging
 from sys import argv
 
 from django.apps import AppConfig, apps
+from django.core import checks
 from django.utils.translation import ugettext_lazy as _
 
 
 logger = logging.getLogger(__name__)
 
 
-class CremeCoreConfig(AppConfig):
+class CremeAppConfig(AppConfig):
+    dependencies = () # Overload ; eg: ['creme.persons']
+
+    def ready(self):
+        # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
+        # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
+        def check_deps(**kwargs):
+            return [checks.Error("depends on the app '%s' which is not installed." % dep,
+                                 hint='Check the INSTALLED_CREME_APPS setting in your'
+                                      ' local_settings.py/project_settings.py',
+                                 obj=self.name,
+                                 id='creme.E001',
+                                )
+                        for dep in self.dependencies
+                            if not apps.is_installed(dep)
+                   ]
+
+        checks.register('settings')(check_deps)
+
+
+class CremeCoreConfig(CremeAppConfig):
     name = 'creme.creme_core'
     verbose_name = _(u'Core')
 
     def ready(self):
+        super(CremeCoreConfig, self).ready()
+
         if 'migrate' in argv: # problem wit ContentType table which can be not created yet.
             return
 

@@ -1,7 +1,11 @@
-from django.apps import AppConfig
+# -*- coding: utf-8 -*-
+
 from django.utils.translation import ugettext_lazy as _
 
+from creme.creme_core.apps import CremeAppConfig
 
-class EmailsConfig(AppConfig):
+
+class EmailsConfig(CremeAppConfig):
     name = 'creme.emails'
     verbose_name = _(u'Emails')
+    dependencies = ['creme.persons', 'creme.documents', 'creme.crudity']
