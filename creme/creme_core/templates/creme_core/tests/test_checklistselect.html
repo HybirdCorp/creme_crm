@@ -353,5 +353,22 @@
             <ul class="checklist-content search wide"></ul>
         </div>
     </li>
+    <li>
+        <h3>Bench</h3>
+        <div widget="ui-creme-checklistselect" class="ui-creme-input ui-creme-widget widget-auto ui-creme-checklistselect">
+            <select class="ui-creme-input" multiple>
+                {% for index in 250|xrange:1 %}
+                <option value='{{index}}' help="item">{{index|format:"item-%s"}}</option>
+                {% endfor %}
+            </select>
+            <div class="checklist-counter"></div>
+            <div class="checklist-header">
+                <a class="checklist-check-all">Tout sélectionner</a> | 
+                <a class="checklist-check-none">Tout déselectionner</a>
+                <input type="search" class="checklist-filter" placeholder="search">
+            </div>
+            <ul class="checklist-content search"></ul>
+        </div>
+    </li>
 </ul>
 {% endblock %}

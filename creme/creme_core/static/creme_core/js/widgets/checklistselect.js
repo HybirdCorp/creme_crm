@@ -45,12 +45,14 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             self._updateViewFilter(element, $(this).val().toLowerCase());
         });
 
-        $('.checkbox-field input[type="checkbox"]', element).bind('click change', function() {
-            self._selections.toggle(parseInt($(this).attr('checklist-index')), $(this).get()[0].checked);
+        $('.checkbox-field input[type="checkbox"]', element).bind('click change', function(e) {
+            var checkbox = $(this);
+            self._selections.toggle(parseInt(checkbox.attr('checklist-index')), checkbox.prop('checked'));
         });
 
-        $('.checkbox-field .checkbox-label', element).bind('click', function() {
-            $(this).parents('.checkbox-field:first').find('input[type="checkbox"]').click();
+        $('.checkbox-field .checkbox-label', element).bind('click', function(e) {
+            var checkbox = $(this).parents('.checkbox-field:first').find('input[type="checkbox"]');
+            self._selections.toggle(parseInt(checkbox.attr('checklist-index')));
         });
 
         element.addClass('widget-ready');
@@ -80,7 +82,8 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             item.disabled = !filter_lambda(item);
         });
 
-        this._controller.redraw();
+        this._filtered.fetch();
+        //this._controller.redraw();
 
         this._updateViewCounter(element);
     },

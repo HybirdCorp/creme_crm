@@ -219,18 +219,17 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
 
         var value = Object.isNone(data.value) ? '' : data.value;
         var checkbox = $('input[type="checkbox"]', item);
+        var disabled = data.disabled || this._disabled;
 
         if (typeof data.value === 'object')
             value = new creme.utils.JSON().encode(data.value)
-
-        var disabled = data.disabled || this._disabled;
 
         checkbox.toggleAttr('disabled', data.disabled || disabled)
                 .attr('value', value)
                 .attr('checklist-index', index)
                 .data('checklist-item', {data: data, index:index})
 
-        checkbox.get()[0].checked = data.selected;
+        checkbox.prop('checked', data.selected);
 
         $('.checkbox-label-text', item).toggleAttr('disabled', disabled)
                                        .html(data.label);
@@ -352,8 +351,12 @@ creme.model.CheckGroupListRenderer = creme.model.CheckListRenderer.sub({
             group.remove();
     },
 
-    updateItem: function(target, item, data, previous, index)
+    updateItem: function(target, item, data, previous, index, action)
     {
+        if (action === 'select') {
+            return this._super_(creme.model.CheckListRenderer, 'updateItem', target, item, data, previous, index, action);
+        }
+
         var group = target;
         var prev_group = item.parent();
 
