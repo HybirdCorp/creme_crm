@@ -61,6 +61,7 @@ creme.ajax.Backend.prototype = {
 };
 
 creme.ajax.LOCALIZED_ERROR_MESSAGES = {
+    '0':   gettext('Connection Refused'),
     '400': gettext('Bad Request'),
     '401': gettext('Unauthorized'),
     '403': gettext('Forbidden Access'),

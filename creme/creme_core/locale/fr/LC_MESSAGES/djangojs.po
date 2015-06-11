@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-15 16:36+0100\n"
+"POT-Creation-Date: 2015-02-12 14:16+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,8 +35,8 @@ msgstr "Opération effectuée"
 
 #: static/creme_core/js/blocks.js:311
 #: static/creme_core/js/list_view.core.js:159
-#: static/creme_core/js/lv_widget.js:215 static/creme_core/js/lv_widget.js:230
-#: static/creme_core/js/lv_widget.js:249 static/creme_core/js/lv_widget.js:358
+#: static/creme_core/js/lv_widget.js:216 static/creme_core/js/lv_widget.js:261
+#: static/creme_core/js/lv_widget.js:280 static/creme_core/js/lv_widget.js:389
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins une fiche."
 
@@ -138,13 +138,8 @@ msgstr "Ok"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: static/creme_core/js/lv_widget.js:261
-#: static/creme_core/js/widgets/dialog/dialog.js:145
-msgid "Close"
-msgstr "Fermer"
-
-#: static/creme_core/js/lv_widget.js:358 static/creme_core/js/lv_widget.js:363
-#: static/creme_core/js/menu.js:76 static/creme_core/js/utils.js:149
+#: static/creme_core/js/lv_widget.js:222 static/creme_core/js/lv_widget.js:389
+#: static/creme_core/js/lv_widget.js:394 static/creme_core/js/utils.js:149
 #: static/creme_core/js/utils.js.c:495 static/creme_core/js/utils.js:537
 #: static/creme_core/js/tests/ajax/localize.js:10
 #: static/creme_core/js/tests/ajax/localize.js:11
@@ -153,16 +148,35 @@ msgstr "Fermer"
 #: static/creme_core/js/tests/ajax/localize.js:15
 #: static/creme_core/js/tests/ajax/localize.js:16
 #: static/creme_core/js/tests/ajax/localize.js:17
-#: static/creme_core/js/widgets/ajax/backend.js:77
+#: static/creme_core/js/widgets/ajax/backend.js:78
 #: static/creme_core/js/widgets/dialog/dialog.js:484
 msgid "Error"
 msgstr "Erreur"
 
-#: static/creme_core/js/lv_widget.js:363
+#: static/creme_core/js/lv_widget.js:233
+#, c-format
+msgid "%d entity have been deleted."
+msgid_plural "%d entities have been deleted."
+msgstr[0] "%d entité a été supprimée."
+msgstr[1] "%d entités ont été supprimées."
+
+#: static/creme_core/js/lv_widget.js:239
+#, c-format
+msgid " %d entity cannot be deleted."
+msgid_plural " %d entities cannot be deleted."
+msgstr[0] "%d entité n'a pu être supprimée."
+msgstr[1] "%d entités n'ont pu être supprimées."
+
+#: static/creme_core/js/lv_widget.js:292
+#: static/creme_core/js/widgets/dialog/dialog.js:145
+msgid "Close"
+msgstr "Fermer"
+
+#: static/creme_core/js/lv_widget.js:394
 msgid "Please select only one entity."
 msgstr "Veuillez sélectioner un seul enregistrement."
 
-#: static/creme_core/js/lv_widget.js:371
+#: static/creme_core/js/lv_widget.js:402
 msgid "Validate the selection"
 msgstr "Valider la sélection"
 
@@ -213,35 +227,35 @@ msgstr "La page va être rechargée !"
 #: static/creme_core/js/tests/ajax/localize.js:21
 #: static/creme_core/js/tests/ajax/localize.js:22
 #: static/creme_core/js/tests/ajax/localize.js:23
-#: static/creme_core/js/widgets/ajax/backend.js:64
+#: static/creme_core/js/widgets/ajax/backend.js:65
 msgid "Bad Request"
 msgstr "Requête invalide"
 
 #: static/creme_core/js/tests/ajax/localize.js:27
 #: static/creme_core/js/tests/ajax/localize.js:28
 #: static/creme_core/js/tests/ajax/localize.js:29
-#: static/creme_core/js/widgets/ajax/backend.js:65
+#: static/creme_core/js/widgets/ajax/backend.js:66
 msgid "Unauthorized"
 msgstr "Non authentifié"
 
 #: static/creme_core/js/tests/ajax/localize.js:33
 #: static/creme_core/js/tests/ajax/localize.js:34
 #: static/creme_core/js/tests/ajax/localize.js:35
-#: static/creme_core/js/widgets/ajax/backend.js:66
+#: static/creme_core/js/widgets/ajax/backend.js:67
 msgid "Forbidden Access"
 msgstr "Interdit"
 
 #: static/creme_core/js/tests/ajax/localize.js:39
 #: static/creme_core/js/tests/ajax/localize.js:40
 #: static/creme_core/js/tests/ajax/localize.js:41
-#: static/creme_core/js/widgets/ajax/backend.js:67
+#: static/creme_core/js/widgets/ajax/backend.js:68
 msgid "Not Found"
 msgstr "Non trouvé"
 
 #: static/creme_core/js/tests/ajax/localize.js:45
 #: static/creme_core/js/tests/ajax/localize.js:46
 #: static/creme_core/js/tests/ajax/localize.js:47
-#: static/creme_core/js/widgets/ajax/backend.js:68
+#: static/creme_core/js/widgets/ajax/backend.js:69
 msgid "Not Acceptable"
 msgstr "Invalide"
 
@@ -249,14 +263,14 @@ msgstr "Invalide"
 #: static/creme_core/js/tests/ajax/localize.js:51
 #: static/creme_core/js/tests/ajax/localize.js:52
 #: static/creme_core/js/tests/ajax/localize.js:53
-#: static/creme_core/js/widgets/ajax/backend.js:69
+#: static/creme_core/js/widgets/ajax/backend.js:70
 msgid "Conflict"
 msgstr "Conflit"
 
 #: static/creme_core/js/tests/ajax/localize.js:57
 #: static/creme_core/js/tests/ajax/localize.js:58
 #: static/creme_core/js/tests/ajax/localize.js:59
-#: static/creme_core/js/widgets/ajax/backend.js:70
+#: static/creme_core/js/widgets/ajax/backend.js:71
 msgid "Internal Error"
 msgstr "Erreur interne"
 
@@ -286,6 +300,10 @@ msgstr "Capture du graphique"
 #: static/creme_core/js/widgets/plot.js:164
 msgid "View as image"
 msgstr "Capturer une image du graphique"
+
+#: static/creme_core/js/widgets/ajax/backend.js:64
+msgid "Connection Refused"
+msgstr "Connexion refusée"
 
 #: static/creme_core/js/widgets/component/chosen.js:25
 msgid "No result"

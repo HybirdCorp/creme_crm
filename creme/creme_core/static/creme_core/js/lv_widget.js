@@ -210,14 +210,45 @@ creme.lv_widget.selectedLines = function(list) {
 creme.lv_widget.deleteSelectedLines = function(list) {
     var list = $(list);
     var selection = creme.lv_widget.selectedLines(list);
+    var parser = new creme.utils.JSON();
 
     if (!selection.length) {
         creme.dialogs.warning(gettext("Please select at least one entity.")).open();
         return;
     }
 
-    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {}, {ids: selection.join(',')});
-    query.onComplete(function(event, data) {list.list_view('reload');});
+    var query = creme.utils.confirmPOSTQuery('/creme_core/entity/delete/multi', {warnOnFail: false, dataType:'json'}, {ids: selection.join(',')});
+    query.onFail(function(event, error, data) {
+              var message = Object.isType(error, 'string') ? error : (error.message || gettext("Error"));
+              var header = creme.ajax.localizedErrorMessage(data);
+
+              if (!Object.isEmpty(message) && parser.isJSON(message))
+              {
+                  var results = parser.decode(message);
+                  var removed_count = results.count - results.errors.length;
+
+                  header = '';
+
+                  if (removed_count > 0) {
+                      header = ngettext('%d entity have been deleted.',
+                                        '%d entities have been deleted.',
+                                        removed_count).format(removed_count)
+                  }
+
+                  if (results.errors) {
+                      header += ngettext(' %d entity cannot be deleted.',
+                                         ' %d entities cannot be deleted.',
+                                         results.errors.length).format(results.errors.length);
+                  }
+
+                  message = '<ul>' + results.errors.map(function(item) {return '<li>' + item + '</li>'}).join('') + '<ul>';
+              }
+
+              creme.dialogs.warning(message, {header: header})
+                           .onClose(function() {list.list_view('reload');})
+                           .open();
+          })
+         .onDone(function(event, data) {list.list_view('reload');});
 
     return query.start();
 }
