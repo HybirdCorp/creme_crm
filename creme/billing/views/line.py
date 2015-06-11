@@ -21,7 +21,7 @@
 from json import loads as jsonloads
 
 from django.forms.models import modelformset_factory
-from django.http import HttpResponse #Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
@@ -38,7 +38,7 @@ from .. import get_product_line_model, get_service_line_model
 #from ..constants import PRODUCT_LINE_TYPE
 from ..forms.line import (ProductLineMultipleAddForm, ServiceLineMultipleAddForm,
         LineEditForm, AddToCatalogForm)
-from ..models import Line, ProductLine, ServiceLine
+from ..models import ProductLine, ServiceLine #Line
 
 
 @login_required

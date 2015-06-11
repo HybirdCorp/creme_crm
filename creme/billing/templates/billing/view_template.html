@@ -1,9 +1,8 @@
 {% extends "billing/view_billing.html" %}
-{% comment %}{% load i18n %}{% endcomment %}
-{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block add_new_button %}{% endblock %}{% comment %}TODO: remove when a better way to remove 'add new' & 'clone' buttons is available{% endcomment %}
 
+{% comment %}
 {% block extra_menu_buttons %}
     {{block.super}}
     {% if object.ct.model == 'quote' %}
@@ -13,3 +12,4 @@
         <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>
     {% endif %}
 {% endblock %}
+{% endcomment %}

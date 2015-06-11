@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations
 #from django.db.models import F
 
 from creme.billing import (credit_note_model_is_custom, invoice_model_is_custom,

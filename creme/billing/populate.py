@@ -22,11 +22,9 @@
 import logging
 
 from django.apps import apps
-from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 
-from creme.creme_core.core.entity_cell import (EntityCellRegularField,
-        EntityCellFunctionField, EntityCellRelation)
+from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellRelation #EntityCellFunctionField
 from creme.creme_core.models import (RelationType, SearchConfigItem,
         ButtonMenuItem, HeaderFilter, EntityFilter, SettingValue,
         BlockDetailviewLocation, BlockPortalLocation, EntityFilterCondition)

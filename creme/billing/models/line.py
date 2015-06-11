@@ -25,13 +25,11 @@ import logging
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, DecimalField, BooleanField, TextField,
         PositiveIntegerField, ForeignKey, PROTECT) #IntegerField
-from django.db.models.query_utils import Q
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
+#from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
-from creme.creme_core.core.function_field import FunctionField
+#from creme.creme_core.core.function_field import FunctionField
 
 from ..constants import (REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
         DISCOUNT_UNIT, DEFAULT_DECIMAL, DEFAULT_QUANTITY) # LINE_TYPES

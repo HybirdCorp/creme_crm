@@ -20,6 +20,7 @@
 
 from datetime import timedelta #date
 import logging
+import warnings
 
 from django.core.urlresolvers import reverse
 from django.db.models import PositiveIntegerField #ForeignKey
@@ -68,6 +69,11 @@ class AbstractTemplateBase(Base):
         return reverse('billing__list_templates')
 
     def get_generator(self):
+        warnings.warn('TemplateBase.get_generator() method is deprecated; '
+                      'use RecurrentGenerator.objects.get(template=obj) instead',
+                      DeprecationWarning
+                     )
+
         from creme.recurrents.models import RecurrentGenerator
         try:
             return RecurrentGenerator.objects.get(template=self)
@@ -100,6 +106,7 @@ class AbstractTemplateBase(Base):
 
         return instance
 
+    # TODO: probably useless now (10th june 2015)
     # This build is in case of convert a template with a ct into another template with a different ct
     def build(self, template, new_ct):
         # Specific generation rules
