@@ -21,6 +21,8 @@
 from collections import defaultdict
 import logging
 
+from json import dumps as json_dumps
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ProtectedError
@@ -486,14 +488,14 @@ def _delete_entity(user, entity):
             return 403, _(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(user)
 
         if not user.has_perm_to_change(related):
-            return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
+            return 403, _(u'%s : <b>Permission denied</b>') % entity.allowed_unicode(user)
 
         #entity.relations.exclude(type__is_internal=True).delete()
         #entity.properties.all().delete()
         trash = False
     else:
         if not user.has_perm_to_delete(entity):
-            return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
+            return 403, _(u'%s : <b>Permission denied</b>') % entity.allowed_unicode(user)
 
         trash = not entity.is_deleted
 
@@ -557,7 +559,11 @@ def delete_entities(request):
         message = _('Operation successfully completed')
     else:
         status = min(errors.iterkeys())
-        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+        #message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+        message = json_dumps({'count': len(entity_ids),
+                              'errors': [msg for error_messages in errors.itervalues() for msg in error_messages],
+                             }
+                            )
 
     return HttpResponse(message, content_type='text/javascript', status=status)
 

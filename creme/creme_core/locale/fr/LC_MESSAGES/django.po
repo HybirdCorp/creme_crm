@@ -2828,8 +2828,8 @@ msgstr "%s n'utilise pas la vue de suppression générique."
 
 #: views/entity.py:474 views/entity.py:481 views/relation.py:269
 #, python-format
-msgid "%s : <b>Permission denied</b>,"
-msgstr "%s : <b>Permission refusée</b>,"
+msgid "%s : <b>Permission denied</b>"
+msgstr "%s : <b>Permission refusée</b>"
 
 #: views/entity.py:493
 #, python-format

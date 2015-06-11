@@ -25,6 +25,7 @@ try:
     from creme.creme_core.gui.bulk_update import bulk_update_registry
     from creme.creme_core.blocks import trash_block
     from creme.creme_core.forms.bulk import _CUSTOMFIELD_FORMAT, BulkDefaultEditForm
+    from creme.creme_core.utils import safe_unicode
 
     #from creme.media_managers.models import Image, MediaCategory
 
@@ -349,9 +350,12 @@ class EntityViewsTestCase(ViewsTestCase):
         entity01, entity02 = (create_entity() for i in xrange(2))
         entity03, entity04 = (create_entity(is_deleted=True) for i in xrange(2))
 
-        self.assertPOST200(self.DEL_ENTITIES_URL,
-                           data={'ids': '%s,%s,%s' % (entity01.id, entity02.id, entity03.id)}
-                          )
+        response = self.assertPOST200(self.DEL_ENTITIES_URL,
+                                      data={'ids': '%s,%s,%s' % (entity01.id, entity02.id, entity03.id)}
+                                     )
+
+        self.assertEqual(safe_unicode(response.content), _(u'Operation successfully completed'))
+
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
         self.assertTrue(entity01.is_deleted)
 
@@ -361,28 +365,42 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertDoesNotExist(entity03)
         self.assertStillExists(entity04)
 
-    def test_delete_entities02(self):
+    def test_delete_entities_missing(self):
+        "Some entities doesn't exist"
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         entity01, entity02 = (create_entity() for i in xrange(2))
 
-        self.assertPOST404(self.DEL_ENTITIES_URL,
-                           data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
-                          )
+        response = self.assertPOST404(self.DEL_ENTITIES_URL,
+                                      data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
+                                     )
+
+        self.assertDictEqual({'count': 2,
+                              'errors': [_(u"%s entities doesn't exist / doesn't exist any more") % 1]
+                             },
+                             load_json(response.content))
+
         #self.assertFalse(CremeEntity.objects.filter(pk=entity01.id))
         entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
         self.assertTrue(entity01.is_deleted)
 
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
-    def test_delete_entities03(self):
+    def test_delete_entities_not_allowed(self):
+        "Some entities deletion is not allowed"
         user = self.login(is_superuser=False)
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
         allowed   = CremeEntity.objects.create(user=user)
 
-        self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '%s,%s,' % (forbidden.id, allowed.id)})
+        response = self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '%s,%s,' % (forbidden.id, allowed.id)})
+
+        self.assertDictEqual({'count': 2,
+                              'errors': [_(u'%s : <b>Permission denied</b>') % forbidden.allowed_unicode(user)]
+                             },
+                             load_json(response.content))
+
         #self.assertFalse(CremeEntity.objects.filter(pk=allowed.id))
         allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
         self.assertTrue(allowed.is_deleted)
