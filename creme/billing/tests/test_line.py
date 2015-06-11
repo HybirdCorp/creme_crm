@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
+    #from datetime import date
     from decimal import Decimal
     from functools import partial
     from json import dumps as json_dump
@@ -11,8 +11,8 @@ try:
     #from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
-    from creme.creme_core.models import Relation, SetCredentials, Vat, HeaderFilter
+    #from creme.creme_core.core.entity_cell import EntityCellRegularField, EntityCellFunctionField
+    from creme.creme_core.models import Relation, SetCredentials, Vat # HeaderFilter
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.tests.base import skipIfCustomOrganisation

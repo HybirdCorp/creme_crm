@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
 
+from .. import get_template_base_model
 from ..constants import REL_SUB_CREDIT_NOTE_APPLIED
 from .base import Base
 from .other_models import CreditNoteStatus
@@ -55,9 +56,20 @@ class AbstractCreditNote(Base):
 #        return "/billing/credit_note"
         return reverse('billing__list_cnotes')
 
+    #TODO: factorise the build() methods
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = CreditNoteStatus.objects.get(pk = template.status_id)
+        status_id = 1 #default status (see populate.py)
+
+#        if isinstance(template, TemplateBase):
+        if isinstance(template, get_template_base_model()):
+            tpl_status_id = template.status_id
+
+            if CreditNoteStatus.objects.filter(pk=tpl_status_id).exists():
+                status_id = tpl_status_id
+
+        self.status_id = status_id
+
 #        return super(CreditNote, self).build(template)
         return super(AbstractCreditNote, self).build(template)
 

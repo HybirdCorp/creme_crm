@@ -24,31 +24,6 @@ class SalesOrderTestCase(_BillingTestCase):
         #_BillingTestCase.setUp(self)
         self.login()
 
-    def create_salesorder(self, name, source, target, currency=None, status=None): #TODO inline (used once)
-        currency = currency or Currency.objects.all()[0]
-#        response = self.client.post('/billing/sales_order/add', follow=True,
-        response = self.client.post(reverse('billing__create_order'), follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            name,
-                                          'issuing_date':    '2012-1-5',
-                                          'expiration_date': '2012-2-15',
-                                          'status':          status.id if status else 1,
-                                          'currency':        currency.id,
-                                          'discount':        Decimal(),
-                                          'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(SalesOrder, name=name)
-
-    def create_salesorder_n_orgas(self, name, currency=None, status=None):
-        source, target = self.create_orgas()
-        order = self.create_salesorder(name, source, target, currency, status)
-
-        return order, source, target
-
     def test_createview01(self):
 #        self.assertGET200('/billing/sales_order/add')
         self.assertGET200(reverse('billing__create_order'))

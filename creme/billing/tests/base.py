@@ -166,6 +166,31 @@ class _BillingTestCaseMixin(object):
                                       category=cat, sub_category=subcat
                                      )
 
+    def create_salesorder(self, name, source, target, currency=None, status=None): #TODO inline (used once)
+        currency = currency or Currency.objects.all()[0]
+#        response = self.client.post('/billing/sales_order/add', follow=True,
+        response = self.client.post(reverse('billing__create_order'), follow=True,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'issuing_date':    '2012-1-5',
+                                          'expiration_date': '2012-2-15',
+                                          'status':          status.id if status else 1,
+                                          'currency':        currency.id,
+                                          'discount':        Decimal(),
+                                          'source':          source.id,
+                                          'target':          self.genericfield_format_entity(target),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        return self.get_object_or_fail(SalesOrder, name=name)
+
+    def create_salesorder_n_orgas(self, name, currency=None, status=None):
+        source, target = self.create_orgas()
+        order = self.create_salesorder(name, source, target, currency, status)
+
+        return order, source, target
+
     def assertDeleteStatusOK(self, status, short_name):
         self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
         self.assertDoesNotExist(status)

@@ -14,14 +14,14 @@ try:
             SetCredentials, Relation, RelationType, Currency)
 
     from creme.persons import get_organisation_model
-    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
-    from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.models import Organisation, Address
+    from creme.persons.tests.base import skipIfCustomOrganisation, skipIfCustomAddress
 
     from .. import get_invoice_model
     from ..models import *
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-    from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice, 
+    from .base import (_BillingTestCase, skipIfCustomQuote, skipIfCustomInvoice,
             skipIfCustomSalesOrder, skipIfCustomProductLine, skipIfCustomServiceLine)
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
@@ -369,3 +369,18 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
+
+    @skipIfCustomOrganisation
+    def test_convert_error01(self):
+        "Source is not a billing document"
+        user = self.login()
+        orga = Organisation.objects.create(user=user, name='Arcadia')
+
+        self._convert(409, orga, 'sales_order')
+
+    @skipIfCustomSalesOrder
+    def test_convert_error02(self):
+        "Some combinations are forbidden"
+        self.login()
+        order = self.create_salesorder_n_orgas('Order for Acracadia')[0]
+        self._convert(409, order, 'sales_order')
