@@ -231,7 +231,7 @@ creme.model.SelectionController = creme.component.Component.sub({
         var inrange = this._inRange;
         var items = this.model().all();
 
-        var haschanges = false;
+        var has_updates = false;
         var next, previous, item;
 
         for(var index = 0; index < items.length; ++index)
@@ -249,16 +249,26 @@ creme.model.SelectionController = creme.component.Component.sub({
                 next = outstate ? outstate(item, index) : previous;
             }
 
-            if (next !== undefined && next !== previous)
-            {
+            if (next !== undefined && next !== previous) {
                 item.selected = next;
-                model.set(item, index, 'select');
-                haschanges = true;
+                has_updates = true;
             }
         }
 
-        if (haschanges)
+        if (has_updates)
+        {
+            indices.forEach(function(range) {
+                update_start = range[0];
+                update_end = range[1];
+
+                model._fireUpdate(items.slice(update_start, update_end + 1),
+                                  update_start, update_end,
+                                  items.slice(update_start, update_end + 1),
+                                  'select');
+            });
+
             this._events.trigger('change', [], this);
+        }
 
         return this;
     },

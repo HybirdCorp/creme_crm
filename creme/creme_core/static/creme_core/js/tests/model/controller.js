@@ -266,7 +266,7 @@ test('creme.model.SelectionController.select (update model)', function() {
     deepEqual([], this.mockListenerCalls('removed'));
     deepEqual([], this.mockListenerCalls('added'));
     deepEqual([], this.mockListenerCalls('update'));
-    deepEqual([], this.mockListenerCalls('selection'));
+    deepEqual([], this.mockListenerCalls('selection'), 'out of bound index');
 
     this.resetMockCalls();
     controller.select([1, 3]);
@@ -275,7 +275,7 @@ test('creme.model.SelectionController.select (update model)', function() {
     deepEqual([], this.mockListenerCalls('removed'));
     deepEqual([], this.mockListenerCalls('added'));
     deepEqual([['update', [{value: 5, selected: true}], 1, 1, [{value: 5, selected: true}], 'select'], 
-               ['update', [{value: 3, selected: true}], 3, 3, [{value: 3, selected: true}], 'select']], this.mockListenerCalls('update'));
+               ['update', [{value: 3, selected: true}], 3, 3, [{value: 3, selected: true}], 'select']], this.mockListenerCalls('update'), 'select [1,3]');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
@@ -374,27 +374,33 @@ test('creme.model.SelectionController.toggleAll', function() {
     controller.toggleAll();
     deepEqual([{value:2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}], controller.selected());
 
-    deepEqual([['update', [{value: 2, selected: true}], 0, 0, [{value: 2, selected: true}], 'select'],
-               ['update', [{value: 5, selected: true}], 1, 1, [{value: 5, selected: true}], 'select'], 
-               ['update', [{value: 4, selected: true}], 2, 2, [{value: 4, selected: true}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          0, 2,
+                          [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          'select']
+              ], this.mockListenerCalls('update'), 'toggle all select');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
     controller.toggleAll();
     deepEqual([], controller.selected());
 
-    deepEqual([['update', [{value: 2, selected: false}], 0, 0, [{value: 2, selected: false}], 'select'],
-               ['update', [{value: 5, selected: false}], 1, 1, [{value: 5, selected: false}], 'select'], 
-               ['update', [{value: 4, selected: false}], 2, 2, [{value: 4, selected: false}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          0, 2,
+                          [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          'select']
+              ], this.mockListenerCalls('update'), 'toggle all unselect');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
     controller.toggleAll(true);
     deepEqual([{value:2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}], controller.selected());
 
-    deepEqual([['update', [{value: 2, selected: true}], 0, 0, [{value: 2, selected: true}], 'select'],
-               ['update', [{value: 5, selected: true}], 1, 1, [{value: 5, selected: true}], 'select'], 
-               ['update', [{value: 4, selected: true}], 2, 2, [{value: 4, selected: true}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          0, 2,
+                          [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          'select']
+              ], this.mockListenerCalls('update'), 'toggle all force select');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
@@ -408,16 +414,23 @@ test('creme.model.SelectionController.toggleAll', function() {
     controller.toggleAll(true);
     deepEqual([{value:2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}], controller.selected());
 
-    deepEqual([['update', [{value: 4, selected: true}], 2, 2, [{value: 4, selected: true}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          0, 2,
+                          [{value: 2, selected: true}, {value: 5, selected: true}, {value: 4, selected: true}],
+                          'select']
+               ], this.mockListenerCalls('update'), 'toggle all select');
+
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
     controller.toggleAll(false);
     deepEqual([], controller.selected());
 
-    deepEqual([['update', [{value: 2, selected: false}], 0, 0, [{value: 2, selected: false}], 'select'],
-               ['update', [{value: 5, selected: false}], 1, 1, [{value: 5, selected: false}], 'select'], 
-               ['update', [{value: 4, selected: false}], 2, 2, [{value: 4, selected: false}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          0, 2,
+                          [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          'select']
+               ], this.mockListenerCalls('update'), 'toggle all unselect');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 
     this.resetMockCalls();
@@ -431,6 +444,10 @@ test('creme.model.SelectionController.toggleAll', function() {
     controller.toggleAll(false);
     deepEqual([], controller.selected());
 
-    deepEqual([['update', [{value: 4, selected: false}], 2, 2, [{value: 4, selected: false}], 'select']], this.mockListenerCalls('update'));
+    deepEqual([['update', [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          0, 2,
+                          [{value: 2, selected: false}, {value: 5, selected: false}, {value: 4, selected: false}],
+                          'select']
+               ], this.mockListenerCalls('update'), 'toggle all unselect');
     deepEqual([['change']], this.mockListenerCalls('selection'));
 });

@@ -153,7 +153,7 @@ creme.model.Filter = creme.model.Delegate.sub({
         return this._data;
     },
 
-    fetch: function()
+    fetch: function(start, end)
     {
         var data = this._filterData();
         this._super_(creme.model.Array, 'reset', data);

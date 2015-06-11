@@ -215,7 +215,7 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
                             {label:'item3', value:'5',  selected:false}]);
     equal(null, widget.val());
 
-    $('input[type="checkbox"][value="12"]', widget.content()).attr('checked', true).change();
+    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', true).change();
 
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:true},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
@@ -226,8 +226,8 @@ test('creme.widget.CheckListSelect.val (select / unselect)', function() {
                             {label:'item3', value:'5',  selected:false}]);
     deepEqual(["12"], widget.val());
 
-    $('input[type="checkbox"][value="12"]', widget.content()).attr('checked', false).change();
-    $('input[type="checkbox"][value="5"]', widget.content()).attr('checked', true).change();
+    $('input[type="checkbox"][value="12"]', widget.content()).prop('checked', false).change();
+    $('input[type="checkbox"][value="5"]', widget.content()).prop('checked', true).change();
 
     deepEqual([{label:'item1', value:"12", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
                {label:'item2', value:"78", group: undefined, help: undefined, disabled:false, visible:true, tags:[], selected:false},
