@@ -8,10 +8,11 @@ try:
     from django.utils.timezone import now
 
     from .base import ViewsTestCase
-    from ..fake_models import (FakeContact as Contact, FakeImage as Image,
+    from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address,
+            FakeImage as Image, FakeImageCategory as ImageCategory,
             FakeActivity as Activity, FakeActivityType as ActivityType,
-            FakeEmailCampaign as EmailCampaign,
+            FakeEmailCampaign as EmailCampaign, FakeMailingList as MailingList,
             FakeCivility as Civility, FakeSector as Sector)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
@@ -83,8 +84,7 @@ class ListViewTestCase(ViewsTestCase):
                                   )
 
     def test_content01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
@@ -164,9 +164,9 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(str(cfield_value), content)
 
     def test_order01(self): #TODO: test with ajax ?
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
 
@@ -210,14 +210,14 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_order02(self):
         "Sort by ForeignKey"
-        self.login()
+        user = self.login()
 
         create_civ = Civility.objects.create
         mister = create_civ(title='Mister')
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
         faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed    = create_contact(first_name='Edward', last_name='Wong')
@@ -289,10 +289,10 @@ class ListViewTestCase(ViewsTestCase):
     def test_order03(self):
         "Unsortable fields: ManyToMany, FunctionFields"
 #        from creme.emails.models import EmailCampaign
-        self.login()
+        user = self.login()
 
         #bug on ORM with M2M happens only if there is at least one entity
-        EmailCampaign.objects.create(user=self.user, name='Camp01')
+        EmailCampaign.objects.create(user=user, name='Camp01')
 
         fname = 'mailing_lists'
         func_field_name = 'get_pretty_properties'
@@ -374,14 +374,14 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), Contact._meta.ordering)
-        self.login()
+        user = self.login()
 
         create_civ = Civility.objects.create
         mister = create_civ(title='Mister')
         miss   = create_civ(title='Miss')
         self.assertLess(mister.id, miss.id)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
         faye = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
         ed = create_contact(first_name='Edward', last_name='Wong')
@@ -429,7 +429,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertFalse(bool(Address._meta.ordering))
 
         def create_contact(first_name, last_name, address):
-            contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+            contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name)
 #            contact.billing_address = Address.objects.create(owner=contact, name=address)
             contact.address = Address.objects.create(entity=contact, value=address)
             contact.save()
@@ -852,32 +852,145 @@ class ListViewTestCase(ViewsTestCase):
 
 #    @skipIfNotInstalled('creme.emails')
     def test_search_m2mfields01(self):
+        "M2M to CremeEntity model"
 #        from creme.emails.models import EmailCampaign
 
-        self.login()
+        user = self.login()
         hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
                                  model=EmailCampaign,
                                 )
         build_cell = partial(EntityCellRegularField.build, model=EmailCampaign)
 
         cell_m2m = build_cell(name='mailing_lists')
-        self.assertFalse(cell_m2m.has_a_filter)
-        self.assertEqual('', cell_m2m.filter_string)
+        self.assertTrue(cell_m2m.has_a_filter)
+        self.assertFalse(cell_m2m.sortable)
+        self.assertEqual('mailing_lists__header_filter_search_field__icontains',
+                         cell_m2m.filter_string
+                        )
 
         hf.cells = [build_cell(name='name'), cell_m2m]
         hf.save()
 
-        #we just check that it does not crash
-        self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
-                           data={'_search':       1,
-                                 #'mailing_lists': 'MLname',
-                                 'regular_field-mailing_lists': 'MLname',
-                                }
-                          )
+        create_mlist = partial(MailingList.objects.create, user=user)
+        ml1 = create_mlist(name='Bebop')
+        ml2 = create_mlist(name='Mafia')
+
+        create_camp = partial(EmailCampaign.objects.create, user=user)
+        camp1 = create_camp(name='Ships')
+        camp2 = create_camp(name='Bonzais')
+        camp3 = create_camp(name='Mushrooms')
+
+        camp1.mailing_lists = [ml1, ml2]
+        camp2.mailing_lists = [ml1]
+
+        def search(term):
+            response = self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
+                                          data={'hfilter': hf.id,
+                                                '_search': 1,
+                                                'regular_field-mailing_lists': term,
+                                               }
+                                         )
+            return self._get_lv_content(response)
+
+        content = search('Bebo')
+        self.assertIn(camp1.name,    content)
+        self.assertIn(camp2.name,    content)
+        self.assertNotIn(camp3.name, content)
+
+        content = search('afia')
+        self.assertIn(camp1.name,    content)
+        self.assertNotIn(camp2.name, content)
+        self.assertNotIn(camp3.name, content)
+
+    def test_search_m2mfields02(self):
+        "M2M to basic model"
+        user = self.login()
+        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=Image)
+        build_cell = partial(EntityCellRegularField.build, model=Image)
+
+        cell_m2m = build_cell(name='categories')
+        self.assertTrue(cell_m2m.has_a_filter)
+        self.assertEqual('categories', cell_m2m.filter_string)
+
+        hf.cells = [build_cell(name='name'), cell_m2m]
+        hf.save()
+
+        cat1, cat2 = ImageCategory.objects.all()[:2]
+
+        create_img = partial(Image.objects.create, user=user)
+        img1 = create_img(name='Bebop image')
+        img2 = create_img(name='Dragon logo')
+        img3 = create_img(name='Mushrooms image')
+
+        img1.categories = [cat1, cat2]
+        img2.categories = [cat1]
+
+        def search(searched):
+            response = self.assertPOST200(Image.get_lv_absolute_url(),
+                                          data={'hfilter': hf.id,
+                                                '_search': 1,
+                                                cell_m2m.key: searched,
+                                               }
+                                         )
+            return self._get_lv_content(response)
+
+        content = search(cat1.name[:5]) # invalid we need an ID => no filter
+        self.assertIn(img1.name, content)
+        self.assertIn(img3.name, content)
+
+        content = search(cat1.id)
+        self.assertIn(img1.name,    content)
+        self.assertIn(img2.name,    content)
+        self.assertNotIn(img3.name, content)
+
+        content = search(cat2.id)
+        self.assertIn(img1.name,    content)
+        self.assertNotIn(img2.name, content)
+        self.assertNotIn(img3.name, content)
+
+        content = search('NULL')
+        self.assertNotIn(img1.name, content)
+        self.assertNotIn(img2.name, content)
+        self.assertIn(img3.name,    content)
+
+    def test_search_m2mfields03(self):
+        "M2M to basic model + sub-field"
+        user = self.login()
+        hf = HeaderFilter.create(pk='test-hf_img', name='Image view', model=Image)
+        build_cell = partial(EntityCellRegularField.build, model=Image)
+
+        cell_m2m = build_cell(name='categories__name')
+        self.assertTrue(cell_m2m.has_a_filter)
+
+        hf.cells = [build_cell(name='name'), cell_m2m]
+        hf.save()
+
+        cat1, cat2 = ImageCategory.objects.all()[:2]
+
+        create_img = partial(Image.objects.create, user=user)
+        img1 = create_img(name='Bebop image')
+        img2 = create_img(name='Dragon logo')
+        img3 = create_img(name='Mushrooms image')
+
+        img1.categories = [cat1, cat2]
+        img2.categories = [cat1]
+
+        def search(searched):
+            response = self.assertPOST200(Image.get_lv_absolute_url(),
+                                          data={'hfilter': hf.id,
+                                                '_search': 1,
+                                                cell_m2m.key: searched,
+                                               }
+                                         )
+            return self._get_lv_content(response)
+
+        content = search(cat1.name[:5])
+        self.assertIn(img1.name,    content)
+        self.assertIn(img2.name,    content)
+        self.assertNotIn(img3.name, content)
 
     def test_search_relations01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
@@ -921,9 +1034,9 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield01(self):
         "INT"
-        self.login()
+        user = self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         bebop     = create_orga(name='Bebop')
         swordfish = create_orga(name='Swordfish')
         redtail   = create_orga(name='Redtail')

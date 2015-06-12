@@ -49,6 +49,10 @@ def populate():
     create_actype(name='Meeting')
 
     create_hf = HeaderFilter.create
+    create_hf(pk='creme_core-hf_fakeimage', name=u'FakeImage view',
+              model=FakeImage,
+              cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+             )
     create_hf(pk='creme_core-hf_fakecontact', name=u'FakeContact view',
               model=FakeContact,
               cells_desc=[(EntityCellRegularField, {'name': 'last_name'}),

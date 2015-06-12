@@ -21,7 +21,7 @@
 import logging
 
 #from django.db import models
-from django.db.models import ForeignKey, BooleanField, DateField
+from django.db.models import ForeignKey, ManyToManyField, BooleanField, DateField
 from django.template import Library
 from django.utils.translation import ugettext as _
 
@@ -119,7 +119,8 @@ def get_listview_columns_header(context):
         if isinstance(cell, EntityCellRegularField):
             field = cell.field_info[-1]
 
-            if isinstance(field, ForeignKey):
+#            if isinstance(field, ForeignKey):
+            if isinstance(field, (ForeignKey, ManyToManyField)): # TODO: hasattr(field, 'rel') ? [wait for django1.8 field API]
                 if cell.filter_string.endswith('__header_filter_search_field__icontains'):
                     if search_value:
                         widget_ctx['value'] = search_value[0]
@@ -130,19 +131,12 @@ def get_listview_columns_header(context):
                         #TODO: generalise the system of 'header_filter_search_field' ??
                         continue
                     else:
-                        #choices = ((o.id, o)
-                                        #for o in field.rel.to.objects.distinct()
-                                            ##if unicode(o) != "" #Commented on 20 march 2014
-                                  #)
                         choices = []
 
                         if field.null:
                             choices.append((NULL_FK, _('* is empty *')))
 
-                        choices.extend((o.id, o)
-                                            for o in field.rel.to.objects.distinct()
-                                                #if unicode(o) != "" #Commented on 20 march 2014
-                                      )
+                        choices.extend((o.id, o) for o in field.rel.to.objects.distinct())
 
                     _build_select_search_widget(widget_ctx, search_value, choices)
             elif field.choices:

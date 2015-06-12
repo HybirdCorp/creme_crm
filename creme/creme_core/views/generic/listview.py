@@ -19,6 +19,7 @@
 ################################################################################
 
 from json import loads as json_load
+import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -35,6 +36,9 @@ from creme.creme_core.models.header_filter import HeaderFilterList
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
 from .popup import inner_popup
+
+
+logger = logging.getLogger(__name__)
 
 
 class NoHeaderFilterAvailable(Exception):
@@ -60,7 +64,10 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
 
     list_view_state.extra_q = extra_q
     #TODO: method in ListViewState that returns the improved queryset
-    queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
+    try:
+        queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.cells))
+    except Exception:
+        logger.exception('Error when build the search queryset')
 
     queryset = EntityCredentials.filter(request.user, queryset).distinct()
     queryset = list_view_state.sort_query(queryset)

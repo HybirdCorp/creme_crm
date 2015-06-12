@@ -127,6 +127,11 @@ urlpatterns = patterns('creme.creme_core.views',
 
 if settings.TESTS_ON:
     urlpatterns += patterns('creme.creme_core.tests.fake_views',
+        (r'^tests/images$',                        'image_listview'),
+        #(r'^tests/image/add$',                    'image_add'),
+        #(r'^tests/image/edit/(?P<image_id>\d+)$', 'image_edit'),
+        #(r'^tests/image/(?P<image_id>\d+)$',      'image_detailview'),
+
         (r'^tests/contacts$',                           'contact_listview'),
         (r'^tests/contact/add$',                        'contact_add'),
         (r'^tests/contact/edit/(?P<contact_id>\d+)$',   'contact_edit'),

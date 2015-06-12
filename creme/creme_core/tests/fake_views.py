@@ -10,6 +10,11 @@ from ..tests import fake_models, fake_forms
 
 @login_required
 @permission_required('creme_core')
+def image_listview(request):
+    return generic.list_view(request, fake_models.FakeImage)
+
+@login_required
+@permission_required('creme_core')
 @permission_required('creme_core.add_fakecontact')
 def contact_add(request):
     return generic.add_entity(request, fake_forms.FakeContactForm)
