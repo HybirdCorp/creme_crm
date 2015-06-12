@@ -623,9 +623,9 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/widgets/container.js',
 )
 
-# Optional js bundles for extending projects.
+# Optional js/css bundles for extending projects.
 # Beware to clashes with existing bundles ('main.js', 'l10n.js').
-CREME_OPT_JS_BUNDLES = ()
+CREME_OPT_MEDIA_BUNDLES = ()
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
@@ -859,7 +859,7 @@ MEDIA_BUNDLES = (
 if FORCE_JS_TESTVIEW:
     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
 
-MEDIA_BUNDLES += CREME_OPT_JS_BUNDLES
+MEDIA_BUNDLES += CREME_OPT_MEDIA_BUNDLES
 
 CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
 MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
