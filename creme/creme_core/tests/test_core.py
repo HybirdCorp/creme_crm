@@ -324,12 +324,14 @@ class EntityCellTestCase(CremeTestCase):
         "ManyToMany"
 #        cell = EntityCellRegularField.build(model=Contact, name='language')
         cell = EntityCellRegularField.build(model=Contact, name='languages')
-        self.assertIs(cell.has_a_filter, False)
+        self.assertIs(cell.has_a_filter, True)
+        self.assertEqual('languages', cell.filter_string)
         self.assertIs(cell.sortable, False)
 
 #        cell = EntityCellRegularField.build(model=Contact, name='language__name')
         cell = EntityCellRegularField.build(model=Contact, name='languages__name')
-        self.assertIs(cell.has_a_filter, False)
+        self.assertIs(cell.has_a_filter, True)
+        self.assertEqual('languages__name__icontains', cell.filter_string)
 
     def test_build_4_field_errors(self):
         build = partial(EntityCellRegularField.build, model=Contact)

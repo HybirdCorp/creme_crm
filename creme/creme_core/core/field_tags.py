@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ def _add_tags_to_fields():
     """Hook Django models.Field to add a tag system.
     DO NOT CALL THIS METHOD, CREME DO IT FOR YOU !!
     """
-    from django.db.models import Field, AutoField, OneToOneField, ForeignKey
+    from django.db.models import Field, AutoField, OneToOneField, ForeignKey, ManyToManyField
     from django.contrib.contenttypes.models import ContentType
 
     def _set_tags(self, **kwargs):
@@ -63,13 +63,12 @@ def _add_tags_to_fields():
     #enumerable
     Field._cremetag_enumerable = False
     ForeignKey._cremetag_enumerable = True
+    ManyToManyField._cremetag_enumerable = True
     OneToOneField._cremetag_enumerable = False
 
     #TODO: could become useless with HeaderFilter refactoring, that ignores
     #      by default the sub fields of FK. (to be continued...)
     #ContentType hooking
-    #get_ct_field = ContentType._meta.get_field_by_name
     get_ct_field = ContentType._meta.get_field
     for fname in ('name', 'app_label', 'model'):
-        #get_ct_field(fname)[0].set_tags(viewable=False)
         get_ct_field(fname).set_tags(viewable=False)

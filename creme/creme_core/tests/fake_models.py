@@ -56,9 +56,9 @@ else:
     #    def get_absolute_url(self):
     #        return "/media_managers/image/%s" % self.id
 
-    #    @staticmethod
-    #    def get_lv_absolute_url():
-    #        return '/media_managers/images'
+        @staticmethod
+        def get_lv_absolute_url():
+            return '/tests/images'
 
     #    def get_edit_absolute_url(self):
     #        return "/media_managers/image/edit/%s" % self.id

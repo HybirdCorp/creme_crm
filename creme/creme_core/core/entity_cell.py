@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..models import CremeEntity, RelationType, CustomField
 from ..models.fields import DatePeriodField
 #from ..templatetags.creme_widgets import widget_entity_hyperlink
-from ..utils.meta import FieldInfo #get_model_field_info
+from ..utils.meta import FieldInfo
 
 
 logger = logging.getLogger(__name__)
@@ -139,7 +139,6 @@ class EntityCell(object):
         return self._get_listview_css_class('_header_listview_css_class')
 
     @staticmethod
-    #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
         pass
 
@@ -178,22 +177,23 @@ class EntityCellRegularField(EntityCell):
         self._model = model
         self._field_info = field_info
 
-        #field = field_info[0]['field']
         field = field_info[0]
         has_a_filter = True
         sortable = True
         pattern = "%s__icontains"
 
-        if isinstance(field, ForeignKey):
+#        if isinstance(field, ForeignKey):
+        if isinstance(field, (ForeignKey, ManyToManyField)): # TODO: hasattr(field, 'rel') ? [wait for django1.8 field API]
             if len(field_info) == 1:
                 pattern = "%s"
 
                 if issubclass(field.rel.to, CremeEntity):
                     pattern = '%s__header_filter_search_field__icontains'
             else:
-                #field = field_info[1]['field'] #The sub-field is considered as the main field
                 field = field_info[1] #The sub-field is considered as the main field
 
+            if isinstance(field, ManyToManyField):
+                sortable = False
         if isinstance(field, (DateField, DateTimeField)):
             pattern = "%s__range" #TODO: quick search overload this, to use gte/lte when it is needed
         elif isinstance(field, BooleanField):
@@ -201,12 +201,11 @@ class EntityCellRegularField(EntityCell):
         elif isinstance(field, DatePeriodField):
             has_a_filter = False
             sortable = False
-        elif isinstance(field, ManyToManyField):
-            has_a_filter = False #TODO: manage like ForeignKey...
-            sortable = False
+#        elif isinstance(field, ManyToManyField):
+#            has_a_filter = False
+#            sortable = False
 
         super(EntityCellRegularField, self).__init__(value=name,
-                                                     #title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
                                                      title=field_info.verbose_name,
                                                      has_a_filter=has_a_filter,
                                                      editable=True,
@@ -218,7 +217,6 @@ class EntityCellRegularField(EntityCell):
     @staticmethod
     def build(model, name, is_hidden=False):
         try:
-            #field_info = get_model_field_info(model, name, silent=False)
             field_info = FieldInfo(model, name)
         except FieldDoesNotExist as e:
             logger.warn('EntityCellRegularField(): problem with field "%s" ("%s")', name, e)
@@ -231,19 +229,14 @@ class EntityCellRegularField(EntityCell):
         return self._field_info
 
     def _get_field_class(self):
-        #return self._field_info[-1]['field'].__class__
         return self._field_info[-1].__class__
 
     @staticmethod
-    #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
-        #CremeEntity.populate_fk_fields(entities, [cell.value.partition('__')[0] for cell in cells])
-        #CremeEntity.populate_fk_fields(entities, [cell.field_info[0]['field'].name for cell in cells])
         CremeEntity.populate_fk_fields(entities, [cell.field_info[0].name for cell in cells])
 
     def render_html(self, entity, user):
         from ..gui.field_printers import field_printers_registry
-        #return field_printers_registry.get_html_field_value(entity, self.value, user)
 
         self.render_html = printer = \
             field_printers_registry.build_field_printer(entity.__class__, self.value, output='html')
@@ -252,7 +245,6 @@ class EntityCellRegularField(EntityCell):
 
     def render_csv(self, entity, user):
         from ..gui.field_printers import field_printers_registry
-        #return field_printers_registry.get_csv_field_value(entity, self.value, user)
 
         self.render_csv = printer = \
             field_printers_registry.build_field_printer(entity.__class__, self.value, output='csv')
@@ -312,7 +304,6 @@ class EntityCellCustomField(EntityCell):
         return self._CF_CSS.get(self._customfield.field_type, Field)
 
     @staticmethod
-    #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
         #TODO: can we reuse the same code to build EntityCell without too many queries ??
         #cfields = CustomField.objects.in_bulk([int(cell.value) for cell in cells])
@@ -325,11 +316,9 @@ class EntityCellCustomField(EntityCell):
 
     def render_html(self, entity, user):
         from django.utils.html import escape
-        #return escape(entity.get_custom_value(self.custom_field))
         return escape(self.render_csv(entity, user))
 
     def render_csv(self, entity, user):
-        #return entity.get_custom_value(self.custom_field)
         value = entity.get_custom_value(self.custom_field)
         return value if value is not None else ''
 
@@ -363,7 +352,6 @@ class EntityCellFunctionField(EntityCell):
         return self._functionfield
 
     @staticmethod
-    #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
         for cell in cells:
             cell.function_field.populate_entities(entities)
@@ -403,9 +391,7 @@ class EntityCellRelation(EntityCell):
         return self._rtype
 
     @staticmethod
-    #def populate_entities(cells, entities, user):
     def populate_entities(cells, entities):
-        #CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells], user)
         CremeEntity.populate_relations(entities, [cell.relation_type.id for cell in cells])
 
     def render_html(self, entity, user):
