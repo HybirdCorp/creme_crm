@@ -26,8 +26,8 @@ from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
 from . import get_project_model, get_task_model
-#from .models import Project, ProjectTask
 from .blocks import block_list
+from .models import Resource #Project, ProjectTask
 
 
 Project     = get_project_model()
@@ -48,3 +48,4 @@ block_registry.register(*block_list)
 reg_icon = icon_registry.register
 reg_icon(Project,     'images/project_%(size)s.png')
 reg_icon(ProjectTask, 'images/task_%(size)s.png')
+reg_icon(Resource,    'images/task_%(size)s.png')
