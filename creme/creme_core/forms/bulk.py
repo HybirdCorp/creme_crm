@@ -411,7 +411,13 @@ class BulkForm(CremeForm):
             instance = getattr(instance, self.model_parent_field.name)
 
         if instance:
-            form_field.initial = getattr(instance, model_field.name)
+            initial = getattr(instance, model_field.name)
+
+            # HACK : special use case for manytomany fields to circumvent a strange django behaviour.
+            if initial is not None and isinstance(model_field, ManyToManyField):
+                initial = initial.get_queryset()
+
+            form_field.initial = initial
 
         return form_field
 
