@@ -1429,6 +1429,14 @@ class InnerEditTestCase(_BulkEditTestCase):
         url = self.build_inneredit_url(orga, 'address')
         self.assertGET(400, url)
 
+    def test_manytomany_field(self):
+        "Edition of a manytomany field (needs a special hack with initial values for this case)"
+        user = self.login()
+        image = Image.objects.create(user=user, name='Konoha by nigth')
+
+        url = self.build_inneredit_url(image, 'categories')
+        self.assertGET(200, url)
+
     def test_other_field_validation_error(self):
         self.login()
         empty_user = get_user_model().objects.create_user(username='empty',
