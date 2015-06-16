@@ -14,7 +14,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.forms.widgets import Label, TextInput
     from creme.creme_core.gui.quick_forms import quickforms_registry
-    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.models import RelationType, Relation, SetCredentials
 
     from creme.media_managers.models import Image
 
@@ -487,7 +487,52 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                                     )
                         )
 
-    #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
+        create_rtype = RelationType.create
+        rtype1 = create_rtype(('persons-subject_test_rtype1', u'RType #1',     [Organisation]),
+                              ('persons-object_test_rtype1',  u'Rtype sym #1', [Contact]),
+                             )[0]
+        self.assertGET200(self._build_addrelated_uri(orga.id, rtype1.id))
+
+        rtype2 = create_rtype(('persons-subject_test_badrtype1', u'Bad RType #1',     [Organisation]),
+                              ('persons-object_test_badrtype1',  u'Bad RType sym #1', [Image]), # <==
+                             )[0]
+        self.assertGET409(self._build_addrelated_uri(orga.id, rtype2.id))
+
+        rtype3 = create_rtype(('persons-subject_test_badrtype2', u'Bad RType #2',     [Image]), # <==
+                              ('persons-object_test_badrtype2',  u'Bad RType sym #2', [Contact]),
+                              #is_internal=True,
+                             )[0]
+        self.assertGET409(self._build_addrelated_uri(orga.id, rtype3.id))
+
+        rtype4 = create_rtype(('persons-subject_test_badrtype3', u'Bad RType #3',     [Organisation]),
+                              ('persons-object_test_badrtype3',  u'Bad RType sym #3', [Contact]),
+                              is_internal=True,  # <==
+                             )[0]
+        self.assertGET409(self._build_addrelated_uri(orga.id, rtype4.id))
+
+    @skipIfCustomOrganisation
+    def test_create_linked_contact05(self):
+        "Avoid internal RelationType"
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        rtype = RelationType.create(('persons-subject_test_linked', u'is the employee of the month at', [Contact]),
+                                    ('persons-object_test_linked',  u'has the employee of the month',   [Organisation]),
+                                    is_internal=True,
+                                   )[0]
+
+        response = self.assertPOST200(self._build_addrelated_uri(orga.id),
+                                      follow=True,
+                                      data={'orga_overview': 'dontcare',
+                                            'relation':      rtype.id,
+                                            'user':          user.pk,
+                                            'first_name':    'Bugs',
+                                            'last_name':     'Bunny',
+                                            }
+                                    )
+        self.assertFormError(response, 'form', 'relation',
+                             _(u'Select a valid choice. That choice is not one of the available choices.')
+                            )
 
     @skipIfCustomAddress
     def test_clone(self):
