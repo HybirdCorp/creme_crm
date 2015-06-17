@@ -425,23 +425,19 @@
     padding: 0;
 }
 
-.list_view .lv-cell-content {
-    text-align: center;
-}
-
-.list_view .left_align .lv-cell-content {
+.list_view .left_align.lv-cell-content {
     text-align: left;
     margin-left: 0px;
     padding-left: 5px;
 }
 
-.list_view .text_area .lv-cell-content {
+.list_view .text_area.lv-cell-content {
     text-align: left;
     white-space: normal;
     margin-left: 0px;
 }
 
-.list_view .right_align .lv-cell-content {
+.list_view .right_align.lv-cell-content {
     text-align: right;
     padding-right: 5px;
 }
