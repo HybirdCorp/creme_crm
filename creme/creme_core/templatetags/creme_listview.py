@@ -199,3 +199,19 @@ def get_listview_cell(cell, entity, user):
 @register.assignment_tag
 def ctype_is_registered_for_import(ctype):
     return import_form_registry.is_registered(ctype)
+
+@register.assignment_tag
+def listview_header_colspan(cells, is_readonly, is_single_select):
+    if is_readonly:
+        colspan = len(cells)
+    else:
+        colspan = sum(2 if cell.type_id != 'actions' else 1 for cell in cells)
+
+    if not is_single_select:
+        colspan += 1
+
+    return colspan
+
+@register.filter('listview_column_colspan')
+def get_column_colspan(cell, is_readonly):
+    return 2 if cell.type_id != 'actions' and not is_readonly else 1
