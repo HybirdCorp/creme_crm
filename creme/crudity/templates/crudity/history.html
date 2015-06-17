@@ -14,9 +14,13 @@
             <td class="actions"></td>
         </tr>
     </table>
+{% comment %}
     {% for history_block in blocks %}
         {{history_block}}
     {% endfor %}
+{% endcomment %}
+    {% import_blocks blocks as 'sync_blocks' %}
+    {% display_blocks 'sync_blocks' %}
 
     {% get_blocks_dependencies %}
 {% endblock %}
