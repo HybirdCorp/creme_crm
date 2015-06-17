@@ -196,6 +196,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'show_actions':       show_actions,
         'q_filter':           json_q_filter,
         'research_cellkeys':  {cell_key for cell_key, value in current_lvs.research},
+        'is_popup_view':      False,
     }
 
     if extra_dict:

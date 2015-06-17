@@ -1,10 +1,12 @@
 {% load i18n %}
-{% load creme_core_tags %}
+{% load creme_core_tags creme_listview %}
 <tr id="list_thead_search" class="columns_bottom">
     {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for cell in cells %}
         {% with cell.widget_ctx as widget_ctx %}{% with widget_ctx.type as widget_type %}
-            <th {% if cell.is_hidden %}style="display:none;"{% endif %} class="{% if cell.key == list_view_state.sort_field %}sorted {% endif %}{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if widget_ctx.value %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}">
+            <th {% if cell.is_hidden %}style="display:none;"{% endif %}
+                class="{% if cell.key == list_view_state.sort_field %}sorted {% endif %}{% if cell.type_id != 'actions' %}column {{cell.header_listview_css_class}}{% else %}actions{% endif %}{% if widget_ctx.value %} search{% endif %}{% if cell.sortable %} sortable{% endif %}{% if cell.has_a_filter %} {{widget_type}}{% endif %}"
+                colspan="{{cell|listview_column_colspan:is_popup_view}}">
                 {% if cell.has_a_filter %}
                     {% if widget_type == "select" %}
                         <select name="{{cell.key}}" title="{{cell.title}}">
