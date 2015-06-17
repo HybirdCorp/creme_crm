@@ -19,7 +19,7 @@
                         <tr>
                             <th class="type_header_block">{% get_image_for_ctype ct 'small' %}
                                 </th>
-                            <th>{% blocktrans count page.paginator.count as counter with ct.name as ct_name %}{{counter}} History item - {{ct_name}}{% plural %}{{counter}} History items - {{ct_name}}{% endblocktrans %}</th>
+                            <th>{% blocktrans count page.paginator.count as counter with ct as ct_name %}{{counter}} History item - {{ct_name}}{% plural %}{{counter}} History items - {{ct_name}}{% endblocktrans %}</th>
                         </tr>
                     </tbody>
                 </table>
@@ -59,7 +59,7 @@
                 {% endfor %}
             {% else %}
                 <tr class="content empty">
-                    <td class="block_line_dark">{% blocktrans with ct.name as ct_name %}No waiting action for {{ct_name}}{% endblocktrans %}</td>
+                    <td class="block_line_dark">{% blocktrans with ct as ct_name %}No waiting action for {{ct_name}}{% endblocktrans %}</td>
                 </tr>
             {% endif %}
         </tbody>
