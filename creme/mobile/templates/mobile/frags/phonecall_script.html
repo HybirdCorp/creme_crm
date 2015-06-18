@@ -83,7 +83,7 @@
   function setPanelContent(content) {
     var display_hideable = content ? 'none': 'block';
 //     var elements = document.getElementsByTagName('*');
-// 
+//
 //     for (i in elements) {
 //         var element = elements[i];
 //         if (element.classList && element.classList.contains ('hideable-content')) {
@@ -121,12 +121,32 @@
     setPanelContent('');
   }
 
+  function displayActivityMinutes(e) {
+    e = e || window.event;
+    var target = e.target || e.srcElement;
+
+    e.preventDefault();
+
+    var activityMinutes = document.querySelector('.activity-actions-minutes');
+    activityMinutes.style.display = 'block';
+
+    var triggerContainter = target.parentElement;
+    triggerContainter.style.display = 'none';
+  }
+
   function _workflow(url) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, false);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.setRequestHeader("X-CSRFToken", csrf_token);
-    xhr.send(objectToParameters(phonecall_data));
+
+    var postData = objectToParameters(phonecall_data);
+
+    var minutes = document.querySelector('textarea.activity-minutes').value;
+    if (minutes)
+      postData += "&minutes=" + encodeURIComponent(minutes);
+
+    xhr.send(postData);
 
     if (xhr.status !== 200) {
       document.getElementById("workflow_errors").innerHTML = "{% trans 'Error' %}: " + xhr.responseText;

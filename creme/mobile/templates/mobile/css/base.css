@@ -278,7 +278,7 @@ html.all .card-list-title {
 }
 
 html.all .activity-schedule-beginning {
-  font-weight: 700;  
+  font-weight: 700;
 }
 
 html.all .activity-type {
@@ -443,6 +443,51 @@ html.ios .contact-last-name {
 .activity-actions ~ .participants .participant:first-child {
   border: 0;
   padding-top: 0;
+}
+
+/* activity minutes */
+.activity-actions .activity-minutes-trigger {
+    display: block;
+}
+
+.activity-actions.activity-actions-minutes {
+  display: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.activity-actions-minutes .activity-minutes-label {
+  color: #356A94;
+  text-transform: uppercase;
+  font-size: 0.85em;
+}
+
+html.ios .activity-actions-minutes .activity-minutes-label {
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'Helvetica', 'Arial', sans-serif;
+}
+
+.activity-actions-minutes .activity-minutes {
+  border: 1px solid #aaa;
+  border-radius: 0;
+  margin-top: 7px;
+  width: 100%;
+  height: 100%;
+  min-height: 60px;
+  padding: 5px;
+  font-size: 13px;
+}
+
+html.android .activity-actions-minutes .activity-minutes {
+  font-family: 'Roboto-Medium', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .activity-actions-minutes .activity-minutes {
+  -webkit-appearance: none;
+  font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
+}
+
+html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder {
+    font-size: 13px;
 }
 
 /* Activities - end */

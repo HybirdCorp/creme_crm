@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Mobile 1.5\n"
+"Project-Id-Version: Creme Mobile 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-25 22:10+0100\n"
+"POT-Creation-Date: 2015-06-18 17:42+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: blocks.py:34
+#: apps.py:10 creme_core_register.py:11 templates/mobile/add_contact.html:71
+msgid "Mobile"
+msgstr "Mobile"
+
+#: blocks.py:38
 msgid "Favorite Contacts & Organisations (for mobile)"
 msgstr "Contacts & Sociétés favoris (pour mobile)"
 
@@ -30,47 +34,6 @@ msgstr "Est favori"
 msgctxt "mobile-orga"
 msgid "Is favorite"
 msgstr "Est favorite"
-
-# Already in creme_core
-#: views.py:76
-msgid "You do not have access to this page, please contact your administrator."
-msgstr ""
-
-# Already in creme_core
-#: views.py:79
-msgid "The page you have requested is unfoundable."
-msgstr ""
-
-# Already in creme_core
-#: views.py:82
-msgid "You can not perform this action because of business constraints."
-msgstr ""
-
-#: views.py:233
-msgid "Your search is too short."
-msgstr "Votre recherche est trop courte."
-
-#: views.py:453
-msgid "You cannot create a call to youself."
-msgstr "Vous ne pouvez pas créer un appel vers vous-même."
-
-#: views.py:501 views.py:534
-#, python-format
-msgid "%(status)s call to %(person)s from Creme Mobile"
-msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
-
-#: views.py:502
-msgid "Successful"
-msgstr "réussi"
-
-#: views.py:535
-msgid "Failed"
-msgstr "échoué"
-
-#: views.py:584
-#, python-format
-msgid "Call to %s from Creme Mobile"
-msgstr "Appel vers %s depuis Creme Mobile"
 
 # Already in activities
 #: templates/mobile/activities.html:10 templates/mobile/activities.html:31
@@ -162,10 +125,6 @@ msgstr ""
 msgid "Phone"
 msgstr "Téléphone"
 
-#: templates/mobile/add_contact.html:71
-msgid "Mobile"
-msgstr "Mobile"
-
 #: templates/mobile/add_contact.html:77
 msgid "Email address"
 msgstr "Adresse e-mail"
@@ -245,6 +204,63 @@ msgstr "Erreur ! (%(status)s)"
 #: templates/mobile/error.html:37
 msgid "Detail:"
 msgstr "Détail :"
+
+#: templates/mobile/frags/button_done.html:3
+msgid "This call has already been spent"
+msgstr "Cet appel a déjà été passé"
+
+#: templates/mobile/frags/buttons_start_stop.html:4
+msgid "Start this activity"
+msgstr "Commencer l'activité"
+
+#: templates/mobile/frags/buttons_start_stop.html:8
+msgid "Stop this activity"
+msgstr "Terminer l'activité"
+
+#: templates/mobile/frags/contact_card.html:8
+#: templates/mobile/frags/contact_card.html:92
+msgid "contact"
+msgstr "contact"
+
+#: templates/mobile/frags/contact_card.html:18
+#: templates/mobile/frags/contact_card.html:64
+#: templates/mobile/frags/orga_card.html:16
+msgid "phone"
+msgstr "tél."
+
+#: templates/mobile/frags/contact_card.html:24
+msgid "mobile"
+msgstr "mobile"
+
+#: templates/mobile/frags/contact_card.html:34
+msgid "email"
+msgstr "email"
+
+#: templates/mobile/frags/contact_card.html:40
+#: templates/mobile/frags/contact_card.html:70
+#: templates/mobile/frags/orga_card.html:25
+msgid "address"
+msgstr "adresse"
+
+#: templates/mobile/frags/contact_card.html:48
+msgid "position"
+msgstr "fonction"
+
+#: templates/mobile/frags/contact_card.html:59
+#: templates/mobile/frags/contact_card.html:79
+#: templates/mobile/frags/orga_card.html:6
+#: templates/mobile/frags/orga_card.html:37
+msgid "organisation"
+msgstr "société"
+
+#: templates/mobile/frags/phonecall_script.html:109
+#: templates/mobile/frags/phonecall_script.html:153
+msgid "Error"
+msgstr "Erreur"
+
+#: templates/mobile/frags/search_div.html:5
+msgid "Search in the directory"
+msgstr "Recherche dans l'annuaire"
 
 #: templates/mobile/index.html:58
 #, python-format
@@ -337,117 +353,6 @@ msgid_plural "Search of organisations &ndash; %(counter)s results"
 msgstr[0] "Recherche de sociétés &ndash; %(counter)s résultat"
 msgstr[1] "Recherche de sociétés &ndash; %(counter)s résultats"
 
-#: templates/mobile/workflow_panel.html:6
-#: templates/mobile/templatetags/activity_card.html:15
-msgid "d/m/Y H:i"
-msgstr "d/m/Y H\\hi"
-
-#: templates/mobile/workflow_panel.html:7
-msgid "Call in progress"
-msgstr "Appel en cours"
-
-#: templates/mobile/workflow_panel.html:14
-#, python-format
-msgid ""
-"You left the application to call <span class='call-target'><span "
-"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
-"name'>%(last_name)s</span></span> to <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, you can save the result if this call."
-msgstr ""
-"Vous avez quitté l'application pour appeler <span class='call-target'><span "
-"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
-"name'>%(last_name)s</span></span> au <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de cet appel."
-
-#: templates/mobile/workflow_panel.html:18
-#, python-format
-msgid ""
-"You left the application to call <span class='call-target'><span class='orga-"
-"name'>%(name)s</span></span> to <a class='phone-number' href='tel:"
-"%(number)s'>%(number)s</a>, you can save the result if this call."
-msgstr ""
-"Vous avez quitté l'application pour appeler <span class='call-target'><span "
-"class='orga-name'>%(name)s</span></span> au <a class='phone-number' "
-"href='tel:%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de "
-"cet appel."
-
-#: templates/mobile/workflow_panel.html:26
-msgid "Call is just done"
-msgstr "L'appel vient de se terminer"
-
-#: templates/mobile/workflow_panel.html:27
-msgid "Call lasted 5 minutes"
-msgstr "L'appel a duré 5 minutes"
-
-#: templates/mobile/workflow_panel.html:28
-msgid "Call has failed"
-msgstr "L'appel a échoué"
-
-#: templates/mobile/workflow_panel.html:29
-msgid "Call has failed and<br/> Recall tomorrow"
-msgstr "L'appel a échoué et<br/> Rappeler demain"
-
-#: templates/mobile/workflow_panel.html:30
-msgid "Do not save"
-msgstr "Ne pas sauvegarder"
-
-#: templates/mobile/frags/button_done.html:3
-msgid "This call has already been spent"
-msgstr "Cet appel a déjà été passé"
-
-#: templates/mobile/frags/buttons_start_stop.html:4
-msgid "Start this activity"
-msgstr "Commencer l'activité"
-
-#: templates/mobile/frags/buttons_start_stop.html:8
-msgid "Stop this activity"
-msgstr "Terminer l'activité"
-
-#: templates/mobile/frags/contact_card.html:8
-#: templates/mobile/frags/contact_card.html:92
-msgid "contact"
-msgstr "contact"
-
-#: templates/mobile/frags/contact_card.html:18
-#: templates/mobile/frags/contact_card.html:64
-#: templates/mobile/frags/orga_card.html:16
-msgid "phone"
-msgstr "tél."
-
-#: templates/mobile/frags/contact_card.html:24
-msgid "mobile"
-msgstr "mobile"
-
-#: templates/mobile/frags/contact_card.html:34
-msgid "email"
-msgstr "email"
-
-#: templates/mobile/frags/contact_card.html:40
-#: templates/mobile/frags/contact_card.html:70
-#: templates/mobile/frags/orga_card.html:25
-msgid "address"
-msgstr "adresse"
-
-#: templates/mobile/frags/contact_card.html:48
-msgid "position"
-msgstr "fonction"
-
-#: templates/mobile/frags/contact_card.html:59
-#: templates/mobile/frags/contact_card.html:79
-#: templates/mobile/frags/orga_card.html:6
-#: templates/mobile/frags/orga_card.html:37
-msgid "organisation"
-msgstr "société"
-
-#: templates/mobile/frags/phonecall_script.html:107
-#: templates/mobile/frags/phonecall_script.html:131
-msgid "Error"
-msgstr "Erreur"
-
-#: templates/mobile/frags/search_div.html:5
-msgid "Search in the directory"
-msgstr "Recherche dans l'annuaire"
-
 #: templates/mobile/templatetags/activity_card.html:11
 #: templates/mobile/templatetags/activity_card.html:13
 msgid "d/m/Y"
@@ -460,6 +365,11 @@ msgstr "Toute la journée"
 #: templates/mobile/templatetags/activity_card.html:13
 msgid "In day"
 msgstr "Dans la journée"
+
+#: templates/mobile/templatetags/activity_card.html:15
+#: templates/mobile/workflow_panel.html:6
+msgid "d/m/Y H:i"
+msgstr "d/m/Y H\\hi"
 
 #: templates/mobile/templatetags/block_favorite.html:6
 #, python-format
@@ -512,3 +422,101 @@ msgstr ""
 #: templates/mobile/templatetags/footer.html:4
 msgid "Go to the complete site"
 msgstr "Accéder au site complet"
+
+#: templates/mobile/workflow_panel.html:7
+msgid "Call in progress"
+msgstr "Appel en cours"
+
+#: templates/mobile/workflow_panel.html:14
+#, python-format
+msgid ""
+"You left the application to call <span class='call-target'><span "
+"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
+"name'>%(last_name)s</span></span> to <a class='phone-number' href='tel:"
+"%(number)s'>%(number)s</a>, you can save the result if this call."
+msgstr ""
+"Vous avez quitté l'application pour appeler <span class='call-target'><span "
+"class='contact-first-name'>%(first_name)s</span> <span class='contact-last-"
+"name'>%(last_name)s</span></span> au <a class='phone-number' href='tel:"
+"%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de cet appel."
+
+#: templates/mobile/workflow_panel.html:18
+#, python-format
+msgid ""
+"You left the application to call <span class='call-target'><span class='orga-"
+"name'>%(name)s</span></span> to <a class='phone-number' href='tel:"
+"%(number)s'>%(number)s</a>, you can save the result if this call."
+msgstr ""
+"Vous avez quitté l'application pour appeler <span class='call-target'><span "
+"class='orga-name'>%(name)s</span></span> au <a class='phone-number' "
+"href='tel:%(number)s'>%(number)s</a>, vous pouvez sauvegarder le résultat de "
+"cet appel."
+
+#: templates/mobile/workflow_panel.html:26
+msgid "Add call minutes"
+msgstr "Ajouter un bilan d'appel"
+
+#: templates/mobile/workflow_panel.html:29
+msgid "Call minutes"
+msgstr "Bilan de l'appel "
+
+#: templates/mobile/workflow_panel.html:35
+msgid "Call is just done"
+msgstr "L'appel vient de se terminer"
+
+#: templates/mobile/workflow_panel.html:36
+msgid "Call lasted 5 minutes"
+msgstr "L'appel a duré 5 minutes"
+
+#: templates/mobile/workflow_panel.html:37
+msgid "Call has failed"
+msgstr "L'appel a échoué"
+
+#: templates/mobile/workflow_panel.html:38
+msgid "Call has failed and<br/> Recall tomorrow"
+msgstr "L'appel a échoué et<br/> Rappeler demain"
+
+#: templates/mobile/workflow_panel.html:39
+msgid "Do not save"
+msgstr "Ne pas sauvegarder"
+
+# Already in creme_core
+#: views.py:81
+msgid "You do not have access to this page, please contact your administrator."
+msgstr ""
+
+# Already in creme_core
+#: views.py:84
+msgid "The page you have requested is unfoundable."
+msgstr ""
+
+# Already in creme_core
+#: views.py:87
+msgid "You can not perform this action because of business constraints."
+msgstr ""
+
+#: views.py:241
+msgid "Your search is too short."
+msgstr "Votre recherche est trop courte."
+
+#: views.py:467
+msgid "You cannot create a call to youself."
+msgstr "Vous ne pouvez pas créer un appel vers vous-même."
+
+#: views.py:518 views.py:552
+#, python-format
+msgid "%(status)s call to %(person)s from Creme Mobile"
+msgstr "Appel %(status)s vers %(person)s depuis Creme Mobile"
+
+#: views.py:519
+msgid "Successful"
+msgstr "réussi"
+
+#: views.py:553
+msgid "Failed"
+msgstr "échoué"
+
+#: views.py:604
+#, python-format
+msgid "Call to %s from Creme Mobile"
+msgstr "Appel vers %s depuis Creme Mobile"
