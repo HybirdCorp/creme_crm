@@ -13,7 +13,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue) #Language
+            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue, Language)
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
@@ -220,7 +220,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertNotIn(TYPE_RELATION_DEL, hline_types)
         self.assertNotIn(TYPE_SYM_REL_DEL, hline_types)
 
-    #TODO: we need an other Entity with a M2M to test the fusion of M2M fields (language is now uneditable)
     def test_merge02(self):
         "2 Contacts, M2M, foreign key to CremeEntities"
         user = self.login()
@@ -238,11 +237,13 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka',  image=image1)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
 
-        #language1, language2 = Language.objects.all()[:2]
-        #language3 = Language.objects.create(name=u'Klingon', code='KLN')
+        language1, language2 = Language.objects.all()[:2]
+        language3 = Language.objects.create(name=u'Klingon', code='KLN')
 
         #contact01.language = [language1]
         #contact02.language = [language1, language2]
+        contact01.languages = [language1]
+        contact02.languages = [language1, language2]
 
         url = self.build_merge_url(contact01, contact02)
         response = self.assertGET200(url)
@@ -272,6 +273,9 @@ class MergeViewsTestCase(ViewsTestCase):
                                           #'language_1':      [language1.id],
                                           #'language_2':      [language1.id, language2.id],
                                           #'language_merged': [language3.id], #<======
+                                          'languages_1':      [language1.id],
+                                          'languages_2':      [language1.id, language2.id],
+                                          'languages_merged': [language3.id], #<======
 
                                           'image_1':      image1.id,
                                           'image_2':      image2.id,
@@ -287,6 +291,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
         #self.assertEqual([language3],          list(new_contact01.language.all()))
+        self.assertEqual([language3],          list(new_contact01.languages.all()))
         self.assertEqual(image2,               new_contact01.image)
 
     def test_merge03(self):
