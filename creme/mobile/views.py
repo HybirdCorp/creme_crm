@@ -490,13 +490,20 @@ def _add_participants(activity, persons):
         else:
             create_relation(object_entity=person, type_id=REL_OBJ_ACTIVITY_SUBJECT)
 
+def _improve_minutes(pcall, minutes):
+    if minutes:
+        old_minutes = pcall.minutes
+        pcall.minutes = minutes if old_minutes is None else \
+                        u'%s\n%s' % (old_minutes, minutes)
+
 @mobile_login_required
 @POST_only
 @jsonify
 def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
     start = _build_date_or_404(get_from_POST_or_404(POST, 'call_start')) #TODO: assert in the past
-    end   = end_function(start)
+    end = end_function(start)
+    minutes = POST.get('minutes')
 
     pcall = _get_pcall(request)
 
@@ -504,6 +511,7 @@ def _phonecall_workflow_set_end(request, end_function):
         pcall.status_id = STATUS_DONE
         pcall.start = start
         pcall.end = end
+        _improve_minutes(pcall, minutes)
         pcall.save()
     else:
         user = request.user
@@ -522,6 +530,7 @@ def _phonecall_workflow_set_end(request, end_function):
                                             status_id=STATUS_DONE,
                                             start=start,
                                             end=end,
+                                            minutes=minutes,
                                            )
             _add_participants(pcall, (me, person))
 
@@ -555,16 +564,20 @@ def _create_failed_pcall(request):
                                         status_id=STATUS_DONE,
                                         start=start,
                                         end=start,
+                                        minutes=POST.get('minutes'),
                                        )
         _add_participants(pcall, (me, person))
 
     return pcall, me, person
 
 def _set_pcall_as_failed(pcall, request):
+    POST = request.POST
+
     pcall.sub_type_id = ACTIVITYSUBTYPE_PHONECALL_FAILED
     pcall.status_id = STATUS_DONE
     pcall.floating_type = NARROW
-    pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(request.POST, 'call_start'))
+    pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
+    _improve_minutes(pcall, POST.get('minutes'))
 
     pcall.save()
 

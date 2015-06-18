@@ -23,6 +23,15 @@
     <div id='workflow_errors'></div>
 
     <div class='activity-actions card-component'>
+      <a href='#' class='button' onclick='displayActivityMinutes(event)'>{% trans 'Add call minutes' %}</a>
+    </div>
+
+    <div class='activity-actions activity-actions-minutes card-component'>{% trans 'Call minutes' as minutes_label %}
+      <span class='activity-minutes-label'>{{minutes_label}}</span>
+      <textarea class='activity-minutes' placeholder="{{minutes_label}}"></textarea>
+    </div>
+
+    <div class='activity-actions card-component'>
       <a href='#' class='button' onclick='workflowJustDone()' >{% trans 'Call is just done' %}</a>
       <a href='#' class='button' onclick='workflowLasted5Minutes()'>{% trans 'Call lasted 5 minutes' %}</a>
       <a href='#' class='button' onclick='workflowFailed()'>{% trans 'Call has failed' %}</a>

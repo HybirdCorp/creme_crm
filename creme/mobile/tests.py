@@ -794,6 +794,7 @@ class MobileTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_phone_call_wf_failed01(self):
+        "Existing Phone call (with no minutes)"
         self.login()
 
         pcall = self._create_pcall('Phone call#1', status_id=STATUS_PLANNED,
@@ -802,14 +803,18 @@ class MobileTestCase(CremeTestCase):
 
         url = self.WF_FAILED_URL
         self.assertGET404(url)
+
+        minutes = 'argg'
         self.assertPOST200(url, data={'pcall_id':   str(pcall.id),
                                       'call_start': '2014-04-22T16:34:28.0Z',
+                                      'minutes':    minutes,
                                      }
                           )
 
         pcall = self.refresh(pcall)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE,                      pcall.status_id)
+        self.assertEqual(minutes,                          pcall.minutes)
 
         start = self.create_datetime(utc=True, year=2014, month=4, day=22,
                                      hour=16, minute=34, second=28
@@ -833,15 +838,18 @@ class MobileTestCase(CremeTestCase):
 
         pcall_ids = self._existing_pcall_ids()
 
+        minutes = 'dammit'
         self.assertPOST200(self.WF_FAILED_URL,
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  str(other_contact.id),
+                                 'minutes':    minutes,
                                 }
                           )
 
         pcall = self._get_created_pcall(pcall_ids)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE,                      pcall.status_id)
+        self.assertEqual(minutes,                          pcall.minutes)
         self.assertEqual({self.user.linked_contact, other_contact},
                          {r.object_entity.get_real_entity()
                                 for r in pcall.get_participant_relations()
@@ -1047,6 +1055,7 @@ class MobileTestCase(CremeTestCase):
         create_dt = partial(self.create_datetime, utc=True, year=2014, month=3, day=10, hour=11)
         self.assertEqual(create_dt(minute=30, second=28), pcall.start)
         self.assertEqual(create_dt(minute=35, second=28), pcall.end)
+        self.assertIsNone(pcall.minutes)
 
     @skipIfCustomActivity
     def test_phone_call_wf_lasted5min02(self):
@@ -1069,15 +1078,18 @@ class MobileTestCase(CremeTestCase):
         other_contact = self.other_user.linked_contact
         pcall_ids = self._existing_pcall_ids()
 
+        minutes = 'Gotteferdom'
         self.assertPOST200(self.WF_LASTED5MIN_URL,
                            data={'call_start': '2014-04-18T16:17:28.0Z',
                                  'person_id':  other_contact.id,
+                                 'minutes':    minutes,
                                 }
                           )
 
         pcall = self._get_created_pcall(pcall_ids)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
         self.assertEqual(STATUS_DONE, pcall.status_id)
+        self.assertEqual(minutes, pcall.minutes)
         self.assertEqual({self.user.linked_contact, other_contact},
                          {r.object_entity.get_real_entity()
                             for r in pcall.get_participant_relations()
@@ -1139,13 +1151,16 @@ class MobileTestCase(CremeTestCase):
         self.assertGET404(url)
 
         start = now() - timedelta(minutes=5)
+        minutes = 'yata'
         self.assertPOST200(url, data={'pcall_id':   pcall.id,
                                       'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                                      'minutes':    minutes,
                                      }
                           )
 
         pcall = self.refresh(pcall)
         self.assertEqual(STATUS_DONE, pcall.status_id)
+        self.assertEqual(minutes,     pcall.minutes)
 
         self.assertDatetimesAlmostEqual(start, pcall.start)
         self.assertDatetimesAlmostEqual(now(), pcall.end)
@@ -1186,6 +1201,30 @@ class MobileTestCase(CremeTestCase):
                                 'person': other_contact,
                             },
                          pcall.title
+                        )
+
+    @skipIfCustomActivity
+    def test_phone_call_wf_just_done03(self):
+        "Concatenate old & new minutes"
+        self.login()
+        contact = self.user.linked_contact
+
+        pcall = self._create_pcall('Phone call#1', status_id=STATUS_PLANNED,
+                                   participant=contact, minutes='Will be OK...',
+                                  )
+
+        start = now() - timedelta(minutes=5)
+        self.assertPOST200(self.WF_JUSTDONE_URL,
+                           data={'pcall_id':   pcall.id,
+                                 'call_start': start.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+                                 'minutes':    'noooooo !',
+                                }
+                          )
+
+        pcall = self.refresh(pcall)
+        self.assertEqual(STATUS_DONE, pcall.status_id)
+        self.assertEqual('Will be OK...\nnoooooo !',
+                         pcall.minutes
                         )
 
     @skipIfCustomContact
