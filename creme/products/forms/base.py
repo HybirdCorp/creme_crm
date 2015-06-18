@@ -71,6 +71,11 @@ class AddImagesForm(CremeForm):
         self.entity = entity
         self.fields['images'].q_filter = {'~id__in': list(entity.images.values_list('id', flat=True))}
 
+        # HACK : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
+        # cannot return filtered instances.
+        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
+        self.fields['images'].create_action_url = self.fields['images'].create_action_url
+
     def clean_images(self):
         return validate_linkable_entities(self.cleaned_data['images'], self.user)
 
