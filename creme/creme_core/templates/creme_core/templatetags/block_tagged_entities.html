@@ -1,6 +1,6 @@
 {% load cycle from future %}{% load creme_core_tags creme_block creme_widgets %}
-{% if page.paginator.count %}
-    <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
+    {% if page.paginator.count %}
         {% get_block_header colspan=2 %}
             <th class="label">
                 {% if ctype %}
@@ -34,5 +34,5 @@
             {% endfor %}
         </tbody>
         {% get_block_footer 2 %}
-    </table>
-{% endif %}
+    {% endif %}
+</table>
