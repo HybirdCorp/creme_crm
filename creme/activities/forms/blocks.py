@@ -78,8 +78,14 @@ class ParticipantCreateForm(CremeForm):
         participants_field.q_filter = {'~pk__in': [c.id for c in existing],
                                        'is_user__isnull': True,
                                       }
+        # HACK : This weird line forces a value in 'creation_action_url' in order re-enable creation button.
+        #        (see ActivityCreateForm)
+        participants_field.create_action_url = participants_field.create_action_url
+
         if entity.is_auto_orga_subject_enabled():
-            participants_field.help_text = ugettext('The organisations of the participants will be automatically added as subjects')
+            participants_field.help_text = _('The organisations of the participants will '
+                                             'be automatically added as subjects'
+                                            )
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
         user_qs = get_user_model().objects.filter(is_staff=False) \

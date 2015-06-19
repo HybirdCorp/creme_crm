@@ -6,7 +6,7 @@
         <th class="label">{% get_block_title _('%s Participant') _('%s Participants') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/activities/activity/{{object.id}}/participant/add' with_label _("Add from existing contacts") with_perms activity_link_perm %}
+                {% get_line_linker at_url '/activities/activity/{{object.id}}/participant/add' with_label _("Add contacts") with_perms activity_link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
