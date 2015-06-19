@@ -53,9 +53,15 @@ class ResourceCreateForm(CremeEntityForm):
         if instance.pk:
             other_resources = other_resources.exclude(pk=instance.pk)
 
-        self.fields['contact'].q_filter = {
+        contact_f = self.fields['contact']
+        contact_f.q_filter = {
                 '~pk__in': list(other_resources.values_list('linked_contact_id', flat=True)),
             }
+        # HACK : The 'q_filter' disable creation when 'creation_action_url' is empty because default creation views
+        # cannot return filtered instances.
+        # So this weird line forces a value in 'creation_action_url' in order re-enable creation button.
+        # The creation view cannot create a Contact already related to Resource (& so, excluded).
+        contact_f.create_action_url = contact_f.create_action_url
 
     def save(self, *args, **kwargs):
         self.instance.linked_contact = self.cleaned_data['contact']
