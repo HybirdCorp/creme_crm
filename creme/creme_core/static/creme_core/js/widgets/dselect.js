@@ -159,7 +159,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         var selected = this.val(element);
 
-        this._model.fetch({fields:['id', 'unicode']}, {dataType:'json', sync:sync}, {
+        this._model.fetch({fields:['id', 'unicode'], sort:'unicode'}, {dataType:'json', sync:sync}, {
             done:  function(event, data) {
                 self.val(element, selected);
                 creme.object.invoke(cb, element, data);
