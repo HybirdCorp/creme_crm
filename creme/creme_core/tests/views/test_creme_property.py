@@ -399,8 +399,19 @@ class PropertyViewsTestCase(ViewsTestCase):
 #        self.assertContains(response,    ' id="block_creme_core-tagged-persons-organisation"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakeorganisation"')
-        self.assertNotContains(response, ' id="block_creme_core-tagged-billing-invoice"')
+#        self.assertNotContains(response, ' id="block_creme_core-tagged-billing-invoice"')
         self.assertNotContains(response, ' id="block_creme_core-misc_tagged_entities"')
+
+        def assertBlockIsEmpty(block_id):
+            content = response.content
+            att = ' id="%s"' % block_id
+            idx = content.find(att)
+            self.assertNotEqual(-1, idx, 'Block "%s" not in content' % block_id)
+            idx += len(att)
+            self.assertIn('</table>', content[idx:idx + 20])
+
+#        assertBlockIsEmpty('block_creme_core-tagged-billing-invoice')
+        assertBlockIsEmpty('block_creme_core-tagged-creme_core-fakeimage')
 
         self.assertContains(response, unicode(entity1))
         self.assertNotContains(response, unicode(entity2))
