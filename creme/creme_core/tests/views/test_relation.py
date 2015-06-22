@@ -107,7 +107,7 @@ class RelationViewsTestCase(ViewsTestCase):
         expected.insert(0 if i_vname < c_vname else 1,
                         [get_ct(FakeImage).id,  i_vname]
                        )
-        self.assertEqual(simplejson.loads(response.content), expected)
+        self.assertEqual(load_json(response.content), expected)
 
     def _aux_test_add_relations(self, is_superuser=True):
         self.login(is_superuser)
