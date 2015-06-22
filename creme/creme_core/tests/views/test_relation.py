@@ -11,7 +11,7 @@ try:
     from .base import ViewsTestCase
     from ..base import skipIfNotInstalled
     from ..fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeActivity)
+            FakeOrganisation as Organisation, FakeActivity, FakeImage)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, SemiFixedRelationType,
             Relation, CremeEntity, CremePropertyType, CremeProperty)
@@ -43,7 +43,7 @@ class RelationViewsTestCase(ViewsTestCase):
         return '/creme_core/relation/type/%s/content_types/json' % rtype_id
 
     def _build_predicates_json_url(self, entity):
-        return'/creme_core/relation/entity/%s/rtypes/json' % entity.id
+        return '/creme_core/relation/entity/%s/rtypes/json' % entity.id
 
     def test_get_ctypes_of_relation01(self):
         self.login()
@@ -61,7 +61,7 @@ class RelationViewsTestCase(ViewsTestCase):
         json_data = load_json(response.content)
         get_ct = ContentType.objects.get_for_model
         self.assertEqual(json_data, [[get_ct(Contact).id,      Contact._meta.verbose_name],
-                                     [get_ct(Organisation).id, Organisation._meta.verbose_name]
+                                     [get_ct(Organisation).id, Organisation._meta.verbose_name],
                                     ]
                         )
 
@@ -84,6 +84,30 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertIn([get_ct(Organisation).id], json_data)
 #        self.assertIn([get_ct(Ticket).id], json_data)
         self.assertIn([get_ct(FakeActivity).id], json_data)
+
+    def test_get_ctypes_of_relation03(self):
+        "'sort' argument"
+        self.login()
+
+        rtype = RelationType.create(('test-subject_foobar', 'foo'),
+                                    ('test-object_foobar',  'bar', [FakeImage, Contact])
+                                   )[0]
+
+        response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
+                                     data={'fields': ['id', 'unicode'],
+                                           'sort':   'unicode',
+                                          },
+                                    )
+
+        c_vname = unicode(Contact._meta.verbose_name)
+        i_vname = unicode(FakeImage._meta.verbose_name)
+        get_ct = ContentType.objects.get_for_model
+
+        expected = [[get_ct(Contact).id, c_vname]]
+        expected.insert(0 if i_vname < c_vname else 1,
+                        [get_ct(FakeImage).id,  i_vname]
+                       )
+        self.assertEqual(simplejson.loads(response.content), expected)
 
     def _aux_test_add_relations(self, is_superuser=True):
         self.login(is_superuser)
