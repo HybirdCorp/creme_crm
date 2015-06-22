@@ -513,6 +513,32 @@ test('creme.widget.DynamicSelect.val (static)', function() {
     equal('1', element.creme().widget().val());
 });
 
+test('creme.widget.DynamicSelect.val (static, multiple)', function() {
+    var element = mock_dselect_create().attr('multiple', 'multiple');
+    mock_dselect_add_choice(element, 'a', 1);
+    mock_dselect_add_choice(element, 'b', 5);
+    mock_dselect_add_choice(element, 'c', 3);
+
+    creme.widget.create(element, {multiple:true});
+    equal(3, $('option', element).length);
+    equal('1', $('option:nth(0)', element).attr('value'));
+    equal('5', $('option:nth(1)', element).attr('value'));
+    equal('3', $('option:nth(2)', element).attr('value'));
+
+    deepEqual(['1', 'a'], element.creme().widget().firstchoice());
+    equal(true, element.creme().widget().options().multiple);
+    equal(null, element.creme().widget().val());
+
+    element.creme().widget().val(3);
+    deepEqual(['3'], element.creme().widget().val());
+
+    element.creme().widget().val('3,4,5');
+    deepEqual(['5', '3'], element.creme().widget().val());
+
+    element.creme().widget().val(15);
+    deepEqual(null, element.creme().widget().val());
+});
+
 test('creme.widget.DynamicSelect.val (reload)', function() {
     var element = mock_dselect_create();
     mock_dselect_add_choice(element, 'a', 1);

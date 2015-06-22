@@ -273,10 +273,18 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         if (value !== null)
         {
-            var selections = creme.utils.JSON.clean(value, value.split(','));
-            var value = selections.map(function(item) {return typeof item !== 'string' ? $.toJSON(item) : item;});
+            var selections = [];
 
-            element.val(value);
+            if (Object.isString(value)) {
+                selections = creme.utils.JSON.clean(value, value.split(','));
+            } else {
+                selections = value;
+            }
+
+            selections = Array.isArray(selections) ? selections : [selections];
+            selections = selections.map(function(item) {return Object.isString(item) === false ? $.toJSON(item) : item;});
+
+            element.val(selections);
             this._onSelectionChange(element);
         }
     },

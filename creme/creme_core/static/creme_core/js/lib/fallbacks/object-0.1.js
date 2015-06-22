@@ -106,6 +106,10 @@
         return (typeof obj === 'function');
     });
 
+    appendStatic('isString', function(obj) {
+        return (typeof obj === 'string') || (typeof obj === 'object' && Object.getPrototypeOf(obj) == String.prototype);
+    });
+
     appendStatic('proxy', function(delegate, context, options) {
         if (Object.isNone(delegate))
             return;

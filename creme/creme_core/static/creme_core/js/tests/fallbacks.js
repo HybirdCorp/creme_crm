@@ -318,6 +318,17 @@ test('fallbacks.Object.getPrototypeOf (object)', function() {
     equal(Object.getPrototypeOf(b).constructor, MockObjectB, 'b.constructor');
 });
 
+test('fallbacks.Object.isString', function() {
+    equal(typeof Object.isString, 'function');
+
+    equal(Object.isString(''), true);
+    equal(Object.isString(new String('')), true);
+    equal(Object.isString(false), false);
+    equal(Object.isString([12, 13]), false);
+    equal(Object.isString(new Object()), false);
+    equal(Object.isString({}), false);
+});
+
 test('fallbacks.Array.indexOf', function() {
     equal(typeof Array.prototype.indexOf, 'function');
     equal(typeof [].indexOf, 'function');
