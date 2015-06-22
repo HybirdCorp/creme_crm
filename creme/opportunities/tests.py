@@ -1472,7 +1472,7 @@ class OriginTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core')
+        cls.populate('creme_core', 'opportunities')
 
     def setUp(self):
         self.login()
