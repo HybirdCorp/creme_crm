@@ -42,7 +42,7 @@ def _fields_values(instances, getters, range, sort_getter=None, user=None):
         return [getter(i, user) for getter in getters]
 
     if sort_getter:
-        sorted_result = [(sort_getter(instance), values(instance)) for instance in instances]
+        sorted_result = [(sort_getter(instance, user), values(instance)) for instance in instances]
         sorted_result.sort(key=lambda x: x[0])
         result.extend(e[1] for e in sorted_result[start:end])
     else:
