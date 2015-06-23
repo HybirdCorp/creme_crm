@@ -16,7 +16,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('FolderTestCase',)
+#__all__ = ('FolderTestCase',)
 
 
 @skipIfCustomDocument
@@ -340,10 +340,9 @@ class FolderTestCase(_DocumentsTestCase):
 
     def test_listview02(self):
         "With parent constraint"
-        user = self.user
         cat = FolderCategory.objects.all()[0]
 
-        create_folder = partial(Folder.objects.create, user=user, category=cat)
+        create_folder = partial(Folder.objects.create, user=self.user, category=cat)
         grand_parent = create_folder(title='Docs', description='Contains docs')
         parent  = create_folder(title='Vectors', description='Contains Vector docs',
                                 parent_folder=grand_parent,
@@ -415,11 +414,14 @@ class FolderTestCase(_DocumentsTestCase):
         folder = Folder.objects.create(user=self.user, title='ToBeDel', description="remove me")
 
         title = 'Boring title'
-        self._create_doc(title, folder=folder, description='Boring description too',
-                         file_obj=self._build_filedata('Content (FolderTestCase.test_deleteview02)')[0],
-                        )
-
-        doc = self.get_object_or_fail(Document, title=title)
+#        self._create_doc(title, folder=folder, description='Boring description too',
+#                         file_obj=self._build_filedata('Content (FolderTestCase.test_deleteview02)')[0],
+#                        )
+#        doc = self.get_object_or_fail(Document, title=title)
+        doc = self._create_doc(title, folder=folder,
+                               #description='Boring description too',
+                               #file_obj=self._build_filedata('Content (FolderTestCase.test_deleteview02)')[0],
+                              )
         self.assertEqual(folder, doc.folder)
 
         folder.trash()
@@ -440,18 +442,18 @@ class FolderTestCase(_DocumentsTestCase):
                                        category=FolderCategory.objects.all()[0]
                                       )
 
-        #TODO: factorise (see documents.test_listview too) ?
-        def create_doc(title, folder=None):
-            self._create_doc(title, folder=folder, description='Test description',
-                             file_obj=self._build_filedata('%s : Content' % title)[0],
-                            )
+#        def create_doc(title, folder=None):
+#            self._create_doc(title, folder=folder, description='Test description',
+#                             file_obj=self._build_filedata('%s : Content' % title)[0],
+#                            )
+#
+#            return self.get_object_or_fail(Document, title=title)
+        create_doc = self._create_doc
 
-            return self.get_object_or_fail(Document, title=title)
-
-        doc1 = create_doc('Test doc #1', folder)
-        doc2 = create_doc('Test doc #2', folder)
+        doc1 = create_doc('Test doc #1', folder=folder)
+        doc2 = create_doc('Test doc #2', folder=folder)
         doc3 = create_doc('Test doc #3')
-        doc4 = create_doc('Test doc #4', folder)
+        doc4 = create_doc('Test doc #4', folder=folder)
 
         doc4.trash()
 
@@ -473,3 +475,83 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertIn(doc2.title, block_str)
         self.assertNotIn(doc3.title, block_str)
         #self.assertNotIn(doc4.title, block_str) TODO (see blocks.py)
+
+    def test_merge01(self):
+        user = self.user
+
+        create_folder = partial(Folder.objects.create, user=user)
+        folder1 = create_folder(title='Folder#1', description='Folder#1')
+        folder2 = create_folder(title='Folder#2', description='Folder#2')
+        folder3 = create_folder(title='Folder#3', description='Folder#3')
+
+        create_doc = self._create_doc
+        doc1 = create_doc('Test doc #1', folder=folder1)
+        doc2 = create_doc('Test doc #2', folder=folder2)
+
+        url = self.build_merge_url(folder1, folder2)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            form   = response.context['form']
+            fields = form.fields
+
+        self.assertEqual(folder1, getattr(form, 'entity1', None))
+        self.assertEqual(folder2, getattr(form, 'entity2', None))
+
+        self.assertIn('title', fields)
+        self.assertNotIn('parent_folder', fields)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'title_1':      folder1.title,
+                                          'title_2':      folder2.title,
+                                          'title_merged': folder1.title,
+
+                                          'description_1':      folder1.description,
+                                          'description_2':      folder2.description,
+                                          'description_merged': folder2.description,
+
+                                          # should be ignored
+                                          'parent_folder_1':      '',
+                                          'parent_folder_2':      '',
+                                          'parent_folder_merged': folder3.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertDoesNotExist(folder2)
+
+        with self.assertNoException():
+            merged_folder = self.refresh(folder1)
+
+        self.assertEqual(folder1.title,       merged_folder.title)
+        self.assertEqual(folder2.description, merged_folder.description)
+        self.assertIsNone(merged_folder.parent_folder)
+
+        self.assertEqual({doc1, doc2}, set(merged_folder.document_set.all()))
+
+    def test_merge02(self):
+        "One folder is the parent of the other one"
+        create_folder = partial(Folder.objects.create, user=self.user)
+        folder1 = create_folder(title='Folder#1', description='Folder#1')
+        folder2 = create_folder(title='Folder#2', description='Folder#2', parent_folder=folder1)
+        folder3 = create_folder(title='Folder#3', description='Folder#3', parent_folder=folder2)
+
+        build_url = self.build_merge_url
+        response = self.assertGET200(build_url(folder1, folder3))
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(folder1, getattr(form, 'entity1', None))
+        self.assertEqual(folder3, getattr(form, 'entity2', None))
+
+        # -------------
+        form = self.assertGET200(build_url(folder3, folder1)).context['form']
+
+        # swapped
+        self.assertEqual(folder1, getattr(form, 'entity1', None))
+        self.assertEqual(folder3, getattr(form, 'entity2', None))

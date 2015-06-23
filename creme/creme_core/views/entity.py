@@ -357,7 +357,7 @@ def merge(request, entity1_id, entity2_id):
     if request.method == 'POST':
         POST = request.POST
         merge_form = EntitiesMergeForm(user=request.user, data=POST,
-                                       entity1=entity1, entity2=entity2
+                                       entity1=entity1, entity2=entity2,
                                       )
 
         if merge_form.is_valid():

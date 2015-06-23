@@ -23,7 +23,7 @@ except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
-__all__ = ('DocumentTestCase', 'DocumentQuickFormTestCase', 'CSVDocumentQuickWidgetTestCase')
+#__all__ = ('DocumentTestCase', 'DocumentQuickFormTestCase', 'CSVDocumentQuickWidgetTestCase')
 
 
 @skipIfCustomDocument
@@ -65,7 +65,16 @@ class DocumentTestCase(_DocumentsTestCase):
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
         file_obj, file_name = self._build_filedata(content, suffix='.%s' % ext)
         folder   = Folder.objects.all()[0]
-        response = self._create_doc(title, file_obj, folder, description)
+#        response = self._create_doc(title, file_obj, folder, description)
+        response = self.client.post(self.ADD_DOC_URL, follow=True,
+                                    data={'user':     self.user.pk,
+                                          'title':    title,
+                                          'filedata': file_obj,
+                                          'folder':   folder.id,
+                                          'description': description,
+                                         }
+                                   )
+        self.assertNoFormError(response)
 
         docs = Document.objects.all()
         self.assertEqual(1, len(docs))
@@ -99,9 +108,9 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='.%s' % ext)
-        self._create_doc(title, file_obj)
-
-        doc = self.get_object_or_fail(Document, title=title)
+#        self._create_doc(title, file_obj)
+#        doc = self.get_object_or_fail(Document, title=title)
+        doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
@@ -122,9 +131,9 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='.old.%s' % ext)
-        self._create_doc(title, file_obj)
-
-        doc = self.get_object_or_fail(Document, title=title)
+#        self._create_doc(title, file_obj)
+#        doc = self.get_object_or_fail(Document, title=title)
+        doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
@@ -142,8 +151,9 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'My doc'
         file_obj, file_name = self._build_filedata('Content', suffix='')
-        self._create_doc(title, file_obj)
-        doc = self.get_object_or_fail(Document, title=title)
+#        self._create_doc(title, file_obj)
+#        doc = self.get_object_or_fail(Document, title=title)
+        doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
@@ -165,9 +175,9 @@ class DocumentTestCase(_DocumentsTestCase):
         title       = 'Test doc'
         description = 'Test description'
         content     = 'Yes I am the content (DocumentTestCase.test_editview)'
-        self._create_doc(title, self._build_filedata(content)[0], description=description)
-
-        doc = self.get_object_or_fail(Document, title=title)
+#        self._create_doc(title, self._build_filedata(content)[0], description=description)
+#        doc = self.get_object_or_fail(Document, title=title)
+        doc = self._create_doc(title, self._build_filedata(content)[0], description=description)
 
 #        url = '/documents/document/edit/%s' % doc.id
         url = doc.get_edit_absolute_url()
@@ -385,12 +395,13 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_listview(self):
         self.login()
 
-        def create_doc(title):
-            self._create_doc(title, description='Test description',
-                             file_obj=self._build_filedata('%s : Content (DocumentTestCase.test_listview)' % title)[0],
-                            )
-
-            return self.get_object_or_fail(Document, title=title)
+#        def create_doc(title):
+#            self._create_doc(title, description='Test description',
+#                             file_obj=self._build_filedata('%s : Content (DocumentTestCase.test_listview)' % title)[0],
+#                            )
+#
+#            return self.get_object_or_fail(Document, title=title)
+        create_doc = self._create_doc
 
         doc1 = create_doc('Test doc #1')
         doc2 = create_doc('Test doc #2')

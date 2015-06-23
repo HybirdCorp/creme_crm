@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 
 from creme.creme_core.tests.base import CremeTestCase
 
-from ..models import Folder
+from ..models import Folder, Document
 
 try:
     from .. import document_model_is_custom, folder_model_is_custom
@@ -69,7 +69,8 @@ class _DocumentsTestCase(CremeTestCase):
 
         return open(name, 'rb'), basename(name)
 
-    def _create_doc(self, title, file_obj, folder=None, description=None):
+    def _create_doc(self, title, file_obj=None, folder=None, description=None):
+        file_obj = file_obj or self._build_filedata('%s : Content' % title)[0]
         folder = folder or Folder.objects.all()[0]
         data = {'user':     self.user.pk,
                 'title':    title,
@@ -83,4 +84,5 @@ class _DocumentsTestCase(CremeTestCase):
         response = self.client.post(self.ADD_DOC_URL, follow=True, data=data)
         self.assertNoFormError(response)
 
-        return response
+#        return response
+        return self.get_object_or_fail(Document, title=title)

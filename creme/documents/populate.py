@@ -25,10 +25,13 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.blocks import (properties_block, relations_block,
+        customfields_block, history_block)
+from creme.creme_core.buttons import merge_entities_button
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilter
+from creme.creme_core.models import (RelationType, BlockDetailviewLocation,
+        SearchConfigItem, HeaderFilter, ButtonMenuItem)
 from creme.creme_core.utils import create_if_needed
 
 from . import get_document_model, get_folder_model, folder_model_is_custom
@@ -94,6 +97,8 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
             BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
             BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
+
+            ButtonMenuItem.create_if_needed(pk='document-merge_folders_button', model=Folder, button=merge_entities_button,  order=100)
 
             if apps.is_installed('creme.assistants'):
                 logger.info('Assistants app is installed => we use the assistants blocks on detail view')
