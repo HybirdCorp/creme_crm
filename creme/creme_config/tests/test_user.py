@@ -13,7 +13,7 @@ try:
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.core.setting_key import SettingKey
     from creme.creme_core.models import CremeUser as User
-    from creme.creme_core.models import (CremeEntity, CremeProperty,
+    from creme.creme_core.models import (CremeEntity, CremeProperty, RelationType,
             EntityCredentials, UserRole, SetCredentials, Mutex, SettingValue) #Relation
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -321,7 +321,7 @@ class UserTestCase(CremeTestCase):
                             )
 
     @skipIfNotCremeUser
-    def test_create11(self):
+    def test_create09(self):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -347,6 +347,36 @@ class UserTestCase(CremeTestCase):
         user = self.get_object_or_fail(User, username=username)
         self.assertTrue(user.is_superuser)
         self.assertIsNone(user.role)
+ 
+    @skipIfNotCremeUser
+    def test_create12(self):
+        "Internal relationships are forbidden."
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        rtype = RelationType.create(('creme_config-subject_test_badrtype', u'Bad RType',     [Contact]),
+                                    ('creme_config-object_test_badrtype',  u'Bad RType sym', [Organisation]),
+                                    is_internal=True,  # <==
+                                   )[0]
+
+        password = 'password'
+        response = self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'username':     'deunan', #username,
+                                            'password_1':   password,
+                                            'password_2':   password,
+                                            'first_name':   'Deunan',
+                                            'last_name':    'Knut',
+                                            'email':        'd.knut@eswat.ol',
+                                            'is_superuser': True,
+                                            'organisation': orga.id,
+                                            'relation':     rtype.id,
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'relation',
+                             _('Select a valid choice. That choice is not one of the available choices.'),
+                            )
 
     @skipIfNotCremeUser
     def test_edit01(self):
