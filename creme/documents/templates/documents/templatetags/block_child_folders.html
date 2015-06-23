@@ -12,11 +12,11 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr class="header">
-            {% get_column_header _('Title') 'title' %}
-            <th class="block_header_line_dark action">{% trans "Category" %}</th>
-        </tr>
         {% if page.paginator.count %}
+            <tr class="header">
+                {% get_column_header _('Title') 'title' %}
+                <th class="block_header_line_dark action">{% trans "Category" %}</th>
+            </tr>
             {% for folder in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink folder user %}</td>
