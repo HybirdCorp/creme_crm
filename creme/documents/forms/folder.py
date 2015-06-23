@@ -122,3 +122,23 @@ class ParentFolderBulkForm(BulkDefaultEditForm):
                 entity.category = parent_folder.category
 
         return super(ParentFolderBulkForm, self)._bulk_clean_entity(entity, values)
+
+
+def get_merge_form_builder():
+    from creme.creme_core.forms.merge import MergeEntitiesBaseForm
+
+    class FolderMergeForm(MergeEntitiesBaseForm):
+        # TODO: uncomment & remove the code in init which eclude the field ? (MergeEntitiesBaseForm has to be a ModelForm...)
+        #class Meta(MergeEntitiesBaseForm.Meta):
+            #exclude = ('parent_folder',)
+
+        def __init__(self, entity1, entity2, *args, **kwargs):
+            if entity2.already_in_children(entity1.id):
+                entity1, entity2 = entity2, entity1
+
+            super(FolderMergeForm, self).__init__(entity1, entity2, *args, **kwargs)
+
+            del self.fields['parent_folder']
+
+
+    return FolderMergeForm

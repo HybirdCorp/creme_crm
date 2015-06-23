@@ -25,12 +25,12 @@ from django.db.transaction import atomic
 from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.utils import flatatt
-from django.utils.safestring import mark_safe
 from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from ..models import CremeEntity, CustomField, CustomFieldValue
 from ..gui.merge import merge_form_registry
+from ..models import CremeEntity, CustomField, CustomFieldValue
 from ..signals import pre_merge_related
 from ..utils import replace_related_object
 from .base import CremeForm, _CUSTOM_NAME

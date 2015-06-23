@@ -24,12 +24,12 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import (creme_menu, block_registry, icon_registry,
-        bulk_update_registry, quickforms_registry)
+        bulk_update_registry, quickforms_registry, merge_form_registry)
 
 from . import get_document_model, get_folder_model
 from .blocks import folder_docs_block, child_folders_block, linked_docs_block
 from .forms.quick import DocumentQuickForm
-from .forms.folder import ParentFolderBulkForm
+from .forms.folder import ParentFolderBulkForm, get_merge_form_builder
 #from .models import Document, Folder
 
 
@@ -55,6 +55,8 @@ block_registry.register(folder_docs_block, child_folders_block, linked_docs_bloc
 reg_icon = icon_registry.register
 reg_icon(Document, 'images/document_%(size)s.png')
 reg_icon(Folder,   'images/document_%(size)s.png')
+
+merge_form_registry.register(Folder, get_merge_form_builder)
 
 bulk_update_registry.register(Folder, innerforms={'parent_folder': ParentFolderBulkForm})
 bulk_update_registry.register(Document, exclude=['filedata'])
