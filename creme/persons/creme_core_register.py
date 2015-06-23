@@ -109,6 +109,7 @@ def _add_related_orga_fields(form):
     fields['relation'] = ModelChoiceField(label=_('Position in the organisation'),
                                           queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
                                                                                object_ctypes=get_ct(Organisation),
+                                                                               is_internal=False,
                                                                               ),
                                           empty_label=None,
                                           widget=DynamicSelect(attrs={'autocomplete':True}),
