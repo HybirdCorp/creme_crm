@@ -1,6 +1,10 @@
 {% load cycle from future %}{% load creme_core_tags creme_block creme_widgets %}
-<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
-    {% if page.paginator.count %}
+{% if not page.paginator.count %}
+    {% if request.is_ajax %}
+        <table style="display:none;" class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}" />
+    {% endif %}
+{% else %}
+    <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
         {% get_block_header colspan=2 %}
             <th class="label">
                 {% if ctype %}
@@ -34,5 +38,5 @@
             {% endfor %}
         </tbody>
         {% get_block_footer 2 %}
-    {% endif %}
-</table>
+    </table>
+{% endif %}
