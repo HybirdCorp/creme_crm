@@ -395,6 +395,7 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         self.assertEqual(ptype, ctxt_ptype)
 
+        self.assertContains(response,    ' id="block_creme_core-property_type_info"')
 #        self.assertContains(response,    ' id="block_creme_core-tagged-persons-contact"')
 #        self.assertContains(response,    ' id="block_creme_core-tagged-persons-organisation"')
         self.assertContains(response,    ' id="block_creme_core-tagged-creme_core-fakecontact"')
@@ -464,13 +465,17 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(2, len(result))
         self.assertEqual(block_id, result[0])
-        self.assertIn(' id="%s"' % block_id, result[1])
+
+        block_html = result[1]
+        self.assertIn(' id="%s"' % block_id, block_html)
+        self.assertIn(unicode(rita), block_html)
 
         self.assertGET404(url_fmt % (ptype.id, 'invalid_blockid'))
         self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-invalidmodel'))
         self.assertGET404(url_fmt % (ptype.id, 'block_creme_core-tagged-persons-civility'))
 
     def test_reload_block02(self):
+        "Misc block + info block"
         self.login()
         ptype = CremePropertyType.create(str_pk='test-prop_murica', text='is american',
                                          subject_ctypes=[Organisation],
@@ -479,8 +484,21 @@ class PropertyViewsTestCase(ViewsTestCase):
         rita = Contact.objects.create(user=self.user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
-        block_id = 'block_creme_core-misc_tagged_entities'
-        self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, block_id))
+        misc_block_id = 'block_creme_core-misc_tagged_entities'
+        info_block_id = 'block_creme_core-property_type_info'
+
+        response = self.assertGET200('/creme_core/property/type/%s/reload_block/%s/' % (
+                                            ptype.id, misc_block_id,
+                                        ),
+                                     data={misc_block_id + '_deps': info_block_id},
+                                    )
+
+        with self.assertNoException():
+            result = json.loads(response.content)
+
+        self.assertEqual(2, len(result))
+        self.assertIn(' id="%s"' % misc_block_id, result[0][1])
+        self.assertIn(' id="%s"' % info_block_id, result[1][1])
 
     def test_reload_block03(self):
         "Empty block"

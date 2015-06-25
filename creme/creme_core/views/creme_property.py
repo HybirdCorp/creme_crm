@@ -29,9 +29,10 @@ from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddFor
 
 from ..auth.decorators import login_required, permission_required
 from ..forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
-from ..gui.block import QuerysetBlock
+from ..gui.block import QuerysetBlock, Block
 from ..models import CremeEntity, CremePropertyType
 from ..utils import creme_entity_content_types, get_ct_or_404, get_from_POST_or_404, jsonify
+from .blocks import _get_depblock_ids # TODO: make public ??
 from .generic import inner_popup, add_to_entity as generic_add_to_entity
 
 #TODO: Factorise with views in creme_config
@@ -164,14 +165,35 @@ def delete_type(request, ptype_id):
     return HttpResponseRedirect(CremePropertyType.get_lv_absolute_url())
 
 
+class PropertyTypeInfoBlock(Block):
+    id_           = Block.generate_id('creme_core', 'property_type_info')
+    dependencies  = '*'
+    read_only     = True
+    template_name = 'creme_core/templatetags/block_ptype_info.html'
+
+    def __init__(self, ptype, ctypes):
+        self.ptype = ptype
+        self.ctypes = ctypes
+
+    def detailview_display(self, context):
+        ptype = self.ptype
+
+        return self._render(self.get_block_template_context(
+                    context,
+                    update_url='/creme_core/property/type/%s/reload_block/%s/' % (ptype.id, self.id_),
+                    ctypes=self.ctypes,
+                    count_stat=CremeEntity.objects.filter(properties__type=ptype).count(),
+                ))
+
+
 class TaggedEntitiesBlock(QuerysetBlock):
-    #dependencies  = (CremeProperty,) #TODO: ??
     template_name = 'creme_core/templatetags/block_tagged_entities.html'
 
     def __init__(self, ptype, ctype):
         self.ptype = ptype
         self.ctype = ctype
         self.id_ = self.generate_id('creme_core', 'tagged-%s-%s' % (ctype.app_label, ctype.model))
+        self.dependencies = (ctype.model_class(),)
 
     @staticmethod
     def parse_block_id(block_id):
@@ -217,7 +239,7 @@ class TaggedEntitiesBlock(QuerysetBlock):
 
 class TaggedMiscEntitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'misc_tagged_entities')
-    #dependencies  = (CremeProperty,) #TODO: ??
+    dependencies  = (CremeEntity,)
     template_name = 'creme_core/templatetags/block_tagged_entities.html'
 
     def __init__(self, ptype, excluded_ctypes):
@@ -244,18 +266,18 @@ class TaggedMiscEntitiesBlock(QuerysetBlock):
 def type_detailview(request, ptype_id):
     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
     ctypes = ptype.subject_ctypes.all()
-    blocks = [TaggedEntitiesBlock(ptype, ctype)
-                for ctype in (ctypes or creme_entity_content_types())
-             ]
+
+    blocks = [PropertyTypeInfoBlock(ptype, ctypes)]
+    blocks.extend(TaggedEntitiesBlock(ptype, ctype)
+                    for ctype in (ctypes or creme_entity_content_types())
+                 )
 
     if ctypes:
         blocks.append(TaggedMiscEntitiesBlock(ptype, excluded_ctypes=ctypes))
 
     return render(request, 'creme_core/view_property_type.html',
-                  {'object':     ptype,
-                   'ctypes':     ctypes,
-                   'blocks':     blocks,
-                   'count_stat': CremeEntity.objects.filter(properties__type=ptype).count(),
+                  {'object': ptype,
+                   'blocks': blocks,
                   }
                  )
 
@@ -263,14 +285,24 @@ def type_detailview(request, ptype_id):
 @jsonify
 def reload_block(request, ptype_id, block_id):
     ptype = get_object_or_404(CremePropertyType, id=ptype_id)
+    block_renders = []
+    ctypes = ptype.subject_ctypes.all()
 
-    if block_id == TaggedMiscEntitiesBlock.id_:
-        block = TaggedMiscEntitiesBlock(ptype, ptype.subject_ctypes.all())
-    else:
-        ctype = TaggedEntitiesBlock.parse_block_id(block_id)
-        if ctype is None:
-            raise Http404('Invalid block id "%s"' % block_id)
+    context = RequestContext(request)
+    context['object'] = ptype
 
-        block = TaggedEntitiesBlock(ptype, ctype)
+    for b_id in _get_depblock_ids(request, block_id):
+        if b_id == PropertyTypeInfoBlock.id_:
+            block = PropertyTypeInfoBlock(ptype, ctypes)
+        elif b_id == TaggedMiscEntitiesBlock.id_:
+            block = TaggedMiscEntitiesBlock(ptype, ctypes)
+        else:
+            ctype = TaggedEntitiesBlock.parse_block_id(b_id)
+            if ctype is None:
+                raise Http404('Invalid block id "%s"' % b_id)
 
-    return [(block.id_, block.detailview_display(RequestContext(request)))]
+            block = TaggedEntitiesBlock(ptype, ctype)
+
+        block_renders.append((block.id_, block.detailview_display(context)))
+
+    return block_renders

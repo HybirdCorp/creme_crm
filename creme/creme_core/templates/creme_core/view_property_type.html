@@ -1,5 +1,5 @@
 {% extends "creme_core/base.html" %}{% comment %}TODO: improve detailview.html in order to use it easily ? (remove menu_buttons, blocks...) {% endcomment %}
-{% load cycle from future %}{% load i18n %}
+{% load i18n %}
 {% load creme_core_tags creme_block %}
 
 {% block page_title %}«{{object}}» - {% endblock %}
@@ -46,46 +46,6 @@
                 {% endif %}
             </td>
         </tr>
-    </table>
-
-    <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
-        {% get_block_header colspan=2 %}
-            <th class="label">{% get_basic_block_header _('General information') 'property_48.png' _('Information') %}</th>
-            <th class="actions">
-                <div class="buttons">
-                    {% comment %}{% get_toggle_empty_field_button %}{% endcomment %}
-                </div>
-            </th>
-        {% end_get_block_header %}
-        <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-            <tr class="content">
-                <th class="{% cycle header_color %} th_info">{% trans "Text" %}</th>
-                <td class="{% cycle row_color %} td_info">{% print_field object=object field='text' %}</td>
-            </tr>
-            <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Applies on entities with following types" %}</th>
-                {% comment %}<td class="{% cycle row_color %} td_info">{% print_field object=object field='subject_ctypes' %}</td>{% endcomment %}
-                <td class="{% cycle row_color %} td_info">
-                    {% if not ctypes %}
-                        {% trans "No related type of resource" %}
-                    {% else %}
-                        {% if ctypes|length == 1 %}
-                            {{ctypes.0}}
-                        {% else %}
-                            <ul>{% for ctype in ctypes %}<li>{{ctype}}</li>{% endfor %}</ul>
-                        {% endif %}
-                    {% endif %}
-                </td>
-            </tr>
-            <tr class="content">
-                <th class="{% cycle header_color %} th_info">{% trans "Is copiable" %}</th>
-                <td class="{% cycle row_color %} td_info">{% print_field object=object field='is_copiable' %}</td>
-            </tr>
-            <tr class="content">
-                <th class="{% cycle header_color %} th_info">{% trans "Statistics" %}</th>
-                <td class="{% cycle row_color %} td_info">{% blocktrans count count_stat as count %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktrans %}</td>
-            </tr>
-        </tbody>
     </table>
 
     {% import_blocks blocks as 'result_blocks' %}
