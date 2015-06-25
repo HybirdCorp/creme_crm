@@ -114,7 +114,7 @@ class _ConfigAdminBlock(QuerysetBlock):
 
 
 class PropertyTypesBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'property_types')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'property_types')
     dependencies  = (CremePropertyType,)
     order_by      = 'text'
     verbose_name  = _(u'Property types configuration')
@@ -129,7 +129,7 @@ class PropertyTypesBlock(_ConfigAdminBlock):
 
 
 class RelationTypesBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'relation_types')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'relation_types')
     dependencies  = (RelationType,)
     verbose_name  = _(u'List of standard relation types')
     template_name = 'creme_config/templatetags/block_relation_types.html'
@@ -146,7 +146,7 @@ class RelationTypesBlock(_ConfigAdminBlock):
 
 
 class CustomRelationTypesBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'custom_relation_types')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'custom_relation_types')
     dependencies  = (RelationType,)
     verbose_name  = _(u'Custom relation types configuration')
     template_name = 'creme_config/templatetags/block_relation_types.html'
@@ -163,7 +163,7 @@ class CustomRelationTypesBlock(_ConfigAdminBlock):
 
 
 class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'semifixed_relation_types')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'semifixed_relation_types')
     dependencies  = (RelationType, SemiFixedRelationType,)
     verbose_name  = _(u'List of semi-fixed relation types')
     template_name = 'creme_config/templatetags/block_semifixed_relation_types.html'
@@ -179,7 +179,7 @@ class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
 
 
 class CustomFieldsPortalBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'custom_fields_portal')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'custom_fields_portal')
     dependencies  = (CustomField,)
     verbose_name  = _(u'General configuration of custom fields')
     template_name = 'creme_config/templatetags/block_custom_fields_portal.html'
@@ -213,7 +213,7 @@ class CustomFieldsBlock(QuerysetBlock):
 
 
 class UsersBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'users')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'users')
     dependencies  = (User,)
     order_by      = 'username'
     verbose_name  = _(u'Users configuration')
@@ -230,7 +230,7 @@ class UsersBlock(_ConfigAdminBlock):
 
 
 class TeamsBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'teams')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'teams')
     dependencies  = (User,)
     order_by      = 'username'
     verbose_name  = u'Teams configuration'
@@ -243,27 +243,45 @@ class TeamsBlock(_ConfigAdminBlock):
                            ))
 
 
-class BlockDetailviewLocationsBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_dv_locations')
+#class BlockDetailviewLocationsBlock(_ConfigAdminBlock):
+class BlockDetailviewLocationsBlock(PaginatedBlock):
+#    id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_dv_locations')
+    id_           = PaginatedBlock.generate_id('creme_config', 'blocks_dv_locations')
     dependencies  = (BlockDetailviewLocation,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
     template_name = 'creme_config/templatetags/block_blocklocations.html'
+    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
     configurable  = False
 
     def detailview_display(self, context):
-        ct_ids = BlockDetailviewLocation.objects.exclude(content_type=None)\
-                                                .distinct()\
-                                                .values_list('content_type_id', flat=True)
+#        ct_ids = BlockDetailviewLocation.objects.exclude(content_type=None)\
+#                                                .distinct()\
+#                                                .values_list('content_type_id', flat=True)
+#
+#        return self._render(self.get_block_template_context(
+#                                context, ContentType.objects.filter(pk__in=ct_ids), #todo: use get_for_id instead (avoid query) ??
+#                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+#                           ))
+
+        ct_ids = set(BlockDetailviewLocation.objects.exclude(content_type=None)
+                                                    .values_list('content_type_id', flat=True)
+                    )
+        get_ct = ContentType.objects.get_for_id
+        ctypes = [get_ct(ct_id) for ct_id in ct_ids]
+
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ct: sort_key(unicode(ct)))
 
         return self._render(self.get_block_template_context(
-                                context, ContentType.objects.filter(pk__in=ct_ids), #TODO: use get_for_id instead (avoid query) ??
+                                context, ctypes,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
 
+
 class BlockPortalLocationsBlock(PaginatedBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_portal_locations')
+    id_           = PaginatedBlock.generate_id('creme_config', 'blocks_portal_locations')
     dependencies  = (BlockPortalLocation,)
     page_size     = _PAGE_SIZE - 2 #'-1' because there is always the line for default config & home config on each page
     verbose_name  = u'Blocks locations on portals'
@@ -289,42 +307,46 @@ class BlockPortalLocationsBlock(PaginatedBlock):
                            ))
 
 
-class BlockDefaultMypageLocationsBlock(PaginatedBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
+#class BlockDefaultMypageLocationsBlock(PaginatedBlock):
+class BlockDefaultMypageLocationsBlock(_ConfigAdminBlock):
+#    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
     dependencies  = (BlockMypageLocation,)
-    page_size     = _PAGE_SIZE
+#    page_size     = _PAGE_SIZE
     verbose_name  = u'Default blocks locations on "My page"'
     template_name = 'creme_config/templatetags/block_blockdefmypagelocations.html'
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    configurable  = False
+#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    configurable  = False
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
                                 context,
-                                BlockMypageLocation.objects.filter(user=None), #.order_by('order'),
+                                BlockMypageLocation.objects.filter(user=None),
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
 
-class BlockMypageLocationsBlock(PaginatedBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_mypage_locations')
+#class BlockMypageLocationsBlock(PaginatedBlock):
+class BlockMypageLocationsBlock(_ConfigAdminBlock):
+#    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_mypage_locations')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'blocks_mypage_locations')
     dependencies  = (BlockMypageLocation,)
-    page_size     = _PAGE_SIZE
+#    page_size     = _PAGE_SIZE
     verbose_name  = u'Blocks locations on "My page"'
     template_name = 'creme_config/templatetags/block_blockmypagelocations.html'
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-    configurable  = False
+#    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+#    configurable  = False
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
                                 context,
-                                BlockMypageLocation.objects.filter(user=context['user']), #.order_by('order'),
+                                BlockMypageLocation.objects.filter(user=context['user']),
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
 
 
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'relation_blocks_config')
     dependencies  = (RelationBlockItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
     verbose_name  = u'Relation blocks configuration'
     template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
@@ -337,7 +359,7 @@ class RelationBlocksConfigBlock(_ConfigAdminBlock):
 
 
 class InstanceBlocksConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'instance_blocks_config')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'instance_blocks_config')
     dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
     verbose_name  = u'Instance blocks configuration'
     template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
@@ -350,7 +372,7 @@ class InstanceBlocksConfigBlock(_ConfigAdminBlock):
 
 
 class CustomBlocksConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'custom_blocks_config')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'custom_blocks_config')
     dependencies  = (CustomBlockConfigItem,)
     verbose_name  = u'Custom blocks configuration'
     template_name = 'creme_config/templatetags/block_customblocksconfig.html'
@@ -406,7 +428,7 @@ class ButtonMenuBlock(Block):
 
 
 class SearchConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'searchconfig')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
     verbose_name  = u'Search configuration'
     template_name = 'creme_config/templatetags/block_searchconfig.html'
@@ -420,7 +442,7 @@ class SearchConfigBlock(_ConfigAdminBlock):
 
 
 class HistoryConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'historyconfig')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'historyconfig')
     dependencies  = (HistoryConfigItem,)
     verbose_name  = u'History configuration'
     template_name = 'creme_config/templatetags/block_historyconfig.html'
@@ -433,7 +455,7 @@ class HistoryConfigBlock(_ConfigAdminBlock):
 
 
 class UserRolesBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
+    id_           = _ConfigAdminBlock.generate_id('creme_config', 'user_roles')
     dependencies  = (UserRole,)
     order_by      = 'name'
     verbose_name  = u'User roles configuration'
@@ -457,11 +479,9 @@ class UserPreferedMenusBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         #NB: credentials OK: user can only view his own settings
-        user = context['request'].user
-
         return self._render(self.get_block_template_context(
                                 context,
-                                PreferedMenuItem.objects.filter(user=user),
+                                PreferedMenuItem.objects.filter(user=context['user']),
                                 page_size=self.page_size,
                                 update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                            ))
