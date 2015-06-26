@@ -81,7 +81,13 @@ class _JSONEncoder(JSONEncoder):
 
 
 #TODO: factorise with gui.field_printers ?? (html and text mode ??)
-_basic_printer = lambda field, val: val
+#_basic_printer = lambda field, val: val
+def _basic_printer(field, val):
+    if field.choices:
+        # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
+        val = dict(field.flatchoices).get(val, val)
+
+    return val
 
 def _fk_printer(field, val):
     if val is None:
