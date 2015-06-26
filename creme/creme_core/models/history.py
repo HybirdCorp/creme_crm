@@ -24,13 +24,13 @@ from functools import partial
 from json import loads as jsonloads, JSONEncoder
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
-                              ForeignKey, SET_NULL, FieldDoesNotExist) #DateTimeField
+        ForeignKey, SET_NULL, FieldDoesNotExist) #DateTimeField
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from ..global_info import get_global_info, set_global_info
 from .entity import CremeEntity
@@ -82,34 +82,38 @@ class _JSONEncoder(JSONEncoder):
 
 #TODO: factorise with gui.field_printers ?? (html and text mode ??)
 #_basic_printer = lambda field, val: val
-def _basic_printer(field, val):
+def _basic_printer(field, val, user):
     if field.choices:
         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
         val = dict(field.flatchoices).get(val, val)
 
     return val
 
-def _fk_printer(field, val):
+#def _fk_printer(field, val):
+def _fk_printer(field, val, user):
     if val is None:
         return ''
 
     model = field.rel.to
 
-    #TODO: improve this (allowed_unicode() on real_entity; test with Contact.image)
-    if issubclass(model, CremeEntity):
-        return ugettext(u'Entity #%s') % val
+#    if issubclass(model, CremeEntity):
+#        return ugettext(u'Entity #%s') % val
 
     try:
         out = model.objects.get(pk=val)
     except model.DoesNotExist as e:
         logger.info(str(e))
         out = val
+    else:
+        if isinstance(out, CremeEntity):
+            out = out.allowed_unicode(user)
 
     return unicode(out)
 
 #TODO: ClassKeyedMap ?
 _PRINTERS = {
-        'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
+#        'BooleanField': (lambda field, val: ugettext(u'True') if val else ugettext(u'False')),
+        'BooleanField': (lambda field, val, user: ugettext(u'True') if val else ugettext(u'False')),
         'ForeignKey':   _fk_printer,
     }
 
@@ -210,7 +214,8 @@ class _HistoryLineType(object):
     def _get_printer(self, field):
         return _PRINTERS.get(field.get_internal_type(), _basic_printer)
 
-    def _verbose_modifications_4_fields(self, model_class, modifications):
+#    def _verbose_modifications_4_fields(self, model_class, modifications):
+    def _verbose_modifications_4_fields(self, model_class, modifications, user):
         get_field = model_class._meta.get_field
 
         for modif in modifications:
@@ -228,21 +233,25 @@ class _HistoryLineType(object):
                 elif length == 2:
                     vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
                                         'field': field_vname,
-                                        'value': self._get_printer(field)(field, modif[1]),
+#                                        'value': self._get_printer(field)(field, modif[1]),
+                                        'value': self._get_printer(field)(field, modif[1], user),
                                        }
                 else: #length == 3
                     printer = self._get_printer(field)
                     vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
                                             'field':    field_vname,
-                                            'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
-                                            'value':    printer(field, modif[2]),
+#                                            'oldvalue': printer(field, modif[1]), #todo: improve for fk ???
+#                                            'value':    printer(field, modif[2]),
+                                            'oldvalue': printer(field, modif[1], user),
+                                            'value':    printer(field, modif[2], user),
                                         }
 
             yield vmodif
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         for m in self._verbose_modifications_4_fields(entity_ctype.model_class(),
-                                                      modifications
+                                                      modifications, user,
                                                      ):
             yield m
 
@@ -324,7 +333,8 @@ class _HLTPropertyCreation(_HistoryLineType):
                                             modifs=[prop.type_id]
                                            )
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         ptype_id = modifications[0]
 
         try:
@@ -375,7 +385,8 @@ class _HLTRelation(_HistoryLineType):
             cls._create_lines(relation if '-subject_' in relation.type_id else relation.symmetric_relation,
                               _HLTSymRelation, relation.modified)
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         rtype_id = modifications[0]
 
         try:
@@ -427,7 +438,8 @@ class _HLTAuxCreation(_HistoryLineType):
                                             modifs=cls._build_modifs(related),
                                            )
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications #TODO; use aux_id to display an up-to-date value ??
 
         yield ugettext(u'Add <%(type)s>: “%(value)s”') % {
@@ -453,7 +465,8 @@ class _HLTAuxEdition(_HLTAuxCreation):
                     modifs=[cls._build_modifs(related)] + fields_modifs,
                 )
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, aux_id, str_obj = modifications[0] #TODO; idem (see _HLTAuxCreation)
         model_class, verbose_name = self._model_info(ct_id)
 
@@ -462,7 +475,8 @@ class _HLTAuxEdition(_HLTAuxCreation):
                         'value': str_obj,
                     }
 
-        for m in self._verbose_modifications_4_fields(model_class, modifications[1:]):
+#        for m in self._verbose_modifications_4_fields(model_class, modifications[1:]):
+        for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
             yield m
 
 
@@ -474,7 +488,8 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def _build_modifs(related):
         return [_get_ct(related).id, unicode(related)]
 
-    def verbose_modifications(self, modifications, entity_ctype):
+#    def verbose_modifications(self, modifications, entity_ctype):
+    def verbose_modifications(self, modifications, entity_ctype, user):
         ct_id, str_obj = modifications
 
         yield ugettext(u'Delete <%(type)s>: “%(value)s”') % {
@@ -483,7 +498,6 @@ class _HLTAuxDeletion(_HLTAuxCreation):
                     }
 
 
-#TODO: manage the related objects edition (Alerts, Lines...)
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = CTypeForeignKey()  #we do not use entity.entity_type because we keep history of the deleted entities
@@ -559,11 +573,21 @@ class HistoryLine(Model):
 
         return self._modifications
 
-    @property
-    def verbose_modifications(self):
+#    @property
+#    def verbose_modifications(self):
+#        try:
+#            return list(self.line_type.verbose_modifications(self.modifications,
+#                                                             self.entity_ctype,
+#                                                            )
+#                       )
+#        except Exception:
+#            logger.exception('Error in %s', self.__class__.__name__)
+#            return ['??']
+    def get_verbose_modifications(self, user):
         try:
             return list(self.line_type.verbose_modifications(self.modifications,
                                                              self.entity_ctype,
+                                                             user,
                                                             )
                        )
         except Exception:

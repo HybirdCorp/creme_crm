@@ -229,6 +229,10 @@ def get_entity_summary(entity, user):
 def get_entity_html_attrs(context, entity):
     return u' '.join(u'%s="%s"' % item for item in entity.get_html_attrs(context).iteritems())
 
+@register.filter
+def verbose_modifications(history_line, user):
+    return history_line.get_verbose_modifications(user)
+
 
 #TAG : "templatize"-------------------------------------------------------------
 _templatize_re = compile_re(r'(.*?) as (\w+)')

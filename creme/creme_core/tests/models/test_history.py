@@ -11,7 +11,7 @@ try:
 
     from ..base import CremeTestCase # skipIfNotInstalled
     from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
-    from ..fake_models import (FakeContact as Contact,
+    from ..fake_models import (FakeContact as Contact, FakeImage as Image,
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakeSector as Sector, FakeLegalForm as LegalForm,
             FakeInvoice as Invoice, FakeInvoiceLine as InvoiceLine)
@@ -131,7 +131,8 @@ class HistoryTestCase(CremeTestCase):
                                 'value': address,
                                }
                          ],
-                         hline.verbose_modifications
+#                         hline.verbose_modifications
+                         hline.get_verbose_modifications(self.user),
                         )
 
     def test_edition01(self):
@@ -211,7 +212,8 @@ about this fantastic animation studio."""
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form', lform.id, None], modifs, modifs)
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(7, len(vmodifs))
 
         self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Phone number'),
@@ -296,6 +298,28 @@ about this fantastic animation studio."""
         gainax.save()
         self.assertEqual(capital, self.refresh(gainax).capital) #'capital' attribute is now an integer
         self.assertEqual(old_count, HistoryLine.objects.count())
+
+    def test_edition06(self):
+        "FK to CremeEntity"
+        user = self.user
+        hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
+        img = Image.objects.create(user=user, name="Grumpy Hayao")
+
+        hayao.image = img
+        hayao.save()
+
+        hline = HistoryLine.objects.order_by('-id')[0]
+        self.assertEqual(hayao.id,     hline.entity.id)
+        self.assertEqual(TYPE_EDITION, hline.type)
+
+        vmodifs = hline.get_verbose_modifications(user)
+        self.assertEqual(1, len(vmodifs))
+        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Photograph'),
+                                               #'value': _(u'Entity #%s') % img.id,
+                                               'value': img,
+                                              },
+                      vmodifs[0]
+                     )
 
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
@@ -418,7 +442,8 @@ about this fantastic animation studio."""
         self.assertEqual(self.refresh(hayao).modified, hline.date)
 
     def test_add_property01(self):
-        gainax = Organisation.objects.create(user=self.user, name='Gainax')
+        user = self.user
+        gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
         sleep(1) #ensure than 'modified' field is not 'now()'
@@ -438,16 +463,18 @@ about this fantastic animation studio."""
         self.assertGreater(hline.date, gainax.modified)
 
         FSTRING = _(u'Add property “%s”')
-        self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
+#        self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
+        self.assertEqual([FSTRING % ptype.text], hline.get_verbose_modifications(user))
 
         expected = [FSTRING % ptype.id]
         prop.delete(); ptype.delete()
-        self.assertEqual(expected, self.refresh(hline).verbose_modifications)
+#        self.assertEqual(expected, self.refresh(hline).verbose_modifications)
+        self.assertEqual(expected, self.refresh(hline).get_verbose_modifications(user))
 
     def test_delete_property01(self):
-        gainax = Organisation.objects.create(user=self.user, name='Gainax')
+        user = self.user
+        gainax = Organisation.objects.create(user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
-
         sleep(1) #ensure that 'modified' field is not 'now()'
 
         ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='make animes')
@@ -471,7 +498,10 @@ about this fantastic animation studio."""
 
         ptype.text = ptype.text.title()
         ptype.save()
-        self.assertEqual([_(u'Delete property “%s”') % ptype.text], hline.verbose_modifications)
+#        self.assertEqual([_(u'Delete property “%s”') % ptype.text], hline.verbose_modifications)
+        self.assertEqual([_(u'Delete property “%s”') % ptype.text],
+                         hline.get_verbose_modifications(user)
+                        )
 
     def test_add_relation01(self):
         user = self.user
@@ -510,13 +540,16 @@ about this fantastic animation studio."""
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
         FSTRING = _(u'Add a relationship “%s”')
-        self.assertEqual([FSTRING % rtype.predicate],  hline.verbose_modifications)
-        self.assertEqual([FSTRING % srtype.predicate], hline_sym.verbose_modifications)
+#        self.assertEqual([FSTRING % rtype.predicate],  hline.verbose_modifications)
+#        self.assertEqual([FSTRING % srtype.predicate], hline_sym.verbose_modifications)
+        self.assertEqual([FSTRING % rtype.predicate],  hline.get_verbose_modifications(user))
+        self.assertEqual([FSTRING % srtype.predicate], hline_sym.get_verbose_modifications(user))
 
         rtype_id = rtype.id
         relation.delete(); rtype.delete()
         self.assertDoesNotExist(rtype)
-        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
+#        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
+        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).get_verbose_modifications(user))
 
     def test_add_relation02(self):
         "Create the relation using the 'object' relation type"
@@ -582,7 +615,10 @@ about this fantastic animation studio."""
 
         rtype.predicate = rtype.predicate.title()
         rtype.save()
-        self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate], hline.verbose_modifications)
+#        self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate], hline.verbose_modifications)
+        self.assertEqual([_(u'Delete a relationship “%s”') % rtype.predicate],
+                         hline.get_verbose_modifications(user)
+                        )
 
     def test_add_auxiliary(self):
         "Auxiliary: Address"
@@ -654,7 +690,8 @@ about this fantastic animation studio."""
                          hline.modifications
                         )
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(self.user)
         self.assertEqual(3, len(vmodifs))
 
         self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
@@ -723,7 +760,8 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(3, len(vmodifs))
         self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Quantity'),
                                                'oldvalue': '1',
@@ -755,7 +793,8 @@ about this fantastic animation studio."""
         self.assertEqual(nerv.id,           hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
         self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
@@ -821,7 +860,8 @@ about this fantastic animation studio."""
                         )
 
     def test_invalid_field(self):
-        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        user = self.user
+        nerv = Organisation.objects.create(user=user, name='Nerv')
         nerv = self.refresh(nerv) #force internal backup
 
         nerv.name = nerv.name.upper()
@@ -835,7 +875,8 @@ about this fantastic animation studio."""
                                                    'value':    'NERV',
                                                   },
                          ],
-                         hline.verbose_modifications
+#                         hline.verbose_modifications
+                         hline.get_verbose_modifications(user)
                         )
 
         fname = 'invalid'
@@ -844,7 +885,8 @@ about this fantastic animation studio."""
         hline = self.refresh(hline) #clean cache
 
         with self.assertNoException():
-            vmodifs = hline.verbose_modifications
+#            vmodifs = hline.verbose_modifications
+            vmodifs = hline.get_verbose_modifications(user)
 
         self.assertEqual([self.FSTRING_1_VALUE % {'field': fname}], vmodifs)
 
