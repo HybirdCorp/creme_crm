@@ -29,7 +29,7 @@ module("creme.model.collection.js", {
 
 function assertRaises(block, expected, message)
 {
-    throws(block,
+    raises(block,
            function(error) {
                 ok(error instanceof expected, 'error is ' + expected);
                 equal(message, '' + error);
