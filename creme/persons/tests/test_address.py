@@ -343,5 +343,6 @@ class AddressTestCase(CremeTestCase):
                                 'value': address,
                                }
                          ],
-                         hline.verbose_modifications
+#                         hline.verbose_modifications
+                         hline.get_verbose_modifications(self.user)
                         )

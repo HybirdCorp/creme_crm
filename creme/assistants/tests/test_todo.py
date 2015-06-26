@@ -453,7 +453,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(akane.id,         hline.entity.id)
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))
 
         self.assertEqual(_(u'Edit <%(type)s>: “%(value)s”') % {
@@ -481,7 +482,8 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(akane.id,          hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-        vmodifs = hline.verbose_modifications
+#        vmodifs = hline.verbose_modifications
+        vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(1, len(vmodifs))
 
         self.assertEqual(_(u'Delete <%(type)s>: “%(value)s”') % {
