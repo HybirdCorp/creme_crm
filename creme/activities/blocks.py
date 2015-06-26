@@ -228,7 +228,7 @@ class UserCalendars(QuerysetBlock):
 class RelatedCalendar(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'related_calendar')
     dependencies  = (Calendar, )
-    verbose_name  = u'On my calendars'
+    verbose_name  = _(u'On my calendars')
     template_name = 'activities/templatetags/block_related_calendar.html'
     order_by      = 'name'
     target_ctypes = (Activity, )
@@ -240,7 +240,7 @@ class RelatedCalendar(QuerysetBlock):
                     context,
                     activity.calendars.filter(user=user),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, activity.pk),
-                    has_app_perm=user.has_perm('activities'),
+#                    has_app_perm=user.has_perm('activities'),
                 ))
 
 
