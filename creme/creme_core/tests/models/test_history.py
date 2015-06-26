@@ -10,6 +10,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase # skipIfNotInstalled
+    from ..fake_constants import FAKE_PERCENT_UNIT, FAKE_AMOUNT_UNIT
     from ..fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakeSector as Sector, FakeLegalForm as LegalForm,
@@ -680,6 +681,7 @@ about this fantastic animation studio."""
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
+        - field with choices.
         """
 #        from creme.billing.models import Invoice, InvoiceStatus, ProductLine
 #        self.populate('billing')
@@ -697,6 +699,7 @@ about this fantastic animation studio."""
 #                                          )
         pline = InvoiceLine.objects.create(item='DeathNote', user=user,
                                           invoice=invoice, quantity=Decimal('1'),
+                                          discount_unit=FAKE_AMOUNT_UNIT,
                                          )
 
         hlines = self._get_hlines()
@@ -712,6 +715,7 @@ about this fantastic animation studio."""
         old_count += 1
 
         pline.quantity = Decimal('2')
+        pline.discount_unit = FAKE_PERCENT_UNIT
         pline.save()
 
         hlines = self._get_hlines()
@@ -720,12 +724,18 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
 
         vmodifs = hline.verbose_modifications
-        self.assertEqual(2, len(vmodifs))
+        self.assertEqual(3, len(vmodifs))
         self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Quantity'),
                                                'oldvalue': '1',
                                                'value':    '2',
                                               },
                       vmodifs[1]
+                     )
+        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Discount Unit'),
+                                               'oldvalue': _(u'Amount'),
+                                               'value':    _(u'Percent'),
+                                              },
+                      vmodifs[2]
                      )
 
     def test_delete_auxiliary(self):
