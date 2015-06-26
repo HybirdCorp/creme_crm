@@ -5,7 +5,7 @@ module("creme.utils.lambda.js", {
 
 function assertRaises(block, expected, message)
 {
-    raises(block,
+    throws(block,
            function(error) {
                 ok(error instanceof expected);
                 equal(message, '' + error);
@@ -107,7 +107,7 @@ test('creme.utils.Lambda (constructor, invalid script)', function() {
         var lambda = new creme.utils.Lambda('');
     }, Error, 'Error: empty lambda script');
 
-    raises(function() {
+    throws(function() {
                var lambda = new creme.utils.Lambda('(new invalid;-4)');
            },
            function(error) {

@@ -36,15 +36,17 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
         if (typeof data.value === 'object')
             value = new creme.utils.JSON().encode(data.value)
 
+        // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
             .toggleAttr('disabled', data.disabled === true)
-            .toggleAttr('selected', data.selected === true)
+            .prop('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
     },
 
     selectItem: function(target, item, data, previous, index) {
-        item.toggleAttr('selected', data.selected === true);
+        // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
+        item.prop('selected', data.selected === true);
     },
 
     items: function(target) {
@@ -154,9 +156,10 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
         if (typeof data.value === 'object')
             value = new creme.utils.JSON().encode(data.value)
 
+        // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
             .toggleAttr('disabled', data.disabled === true)
-            .toggleAttr('selected', data.selected === true)
+            .prop('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
     }

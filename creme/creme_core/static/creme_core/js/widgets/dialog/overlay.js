@@ -127,7 +127,7 @@ creme.dialog.Overlay = creme.component.Component.sub({
         if (!this.isBound() || !this.visible())
             return this;
 
-        var padding = $.browser.mozilla ? 1 : 0;
+        var padding = $.browserInfo().mozilla ? 1 : 0;
 
         this._overlay.css('width', this._target.outerWidth() + padding)  // fix an outerWidth issue in firefox.
                      .css('height', this._target.height());

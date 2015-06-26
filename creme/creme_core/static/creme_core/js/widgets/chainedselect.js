@@ -102,7 +102,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             var value = selector.creme().widget().cleanedval();
             var name = selector.parent().attr('chained-name');
 
-            //console.trace('chainedselect._selectorValues > name="' + name + '", value="' + value + '", type=' + (typeof value));
+            //console.log('chainedselect._selectorValues > name="' + name + '", value="' + value + '", type=' + (typeof value), ' val=', selector.val());
             data[name] = value;
         });
 

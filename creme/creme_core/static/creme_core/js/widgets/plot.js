@@ -84,7 +84,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     _create: function(element, options, cb, sync, arguments)
     {
         var self = this;
-        var can_raster = !$.assertIEVersions(7, 8);
+        var can_raster = !$.matchIEVersion(7, 8);
 
         this._israster = options.plotmode == 'raster' && can_raster;
         this._issavable = options.savable == 'true' && can_raster;

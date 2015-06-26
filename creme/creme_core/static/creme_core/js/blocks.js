@@ -26,7 +26,9 @@ creme.blocks.reload = function(url) {
     creme.ajax.query(url, {backend: {sync: false, dataType: 'json'}})
               .onDone(function(event, data) {
                   data.forEach(function(entry) {
-                      creme.blocks.fill($('[id="' + entry[0] + '"]'), $(entry[1]));
+                      // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
+                      //                          use $.trim() for trailing space or returns.
+                      creme.blocks.fill($('[id="' + entry[0] + '"]'), $($.trim(entry[1]))); 
                   });
                })
               .start();
@@ -104,7 +106,7 @@ creme.blocks.updateToggleButton = function(block, collapsed) {
 }
 
 creme.blocks.toggleEmptyFields = function(button) {
-    var $block = $(button).parents('table[id!=].table_detail_view:not(.collapsed)');
+    var $block = $(button).parents('table[id].table_detail_view:not(.collapsed)');
 
     if ($block.size() == 0)
         return;
@@ -321,7 +323,7 @@ creme.blocks.massRelation = function(subject_ct_id, rtype_ids, selector, block_u
 // creme.utils.loadBlock = creme.blocks.reload;
 
 creme.blocks.tableExpandState = function($self, state, trigger) {
-    var $table = $self.parents('table[id!=]');
+    var $table = $self.parents('table[id]');
     var $collapsable = $table.find('.collapsable');
 
     var old_state = !$table.hasClass('collapsed');
@@ -342,7 +344,7 @@ creme.blocks.tableExpandState = function($self, state, trigger) {
 }
 
 creme.blocks.tableIsCollapsed = function($self) {
-    return $self.parents('table[id!=]').hasClass('collapsed');
+    return $self.parents('table[id]').hasClass('collapsed');
 }
 
 creme.blocks.tableExpand = function($self, trigger) {

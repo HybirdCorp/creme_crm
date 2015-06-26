@@ -54,6 +54,29 @@
                 </ul>
             </li>
             <li>
+                <h5>entity + creator + reset</h5>
+                <ul class="ui-layout hbox ui-creme-widget ui-creme-actionbuttonlist widget-auto" widget="ui-creme-actionbuttonlist">
+                    <li class="delegate">
+                        <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
+                              labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                              popupURL="/creme_core/list_view/popup/{{TEST_CONTENTTYPES.contact}}/${selection}?q_filter=${qfilter}" qfilter="">
+                            <input name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                            <button type="button">Sélectionner...</button>
+                        </div>
+                    </li>
+                    <li>
+                        <button type="button" class="ui-creme-actionbutton" name="create" title="Créer" alt="Créer" url="/creme_core/quickforms/from_widget/{{TEST_CONTENTTYPES.contact}}/add/1">
+                            Créer
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" action="reset" class="ui-creme-actionbutton" name="reset" title="Vider" alt="Vider">
+                            Vider
+                        </button>
+                    </li>
+                </ul>
+            </li>
+            <li>
                 <h5>image + creator</h5>
                 <ul class="ui-layout hbox ui-creme-widget ui-creme-actionbuttonlist widget-auto" widget="ui-creme-actionbuttonlist">
                     <li class="delegate">

@@ -49,18 +49,3 @@ $.fn.toggleAttr = function(name, enabled, value) {
 
     return $(this);
 }
-
-$.assertBrowserVersions = function(pattern) {
-    return $.browser.version.match('^(' + pattern + ')$') !== null;
-}
-
-$.assertIEVersions = function() {
-    pattern = '';
-
-    for(var i = 0; i < arguments.length; ++i) {
-        var version =  arguments[i] + '\.[\\d]+';
-        pattern += i > 0 ? '|' + version : version;
-    }
-
-    return ($.browser.msie === true) && $.assertBrowserVersions(pattern);
-}

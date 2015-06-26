@@ -93,6 +93,7 @@
                 resizePageElements($("#menu_expanded").outerWidth(), true);
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
             };
+
             //Unpin / Rendre le menu flottant
             var onUnpin = function() {
                 $(this).attr('src', '{% creme_media_url "images/pin.png" %}');
@@ -101,19 +102,29 @@
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
             };
 
+            // jquery 1.9 migration: toggle(handler, handler, ...) doesn't exist any more.
             if ($.cookie('menu_creme') == 'expanded') {
-                $('.pinmenu').toggle(onUnpin, onPin)
+                $('.pinmenu').addClass('expanded')
                              .attr('src', '{% creme_media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 $("#menu_expanded").show(resizePageElements($("#menu_expanded").outerWidth(), true));
                 $("#menu_collapse").hide();
             } else {
-                $('.pinmenu').toggle(onPin, onUnpin)
-                             .attr('src', '{% creme_media_url "images/pin.png" %}');
+                $('.pinmenu').attr('src', '{% creme_media_url "images/pin.png" %}');
                 activeEventsMenu();
                 $("#menu_expanded").hide();
                 $("#menu_collapse").show(resizePageElements($("#menu_collapse").outerWidth(), false));
             }
+
+            $('.pinmenu').on('click', function() {
+                $(this).toggleClass('expanded');
+
+                if ($(this).is('.expanded')) {
+                    onPin();
+                } else {
+                    onUnpin();
+                }
+            });
       });
     </script>
     {% block extrahead %}{% endblock %}
@@ -122,11 +133,12 @@
         $("#menu_collapse").css('height', $(document).height());
         $("#menu_expanded").css('height', $(document).height());
 
-        $('[role=menuitem]', '#menu_expanded').bind('menu-item-selected', function(e, menu){
+        // jquery 1.9.x upgrade.
+        $('#menu_expanded').on('menu-item-selected', '#active-menuitem a', function(e, menu){
             e.stopImmediatePropagation();
-            var href = $('a:first', this).attr('href');
+            var href = $(this).prop('href');
             //$.cookie('creme-menu-selected', href);
-            creme.utils.goTo($('a:first',this).attr('href'));
+            creme.utils.goTo(href);
         });
 
         (function bind_scroll() {

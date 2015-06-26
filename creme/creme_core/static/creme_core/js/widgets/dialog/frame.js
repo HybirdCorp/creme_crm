@@ -124,7 +124,16 @@ creme.dialog.Frame = creme.component.Component.sub({
             delegate.empty();
             overlay.bind(delegate);
 
-            delegate.append($(data.content));
+            // upgrade to Jquery 1.9x : html content without starting '<' is no longer supported.
+            //                          use $.trim() for trailing space or returns.
+            if (data.content) {
+                if (data.content.trim) {
+                    delegate.append($($.trim(data.content)));
+                } else {
+                    delegate.append($(data.content));
+                }
+            }
+
             this._activateContent(delegate);
         } catch(e) {
         }
@@ -179,9 +188,9 @@ creme.dialog.Frame = creme.component.Component.sub({
                   events.trigger('fetch-done', [response], this);
               })
              .on('cancel fail', function(event, response, error) {
-                  overlay.update(true, error ? error.status : 404, 0)
+                 events.trigger('fetch-fail', [response, error], this);
+                 overlay.update(true, error ? error.status : 404, 0)
                          .content(self._formatOverlayContent(url, response, error));
-                  events.trigger('fetch-fail', [response, error], this);
               });
 
         query.one(listeners)
@@ -263,6 +272,6 @@ creme.dialog.Frame = creme.component.Component.sub({
     },
 
     preferredSize: function() {
-        return this._delegate ? creme.layout.preferredSize(this._delegate) : {width: 0, height: 0};
+        return this._delegate ? creme.layout.preferredSize(this._delegate, 2) : {width: 0, height: 0};
     }
 });

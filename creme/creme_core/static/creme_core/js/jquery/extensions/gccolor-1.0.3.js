@@ -57,7 +57,7 @@
 				y = 150;
 			}
 			$(document).data('gccolor').hsb.h = 359 - Math.round((y / 150) * 359);
-			if (!$.browser.msie){
+			if (!$.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			} else {
 				$('#gccolor-hue div').css('top', y + 'px');
@@ -69,7 +69,7 @@
       $(document).unbind('mousemove', _dragHue);
 			$(document).unbind('mouseup', _endHue);
 			$(document).data('gccolor').dragItem = null;
-			if ($.browser.msie){
+			if ($.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			}
 		},
@@ -98,7 +98,7 @@
 			}
       $(document).data('gccolor').hsb.s = Math.round((x / 150) * 100);
       $(document).data('gccolor').hsb.b = 100 - Math.round((y / 150) * 100);
-      if (!$.browser.msie){
+      if (!$.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			} else {
 				$('#gccolor-color > div div').css('top', y + 'px');
@@ -111,7 +111,7 @@
 			$(document).unbind('mousemove', _dragColor);
 			$(document).unbind('mouseup', _endColor);
 			$(document).data('gccolor').dragItem = null;
-			if ($.browser.msie){
+			if ($.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			}
 		},
@@ -178,7 +178,7 @@
 					$(document).data('gccolor').hsb = _RGBtoHSB(rgb);
 					break;
 			}
-			if (!$.browser.msie){
+			if (!$.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			}
 			changeColor();
@@ -189,7 +189,7 @@
       $(document).unbind('mousemove', _dragUnit);
 			$(document).unbind('mouseup', _endUnit);
 			$(document).data('gccolor').dragItem = null;
-			if ($.browser.msie){
+			if ($.browserInfo().msie){
 				_setFromHSB($(document).data('gccolor').hsb);
 			}
 		},

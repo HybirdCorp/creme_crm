@@ -104,7 +104,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _updateDisabledState: function(element)
     {
         var disabled = !($('option:not(:disabled)', element).length > 1 && this._enabled);
-        element.toggleAttr('disabled', disabled);
+        element.prop('disabled', disabled);
     },
 
     _updateAutocomplete: function()
@@ -257,7 +257,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         // Chrome behaviour (bug ?) : select value is not updated if disabled.
         // so enable it before change value !
-        element.removeAttr('disabled');
+        element.prop('disabled', false);
         element.change();
 
         this._updateDisabledState(element);
@@ -299,22 +299,21 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return element.val();
         }
 
-        var previous = this.val(element);
+        value = value !== null ? value : '';
 
-        if (previous === value)
-            return this;
-
-		if (value !== null && typeof value !== 'string') {
+        if (typeof value !== 'string') {
             value = $.toJSON(value);
         }
 
-        if (value !== null && this.choice(element, value) === undefined) {
+        var previous = this.val(element);
+        var choice = this.choice(element, value);
+
+        if (choice === undefined) {
             this.selectfirst(element);
         } else {
             element.val(value);
+            this._onSelectionChange(element);
         }
-
-        this._onSelectionChange(element);
     },
 
     cleanedval: function(element)
@@ -323,6 +322,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         if (this.options.datatype === 'string')
             return value;
+
+        if (this.options.multiple) {
+            return this._converter ? value.map(this._converter) : value;
+        }
 
         return this._converter ? this._converter(value) : value;
     },
@@ -343,7 +346,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         return choices.length ? [choices.attr('value'), choices.text()] : null;
     },
 
-    _querychoices: function(element, key)
+    _querychoices: function(element, key, strict)
     {
         if (typeof key !== 'string') {
             key = $.toJSON(key);
@@ -353,10 +356,14 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return $(this).parents('select:first').is(element);
         });
 
-        return !Object.isEmpty(key) ? choices.filter(function() {return $(this).attr('value') === key;}) : choices;
+        if (Object.isEmpty(key) && !strict) {
+            return choices;
+        }
+
+        return choices.filter(function() {return $(this).attr('value') === key;});
     },
 
-    _querygroups: function(element, key)
+    _querygroups: function(element, key, strict)
     {
         if (typeof key !== 'string') {
             key = $.toJSON(key);
@@ -366,7 +373,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return $(this).parents('select:first').is(element);
         });
 
-        return !Object.isEmpty(key) ? groups.filter(function() {return $(this).attr('label') === key;}) : groups;
+        if (Object.isEmpty(key) && !strict) {
+            return groups;
+        }
+
+        return groups.filter(function() {return $(this).attr('label') === key;});
     },
 
     choice: function(element, key)
@@ -374,11 +385,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (Object.isNone(key) === true)
             return;
 
-        var choices = this._querychoices(element, key);
+        var choices = this._querychoices(element, key, true);
 
-        // IE8 strange behaviour (jquery bug ?) that returns key instead of undefined when choice doesn't exist.
+        // IE8 strange behavior (jquery bug ?) that returns key instead of undefined when choice doesn't exist.
         // Fix it with jquery result length check.
-        return choices.length ? [key, choices.text()] : undefined;
+        return choices.length === 1 ? [key, choices.text()] : undefined;
     },
 
     choices: function(element)

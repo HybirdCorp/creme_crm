@@ -41,7 +41,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
 
         if (previous !== count)
         {
-            count = $.browser.mozilla ? count - 1 : count;
+            count = $.browserInfo().mozilla ? count - 1 : count;
             element.get().scrollTop = 0;
             element.attr('rows', count);
         }
@@ -58,7 +58,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         element.css({'overflow-y':'hidden', 'resize': 'none'})
 
         this._initial = parseInt(element.attr('rows')) || 1;
-        this._initial = $.browser.mozilla ? this._initial - 1 : this._initial;
+        this._initial = $.browserInfo().mozilla ? this._initial - 1 : this._initial;
         this._onResize(element);
 
         element.bind('propertychange keydown paste input', this._listeners);

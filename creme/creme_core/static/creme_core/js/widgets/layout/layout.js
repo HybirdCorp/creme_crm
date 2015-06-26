@@ -20,10 +20,13 @@
 creme.layout = creme.layout || {}
 
 creme.layout.LayoutResizeSensor = creme.component.Component.sub({
+    _OVERFLOW_EVENT:  'OverflowEvent' in window ? 'overflowchanged' : 'overflow',
+    _UNDERFLOW_EVENT: 'OverflowEvent' in window ? 'overflowchanged' : 'underflow',
+
     _init_: function() {
         this._threshold = 100;
         
-        if ($.browser.msie) {
+        if ($.browserInfo().msie) {
             this._sensor = $('<div class="ui-layout resize-sensor" onresize="$(\'body\').resize();">');
         } else {
             this._sensor = $('<div class="ui-layout resize-sensor">' +
@@ -79,7 +82,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
 
         var flow_cb = $.debounce(matchFlow, this._threshold);
 
-        if (!$.browser.msie)
+        if (!$.browserInfo().msie)
         {
             this._onOverflow(sensor, flow_cb);
             this._onUnderflow(sensor, flow_cb);
@@ -120,7 +123,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     _onOverflow: function(element, overflow)
     {
         var self = this;
-        var event = 'OverflowEvent' in window ? 'overflowchanged' : 'overflow';
+        var event = this._OVERFLOW_EVENT;
 
         element.bind(event, function(e) {
             if (self._isOverflowEvent(e.originalEvent)) {
@@ -133,7 +136,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     _onUnderflow: function(element, underflow)
     {
         var self = this;
-        var event = 'OverflowEvent' in window ? 'overflowchanged' : 'underflow';
+        var event = this._UNDERFLOW_EVENT;
 
         element.bind(event, function(e) {
             if (self._isOverflowEvent(e.originalEvent) === false) {
@@ -311,8 +314,8 @@ creme.layout.Layout = creme.component.Component.sub({
         }
 
         this._target.bind('resize', this._resize_cb);
-        this._target.bind($.assertIEVersions(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
-        this._target.bind($.assertIEVersions(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
+        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
+        this._target.bind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
     },
 
     _unbindEvents: function()
@@ -323,8 +326,8 @@ creme.layout.Layout = creme.component.Component.sub({
         }
 
         this._target.unbind('resize', this._resize_cb);
-        this._target.unbind($.assertIEVersions(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
-        this._target.unbind($.assertIEVersions(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
+        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb)
+        this._target.unbind($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb)
     },
 
     bind: function(element)
@@ -359,14 +362,22 @@ creme.layout.Layout = creme.component.Component.sub({
     }
 });
 
-creme.layout.preferredSize = function(element) {
+creme.layout.preferredSize = function(element, depth) {
     var height = 0;
     var width = 0;
+    var depth = depth || 1
 
-    $('> *', element).each(function() {
+    $('> *', element).filter(':visible').each(function() {
         var position = $(this).position();
-        width = Math.max(width, position.left + $(this).outerWidth());
-        height = Math.max(height, position.top + $(this).outerHeight());
+
+        if (depth > 1) {
+            var size = creme.layout.preferredSize($(this), depth - 1);
+            width = Math.max(width, size[0]);
+            height = Math.max(height, size[1]);
+        }
+
+        width = Math.max(width, position.left + $(this).outerWidth(true));
+        height = Math.max(height, position.top + $(this).outerHeight(true));
     });
 
     return [Math.round(width), Math.round(height)];

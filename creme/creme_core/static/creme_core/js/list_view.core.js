@@ -39,7 +39,7 @@
             afterSubmit       : null,
             o2m               : false,
             entity_separator  : ',',
-            serializer : 'input[name!=][type!="submit"], select[name!=]',
+            serializer        : 'input[name][type!="submit"], select[name]',
             submitHandler     : null,//Use handleSubmit in it to easy list view's management
             kd_submitHandler  : null,//Same as submitHandler but for key down events,
             reload_url        : null
@@ -244,9 +244,10 @@
                 this.clearRowSelection = function() {
                     $(opts.selected_rows).val('');
 
+                    // upgrade to Jquery 1.9x : "checked" is a property and attr() method should not be used.
                     self.find('.' + opts.selectable_class + ' .choices input[type="checkbox"],' +
                               opts.all_boxes_selector)
-                        .attr('checked', false);
+                        .prop('checked', false);
                 }
                 /******************************************************/
 

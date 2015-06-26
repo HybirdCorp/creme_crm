@@ -19,7 +19,8 @@
                 $src  = $parent.find(src_class);
 
                 if ($dest.is('input[type="checkbox"]')) {
-                    $dest.attr('checked', $src.is(':checked'));
+                    // jquery 1.9x migration : attr() is no longer used for properties.
+                    $dest.prop('checked', $src.is(':checked'));
                 } else {
                     $dest.val($src.val());
                 }
@@ -34,8 +35,9 @@
 
                 $(this).find('li.li_merge_result').each(function() {
                     var $result_li = $(this);
-                    $result_li.before($(li_html).append($(button_html).attr('value', '>').click(copy1ToMerged)));
-                    $result_li.after($(li_html).append($(button_html).attr('value', '<').click(copy2ToMerged)));
+                    // jquery 1.9x migration : avoid attr('value') for inputs. 
+                    $result_li.before($(li_html).append($(button_html).val('>').click(copy1ToMerged)));
+                    $result_li.after($(li_html).append($(button_html).val('<').click(copy2ToMerged)));
                 });
             });
         });
