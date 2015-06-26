@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-19 16:51+0200\n"
+"POT-Creation-Date: 2015-06-26 11:02+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -41,6 +41,10 @@ msgstr "Activités futures"
 #: templates/activities/templatetags/block_past_activities.html:12
 msgid "Past activities"
 msgstr "Activités passées"
+
+#: blocks.py:231
+msgid "On my calendars"
+msgstr "Sur mes calendriers"
 
 #: buttons.py:48 constants.py:23 creme_core_register.py:58
 msgid "Add a meeting"
