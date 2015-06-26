@@ -26,7 +26,7 @@ module("creme.utils.converters.js", {
 
 function assertRaises(block, expected, message)
 {
-    raises(block,
+    throws(block,
            function(error) {
                 ok(error instanceof expected);
                 equal(message, '' + error);

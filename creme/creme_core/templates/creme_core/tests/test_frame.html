@@ -30,25 +30,20 @@
             clear:both;
         }
 
-        form.popup-form label {
+        .popup-form-field label {
             font-weight: bold;
-            clear: both;
-            float: left;
-            min-width: 5em;
+            min-width: 10em;
             vertical-align: middle;
+            display: inline-block;
         }
 
-        form.popup-form input, form.popup-form textarea {
+        .popup-form-field input, form.popup-form textarea {
             min-width: 10em;
             text-align: left;
-            float: left;
-            margin-left: 5em;
         }
 
-        form.popup-form select {
+        .popup-form-field select {
             min-width: 10em;
-            float: left;
-            margin-left: 5em;
         }
     </style>
 
@@ -222,23 +217,33 @@
 {% block test_content %}
     <script type="text/html" id="mock-form">
         <form class="popup-form" action="%s">
-            <label for="value">Value</label>
-            <input type="number" name="value"></input>
-            <label for="name">Name</label>
-            <input type="text" name="name" required></input>
-            <label for="comment">Comment</label>
-            <textarea name="comment" autofocus rows="4"></textarea>
-            <label for="image">Image</label>
-            <input type="file"></input>
-            <label for="response">Response</label>
-            <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto">
-                <options>
-                     <option value="200">Ok</option>
-                     <option value="404">Not Found</option>
-                     <option value="500">Internal Error</option>
-                     <option value="403">Forbidden</option>
-                </options>
-            </select> 
+            <div class="popup-form-field">
+                <label for="value">Value</label>
+                <input type="number" name="value"></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="name">Name</label>
+                <input type="text" name="name" required></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="comment">Comment</label>
+                <textarea name="comment" autofocus rows="4"></textarea>
+            </div>
+            <div class="popup-form-field">
+                <label for="image">Image</label>
+                <input type="file"></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="response">Response</label>
+                <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto" autocomplete>
+                    <options>
+                        <option value="200">Ok</option>
+                        <option value="404">Not Found</option>
+                        <option value="500">Internal Error</option>
+                        <option value="403">Forbidden</option>
+                    </options>
+                </select>
+            </div> 
         </form>
     </script>
     <script type="text/html" id="mock-blocklist">

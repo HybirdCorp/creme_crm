@@ -46,13 +46,13 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
         var value = this.val(element);
 
-        if (creme.object.isempty(value))
-        {
+        if (Object.isEmpty(value)) {
             this._update(element);
             value = this.val(element);
+        } else {
+            this._updateSelectors(element, value);
+            this._update(element);
         }
-
-        self._updateSelectors(element, self.val(element));
 
         element.addClass('widget-ready');
         creme.object.invoke(cb, element);
@@ -187,6 +187,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
     _updateSelectors: function(element, data)
     {
+        var self = this;
         var values = creme.widget.cleanval(data, []);
 
         if (typeof values !== 'object')
@@ -194,9 +195,9 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
         $('ul.selectors', element).empty();
 
-        for (var i = 0; i < values.length; ++i) {
-            this.appendSelector(element, values[i]);
-        }
+        values.forEach(function(value) {
+            self.appendSelector(element, value);
+        });
     },
 
     val: function(element, value)

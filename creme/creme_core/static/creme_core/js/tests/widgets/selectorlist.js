@@ -167,7 +167,7 @@ test('creme.widets.selectorlist.create (value, no selector)', function() {
 
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
-    equal(widget.val(), $.toJSON([{ctype: '12', rtype:'rtype.3'}]));
+    equal(widget.val(), $.toJSON([]));
     equal(widget.selectorModel().length, 0);
     equal(widget.lastSelector().length, 0);
     equal(widget.selectors().length, 0);

@@ -487,7 +487,8 @@ creme.entity_cell.EntityCellsWidget.prototype = {
         var self = this;
         var div = this.div;
 
-        $('.underlay .selector_close').live('click', function(e) {
+        // jquery 1.9x migration : live() is replaced by on()
+        $(document).on('click', '.underlay .selector_close', function(e) {
             e.preventDefault();
 
             var column = $(this).parents('.underlay:first').attr('data-column');

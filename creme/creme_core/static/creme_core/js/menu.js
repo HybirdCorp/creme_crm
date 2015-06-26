@@ -24,12 +24,15 @@
 creme.menu = {};
 creme.menu.actions = {};
 
+/* TODO : Seems never used. remove it ? */
+/*
 creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
     $(trigger_selector).menu({
             content: $(content_selector).html(),
             showSpeed: 400
     });
 
+    // TODO : jquery 1.9x migration : live() is replaced by on(). menu is deprecated, so is it usefull ?
     $('[role=menuitem]','[aria-labelledby="' + trigger_selector.replace('#', '') + '"]')
     .live('menu-item-selected', function(e, menu) {
         e.stopImmediatePropagation();
@@ -44,6 +47,7 @@ creme.menu.actions.flatMenu = function(trigger_selector, content_selector) {
         }
     });
 };
+*/
 
 creme.menu.NavIt = function(trigger_selector, options, listeners) {
     var options = options || {};
@@ -57,7 +61,7 @@ creme.menu.NavIt = function(trigger_selector, options, listeners) {
         var confirm   = $a.hasClass('confirm');
         var action    = $a.hasClass('post') ? 'post' : 'get';
         var ajax      = $a.hasClass('ajax');
-        var url       = $a.attr('href');
+        var url       = $a.prop('href');
 
         if (ajax)
         {

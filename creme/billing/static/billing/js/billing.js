@@ -339,8 +339,8 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
             discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".", ",") + " " + currency);
             inclusive_of_tax.text(ttc_value.toFixed(2).replace(".", ",") + " " + currency);
 
-            discounted.attr('value', exclusive_of_tax_discounted);
-            inclusive_of_tax.attr('value', ttc_value);
+            discounted.val(exclusive_of_tax_discounted);
+            inclusive_of_tax.val(ttc_value);
 
             creme.billing.updateBlockTotals(currency);
         }
@@ -434,11 +434,11 @@ creme.billing.updateBlockTotals = function(currency) {
     var total_vat = 0;
 
     $('td[name=discounted]').each(function() {
-        total_no_vat += parseFloat($(this).attr('value'));
+        total_no_vat += parseFloat($(this).val());
     });
 
     $('td[name=inclusive_of_tax]').each(function() {
-        total_vat += parseFloat($(this).attr('value'));
+        total_vat += parseFloat($(this).val());
     });
 
     total_no_vat_element.text(total_no_vat.toFixed(2).replace(".",",") + " " + currency);

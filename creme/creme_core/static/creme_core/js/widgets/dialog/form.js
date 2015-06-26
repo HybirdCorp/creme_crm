@@ -204,7 +204,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
 
     _onSubmit: function(data, statusText, dataType)
     {
-        if ($.assertIEVersions(7, 8, 9)) {
+        if ($.matchIEVersion(7, 8, 9)) {
             data = data.endsWith('</json>') || data.endsWith('</JSON>') ? data.substr(0, data.length - '</json>'.length) : data;
         }
 

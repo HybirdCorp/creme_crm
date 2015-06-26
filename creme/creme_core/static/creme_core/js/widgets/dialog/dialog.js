@@ -88,6 +88,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     _onClose: function(dialog, frame, options)
     {
+        frame.clear();
         this._destroyDialog();
         this._events.trigger('close', [options], this);
     },
@@ -107,7 +108,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
         if (!Object.isEmpty(options.url)) {
             this.fetch(options.url);
         } else if (!Object.isEmpty(options.html)) {
-            this.fill($(options.html));
+            this.fill(options.html);
+        } else if (this.options.fitFrame) {
+            if (Object.isEmpty(this._frame.lastFetchUrl()) === false) {
+                this.fitToFrameSize();
+            } else {
+                this.resizeToDefault();
+            }
         }
 
         this._events.trigger('open', [options], this);
@@ -152,13 +159,13 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var maxWidth = this._dialog.dialog('option', 'maxWidth');
         var maxHeight = this._dialog.dialog('option', 'maxHeight');
 
-        var width = maxWidth !== false ? Math.min(width, maxWidth) : width;
-        var height = maxHeight !== false ? Math.min(height, maxHeight) : height;
+        var width = maxWidth > 0 ? Math.min(width, maxWidth) : width;
+        var height = maxHeight > 0 ? Math.min(height, maxHeight) : height;
 
-        if (this._dialog.dialog('option', 'width') !== width)
+//        if (this._dialog.dialog('option', 'width') < width)
             this._dialog.dialog('option', 'width', width) 
 
-        if (this._dialog.dialog('option', 'height') !== height)
+//        if (this._dialog.dialog('option', 'height') < height)
             this._dialog.dialog('option', 'height', height);
 
         this._frame.delegate().css('min-height', this._frame.preferredSize()[1])
@@ -178,7 +185,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         // set frame to default size
         frame.css('width', (Math.round(this.options.width - (container.outerWidth() - body.width()))))
-
         frame_width_padding = frame.position().left + (frame.outerWidth() - frame.width());
         frame_height_padding = frame.position().top + (frame.outerHeight() - frame.height());
 
@@ -204,7 +210,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var maxHeight = this._dialog.dialog('option', 'maxHeight');
 
-        if (height < maxHeight || maxHeight === false) {
+        if (height < maxHeight || maxHeight === null) {
             body.height('auto');
         }
 
@@ -258,8 +264,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
-    reset: function() {
-        this._frame.reset();
+    clear: function() {
+        this._frame.clear();
         return this;
     },
 

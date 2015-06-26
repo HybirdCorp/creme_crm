@@ -507,10 +507,39 @@ test('creme.widget.DynamicSelect.val (static)', function() {
     equal('1', element.creme().widget().val());
 
     element.creme().widget().val(3);
-    equal('3', element.creme().widget().val());
+    equal('3', element.creme().widget().val(), 'existing choice');
 
     element.creme().widget().val(15);
-    equal('1', element.creme().widget().val());
+    equal('1', element.creme().widget().val(), 'unknown choice');
+});
+
+test('creme.widget.DynamicSelect.val (static, json)', function() {
+    var element = mock_dselect_create().attr('datatype', 'json');
+    mock_dselect_add_choice(element, 'a', $.toJSON({'a': 1}));
+    mock_dselect_add_choice(element, 'b', $.toJSON({'b': 5}));
+    mock_dselect_add_choice(element, 'c', $.toJSON({'c': 3}));
+
+    creme.widget.create(element);
+    equal(3, $('option', element).length);
+    equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
+    equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
+    equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
+
+    deepEqual([$.toJSON({'a': 1}), 'a'], element.creme().widget().firstchoice());
+    equal('json', element.creme().widget().options().datatype);
+    equal($.toJSON({'a': 1}), element.creme().widget().val());
+
+    element.creme().widget().val({'c': 3});
+    equal($.toJSON({'c': 3}), element.creme().widget().val(), 'existing choice');
+    deepEqual({'c': 3}, element.creme().widget().cleanedval(), 'cleaned');
+
+    element.creme().widget().val($.toJSON({'b': 5}));
+    equal($.toJSON({'b': 5}), element.creme().widget().val(), 'existing choice');
+    deepEqual({'b': 5}, element.creme().widget().cleanedval(), 'cleaned');
+
+    element.creme().widget().val(15);
+    equal($.toJSON({'a': 1}), element.creme().widget().val(), 'unknown choice');
+    deepEqual({'a': 1}, element.creme().widget().cleanedval(), 'cleaned');
 });
 
 test('creme.widget.DynamicSelect.val (static, multiple)', function() {
@@ -534,6 +563,37 @@ test('creme.widget.DynamicSelect.val (static, multiple)', function() {
 
     element.creme().widget().val('3,4,5');
     deepEqual(['5', '3'], element.creme().widget().val());
+
+    element.creme().widget().val(15);
+    deepEqual(null, element.creme().widget().val());
+});
+
+test('creme.widget.DynamicSelect.val (static, multiple, json)', function() {
+    var element = mock_dselect_create().attr('multiple', 'multiple')
+                                       .attr('datatype', 'json');
+
+    mock_dselect_add_choice(element, 'a', $.toJSON({'a': 1}));
+    mock_dselect_add_choice(element, 'b', $.toJSON({'b': 5}));
+    mock_dselect_add_choice(element, 'c', $.toJSON({'c': 3}));
+
+    creme.widget.create(element, {multiple:true});
+    equal(3, $('option', element).length);
+    equal($.toJSON({'a': 1}), $('option:nth(0)', element).attr('value'));
+    equal($.toJSON({'b': 5}), $('option:nth(1)', element).attr('value'));
+    equal($.toJSON({'c': 3}), $('option:nth(2)', element).attr('value'));
+
+    deepEqual([$.toJSON({'a': 1}), 'a'], element.creme().widget().firstchoice());
+    equal(true, element.creme().widget().options().multiple);
+    equal('json', element.creme().widget().options().datatype);
+    equal(null, element.creme().widget().val());
+
+    element.creme().widget().val({'c': 3});
+    deepEqual([$.toJSON({'c': 3})], element.creme().widget().val());
+    deepEqual([{'c': 3}], element.creme().widget().cleanedval(), 'cleaned');
+
+    element.creme().widget().val($.toJSON([{'b': 5}, {'c': 3}]));
+    deepEqual([$.toJSON({'b': 5}), $.toJSON({'c': 3})], element.creme().widget().val());
+    deepEqual([{'b': 5}, {'c': 3}], element.creme().widget().cleanedval(), 'cleaned');
 
     element.creme().widget().val(15);
     deepEqual(null, element.creme().widget().val());

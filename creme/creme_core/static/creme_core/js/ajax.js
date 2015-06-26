@@ -22,7 +22,8 @@
  */
 
 //Code from Django doc: http://docs.djangoproject.com/en/1.2/ref/contrib/csrf/#csrf-ajax
-$('html').ajaxSend(function(event, xhr, settings) {
+//jQuery 1.9x compatibility : call ajaxSend from document
+$(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -180,12 +181,12 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
         data: data !== undefined ? data : '',
         dataType: "json",
         success: function(data, textStatus) {
-            if (success_cb !== undefined) {
+            if (Object.isFunc(success_cb)) {
                 success_cb(data, textStatus);
             }
         },
         error: function(req, textStatus, errorThrown) {
-            if (error_cb !== undefined) {
+            if (Object.isFunc(error_cb)) {
                 error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
             }
         }

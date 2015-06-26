@@ -81,7 +81,7 @@
                                                                       return $(a).attr('name').localeCompare($(b).attr('name'));
                                                                   });
 
-            $('> li.added', list).live('click', function() {
+            $(list).on('click', '> li.added', function() {
                 $(this).remove();
             });
 
@@ -106,7 +106,7 @@
                                                                                        return $(a).attr('name').localeCompare($(b).attr('name'));
                                                                                     });
 
-            $('> li.added', list).live('click', function() {
+            $(list).on('click', '> li.added', function() {
                 $(this).remove();
             });
 
