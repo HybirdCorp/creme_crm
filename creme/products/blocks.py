@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme.creme_core.gui.block import Block
 
 #from .models import Product, Service
@@ -27,6 +29,7 @@ from . import get_product_model, get_service_model
 class ImagesBlock(Block):
     id_           = Block.generate_id('products', 'images')
     #dependencies  = (Image,) ??
+    verbose_name  = _(u'Images of product/service')
     template_name = 'products/block_images.html'
 #    target_ctypes = (Product, Service)
     target_ctypes = (get_product_model(), get_service_model())

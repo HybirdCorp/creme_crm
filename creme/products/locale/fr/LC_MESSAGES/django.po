@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PRODUCTS' APP
-# Copyright (C) 2014 Hybird
+# Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*"
@@ -7,187 +7,47 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 1.5\n"
+"Project-Id-Version: Creme Products 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-14 16:32+0100\n"
+"POT-Creation-Date: 2015-06-26 13:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: creme_core_register.py:31
+#: apps.py:10 creme_core_register.py:37
 msgid "Products and services"
 msgstr "Produits et services"
 
-#: creme_core_register.py:35
+#: blocks.py:32
+msgid "Images of product/service"
+msgstr "Images du produit/service"
+
+#: creme_core_register.py:41
 msgid "Portal of products and services"
 msgstr "Portail des produits et services"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:46
 msgid "All products"
 msgstr "Lister les produits"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:48
 msgid "All services"
 msgstr "Lister les services"
 
-#: populate.py:43
-msgid "Product view"
-msgstr "Vue de Produit"
-
-#: populate.py:51
-msgid "Service view"
-msgstr "Vue de Service"
-
-#: populate.py:63
-msgid "Jewelry"
-msgstr "Bijoux"
-
-#: populate.py:64
-msgid "Ring"
-msgstr "Bague"
-
-#: populate.py:65
-msgid "Bracelet"
-msgstr "Bracelet"
-
-#: populate.py:66
-msgid "Necklace"
-msgstr "Collier"
-
-#: populate.py:67
-msgid "Earrings"
-msgstr "Boucles d'oreille"
-
-#: populate.py:69
-msgid "Mobile"
-msgstr "Mobile"
-
-#: populate.py:70
-msgid "Iphone"
-msgstr "Iphone"
-
-#: populate.py:71
-msgid "Blackberry"
-msgstr "Blackberry"
-
-#: populate.py:72
-msgid "Samsung"
-msgstr "Samsung"
-
-#: populate.py:73
-msgid "Android"
-msgstr "Android"
-
-#: populate.py:75
-msgid "Informatic"
-msgstr "Informatique"
-
-#: populate.py:76
-msgid "Laptops"
-msgstr "Portables"
-
-#: populate.py:77
-msgid "Desktops"
-msgstr "Bureau"
-
-#: populate.py:78
-msgid "Tablet"
-msgstr "Tablette"
-
-#: populate.py:79
-msgid "Notebook"
-msgstr "Netbook"
-
-#: populate.py:81
-msgid "Travels"
-msgstr "Voyages"
-
-#: populate.py:82
-msgid "Fly"
-msgstr "Vol"
-
-#: populate.py:83
-msgid "Hotel"
-msgstr "Hôtel"
-
-#: populate.py:84
-msgid "Week-end"
-msgstr "Week-end"
-
-#: populate.py:85
-msgid "Rent"
-msgstr "Location"
-
-#: populate.py:87
-msgid "Vehicle"
-msgstr "Véhicule"
-
-#: populate.py:88
-msgid "Car"
-msgstr "Voiture"
-
-#: populate.py:89
-msgid "Moto"
-msgstr "Moto"
-
-#: populate.py:90
-msgid "Boat"
-msgstr "Bateau"
-
-#: populate.py:91
-msgid "Plane"
-msgstr "Avion"
-
-#: populate.py:93
-msgid "Games & Toys"
-msgstr "Jeux & jouets"
-
-#: populate.py:94
-msgid "Boys"
-msgstr "Garçons"
-
-#: populate.py:95
-msgid "Girls"
-msgstr "Filles"
-
-#: populate.py:96
-msgid "Teens"
-msgstr "Adolescents"
-
-#: populate.py:97 populate.py:103
-msgid "Baybies"
-msgstr "Bébés"
-
-#: populate.py:99
-msgid "Clothes"
-msgstr "Vêtements"
-
-#: populate.py:100
-msgid "Men"
-msgstr "Hommes"
-
-#: populate.py:101
-msgid "Women"
-msgstr "Femmes"
-
-#: populate.py:102
-msgid "Kids"
-msgstr "Enfants"
-
 #: forms/base.py:33 forms/fields.py:39 forms/product.py:44
-#: models/other_models.py:54 models/product.py:45 models/service.py:39
+#: models/other_models.py:54 models/product.py:47 models/service.py:41
 msgid "Sub-category"
 msgstr "Sous-catégorie"
 
-#: forms/base.py:50 forms/base.py:67 models/product.py:46 models/service.py:45
+#: forms/base.py:50 forms/base.py:67 models/product.py:48 models/service.py:47
 #: templates/products/block_images.html:6
 msgid "Images"
 msgstr "Images"
 
-#: forms/fields.py:37 models/other_models.py:39 models/product.py:44
-#: models/service.py:38
+#: forms/fields.py:37 models/other_models.py:39 models/product.py:46
+#: models/service.py:40
 msgid "Category"
 msgstr "Catégorie"
 
@@ -207,8 +67,8 @@ msgstr "Cette sous-catégorie cause une erreur de contrainte."
 msgid "Name of the category"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:29 models/other_models.py:46 models/product.py:37
-#: models/service.py:36
+#: models/other_models.py:29 models/other_models.py:46 models/product.py:39
+#: models/service.py:38
 msgid "Description"
 msgstr "Description"
 
@@ -228,69 +88,213 @@ msgstr "Catégorie parente"
 msgid "Sub-categories"
 msgstr "Sous-catégories"
 
-#: models/product.py:35 models/service.py:35
+#: models/product.py:37 models/service.py:37
 msgid "Name"
 msgstr "Nom"
 
-#: models/product.py:36
+#: models/product.py:38
 msgid "Code"
 msgstr "Code"
 
-#: models/product.py:38 models/service.py:43
+#: models/product.py:40 models/service.py:45
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
-#: models/product.py:39 models/service.py:41
+#: models/product.py:41 models/service.py:43
 msgid "Unit"
 msgstr "Unité"
 
-#: models/product.py:40 models/service.py:42
+#: models/product.py:42 models/service.py:44
 msgid "Quantity/Unit"
 msgstr "Conditionnement"
 
-#: models/product.py:41
+#: models/product.py:43
 msgid "Weight"
 msgstr "Poids"
 
-#: models/product.py:42
+#: models/product.py:44
 msgid "Quantity/Stock"
 msgstr "Quantité/Stock"
 
-#: models/product.py:43 models/service.py:44
+#: models/product.py:45 models/service.py:46
 msgid "Web Site"
 msgstr "Site Web"
 
-#: models/product.py:48
+#: models/product.py:50
 msgid "Add a product"
 msgstr "Ajouter un produit"
 
-#: models/product.py:52
+#: models/product.py:55
 msgid "Product"
 msgstr "Produit"
 
-#: models/product.py:53
+#: models/product.py:56
 msgid "Products"
 msgstr "Produits"
 
-#: models/service.py:37
+#: models/service.py:39
 msgid "Reference"
 msgstr "Référence"
 
-#: models/service.py:40
+#: models/service.py:42
 msgid "Countable"
 msgstr "Dénombrable"
 
-#: models/service.py:47
+#: models/service.py:49
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: models/service.py:51
+#: models/service.py:54
 msgid "Service"
 msgstr "Service"
 
-#: models/service.py:52
+#: models/service.py:55
 msgid "Services"
 msgstr "Services"
+
+#: populate.py:49
+msgid "Product view"
+msgstr "Vue de Produit"
+
+#: populate.py:57
+msgid "Service view"
+msgstr "Vue de Service"
+
+#: populate.py:75
+msgid "Jewelry"
+msgstr "Bijoux"
+
+#: populate.py:76
+msgid "Ring"
+msgstr "Bague"
+
+#: populate.py:77
+msgid "Bracelet"
+msgstr "Bracelet"
+
+#: populate.py:78
+msgid "Necklace"
+msgstr "Collier"
+
+#: populate.py:79
+msgid "Earrings"
+msgstr "Boucles d'oreille"
+
+#: populate.py:81
+msgid "Mobile"
+msgstr "Mobile"
+
+#: populate.py:82
+msgid "Iphone"
+msgstr "Iphone"
+
+#: populate.py:83
+msgid "Blackberry"
+msgstr "Blackberry"
+
+#: populate.py:84
+msgid "Samsung"
+msgstr "Samsung"
+
+#: populate.py:85
+msgid "Android"
+msgstr "Android"
+
+#: populate.py:87
+msgid "Informatic"
+msgstr "Informatique"
+
+#: populate.py:88
+msgid "Laptops"
+msgstr "Portables"
+
+#: populate.py:89
+msgid "Desktops"
+msgstr "Bureau"
+
+#: populate.py:90
+msgid "Tablet"
+msgstr "Tablette"
+
+#: populate.py:91
+msgid "Notebook"
+msgstr "Netbook"
+
+#: populate.py:93
+msgid "Travels"
+msgstr "Voyages"
+
+#: populate.py:94
+msgid "Fly"
+msgstr "Vol"
+
+#: populate.py:95
+msgid "Hotel"
+msgstr "Hôtel"
+
+#: populate.py:96
+msgid "Week-end"
+msgstr "Week-end"
+
+#: populate.py:97
+msgid "Rent"
+msgstr "Location"
+
+#: populate.py:99
+msgid "Vehicle"
+msgstr "Véhicule"
+
+#: populate.py:100
+msgid "Car"
+msgstr "Voiture"
+
+#: populate.py:101
+msgid "Moto"
+msgstr "Moto"
+
+#: populate.py:102
+msgid "Boat"
+msgstr "Bateau"
+
+#: populate.py:103
+msgid "Plane"
+msgstr "Avion"
+
+#: populate.py:105
+msgid "Games & Toys"
+msgstr "Jeux & jouets"
+
+#: populate.py:106
+msgid "Boys"
+msgstr "Garçons"
+
+#: populate.py:107
+msgid "Girls"
+msgstr "Filles"
+
+#: populate.py:108
+msgid "Teens"
+msgstr "Adolescents"
+
+#: populate.py:109 populate.py:115
+msgid "Baybies"
+msgstr "Bébés"
+
+#: populate.py:111
+msgid "Clothes"
+msgstr "Vêtements"
+
+#: populate.py:112
+msgid "Men"
+msgstr "Hommes"
+
+#: populate.py:113
+msgid "Women"
+msgstr "Femmes"
+
+#: populate.py:114
+msgid "Kids"
+msgstr "Enfants"
 
 #: templates/products/block_images.html:9
 msgid "Add from existing images"
@@ -308,15 +312,15 @@ msgstr "Pas d'image pour le moment"
 msgid "Products & Services portal"
 msgstr "Portail Produits & Services"
 
-#: templates/products/portal.html:7
+#: templates/products/portal.html:9
 msgid "List of products"
 msgstr "Liste des produits"
 
-#: views/portal.py:34
+#: views/portal.py:35
 msgid "Number of products"
 msgstr "Nombre de produit(s)"
 
-#: views/portal.py:35
+#: views/portal.py:36
 msgid "Number of services"
 msgstr "Nombre de service(s)"
 
