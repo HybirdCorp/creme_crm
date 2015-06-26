@@ -1932,7 +1932,8 @@ if ( typeof window !== "undefined" ) {
 				"notDeepEqual",
 				"strictEqual",
 				"notStrictEqual",
-				"throws"
+				"throws",
+				"raises" // HACK : add raises as global function for compatibility issue
 			];
 
 		for ( i = 0, l = keys.length; i < l; i++ ) {

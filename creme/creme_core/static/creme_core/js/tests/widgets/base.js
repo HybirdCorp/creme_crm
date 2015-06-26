@@ -355,8 +355,8 @@ test('creme.object.deferred (restarted)', function() {
 });
 
 test('creme.object.build_callback (invalid script)', function() {
-    throws(function() {creme.object.build_callback('...');});
-    throws(function() {creme.object.build_callback('{', ['arg1', 'arg2']);});
+    raises(function() {creme.object.build_callback('...');});
+    raises(function() {creme.object.build_callback('{', ['arg1', 'arg2']);});
 });
 
 test('creme.object.build_callback (function)', function() {

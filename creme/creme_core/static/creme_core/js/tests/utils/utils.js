@@ -34,21 +34,21 @@ test('creme.utils.JSON.encode', function() {
 test('creme.utils.JSON.decode (null)', function() {
     var codec = new creme.utils.JSON();
 
-    throws(function() {codec.decode(null);});
+    raises(function() {codec.decode(null);});
 });
 
 test('creme.utils.JSON.decode (invalid)', function() {
     var codec = new creme.utils.JSON();
 
-    throws(function() {codec.decode('{"a\':1}');});
-    throws(function() {codec.decode('{"a":1,}');});
-    throws(function() {codec.decode('{a:1}');});
+    raises(function() {codec.decode('{"a\':1}');});
+    raises(function() {codec.decode('{"a":1,}');});
+    raises(function() {codec.decode('{a:1}');});
 
     var decoder = creme.utils.JSON.decoder();
 
-    throws(function() {decoder('{"a\':1}');});
-    throws(function() {decoder('{"a":1,}');});
-    throws(function() {decoder('{a:1}');});
+    raises(function() {decoder('{"a\':1}');});
+    raises(function() {decoder('{"a":1,}');});
+    raises(function() {decoder('{a:1}');});
 });
 
 test('creme.utils.JSON.decode (invalid or null, default)', function() {
@@ -85,7 +85,7 @@ test('creme.utils.JSON.decode (valid)', function() {
 test('creme.utils.JSON.clean', function() {
     var clean = creme.utils.JSON.clean;
 
-    throws(function() {clean('{"a\':1}');});
+    raises(function() {clean('{"a\':1}');});
     equal(clean('{"a\':1}', 'default'), 'default');
 
     equal(clean(null), null);
