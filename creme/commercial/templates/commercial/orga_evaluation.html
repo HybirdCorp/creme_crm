@@ -4,38 +4,6 @@
 
 {% block page_title %}{% blocktrans %}Evaluation of «{{orga}}»{% endblocktrans %} - {% endblock %}
 
-{% comment %} COMMENTED on 27-01-2014
-{% block extrahead %}
-    <script type="text/javascript">
-        // TODO : move this in creme.blocks and initialize with bindEvents method
-        /*
-        $(document).ready(function() {
-            creme.utils.bindShowHideTbody();
-        });
-        */
-
-        //TODO: move to a commercial.js file
-        creme.commercial = {};
-
-        creme.commercial.postScore = function(url, model_id, segment_desc_id, orga_id, select, reload_url) {
-            creme.ajax.post({
-                        'url': url,
-                        'data': {
-                                //'score':           $(select).find('[selected="true"]').attr("value"),
-                                'score':           $(select).val(),
-                                'model_id':        model_id,
-                                'segment_desc_id': segment_desc_id,
-                                'orga_id':         orga_id
-                            },
-                        'success': function(data, status) {
-                              creme.blocks.reload(reload_url);
-                            }
-                    });
-        }
-    </script>
-{% endblock %}
-{% endcomment %}
-
 {% block before_content_1 %}
     <div class=zone_spacer_5px>
         <ul class="button_list hbox">
