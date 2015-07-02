@@ -5,6 +5,7 @@ try:
 
     #from django.contrib.contenttypes.models import ContentType
     from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials
@@ -672,11 +673,13 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         billing_address = self.get_object_or_fail(Organisation, name=name1).billing_address
         self.assertIsNotNone(billing_address)
-        self.assertEqual(city1, billing_address.city)
+        self.assertEqual(_('Billing address'), billing_address.name)
+        self.assertEqual(city1,                billing_address.city)
 
         shipping_address = self.get_object_or_fail(Organisation, name=name2).shipping_address
         self.assertIsNotNone(shipping_address)
-        self.assertEqual(city2, shipping_address.city)
+        self.assertEqual(_('Shipping address'), shipping_address.name)
+        self.assertEqual(city2,                 shipping_address.city)
 
     @skipIfCustomAddress
     def test_csv_import02(self):
