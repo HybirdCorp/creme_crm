@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,8 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
-    def _save_address(self, attr_name, prefix, person, data, line):
+#    def _save_address(self, attr_name, prefix, person, data, line):
+    def _save_address(self, attr_name, prefix, person, data, line, name):
         address_dict = {}
         save = False
 
@@ -56,7 +57,8 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
         #if any(address_dict.itervalues()):
         if address_dict:
             address_dict['owner'] = person
-            address_dict['name'] = attr_name
+#            address_dict['name'] = attr_name
+            address_dict['name'] = name
             address = getattr(person, attr_name, None)
 
             if address is not None: #update
@@ -75,8 +77,8 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
         super(_PersonCSVImportForm, self)._post_instance_creation(instance, line, updated)
         data = self.cleaned_data
         save_address    = self._save_address
-        change4billing  = save_address('billing_address',  _BILL_PREFIX, instance, data, line)
-        change4shipping = save_address('shipping_address', _SHIP_PREFIX, instance, data, line)
+        change4billing  = save_address('billing_address',  _BILL_PREFIX, instance, data, line, _('Billing address'))
+        change4shipping = save_address('shipping_address', _SHIP_PREFIX, instance, data, line, _('Shipping address'))
 
         if change4billing or change4shipping:
             instance.save()
