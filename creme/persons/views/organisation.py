@@ -25,6 +25,7 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
+from .. import get_organisation_model
 from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 from ..forms.organisation import OrganisationForm
 from ..models import Organisation
@@ -56,14 +57,17 @@ def detailview(request, organisation_id):
 def listview(request):
     return list_view(request, Organisation, extra_dict={'add_url': '/persons/organisation/add'})
 
-#TODO: set the HF in the url ????
-@login_required
-@permission_required('persons')
-def list_my_leads_my_customers(request):
-    #use a constant for 'persons-hf_leadcustomer' ??
-    return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
+def abstract_list_my_leads_my_customers(request):
+    # TODO: use a constant for 'persons-hf_leadcustomer' ??
+    return list_view(request, get_organisation_model(), hf_pk='persons-hf_leadcustomer',
                      extra_dict={'list_title': ugettext(u'List of my suspects / prospects / customers')},
                      extra_q=Q(relations__type__in=[REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT],
                                relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
                               )
                     )
+
+#TODO: set the HF in the url ????
+@login_required
+@permission_required('persons')
+def list_my_leads_my_customers(request):
+    return abstract_list_my_leads_my_customers(request)

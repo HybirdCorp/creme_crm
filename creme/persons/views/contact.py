@@ -27,7 +27,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from .. import get_organisation_model
+from .. import get_contact_model, get_organisation_model
 from ..models import Contact # Organisation
 from ..forms.contact import RelatedContactForm, ContactForm
 
@@ -39,15 +39,14 @@ def add(request):
                       extra_template_dict={'submit_label': _('Save the contact')},
                      )
 
-@login_required
-@permission_required(('persons','persons.add_contact'))
-#def add_with_relation(request, orga_id, predicate_id=None):
-def add_with_relation(request, orga_id, rtype_id=None):
+def abstract_add_with_relation(request, orga_id, rtype_id, form=RelatedContactForm):
     user = request.user
 #    linked_orga = get_object_or_404(Organisation, pk=orga_id)
     linked_orga = get_object_or_404(get_organisation_model(), pk=orga_id)
     user.has_perm_to_link_or_die(linked_orga)
     user.has_perm_to_view_or_die(linked_orga) #displayed in the form....
+
+    Contact = get_contact_model()
     user.has_perm_to_link_or_die(Contact)
 
     initial = {'linked_orga': linked_orga}
@@ -68,11 +67,18 @@ def add_with_relation(request, orga_id, rtype_id=None):
 
         initial['relation_type'] = rtype.symmetric_type
 
-    return add_entity(request, RelatedContactForm,
+#    return add_entity(request, RelatedContactForm,
+    return add_entity(request, form,
                       #request.REQUEST.get('callback_url'),
                       request.POST.get('callback_url') or request.GET.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial,
                      )
+
+@login_required
+@permission_required(('persons','persons.add_contact'))
+#def add_with_relation(request, orga_id, predicate_id=None):
+def add_with_relation(request, orga_id, rtype_id=None):
+    return abstract_add_with_relation(request, orga_id, rtype_id)
 
 @login_required
 @permission_required('persons')
