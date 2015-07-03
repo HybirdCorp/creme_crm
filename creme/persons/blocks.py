@@ -177,7 +177,8 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
         return self._render(btc)
 
 
-_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES) #TODO: factorise (see CSV import) ?
+#_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
+_ADDRESS_FIELD_NAMES = list(Address.info_field_names()) #TODO: factorise (see CSV import) ?
 
 try:
     _ADDRESS_FIELD_NAMES.remove('name')

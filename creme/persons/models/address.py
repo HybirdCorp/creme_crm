@@ -46,6 +46,8 @@ class AbstractAddress(CremeModel):
     object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
+    _info_field_names = None
+
     class Meta:
         abstract = True
         app_label = 'persons'
@@ -67,7 +69,7 @@ class AbstractAddress(CremeModel):
     def get_related_entity(self): #for generic views
         return self.owner
 
-    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
+#    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
     def __nonzero__(self): #used by forms to detect empty addresses
         return any(fvalue for fname, fvalue in self.info_fields)
@@ -86,9 +88,21 @@ class AbstractAddress(CremeModel):
                                       **dict(self.info_fields)
                                      )
 
+    @classmethod
+    def info_field_names(cls):
+        fnames = cls._info_field_names
+
+        if fnames is None:
+            excluded = {'id', 'content_type', 'object_id'}
+            cls._info_field_names = fnames = \
+                tuple(f.name for f in cls._meta.fields if f.name not in excluded)
+
+        return fnames
+
     @property
     def info_fields(self):
-        for fname in self._INFO_FIELD_NAMES:
+#        for fname in self._INFO_FIELD_NAMES:
+        for fname in self.info_field_names():
             yield fname, getattr(self, fname)
 
 
