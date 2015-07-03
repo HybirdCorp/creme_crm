@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import render
@@ -26,6 +28,9 @@ from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 
 from creme.creme_core.core.exceptions import ConflictError
+
+
+logger = logging.getLogger(__name__)
 
 
 class Beautiful403Middleware(object):
@@ -58,13 +63,18 @@ class Beautiful403Middleware(object):
 
 class _AlternativeErrorMiddleware(object):
     error = None
+    status = 400
     template = None
+    log_ajax = False
 
     def process_exception(self, request, exception):
         if self.error is None or isinstance(exception, self.error):
             msg = smart_unicode(exception)
 
             if request.is_ajax():
+                if self.log_ajax:
+                    logger.exception('Error (status=%s)', self.status)
+
                 return HttpResponse(msg, content_type='text/javascript', status=self.status)
 
             if self.template is None:
@@ -88,4 +98,4 @@ class Beautiful409Middleware(_AlternativeErrorMiddleware):
 
 class Ajax500Middleware(_AlternativeErrorMiddleware):
     status = 500
-
+    log_ajax = True
