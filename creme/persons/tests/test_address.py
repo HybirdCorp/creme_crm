@@ -51,6 +51,14 @@ class AddressTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
+    @skipIfCustomAddress
+    def test_info_names(self):
+        self.assertEqual({'name', 'address', 'po_box', 'zipcode', 'city',
+                          'department', 'state', 'country',
+                         },
+                         set(Address.info_field_names())
+                        )
+
     @skipIfCustomOrganisation
     def test_createview(self):
         orga = self.login()

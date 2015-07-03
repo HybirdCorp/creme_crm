@@ -22,10 +22,13 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, extractorfield_factory
 
-from ..models import Address
+from .. import get_address_model
+#from ..models import Address
 
 
-_FIELD_NAMES = list(Address._INFO_FIELD_NAMES) #TODO: use introspection to get editable fields ??
+Address = get_address_model()
+#_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
+_FIELD_NAMES = list(Address.info_field_names()) #TODO: remove not-editable fields ??
 
 try:
     _FIELD_NAMES.remove('name')
@@ -85,13 +88,15 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
 
 
 def get_csv_form_builder(header_dict, choices):
-    get_field_by_name = Address._meta.get_field_by_name
+#    get_field_by_name = Address._meta.get_field_by_name
+    get_field = Address._meta.get_field
     attrs = {}
     billing_address_fnames = []
     shipping_address_fnames = []
 
     for field_name in _FIELD_NAMES:
-        field = get_field_by_name(field_name)[0]
+#        field = get_field_by_name(field_name)[0]
+        field = get_field(field_name)
 
         form_fieldname = _BILL_PREFIX + field_name
         attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
