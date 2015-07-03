@@ -26,6 +26,8 @@ from django.apps import AppConfig, apps
 from django.core import checks
 from django.utils.translation import ugettext_lazy as _
 
+from .checks import Tags
+
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +49,7 @@ class CremeAppConfig(AppConfig):
                             if not apps.is_installed(dep)
                    ]
 
-        checks.register('settings')(check_deps)
+        checks.register(Tags.settings)(check_deps)
 
 
 class CremeCoreConfig(CremeAppConfig):
@@ -57,7 +59,7 @@ class CremeCoreConfig(CremeAppConfig):
     def ready(self):
         super(CremeCoreConfig, self).ready()
 
-        if 'migrate' in argv: # problem wit ContentType table which can be not created yet.
+        if 'migrate' in argv: # problem with ContentType table which can be not created yet.
             return
 
         # We check the badly uninstalled apps
