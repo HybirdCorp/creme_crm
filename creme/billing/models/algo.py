@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.conf import settings
-#from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, CharField, ForeignKey, IntegerField
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,11 +32,11 @@ class ConfigBillingAlgo(CremeModel):
 #    organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     name_algo    = CharField(_(u"Algo name"), max_length=400)
-    #ct           = ForeignKey(ContentType)
     ct           = CTypeForeignKey()
 
     class Meta:
         app_label = 'billing'
+        # TODO unique_together = ("organisation", "name_algo", "ct") ??
 
 
 class SimpleBillingAlgo(Model):
@@ -45,7 +44,6 @@ class SimpleBillingAlgo(Model):
     organisation = ForeignKey(settings.PERSONS_ORGANISATION_MODEL, verbose_name=_(u'Organisation'))
     last_number  = IntegerField()
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
-    #ct           = ForeignKey(ContentType)
     ct           = CTypeForeignKey()
 
     ALGO_NAME = "SIMPLE_ALGO"
@@ -53,3 +51,6 @@ class SimpleBillingAlgo(Model):
     class Meta:
         app_label = 'billing'
         unique_together = ("organisation", "last_number", "ct")
+
+    def __unicode__(self):
+        return u'SimpleBillingAlgo(organisation="%s", ct="%s")' % (self.organisation, self.ct)

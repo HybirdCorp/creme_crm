@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import (RelationType, Vat, SettingValue,
-            BlockDetailviewLocation)
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import (RelationType, CremeProperty, Vat,
+            SettingValue, BlockDetailviewLocation)
 
     from creme.persons import get_contact_model, get_organisation_model
     from creme.persons.models import Organisation
@@ -71,13 +74,13 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):
-        self.login()
+        user = self.login()
 
         Invoice    = get_invoice_model()
         Quote      = get_quote_model()
         SalesOrder = get_sales_order_model()
 
-        orga = Organisation.objects.create(user=self.user, name='NERV')
+        orga = Organisation.objects.create(user=user, name='NERV')
 
         self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))
         self.assertFalse(SimpleBillingAlgo.objects.filter(organisation=orga))
@@ -95,6 +98,140 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual({Quote, Invoice, SalesOrder},
                          {simpleconf.ct.model_class() for simpleconf in simpleconfs}
                         )
+
+    def _merge_organisations(self, orga1, orga2):
+        user = self.user
+        response = self.client.post(self.build_merge_url(orga1, orga2), follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga1.name,
+                                          'name_2':      orga2.name,
+                                          'name_merged': orga1.name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertStillExists(orga1)
+        self.assertDoesNotExist(orga2)
+
+    def _remove_managed_prop(self, orga):
+        CremeProperty.objects.get(type=PROP_IS_MANAGED_BY_CREME, creme_entity=orga).delete()
+
+    def _ids_list(self, queryset, length):
+        ids_list = list(queryset.values_list('id', flat=True))
+        self.assertEqual(3, len(ids_list))
+
+        return ids_list
+
+    @skipIfCustomOrganisation
+    def test_merge_algoconfig01(self):
+        "One managed organisation"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV')
+        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        cba_filter = ConfigBillingAlgo.objects.filter
+        sba_filter = SimpleBillingAlgo.objects.filter
+        self.assertFalse(cba_filter(organisation=orga1))
+        self.assertFalse(sba_filter(organisation=orga1))
+
+        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
+        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+
+        self._merge_organisations(orga1, orga2)
+
+        cba_list2 = list(cba_filter(pk__in=cba_ids_list2))
+        self.assertEqual(3, len(cba_list2))
+        self.assertEqual(orga1, cba_list2[0].organisation)
+
+        sba_list2 = list(sba_filter(pk__in=sba_ids_list2))
+        self.assertEqual(3, len(sba_list2))
+        self.assertEqual(orga1, sba_list2[0].organisation)
+
+    @skipIfCustomOrganisation
+    def test_merge_algoconfig02(self):
+        "Two managed organisations"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
+        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        cba_filter = ConfigBillingAlgo.objects.filter
+        sba_filter = SimpleBillingAlgo.objects.filter
+        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+
+        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
+        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+
+        self._merge_organisations(orga1, orga2)
+
+        self.assertFalse(cba_filter(pk__in=cba_ids_list2))
+        self.assertEqual(3, cba_filter(pk__in=cba_ids_list1).count())
+
+        self.assertFalse(sba_filter(pk__in=sba_ids_list2))
+        self.assertEqual(3, sba_filter(pk__in=sba_ids_list1).count())
+
+    @skipIfCustomOrganisation
+    def test_merge_algoconfig03(self):
+        "Two managed with algo config, but not managed"
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
+        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        self._remove_managed_prop(orga1)
+        self._remove_managed_prop(orga2)
+
+        cba_filter = ConfigBillingAlgo.objects.filter
+        sba_filter = SimpleBillingAlgo.objects.filter
+        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+
+        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
+        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+
+        self._merge_organisations(orga1, orga2)
+
+        self.assertFalse(cba_filter(pk__in=cba_ids_list2))
+        self.assertEqual(3, cba_filter(pk__in=cba_ids_list1).count())
+
+        self.assertFalse(sba_filter(pk__in=sba_ids_list2))
+        self.assertEqual(3, sba_filter(pk__in=sba_ids_list1).count())
+
+    @skipIfCustomOrganisation
+    def test_merge_algoconfig04(self):
+        """Two managed with algo config, but only the second is managed
+            => we delete the config of the first one.
+        """
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga1 = create_orga(name='NERV'); self._set_managed(orga1)
+        orga2 = create_orga(name='Nerv'); self._set_managed(orga2)
+
+        self._remove_managed_prop(orga1)
+
+        cba_filter = ConfigBillingAlgo.objects.filter
+        sba_filter = SimpleBillingAlgo.objects.filter
+        cba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+        sba_ids_list1 = self._ids_list(sba_filter(organisation=orga1), 3)
+
+        cba_ids_list2 = self._ids_list(cba_filter(organisation=orga2), 3)
+        sba_ids_list2 = self._ids_list(sba_filter(organisation=orga2), 3)
+
+        self._merge_organisations(orga1, orga2)
+
+        self.assertFalse(cba_filter(pk__in=cba_ids_list1))
+        self.assertEqual(3, cba_filter(pk__in=cba_ids_list2).count())
+
+        self.assertFalse(sba_filter(pk__in=sba_ids_list1))
+        self.assertEqual(3, sba_filter(pk__in=sba_ids_list2).count())
 
     def _get_setting_value(self):
         return self.get_object_or_fail(SettingValue, key_id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
