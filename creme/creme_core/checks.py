@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.apps import apps
 from django.conf import settings
-from django.core.checks import register, Error
+from django.core.checks import register, Error, Warning
 
 
 class Tags(object):
@@ -42,12 +43,35 @@ def check_secret_key(**kwargs):
 
     return errors
 
+def check_uninstalled_apps(**kwargs):
+    """Check the badly uninstalled apps.
+    BEWARE: it crashes if the ContentType table does not exist (first migration).
+    """
+    warnings = []
+
+    for app_label in apps.get_model('contenttypes.ContentType') \
+                         .objects \
+                         .order_by('app_label') \
+                         .distinct() \
+                         .values_list('app_label', flat=True):
+        try:
+            apps.get_app_config(app_label)
+        except LookupError:
+            warnings.append(Warning('The app seems not been correctly uninstalled.',
+                                    hint="""If it's a Creme app, uninstall it with the command "creme_uninstall" """
+                                         """(you must enable this app in your settings before).""",
+                                    obj=app_label,
+                                    id='creme.E003',
+                                   )
+                           )
+
+    return warnings
+
+
 # TODO: remove me in Creme 1.7
 @register(Tags.api_breaking)
 def check_creme_core_registers(**kwargs):
     from imp import find_module
-
-    from django.apps import apps
 
     errors = []
 
@@ -63,11 +87,11 @@ def check_creme_core_registers(**kwargs):
             pass # There is no creme_core_register.py => OK
         else:
             errors.append(Error('You seem to still use the "creme_core_register" feature.',
-                            hint='Use the AppConfig feature instead & remove the '
-                                 'creme_core_register.py(c) file(s)',
-                            obj=app_name,
-                            id='creme.E003',
-                           )
-                     )
+                                hint='Use the AppConfig feature instead & remove the '
+                                     'creme_core_register.py(c) file(s)',
+                                obj=app_name,
+                                id='creme.E004',
+                               )
+                         )
 
     return errors

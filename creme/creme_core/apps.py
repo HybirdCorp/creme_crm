@@ -25,7 +25,7 @@ from django.apps import AppConfig, apps
 from django.core import checks
 from django.utils.translation import ugettext_lazy as _
 
-from .checks import Tags # it registers other checkings too
+from .checks import Tags, check_uninstalled_apps # it registers other checkings too
 from .core.reminder import reminder_registry
 from .core.setting_key import setting_key_registry
 from .gui import (creme_menu, block_registry, bulk_update_registry, button_registry,
@@ -129,37 +129,8 @@ class CremeCoreConfig(CremeAppConfig):
         if self.MIGRATION_MODE:
             return
 
-        # We check the badly uninstalled apps
-        # NB: not a "django because it is for final users
-        for app_label in apps.get_model('contenttypes.ContentType') \
-                             .objects \
-                             .order_by('app_label') \
-                             .distinct() \
-                             .values_list('app_label', flat=True):
-            try:
-                apps.get_app_config(app_label)
-            except LookupError:
-                logger.warning("""The app "%s" seems not been correctly uninstalled. """
-                               """If it's a Creme app, uninstall it with the command "creme_uninstall" """
-                               """(you must enable this app in your settings before).""" % app_label
-                              )
-
-        #ForeignKey's formfield() hooking --------------------------------------
-        #TODO: move to creme_config ??
-
-        from django.db.models import ForeignKey
-
-        from creme.creme_config.forms.fields import CreatorModelChoiceField
-
-        original_fk_formfield = ForeignKey.formfield
-
-        def new_fk_formfield(self, **kwargs):
-            defaults = {'form_class': CreatorModelChoiceField}
-            defaults.update(kwargs)
-
-            return original_fk_formfield(self, **defaults)
-
-        ForeignKey.formfield = new_fk_formfield
+        checks.register(Tags.settings)(check_uninstalled_apps) # Crashes in migrate mode.
+        self.hook_fk_formfield()
 
     def register_creme_app(self, creme_registry):
         creme_registry.register_app('creme_core', _(u'Core'), '/')
@@ -193,3 +164,18 @@ class CremeCoreConfig(CremeAppConfig):
         setting_key_registry.register(block_opening_key, block_showempty_key,
                                       currency_symbol_key,
                                      )
+
+    def hook_fk_formfield(self): # TODO: move to creme_config ??
+        from django.db.models import ForeignKey
+
+        from creme.creme_config.forms.fields import CreatorModelChoiceField
+
+        original_fk_formfield = ForeignKey.formfield
+
+        def new_fk_formfield(self, **kwargs):
+            defaults = {'form_class': CreatorModelChoiceField}
+            defaults.update(kwargs)
+
+            return original_fk_formfield(self, **defaults)
+
+        ForeignKey.formfield = new_fk_formfield
