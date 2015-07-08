@@ -40,6 +40,9 @@ logger = logging.getLogger(__name__)
 class CremeAppConfig(AppConfig):
     dependencies = () # Overload ; eg: ['creme.persons']
 
+    # Lots of problems with ContentType table which can be not created yet.
+    MIGRATION_MODE = ('migrate' in argv)
+
     def ready(self):
         # NB: it seems we cannot transform this a check_deps(self, **kwargs) method
         # because we get an error from django [AttributeError: 'instancemethod' object has no attribute 'tags']
@@ -56,21 +59,22 @@ class CremeAppConfig(AppConfig):
 
         checks.register(Tags.settings)(check_deps)
 
-        self.register_creme_app(creme_registry)
-        self.register_entity_models(creme_registry)
+        if not self.MIGRATION_MODE:
+            self.register_creme_app(creme_registry)
+            self.register_entity_models(creme_registry)
 
-        self.register_blocks(block_registry)
-        self.register_bulk_update(bulk_update_registry)
-        self.register_buttons(button_registry)
-        self.register_field_printers(field_printers_registry)
-        self.register_icons(icon_registry)
-        self.register_mass_import(import_form_registry)
-        self.register_menu(creme_menu)
-        self.register_merge_forms(merge_form_registry)
-        self.register_quickforms(quickforms_registry)
-        self.register_reminders(reminder_registry)
-        self.register_setting_key(setting_key_registry)
-        self.register_smart_columns(smart_columns_registry)
+            self.register_blocks(block_registry)
+            self.register_bulk_update(bulk_update_registry)
+            self.register_buttons(button_registry)
+            self.register_field_printers(field_printers_registry)
+            self.register_icons(icon_registry)
+            self.register_mass_import(import_form_registry)
+            self.register_menu(creme_menu)
+            self.register_merge_forms(merge_form_registry)
+            self.register_quickforms(quickforms_registry)
+            self.register_reminders(reminder_registry)
+            self.register_setting_key(setting_key_registry)
+            self.register_smart_columns(smart_columns_registry)
 
     def register_creme_app(self, creme_registry):
         pass
@@ -122,7 +126,7 @@ class CremeCoreConfig(CremeAppConfig):
     def ready(self):
         super(CremeCoreConfig, self).ready()
 
-        if 'migrate' in argv: # problem with ContentType table which can be not created yet.
+        if self.MIGRATION_MODE:
             return
 
         # We check the badly uninstalled apps

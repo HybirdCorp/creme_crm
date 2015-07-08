@@ -41,6 +41,9 @@ class OpportunitiesConfig(CremeAppConfig):
         self.Opportunity = get_opportunity_model()
         super(OpportunitiesConfig, self).ready()
 
+        if self.MIGRATION_MODE:
+            return
+
         if apps.is_installed('creme.billing'):
             self.register_billing()
 
