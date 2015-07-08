@@ -49,6 +49,9 @@ def check_uninstalled_apps(**kwargs):
     """
     warnings = []
 
+    if settings.TESTS_ON:
+        return warnings
+
     for app_label in apps.get_model('contenttypes.ContentType') \
                          .objects \
                          .order_by('app_label') \
