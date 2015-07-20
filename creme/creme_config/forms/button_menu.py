@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,13 +28,15 @@ from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.gui.button_menu import button_registry
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.utils.unicode_collation import collator
 
 
 _PREFIX = 'creme_config-userbmi'
 
 
 class ButtonMenuAddForm(CremeForm):
-    ctype = EntityCTypeChoiceField(label=_(u'Related resource'),
+    ctype = EntityCTypeChoiceField(
+                        label=_(u'Related resource'),
                         help_text=_(u'The buttons related to this type of resource '
                                     u'will be chosen by editing the configuration'
                                    ),
@@ -68,7 +70,11 @@ class ButtonMenuEditForm(CremeForm):
         choices = []
 
         if not self.ct: #default conf
-            choices.extend((id_, button.verbose_name) for id_, button in button_registry if not button.get_ctypes())
+#            choices.extend((id_, button.verbose_name) for id_, button in button_registry if not button.get_ctypes())
+            choices.extend((id_, unicode(button.verbose_name))
+                                for id_, button in button_registry
+                                    if not button.get_ctypes()
+                          )
         else:
             model_class = self.ct.model_class()
 
@@ -81,9 +87,14 @@ class ButtonMenuEditForm(CremeForm):
 
                 if not ctypes:
                     if id_ not in default_conf_ids:
-                        choices.append((id_, button.verbose_name))
+#                        choices.append((id_, button.verbose_name))
+                        choices.append((id_, unicode(button.verbose_name)))
                 elif model_class in ctypes:
-                    choices.append((id_, button.verbose_name))
+#                    choices.append((id_, button.verbose_name))
+                    choices.append((id_, unicode(button.verbose_name)))
+
+        sort_key = collator.sort_key
+        choices.sort(key=lambda c: sort_key(c[1]))
 
         button_ids = self.fields['button_ids']
         button_ids.choices = choices
