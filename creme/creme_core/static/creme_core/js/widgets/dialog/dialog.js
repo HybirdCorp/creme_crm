@@ -518,3 +518,16 @@ creme.dialogs = $.extend(creme.dialogs, {
         return this.alert(message || '', options);
     }
 });
+
+/* 
+ * Since jqueryui 1.10 some events are not allowed to get outside the popup.
+ * So the custom Chosen widget will not work correctly (needs focus event on search field).
+ */
+$.widget("ui.dialog", $.ui.dialog, {
+    _allowInteraction: function (event) {
+        if ($(event.target).closest(".chzn-drop").length)
+            return true ;
+
+        return this._super(event);
+    }
+});
