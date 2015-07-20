@@ -48,7 +48,9 @@ __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm'
 
 class BlockLocationsField(MultipleChoiceField):
     def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
-        super(BlockLocationsField, self).__init__(required=required, choices=choices, widget=widget, *args, **kwargs)
+        super(BlockLocationsField, self).__init__(required=required, choices=choices,
+                                                  widget=widget, *args, **kwargs
+                                                 )
 
 
 class _BlockLocationsForm(CremeForm):
@@ -61,7 +63,8 @@ class _BlockLocationsForm(CremeForm):
 
     #TODO: use transaction ???
     def _save_locations(self, location_model, location_builder, blocks_partitions, old_locations=()):
-        needed = sum(len(block_ids) or 1 for block_ids in blocks_partitions.itervalues()) #at least 1 block per zone (even if it can be fake block)
+        # At least 1 block per zone (even if it can be fake block)
+        needed = sum(len(block_ids) or 1 for block_ids in blocks_partitions.itervalues())
         lendiff = needed - len(old_locations)
 
         if lendiff < 0:
@@ -142,7 +145,8 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
         self.ct = ct
         self.locations = block_locations
 
-        choices = [(MODELBLOCK_ID, ugettext('Information on the entity'))]
+        self.modelblock_vname = modelblock_vname = ugettext('Information on the entity')
+        choices = [(MODELBLOCK_ID, modelblock_vname)]
         choices.extend((block.id_, block.verbose_name)
                            for block in block_registry.get_compatible_blocks(model=ct.model_class() if ct else None)
                       )
@@ -161,7 +165,10 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
         for block_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
             if block_id in all_block_ids:
                 raise ValidationError(self.error_messages['duplicated_block'],
-                                      params={'block': block_registry[block_id].verbose_name},
+                                      params={'block': self.modelblock_vname
+                                                       if block_id == MODELBLOCK_ID else
+                                                       block_registry[block_id].verbose_name,
+                                             },
                                       code='duplicated_block',
                                      )
 
@@ -213,7 +220,9 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
         self.app_name = app_name
         self.locations = block_locations
 
-        self._build_portal_locations_field(app_name=app_name, field_name='blocks', block_locations=block_locations)
+        self._build_portal_locations_field(app_name=app_name, field_name='blocks',
+                                           block_locations=block_locations,
+                                          )
 
     def save(self, *args, **kwargs):
         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
@@ -227,7 +236,9 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
         self.owner = owner
         self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
 
-        self._build_portal_locations_field(app_name='creme_core', field_name='blocks', block_locations=locations)
+        self._build_portal_locations_field(app_name='creme_core', field_name='blocks',
+                                           block_locations=locations,
+                                          )
 
     def save(self, *args, **kwargs):
         self._save_locations(BlockMypageLocation,
@@ -253,7 +264,10 @@ class RelationBlockAddForm(CremeModelForm):
         relation_type.queryset = RelationType.objects.exclude(pk__in=existing_type_ids)
 
     def save(self, *args, **kwargs):
-        self.instance.block_id = SpecificRelationsBlock.generate_id('creme_config', self.cleaned_data['relation_type'].id)
+        self.instance.block_id = SpecificRelationsBlock.generate_id(
+                                        'creme_config',
+                                        self.cleaned_data['relation_type'].id,
+                                    )
         return super(RelationBlockAddForm, self).save(*args, **kwargs)
 
 
