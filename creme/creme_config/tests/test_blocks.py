@@ -8,12 +8,13 @@ try:
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
             FakeOrganisation as Organisation, FakeImage as Image,
             FakeActivity as Activity, FakeEmailCampaign as EmailCampaign)
+    from creme.creme_core.blocks import history_block
+    from creme.creme_core.constants import MODELBLOCK_ID
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
+    from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme.creme_core.models import RelationType, CustomField
     from creme.creme_core.models.block import *
-    from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
-    from creme.creme_core.blocks import history_block
 
     from creme.creme_config.blocks import(BlockDetailviewLocationsBlock, BlockPortalLocationsBlock,
         BlockDefaultMypageLocationsBlock, RelationBlocksConfigBlock,
@@ -171,7 +172,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         block_top_id1   = blocks[0].id_
         block_top_id2   = blocks[1].id_
-        block_left_id1  = 'modelblock'
+        block_left_id1  = MODELBLOCK_ID
         block_left_id2  = blocks[2].id_
         block_right_id  = blocks[3].id_
         block_bottom_id = blocks[4].id_
@@ -336,27 +337,32 @@ class BlocksConfigTestCase(CremeTestCase):
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertTrue(blocks)
 
-        evil_block = blocks[0]
+        def post(block_id, block_vname):
+            block_left_id = block_right_id = block_id # <= same block !!
+            block_left_index  = self._find_field_index(left_field,  block_left_id)
+            block_right_index = self._find_field_index(right_field, block_right_id)
 
-        block_left_id = block_right_id = evil_block.id_ # <= same block !!
-        block_left_index  = self._find_field_index(left_field,  block_left_id)
-        block_right_index = self._find_field_index(right_field, block_right_id)
+            response = self.client.post(url,
+                                        data={'right_check_%s' % block_right_index: 'on',
+                                              'right_value_%s' % block_right_index: block_right_id,
+                                              'right_order_%s' % block_right_index: 1,
 
-        response = self.client.post(url,
-                                    data={'right_check_%s' % block_right_index: 'on',
-                                          'right_value_%s' % block_right_index: block_right_id,
-                                          'right_order_%s' % block_right_index: 1,
+                                              'left_check_%s' % block_left_index: 'on',
+                                              'left_value_%s' % block_left_index: block_left_id,
+                                              'left_order_%s' % block_left_index: 1,
+                                             }
+                                       )
+            self.assertFormError(response, 'form', field=None,
+                                 errors=_(u'The following block should be displayed only once: «%(block)s»') % {
+                                                'block': block_vname,
+                                            }
+                                )
 
-                                          'left_check_%s' % block_left_index: 'on',
-                                          'left_value_%s' % block_left_index: block_left_id,
-                                          'left_order_%s' % block_left_index: 1,
-                                         }
-                                   )
-        self.assertFormError(response, 'form', field=None,
-                             errors=_(u'The following block should be displayed only once: «%(block)s»') % {
-                                            'block': evil_block.verbose_name
-                                        }
-                            )
+        with self.assertNoException():
+            evil_block = (b for b in blocks if b.id_ != MODELBLOCK_ID).next()
+
+        post(evil_block.id_, evil_block.verbose_name)
+        post(MODELBLOCK_ID, _('Information on the entity'))
 
     def test_edit_detailview06(self):
         "Instance block, relationtype block"
