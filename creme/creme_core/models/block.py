@@ -365,6 +365,7 @@ class CustomBlockConfigItem(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
+        # TODO: ordering = ('name', )
 
     def __init__(self, *args, **kwargs):
         super(CustomBlockConfigItem, self).__init__(*args, **kwargs)
