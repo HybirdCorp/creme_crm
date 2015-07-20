@@ -36,6 +36,7 @@ from creme.creme_core.models import (RelationType, CremeEntity,
     RelationBlockItem, CustomBlockConfigItem)
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.utils.unicode_collation import collator
 
 
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
@@ -56,9 +57,16 @@ class BlockLocationsField(MultipleChoiceField):
 class _BlockLocationsForm(CremeForm):
     def _build_portal_locations_field(self, app_name, field_name, block_locations):
         blocks = self.fields[field_name]
-        blocks.choices = [(block.id_, block.verbose_name)
-                            for block in block_registry.get_compatible_portal_blocks(app_name)
-                         ]
+#        blocks.choices = [(block.id_, block.verbose_name)
+#                            for block in block_registry.get_compatible_portal_blocks(app_name)
+#                         ]
+        choices = [(block.id_, unicode(block.verbose_name))
+                        for block in block_registry.get_compatible_portal_blocks(app_name)
+                  ]
+        sort_key = collator.sort_key
+        choices.sort(key=lambda c: sort_key(c[1]))
+
+        blocks.choices = choices
         blocks.initial = [bl.block_id for bl in block_locations]
 
     #TODO: use transaction ???
@@ -147,9 +155,13 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
 
         self.modelblock_vname = modelblock_vname = ugettext('Information on the entity')
         choices = [(MODELBLOCK_ID, modelblock_vname)]
-        choices.extend((block.id_, block.verbose_name)
+#        choices.extend((block.id_, block.verbose_name)
+        choices.extend((block.id_, unicode(block.verbose_name))
                            for block in block_registry.get_compatible_blocks(model=ct.model_class() if ct else None)
                       )
+
+        sort_key = collator.sort_key
+        choices.sort(key=lambda c: sort_key(c[1]))
 
         fields = self.fields
 
