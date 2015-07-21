@@ -105,6 +105,7 @@ class DummyListBlock(PaginatedBlock):
     permission    = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BLOCK_PATH, 'block_dummy_list.html')
     data          = None
+    configurable  = False
 
     def detailview_display(self, context):
         request = context['request']
@@ -126,8 +127,6 @@ class DummyListBlock(PaginatedBlock):
 
 dummy_list_block = DummyListBlock()
 
-block_registry.register(dummy_list_block)
-
 def js_testview_or_404(request, message, error):
     if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
@@ -135,6 +134,12 @@ def js_testview_or_404(request, message, error):
     logger.warn(message)
 
 def js_testview_context(request, viewname):
+    try:
+        block_registry[dummy_list_block.id_]
+    except:
+        logger.info('Register dummy object list block %s' % dummy_list_block.id_)
+        block_registry.register(dummy_list_block)
+
     test_view_pattern = re_compile('^test_(?P<name>[\d\w]+)\.html$')
     test_views = []
 
