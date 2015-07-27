@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,14 +20,29 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import EntityCredentials
 from creme.creme_core.gui.block import Block, SimpleBlock, list4url
+from creme.creme_core.models import EntityCredentials, FieldsConfig
 
 from .models import Image
 
 
-class ImageBlock(SimpleBlock):
+#class ImageBlock(SimpleBlock):
+class ImageBlock(Block):
     template_name = 'media_managers/templatetags/block_image.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(
+                    context,
+                    # TODO: templatetag isntead ??
+                    is_description_hidden=FieldsConfig.get_4_model(Image)
+                                                      .is_field_hidden(Image._meta
+                                                                            .get_field('description')
+                                                                      ),
+                    update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                        self.id_,
+                                        context['object'].pk,
+                                    ),
+                ))
 
 
 class ImageViewBlock(SimpleBlock):

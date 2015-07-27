@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,13 +39,16 @@ from .other_models import MediaCategory
 
 class Image(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100, blank=True, null=True)
-    description = TextField(_(u'Description'), max_length=500, blank=True, null=True)
+    description = TextField(_(u'Description'), max_length=500, blank=True, null=True)\
+                           .set_tags(optional=True)
     height      = CharField(_(u'Height'), max_length=50, blank=True, null=True, editable=False)
     width       = CharField(_(u'Width'), max_length=50, blank=True, null=True, editable=False)
     image       = ImageField(_('Image'), height_field='height', width_field='width',
                              upload_to='upload/images', max_length=500)
-    categories = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),
-                                 related_name="Image_media_category_set", blank=True, null=True)
+    categories  = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),
+                                  related_name="Image_media_category_set",
+                                  blank=True, null=True,
+                                 )
 
     creation_label = _('Add an image')
 
