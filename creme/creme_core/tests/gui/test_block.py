@@ -123,12 +123,12 @@ class BlockRegistryTestCase(CremeTestCase):
         rtype1 = RelationType.create(('test-subject_loves', 'loves'), ('test-object_loved', 'is loved by'))[0]
         RelationBlockItem.create(rtype1.id)
 
-        create_ibci = CustomBlockConfigItem.objects.create
+        create_cbci = CustomBlockConfigItem.objects.create
         get_ct = ContentType.objects.get_for_model
-        cbci = create_ibci(id='test-contacts01', name='General (contact)', content_type=get_ct(Contact),
+        cbci = create_cbci(id='test-contacts01', name='General (contact)', content_type=get_ct(Contact),
                            cells=[EntityCellRegularField.build(Contact, 'last_name')],
                           )
-        create_ibci(id='test-organisations01', name='General (orga)', content_type=get_ct(Organisation),
+        create_cbci(id='test-organisations01', name='General (orga)', content_type=get_ct(Organisation),
                     cells=[EntityCellRegularField.build(Organisation, 'name')],
                    ) #not compatible with Contact
 

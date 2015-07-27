@@ -2,14 +2,14 @@
 # Copyright (C) 2015 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*"
+# > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-20 14:03+0200\n"
+"POT-Creation-Date: 2015-07-22 10:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,63 +20,63 @@ msgstr ""
 msgid "Accounts and Contacts"
 msgstr "Comptes et Contacts"
 
-#: apps.py:85
+#: apps.py:86
 msgid "Portal of accounts and contacts"
 msgstr "Portail des comptes et contacts"
 
-#: apps.py:86
+#: apps.py:87
 msgid "All contacts"
 msgstr "Lister les contacts"
 
-#: apps.py:88
+#: apps.py:89
 msgid "My customers / prospects / suspects"
 msgstr "Mes clients / prospects / suspects"
 
-#: apps.py:89
+#: apps.py:90
 msgid "All organisations"
 msgstr "Lister les sociétés"
 
-#: apps.py:139
+#: apps.py:140
 msgid "User organisation"
 msgstr "Société de l'utilisateur"
 
-#: apps.py:144
+#: apps.py:145
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
-#: blocks.py:52
+#: blocks.py:57
 msgid "Coordinates of a contact"
 msgstr "Coordonnées d'un contact"
 
-#: blocks.py:64
+#: blocks.py:73
 msgid "Coordinates of an organisation"
 msgstr "Coordonnées d'une société"
 
-#: blocks.py:73
+#: blocks.py:82
 msgid "Organisation managers"
 msgstr "Responsables d'une société"
 
-#: blocks.py:81
+#: blocks.py:90
 msgid "Create a manager"
 msgstr "Créer un responsable"
 
-#: blocks.py:101
+#: blocks.py:108
 msgid "Organisation employees"
 msgstr "Salariés d'une société"
 
-#: blocks.py:108
+#: blocks.py:115
 msgid "Create an employee"
 msgstr "Créer un salarié"
 
-#: blocks.py:115
+#: blocks.py:122
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 
-#: blocks.py:191 models/address.py:36 models/address.py:54
+#: blocks.py:198 models/address.py:36 models/address.py:54
 msgid "Address"
 msgstr "Adresse"
 
-#: blocks.py:207 templates/persons/templatetags/block_other_address.html:6
+#: blocks.py:217 templates/persons/templatetags/block_other_address.html:6
 msgid "Other Address"
 msgstr "Adresse Supplémentaire"
 
@@ -106,13 +106,13 @@ msgstr "Ajouter un contact lié"
 
 #: forms/base.py:44 forms/lv_import.py:83 forms/lv_import.py:110
 #: forms/merge.py:124 models/contact.py:66 models/organisation.py:61
-#: templates/persons/templatetags/block_address.html:19
+#: templates/persons/templatetags/block_address.html:20
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
 #: forms/base.py:45 forms/lv_import.py:84 forms/lv_import.py:111
 #: forms/merge.py:125 models/contact.py:71 models/organisation.py:66
-#: templates/persons/templatetags/block_address.html:20
+#: templates/persons/templatetags/block_address.html:21
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -224,7 +224,7 @@ msgstr "État"
 msgid "Country"
 msgstr "Pays"
 
-#: models/address.py:55 templates/persons/templatetags/block_address.html:7
+#: models/address.py:55 templates/persons/templatetags/block_address.html:8
 msgid "Addresses"
 msgstr "Adresses"
 
@@ -335,7 +335,7 @@ msgstr "Ce Contact est lié à un utilisateur et doit avoir un prénom."
 msgid "This Contact is related to a user and must have an e-mail address."
 msgstr "Ce Contact est lié à un utilisateur et doit avoir une adresse e-mail."
 
-#: models/contact.py:221 populate.py:142
+#: models/contact.py:221 populate.py:144
 msgid "N/A"
 msgstr "NC"
 
@@ -470,153 +470,169 @@ msgstr "Effectif de société"
 msgid "Organisation staff sizes"
 msgstr "Effectifs de société"
 
-#: populate.py:62
+#: populate.py:64
 msgid "is an employee of"
 msgstr "est salarié de"
 
-#: populate.py:63
+#: populate.py:65
 msgid "employs"
 msgstr "emploie"
 
-#: populate.py:65
+#: populate.py:67
 msgid "is a customer of"
 msgstr "est client de"
 
-#: populate.py:66
+#: populate.py:68
 msgid "is a supplier of"
 msgstr "est un fournisseur de"
 
-#: populate.py:68
+#: populate.py:70
 msgid "manages"
 msgstr "est un des responsables de"
 
-#: populate.py:69
+#: populate.py:71
 msgid "managed by"
 msgstr "a pour responsable"
 
-#: populate.py:71
+#: populate.py:73
 msgid "is a prospect of"
 msgstr "est prospect de"
 
-#: populate.py:72
+#: populate.py:74
 msgid "has as prospect"
 msgstr "a pour prospect"
 
-#: populate.py:74
+#: populate.py:76
 msgid "is a suspect of"
 msgstr "est suspect de"
 
-#: populate.py:75
+#: populate.py:77
 msgid "has as suspect"
 msgstr "a pour suspect"
 
-#: populate.py:77
+#: populate.py:79
 msgid "is a partner of"
 msgstr "est partenaire de"
 
-#: populate.py:78
+#: populate.py:80
 msgid "has as partner"
 msgstr "a pour partenaire"
 
-#: populate.py:80
+#: populate.py:82
 msgid "is an inactive customer of"
 msgstr "est un client inactif de"
 
-#: populate.py:81
+#: populate.py:83
 msgid "has as inactive customer"
 msgstr "a pour client inactif"
 
-#: populate.py:83
+#: populate.py:85
 msgid "has as subsidiary"
 msgstr "a pour filiale"
 
-#: populate.py:84
+#: populate.py:86
 msgid "is a subsidiary of"
 msgstr "est une filiale de"
 
-#: populate.py:86
+#: populate.py:88
 msgid "is a competitor of"
 msgstr "est un concurrent de"
 
-#: populate.py:87
+#: populate.py:89
 msgid "has as competitor"
 msgstr "a pour concurrent"
 
-#: populate.py:95
+#: populate.py:97
 msgid "Managed by creme"
 msgstr "Gérée par creme"
 
-#: populate.py:105
+#: populate.py:107
 msgid "Contact view"
 msgstr "Vue de Contact"
 
-#: populate.py:114
+#: populate.py:116
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-#: populate.py:125
+#: populate.py:127
 msgid "Organisation view"
 msgstr "Vue de Société"
 
-#: populate.py:139
+#: populate.py:141
 msgid "Madam"
 msgstr "Madame"
 
-#: populate.py:139
+#: populate.py:141
 msgid "Mrs."
 msgstr "Mme"
 
-#: populate.py:140
+#: populate.py:142
 msgid "Miss"
 msgstr "Mademoiselle"
 
-#: populate.py:140
+#: populate.py:142
 msgid "Ms."
 msgstr "Mlle"
 
-#: populate.py:141
+#: populate.py:143
 msgid "Mister"
 msgstr "Monsieur"
 
-#: populate.py:141
+#: populate.py:143
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:155
+#: populate.py:157
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
-#: populate.py:159
+#: populate.py:161
 msgid "CEO"
 msgstr "PDG"
 
-#: populate.py:160
+#: populate.py:162
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: populate.py:161
+#: populate.py:163
 msgid "Technician"
 msgstr "Technicien"
 
-#: populate.py:164
+#: populate.py:166
 msgid "Food Industry"
 msgstr "Agro-Alimentaire"
 
-#: populate.py:165
+#: populate.py:167
 msgid "Industry"
 msgstr "Industrie"
 
-#: populate.py:166
+#: populate.py:168
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:167
+#: populate.py:169
 msgid "Telecom"
 msgstr "Télécom"
 
-#: populate.py:168
+#: populate.py:170
 msgid "Restoration"
 msgstr "Restauration"
+
+#: populate.py:213 templates/persons/templatetags/block_organisation.html:5
+msgid "Organisation information"
+msgstr "Informations sur la société"
+
+#: populate.py:236
+msgid "Organisation details"
+msgstr "Coordonnées de la société"
+
+#: populate.py:263 templates/persons/templatetags/block_contact.html:5
+msgid "Contact information"
+msgstr "Informations sur le contact"
+
+#: populate.py:280
+msgid "Contact details"
+msgstr "Coordonnées du contact"
 
 #: templates/persons/edit_contact_form.html:4
 #: templates/persons/edit_organisation_form.html:4
@@ -646,21 +662,17 @@ msgstr "Portail Comptes & contacts"
 msgid "List of contacts"
 msgstr "Liste des contacts"
 
-#: templates/persons/templatetags/block_address.html:10
+#: templates/persons/templatetags/block_address.html:11
 msgid "Add a billing address"
 msgstr "Ajouter une adresse de facturation"
 
-#: templates/persons/templatetags/block_address.html:11
+#: templates/persons/templatetags/block_address.html:12
 msgid "Add a shipping address"
 msgstr "Ajouter une adresse de livraison"
 
-#: templates/persons/templatetags/block_address.html:38
+#: templates/persons/templatetags/block_address.html:39
 msgid "No address for the moment"
 msgstr "Aucune addresse pour le moment"
-
-#: templates/persons/templatetags/block_contact.html:5
-msgid "Contact information"
-msgstr "Informations sur le contact"
 
 #: templates/persons/templatetags/block_contact.html:5
 #: templates/persons/templatetags/block_organisation.html:5
@@ -773,10 +785,6 @@ msgstr "Société délaissée"
 #: templates/persons/templatetags/block_neglected_orgas.html:21
 msgid "No neglected organisation for the moment"
 msgstr "Aucune société délaissée pour le moment"
-
-#: templates/persons/templatetags/block_organisation.html:5
-msgid "Organisation information"
-msgstr "Informations sur la société"
 
 #: templates/persons/templatetags/block_organisation.html:24
 msgid "Name of the organisation"
