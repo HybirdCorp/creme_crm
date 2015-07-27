@@ -42,10 +42,15 @@ Contact = get_contact_model()
 Organisation = get_organisation_model()
 Activity = get_activity_model()
 
+
+# DEPRECATED
+# TODO: remove template file too
 class ContactBlock(SimpleBlock):
     template_name = 'persons/templatetags/block_contact.html'
 
 
+# DEPRECATED
+# TODO: remove template file too
 class ContactCoordinatesBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('persons', 'contact_coordinates')
     dependencies  = (Contact,)
@@ -54,10 +59,14 @@ class ContactCoordinatesBlock(SimpleBlock):
     target_ctypes = (Contact,)
 
 
+# DEPRECATED
+# TODO: remove template file too
 class OrganisationBlock(SimpleBlock):
     template_name = 'persons/templatetags/block_organisation.html'
 
 
+# DEPRECATED
+# TODO: remove template file too
 class OrgaCoordinatesBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('persons', 'orga_coordinates')
     dependencies  = (Organisation,)
@@ -82,17 +91,15 @@ class ManagersBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         orga = context['object']
-        btc = self.get_block_template_context(context,
-                                              self._get_people_qs(orga).select_related('civility'),
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
-                                              rtype_id=self.relation_type_deps[0],
-                                              ct=ContentType.objects.get_for_model(Contact),
-                                              add_title=self._get_add_title(),
-                                             )
 
-        ##CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(context,
+                                self._get_people_qs(orga).select_related('civility'),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
+                                rtype_id=self.relation_type_deps[0],
+                                ct=ContentType.objects.get_for_model(Contact),
+                                add_title=self._get_add_title(),
+                               )
+                           )
 
 
 class EmployeesBlock(ManagersBlock):
@@ -167,14 +174,14 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
         if not context['user'].has_perm('persons'):
             raise PermissionDenied('Error: you are not allowed to view this block: %s' % self.id_)
 
-        btc = self.get_block_template_context(context,
-                                              self._get_neglected(context['today']),
-                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                             )
-
-        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        return self._render(self.get_block_template_context(
+                                context,
+                                self._get_neglected(context['today']),
+                                update_url='/creme_core/blocks/reload/portal/%s/%s/' % (
+                                                    self.id_, list4url(ct_ids),
+                                                ),
+                               )
+                           )
 
 
 #_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
@@ -193,11 +200,14 @@ class AddressBlock(Block):
     target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
-                                                            field_names=_ADDRESS_FIELD_NAMES,
-                                                            address_model=Address, #for fields' verbose name
-                                                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                                self.id_, context['object'].pk,
+                                            ),
+                                field_names=_ADDRESS_FIELD_NAMES,
+                                address_model=Address, #for fields' verbose name
+                               )
                            )
 
 
@@ -215,13 +225,16 @@ class OtherAddressBlock(QuerysetBlock):
         person = context['object']
         excluded_addresses_pk = filter(None, [person.billing_address_id, person.shipping_address_id])
 
-        return self._render(self.get_block_template_context(context,
-                                                            Address.objects.filter(object_id=person.id)
-                                                                           .exclude(pk__in=excluded_addresses_pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                                            field_names=_ADDRESS_FIELD_NAMES,
-                                                            ct_id=self._ADDRESS_CT_ID,
-                                                           )
+        return self._render(self.get_block_template_context(
+                                context,
+                                Address.objects.filter(object_id=person.id)
+                                               .exclude(pk__in=excluded_addresses_pk),
+                                update_url='/creme_core/blocks/reload/%s/%s/' % (
+                                                self.id_, person.pk,
+                                            ),
+                                field_names=_ADDRESS_FIELD_NAMES,
+                                ct_id=self._ADDRESS_CT_ID,
+                               )
                            )
 
 
@@ -234,8 +247,8 @@ employees_block       = EmployeesBlock()
 neglected_orgas_block = NeglectedOrganisationsBlock()
 
 block_list = (
-        contact_coord_block,
-        orga_coord_block,
+#        contact_coord_block,
+#        orga_coord_block,
         address_block,
         other_address_block,
         managers_block,

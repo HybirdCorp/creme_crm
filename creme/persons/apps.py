@@ -46,10 +46,11 @@ class PersonsConfig(CremeAppConfig):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
 
     def register_blocks(self, block_registry):
-        from .blocks import block_list, ContactBlock, OrganisationBlock
+#        from .blocks import block_list, ContactBlock, OrganisationBlock
+        from .blocks import block_list
 
-        block_registry.register_4_model(self.Contact,      ContactBlock())
-        block_registry.register_4_model(self.Organisation, OrganisationBlock())
+#        block_registry.register_4_model(self.Contact,      ContactBlock())
+#        block_registry.register_4_model(self.Organisation, OrganisationBlock())
         block_registry.register(*block_list)
 
     def register_bulk_update(self, bulk_update_registry):

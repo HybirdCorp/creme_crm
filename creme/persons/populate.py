@@ -23,6 +23,7 @@ import logging
 from django.apps import apps
 #from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.blocks import (relations_block, properties_block,
@@ -34,7 +35,8 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (RelationType, CremeProperty, CremePropertyType,
         HeaderFilter, EntityFilter, EntityFilterCondition,
         ButtonMenuItem, SearchConfigItem,
-        RelationBlockItem, BlockDetailviewLocation, BlockPortalLocation)
+        CustomBlockConfigItem, RelationBlockItem,
+        BlockDetailviewLocation, BlockPortalLocation)
 from creme.creme_core.utils import create_if_needed
 
 from . import get_contact_model, get_organisation_model
@@ -199,13 +201,52 @@ class Populator(BasePopulator):
             create_bmi(pk='persons-merge_orgas_button',    model=Organisation, button=merge_entities_button,     order=30)
 
 
-            #Populate blocks
+            # Populate blocks ------------------
             rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_SUPPLIER)
             rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_SUPPLIER)
 
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Organisation)
+            get_ct = ContentType.objects.get_for_model
+            create_cbci = CustomBlockConfigItem.objects.create
+            build_cell = EntityCellRegularField.build
+
+            cbci_orga_1 = create_cbci(id='persons-organisation_main_info',
+                                      name=_(u'Organisation information'),
+                                      content_type=get_ct(Organisation),
+                                      cells=[build_cell(Organisation, 'created'),
+                                             build_cell(Organisation, 'modified'),
+                                             build_cell(Organisation, 'name'),
+                                             build_cell(Organisation, 'staff_size'),
+                                             build_cell(Organisation, 'legal_form'),
+                                             build_cell(Organisation, 'sector'),
+                                             build_cell(Organisation, 'capital'),
+                                             build_cell(Organisation, 'siren'),
+                                             build_cell(Organisation, 'naf'),
+                                             build_cell(Organisation, 'siret'),
+                                             build_cell(Organisation, 'rcs'),
+                                             build_cell(Organisation, 'tvaintra'),
+                                             build_cell(Organisation, 'subject_to_vat'),
+                                             build_cell(Organisation, 'user'),
+                                             build_cell(Organisation, 'annual_revenue'),
+                                             build_cell(Organisation, 'description'),
+                                             build_cell(Organisation, 'creation_date'),
+                                             build_cell(Organisation, 'image'),
+                                            ],
+                                     )
+            cbci_orga_2 = create_cbci(id='persons-organisation_details',
+                                      name=_(u'Organisation details'),
+                                      content_type=get_ct(Organisation),
+                                      cells=[build_cell(Organisation, 'phone'),
+                                             build_cell(Organisation, 'fax'),
+                                             build_cell(Organisation, 'email'),
+                                             build_cell(Organisation, 'url_site'),
+                                            ],
+                                     )
+
+#            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Organisation)
             create_bdl = BlockDetailviewLocation.create
-            create_bdl(block_id=orga_coord_block.id_,    order=30,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+            create_bdl(block_id=cbci_orga_1.generate_id(), order=5,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+#            create_bdl(block_id=orga_coord_block.id_,    order=30,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+            create_bdl(block_id=cbci_orga_2.generate_id(), order=30, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
             create_bdl(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
             create_bdl(block_id=address_block.id_,       order=50,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
             create_bdl(block_id=other_address_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
@@ -217,8 +258,40 @@ class Populator(BasePopulator):
             create_bdl(block_id=rbi_2.block_id,          order=10,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
             create_bdl(block_id=history_block.id_,       order=30,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
-            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Contact)
-            create_bdl(block_id=contact_coord_block.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+
+            cbci_contact_1 = create_cbci(id='persons-contact_main_info',
+                                         name=_(u'Contact information'),
+                                         content_type=get_ct(Contact),
+                                         cells=[build_cell(Contact, 'created'),
+                                                build_cell(Contact, 'modified'),
+                                                build_cell(Contact, 'civility'),
+                                                build_cell(Contact, 'first_name'),
+                                                build_cell(Contact, 'last_name'),
+                                                build_cell(Contact, 'sector'),
+                                                build_cell(Contact, 'position'),
+                                                build_cell(Contact, 'user'),
+                                                build_cell(Contact, 'is_user'),
+                                                build_cell(Contact, 'birthday'),
+                                                build_cell(Contact, 'image'),
+                                                build_cell(Contact, 'description'),
+                                               ],
+                                        )
+            cbci_contact_2 = create_cbci(id='persons-contact_details',
+                                         name=_(u'Contact details'),
+                                         content_type=get_ct(Contact),
+                                         cells=[build_cell(Contact, 'phone'),
+                                                build_cell(Contact, 'mobile'),
+                                                build_cell(Contact, 'fax'),
+                                                build_cell(Contact, 'email'),
+                                                build_cell(Contact, 'url_site'),
+                                                build_cell(Contact, 'skype'),
+                                               ],
+                                        )
+
+#            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Contact)
+            create_bdl(block_id=cbci_contact_1.generate_id(), order=5,   zone=BlockDetailviewLocation.LEFT,  model=Contact)
+#            create_bdl(block_id=contact_coord_block.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+            create_bdl(block_id=cbci_contact_2.generate_id(), order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
             create_bdl(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
             create_bdl(block_id=address_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
             create_bdl(block_id=other_address_block.id_,  order=60,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
