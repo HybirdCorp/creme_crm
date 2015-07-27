@@ -22,10 +22,11 @@ from future_builtins import filter
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.db.models import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
-from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.models import Relation, FieldsConfig #CremeEntity
 
 from creme.activities import get_activity_model
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
@@ -92,12 +93,33 @@ class ManagersBlock(QuerysetBlock):
     def detailview_display(self, context):
         orga = context['object']
 
+        # TODO: cache in context
+        is_field_hidden = FieldsConfig.get_4_model(Contact).is_field_hidden
+        get_field = Contact._meta.get_field
+        hidden_fields = set()
+
+        def _is_hidden(fname): # TODO: in FieldsConfig ??
+            try:
+                field = get_field(fname)
+            except FieldDoesNotExist:
+                pass
+            else:
+                if not is_field_hidden(field):
+                    return
+
+            hidden_fields.add(fname)
+
+        _is_hidden('phone')
+        _is_hidden('mobile')
+        _is_hidden('email')
+
         return self._render(self.get_block_template_context(context,
                                 self._get_people_qs(orga).select_related('civility'),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, orga.pk),
                                 rtype_id=self.relation_type_deps[0],
                                 ct=ContentType.objects.get_for_model(Contact),
                                 add_title=self._get_add_title(),
+                                hidden_fields=hidden_fields,
                                )
                            )
 
