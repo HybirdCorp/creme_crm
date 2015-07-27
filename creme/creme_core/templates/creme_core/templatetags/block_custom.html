@@ -11,7 +11,7 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% for cell in config_item.cells %}
+        {% for cell in config_item.filtered_cells %}{% comment %}{% for cell in config_item.cells %}{% endcomment %}
             <tr class="content">
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{cell.title}}</th>
                 <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{% get_listview_cell cell object user %}</td>

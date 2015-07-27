@@ -39,7 +39,7 @@ class AbstractFolder(CremeEntity):
     """Folder: contains Documents"""
 #    title         = CharField(_(u'Title'), max_length=100, unique=True)
     title         = CharField(_(u'Title'), max_length=100)
-    description   = TextField(_(u'Description'), null=True, blank=True)
+    description   = TextField(_(u'Description'), null=True, blank=True).set_tags(optional=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'),
                                blank=True, null=True,
                                related_name='parent_folder_set', #TODO: rename 'children'

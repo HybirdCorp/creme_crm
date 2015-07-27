@@ -12,7 +12,7 @@ try:
             FakeOrganisation as Organisation, FakeAddress as Address,
             FakeCivility as Civility, FakePosition as Position, FakeSector as Sector)
     from creme.creme_core.models import (CremePropertyType, CremeProperty,
-            RelationType, Relation, CustomField, CustomFieldEnumValue)
+            RelationType, Relation, FieldsConfig, CustomField, CustomFieldEnumValue)
     from creme.creme_core.utils import update_model_instance
 
 #    from creme.persons.models import Contact, Organisation, Position, Sector
@@ -21,7 +21,6 @@ try:
     from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
-
 
 
 @skipIfCustomDocument
@@ -924,3 +923,47 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(rei, error.instance)
 
     #def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
+
+    def test_fields_config(self):
+        user = self.login()
+
+        hidden_fname = 'phone'
+        FieldsConfig.create(Contact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+
+        rei_info = {'first_name': 'Rei', 'last_name': 'Ayanami',
+                    hidden_fname: '111111', 'email': 'rei.ayanami@nerv.jp',
+                   }
+        doc = self._build_csv_doc([(rei_info['first_name'], rei_info['last_name'],
+                                    rei_info['phone'], rei_info['email'],
+                                   )
+                                  ]
+                                 )
+        url = self._build_import_url(Contact)
+        response = self.client.post(url, data={'step': 0, 'document': doc.id})
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            key_choices = {c[0] for c in fields['key_fields'].choices}
+
+        self.assertIn('last_name', key_choices)
+        self.assertNotIn(hidden_fname, key_choices)
+
+        self.assertIn('last_name', fields)
+        self.assertNotIn(hidden_fname, fields)
+
+        response = self.client.post(url,
+                                    data=dict(self.lv_import_data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['first_name', 'last_name'],
+                                              phone_colselect=3, # should be ignored
+                                              email_colselect=4,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        rei = self.get_object_or_fail(Contact, last_name=rei_info['last_name'],
+                                      first_name=rei_info['first_name'],
+                                     )
+        self.assertEqual(rei_info['email'], rei.email)
+        self.assertIsNone(getattr(rei, hidden_fname))

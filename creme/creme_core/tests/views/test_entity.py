@@ -1255,6 +1255,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         mario = self.create_contact()
+        self.assertGET(400, self.build_inneredit_url(mario, 'unknown'))
+
         url = self.build_inneredit_url(mario, 'first_name')
         self.assertGET200(url)
 
@@ -1278,7 +1280,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertFormError(response, 'form', 'field_value', _(u'Enter a valid date.'))
 
     def test_regular_field_03(self):
-        "No permissons"
+        "No permission"
         self.login(is_superuser=False, creatable_models=[Contact], allowed_apps='documents')
         self._set_all_creds_except_one(EntityCredentials.CHANGE)
 
@@ -1288,7 +1290,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET403(self.build_inneredit_url(mario, 'first_name'))
 
     def test_regular_field_not_editable(self):
-        "Not editable"
         self.login()
 
         mario = self.create_contact()
@@ -1298,12 +1299,32 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET(400, url)
         self.assertPOST(400, url, data={'field_value': self.other_user.id})
 
+    def test_regular_field_fields_config(self):
+        self.login()
+
+        hidden_fname = 'phone'
+        hidden_fkname = 'image'
+        hidden_subfname = 'zipcode'
+
+        create_fconf = FieldsConfig.create
+        create_fconf(Contact, descriptions=[(hidden_fname,  {FieldsConfig.HIDDEN: True}),
+                                            (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                                           ],
+                    )
+        create_fconf(Address, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+
+        mario = self.create_contact()
+
+        build_url = partial(self.build_inneredit_url, mario)
+        self.assertGET(400, build_url(hidden_fname))
+        self.assertGET(400, build_url(hidden_fkname))
+        self.assertGET(400, build_url('address__' + hidden_subfname))
+
     def test_regular_field_many2many(self):
         self.login()
 
-        categories = [MediaCategory.objects.create(name='A'),
-                      MediaCategory.objects.create(name='B'),
-                      MediaCategory.objects.create(name='C'),]
+        create_cat = MediaCategory.objects.create
+        categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', self.user, categories)
         self.assertListEqual(list(image.categories.all()), categories)

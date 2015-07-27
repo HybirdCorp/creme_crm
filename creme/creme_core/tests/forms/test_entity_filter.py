@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
+    from datetime import date
     from functools import partial
     from json import loads as jsonloads, dumps as json_encode
 
@@ -8,11 +9,11 @@ try:
     from django.utils.translation import ugettext as _
 
     from ..fake_models import (FakeContact as Contact, FakeCivility as Civility,
-            FakeOrganisation as Organisation)
+            FakeOrganisation as Organisation, FakeImage, FakeInvoice, FakeInvoiceLine)
     from .base import FieldTestCase
 #    from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models import (RelationType, CremePropertyType,
-            EntityFilter, EntityFilterCondition,
+            EntityFilter, EntityFilterCondition, FieldsConfig,
             CustomField, CustomFieldEnumValue)
 
 #    from creme.persons.models import Organisation, Contact, Civility
@@ -21,7 +22,9 @@ except Exception as e:
 
 
 class RegularFieldsConditionsFieldTestCase(FieldTestCase):
-    CONDITION_FIELD_JSON_FMT = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+    CONDITION_FIELD_JSON_FMT    = '[{"field": {"name": "%(name)s"}, "operator": {"id": "%(operator)s"}, "value": %(value)s}]'
+    CONDITION_2X_FIELD_JSON_FMT = '[{"field": {"name": "%(name1)s"}, "operator": {"id": "%(operator1)s"}, "value": %(value1)s}, ' \
+                                   '{"field": {"name": "%(name2)s"}, "operator": {"id": "%(operator2)s"}, "value": %(value2)s}]'
 
     @classmethod
     def setUpClass(cls):
@@ -150,6 +153,26 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                                  'value':    '"' + value + '"',
                              }
                           )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
+        self.assertEqual(name,                                      condition.name)
+        self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_initialize(self):
+        field = RegularFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact))
+
+        operator = EntityFilterCondition.IEQUALS
+        name = 'first_name'
+        value = 'Faye'
+        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                       'operator': operator,
+                                       'name':     name,
+                                       'value':    '"' + value + '"',
+                                   }
+                                )
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -390,6 +413,44 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(name,                                     condition.name)
         self.assertEqual({'operator': operator, 'values': values}, condition.decoded_value)
 
+    def test_multi_conditions(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+
+        name1     = 'last_name'
+        operator1 = EntityFilterCondition.IENDSWITH
+        value1    = 'Valentine'
+
+        name2     = 'first_name'
+        operator2 = EntityFilterCondition.EQUALS
+        value2    = 'Faye'
+
+        conditions = clean(self.CONDITION_2X_FIELD_JSON_FMT % {
+                                 'name1':     name1,
+                                 'operator1': operator1,
+                                 'value1':    '"' + value1 + '"',
+
+                                 'name2':     name2,
+                                 'operator2': operator2,
+                                 'value2':    '"' + value2 + '"',
+                             }
+                          )
+        self.assertEqual(2, len(conditions))
+
+        EFC_FIELD = EntityFilterCondition.EFC_FIELD
+        condition1 = conditions[0]
+        self.assertEqual(EFC_FIELD, condition1.type)
+        self.assertEqual(name1,     condition1.name)
+        self.assertEqual({'operator': operator1, 'values': [value1]},
+                         condition1.decoded_value
+                        )
+
+        condition2 = conditions[1]
+        self.assertEqual(EFC_FIELD, condition2.type)
+        self.assertEqual(name2,     condition2.name)
+        self.assertEqual({'operator': operator2, 'values': [value2]},
+                         condition2.decoded_value
+                        )
+
     def test_many2many_subfield(self):
         "M2M field"
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -408,6 +469,148 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.EFC_FIELD,           condition.type)
         self.assertEqual(name,                                      condition.name)
         self.assertEqual({'operator': operator, 'values': [value]}, condition.decoded_value)
+
+    def test_fields_config01(self):
+        hidden_fname = 'description'
+
+        create_fc = FieldsConfig.create
+        create_fc(Contact,   descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+        create_fc(FakeImage, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+
+        clean = RegularFieldsConditionsField(model=Contact).clean
+
+        EQUALS = EntityFilterCondition.EQUALS
+        data = {'name1':     'last_name',
+                'operator1': EQUALS,
+                'value1':    '"Faye"',
+
+                'name2':     'image__name',
+                'operator2': EQUALS,
+                'value2':    '"selfie"',
+               }
+
+        FMT = self.CONDITION_2X_FIELD_JSON_FMT
+        conditions = clean(FMT % data)
+        self.assertEqual(2, len(conditions))
+
+        EFC_FIELD = EntityFilterCondition.EFC_FIELD
+        self.assertEqual(EFC_FIELD, conditions[0].type)
+        self.assertEqual(EFC_FIELD, conditions[1].type)
+
+        # ------
+        data['name2'] = hidden_fname
+        err = self.assertFieldRaises(ValidationError, clean, FMT % data)[0]
+        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+
+        # ------
+        data['name2'] = 'image__' + hidden_fname
+        err = self.assertFieldRaises(ValidationError, clean, FMT % data)[0]
+        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+
+    def test_fields_config02(self):
+        "FK hidden => sub-fields hidden"
+        FieldsConfig.create(Contact, descriptions=[('image', {FieldsConfig.HIDDEN: True})])
+
+        err = self.assertFieldRaises(ValidationError,
+                                     RegularFieldsConditionsField(model=Contact).clean,
+                                     self.CONDITION_FIELD_JSON_FMT % {
+                                        'name':     'image__name',
+                                        'operator': EntityFilterCondition.EQUALS,
+                                        'value':    '"selfie"',
+                                     }
+                                    )[0]
+        self.assertEqual(_(u'This field is invalid with this model.'), err.messages[0])
+
+    def test_fields_config03(self):
+        "Field is already used => still proposed"
+        hidden_fname = 'description'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+                           )
+
+        field = RegularFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_field(
+                                            model=Contact,
+                                            operator=EntityFilterCondition.EQUALS,
+                                            name='description', values=['Ikari'],
+                                        ),
+                                    ],
+                        )
+
+        conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                      'operator': EntityFilterCondition.EQUALS,
+                                      'name':     hidden_fname,
+                                      'value':    '"Faye"',
+                                  }
+                                )
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(hidden_fname,                    condition.name)
+
+    def test_fields_config04(self):
+        "Sub-field is already used => still proposed"
+        hidden_sfname = 'image__description'
+        FieldsConfig.create(FakeImage,
+                            descriptions=[('description', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        field = RegularFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_field(
+                                            model=Contact,
+                                            operator=EntityFilterCondition.EQUALS,
+                                            name=hidden_sfname, values=['Ikari'],
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                          'name':     hidden_sfname,
+                                          'operator': EntityFilterCondition.EQUALS,
+                                          'value':    '"Faye"',
+                                      }
+                                    )
+
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(hidden_sfname,                   condition.name)
+
+    def test_fields_config05(self):
+        "Sub-field is already used => still proposed (FK hidden)"
+        hidden_sfname = 'image__description'
+        FieldsConfig.create(Contact,
+                            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        field = RegularFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_field(
+                                            model=Contact,
+                                            operator=EntityFilterCondition.EQUALS,
+                                            name=hidden_sfname, values=['Ikari'],
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean(self.CONDITION_FIELD_JSON_FMT % {
+                                          'name':     hidden_sfname,
+                                          'operator': EntityFilterCondition.EQUALS,
+                                          'value':    '"Faye"',
+                                      }
+                                    )
+
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_FIELD, condition.type)
+        self.assertEqual(hidden_sfname,                   condition.name)
 
 
 class DateFieldsConditionsFieldTestCase(FieldTestCase):
@@ -475,44 +678,54 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                                 )
         self.assertEqual(2, len(conditions))
 
+        EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
-        self.assertEqual(name01,                              condition.name)
-        self.assertEqual({'name': type01},                    condition.decoded_value)
+        self.assertEqual(EFC_DATEFIELD,    condition.type)
+        self.assertEqual(name01,           condition.name)
+        self.assertEqual({'name': type01}, condition.decoded_value)
 
         condition = conditions[1]
-        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
-        self.assertEqual(name02,                              condition.name)
-        self.assertEqual({'name': type02},                    condition.decoded_value)
+        self.assertEqual(EFC_DATEFIELD,    condition.type)
+        self.assertEqual(name02,           condition.name)
+        self.assertEqual({'name': type02}, condition.decoded_value)
 
     def test_ok02(self):
         "Start/end"
         field = DateFieldsConditionsField(model=Contact)
         name01 = 'created'
         name02 = 'birthday'
-        conditions = field.clean('[{"field": {"name": "%(name01)s", "type": "date"}, "range": {"type": "", "start": "2011-5-12"}},'
-                                 ' {"field": {"name": "%(name02)s", "type": "date__null"}, "range": {"type": "", "end": "2012-6-13"}}]' % {
-                                        'name01': name01,
-                                        'name02': name02,
-                                    }
-                                )
+        conditions = field.clean(
+                '[{"field": {"name": "%(name01)s", "type": "date"}, "range": {"type": "", "start": "2011-5-12"}},'
+                ' {"field": {"name": "%(name02)s", "type": "date__null"}, "range": {"type": "", "end": "2012-6-13"}}]' % {
+                        'name01': name01,
+                        'name02': name02,
+                    }
+            )
         self.assertEqual(2, len(conditions))
 
+        EFC_DATEFIELD = EntityFilterCondition.EFC_DATEFIELD
         condition = conditions[0]
-        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD,              condition.type)
-        self.assertEqual(name01,                                           condition.name)
-        self.assertEqual({'start': {'year': 2011, 'month': 5, 'day': 12}}, condition.decoded_value)
+        self.assertEqual(EFC_DATEFIELD, condition.type)
+        self.assertEqual(name01,        condition.name)
+        self.assertEqual({'start': {'year': 2011, 'month': 5, 'day': 12}},
+                         condition.decoded_value
+                        )
 
         condition = conditions[1]
-        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD,            condition.type)
-        self.assertEqual(name02,                                         condition.name)
-        self.assertEqual({'end': {'year': 2012, 'month': 6, 'day': 13}}, condition.decoded_value)
+        self.assertEqual(EFC_DATEFIELD, condition.type)
+        self.assertEqual(name02,        condition.name)
+        self.assertEqual({'end': {'year': 2012, 'month': 6, 'day': 13}},
+                         condition.decoded_value
+                        )
 
     def test_ok03(self):
         "Start + end"
         clean = DateFieldsConditionsField(model=Contact).clean
         name = 'modified'
-        conditions = clean('[{"field": {"name": "%s", "type": "date"}, "range": {"type": "", "start": "2010-3-24", "end": "2011-7-25"}}]' % name)
+        conditions = clean('[{"field": {"name": "%s", "type": "date"}, '
+                              '"range": {"type": "", "start": "2010-3-24", "end": "2011-7-25"}}]' %
+                                name
+                          )
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
@@ -537,6 +750,158 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual('modified',                          condition.name)
         self.assertEqual({'name': 'not_empty'},               condition.decoded_value)
+
+    def test_fields_config01(self):
+        valid_fname  = 'issuing_date'
+        hidden_fname = 'expiration_date'
+        FieldsConfig.create(FakeInvoice,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        field = DateFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(FakeInvoice))
+
+        FMT = '[{"field": {"name": "%s", "type": "date__null"}, ' \
+                '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]'
+        conditions = field.clean(FMT % valid_fname)
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(valid_fname,                         condition.name)
+
+        # --------------
+        err = self.assertFieldRaises(ValidationError, field.clean, FMT % hidden_fname)[0]
+        self.assertEqual(_(u'This field is not a date field for this model.'),
+                         err.messages[0]
+                        )
+
+    def test_fields_config02(self):
+        "Sub-fields"
+        hidden_fname = 'expiration_date'
+        FieldsConfig.create(FakeInvoice,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        valid_fname = 'invoice__issuing_date'
+        FMT = '[{"field": {"name": "%s", "type": "date__null"}, ' \
+                '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]'
+        clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
+        conditions = clean(FMT % valid_fname)
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(valid_fname,                         condition.name)
+
+        # --------------
+        err = self.assertFieldRaises(ValidationError, clean,
+                                     FMT % ('invoice__' + hidden_fname)
+                                    )[0]
+        self.assertEqual(_(u'This field is not a date field for this model.'),
+                         err.messages[0]
+                        )
+
+    def test_fields_config03(self):
+        "FK hidden => sub-fields hidden"
+        hidden_fname = 'exif_date'
+        FieldsConfig.create(FakeImage,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+        err = self.assertFieldRaises(
+                    ValidationError,
+                    DateFieldsConditionsField(model=Contact).clean,
+                    '[{"field": {"name": "%s", "type": "date__null"}, '
+                      '"range": {"type": "", "start": "2015-3-24", "end": "2015-7-25"}}]' %
+                        ('image__' + hidden_fname)
+                )[0]
+        self.assertEqual(_(u'This field is not a date field for this model.'),
+                         err.messages[0]
+                        )
+
+    def test_fields_config04(self):
+        "Field is already used => still proposed"
+        hidden_fname = 'birthday'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        field = DateFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_date(
+                                            model=Contact, name=hidden_fname,
+                                            start=date(year=2000, month=1, day=1),
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
+                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
+                                        hidden_fname
+                                    )
+
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(hidden_fname,                        condition.name)
+
+    def test_fields_config05(self):
+        "Sub-field is already used => still proposed"
+        hidden_sfname = 'image__exif_date'
+        FieldsConfig.create(FakeImage,
+                            descriptions=[('exif_date', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        field = DateFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_date(
+                                            model=Contact, name=hidden_sfname,
+                                            start=date(year=2000, month=1, day=1),
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
+                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
+                                        hidden_sfname
+                                    )
+
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(hidden_sfname,                       condition.name)
+
+    def test_fields_config06(self):
+        "Sub-field is already used => still proposed (FK hidden)"
+        hidden_sfname = 'image__exif_date'
+        FieldsConfig.create(Contact,
+                            descriptions=[('image', {FieldsConfig.HIDDEN: True})]
+                           )
+
+        field = DateFieldsConditionsField()
+        field.initialize(ctype=ContentType.objects.get_for_model(Contact),
+                         conditions=[EntityFilterCondition.build_4_date(
+                                            model=Contact, name=hidden_sfname,
+                                            start=date(year=2000, month=1, day=1),
+                                        ),
+                                    ],
+                        )
+
+        with self.assertNoException():
+            conditions = field.clean('[{"field": {"name": "%s", "type": "date__null"}, '
+                                       '"range": {"type": "", "start": "2000-1-1"}}]' %
+                                        hidden_sfname
+                                    )
+
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
+        self.assertEqual(hidden_sfname,                       condition.name)
 
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):

@@ -11,6 +11,7 @@ from .relation import RelationType, Relation, SemiFixedRelationType
 from .creme_property import CremePropertyType, CremeProperty
 from .custom_field import *
 
+from .fields_config import FieldsConfig
 from .header_filter import HeaderFilter
 from .entity_filter import EntityFilter, EntityFilterCondition, EntityFilterVariable
 

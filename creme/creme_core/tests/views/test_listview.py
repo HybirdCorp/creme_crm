@@ -17,8 +17,8 @@ try:
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.models import (EntityFilter, EntityFilterCondition,
-            HeaderFilter, RelationType, Relation, CremePropertyType, CremeProperty,
-            CustomField, CustomFieldEnumValue)
+            HeaderFilter, RelationType, Relation, FieldsConfig,
+            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue)
     from creme.creme_core.models.header_filter import HeaderFilterList
     from creme.creme_core.models.entity_filter import EntityFilterList
     from creme.creme_core.utils import safe_unicode
@@ -162,6 +162,28 @@ class ListViewTestCase(ViewsTestCase):
 
         self.assertIn(cfield.name, content)
         self.assertIn(str(cfield_value), content)
+
+    def test_content02(self):
+        "FieldsConfig"
+        user = self.login()
+
+        valid_fname = 'name'
+        hidden_fname = 'url_site'
+
+        build_cell = partial(EntityCellRegularField.build, model=Organisation)
+        hf = self._build_hf(build_cell(name=valid_fname), build_cell(name=hidden_fname))
+
+        FieldsConfig.create(Organisation,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        bebop = Organisation.objects.create(user=user, name='Bebop', url_site='sww.bebop.mrs')
+
+        response = self.assertPOST200(self.url, data={'hfilter': hf.id})
+
+        content = self._get_lv_content(response)
+        self.assertIn(bebop.name, content)
+        self.assertNotIn(bebop.url_site, content, '"url_site" not hidden')
 
     def test_order01(self): #TODO: test with ajax ?
         user = self.login()

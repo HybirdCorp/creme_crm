@@ -42,35 +42,57 @@ from .other_models import StaffSize, LegalForm, Sector
 
 #class Organisation(CremeEntity):
 class AbstractOrganisation(CremeEntity):
-    name            = CharField(_(u'Name'), max_length=200)
-    phone           = PhoneField(_(u'Phone number'), max_length=100 , blank=True, null=True)
-    fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
-    email           = EmailField(_(u'Email address'), max_length=100 , blank=True, null=True)
-    url_site        = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
-    sector          = ForeignKey(Sector, verbose_name=_(u'Sector'), blank=True, null=True, on_delete=SET_NULL)
-    capital         = PositiveIntegerField(_(u'Capital'), blank=True, null=True)
-    siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)
-    naf             = CharField(_(u'NAF code'), max_length=100 , blank=True, null=True)
-    siret           = CharField(_(u'SIRET'), max_length=100, blank=True, null=True)
-    rcs             = CharField(_(u'RCS/RM'), max_length=100, blank=True, null=True)
-    tvaintra        = CharField(_(u'VAT number'), max_length=100, blank=True, null=True)
-    subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
-    legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True, on_delete=SET_NULL)
-    staff_size      = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True, on_delete=SET_NULL)
+    name           = CharField(_(u'Name'), max_length=200)
+    phone          = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)\
+                               .set_tags(optional=True)
+    fax            = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    email          = EmailField(_(u'Email address'), max_length=100 , blank=True, null=True)\
+                               .set_tags(optional=True)
+    url_site       = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
+                             .set_tags(optional=True)
+    sector         = ForeignKey(Sector, verbose_name=_(u'Sector'),
+                                blank=True, null=True, on_delete=SET_NULL,
+                               ).set_tags(optional=True)
+    capital        = PositiveIntegerField(_(u'Capital'), blank=True, null=True)\
+                                         .set_tags(optional=True)
+    siren          = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    naf            = CharField(_(u'NAF code'), max_length=100 , blank=True, null=True)\
+                              .set_tags(optional=True)
+    siret          = CharField(_(u'SIRET'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    rcs            = CharField(_(u'RCS/RM'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    tvaintra       = CharField(_(u'VAT number'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    subject_to_vat = BooleanField(_(u'Subject to VAT'), default=True).set_tags(optional=True)
+    legal_form     = ForeignKey(LegalForm, verbose_name=_(u'Legal form'),
+                                blank=True, null=True, on_delete=SET_NULL,
+                               ).set_tags(optional=True)
+    staff_size     = ForeignKey(StaffSize, verbose_name=_(u'Staff size'),
+                                blank=True, null=True, on_delete=SET_NULL,
+                               ).set_tags(optional=True)
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Billing address'),
                                   blank=True, null=True, editable=False,
                                   related_name='billing_address_orga_set',
                                  ).set_tags(enumerable=False) #clonable=False useless
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Shipping address'),
                                   blank=True, null=True, editable=False,
                                   related_name='shipping_address_orga_set',
                                  ).set_tags(enumerable=False)
-    annual_revenue  = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)
-    description     = TextField(_(u'Description'), blank=True, null=True)
-    creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
-    image           = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True)
+    annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)\
+                              .set_tags(optional=True)
+    description    = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
+    creation_date  = DateField(_(u"Date of creation of the organisation"),
+                               blank=True, null=True,
+                              ).set_tags(optional=True)
+    image          = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True)\
+                               .set_tags(optional=True)
 
     # Needed because we expand it's function fields in other apps (ie. billing)
     #TODO: refactor

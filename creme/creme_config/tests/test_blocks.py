@@ -6,19 +6,19 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase # skipIfNotInstalled
     from creme.creme_core.tests.fake_models import (FakeContact as Contact,
-            FakeOrganisation as Organisation, FakeImage as Image,
+            FakeOrganisation as Organisation, FakeAddress as Address, FakeImage as Image,
             FakeActivity as Activity, FakeEmailCampaign as EmailCampaign)
     from creme.creme_core.blocks import history_block
     from creme.creme_core.constants import MODELBLOCK_ID
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
     from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
-    from creme.creme_core.models import RelationType, CustomField
+    from creme.creme_core.models import RelationType, CustomField, FieldsConfig
     from creme.creme_core.models.block import *
 
-    from creme.creme_config.blocks import(BlockDetailviewLocationsBlock, BlockPortalLocationsBlock,
-        BlockDefaultMypageLocationsBlock, RelationBlocksConfigBlock,
-        InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
+    from creme.creme_config.blocks import(BlockDetailviewLocationsBlock,
+        BlockPortalLocationsBlock, BlockDefaultMypageLocationsBlock,
+        RelationBlocksConfigBlock, InstanceBlocksConfigBlock, CustomBlocksConfigBlock)
 
     #from creme.documents.models import Folder, Document
 
@@ -70,6 +70,9 @@ class BlocksConfigTestCase(CremeTestCase):
         return '/creme_config/blocks/relation_block/%s/edit_ctype/%s' % (
                     rbi.id, ContentType.objects.get_for_model(model).id,
                 )
+
+    def _build_customblock_edit_url(self, cbc_item):
+        return '/creme_config/blocks/custom/edit/%s' % cbc_item.id
 
     def test_portal(self):
         response = self.assertGET200('/creme_config/blocks/portal/')
@@ -995,6 +998,55 @@ class BlocksConfigTestCase(CremeTestCase):
                              _('This type of field can not be the first column.')
                             )
 
+    def test_edit_relationblock_ctypes05(self):
+        "With FieldsConfig"
+        ct = ContentType.objects.get_for_model(Contact)
+        rt = RelationType.create(('test-subfoo', 'subject_predicate'),
+                                 ('test-objfoo', 'object_predicate'),
+                                )[0]
+
+
+        valid_fname = 'last_name'
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'birthday'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        rb_item = RelationBlockItem(
+                        block_id='specificblock_creme_config-test-subfoo',
+                        relation_type=rt,
+                    )
+        build_cell = EntityCellRegularField.build
+        rb_item.set_cells(ct, [build_cell(Contact, hidden_fname1)])
+        rb_item.save()
+
+        url = self._build_rblock_editctype_url(rb_item, Contact)
+        response = self.assertPOST200(
+                        url,
+                        data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,regular_field-%(rfield3)s' % {
+                                            'rfield1': valid_fname,
+                                            'rfield2': hidden_fname1,
+                                            'rfield3': hidden_fname2,
+                                        },
+                             }
+                    )
+        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+
+        self.assertNoFormError(self.client.post(
+            url,
+            data={'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
+                                'rfield1': valid_fname,
+                                'rfield2': hidden_fname1,
+                            },
+                 }
+           ))
+
+        rb_item = self.refresh(rb_item)
+        self.assertEqual(2, len(rb_item.get_cells(ct)))
+
     def test_delete_relationblock_ctypes(self):
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(Contact)
@@ -1083,7 +1135,7 @@ class BlocksConfigTestCase(CremeTestCase):
                               )
         self.assertEqual(2, CustomBlockConfigItem.objects.filter(content_type=ct).count())
 
-    def test_edit_customblock(self):
+    def test_edit_customblock01(self):
         ct = ContentType.objects.get_for_model(Contact)
 
         loves = RelationType.create(('test-subject_love', u'Is loving'),
@@ -1100,18 +1152,18 @@ class BlocksConfigTestCase(CremeTestCase):
                                                         content_type=ct, name=name,
                                                        )
 
-        url = '/creme_config/blocks/custom/edit/%s' % cbc_item.id
+        url = self._build_customblock_edit_url(cbc_item)
         self.assertGET200(url)
 
         name = name.title()
-        field_fname = 'first_name'
         field_lname = 'last_name'
+        field_subname = 'address__city'
         self.assertNoFormError(self.client.post(
             url, follow=True,
             data={'name':  name,
                   'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s,relation-%(rtype)s,function_field-%(ffield)s,custom_field-%(cfield)s' % {
-                                'rfield1': field_fname,
-                                'rfield2': field_lname,
+                                'rfield1': field_lname,
+                                'rfield2': field_subname,
                                 'cfield':  customfield.id,
                                 'rtype':   loves.id,
                                 'ffield':  funcfield.name,
@@ -1129,9 +1181,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
         cell = cells[0]
         self.assertIsInstance(cell, EntityCellRegularField)
-        self.assertEqual(field_fname, cell.value)
+        self.assertEqual(field_lname, cell.value)
 
-        self.assertEqual(field_lname, cells[1].value)
+        self.assertEqual(field_subname, cells[1].value)
 
         cell = cells[2]
         self.assertIsInstance(cell, EntityCellRelation)
@@ -1145,10 +1197,152 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIsInstance(cell, EntityCellCustomField)
         self.assertEqual(str(customfield.id), cell.value)
 
+    def test_edit_customblock02(self):
+        "With FieldsConfig"
+        ct = ContentType.objects.get_for_model(Contact)
+
+        valid_fname = 'last_name'
+        valid_subfname = 'city'
+        hidden_fname = 'phone'
+        hidden_fkname = 'image'
+        hidden_subfname = 'zipcode'
+
+        create_fconf = FieldsConfig.create
+        create_fconf(Contact, descriptions=[(hidden_fname,  {FieldsConfig.HIDDEN: True}),
+                                            (hidden_fkname, {FieldsConfig.HIDDEN: True}),
+                                           ]
+                    )
+        create_fconf(Address, descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})])
+
+        cbc_item = CustomBlockConfigItem.objects.create(id='tests-contacts1',
+                                                        name='Contact info',
+                                                        content_type=ct,
+                                                       )
+
+        url = self._build_customblock_edit_url(cbc_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            widget = response.context['form'].fields['cells'].widget
+            choices_keys = {c[0] for c in widget.model_fields}
+
+        self.assertIn('regular_field-' + valid_fname,     choices_keys)
+        self.assertIn('regular_field-address',            choices_keys)
+        self.assertNotIn('regular_field-' + hidden_fname, choices_keys)
+
+        response = self.assertPOST200(
+                        url, follow=True,
+                        data={'name':  cbc_item.name,
+                              'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
+                                            'rfield1': valid_fname,
+                                            'rfield2': hidden_fname,
+                                        },
+                             },
+                    )
+        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+
+        # ---------------------------
+        with self.assertNoException():
+            address_choices_keys = {c[0] for c in widget.model_subfields['regular_field-address']}
+
+        prefix = 'address__'
+        self.assertIn('regular_field-' + prefix + valid_subfname, address_choices_keys)
+        self.assertNotIn('regular_field-' + prefix + hidden_subfname, address_choices_keys)
+
+        response = self.assertPOST200(
+                        url, follow=True,
+                        data={'name':  cbc_item.name,
+                              'cells': 'regular_field-%(rfield1)s,regular_field-%(rfield2)s' % {
+                                            'rfield1': valid_fname,
+                                            'rfield2': prefix + hidden_subfname,
+                                        },
+                             },
+                    )
+        self.assertFormError(response, 'form', 'cells', _('Enter a valid value.'))
+
+        # ----------------------------
+        self.assertNotIn('regular_field-' + hidden_fkname, choices_keys)
+        self.assertFalse(widget.model_subfields['regular_field-image'])
+
+    def test_edit_customblock03(self):
+        "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form"
+        ct = ContentType.objects.get_for_model(Contact)
+
+        valid_fname = 'last_name'
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'mobile'
+
+        hidden_fkname = 'image__description'
+
+        addr_prefix = 'address__'
+        hidden_subfname1 = 'zipcode'
+        hidden_subfname2 = 'country'
+
+        create_fconf = FieldsConfig.create
+        create_fconf(Contact, descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                            (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                            ('image',       {FieldsConfig.HIDDEN: True}),
+                                           ],
+                    )
+        create_fconf(Address, descriptions=[(hidden_subfname1, {FieldsConfig.HIDDEN: True}),
+                                            (hidden_subfname2, {FieldsConfig.HIDDEN: True}),
+                                           ],
+                    )
+
+        build_cell = EntityCellRegularField.build
+        cbc_item = CustomBlockConfigItem.objects.create(
+                        id='tests-contacts1', name='Contact info', content_type=ct,
+                        cells=[build_cell(Contact, valid_fname),
+                               build_cell(Contact, hidden_fname1),
+                               build_cell(Contact, addr_prefix + hidden_subfname1),
+                               build_cell(Contact, hidden_fkname),
+                              ],
+                    )
+
+        url = self._build_customblock_edit_url(cbc_item)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            widget = response.context['form'].fields['cells'].widget
+            choices_keys = {c[0] for c in widget.model_fields}
+
+            subfields = widget.model_subfields
+            address_choices_keys = {c[0] for c in subfields['regular_field-address']}
+            image_choices_keys   = {c[0] for c in subfields['regular_field-image']}
+
+        rf_prefix = 'regular_field-'
+        self.assertIn(rf_prefix + valid_fname,   choices_keys)
+        self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the block => still proposed
+        self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
+
+        self.assertIn(rf_prefix + addr_prefix + hidden_subfname1, address_choices_keys) # idem
+        self.assertNotIn(rf_prefix + addr_prefix + hidden_subfname2, address_choices_keys)
+
+        self.assertIn(rf_prefix + hidden_fkname, image_choices_keys) # idem
+        self.assertIn(rf_prefix + 'image',       choices_keys) # we need it because we have a subfield
+
+        response = self.client.post(
+                        url, follow=True,
+                        data={'name':  cbc_item.name,
+                              'cells': ','.join(rf_prefix + fname
+                                                    for fname in (valid_fname,
+                                                                  hidden_fname1,
+                                                                  addr_prefix + hidden_subfname1,
+                                                                  hidden_fkname,
+                                                                 )
+                                               ),
+                             },
+                    )
+        self.assertNoFormError(response)
+        self.assertEqual(4, len(self.refresh(cbc_item).cells))
+
     def test_delete_customblock(self):
         ct = ContentType.objects.get_for_model(Contact)
         cbci = CustomBlockConfigItem.objects.create(content_type=ct, name='Info')
-        loc = BlockDetailviewLocation.create(block_id=cbci.generate_id(), order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        loc = BlockDetailviewLocation.create(block_id=cbci.generate_id(), order=5,
+                                             model=Contact,
+                                             zone=BlockDetailviewLocation.RIGHT,
+                                            )
 
         self.assertPOST200('/creme_config/blocks/custom/delete', data={'id': cbci.id})
         self.assertDoesNotExist(cbci)

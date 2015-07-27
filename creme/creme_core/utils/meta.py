@@ -158,7 +158,7 @@ def get_date_fields(model, exclude_func=lambda f: False):
 
 # ModelFieldEnumerator -------------------------------------------------------
 class _FilterModelFieldQuery(object):
-    _TAGS = ('viewable', 'clonable', 'enumerable') #TODO: use a constants in fields_tags ??
+    _TAGS = ('viewable', 'clonable', 'enumerable', 'optional') #TODO: use a constants in fields_tags ?? set() ?
 
     def __init__(self, function=None, **kwargs):
         self._conditions = conditions = []
@@ -167,7 +167,8 @@ class _FilterModelFieldQuery(object):
             conditions.append(function)
 
         for attr_name, value in kwargs.iteritems():
-            fun = (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value) if attr_name in self._TAGS else \
+            fun = (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value) \
+                  if attr_name in self._TAGS else \
                   (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
 
             conditions.append(partial(fun, attr_name=attr_name, value=value))
@@ -187,7 +188,7 @@ class ModelFieldEnumerator(object):
         @param model DjangoModel class.
         @param deep Deep of the returned fields (0=fields of the class, 1=also
                     the fields of directly related classes, etc...).
-        @param only_leafs If True, FK,M2M fields are not returned (but eventually,
+        @param only_leafs If True, FK/M2M fields are not returned (but eventually,
                           their sub-fields, depending of the 'deep' paramater of course).
         """
         self._model = model

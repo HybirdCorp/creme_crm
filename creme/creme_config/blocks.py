@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
 from creme.creme_core.models import (CremeModel, CremeEntity, UserRole, SettingValue,
-        CremePropertyType, RelationType, SemiFixedRelationType, CustomField,
+        CremePropertyType, RelationType, SemiFixedRelationType, FieldsConfig, CustomField,
         BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
         RelationBlockItem, InstanceBlockConfigItem, CustomBlockConfigItem,
         ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
@@ -176,6 +176,27 @@ class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
         CremeEntity.populate_real_entities([sfrt.object_entity for sfrt in btc['page'].object_list])
 
         return self._render(btc)
+
+
+class FieldsConfigsBlock(PaginatedBlock):
+    id_           = PaginatedBlock.generate_id('creme_config', 'fields_configs')
+    dependencies  = (FieldsConfig,)
+    page_size     = _PAGE_SIZE
+    verbose_name  = u'Fields configuration'
+    template_name = 'creme_config/templatetags/block_fields_configs.html'
+    permission    = 'creme_config.can_admin' # NB: used by the view creme_core.views.blocks.reload_basic
+    configurable  = False
+
+    def detailview_display(self, context):
+        # TODO: exclude CTs that user cannot see ? (should probably done everywhere in creme_config...)
+        fconfigs = list(FieldsConfig.objects.all())
+        sort_key = collator.sort_key
+        fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
+
+        return self._render(self.get_block_template_context(
+                                context, fconfigs,
+                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                           ))
 
 
 class CustomFieldsPortalBlock(_ConfigAdminBlock):
@@ -506,6 +527,7 @@ blocks_list = (
         BlockMypageLocationsBlock(),
         RelationBlocksConfigBlock(),
         InstanceBlocksConfigBlock(),
+        FieldsConfigsBlock(),
         CustomBlocksConfigBlock(),
         ButtonMenuBlock(),
         UsersBlock(),

@@ -19,6 +19,7 @@
 ################################################################################
 
 from collections import OrderedDict
+import logging
 
 from django.contrib.auth import get_user_model
 from django.db.models.fields import FieldDoesNotExist
@@ -26,12 +27,14 @@ from django.forms import Form, ModelForm, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 #from django.utils.datastructures import SortedDict as OrderedDict
 
-from ..models import CremeEntity, CustomFieldValue
+from ..models import CremeEntity, CustomFieldValue, FieldsConfig
 
 
-__all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')
+__all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm',
+           'CremeModelWithUserForm', 'CremeEntityForm',
+          )
 
-
+logger = logging.getLogger(__name__)
 _CUSTOM_NAME = 'custom_field_%s'
 
 
@@ -63,13 +66,24 @@ class FieldBlocksGroup(object):
         for cat, block in blocks_items:
             field_names = block.field_names
 
-            if field_names == '*': #wildcard
+            if field_names == '*': # Wildcard
                 blocks_data[cat] = block.name
                 assert wildcard_cat is None, 'Only one wildcard is allowed: %s' % str(form)
                 wildcard_cat = cat
             else:
                 field_set |= set(field_names)
-                blocks_data[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
+#                blocks_data[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
+
+                block_data = []
+                for fn in field_names:
+                    try:
+                        bound_field = form[fn]
+                    except KeyError as e:
+                        logger.debug('FieldBlocksGroup: %s', e)
+                    else:
+                        block_data.append((bound_field, form.fields[fn].required))
+
+                blocks_data[cat] = (block.name, block_data)
 
         if wildcard_cat is not None:
             block_name = blocks_data[wildcard_cat]
@@ -189,7 +203,7 @@ class CremeForm(Form, HookableForm):
     blocks = FieldBlockManager(('general', _(u'General information'), '*'))
 
     def __init__(self, user, *args, **kwargs):
-        """@param user The user that sends the request (i order to check the permissions)"""
+        """@param user The user who sends the request (i order to check the permissions)"""
         super(CremeForm, self).__init__(*args, **kwargs)
         self.user = user
 
@@ -217,12 +231,14 @@ class CremeModelForm(ModelForm, HookableForm):
         fields = '__all__'
 
     def __init__(self, user, *args, **kwargs):
-        """@param user The user that sends the request (i order to check the permissions)"""
+        """@param user The user that sends the request (in order to check the permissions)"""
         super(CremeModelForm, self).__init__(*args, **kwargs)
         self.user = user
 
         for fn, field in self.fields.iteritems():
             field.user = user #used by CreatorModelChoiceField for example
+
+        FieldsConfig.update_form_fields(self.instance, self.fields)
 
         self._creme_post_init()
 

@@ -38,13 +38,21 @@ class AbstractService(CremeEntity):
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
     category          = ForeignKey(Category, verbose_name=_(u'Category'))
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'), on_delete=PROTECT)
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
+                                   on_delete=PROTECT,
+                                  )
     countable         = BooleanField(_(u'Countable'), default=False)
     unit              = CharField(_(u'Unit'), max_length=100, blank=True)
-    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
+    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
+                                    .set_tags(optional=True)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
-    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
-    images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ServiceImages_set' )
+    web_site          = CharField(_(u'Web Site'), max_length=100,
+                                  blank=True, null=True,
+                                 ).set_tags(optional=True)
+    images            = ManyToManyField(Image, blank=True, null=True,
+                                        verbose_name=_(u'Images'),
+                                        related_name='ServiceImages_set',
+                                       )
 
     creation_label = _('Add a service')
 

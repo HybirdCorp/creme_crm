@@ -622,6 +622,7 @@ class Migration(migrations.Migration):
                     ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
                     ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
                     ('categories', models.ManyToManyField(related_name='+', null=True, verbose_name='Categories', to='creme_core.FakeImageCategory', blank=True)),
+                    ('exif_date', models.DateField(null=True, verbose_name='Exif date', blank=True)),
                 ],
                 options={
                     'ordering': ('name',),

@@ -13,7 +13,8 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui import merge_form_registry
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
-            CremePropertyType, CremeProperty, CustomField, CustomFieldEnumValue, Language)
+            CremePropertyType, CremeProperty, FieldsConfig,
+            CustomField, CustomFieldEnumValue, Language)
     from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
             TYPE_RELATION, TYPE_RELATION_DEL, TYPE_SYM_REL_DEL,
             TYPE_PROP_ADD, TYPE_PROP_DEL)
@@ -31,7 +32,7 @@ class MergeViewsTestCase(ViewsTestCase):
         ViewsTestCase.setUpClass()
 #        cls.populate('creme_core', 'persons') #'persons' for HeaderFilter
         cls.populate('creme_core') # HeaderFilter for FakeContact/Orga
-        cls.autodiscover()
+#        cls.autodiscover()
 
     def _build_select_url(self, e1):
         return '/creme_core/entity/merge/select_other/%s' % e1.id
@@ -497,3 +498,43 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertGET403(self.build_merge_url(orga01, orga02))
         self.assertGET403(self.build_merge_url(orga02, orga01))
+
+    def test_fields_config(self):
+        user = self.login()
+
+        hidden_fname = 'phone'
+        FieldsConfig.create(Contact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Makoto', last_name='Kosaka')
+        contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
+
+        url = self.build_merge_url(contact01, contact02)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('last_name', fields)
+        self.assertNotIn(hidden_fname, fields)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertDoesNotExist(contact02)
+
+        new_contact01 = self.refresh(contact01)
+        self.assertEqual(contact01.first_name, new_contact01.first_name)
+        self.assertEqual(contact01.last_name,  new_contact01.last_name)

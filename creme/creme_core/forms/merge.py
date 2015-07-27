@@ -30,7 +30,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from ..gui.merge import merge_form_registry
-from ..models import CremeEntity, CustomField, CustomFieldValue
+from ..models import CremeEntity, CustomField, CustomFieldValue, FieldsConfig
 from ..signals import pre_merge_related
 from ..utils import replace_related_object
 from .base import CremeForm, _CUSTOM_NAME
@@ -237,5 +237,10 @@ def form_factory(model):
         base_form_class = mergeform_factory()
 
         return type('Merge%sForm' % model.__name__, (base_form_class,),
-                    fields_for_model(model, formfield_callback=mergefield_factory)
+                    fields_for_model(model, formfield_callback=mergefield_factory,
+                                     exclude=[f.name
+                                                for f in FieldsConfig.get_4_model(model)
+                                                                     .hidden_fields
+                                             ],
+                                    )
                    )

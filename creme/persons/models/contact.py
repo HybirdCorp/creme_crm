@@ -49,36 +49,51 @@ logger = logging.getLogger(__name__)
 
 #class Contact(CremeEntity):
 class AbstractContact(CremeEntity):
-    civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True, on_delete=SET_NULL)
-    last_name       = CharField(_(u'Last name'), max_length=100)  #NB: same max_length than CremeUser.last_name
-    first_name      = CharField(_(u'First name'), max_length=100, blank=True, null=True)  #NB: same max_length than CremeUser.first_name
-    description     = TextField(_(u'Description'), blank=True, null=True)
-    skype           = CharField('Skype', max_length=100, blank=True, null=True)
-    phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
-    mobile          = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)
-    fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
-    position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True, on_delete=SET_NULL)
-    sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True, on_delete=SET_NULL)
-    email           = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
-    url_site        = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
-    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False).set_tags(viewable=False) #TODO: remove this field
+    civility    = ForeignKey(Civility, verbose_name=_(u'Civility'),
+                             blank=True, null=True, on_delete=SET_NULL,
+                            )
+    last_name   = CharField(_(u'Last name'), max_length=100)  #NB: same max_length than CremeUser.last_name
+    first_name  = CharField(_(u'First name'), max_length=100, blank=True, null=True)  #NB: same max_length than CremeUser.first_name
+    description = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
+    skype       = CharField('Skype', max_length=100, blank=True, null=True)\
+                           .set_tags(optional=True)
+    phone       = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
+    mobile      = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)
+    fax         = CharField(_(u'Fax'), max_length=100, blank=True, null=True)\
+                           .set_tags(optional=True)
+    position    = ForeignKey(Position, verbose_name=_(u'Position'),
+                             blank=True, null=True, on_delete=SET_NULL,
+                            ).set_tags(optional=True)
+    sector      = ForeignKey(Sector, verbose_name=_(u'Line of business'),
+                             blank=True, null=True, on_delete=SET_NULL,
+                            ).set_tags(optional=True)
+    email       = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
+    url_site    = URLField(_(u'Web Site'), max_length=500, blank=True, null=True)\
+                          .set_tags(optional=True)
+    language    = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'),
+                                  blank=True, null=True, editable=False,
+                                 ).set_tags(viewable=False) # TODO: remove this field
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
-    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
+    billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Billing address'),
                                   blank=True, null=True,  editable=False,
                                   related_name='billing_address_contact_set', #TODO: remove ? (with '+')
                                  ).set_tags(enumerable=False) #clonable=False useless
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
-    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
+    shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
+                                  verbose_name=_(u'Shipping address'),
                                   blank=True, null=True, editable=False,
                                   related_name='shipping_address_contact_set',
                                  ).set_tags(enumerable=False)
-    is_user         = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
-                                 blank=True, null=True, related_name='related_contact',
-                                 on_delete=SET_NULL, editable=False
-                                ).set_tags(clonable=False, enumerable=False) \
-                                 .set_null_label(pgettext_lazy('persons-is_user', u'None'))
-    birthday        = DateField(_(u"Birthday"), blank=True, null=True)
-    image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
+    is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),
+                          blank=True, null=True, related_name='related_contact',
+                          on_delete=SET_NULL, editable=False
+                         ).set_tags(clonable=False, enumerable=False) \
+                          .set_null_label(pgettext_lazy('persons-is_user', u'None'))
+    birthday = DateField(_(u'Birthday'), blank=True, null=True).set_tags(optional=True)
+    image    = ForeignKey(Image, verbose_name=_(u'Photograph'),
+                          blank=True, null=True, on_delete=SET_NULL,
+                         ).set_tags(optional=True)
 
     #objects = CremeEntityManager()
     # Needed because we expand its function fields in other apps (ie. billing)

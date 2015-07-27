@@ -49,6 +49,13 @@ property_type_patterns = patterns('creme.creme_config.views.creme_property_type'
     (r'^delete$',                            'delete'),
 )
 
+fields_config_patterns = patterns('creme.creme_config.views.fields_config',
+    (r'^portal/$',                'portal'),
+    (r'^add/$',                   'add'),
+    (r'^edit/(?P<fconf_id>\d+)$', 'edit'),
+    (r'^delete$',                 'delete'),
+)
+
 custom_fields_patterns = patterns('creme.creme_config.views.custom_fields',
     (r'^portal/$',                'portal'),
     (r'^ct/add/$',                'add_ct'),
@@ -127,6 +134,7 @@ urlpatterns = patterns('creme.creme_config.views',
     (r'^role/',          include(role_patterns)),
     (r'^relation_type/', include(relation_type_patterns)),
     (r'^property_type/', include(property_type_patterns)),
+    (r'^fields/',        include(fields_config_patterns)),
     (r'^custom_fields/', include(custom_fields_patterns)),
     (r'^blocks/',        include(blocks_patterns)),
     (r'^prefered_menu/', include(prefered_menu_patterns)),

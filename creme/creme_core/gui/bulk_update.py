@@ -25,8 +25,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.related import ForeignKey
 
-from creme.creme_core.models import CremeModel, CustomField 
-from creme.creme_core.utils.unicode_collation import collator
+from ..models import CremeModel, CustomField, FieldsConfig
+from ..utils.unicode_collation import collator
 
 
 class FieldNotAllowed(Exception):
@@ -61,7 +61,9 @@ class _BulkUpdateRegistry(object):
             return issubclass(field.rel.to, CremeModel) or field.name in self.expandables
 
         def is_updatable(self, field):
-            return field.editable or isinstance(field, CustomField)
+#            return field.editable or isinstance(field, CustomField)
+            return isinstance(field, CustomField) or (
+                   field.editable and not FieldsConfig.get_4_model(self._model).is_field_hidden(field))
 
         @property
         def regular_fields(self):
@@ -82,6 +84,7 @@ class _BulkUpdateRegistry(object):
 
         @property
         def updatable_regular_fields(self):
+            # TODO: FieldsConfig.LocalCache ??
             is_updatable = self.is_updatable
             return {key: field
                         for key, field in self.regular_fields.iteritems()

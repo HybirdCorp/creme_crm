@@ -21,7 +21,7 @@ try:
             FakeInvoice, FakeInvoiceLine)
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.models import (RelationType, Relation,
+    from creme.creme_core.models import (RelationType, Relation, FieldsConfig,
             CremePropertyType, CremeProperty, HeaderFilter)
 #    from creme.creme_core.tests.base import skipIfNotInstalled
 
@@ -343,6 +343,32 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[1], '"Camp#1","ML#1/ML#2"')
         self.assertEqual(result[2], '"Camp#2","ML#3"')
         self.assertEqual(result[3], '"Camp#3",""')
+
+    def test_list_view_export08(self):
+        "FieldsConfig"
+        self.login()
+        cells = self._build_hf_n_contacts()
+        lv_url = self._set_listview_state()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('first_name', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
+
+        it = (force_unicode(line) for line in response.content.splitlines())
+        self.assertEqual(it.next(),
+                         u','.join(u'"%s"' % u for u in [_('Civility'),
+                                                         _('Last name'),
+                                                         #_('First name'),
+                                                         'pilots',
+                                                         _('Properties'),
+                                                        ]
+                                  )
+                        )
+
+        #self.assertEqual(it.next(), u'"","Black","Jet","Bebop",""')
+        self.assertEqual(it.next(), u'"","Black","Bebop",""')
 
     @skipIf(XlsMissing, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_xls_export01(self):

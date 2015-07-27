@@ -32,7 +32,7 @@ from ..constants import REL_SUB_RELATED_2_DOC
 #class Document(CremeEntity):
 class AbstractDocument(CremeEntity):
     title       = CharField(_(u'Title'), max_length=100)
-    description = TextField(_(u'Description'), blank=True, null=True)
+    description = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
 #    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT)
     folder      = ForeignKey(settings.DOCUMENTS_FOLDER_MODEL,

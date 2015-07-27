@@ -39,13 +39,24 @@ class AbstractProduct(CremeEntity):
     description       = CharField(_(u'Description'), max_length=200)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
     unit              = CharField(_(u'Unit'), max_length=100, blank=True)
-    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
-    weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2, blank=True, null=True)
-    stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True)
-    web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
+    quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True) \
+                                    .set_tags(optional=True)
+    weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2,
+                                     blank=True, null=True,
+                                    ).set_tags(optional=True)
+    stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True) \
+                                    .set_tags(optional=True)
+    web_site          = CharField(_(u'Web Site'), max_length=100,
+                                  blank=True, null=True,
+                                 ).set_tags(optional=True)
     category          = ForeignKey(Category, verbose_name=_(u'Category'))
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'), on_delete=PROTECT)
-    images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ProductImages_set')
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
+                                   on_delete=PROTECT,
+                                  )
+    images            = ManyToManyField(Image, blank=True, null=True,
+                                        verbose_name=_(u'Images'),
+                                        related_name='ProductImages_set',
+                                       )
 
     creation_label = _('Add a product')
 
