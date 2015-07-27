@@ -26,8 +26,8 @@
             <td class="line-background-color" align="center">{{form.vat_value}}</td>
             <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
             {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
-                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="discounted" data-value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" data-value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
             {% endwith %}
         </tr>
 
@@ -69,8 +69,8 @@
             <td class="line-background-color" align="center">{{line.vat_value}}</td>
             <td class="line-background-color" align="center" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
             {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-                <td class="line-background-color" align="center" name="discounted" value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
-                <td class="line-background-color" align="center" name="inclusive_of_tax" value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="discounted" data-value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
+                <td class="line-background-color" align="center" name="inclusive_of_tax" data-value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
             {% endwith %}
         </tr>
 
