@@ -278,23 +278,8 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
         var discount = $('input[name*="discount"]', element);
         var vat_value_widget = $('select[name*="vat_value"]', element);
         var vat_value = $("option[value='" + vat_value_widget.val() + "']", vat_value_widget).text();
-//         var discount_unit = $('[name*="discount_unit"]', element);
         var discount_unit = $('[name*="discount_unit"]', element).val();
-//         var total_discount = $('[name*="total_discount"]', element);
 
-//         if (discount_unit.val() == 1) { // percent
-// //             if (total_discount.is(':checked')) {
-// //                 var discounted_value = ((quantity.val()*unit_price.val()) - ((quantity.val()*unit_price.val()*discount.val())/100));
-// //             } else {
-//                 var discounted_value = quantity.val() * (unit_price.val() - (unit_price.val() * discount.val() / 100));
-// //             }
-//         } else {
-//             if (total_discount.is(':checked')) {
-//                 var discounted_value = quantity.val() * unit_price.val() - discount.val();
-//             } else {
-//                 var discounted_value = quantity.val() * (unit_price.val() - discount.val());
-//             }
-//         }
         var discounted_value;
         switch (discount_unit) {
             case '1': //DISCOUNT_PERCENT
@@ -310,28 +295,19 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
                 console.log("Bad discount value ?!", discount_unit);
         }
 
-//         var global_discount_value = $('[name="overall_discount_document"]').attr('value');
-// 
-//         if (global_discount_value != "") {
-//             discounted_value = discounted_value - (discounted_value * parseFloat(global_discount_value) / 100);
-//         }
         discounted_value = discounted_value - (discounted_value * global_discount / 100);
 
         var exclusive_of_tax_discounted = Math.ceil(discounted_value * 100) / 100;
-
-//         var is_discount_valid = creme.billing.checkDiscount(discount);
         var is_discount_invalid = !creme.billing.checkDiscount(discount);
 
-//         var discount_closest_td = discount.closest('td');
-//         is_discount_valid ? discount_closest_td.removeClass('td_error') : discount_closest_td.addClass('td_error');
         discount.toggleClass('td_error', is_discount_invalid); //TODO: rename the CSS class
 
-//         if (isNaN(exclusive_of_tax_discounted) || !is_discount_valid || !creme.billing.checkPositiveDecimal(quantity)) {
         if (isNaN(exclusive_of_tax_discounted) || is_discount_invalid || !creme.billing.checkPositiveDecimal(quantity)) {
             discounted.text('###');
             inclusive_of_tax.text('###');
             exclusive_of_tax.text('###');
         } else {
+            // TODO: rename vars...
             var ht_value = Math.ceil(quantity.val() * unit_price.val() * 100) / 100;
             var ttc_value = Math.ceil((parseFloat(exclusive_of_tax_discounted) + parseFloat(exclusive_of_tax_discounted) * vat_value / 100) * 100) / 100;
 
@@ -339,8 +315,8 @@ creme.billing.initBoundedFields = function (element, currency, global_discount) 
             discounted.text(exclusive_of_tax_discounted.toFixed(2).replace(".", ",") + " " + currency);
             inclusive_of_tax.text(ttc_value.toFixed(2).replace(".", ",") + " " + currency);
 
-            discounted.val(exclusive_of_tax_discounted);
-            inclusive_of_tax.val(ttc_value);
+            discounted.attr('data-value', exclusive_of_tax_discounted);
+            inclusive_of_tax.attr('data-value', ttc_value);
 
             creme.billing.updateBlockTotals(currency);
         }
@@ -434,11 +410,11 @@ creme.billing.updateBlockTotals = function(currency) {
     var total_vat = 0;
 
     $('td[name=discounted]').each(function() {
-        total_no_vat += parseFloat($(this).val());
+        total_no_vat += parseFloat($(this).attr('data-value'));
     });
 
     $('td[name=inclusive_of_tax]').each(function() {
-        total_vat += parseFloat($(this).val());
+        total_vat += parseFloat($(this).attr('data-value'));
     });
 
     total_no_vat_element.text(total_no_vat.toFixed(2).replace(".",",") + " " + currency);
