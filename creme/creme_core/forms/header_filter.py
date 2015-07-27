@@ -32,7 +32,8 @@ from django.utils.translation import ugettext_lazy as _ #, ugettext
 from ..core.entity_cell import (EntityCellRegularField,
         EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
 from ..gui.listview import smart_columns_registry
-from ..models import CremeEntity, RelationType, CustomField, EntityCredentials, HeaderFilter
+from ..models import (CremeEntity, RelationType, CustomField, EntityCredentials,
+        HeaderFilter, FieldsConfig)
 from ..utils.id_generator import generate_string_id_and_save
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.unicode_collation import collator
@@ -138,6 +139,7 @@ class EntityCellsField(Field):
 
     def __init__(self, content_type=None, *args, **kwargs):
         super(EntityCellsField, self).__init__(*args, **kwargs)
+        self._non_hiddable_cells = []
         self.content_type = content_type
         self.user = None
 
@@ -171,11 +173,45 @@ class EntityCellsField(Field):
             builders[field_id] = EntityCellsField._build_4_functionfield
 
     def _regular_fields_enum(self, model): #this separated method make overloading easier (see reports)
-        return ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True)
+#        return ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True)
+
+        # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
+        # get also the sub-fields of ForeignKeys for example). We take care of
+        # the FieldsConfig which can hide fields (ie: have to be removed from
+        # the choices) ; but if a field was already selected (eg: the field
+        # has been hidden _after_), it is not hidden, in order to not remove it
+        # from the configuration (of HeaderFilter, CustomBlock...) silently
+        # during its next edition.
+
+        # TODO: manage FieldsConfig in ModelFieldEnumerator ??
+        # TODO: factorise with FieldsConfig.filter_cells
+        get_fconf = FieldsConfig.LocalCache().get_4_model
+
+        non_hiddable_fnames = defaultdict(set)
+        for cell in self._non_hiddable_cells:
+            if isinstance(cell, EntityCellRegularField):
+                field_info = cell.field_info
+                field = field_info[-1]
+                non_hiddable_fnames[field.model].add(field.name)
+
+                # BEWARE: if a sub-field (eg: 'image__name') cannot be hidden,
+                # the related field (eg: 'image') cannot be hidden.
+                if len(field_info) == 2:
+                    non_hiddable_fnames[model].add(field_info[0].name)
+
+        def field_excluder(field, deep):
+            model = field.model
+
+            return get_fconf(model).is_field_hidden(field) and \
+                   field.name not in non_hiddable_fnames[model]
+
+        return ModelFieldEnumerator(model, deep=1, only_leafs=False) \
+                        .filter(viewable=True) \
+                        .exclude(field_excluder)
 
     def _choices_4_regularfields(self, ct, builders):
-        #TODO: make the managing of subfields by the widget ??
-        #TODO: remove subfields with len() == 1 (done in template for now)
+        # TODO: make the managing of subfields by the widget ??
+        # TODO: remove subfields with len() == 1 (done in template for now)
         widget = self.widget
         widget.model_fields = rfields_choices = []
         widget.model_subfields = subfields_choices = defaultdict(list) #TODO: sort too ??
@@ -196,10 +232,10 @@ class EntityCellsField(Field):
             subfield_choices.sort(key=sort_choice)
 
     def _choices_4_relationtypes(self, ct, builders):
-        #cache
+        # Cache
         self._relation_types = RelationType.get_compatible_ones(ct, include_internals=True) \
                                            .order_by('predicate') #TODO: unicode collation
-        #TODO: sort ? smart categories ('all', 'contacts') ?
+        # TODO: sort ? smart categories ('all', 'contacts') ?
         self.widget.relation_types = rtypes_choices = []
 
         for rtype in self._relation_types:
@@ -230,8 +266,8 @@ class EntityCellsField(Field):
             self._choices_4_functionfields(ct, builders)
             self._choices_4_relationtypes(ct, builders)
 
-    #NB: _get_cfield_name() & _get_rtype() : we do linear searches because
-    #   there are very few searches => build a dict wouldn't be faster
+    # NB: _get_cfield_name() & _get_rtype() : we do linear searches because
+    #     there are very few searches => build a dict wouldn't be faster
     def _get_cfield(self, cfield_id):
         for cfield in self._custom_fields:
             if cfield.id == cfield_id:
@@ -241,6 +277,15 @@ class EntityCellsField(Field):
         for rtype in self._relation_types:
             if rtype.id == rtype_id:
                 return rtype
+
+    @property
+    def non_hiddable_cells(self):
+        return self._non_hiddable_cells
+
+    @non_hiddable_cells.setter
+    def non_hiddable_cells(self, cells):
+        self._non_hiddable_cells[:] = cells
+        # TODO: reset content_type
 
     @property
     def user(self):
@@ -300,8 +345,10 @@ class HeaderFilterForm(CremeModelForm):
             if not instance.is_custom:
                 del fields['is_private']
 
+            cells = instance.cells
+            cells_f.non_hiddable_cells = cells
             cells_f.content_type = instance.entity_type
-            cells_f.initial = instance.cells
+            cells_f.initial = cells
         else:
             cells_f.content_type = instance.entity_type = ct = self.initial.get('content_type')
             cells_f.initial = smart_columns_registry.get_cells(ct.model_class())

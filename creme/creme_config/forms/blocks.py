@@ -20,8 +20,8 @@
 
 from itertools import chain
 
-from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.db.models import URLField, EmailField, ManyToManyField, ForeignKey
+from django.forms import MultipleChoiceField, ChoiceField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.constants import MODELBLOCK_ID
@@ -326,16 +326,18 @@ class RelationBlockItemEditCtypeForm(CremeModelForm):
         super(RelationBlockItemEditCtypeForm, self).__init__(*args, **kwargs)
         self.ctype = ctype
 
-        items_f = self.fields['cells']
-        items_f.content_type = ctype
-        items_f.initial = self.instance.get_cells(ctype)
+        cells_f = self.fields['cells']
+        cells = self.instance.get_cells(ctype)
+        cells_f.non_hiddable_cells = cells
+        cells_f.content_type = ctype
+        cells_f.initial = cells
 
     def _is_valid_first_column(self, cell):
         if isinstance(cell, EntityCellRegularField):
             field = cell.field_info[0]
 
-            #These fields are already rendered with <a> tag ; it would be better to
-            #have a higher semantic (ask to the fields printer how it renders thme ???)
+            # These fields are already rendered with <a> tag ; it would be better to
+            # have a higher semantic (ask to the fields printer how it renders theme ???)
             if isinstance(field, (URLField, EmailField, ManyToManyField)) or \
                (isinstance(field, ForeignKey) and issubclass(field.rel.to, CremeEntity)):
                 return False
@@ -390,9 +392,11 @@ class CustomBlockConfigItemEditForm(CremeModelForm):
         super(CustomBlockConfigItemEditForm, self).__init__(*args, **kwargs)
 
         instance = self.instance
-        items_f = self.fields['cells']
-        items_f.content_type = instance.content_type
-        items_f.initial = instance.cells
+        cells_f = self.fields['cells']
+        cells = instance.cells
+        cells_f.non_hiddable_cells = cells
+        cells_f.content_type = instance.content_type
+        cells_f.initial = cells
 
     def save(self, *args, **kwargs):
         self.instance.cells = self.cleaned_data['cells']

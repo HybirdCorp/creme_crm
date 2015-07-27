@@ -36,6 +36,7 @@ from ..utils import creme_entity_content_types
 from .base import CremeModel
 from .entity import CremeEntity
 from .fields import CTypeForeignKey
+from .fields_config import FieldsConfig
 from .relation import RelationType
 from .setting_value import SettingValue
 
@@ -394,6 +395,9 @@ class CustomBlockConfigItem(CremeModel):
 
         return None if prefix != 'customblock' else cbci_id
 
+    def _dump_cells(self, cells):
+        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
+
     #TODO: factorise with HeaderFilter.cells
     @property
     def cells(self):
@@ -415,13 +419,17 @@ class CustomBlockConfigItem(CremeModel):
 
         return cells
 
-    def _dump_cells(self, cells):
-        self.json_cells = jsondumps([cell.to_dict() for cell in cells])
-
     @cells.setter
     def cells(self, cells):
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
+
+    @property
+    def filtered_cells(self):
+        """Generators which yields EntityCell instances, but it excluded the
+        ones which are related to fields hidden with FieldsConfig.
+        """
+        return FieldsConfig.filter_cells(self.content_type.model_class(), self.cells)
 
 
 class BlockState(CremeModel):

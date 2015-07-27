@@ -43,7 +43,7 @@ from django.utils.html import escape
 from creme.creme_core.forms.base import _CUSTOM_NAME
 from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.models import (CremePropertyType, CremeProperty,
-        RelationType, Relation, CremeEntity, EntityCredentials,
+        RelationType, Relation, CremeEntity, EntityCredentials, FieldsConfig,
         CustomField, CustomFieldValue, CustomFieldEnumValue) #CustomFieldEnum
 from creme.creme_core.registry import import_backend_registry
 from creme.creme_core.utils.collections import LimitedList
@@ -1037,11 +1037,13 @@ class ImportForm(CremeModelForm):
         self.updated_objects_count = 0
         self.lines_count = 0
 
-        #TODO: exclude not extractor fields ?
-        #TODO: factorise with HeaderFilter ???
+        get_fconf = FieldsConfig.LocalCache().get_4_model
+        # TODO: exclude not extractor fields ?
+        # TODO: factorise with HeaderFilter ???
         self.fields['key_fields'].choices = \
             ModelFieldEnumerator(self._meta.model, deep=1, only_leafs=False) \
                 .filter(viewable=True) \
+                .exclude(lambda field, deep: get_fconf(field.model).is_field_hidden(field)) \
                 .choices()
 
     def append_error(self, line, err_msg, instance=None):

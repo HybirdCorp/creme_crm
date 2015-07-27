@@ -45,6 +45,7 @@ class CremeConfigConfig(CremeAppConfig):
         reg_item('/creme_config/',                      _(u"Portal of general configuration"), 'creme_config')
         reg_item('/creme_config/relation_type/portal/', _(u"Relation types settings"),         'creme_config')
         reg_item('/creme_config/property_type/portal/', _(u"Property types settings"),         'creme_config')
+        reg_item('/creme_config/fields/portal/',        _(u"Fields settings"),                 'creme_config')
         reg_item('/creme_config/custom_fields/portal/', _(u"Custom fields settings"),          'creme_config')
         reg_item('/creme_config/blocks/portal/',        _(u"Blocks settings"),                 'creme_config')
         reg_item('/creme_config/prefered_menu/edit/',   _(u"Default prefered menu settings"),  'creme_core.can_admin') # TODO: viewer mode if user has credentials 'creme_core' ?

@@ -34,13 +34,17 @@ else:
 
     class FakeImage(CremeEntity):
         name        = models.CharField(_(u'Name'), max_length=100, blank=True, null=True)
-        description = models.TextField(_(u'Description'), blank=True, null=True)
+        description = models.TextField(_(u'Description'), blank=True, null=True)\
+                            .set_tags(optional=True)
     #    image       = ImageField(_('Image'), height_field='height', width_field='width',
     #                             upload_to='upload/images', max_length=500)
-        categories = models.ManyToManyField(FakeImageCategory, verbose_name=_(u'Categories'),
-                                            related_name='+',
-                                            blank=True, null=True,
-                                           )
+        categories  = models.ManyToManyField(FakeImageCategory,
+                                             verbose_name=_(u'Categories'),
+                                             related_name='+',
+                                             blank=True, null=True,
+                                            )
+        exif_date   = models.DateField(_(u"Exif date"), blank=True, null=True)\
+                            .set_tags(optional=True)
 
     #    creation_label = _('Add an image')
 
@@ -108,12 +112,17 @@ else:
 
     class FakeAddress(CremeModel):
         value      = models.TextField(_(u"Address"), blank=True, null=True)
-        zipcode    = models.CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
-        city       = models.CharField(_(u"City"), max_length=100, blank=True, null=True)
-        department = models.CharField(_(u"Department"), max_length=100, blank=True, null=True)
-        country    = models.CharField(_(u"Country"), max_length=40, blank=True, null=True)
+        zipcode    = models.CharField(_(u"Zip code"), max_length=100, blank=True, null=True) \
+                           .set_tags(optional=True)
+        city       = models.CharField(_(u"City"), max_length=100, blank=True, null=True)\
+                           .set_tags(optional=True)
+        department = models.CharField(_(u"Department"), max_length=100, blank=True, null=True)\
+                           .set_tags(optional=True)
+        country    = models.CharField(_(u"Country"), max_length=40, blank=True, null=True)\
+                           .set_tags(optional=True)
 
-        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False).set_tags(viewable=False)
+        entity     = models.ForeignKey(CremeEntity, related_name='+', editable=False)\
+                           .set_tags(viewable=False)
 
         class Meta:
             app_label = 'creme_core'
@@ -135,12 +144,18 @@ else:
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                            )
         last_name       = models.CharField(_(u'Last name'), max_length=100)
-        first_name      = models.CharField(_(u'First name'), max_length=100, blank=True, null=True)
-
+        first_name      = models.CharField(_(u'First name'), max_length=100,
+                                           blank=True, null=True,
+                                          ).set_tags(optional=True)
         is_a_nerd       = models.BooleanField(_(u'Is a Nerd'), default=False)
-        description     = models.TextField(_(u'Description'), blank=True, null=True)
-        phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
-        mobile          = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)
+        description     = models.TextField(_(u'Description'), blank=True, null=True)\
+                                .set_tags(optional=True)
+        phone           = PhoneField(_(u'Phone number'), max_length=100,
+                                     blank=True, null=True,
+                                    ).set_tags(optional=True)
+        mobile          = PhoneField(_(u'Mobile'), max_length=100,
+                                     blank=True, null=True,
+                                    ).set_tags(optional=True)
         position        = models.ForeignKey(FakePosition, verbose_name=_(u'Position'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                            )
@@ -162,10 +177,11 @@ else:
                                             on_delete=models.SET_NULL,
                                            ).set_tags(clonable=False, enumerable=False)\
                                             .set_null_label(pgettext_lazy('persons-is_user', u'None'))
-        birthday        = models.DateField(_(u"Birthday"), blank=True, null=True)
+        birthday        = models.DateField(_(u"Birthday"), blank=True, null=True)\
+                                .set_tags(optional=True)
         image           = models.ForeignKey(FakeImage, verbose_name=_(u'Photograph'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
-                                           )
+                                           ).set_tags(optional=True)
 
     #    creation_label = _('Add a contact')
 
@@ -219,9 +235,15 @@ else:
 
     class FakeOrganisation(CremeEntity):
         name            = models.CharField(_(u'Name'), max_length=200)
-        phone           = PhoneField(_(u'Phone number'), max_length=100 , blank=True, null=True)
-        email           = models.EmailField(_(u'Email address'), max_length=100 , blank=True, null=True)
-        url_site        = models.URLField(_(u'Web Site'), max_length=500, blank=True, null=True)
+        phone           = PhoneField(_(u'Phone number'), max_length=100,
+                                     blank=True, null=True,
+                                    )
+        email           = models.EmailField(_(u'Email address'), max_length=100,
+                                            blank=True, null=True,
+                                           )
+        url_site        = models.URLField(_(u'Web Site'), max_length=500,
+                                          blank=True, null=True,
+                                         ).set_tags(optional=True)
         sector          = models.ForeignKey(FakeSector, verbose_name=_(u'Sector'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
                                           )
@@ -356,7 +378,8 @@ else:
         name             = models.CharField(_(u'Name'), max_length=100)
         number           = models.CharField(_(u'Number'), max_length=100, blank=True, null=True)
         issuing_date     = models.DateField(_(u"Issuing date"), blank=True, null=True)
-        expiration_date  = models.DateField(_(u"Expiration date"), blank=True, null=True)
+        expiration_date  = models.DateField(_(u"Expiration date"), blank=True, null=True)\
+                                 .set_tags(optional=True)
         periodicity      = DatePeriodField(_(u'Periodicity of the generation'), blank=True, null=True)
         total_vat        = MoneyField(_(u'Total with VAT'), max_digits=14, decimal_places=2,
                                       blank=True, null=True, editable=False, default=0,

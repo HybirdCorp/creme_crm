@@ -1,0 +1,38 @@
+{% load cycle from future %}{% load i18n %}
+{% load creme_core_tags creme_block %}
+{% has_perm_to admin 'creme_core' as admin_perm %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
+    {% get_block_header colspan=3 %}
+        <th class="label">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
+        <th class="actions"></th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        <tr class="header toolbar">
+            <th class="block_header_line_light" colspan="3">
+                {% get_line_adder at_url '/creme_config/fields/add/' with_label _("New fields configuration") with_perms admin_perm %}
+            </th>
+        </tr>
+        {% if page.paginator.count %}
+            <tr class="header">
+                <th class="block_header_line_light">{% trans "Type" %}</th>
+                <th class="block_header_line_light">{% trans "Hidden fields" %}</th>
+                <th class="block_header_line_light action">{% trans "Actions" %}</th>
+            </tr>
+            {% for fconf in page.object_list %}{% cycle row_color %}
+                <tr class="content">
+                    <td class="{{row_color}}">{{fconf.content_type}}</td>
+                    <td class="{{row_color}}">{% for field in fconf.hidden_fields %}{{field.verbose_name}}{% if not forloop.last %} / {% endif%}{% endfor %}</td>
+                    <td class="{{row_color}} action">
+                        {% get_line_editor at_url '/creme_config/fields/edit/{{fconf.pk}}' with_perms admin_perm %}
+                        {% get_line_deletor at_url '/creme_config/fields/delete' with_args "{'id': '{{fconf.pk}}'}" with_perms admin_perm %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="content empty">
+                <td class="block_line_dark">{% trans "No fields configuration for the moment" %}</td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% get_block_footer 3 %}
+</table>

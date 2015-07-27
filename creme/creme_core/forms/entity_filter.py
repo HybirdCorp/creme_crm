@@ -35,7 +35,7 @@ from django.utils.translation import ugettext_lazy as _ #ugettext
 from django.utils.formats import date_format
 
 from ..models import (CremeEntity, EntityFilter, EntityFilterCondition,
-        RelationType, CremePropertyType, CustomField)
+        RelationType, CremePropertyType, CustomField, FieldsConfig)
 from ..models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
 from ..utils.date_range import date_range_registry
 from ..utils.id_generator import generate_string_id_and_save
@@ -73,46 +73,6 @@ _CONDITION_INPUT_TYPE_MAP = {
 #Form Widgets-------------------------------------------------------------------
 
 boolean_str = lambda val: TRUE if val else FALSE
-
-
-# class RegularFieldsConditionsWidget(SelectorList):
-#     def __init__(self, fields, attrs=None):
-#         chained_input = ChainedInput(attrs)
-#         attrs = {'auto': False}
-# 
-#         chained_input.add_dselect('name',     options=self._build_fieldchoices(fields), attrs=attrs)
-#         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
-# 
-#         pinput = PolymorphicInput(key='${operator}', attrs=attrs)
-#         pinput.set_default_input(widget=DynamicInput, attrs=attrs)
-# 
-#         for optype, operator in EntityFilterCondition._OPERATOR_MAP.iteritems():
-#             op_input = _CONDITION_INPUT_TYPE_MAP.get(type(operator))
-# 
-#             if op_input:
-#                 input_widget, input_attrs, input_kwargs = op_input
-#                 pinput.add_input(str(optype), widget=input_widget, attrs=input_attrs, **input_kwargs)
-# 
-#         chained_input.add_input('value', pinput, attrs=attrs)
-# 
-#         super(RegularFieldsConditionsWidget, self).__init__(chained_input)
-# 
-#     def _build_fieldchoices(self, fields):
-#         fields_by_cat = defaultdict(list) #fields grouped by category (a category by FK)
-# 
-#         for fname, fieldlist in fields.iteritems():
-#             if len(fieldlist) == 1:  #not a FK
-#                 cat = ''
-#                 vname = fieldlist[0].verbose_name
-#             else: #FK case
-#                 cat = unicode(fieldlist[0].verbose_name)
-#                 vname = u'[%s] - %s' % (cat, fieldlist[1].verbose_name)
-# 
-#             fields_by_cat[cat].append((fname, vname))
-# 
-#         return [(cat, sorted(fields_by_cat[cat], key=lambda item: item[1]))
-#                     for cat in sorted(fields_by_cat.keys())
-#                ]
 
 
 class FieldConditionWidget(ChainedInput):
@@ -218,15 +178,6 @@ class FieldConditionWidget(ChainedInput):
         return 'string'
 
 
-#class DateFieldsConditionsWidget(SelectorList):
-#    def __init__(self, date_fields_options, attrs=None, enabled=True):
-#        chained_input = ChainedInput(attrs)
-#        attrs = {'auto': False}
-#
-#        chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
-#        chained_input.add_input('range', DateRangeSelect, attrs=attrs)
-#
-#        super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 class DateFieldsConditionsWidget(SelectorList):
     def __init__(self, fields, attrs=None, enabled=True):
         chained_input = ChainedInput(attrs)
@@ -271,16 +222,7 @@ class DateFieldsConditionsWidget(SelectorList):
                     for cat in sorted(categories.keys(), key=collator.sort_key)
                ]
 
-# class CustomFieldsConditionsWidget(SelectorList): #todo: factorise with RegularFieldsConditionsWidget ???
-#     def __init__(self, cfields, attrs=None, enabled=True):
-#         chained_input = ChainedInput(attrs)
-#         attrs = {'auto': False}
-# 
-#         chained_input.add_dselect('field',    options=cfields.iteritems(), attrs=attrs)
-#         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
-#         chained_input.add_input('value', DynamicInput, attrs=attrs)
-# 
-#         super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
+
 class CustomFieldConditionWidget(FieldConditionWidget):
     _CHOICETYPES = {
         CustomField.INT:        'number__null',
@@ -410,10 +352,14 @@ class _ConditionsField(JSONField):
         self.model = model or CremeEntity
 
     def initialize(self, ctype, conditions=None, efilter=None):
-        self.model = ctype.model_class()
-
+#        self.model = ctype.model_class()
+#
+#        if conditions:
+#            self._set_initial_conditions(conditions)
         if conditions:
             self._set_initial_conditions(conditions)
+
+        self.model = ctype.model_class()
 
     @property
     def model(self):
@@ -424,44 +370,75 @@ class RegularFieldsConditionsField(_ConditionsField):
     default_error_messages = {
         'invalidfield':    _(u"This field is invalid with this model."),
         'invalidoperator': _(u"This operator is invalid."),
-        'invalidvalue': _(u"This value is invalid.")
+        'invalidvalue':    _(u"This value is invalid."),
     }
 
-    def _build_related_fields(self, field, fields):
-        fname = field.name
-        related_model = field.rel.to #TODO: inline
+    _non_hiddable_fnames = ()
 
-        if field.get_tag('enumerable'): #and not issubclass(related_model, CremeEntity):
+#    def _build_related_fields(self, field, fields):
+#        fname = field.name
+#        related_model = field.rel.to #todo: inline
+#
+#        if field.get_tag('enumerable'): #and not issubclass(related_model, CremeEntity):
+#            fields[field.name] = [field]
+#
+#        for subfield in related_model._meta.fields:
+#            if subfield.get_tag('viewable') and not is_date_field(subfield):
+#                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
+    def _build_related_fields(self, field, fields, fconfigs):
+        fname = field.name
+        related_model = field.rel.to
+        field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
+
+        if field.get_tag('enumerable') and not field_hidden:
             fields[field.name] = [field]
+
+        is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
+        non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and not is_date_field(subfield):
-                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
+                full_name = '%s__%s' % (fname, subfield.name)
+
+                if not (field_hidden or is_sfield_hidden(subfield)) or \
+                   full_name in non_hiddable_fnames:
+                    fields[full_name] = [field, subfield]
 
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
         self._fields = fields = {}
+        non_hiddable_fnames = self._non_hiddable_fnames
+        fconfigs = FieldsConfig.LocalCache()
+        is_field_hidden = fconfigs.get_4_model(model).is_field_hidden
 
-        #TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
+        # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
         for field in model._meta.fields:
             if field.get_tag('viewable') and not is_date_field(field):
-                if field.get_internal_type() == 'ForeignKey': #TODO: if isinstance(field, ModelForeignKey)
-                    self._build_related_fields(field, fields)
-                else:
+#                if field.get_internal_type() == 'ForeignKey': #todo: if isinstance(field, ModelForeignKey)
+#                    self._build_related_fields(field, fields)
+#                else:
+#                    fields[field.name] = [field]
+                if isinstance(field, ModelForeignKey):
+                    self._build_related_fields(field, fields, fconfigs)
+                elif not is_field_hidden(field) or field.name in non_hiddable_fnames:
                     fields[field.name] = [field]
 
         for field in model._meta.many_to_many:
-            self._build_related_fields(field, fields)
+#            self._build_related_fields(field, fields)
+            self._build_related_fields(field, fields, fconfigs)
 
         self._build_widget()
 
     def _create_widget(self):
-        return SelectorList(FieldConditionWidget(self._fields, EntityFilterCondition._OPERATOR_MAP, autocomplete=True))
+        return SelectorList(FieldConditionWidget(self._fields,
+                                                 EntityFilterCondition._OPERATOR_MAP,
+                                                 autocomplete=True,
+                                                )
+                           )
 
     def _value_to_jsonifiable(self, value):
         dicts = []
-
         field_choicetype = FieldConditionWidget.field_choicetype
 
         for condition in value:
@@ -482,7 +459,9 @@ class RegularFieldsConditionsField(_ConditionsField):
                 field_entry['ctype'] = ContentType.objects.get_for_model(field.rel.to).id
 
             dicts.append({'field':    field_entry,
-                          'operator': {'id': operator_id, 'types': ' '.join(operator.allowed_fieldtypes)},
+                          'operator': {'id':    operator_id,
+                                       'types': ' '.join(operator.allowed_fieldtypes),
+                                      },
                           'value':    values,
                          })
 
@@ -540,7 +519,8 @@ class RegularFieldsConditionsField(_ConditionsField):
 
     def _set_initial_conditions(self, conditions):
         FIELD = EntityFilterCondition.EFC_FIELD
-        self.initial = [c for c in conditions if c.type == FIELD]
+        self.initial = f_conds = [c for c in conditions if c.type == FIELD]
+        self._non_hiddable_fnames = {c.name for c in f_conds}
 
 
 class DateFieldsConditionsField(_ConditionsField):
@@ -550,37 +530,59 @@ class DateFieldsConditionsField(_ConditionsField):
         'emptydates':       _(u"Please enter a start date and/or a end date."),
     }
 
-    def _build_related_fields(self, field, fields): #TODO: factorise with RegularFieldsConditionsField
+    _non_hiddable_fnames = ()
+
+    # TODO: factorise with RegularFieldsConditionsField
+#    def _build_related_fields(self, field, fields):
+#        fname = field.name
+#
+#        for subfield in field.rel.to._meta.fields:
+#            if subfield.get_tag('viewable') and is_date_field(subfield):
+#                fields['%s__%s' % (fname, subfield.name)] = [field, subfield]
+    def _build_related_fields(self, field, fields, fconfigs):
         fname = field.name
+        related_model = field.rel.to
+        field_hidden = fconfigs.get_4_model(field.model).is_field_hidden(field)
+        is_sfield_hidden = fconfigs.get_4_model(related_model).is_field_hidden
+        non_hiddable_fnames = self._non_hiddable_fnames
 
-        for subfield in field.rel.to._meta.fields:
+        for subfield in related_model._meta.fields:
             if subfield.get_tag('viewable') and is_date_field(subfield):
-                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
+                full_name = '%s__%s' % (fname, subfield.name)
 
+                if not (field_hidden or is_sfield_hidden(subfield)) or \
+                   full_name in non_hiddable_fnames:
+                    fields[full_name] = [field, subfield]
+
+    # TODO: factorise with RegularFieldsConditionsField
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        #self._fields = dict((field.name, field) for field in model._meta.fields if is_date_field(field))
         self._fields = fields = {}
+        non_hiddable_fnames = self._non_hiddable_fnames
+        fconfigs = FieldsConfig.LocalCache()
+        is_field_hidden = fconfigs.get_4_model(model).is_field_hidden
 
-        #TODO: factorise with RegularFieldsConditionsField
         #TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
         for field in model._meta.fields:
             if field.get_tag('viewable'):
+#                if isinstance(field, ModelForeignKey):
+#                    self._build_related_fields(field, fields)
+#                elif is_date_field(field):
+#                    fields[field.name] = [field]
                 if isinstance(field, ModelForeignKey):
-                    self._build_related_fields(field, fields)
-                elif is_date_field(field):
+                    self._build_related_fields(field, fields, fconfigs)
+                elif is_date_field(field) and (not is_field_hidden(field) or
+                     field.name in non_hiddable_fnames):
                     fields[field.name] = [field]
 
         for field in model._meta.many_to_many:
-            self._build_related_fields(field, fields) #TODO: test
+#            self._build_related_fields(field, fields)
+            self._build_related_fields(field, fields, fconfigs) #TODO: test
 
         self._build_widget()
 
     def _create_widget(self):
-#         return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
-#                                           enabled=len(self._fields) > 0
-#                                          )
         return DateFieldsConditionsWidget(self._fields,
                                           #enabled=len(self._fields) > 0 TODO ?
                                          )
@@ -666,7 +668,8 @@ class DateFieldsConditionsField(_ConditionsField):
 
     def _set_initial_conditions(self, conditions):
         DATE = EntityFilterCondition.EFC_DATEFIELD
-        self.initial = [c for c in conditions if c.type == DATE]
+        self.initial = f_conds = [c for c in conditions if c.type == DATE]
+        self._non_hiddable_fnames = {c.name for c in f_conds}
 
 
 class CustomFieldsConditionsField(_ConditionsField):

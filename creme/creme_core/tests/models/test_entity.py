@@ -74,7 +74,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_fieldtags_clonable(self):
         naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
-        get_field = lambda name: naruto._meta.get_field_by_name(name)[0]
+        get_field = naruto._meta.get_field
 
         self.assertFalse(get_field('created').get_tag('clonable'))
         self.assertFalse(get_field('modified').get_tag('clonable'))
@@ -90,7 +90,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_fieldtags_viewable(self):
         naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
-        get_field = lambda name: naruto._meta.get_field_by_name(name)[0]
+        get_field = naruto._meta.get_field
 
         self.assertTrue(get_field('modified').get_tag('viewable'))
         self.assertTrue(get_field('first_name').get_tag('viewable'))
@@ -98,8 +98,15 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('id').get_tag('viewable'))
         self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
 
+    def test_fieldtags_optional(self):
+        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        get_field = naruto._meta.get_field
+
+        self.assertFalse(get_field('modified').get_tag('optional'))
+        self.assertFalse(get_field('last_name').get_tag('optional'))
+
     def test_fieldtags_user(self):
-        get_field = lambda name: self.user._meta.get_field_by_name(name)[0]
+        get_field = self.user._meta.get_field
 
         self.assertTrue(get_field('username').get_tag('viewable'))
         self.assertFalse(get_field('id').get_tag('viewable'))

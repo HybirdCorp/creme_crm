@@ -7,11 +7,15 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
-    from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
+    from ..fake_models import (FakeContact as Contact,
+            FakeOrganisation as Organisation, FakeAddress as Address)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.blocks import RelationsBlock
-    from creme.creme_core.models import BlockState, SetCredentials, RelationType, Relation
-    from creme.creme_core.gui.block import block_registry, Block, InstanceBlockConfigItem, _BlockRegistry
+    from creme.creme_core.core.entity_cell import EntityCellRegularField
+    from creme.creme_core.gui.block import (block_registry, Block,
+            InstanceBlockConfigItem, _BlockRegistry)
+    from creme.creme_core.models import (SetCredentials, RelationType, Relation,
+            BlockState, BlockDetailviewLocation, CustomBlockConfigItem, FieldsConfig)
 
     #from creme.persons.models import Contact, Organisation
 except Exception as e:
@@ -28,7 +32,7 @@ class BlockViewTestCase(CremeTestCase):
         cls.populate('creme_core')
 
     def test_set_state01(self):
-        self.login()
+        user = self.login()
         self.assertEqual(0, BlockState.objects.count())
 
         block_id = RelationsBlock.id_
@@ -38,33 +42,33 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(1, len(bstates))
 
         bstate = bstates[0]
-        self.assertEqual(block_id,  bstate.block_id)
-        self.assertEqual(self.user, bstate.user)
+        self.assertEqual(block_id, bstate.block_id)
+        self.assertEqual(user,     bstate.user)
         self.assertTrue(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 0})
         self.assertEqual(1, BlockState.objects.count())
 
-        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
+        bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
         self.assertPOST200(self.SET_STATE_URL % block_id, data={}) #No data
         self.assertEqual(1, BlockState.objects.count())
 
-        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
+        bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
     def test_set_state02(self):
-        self.login()
+        user = self.login()
         block_id = RelationsBlock.id_
         self.assertPOST200(self.SET_STATE_URL % block_id, data={'is_open': 1, 'show_empty_fields': 1})
 
-        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
+        bstate = self.get_object_or_fail(BlockState, user=user, block_id=block_id)
         self.assertTrue(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
 
     def test_set_state03(self):
-        self.login()
+        user = self.login()
         block_id = RelationsBlock.id_
         self.client.post(self.SET_STATE_URL % block_id,
                          data={'is_open': 1, 'show_empty_fields': 1}
@@ -80,7 +84,7 @@ class BlockViewTestCase(CremeTestCase):
 
         blocks_states = BlockState.objects.filter(block_id=block_id)
 
-        block_state_user = blocks_states.get(user=self.user)
+        block_state_user = blocks_states.get(user=user)
         block_state_other_user = blocks_states.get(user=self.other_user)
 
         self.assertTrue(block_state_user.is_open)
@@ -91,9 +95,8 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_set_state04(self):
         "Block ids with |"
-
-        self.login()
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
+        user = self.login()
+        casca = Contact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBlock(Block):
             id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
@@ -148,8 +151,8 @@ class BlockViewTestCase(CremeTestCase):
             return  self.string_format_portal % self.id_
 
     def test_reload_detailview01(self):
-        self.login()
-        atom = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
+        user = self.login()
+        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview01')
@@ -166,8 +169,8 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview02(self):
         "With dependencies"
-        self.login()
-        atom = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
+        user = self.login()
+        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBlock1(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview02_1')
@@ -231,8 +234,8 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview05(self):
         "Invalid block_id"
-        self.login()
-        atom = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
+        user = self.login()
+        atom = Contact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -383,8 +386,7 @@ class BlockViewTestCase(CremeTestCase):
                         )
 
     def test_reload_relations01(self):
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -418,8 +420,7 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_relations02(self):
         "With relationtype to exclude"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -456,3 +457,140 @@ class BlockViewTestCase(CremeTestCase):
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertTrue(self.user.has_perm_to_view(atom))
         self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
+
+    def _get_contact_block_content(self, contact):
+        content = self.assertGET200(contact.get_absolute_url()).content
+        block_id = 'modelblock_creme_core-fakecontact'
+        block_start_idx = content.find('id="%s"' % block_id)
+        self.assertNotEqual(-1, block_start_idx)
+
+        content_start_idx = block_start_idx + content[block_start_idx:].find('<tbody class="collapsable">')
+        self.assertNotEqual(-1, content_start_idx)
+
+        content_end_idx = content_start_idx + content[content_start_idx:].find('</tbody>')
+        self.assertNotEqual(-1, content_end_idx)
+
+        return content[content_start_idx:content_end_idx]
+
+    def test_display_objectblock01(self):
+        user = self.login()
+        naru = Contact.objects.create(user=user, last_name='Narusegawa',
+                                      first_name='Naru', phone='1122334455',
+                                     )
+        block_content = self._get_contact_block_content(naru)
+        self.assertIn(naru.last_name, block_content)
+        self.assertIn(naru.phone,     block_content)
+
+    def test_display_objectblock02(self):
+        "With FieldsConfig"
+        user = self.login()
+
+        FieldsConfig.create(Contact,
+                            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+                           )
+        naru = Contact.objects.create(user=user, last_name='Narusegawa',
+                                      first_name='Naru', phone='1122334455',
+                                     )
+        block_content = self._get_contact_block_content(naru)
+        self.assertIn(naru.last_name, block_content)
+        self.assertNotIn(naru.phone,  block_content)
+
+    def test_display_customblock01(self):
+        user = self.login()
+
+        fname1 = 'last_name'
+        fname2 = 'phone'
+        build_cell = EntityCellRegularField.build
+        cbc_item = CustomBlockConfigItem.objects.create(
+                        id='tests-contacts1', name='Contact info',
+                        content_type=ContentType.objects.get_for_model(Contact),
+                        cells=[build_cell(Contact, fname1),
+                               build_cell(Contact, fname2),
+                              ],
+                    )
+        bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
+                                             order=1000, # should be the last block
+                                             model=Contact,
+                                             zone=BlockDetailviewLocation.BOTTOM,
+                                            )
+        naru = Contact.objects.create(user=user, last_name='Narusegawa',
+                                      first_name='Naru', phone='1122334455',
+                                     )
+        content = self.assertGET200(naru.get_absolute_url()).content
+        idx = content.find('id="%s"' % bdl.block_id)
+        self.assertNotEqual(-1, idx)
+
+        content_end = content[idx:]
+        self.assertIn(naru.last_name, content_end)
+        self.assertIn(naru.phone,  content_end)
+
+    def test_display_customblock02(self):
+        "With FieldsConfig"
+        user = self.login()
+
+        hidden_fname = 'phone'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+        build_cell = EntityCellRegularField.build
+        cbc_item = CustomBlockConfigItem.objects.create(
+                        id='tests-contacts1', name='Contact info',
+                        content_type=ContentType.objects.get_for_model(Contact),
+                        cells=[build_cell(Contact, 'last_name'),
+                               build_cell(Contact, hidden_fname),
+                              ],
+                    )
+        bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
+                                             order=1000, # should be the last block
+                                             model=Contact,
+                                             zone=BlockDetailviewLocation.BOTTOM,
+                                            )
+        naru = Contact.objects.create(user=user, last_name='Narusegawa',
+                                      first_name='Naru', phone='1122334455',
+                                     )
+        content = self.assertGET200(naru.get_absolute_url()).content
+        idx = content.find('id="%s"' % bdl.block_id)
+        self.assertNotEqual(-1, idx)
+
+        content_end = content[idx:]
+        self.assertIn(naru.last_name, content_end)
+        self.assertNotIn(naru.phone,  content_end)
+
+    def test_display_customblock03(self):
+        "With FieldsConfig on sub-fields"
+        user = self.login()
+
+        hidden_fname = 'zipcode'
+        FieldsConfig.create(Address,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+        build_cell = EntityCellRegularField.build
+        cbc_item = CustomBlockConfigItem.objects.create(
+                        id='tests-contacts1', name='Contact info',
+                        content_type=ContentType.objects.get_for_model(Contact),
+                        cells=[build_cell(Contact, 'last_name'),
+                               build_cell(Contact, 'address__' + hidden_fname),
+                               build_cell(Contact, 'address__city'),
+                              ],
+                    )
+        bdl = BlockDetailviewLocation.create(block_id=cbc_item.generate_id(),
+                                             order=1000, # should be the last block
+                                             model=Contact,
+                                             zone=BlockDetailviewLocation.BOTTOM,
+                                            )
+        naru = Contact.objects.create(user=user, last_name='Narusegawa',
+                                      first_name='Naru', phone='1122334455',
+                                     )
+        naru.address = Address.objects.create(value='Hinata Inn', city='Tokyo',
+                                              zipcode='112233', entity=naru,
+                                             )
+        naru.save()
+
+        content = self.assertGET200(naru.get_absolute_url()).content
+        idx = content.find('id="%s"' % bdl.block_id)
+        self.assertNotEqual(-1, idx)
+
+        content_end = content[idx:]
+        self.assertIn(naru.last_name,    content_end)
+        self.assertIn(naru.address.city, content_end)
+        self.assertNotIn(naru.address.zipcode, content_end)

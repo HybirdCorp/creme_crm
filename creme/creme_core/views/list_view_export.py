@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
     #TODO: factorise (with list_view()) ?? in a ListViewState's method ???
     hf = HeaderFilter.objects.get(pk=current_lvs.header_filter_id)
-    cells = hf.cells
+#    cells = hf.cells
+    cells = hf.filtered_cells
 
     writer = backend()
     writerow = writer.writerow

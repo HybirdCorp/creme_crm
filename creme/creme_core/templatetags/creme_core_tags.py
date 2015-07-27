@@ -34,7 +34,7 @@ from django.template.defaulttags import TemplateLiteral
 from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
-from ..models import CremeEntity, Relation
+from ..models import CremeEntity, Relation, FieldsConfig
 from ..registry import export_backend_registry, import_backend_registry
 from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
@@ -86,6 +86,7 @@ def get_meta_value(obj, key, default=''):
     except:
         return default
 
+# TODO: still useful ??
 @register.filter(name="get_tag")
 def get_fieldtag(field, tag):
     """eg: {% if field|get_tag:'viewable' %}"""
@@ -99,6 +100,14 @@ def get_field_verbose_name(model_or_entity, field_name):
     except FieldDoesNotExist as e:
         logger.debug('Exception in get_field_verbose_name(): %s', e)
         return 'INVALID FIELD'
+
+@register.filter
+def get_viewable_fields(instance):
+    is_field_hidden = FieldsConfig.get_4_model(instance.__class__).is_field_hidden
+
+    for field in instance._meta.fields:
+        if field.get_tag('viewable') and not is_field_hidden(field):
+            yield field
 
 @register.filter
 def is_none(obj):

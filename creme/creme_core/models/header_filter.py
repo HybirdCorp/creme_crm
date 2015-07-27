@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from django.db.models import Model, CharField, TextField, BooleanField, Q
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from .fields import CremeUserForeignKey, CTypeForeignKey
+from .fields_config import FieldsConfig
 
 
 logger = logging.getLogger(__name__)
@@ -262,6 +263,13 @@ class HeaderFilter(Model): #CremeModel ???
     def cells(self, cells):
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
+
+    @property
+    def filtered_cells(self):
+        """List of EntityCell instances, but it excluded the ones which are
+        related to fields hidden with FieldsConfig.
+        """
+        return list(FieldsConfig.filter_cells(self.entity_type.model_class(), self.cells))
 
     @staticmethod
     def get_for_user(user, content_type=None):

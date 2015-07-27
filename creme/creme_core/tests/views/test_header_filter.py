@@ -14,8 +14,8 @@ try:
     from ..fake_models import FakeContact as Contact, FakeOrganisation as Organisation
     from creme.creme_core.core.entity_cell import (EntityCellRegularField,
             EntityCellCustomField, EntityCellFunctionField, EntityCellRelation)
-    from creme.creme_core.models import (HeaderFilter,
-            CremeEntity, RelationType, CustomField)
+    from creme.creme_core.models import (HeaderFilter, CremeEntity,
+            FieldsConfig, RelationType, CustomField)
 
 #    from creme.persons.constants import REL_SUB_EMPLOYED_BY
 #    from creme.persons.models import Contact, Organisation
@@ -232,6 +232,24 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
+    def test_create07(self):
+        "FieldsConfig"
+        self.login()
+
+        valid_fname = 'last_name'
+        hidden_fname = 'phone'
+        FieldsConfig.create(Contact, descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})])
+
+        response = self.assertGET200(self._build_add_url(self.contact_ct))
+
+        with self.assertNoException():
+            widget = response.context['form'].fields['cells'].widget
+            choices_keys = {c[0] for c in widget.model_fields}
+
+        rf_prefix = 'regular_field-'
+        self.assertIn(rf_prefix + valid_fname,     choices_keys)
+        self.assertNotIn(rf_prefix + hidden_fname, choices_keys)
+
     #def test_edit01(self):
         #"Not editable"
         #self.login()
@@ -391,6 +409,37 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                    )
         self.assertNoFormError(response, status=302)
         self.assertFalse(self.refresh(hf).is_private)
+
+    def test_edit10(self):
+        "FieldsConfig"
+        self.login()
+
+        valid_fname = 'last_name'
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'birthday'
+        build_cell = partial(EntityCellRegularField.build, model=Contact)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                 cells_desc=[build_cell(name=valid_fname),
+                                             build_cell(name=hidden_fname1),
+                                            ],
+                                )
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        response = self.assertGET200(self._build_edit_url(hf))
+
+        with self.assertNoException():
+            widget = response.context['form'].fields['cells'].widget
+            choices_keys = {c[0] for c in widget.model_fields}
+
+        rf_prefix = 'regular_field-'
+        self.assertIn(rf_prefix + valid_fname,   choices_keys)
+        self.assertIn(rf_prefix + hidden_fname1, choices_keys) # was already in the HeaderFilter => still proposed
+        self.assertNotIn(rf_prefix + hidden_fname2, choices_keys)
 
     def test_delete01(self):
         self.login()
