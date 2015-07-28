@@ -79,13 +79,13 @@ class AbstractContact(CremeEntity):
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Billing address'),
-                                  blank=True, null=True,  editable=False,
+                                  blank=True, null=True,  editable=False, on_delete=SET_NULL,
                                   related_name='billing_address_contact_set', #TODO: remove ? (with '+')
                                  ).set_tags(enumerable=False) #clonable=False useless
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Shipping address'),
-                                  blank=True, null=True, editable=False,
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
                                   related_name='shipping_address_contact_set',
                                  ).set_tags(enumerable=False)
     is_user  = ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'Related user'),

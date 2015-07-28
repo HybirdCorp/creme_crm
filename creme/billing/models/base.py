@@ -59,13 +59,13 @@ class Base(CremeEntity):
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Billing address'),
 #                                  related_name='BillingAddress_set',
                                   related_name='+',
-                                  blank=True, null=True, editable=False,
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(enumerable=False)
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL, verbose_name=_(u'Shipping address'),
 #                                  related_name='ShippingAddress_set',
                                   related_name='+',
-                                  blank=True, null=True, editable=False,
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
                                  ).set_tags(enumerable=False)
     currency         = ForeignKey(Currency, verbose_name=_(u'Currency'),
 #                                  related_name='Currency_set',
@@ -85,7 +85,7 @@ class Base(CremeEntity):
                                   related_name='+',
                                   blank=True, null=True, on_delete=SET_NULL,
                                  ).set_tags(clonable=False)
-    payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
+    payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False, on_delete=SET_NULL)
 
     creation_label = _('Add an accounting document')
 

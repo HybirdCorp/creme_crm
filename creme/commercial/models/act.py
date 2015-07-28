@@ -63,7 +63,7 @@ class AbstractAct(CremeEntity):
     start          = DateField(_(u'Start'))
     due_date       = DateField(_(u'Due date'))
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
-    segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
+    segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'), on_delete=PROTECT)
 
     creation_label = _('Add a commercial action')
     _related_opportunities = None
