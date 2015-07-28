@@ -76,13 +76,13 @@ class AbstractOrganisation(CremeEntity):
 #    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'),
     billing_address  = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Billing address'),
-                                  blank=True, null=True, editable=False,
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
                                   related_name='billing_address_orga_set',
                                  ).set_tags(enumerable=False) #clonable=False useless
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Shipping address'),
-                                  blank=True, null=True, editable=False,
+                                  blank=True, null=True, editable=False, on_delete=SET_NULL,
                                   related_name='shipping_address_orga_set',
                                  ).set_tags(enumerable=False)
     annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)\
@@ -91,7 +91,7 @@ class AbstractOrganisation(CremeEntity):
     creation_date  = DateField(_(u"Date of creation of the organisation"),
                                blank=True, null=True,
                               ).set_tags(optional=True)
-    image          = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True)\
+    image          = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True, on_delete=SET_NULL)\
                                .set_tags(optional=True)
 
     # Needed because we expand it's function fields in other apps (ie. billing)

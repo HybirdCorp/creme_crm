@@ -27,7 +27,7 @@ from django.core.mail import send_mail, get_connection
 #from django.db import transaction, IntegrityError
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
-        EmailField, CharField, TextField, ManyToManyField)
+        EmailField, CharField, TextField, ManyToManyField, SET_NULL)
 from django.db.transaction import atomic
 from django.template import Template, Context
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
@@ -81,7 +81,7 @@ class EmailSending(CremeModel):
     body        = TextField(_(u"Body"), editable=False)
     body_html   = TextField(_(u"Body (HTML)"), null=True, blank=True, editable=False)
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'),
-                             blank=True, null=True, editable=False,
+                             blank=True, null=True, editable=False, on_delete=SET_NULL,
                             )
 #    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'), editable=False)
     attachments = ManyToManyField(settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name=_(u'Attachments'), editable=False)

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.urlresolvers import reverse
-from django.db.models import ForeignKey, PROTECT
+from django.db.models import ForeignKey, PROTECT, SET_NULL
 from django.utils.translation import ugettext_lazy as _
 
 from creme.persons.workflow import transform_target_into_customer
@@ -33,7 +33,8 @@ from .other_models import InvoiceStatus, SettlementTerms
 #class Invoice(Base):
 class AbstractInvoice(Base):
     status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
-    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
+    payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True,
+                              on_delete=SET_NULL)
 
     creation_label = _('Add an invoice')
     generate_number_in_create = False

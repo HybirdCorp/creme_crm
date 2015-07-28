@@ -49,7 +49,7 @@ class AbstractProduct(CremeEntity):
     web_site          = CharField(_(u'Web Site'), max_length=100,
                                   blank=True, null=True,
                                  ).set_tags(optional=True)
-    category          = ForeignKey(Category, verbose_name=_(u'Category'))
+    category          = ForeignKey(Category, verbose_name=_(u'Category'), on_delete=PROTECT)
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )

@@ -37,7 +37,7 @@ class AbstractService(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
-    category          = ForeignKey(Category, verbose_name=_(u'Category'))
+    category          = ForeignKey(Category, verbose_name=_(u'Category'), on_delete=PROTECT)
     sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'),
                                    on_delete=PROTECT,
                                   )
