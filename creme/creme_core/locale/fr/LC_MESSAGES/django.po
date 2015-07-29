@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-27 14:28+0200\n"
+"POT-Creation-Date: 2015-07-29 18:47+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,15 +16,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
-#: apps.py:124 apps.py:136
+#: apps.py:128 apps.py:140
 msgid "Core"
 msgstr "Cœur"
 
-#: apps.py:140 templates/creme_core/home.html:9
+#: apps.py:144 templates/creme_core/home.html:9
 msgid "Home"
 msgstr "Accueil"
 
-#: apps.py:141 templates/creme_core/my_page.html:9
+#: apps.py:145 templates/creme_core/my_page.html:9
 msgid "My page"
 msgstr "Ma page"
 
@@ -2180,6 +2180,14 @@ msgstr "Votre recherche : "
 #: templates/creme_core/search_results.html:35
 msgid "Concerned types : "
 msgstr "Types concernés : "
+
+#: templates/creme_core/templatetags/block_custom.html:23
+msgid ""
+"It seems that all fields are hidden. Ask your administrator to fix the "
+"configuration."
+msgstr ""
+"Il semble que tous les champs soient cachés. Demandez à votre "
+"admisnistrateur de corriger la configuration."
 
 #: templates/creme_core/templatetags/block_found_entities.html:23
 msgid "Action"

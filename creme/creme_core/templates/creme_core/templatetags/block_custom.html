@@ -1,4 +1,4 @@
-{% load cycle from future %}{% load creme_block creme_listview %}
+{% load cycle from future %}{% load i18n creme_block creme_listview %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
         {% with title=config_item.name %}
@@ -16,6 +16,10 @@
                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{cell.title}}</th>
                 <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{% get_listview_cell cell object user %}</td>
                 <td class="{% cycle "block_line_dark" "block_line_light" %} edit_inner">{% get_field_editor on entity_cell cell for object %}</td>
+            </tr>
+        {% empty %}
+            <tr class="content empty">
+                <td class="block_line_dark">{% trans "It seems that all fields are hidden. Ask your administrator to fix the configuration." %}</td>
             </tr>
         {% endfor %}
     </tbody>
