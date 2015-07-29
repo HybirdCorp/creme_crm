@@ -2187,7 +2187,7 @@ msgid ""
 "configuration."
 msgstr ""
 "Il semble que tous les champs soient cachés. Demandez à votre "
-"admisnistrateur de corriger la configuration."
+"administrateur de corriger la configuration."
 
 #: templates/creme_core/templatetags/block_found_entities.html:23
 msgid "Action"
