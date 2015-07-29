@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,10 +22,9 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity
 from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.models import CremeEntity
 
-#from creme.persons.models import Address
 from .address import AddressForm
 
 
@@ -45,10 +44,8 @@ class _BasePersonForm(CremeEntityForm):
                                         ('shipping_address', _(u'Shipping address'), _get_address_field_names(_SHIPPING_ADDRESS_FIELD)),
                                        )
 
-    #class Meta:
     class Meta(CremeEntityForm.Meta):
-        model = CremeEntity #overload me
-        #exclude = CremeEntityForm.Meta.exclude + (_BILLING_ADDRESS_FIELD, _SHIPPING_ADDRESS_FIELD)
+        model = CremeEntity # Overload me
 
     def __init__(self, *args, **kwargs):
         super(_BasePersonForm, self).__init__(*args, **kwargs)
@@ -56,7 +53,6 @@ class _BasePersonForm(CremeEntityForm):
         self._init_address_fields(_BILLING_ADDRESS_FIELD)
         self._init_address_fields(_SHIPPING_ADDRESS_FIELD)
 
-    #TODO: find a way to insert field once (build _BasePersonForm ?)
     def _init_address_fields(self, addr_fieldname):
         fields = self.fields
         instance = self.instance
@@ -65,7 +61,8 @@ class _BasePersonForm(CremeEntityForm):
                                   ) #TODO factorise ??
         initial = {}
 
-        for name, field in address_form.base_fields.iteritems():
+#        for name, field in address_form.base_fields.iteritems():
+        for name, field in address_form.fields.iteritems():
             final_name = address_form.add_prefix(name)
             fields[final_name]  = field
             initial[final_name] = address_form.initial.get(name)
@@ -77,13 +74,13 @@ class _BasePersonForm(CremeEntityForm):
         save_instance = False
         address = getattr(instance, addr_fieldname)
         addr_form = AddressForm(entity=instance, user=self.user, instance=address,
-                                prefix=addr_fieldname, data=self.data
+                                prefix=addr_fieldname, data=self.data,
                                )
 
         if addr_form.is_valid():
             if address is not None:
                 addr_form.save()
-            elif addr_form.instance: #do not save empty address
+            elif addr_form.instance: # Do not save empty address
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
         else:
@@ -97,6 +94,6 @@ class _BasePersonForm(CremeEntityForm):
         change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD)
 
         if change4billing or change4shipping:
-            instance.save() #saved twice because of bidirectionnal pk (TODO: change ??)
+            instance.save() # Saved twice because of bidirectionnal pk (TODO: change ??)
 
         return instance

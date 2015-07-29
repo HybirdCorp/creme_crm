@@ -30,13 +30,15 @@ from .. import get_address_model, get_contact_model
 
 Contact = get_contact_model()
 Address = get_address_model()
-#_FIELD_NAMES = Address._INFO_FIELD_NAMES
-_FIELD_NAMES = Address.info_field_names() #TODO: remove not-editable fields ??
+##_FIELD_NAMES = Address._INFO_FIELD_NAMES
+#_FIELD_NAMES = Address.info_field_names() #todo: remove not-editable fields ??
 _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
 class _PersonMergeForm(MergeEntitiesBaseForm):
+    _address_field_names = () # overload by get_merge_form_builder()
+
     def __init__(self, entity1, entity2, *args, **kwargs):
         if isinstance(entity1, Contact): #TODO: create a ContactMergeForm ?
             if entity2.is_user:
@@ -51,7 +53,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         getter = (lambda fname: '') if address is None else \
                     lambda fname: getattr(address, fname)
 
-        for fname in _FIELD_NAMES:
+#        for fname in _FIELD_NAMES:
+        for fname in self._address_field_names:
             initial[prefix + fname] = getter(fname)
 
     def _build_initial_dict(self, entity):
@@ -72,7 +75,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
             address.owner = entity1
             was_none = True
 
-        for fname in _FIELD_NAMES:
+#        for fname in _FIELD_NAMES:
+        for fname in self._address_field_names:
             setattr(address, fname, cleaned_data[prefix + fname])
 
         if address:
@@ -102,14 +106,14 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 #TODO: can we build the form once instead of build it each time ??
 #TODO: factorise with csv_import.py ?
 def get_merge_form_builder():
-#    get_field_by_name = Address._meta.get_field_by_name
     get_field = Address._meta.get_field
     attrs = {}
     billing_address_fnames = []
     shipping_address_fnames = []
+    address_field_names = Address.info_field_names()
 
-    for field_name in _FIELD_NAMES:
-#        field = get_field_by_name(field_name)[0]
+#    for field_name in _FIELD_NAMES:
+    for field_name in address_field_names:
         field = get_field(field_name)
 
         form_fieldname = _BILL_PREFIX + field_name
@@ -124,5 +128,6 @@ def get_merge_form_builder():
                             ('billing_address',  _(u'Billing address'),  billing_address_fnames),
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames),
                         )
+    attrs['_address_field_names'] = address_field_names
 
     return type('PersonMergeForm', (_PersonMergeForm,), attrs)

@@ -54,16 +54,19 @@ class VcfGenerator(object):
         #self.employer = employer[0] if employer else None
         self.employer = contact.get_employers().first()
 
+        self.address_field_names = Address.info_field_names()
         self.addresses = Address.objects.filter(object_id=contact.id).order_by('id')
 
 #    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
-    @staticmethod
-    def address_equality(address1, address2):  # TODO : overload __eq__() in Address?
+#    @staticmethod
+#    def address_equality(address1, address2):  # TODO : overload __eq__() in Address?
+    def address_equality(self, address1, address2):  # TODO : overload __eq__() in Address?
         if address1 is not None and address2 is not None:
-            return all(getattr(address1, fname) == getattr(address2, fname) 
-#                        for fname in VcfGenerator._INFO_FIELD_NAMES
-                        for fname in Address.info_field_names()
+            return all(getattr(address1, fname) == getattr(address2, fname)
+##                        for fname in VcfGenerator._INFO_FIELD_NAMES
+#                        for fname in Address.info_field_names()
+                        for fname in self.address_field_names
                       )
 
         return False
@@ -94,7 +97,8 @@ class VcfGenerator(object):
         vc.add('fn')
         vc.fn.value = self.first_name + ' ' + self.last_name
 
-        addr_equal = VcfGenerator.address_equality
+#        addr_equal = VcfGenerator.address_equality
+        addr_equal = self.address_equality
         addresses = []
         addresses.extend(addr
                             for addr in self.addresses

@@ -6,6 +6,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import FieldsConfig
     from creme.creme_core.models.history import HistoryLine, TYPE_CREATION, TYPE_AUX_CREATION
 
     from .base import skipIfCustomAddress, skipIfCustomContact, skipIfCustomOrganisation
@@ -51,9 +52,19 @@ class AddressTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-    @skipIfCustomAddress
-    def test_info_names(self):
+    def test_info_names01(self):
         self.assertEqual({'name', 'address', 'po_box', 'zipcode', 'city',
+                          'department', 'state', 'country',
+                         },
+                         set(Address.info_field_names())
+                        )
+
+    def test_info_names02(self):
+        fconf = FieldsConfig.create(Address,
+                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        self.assertEqual({'name', 'address', 'zipcode', 'city',
                           'department', 'state', 'country',
                          },
                          set(Address.info_field_names())
@@ -313,7 +324,8 @@ class AddressTestCase(CremeTestCase):
         old_count = HistoryLine.objects.count()
         country = 'Japan'
         name = 'Gainax'
-        self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True,
+        self.assertNoFormError(self.client.post(reverse('persons__create_organisation'),
+                                                follow=True,
                                                 data={'name': name,
                                                       'user':  self.other_user.id,
                                                       'billing_address-country': country,
