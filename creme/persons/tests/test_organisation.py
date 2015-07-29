@@ -8,9 +8,9 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.views.base import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import Relation, CremeProperty, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.models import Relation, CremeProperty, SetCredentials, FieldsConfig
 
     from .base import (_BaseTestCase, skipIfCustomAddress, skipIfCustomContact,
             skipIfCustomOrganisation)
@@ -95,6 +95,110 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         abs_url = orga.get_absolute_url()
         self.assertEqual('/persons/organisation/%s' % orga.id, abs_url)
         self.assertRedirects(response, abs_url)
+
+    @skipIfCustomAddress
+    def test_createview02(self):
+        "With addresses"
+        user = self.login()
+
+        name = 'Bebop'
+
+        b_address = 'Mars gate'
+        b_po_box = 'Mars1233546'
+        b_zipcode = '9874541'
+        b_city = 'Redsand'
+        b_department = 'Great crater'
+        b_state = 'State#3'
+        b_country = 'Terran federation'
+
+        s_address = 'Mars gate (bis)'
+        response = self.client.post(reverse('persons__create_organisation'), follow=True,
+                                    data={'user': user.pk,
+                                          'name': name,
+
+                                          'billing_address-address':    b_address,
+                                          'billing_address-po_box':     b_po_box,
+                                          'billing_address-zipcode':    b_zipcode,
+                                          'billing_address-city':       b_city,
+                                          'billing_address-department': b_department,
+                                          'billing_address-state':      b_state,
+                                          'billing_address-country':    b_country,
+
+                                          'shipping_address-address': s_address,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+
+        billing_address = orga.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address,    billing_address.address)
+        self.assertEqual(b_po_box,     billing_address.po_box)
+        self.assertEqual(b_zipcode,    billing_address.zipcode)
+        self.assertEqual(b_city,       billing_address.city)
+        self.assertEqual(b_department, billing_address.department)
+        self.assertEqual(b_state,      billing_address.state)
+        self.assertEqual(b_country,    billing_address.country)
+
+        self.assertEqual(s_address, orga.shipping_address.address)
+
+        self.assertContains(response, b_address)
+        self.assertContains(response, s_address)
+
+    @skipIfCustomAddress
+    def test_createview03(self):
+        "FieldsConfig on Address"
+        user = self.login()
+        fconf = FieldsConfig.create(Address,
+                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        response = self.assertGET200(reverse('persons__create_organisation'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('name', fields)
+        self.assertIn('billing_address-address', fields)
+        self.assertNotIn('billing_address-po_box',  fields)
+
+        name = 'Bebop'
+
+        b_address = 'Mars gate'
+        b_po_box = 'Mars1233546'
+        b_zipcode = '9874541'
+        b_city = 'Redsand'
+        b_department = 'Great crater'
+        b_state = 'State#3'
+        b_country = 'Terran federation'
+
+        response = self.client.post(reverse('persons__create_organisation'), follow=True,
+                                    data={'user': user.pk,
+                                          'name': name,
+
+                                          'billing_address-address':    b_address,
+                                          'billing_address-po_box':     b_po_box, # <== should not be used
+                                          'billing_address-zipcode':    b_zipcode,
+                                          'billing_address-city':       b_city,
+                                          'billing_address-department': b_department,
+                                          'billing_address-state':      b_state,
+                                          'billing_address-country':    b_country,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+        billing_address = orga.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address,    billing_address.address)
+        self.assertEqual(b_zipcode,    billing_address.zipcode)
+        self.assertEqual(b_city,       billing_address.city)
+        self.assertEqual(b_department, billing_address.department)
+        self.assertEqual(b_state,      billing_address.state)
+        self.assertEqual(b_country,    billing_address.country)
+
+        self.assertFalse(billing_address.po_box)
 
     @skipIfCustomAddress
     def test_editview01(self):
@@ -609,6 +713,27 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNone(orga01.billing_address)
         self.assertIsNone(orga01.shipping_address)
 
+    @skipIfCustomAddress
+    def test_merge04(self):
+        "FieldsConfig on Address"
+        user = self.login()
+        fconf = FieldsConfig.create(Address,
+                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv')
+
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('billaddr_name', fields)
+        self.assertIn('billaddr_city', fields)
+        self.assertNotIn('billaddr_po_box', fields)
+
     def test_delete_sector(self):
         "Set to null"
         user = self.login()
@@ -733,3 +858,31 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         addr2 = self.refresh(addr2)
         self.assertEqual(city2, addr2.city)
+
+    @skipIfCustomAddress
+    def test_csv_import03(self):
+        "FieldsConfig on Address"
+        user = self.login()
+        fconf = FieldsConfig.create(Address,
+                                    descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        name = 'Nerv'
+        city = 'Tokyo'
+        po_box = 'ABC123'
+        doc = self._build_csv_doc([(name, city, po_box)])
+        response = self.client.post(self._build_import_url(Organisation),
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=user.id,
+
+                                              billaddr_city_colselect=2,
+                                              billaddr_po_box_colselect=3, # should not be used
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        billing_address = self.get_object_or_fail(Organisation, name=name).billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(city, billing_address.city)
+        self.assertFalse(billing_address.po_box)

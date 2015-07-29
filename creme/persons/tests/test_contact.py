@@ -119,7 +119,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
     def test_createview01(self):
-        self.login()
+        user = self.login()
 
 #        url = self.ADD_URL
         url = reverse('persons__create_contact')
@@ -129,7 +129,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = 'Spike'
         last_name  = 'Spiegel'
         response = self.client.post(url, follow=True,
-                                    data={'user':       self.user.pk,
+                                    data={'user':       user.pk,
                                           'first_name': first_name,
                                           'last_name':  last_name,
                                          }
@@ -149,14 +149,14 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_createview02(self):
         "With addresses"
-        self.login()
+        user = self.login()
 
         first_name = 'Spike'
         b_address = 'In the Bebop.'
         s_address = 'In the Bebop (bis).'
 #        response = self.client.post(self.ADD_URL, follow=True,
         response = self.client.post(reverse('persons__create_contact'), follow=True,
-                                    data={'user':                     self.user.pk,
+                                    data={'user':                     user.pk,
                                           'first_name':               first_name,
                                           'last_name':                'Spiegel',
                                           'billing_address-address':  b_address,
@@ -176,9 +176,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertContains(response, s_address)
 
     def test_editview01(self):
-        self.login()
+        user = self.login()
         first_name = 'Faye'
-        contact = Contact.objects.create(user=self.user, first_name=first_name, last_name='Valentine')
+        contact = Contact.objects.create(user=user, first_name=first_name, last_name='Valentine')
 
 #        url = self._build_edit_url(contact)
         url = contact.get_edit_absolute_url()
@@ -186,7 +186,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         last_name = 'Spiegel'
         response = self.assertPOST200(url, follow=True,
-                                      data={'user':       self.user.pk,
+                                      data={'user':       user.pk,
                                             'first_name': first_name,
                                             'last_name':  last_name,
                                            }
@@ -202,8 +202,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_editview02(self):
         "Edit addresses"
-        self.login()
-        user = self.user
+        user = self.login()
+
         first_name = 'Faye'
         last_name  = 'Valentine'
 #        self.assertPOST200(self.ADD_URL, follow=True,
@@ -281,8 +281,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_is_user01(self):
         "Property 'linked_contact'"
-        self.login()
-        user = self.user
+        user = self.login()
 
         with self.assertNumQueries(0):
             rel_contact = user.linked_contact
@@ -305,8 +304,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         first_name = NULL (not nullable in User)
         email = NULL (not nullable in User)
         """
-        self.login()
-        user = self.user
+        user = self.login()
         contact = user.linked_contact
         last_name = contact.last_name
         first_name = contact.first_name
@@ -339,11 +337,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         )
 
     def test_listview(self):
-        self.login()
+        user = self.login()
 
         count = Contact.objects.filter(is_deleted=False).count()
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         faye    = create_contact(first_name='Faye',    last_name='Valentine')
         spike   = create_contact(first_name='Spike',   last_name='Spiegel')
         vicious = create_contact(first_name='Vicious', last_name='Badguy', is_deleted=True)
@@ -419,7 +417,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_create_linked_contact03(self):
         "No LINK credentials"
-        self.login(is_superuser=False, creatable_models=[Contact])
+        user = self.login(is_superuser=False, creatable_models=[Contact])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_OWN,
@@ -428,9 +426,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                  )
 
-        orga = Organisation.objects.create(user=self.user, name='Acme')
-        self.assertTrue(self.user.has_perm_to_view(orga))
-        self.assertFalse(self.user.has_perm_to_link(orga))
+        orga = Organisation.objects.create(user=user, name='Acme')
+        self.assertTrue(user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_link(orga))
 
 #        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
 #                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
@@ -461,9 +459,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_create_linked_contact04(self):
-        self.login()
+        user = self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Acme')
+        orga = Organisation.objects.create(user=user, name='Acme')
 #        url = self.ADD_RELATED_URL
 #
 #        self.assertGET404(url % {'orga_id':  1024, #doesn't exist
@@ -537,9 +535,8 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_clone(self):
         "Addresses & is_user are problematic"
-        self.login()
+        user = self.login()
 
-        user = self.user
         #naruto = Contact.objects.create(user=user, is_user=user,
                                         #first_name='Naruto', last_name='Uzumaki'
                                        #)
@@ -719,7 +716,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_quickform03(self):
         "2 Contacts created and link with an existing Organisation"
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
         SetCredentials.objects.create(role=self.role,
@@ -731,7 +728,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(Organisation.objects.filter(name=orga_name))
 
         create_orga = partial(Organisation.objects.create, name=orga_name)
-        orga1 = create_orga(user=self.user)
+        orga1 = create_orga(user=user)
         orga2 = create_orga(user=self.other_user) #this one can not be seen by user
 
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
@@ -739,11 +736,11 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
-                                          'form-0-user':           self.user.id,
+                                          'form-0-user':           user.id,
                                           'form-0-first_name':     data[0][0],
                                           'form-0-last_name':      data[0][1],
                                           'form-0-organisation':   data[0][2],
-                                          'form-1-user':           self.user.id,
+                                          'form-1-user':           user.id,
                                           'form-1-first_name':     data[1][0],
                                           'form-1-last_name':      data[1][1],
                                           'form-1-organisation':   data[1][2],
@@ -762,7 +759,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_quickform04(self):
         "No permission to create Organisation"
-        self.login(is_superuser=False, creatable_models=[Contact]) #<== no Organisation
+        user = self.login(is_superuser=False, creatable_models=[Contact]) #<== no Organisation
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW | EntityCredentials.LINK,
@@ -789,7 +786,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
-                                          'form-0-user':           self.user.id,
+                                          'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
                                           'form-0-organisation':   orga_name,
@@ -804,7 +801,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_quickform05(self):
         "No permission to link Organisation"
-        self.login(is_superuser=False, creatable_models=[Contact])
+        user = self.login(is_superuser=False, creatable_models=[Contact])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role,
                             set_type=SetCredentials.ESET_ALL
@@ -834,7 +831,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                          data={'form-TOTAL_FORMS':      1,
                                'form-INITIAL_FORMS':    0,
                                'form-MAX_NUM_FORMS':    u'',
-                               'form-0-user':           self.user.id,
+                               'form-0-user':           user.id,
                                'form-0-first_name':     first_name,
                                'form-0-last_name':      last_name,
                                'form-0-organisation':   'Bebop',
@@ -912,18 +909,18 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_quickform08(self):
         "Multiple Organisations found"
-        self.login()
+        user = self.login()
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
-        create_orga(user=self.user)
+        create_orga(user=user)
         create_orga(user=self.other_user)
 
         response = self.client.post(self._build_quickform_url(1),
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
-                                          'form-0-user':           self.user.id,
+                                          'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
                                           'form-0-organisation':   orga_name,
@@ -937,7 +934,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_quickform09(self):
         "Multiple Organisations found, only one linkable (so we use it)"
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
@@ -945,7 +942,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
-        orga1 = create_orga(user=self.user)
+        orga1 = create_orga(user=user)
         create_orga(user=self.other_user) #can not be linked by user
 
         first_name = 'Faye'
@@ -954,7 +951,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
-                                          'form-0-user':           self.user.id,
+                                          'form-0-user':           user.id,
                                           'form-0-first_name':     first_name,
                                           'form-0-last_name':      last_name,
                                           'form-0-organisation':   orga_name,
@@ -969,7 +966,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_quickform10(self):
         "Multiple Organisations found, but none of them is linkable"
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
@@ -984,7 +981,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                     data={'form-TOTAL_FORMS':      1,
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
-                                          'form-0-user':           self.user.id,
+                                          'form-0-user':           user.id,
                                           'form-0-first_name':     'Faye',
                                           'form-0-last_name':      'Valentine',
                                           'form-0-organisation':   orga_name,
@@ -1029,10 +1026,10 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomOrganisation
     def test_quickform12(self):
         "Multiple Organisations found, only one is not deleted (so we use it)"
-        self.login()
+        user = self.login()
 
         orga_name = 'Bebop'
-        create_orga = partial(Organisation.objects.create, name=orga_name, user=self.user)
+        create_orga = partial(Organisation.objects.create, name=orga_name, user=user)
         create_orga(is_deleted=True)
         orga2 = create_orga()
 
@@ -1042,7 +1039,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                                     data={'form-TOTAL_FORMS':    1,
                                           'form-INITIAL_FORMS':  0,
                                           'form-MAX_NUM_FORMS':  u'',
-                                          'form-0-user':         self.user.id,
+                                          'form-0-user':         user.id,
                                           'form-0-first_name':   first_name,
                                           'form-0-last_name':    last_name,
                                           'form-0-organisation': orga_name,
@@ -1057,8 +1054,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_merge01(self):
         "Merging addresses"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Faye', last_name='Valentine')
@@ -1205,8 +1201,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_merge02(self):
         "Merging addresses -> empty addresses"
-        self.login()
-        user = self.user
+        user = self.login()
 
         create_contact = partial(Contact.objects.create, user=user)
         contact01 = create_contact(first_name='Faye', last_name='Valentine')
@@ -1315,8 +1310,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge03(self):
         "Merge 1 Contact which represents a user with another Contact"
-        self.login()
-        user = self.user
+        user = self.login()
 
         contact01 = user.linked_contact
         first_name1 = contact01.first_name
@@ -1366,8 +1360,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge04(self):
         "Merge 1 Contact with another one which represents a user (entity swap)"
-        self.login()
-        user = self.user
+        user = self.login()
 
         first_name1 = 'FAYE'
         contact01 = Contact.objects.create(user=user, first_name=first_name1, last_name='VALENTINE')
@@ -1422,9 +1415,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_merge05(self):
         "Cannot merge 2 Contacts that represent 2 users"
-        self.login()
+        user = self.login()
 
-        contact01 = self.user.linked_contact
+        contact01 = user.linked_contact
         contact02 = self.other_user.linked_contact
 
         self.assertGET409(self.build_merge_url(contact01, contact02))
@@ -1432,9 +1425,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_civility(self):
         "Set to null"
-        self.login()
+        user = self.login()
         captain = Civility.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', civility=captain,
                                         )
 
@@ -1446,9 +1439,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_position(self):
         "Set to null"
-        self.login()
+        user = self.login()
         captain = Position.objects.create(title='Captain')
-        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', position=captain,
                                         )
 
@@ -1460,9 +1453,9 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_sector(self):
         "Set to null"
-        self.login()
+        user = self.login()
         piracy = Sector.objects.create(title='Piracy')
-        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+        harlock = Contact.objects.create(user=user, first_name='Harlock',
                                          last_name='Matsumoto', sector=piracy,
                                         )
 
@@ -1474,13 +1467,13 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     def test_delete_image(self):
         "Set to null"
-        self.login()
+        user = self.login()
 
         path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
 
         image_name = 'My image'
         self.client.post('/media_managers/image/add', follow=True,
-                         data={'user':        self.user.pk,
+                         data={'user':        user.pk,
                                'name':        image_name,
                                'description': 'Blabala',
                                'image':       open(path, 'rb'),
@@ -1551,7 +1544,7 @@ class ContactTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
                         self._build_import_url(Contact),
                         data=dict(self.lv_import_data,
                                   document=doc.id, has_header=True,
-                                  user=self.user.id,
+                                  user=user.id,
                                   first_name_colselect=1,
                                   last_name_colselect=2,
                                   billaddr_city_colselect=3,

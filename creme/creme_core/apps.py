@@ -29,7 +29,7 @@ from .checks import Tags, check_uninstalled_apps # it registers other checkings 
 from .core.reminder import reminder_registry
 from .core.setting_key import setting_key_registry
 from .gui import (creme_menu, block_registry, bulk_update_registry, button_registry,
-        field_printers_registry, icon_registry, import_form_registry,
+        fields_config_registry, field_printers_registry, icon_registry, import_form_registry,
         merge_form_registry, quickforms_registry, smart_columns_registry)
 from .registry import creme_registry
 
@@ -66,6 +66,7 @@ class CremeAppConfig(AppConfig):
             self.register_blocks(block_registry)
             self.register_bulk_update(bulk_update_registry)
             self.register_buttons(button_registry)
+            self.register_fields_config(fields_config_registry)
             self.register_field_printers(field_printers_registry)
             self.register_icons(icon_registry)
             self.register_mass_import(import_form_registry)
@@ -89,6 +90,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_buttons(self, button_registry):
+        pass
+
+    def register_fields_config(self, fields_config_registry):
         pass
 
     def register_field_printers(self, field_printers_registry):

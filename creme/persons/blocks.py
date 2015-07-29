@@ -206,13 +206,23 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                            )
 
 
-#_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
-_ADDRESS_FIELD_NAMES = list(Address.info_field_names()) #TODO: factorise (see CSV import) ?
+##_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
+#_ADDRESS_FIELD_NAMES = list(Address.info_field_names()) #todo: factorise (see CSV import) ?
+#
+#try:
+#    _ADDRESS_FIELD_NAMES.remove('name')
+#except ValueError:
+#    pass
+# TODO: factorise (see CSV import) ? (exclue param in info_field_names())
+def _get_address_field_names():
+    field_names = list(Address.info_field_names())
 
-try:
-    _ADDRESS_FIELD_NAMES.remove('name')
-except ValueError:
-    pass
+    try:
+       field_names.remove('name')
+    except ValueError:
+       pass
+
+    return field_names
 
 class AddressBlock(Block):
     id_           = Block.generate_id('persons', 'address')
@@ -227,7 +237,8 @@ class AddressBlock(Block):
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (
                                                 self.id_, context['object'].pk,
                                             ),
-                                field_names=_ADDRESS_FIELD_NAMES,
+#                                field_names=_ADDRESS_FIELD_NAMES,
+                                field_names=_get_address_field_names(), #TODO: cache in context ??
                                 address_model=Address, #for fields' verbose name
                                )
                            )
@@ -254,7 +265,8 @@ class OtherAddressBlock(QuerysetBlock):
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (
                                                 self.id_, person.pk,
                                             ),
-                                field_names=_ADDRESS_FIELD_NAMES,
+#                                field_names=_ADDRESS_FIELD_NAMES,
+                                field_names=_get_address_field_names(),
                                 ct_id=self._ADDRESS_CT_ID,
                                )
                            )

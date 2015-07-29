@@ -27,15 +27,15 @@ from .. import get_address_model
 
 
 Address = get_address_model()
-#_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
-_FIELD_NAMES = list(Address.info_field_names()) #TODO: remove not-editable fields ??
+##_FIELD_NAMES = list(Address._INFO_FIELD_NAMES)
+#_FIELD_NAMES = list(Address.info_field_names()) #todo: remove not-editable fields ??
+#
+#try:
+#    _FIELD_NAMES.remove('name')
+#except ValueError:
+#    pass
 
-try:
-    _FIELD_NAMES.remove('name')
-except ValueError:
-    pass
-
-#TODO: factorise (MergeForm) ?
+# TODO: factorise (MergeForm) ?
 _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
@@ -44,31 +44,29 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
-#    def _save_address(self, attr_name, prefix, person, data, line):
+    _address_field_names = () # overload by get_csv_form_builder()
+
     def _save_address(self, attr_name, prefix, person, data, line, name):
         address_dict = {}
         save = False
 
-        for field_name in _FIELD_NAMES:
-            #address_dict[field_name], err_msg = data[prefix + field_name].extract_value(line)
+#        for field_name in _FIELD_NAMES:
+        for field_name in self._address_field_names:
             extr_value, err_msg = data[prefix + field_name].extract_value(line)
             if extr_value:
                 address_dict[field_name] = extr_value
 
             self.append_error(line, err_msg, person)
 
-        #if any(address_dict.itervalues()):
         if address_dict:
             address_dict['owner'] = person
-#            address_dict['name'] = attr_name
             address_dict['name'] = name
             address = getattr(person, attr_name, None)
 
-            if address is not None: #update
+            if address is not None: # Update
                 for fname, fvalue in address_dict.iteritems():
-                    #if fvalue:
-                        #setattr(address, fname, fvalue)
                     setattr(address, fname, fvalue)
+
                 address.save()
             else:
                 setattr(person, attr_name, Address.objects.create(**address_dict))
@@ -88,14 +86,19 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
 
 
 def get_csv_form_builder(header_dict, choices):
-#    get_field_by_name = Address._meta.get_field_by_name
     get_field = Address._meta.get_field
     attrs = {}
     billing_address_fnames = []
     shipping_address_fnames = []
 
-    for field_name in _FIELD_NAMES:
-#        field = get_field_by_name(field_name)[0]
+    address_field_names = list(Address.info_field_names()) # TODO: remove not-editable fields ??
+    try:
+       address_field_names.remove('name')
+    except ValueError:
+       pass
+
+#    for field_name in _FIELD_NAMES:
+    for field_name in address_field_names:
         field = get_field(field_name)
 
         form_fieldname = _BILL_PREFIX + field_name
@@ -110,5 +113,6 @@ def get_csv_form_builder(header_dict, choices):
                             ('billing_address',  _(u'Billing address'),  billing_address_fnames),
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )
+    attrs['_address_field_names'] = address_field_names
 
     return type('PersonCSVImportForm', (_PersonCSVImportForm,), attrs)

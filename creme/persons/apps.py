@@ -29,10 +29,11 @@ class PersonsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def ready(self):
-        from . import get_contact_model, get_organisation_model
+        from . import get_contact_model, get_organisation_model, get_address_model
 
         self.Contact = get_contact_model()
         self.Organisation = get_organisation_model()
+        self.Address = get_address_model()
         super(PersonsConfig, self).ready()
         self.hook_user()
         self.hook_user_form()
@@ -62,6 +63,9 @@ class PersonsConfig(CremeAppConfig):
         from .buttons import button_list
 
         button_registry.register(*button_list)
+
+    def register_fields_config(self, fields_config_registry):
+        fields_config_registry.register(self.Address)
 
     def register_icons(self, icon_registry):
         reg_icon = icon_registry.register
