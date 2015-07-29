@@ -4,7 +4,7 @@
     {% get_block_header colspan=5 %}
         <th class="label">{% get_block_title _('%s Received invoice') _('%s Received invoices') 'invoice_48.png' _('Invoice') %}</th>
         <th class="actions">
-            <div class="buttons">{% has_perm_to change object as has_perm %}{% url 'billing__create_invoice_for_target' object.id as creation_url %}
+            <div class="buttons">{% has_perm_to change object as has_perm %}{% url 'billing__create_related_invoice' object.id as creation_url %}
                 {% get_line_adder at_url creation_url with_label _("Add an invoice") with_perms has_perm %}
             </div>
         </th>
