@@ -30,7 +30,7 @@ from creme.creme_core.forms import CremeForm, FieldBlockManager, CremeModelWithU
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 
-from creme.products.models import Product, Service
+from creme.products import get_service_model, get_product_model
 from creme.products.forms.fields import CategoryField
 
 from ..constants import (REL_SUB_LINE_RELATED_ITEM, DEFAULT_DECIMAL, DEFAULT_QUANTITY,
@@ -138,7 +138,7 @@ class _LineMultipleAddForm(CremeForm):
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Products'), model=Product)
+    items = MultiCreatorEntityField(label=_(u'Products'), model=get_product_model())
 
     blocks = FieldBlockManager(
         ('general',     _(u'Products choice'), ['items']),
@@ -150,7 +150,7 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
 
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCreatorEntityField(label=_(u'Services'), model=Service)
+    items = MultiCreatorEntityField(label=_(u'Services'), model=get_service_model())
 
     blocks = FieldBlockManager(
         ('general',     _(u'Services choice'), ['items']),
