@@ -26,7 +26,6 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem
-#from creme.creme_core.utils.meta import FieldInfo #get_verbose_field_name
 
 from ..constants import RFT_RELATION, RFT_FIELD
 #from .report import Report

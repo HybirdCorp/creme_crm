@@ -1150,6 +1150,7 @@ class ReportTestCase(BaseReportsTestCase):
         report_contact = create_report(name="Report on Contacts",      ct=self.ct_contact)
         report_img     = create_report(name="Report on Images",        ct=self.ct_image)
 
+        # TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
         create_field = partial(Field.objects.create, report=report_orga)
         create_field(name=REL_OBJ_EMPLOYED_BY, type=RFT_RELATION, order=1, selected=True, sub_report=report_contact)
         create_field(name='name',              type=RFT_FIELD,    order=2)
