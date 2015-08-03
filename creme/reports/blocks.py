@@ -43,11 +43,13 @@ class ReportFieldsBlock(Block):
 
     def detailview_display(self, context):
         report = context['object']
+        columns = report.columns
+
         return self._render(self.get_block_template_context(
                                 context,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                columns=report.columns,
-                                expand=any(field.sub_report_id for field in report.columns),
+                                columns=columns,
+                                expand=any(field.sub_report_id for field in columns),
                                )
                            )
 

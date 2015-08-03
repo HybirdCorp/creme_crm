@@ -23,8 +23,8 @@ import logging
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import smart_str
-from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import inner_popup

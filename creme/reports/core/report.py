@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2014  Hybird
+#    Copyright (C) 2013-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,15 +24,16 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ManyToManyField, ForeignKey, FieldDoesNotExist
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import CremeEntity, RelationType, CustomField
-from creme.creme_core.utils.meta import FieldInfo, get_related_field #get_instance_field_info get_model_field_info get_verbose_field_name
+from creme.creme_core.utils.meta import FieldInfo, get_related_field
 
 from ..constants import (RFT_FUNCTION, RFT_RELATION, RFT_FIELD, RFT_CUSTOM,
-        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)  #RFT_AGGREGATE
+        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
 from ..report_aggregation_registry import field_aggregation_registry
 
 
@@ -189,6 +190,11 @@ class ReportHand(object):
         return u'' if value is None else value
 
     @property
+    def hidden(self):
+        "See FieldsConfig"
+        return False
+
+    @property
     def title(self):
         return self._title
 
@@ -201,55 +207,60 @@ class ReportHand(object):
 class RHRegularField(ReportHand):
     verbose_name = _(u'Regular field')
 
+    _field_info = None # Set by __new__()
+
     def __new__(cls, report_field):
         try:
-            #field_info = get_model_field_info(report_field.model, report_field.name, silent=False)
             field_info = FieldInfo(report_field.model, report_field.name)
         except FieldDoesNotExist:
             raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        #if len(field_info) > 1 and isinstance(field_info[1]['field'], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
         if len(field_info) > 1 and isinstance(field_info[1], (ForeignKey, ManyToManyField)): #TODO: test ForeignKey
             raise ReportHand.ValueError('Invalid field: "%s"' % report_field.name)
 
-        #first_part = field_info[0]['field']
         first_part = field_info[0]
+        klass = RHForeignKey if isinstance(first_part, ForeignKey) else \
+                RHManyToManyField if isinstance(first_part, ManyToManyField) else \
+                RHRegularField
 
-        if isinstance(first_part, ForeignKey):
-            return ReportHand.__new__(RHForeignKey)
+        instance = ReportHand.__new__(klass)
+        instance._field_info = field_info
 
-        if isinstance(first_part, ManyToManyField):
-            return ReportHand.__new__(RHManyToManyField)
-
-        return super(RHRegularField, cls).__new__(cls)
+        return instance
 
     def __init__(self, report_field, support_subreport=False, title=None):
         model = report_field.model
-        field_name = report_field.name
         super(RHRegularField, self).__init__(report_field,
-                                             #title=title or get_verbose_field_name(model, field_name),
-                                             title=title or FieldInfo(model, field_name).verbose_name,
+                                             title=title or self._field_info.verbose_name,
                                              support_subreport=support_subreport,
                                             )
-        ##todo: get_verbose_field_name & build_field_printer do the same work (get_model_field_info): can we factorise this ??
-        #TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
-        self._printer = field_printers_registry.build_field_printer(model, field_name, output='csv')
+
+        # TODO: FieldInfo is used by build_field_printer do the same work: can we factorise this ??
+        self._printer = field_printers_registry.build_field_printer(model,
+                                                                    report_field.name,
+                                                                    output='csv',
+                                                                   )
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        #model_field, value = get_instance_field_info(entity, self._report_field.name)
-        #return unicode(value or u'') #Maybe format map (i.e : datetime...)
         return self._printer(entity, user)
+
+    @property
+    def field_info(self):
+        return self._field_info
+
+    @cached_property
+    def hidden(self):
+        rfield = self._report_field
+        return rfield.report._fields_configs.is_fieldinfo_hidden(rfield.model,
+                                                                 self._field_info,
+                                                                )
 
 
 class RHForeignKey(RHRegularField):
     def __init__(self, report_field):
-        #field_info = get_model_field_info(report_field.model, report_field.name) #todo: factorise with __new__
-        self._field_info = field_info = FieldInfo(report_field.model, report_field.name) #TODO: factorise with __new__
-        #fk_info = field_info[0]
-        #fk_field = fk_info['field']
+        field_info = self._field_info
         fk_field = field_info[0]
         self._fk_attr_name = fk_field.get_attname()
-        #fk_model = fk_info['model']
         fk_model = fk_field.rel.to
         self._linked2entity = issubclass(fk_model, CremeEntity)
         qs = fk_model.objects.all()
@@ -260,10 +271,8 @@ class RHForeignKey(RHRegularField):
             if efilter:
                 qs = efilter.filter(qs)
         else:
-            #small optimization: only used by _get_value_no_subreport()
-            #self._attr_name = field_info[1]['field'].name
+            # Small optimization: only used by _get_value_no_subreport()
             if len(field_info) > 1:
-                #attr_name = field_info[1]['field'].name
                 attr_name = field_info[1].name
                 self._value_extractor = lambda fk_instance: getattr(fk_instance, attr_name, None)
             else:
@@ -275,7 +284,7 @@ class RHForeignKey(RHRegularField):
                                            title=unicode(fk_field.verbose_name) if sub_report else None,
                                           )
 
-    #NB: cannot rename to _get_related_instances() because fordibben entities are filtered instead of outputting '??'
+    # NB: cannot rename to _get_related_instances() because fordibben entities are filtered instead of outputting '??'
     def _get_fk_instance(self, entity):
         try:
             entity = self._qs.get(pk=getattr(entity, self._fk_attr_name))
@@ -300,15 +309,11 @@ class RHForeignKey(RHRegularField):
             if self._linked2entity and not user.has_perm_to_view(fk_instance):
                 return settings.HIDDEN_VALUE
 
-            #return getattr(fk_instance, self._attr_name, None)
             return self._value_extractor(fk_instance)
 
     def get_linkable_ctypes(self):
-        return (ContentType.objects.get_for_model(self._qs.model),) if self._linked2entity else None
-
-    @property
-    def field_info(self):
-        return self._field_info
+        return (ContentType.objects.get_for_model(self._qs.model),) \
+               if self._linked2entity else None
 
     @property
     def linked2entity(self):
@@ -318,23 +323,32 @@ class RHForeignKey(RHRegularField):
 class RHManyToManyField(RHRegularField):
     def __init__(self, report_field):
         super(RHManyToManyField, self).__init__(report_field, support_subreport=True)
-        #self._m2m_attr_name, sep, self._attr_name = report_field.name.partition('__')
-        self._m2m_attr_name, sep, attr_name = report_field.name.partition('__')
+#        self._m2m_attr_name, sep, attr_name = report_field.name.partition('__')
 
-        #TODO: move "or u''" in base class ??
-        self._related_model_value_extractor = (lambda instance: getattr(instance, attr_name, None) or u'') if attr_name else \
-                                              unicode
+#        self._related_model_value_extractor = \
+#            (lambda instance: getattr(instance, attr_name, None) or u'') if attr_name else \
+#            unicode
+
+        field_info = self._field_info
+
+        if len(field_info) > 1:
+            attr_name = self._field_info[1].name
+            # TODO: move "or u''" in base class ??
+            self._related_model_value_extractor = \
+                lambda instance: getattr(instance, attr_name, None) or u''
+        else:
+            self._related_model_value_extractor = unicode
 
     def _get_related_instances(self, entity, user):
-        return getattr(entity, self._m2m_attr_name).all()
-
-    #def _related_model_value_extractor(self, instance):
-        #return getattr(instance, self._attr_name, None) or u'' #todo: move "or u''" in base class ??
+#        return getattr(entity, self._m2m_attr_name).all()
+        return getattr(entity, self._field_info[0].name).all()
 
     def get_linkable_ctypes(self):
-        m2m_model = self._report_field.model._meta.get_field(self._m2m_attr_name).rel.to
+#        m2m_model = self._report_field.model._meta.get_field(self._m2m_attr_name).rel.to
+        m2m_model = self._field_info[0].rel.to
 
-        return (ContentType.objects.get_for_model(m2m_model),) if issubclass(m2m_model, CremeEntity) else None
+        return (ContentType.objects.get_for_model(m2m_model),) \
+               if issubclass(m2m_model, CremeEntity) else None
 
 
 @REPORT_HANDS_MAP(RFT_CUSTOM)
@@ -369,18 +383,24 @@ class RHRelation(ReportHand):
         if report_field.sub_report:
             self._related_model = report_field.sub_report.ct.model_class()
 
-        super(RHRelation, self).__init__(report_field, title=unicode(rtype.predicate), support_subreport=True)
+        super(RHRelation, self).__init__(report_field,
+                                         title=unicode(rtype.predicate),
+                                         support_subreport=True,
+                                        )
 
     def _get_related_instances(self, entity, user):
         return self._related_model.objects.filter(relations__type=self._rtype.symmetric_type,
                                                   relations__object_entity=entity.id,
                                                  )
 
-    #TODO: add a feature in base class to retrieved efficently real entities ??
-    #TODO: extract algorithm that retrieve efficently real entity from CremeEntity.get_related_entities()
+    # TODO: add a feature in base class to retrieved efficently real entities ??
+    # TODO: extract algorithm that retrieve efficently real entity from CremeEntity.get_related_entities()
     def _get_value_no_subreport(self, entity, user, scope):
         has_perm = user.has_perm_to_view
-        return u', '.join(unicode(e) for e in entity.get_related_entities(self._rtype.id, True) if has_perm(e))
+        return u', '.join(unicode(e)
+                            for e in entity.get_related_entities(self._rtype.id, True)
+                                if has_perm(e)
+                         )
 
     def get_linkable_ctypes(self):
         return self._rtype.object_ctypes.all()
@@ -413,16 +433,22 @@ class RHAggregate(ReportHand):
     def __init__(self, report_field):
         self._cache_key   = None
         self._cache_value = None
-        #field_name, sep, aggregation_id = report_field.name.rpartition('__')
         field_name, aggregation_id = report_field.name.split('__', 1)
         aggregation = field_aggregation_registry.get(aggregation_id)
 
         if aggregation is None:
             raise ReportHand.ValueError('Invalid aggregation: "%s"' % aggregation_id)
 
-        self._aggregation_q, verbose_name = self._build_query_n_vname(report_field, field_name, aggregation)
+        self._aggregation_q, verbose_name = self._build_query_n_vname(report_field,
+                                                                      field_name,
+                                                                      aggregation,
+                                                                     )
 
-        super(RHAggregate, self).__init__(report_field, title=u'%s - %s' % (aggregation.title, verbose_name))
+        super(RHAggregate, self).__init__(report_field,
+                                          title=u'%s - %s' % (aggregation.title,
+                                                              verbose_name,
+                                                             ),
+                                         )
 
     def _build_query_n_vname(self, report_field, field_name, aggregation):
         raise NotImplementedError
