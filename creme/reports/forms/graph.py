@@ -27,8 +27,8 @@ from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms.base import CremeEntityForm
-from creme.creme_core.forms.widgets import DependentSelect
 from creme.creme_core.forms.fields import AjaxChoiceField
+from creme.creme_core.forms.widgets import DependentSelect
 from creme.creme_core.models import RelationType, CustomField
 from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
@@ -125,11 +125,6 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
 
         #Ordinate -----------------------------------------------------------
-#         aggfield_choices = ModelFieldEnumerator(model, deep=0) \
-#                                 .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
-#                                         viewable=True
-#                                         ) \
-#                                 .choices()
         aggfields = [field_info[0]
                         for field_info in ModelFieldEnumerator(model, deep=0)
                                             .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),

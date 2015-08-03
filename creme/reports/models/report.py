@@ -26,10 +26,11 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.db.models import (CharField, PositiveIntegerField,
         PositiveSmallIntegerField, BooleanField, ForeignKey, PROTECT)
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter
+from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter, FieldsConfig
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
 
@@ -98,10 +99,19 @@ class AbstractReport(CremeEntity):
     def columns(self):
         columns = self._columns
 
-        if columns is None: #root report
+        if columns is None: # root report
             columns = self._build_columns(allow_selected=True)
 
         return columns
+
+    @cached_property
+    def _fields_configs(self):
+        "Protected API. Useful for ReportHands/ReportGraphHand (in order to avoid queries)"
+        return FieldsConfig.LocalCache()
+
+    @cached_property
+    def filtered_columns(self):
+        return [column for column in self.columns if not column.hand.hidden]
 
     def get_ascendants_reports(self):
 #        asc_reports = list(Report.objects.filter(pk__in=Field.objects.filter(sub_report=self.id)
@@ -126,7 +136,8 @@ class AbstractReport(CremeEntity):
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
-        fields = self.columns
+#        fields = self.columns
+        fields = self.filtered_columns
 
         return ([field.get_value(entity, scope=entities, user=user)
                     for field in fields
@@ -148,7 +159,8 @@ class AbstractReport(CremeEntity):
         return lines
 
     def get_children_fields_flat(self):
-        return chain.from_iterable(f.get_children_fields_flat() for f in self.columns)
+#        return chain.from_iterable(f.get_children_fields_flat() for f in self.columns)
+        return chain.from_iterable(f.get_children_fields_flat() for f in self.filtered_columns)
 
     def _post_save_clone(self, source): #TODO: test
         for graph in source.reportgraph_set.all():
@@ -201,15 +213,6 @@ class Field(CremeModel):
         #return '<Field id=%s name=%s title=%s order=%s type=%s selected=%s report_id=%s>' % (
                     #self.id, self.name, self.title, self.order, self.type, self.selected, self.report_id,
                 #)
-
-    #def __eq__(self, other):
-        #return (self.id == other.id and #todo id ??
-                #self.name == other.name and
-                ##self.title == other.title and
-                #self.order == other.order and
-                #self.type == other.type and
-                #self.selected == other.selected and
-                #self.sub_report_id == other.sub_report_id)
 
     def _build_children(self, allow_selected):
         """Force the tree to be built, and fix the 'selected' attributes.

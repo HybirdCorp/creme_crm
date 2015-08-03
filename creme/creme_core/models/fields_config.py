@@ -61,6 +61,22 @@ class FieldsConfig(CremeModel):
 
             return fconf
 
+        def is_fieldinfo_hidden(self, model, field_info):
+            """
+            @param model Class inheriting django.db.models.Model.
+            @param field_info creme_core.utils.meta.FieldInfo instance.
+            """
+            if self.get_4_model(model).is_field_hidden(field_info[0]):
+                return True
+
+            if len(field_info) > 1:
+                assert len(field_info) == 2 # TODO: manage deeper fields + unit tests
+
+                if self.get_4_model(field_info[0].rel.to).is_field_hidden(field_info[1]):
+                    return True
+
+            return False
+
     def __unicode__(self):
         return _('Configuration of %s') % self.content_type
 
@@ -101,7 +117,7 @@ class FieldsConfig(CremeModel):
                                            descriptions=descriptions,
                                           )
 
-    @property # TODO: cached_property ??
+    @property
     def descriptions(self):
         """Getter.
         @returns Sequence of couples (field_name, attributes). 'attributes' is
@@ -129,29 +145,18 @@ class FieldsConfig(CremeModel):
                 self._check_descriptions(self.content_type.model_class(), value)[1]
             )
 
-    @staticmethod
-    def filter_cells(model, cells):
-        fconf_cache = {}
-        get_4_model = FieldsConfig.get_4_model
-
-        def get_fconf(model):
-            fconf = fconf_cache.get(model)
-
-            if fconf is None:
-                fconf_cache[model] = fconf = get_4_model(model)
-
-            return fconf
+    @classmethod
+    def filter_cells(cls, model, cells):
+        """Yields not hidden cells.
+        @param model Class inheriting django.db.models.Model.
+        @param cells Iterable of EntityCell instances.
+        """
+        fconfigs = cls.LocalCache()
 
         for cell in cells:
-            if isinstance(cell, EntityCellRegularField):
-                field_info = cell.field_info
-                fconf = get_fconf(model) if len(field_info) == 1 else \
-                        get_fconf(field_info[0].rel.to)
-
-                if fconf is not None and fconf.is_field_hidden(field_info[-1]):
-                    continue
-
-            yield cell
+            if not isinstance(cell, EntityCellRegularField) or \
+               not fconfigs.is_fieldinfo_hidden(model, cell.field_info):
+                yield cell
 
     @staticmethod
     def get_4_model(model): # TODO: in a manager

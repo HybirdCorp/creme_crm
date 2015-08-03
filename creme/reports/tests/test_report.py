@@ -22,7 +22,7 @@ try:
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
             EntityFilter, EntityFilterCondition, CustomField, CustomFieldInteger,
-            CremePropertyType, CremeProperty, HeaderFilter)
+            CremePropertyType, CremeProperty, HeaderFilter, FieldsConfig)
 #    from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.fake_constants import (
             FAKE_REL_SUB_EMPLOYED_BY as REL_SUB_EMPLOYED_BY,
@@ -126,6 +126,9 @@ class ReportTestCase(BaseReportsTestCase):
     def _build_linkreport_url(self, rfield):
         return '/reports/report/field/%s/link_report' % rfield.id
 
+    def _build_export_url(self, report):
+        return '/reports/export/%s' % report.id
+
     def _create_cf_int(self):
         return CustomField.objects.create(content_type=self.ct_contact,
                                           name='Size (cm)', field_type=CustomField.INT,
@@ -184,15 +187,17 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(report, f_report)
 
     def test_createview01(self):
-        self.login()
+        user = self.login()
         cf = self._create_cf_int()
 
         name  = 'trinita'
         self.assertFalse(Report.objects.filter(name=name).exists())
 
+        self.assertGET200(self.ADD_URL)
+
         report = self._create_report(name, extra_cells=[EntityCellCustomField(cf)])
-        self.assertEqual(self.user, report.user)
-        self.assertEqual(Contact,   report.ct.model_class())
+        self.assertEqual(user,    report.user)
+        self.assertEqual(Contact, report.ct.model_class())
         self.assertIsNone(report.filter)
 
         columns = report.columns
@@ -241,11 +246,11 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_createview03(self):
         "Validation errors"
-        self.login()
+        user = self.login()
 
         def post(hf_id, filter_id):
             return self.assertPOST200(self.ADD_URL, follow=True,
-                                      data={'user':   self.user.pk,
+                                      data={'user':   user.pk,
                                             'name':   'Report #1',
                                             'ct':     self.ct_contact.id,
                                             'hf':     hf_id,
@@ -283,11 +288,11 @@ class ReportTestCase(BaseReportsTestCase):
 
     def test_createview04(self):
         "No HeaderFilter -> no column"
-        self.login()
+        user = self.login()
 
         name = 'Report #1'
         response = self.client.post(self.ADD_URL, follow=True,
-                                      data={'user': self.user.pk,
+                                      data={'user': user.pk,
                                             'name': name,
                                             'ct':   self.ct_contact.id,
                                             'hf':   '',
@@ -297,6 +302,42 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.get_object_or_fail(Report, name=name)
         self.assertFalse(report.columns)
+
+    def test_createview05(self):
+        "With FieldsConfig: hidden fields are not copied"
+        user = self.login()
+
+        valid_fname = 'last_name'
+        hidden_fname = 'phone'
+        build_cell =  partial(EntityCellRegularField.build, model=Contact)
+        hf = HeaderFilter.create(pk='test_hf', name='Contact view', model=Contact,
+                                 cells_desc=[build_cell(name=valid_fname),
+                                             build_cell(name=hidden_fname),
+                                            ],
+                                )
+
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})]
+                           )
+
+        name = 'Report #1'
+        response = self.client.post(self.ADD_URL, follow=True,
+                                      data={'user': user.pk,
+                                            'name': name,
+                                            'ct':   self.ct_contact.id,
+                                            'hf':   hf.id,
+                                           }
+                                     )
+        self.assertNoFormError(response)
+
+        report = self.get_object_or_fail(Report, name=name)
+
+        columns = report.columns
+        self.assertEqual(1, len(columns))
+
+        column = columns[0]
+        self.assertEqual(valid_fname, column.name)
+        self.assertEqual(RFT_FIELD,   column.type)
 
     def test_editview01(self):
         user = self.login()
@@ -725,7 +766,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         report = self.create_from_view('Report on invoices', Invoice, hf)
 
-        response = self.assertGET200('/reports/export/%s' % report.id, data={'doc_type': 'csv'})
+        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
         #self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
         self.assertEqual('doc_type=csv', response.request['QUERY_STRING'])
         self.assertEqual(smart_str('"%s","%s","%s","%s"\r\n' % (
@@ -743,7 +784,7 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(3, Contact.objects.count())
 
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/export/%s' % report.id, data={'doc_type': 'csv'})
+        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
 
         content = (s for s in response.content.split('\r\n') if s)
         self.assertEqual(smart_str('"%s","%s","%s","%s"' % (
@@ -768,7 +809,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/export/%s' % report.id,
+        response = self.assertGET200(self._build_export_url(report),
                                      data={'doc_type': 'csv',
                                            'date_field': 'birthday',
                                            'date_filter_0': '',
@@ -794,7 +835,7 @@ class ReportTestCase(BaseReportsTestCase):
                                birthday=datetime(year=now().year, month=1, day=1)
                               )
         report   = self._create_report('trinita')
-        response = self.assertGET200('/reports/export/%s' % report.id,
+        response = self.assertGET200(self._build_export_url(report),
                                      data={'doc_type': 'csv',
                                            'date_field': 'birthday',
                                            'date_filter_0': 'current_year',
@@ -811,7 +852,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self._create_persons()
         report = self._create_report('trinita')
-        url = '/reports/export/%s' % report.id #TODO: factorise
+        url = self._build_export_url(report)
         data = {'doc_type': 'csv',
                 'date_field': 'birthday',
                 'date_filter_0': '',
@@ -830,6 +871,56 @@ class ReportTestCase(BaseReportsTestCase):
         export(404, date_field='first_name') #not a date field
         export(200, date_filter_1='1980-01-01') #invalid format
         export(200, date_filter_2='2000-01-01')   #invalid format
+
+    def test_report_csv06(self):
+        "With FieldsConfig"
+        self.login()
+
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'image'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ],
+                           )
+
+        self._create_persons()
+
+        report = self._create_simple_contacts_report()
+
+        create_rfield = partial(Field.objects.create, report=report, type=RFT_FIELD)
+        create_rfield(order=2, name=hidden_fname1)
+        create_rfield(order=3, name=hidden_fname2 + '__description')
+
+        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
+
+        content = (s for s in response.content.split('\r\n') if s)
+        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+
+        self.assertEqual('"Ayanami"',   content.next())
+        self.assertEqual('"Katsuragi"', content.next())
+
+    def test_report_csv07(self):
+        "With FieldsConfig on sub-field"
+        self.login()
+
+        hidden_fname = 'description'
+        FieldsConfig.create(Image,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        self._create_persons()
+
+        report = self._create_simple_contacts_report()
+        Field.objects.create(report=report, type=RFT_FIELD, order=2, name='image__' + hidden_fname)
+
+        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
+
+        content = (s for s in response.content.split('\r\n') if s)
+        self.assertEqual(smart_str(u'"%s"' % _(u'Last name')), content.next())
+
+        self.assertEqual('"Ayanami"',   content.next())
+        self.assertEqual('"Katsuragi"', content.next())
 
     @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
     def test_report_xls(self):
@@ -1096,6 +1187,47 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertEqual(RFT_FIELD,  column.type)
         self.assertEqual(report_img, column.sub_report)
         self.assertFalse(column.selected)
+
+    def test_edit_fields07(self):
+        "With FieldsConfig"
+        self.login()
+
+        valid_fname = 'last_name'
+        hidden_fname1 = 'phone'
+        hidden_fname2 = 'birthday'
+        FieldsConfig.create(Contact,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          (hidden_fname2, {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        report = self._create_simple_contacts_report('Report #1')
+        Field.objects.create(report=report, name=hidden_fname2, type=RFT_FIELD, order=2)
+
+        url = self._build_editfields_url(report)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            widget = response.context['form'].fields['columns'].widget
+            choices_keys = {c[0] for c in widget.model_fields}
+
+        self.assertIn('regular_field-' + valid_fname,     choices_keys)
+        self.assertNotIn('regular_field-' + hidden_fname1, choices_keys)
+        self.assertIn('regular_field-' + hidden_fname2, choices_keys) # <== already in report: still proposed
+
+        response = self.client.post(url,
+                                    data={'columns': 'regular_field-%s,regular_field-%s' % (
+                                                            valid_fname,
+                                                            hidden_fname2,
+                                                        )
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        columns = self.refresh(report).columns
+        self.assertEqual(2, len(columns))
+        self.assertEqual(valid_fname,   columns[0].name)
+        self.assertEqual(hidden_fname2, columns[1].name)
 
     def test_edit_fields_errors(self):
         self.login()

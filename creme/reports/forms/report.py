@@ -43,7 +43,7 @@ from creme.creme_core.registry import export_backend_registry
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field #get_date_fields
 
 from ..constants import (RFT_FIELD, RFT_RELATION, RFT_CUSTOM, RFT_FUNCTION,
-        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED) #RFT_AGGREGATE
+        RFT_AGG_FIELD, RFT_AGG_CUSTOM, RFT_RELATED)
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
 #from ..utils import encode_datetime
@@ -52,7 +52,7 @@ from ..report_aggregation_registry import field_aggregation_registry
 #logger = logging.getLogger(__name__)
 
 
-#No need to validate (only built by form that does validation for us).
+# NB: No need to validate (only built by form that does validation for us).
 class _EntityCellRelated(EntityCell):
     type_id = 'related'
 
@@ -78,8 +78,6 @@ _CELL_2_HAND_MAP = {
     EntityCellFunctionField.type_id:    RFT_FUNCTION,
     EntityCellRelation.type_id:         RFT_RELATION,
     _EntityCellRelated.type_id:         RFT_RELATED,
-    #_EntityCellAggregate.type_id:       RFT_AGGREGATE,
-    #_EntityCellCustomAggregate.type_id: RFT_AGGREGATE,
     _EntityCellAggregate.type_id:       RFT_AGG_FIELD,
     _EntityCellCustomAggregate.type_id: RFT_AGG_CUSTOM,
 }
@@ -105,15 +103,13 @@ class ReportCreateForm(CremeEntityForm):
         if not self._errors:
             get_data = cleaned_data.get
             ct = get_data('ct')
-            hf = get_data('hf')
 
-            #if hf and hf.entity_type != ct:
+            hf = get_data('hf')
             if hf and not hf.can_view(self.user, ct)[0]:
                 #self.errors['hf'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
                 self.add_error('hf', _(u'Select a valid choice. That choice is not one of the available choices.'))
 
             efilter = get_data('filter')
-            #if efilter and efilter.entity_type != ct:
             if efilter and not efilter.can_view(self.user, ct)[0]:
                 #self.errors['filter'] = ErrorList([ugettext(u'Select a valid choice. That choice is not one of the available choices.')])
                 self.add_error('filter', _(u'Select a valid choice. That choice is not one of the available choices.'))
@@ -128,8 +124,9 @@ class ReportCreateForm(CremeEntityForm):
         if hf is not None:
             build_field = partial(Field.objects.create, report=report)
 
-            for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
-                #TODO: check in clean() that id is OK
+#            for i, cell in enumerate(self.cleaned_data['hf'].cells, start=1):
+            for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
+                # TODO: check in clean() that id is OK
                 build_field(name=cell.value, title=cell.title, order=i,
                             type=_CELL_2_HAND_MAP[cell.type_id],
                            )
@@ -264,7 +261,6 @@ class ReportHandsField(EntityCellsField):
 
                 for cf in self._custom_fields:
                     if cf.field_type in authorized_customfields:
-                        #agg_id = '%scf__%s__%s' % (_CUSTOM_AGG_PREFIX, cf.field_type, pattern % cf.id)
                         agg_id = _CUSTOM_AGG_PREFIX + pattern % cf.id
                         cust_agg_choices.append((agg_id, u'%s - %s' % (title, cf.name)))
                         builders[agg_id] = ReportHandsField._build_4_custom_aggregate
@@ -277,18 +273,25 @@ class ReportFieldsForm(CremeForm):
         self.report = entity
         super(ReportFieldsForm, self).__init__(*args, **kwargs)
 
-        columns_f = self.fields['columns']
-        columns_f.content_type = entity.ct
-
         cells = []
         for column in entity.columns:
-            #NB: this is a hack : EntityCellWidgets only use value & type_id to check initial data
-            #    it would be better to use a method column.hand.to_entity_cell()
-            if column.hand: #check validity
-                cell = EntityCell(value=column.name)
-                cell.type_id = _HAND_2_CELL_MAP[column.type]
+            # TODO: this is a hack : EntityCellWidgets only use value & type_id to check initial data
+            #     it would be better to use a method column.hand.to_entity_cell()
+            if column.hand: # Check validity
+#                cell = EntityCell(value=column.name)
+#                cell.type_id = _HAND_2_CELL_MAP[column.type]
+                if column.type == RFT_FIELD:
+                    # Only the non_hiddable_cells with class EntityCellRegularField are used.
+                    cell = EntityCellRegularField.build(self.report.ct.model_class(), column.name)
+                else:
+                    cell = EntityCell(value=column.name)
+                    cell.type_id = _HAND_2_CELL_MAP[column.type]
+
                 cells.append(cell)
 
+        columns_f = self.fields['columns']
+        columns_f.non_hiddable_cells = cells
+        columns_f.content_type = entity.ct
         columns_f.initial = cells
 
     def _get_sub_report_n_selected(self, rfields, new_rfield):
@@ -309,7 +312,6 @@ class ReportFieldsForm(CremeForm):
         sub_report_n_selected = self._get_sub_report_n_selected
 
         for i, cell in enumerate(self.cleaned_data['columns'], start=1):
-            #rfield = Field(id=old_rfields.pop(0).id if old_rfields else None,
             rfield = Field(id=old_ids.pop(0) if old_ids else None,
                            report=report, name=cell.value,
                            type=_CELL_2_HAND_MAP[cell.type_id],
@@ -319,7 +321,6 @@ class ReportFieldsForm(CremeForm):
 
             rfield.save() #TODO: only if different from the old one
 
-        #Field.objects.filter(pk__in=[rfield.id for rfield in old_rfields]).delete()
         Field.objects.filter(pk__in=old_ids).delete()
 
 # TODO : not used anymore. remove the template reports/frags/date_filter_form.html

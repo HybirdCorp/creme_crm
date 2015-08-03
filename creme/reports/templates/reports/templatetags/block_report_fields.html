@@ -35,7 +35,7 @@
                 {% with sub_report=column.sub_report %}
                     <tr class="content">
                         <td class="{{row_color}}">{{column.order}}</td>
-                        <td class="{{row_color}}">{{column}}</td>
+                        <td class="{{row_color}}">{{column}}{% if column.hand.hidden %} <span class="hidden-report-field">{% trans "[hidden]" %}</span>{% endif %}</td>
                         <td class="{{row_color}}">
                         {% if sub_report %}
                             {% trans "Columns of" %} : <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:", "}})
