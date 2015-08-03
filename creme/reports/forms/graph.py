@@ -29,17 +29,18 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme.creme_core.forms.base import CremeEntityForm
 from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.forms.widgets import DependentSelect
-from creme.creme_core.models import RelationType, CustomField
+from creme.creme_core.models import RelationType, CustomField, FieldsConfig
 from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.meta import ModelFieldEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
-from ..core.graph import RGRAPH_HANDS_MAP
 from ..constants import (RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK, RGT_RELATION,
         RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK)
+from ..core.graph import RGRAPH_HANDS_MAP
 from ..models.graph import ReportGraph
 from ..report_aggregation_registry import field_aggregation_registry
 from ..report_chart_registry import report_chart_registry
+
 
 # TODO : TEMPORARY HACK. Toggle fields with an inline onchange script is a bit ugly.
 class AbscissaGroupBySelect(Select):
@@ -60,7 +61,9 @@ class ReportGraphForm(CremeEntityForm):
                                         widget=AbscissaGroupBySelect(attrs={'id': 'id_abscissa_group_by'}),
                                        ) #TODO: coerce to int
     aggregate         = ChoiceField(label=_(u'Ordinate aggregate'), required=False,
-                                   choices=[(agg.name, agg.title) for agg in field_aggregation_registry.itervalues()],
+                                   choices=[(agg.name, agg.title)
+                                                for agg in field_aggregation_registry.itervalues()
+                                           ],
                                   )
     aggregate_field   = ChoiceField(label=_(u'Ordinate aggregate field'), choices=(), required=False)
     is_count          = BooleanField(label=_(u'Entities count'), required=False,
@@ -75,7 +78,6 @@ class ReportGraphForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = ReportGraph
-        #exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type', 'report')
 
     def __init__(self, entity, *args, **kwargs):
         super(ReportGraphForm, self).__init__(*args, **kwargs)
@@ -83,6 +85,7 @@ class ReportGraphForm(CremeEntityForm):
         report_ct = entity.ct
         model = report_ct.model_class()
 
+        instance = self.instance
         fields = self.fields
 
         aggregate_field_f = fields['aggregate_field']
@@ -92,9 +95,18 @@ class ReportGraphForm(CremeEntityForm):
         sort_key = collator.sort_key
         sort_choices = lambda k: sort_key(k[1])
 
-        #Abscissa -----------------------------------------------------------
+        get_fconf = FieldsConfig.LocalCache().get_4_model
+        # TODO: split('__', 1) when 'count' is an aggregate operator
+        ordinate_field_name, __, aggregate = instance.ordinate.rpartition('__')
+
+        # Abscissa -------------------------------------------------------------
+        def absc_field_excluder(field, deep):
+            return get_fconf(field.model).is_field_hidden(field) and \
+                   field.name != instance.abscissa
+
         abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
                                     .filter(self._filter_abcissa_field, viewable=True) \
+                                    .exclude(absc_field_excluder) \
                                     .choices()
         abscissa_model_fields.sort(key=sort_choices)
 
@@ -120,16 +132,21 @@ class ReportGraphForm(CremeEntityForm):
         if cfields:
             abscissa_choices.append((_('Custom fields'), [(cf.id, cf.name) for cf in cfields.itervalues()])) #TODO: sort ?
 
-        #TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
+        # TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
         abscissa_field_f.choices = abscissa_choices
         abscissa_field_f.widget.target_url = '/reports/graph/get_available_types/%s' % report_ct.id #Bof
 
-        #Ordinate -----------------------------------------------------------
+        # Ordinate -------------------------------------------------------------
+        def agg_field_excluder(field, deep):
+            return get_fconf(field.model).is_field_hidden(field) and \
+                   field.name != ordinate_field_name
+
         aggfields = [field_info[0]
                         for field_info in ModelFieldEnumerator(model, deep=0)
                                             .filter((lambda f, depth: isinstance(f, field_aggregation_registry.authorized_fields)),
                                                     viewable=True
                                                    )
+                                            .exclude(agg_field_excluder)
                     ]
         aggfield_choices = [(field.name, field.verbose_name) for field in aggfields]
         aggcustom_choices = list(CustomField.objects.filter(field_type__in=field_aggregation_registry.authorized_customfields,
@@ -144,6 +161,7 @@ class ReportGraphForm(CremeEntityForm):
 
             money_fields = [field for field in aggfields if isinstance(field, MoneyField)]
             if money_fields:
+                # TODO: lazy lazily-translated-string interpolation
                 aggregate_field_f.help_text = ugettext('If you use a field related to money, the entities should use the same '
                                                        'currency or the result will be wrong. Concerned fields are : %s'
                                                       ) % ', '.join(unicode(field.verbose_name) for field in money_fields)
@@ -167,9 +185,8 @@ class ReportGraphForm(CremeEntityForm):
 
         aggregate_field_f.choices = ordinate_choices
 
-        #Initial data --------------------------------------------------------
+        # Initial data ---------------------------------------------------------
         data = self.data
-        instance = self.instance
 
         if data:
             get_data = data.get
@@ -177,9 +194,8 @@ class ReportGraphForm(CremeEntityForm):
             widget.source_val = get_data('abscissa_field')
             widget.target_val = get_data('abscissa_group_by')
         elif instance.pk is not None:
-            ordinate, __, aggregate    = instance.ordinate.rpartition('__')
             fields['aggregate'].initial = aggregate
-            aggregate_field_f.initial   = ordinate
+            aggregate_field_f.initial   = ordinate_field_name
             abscissa_field_f.initial    = instance.abscissa
 
             widget = abscissa_field_f.widget
@@ -286,7 +302,7 @@ class ReportGraphForm(CremeEntityForm):
         abscissa_name = get_data('abscissa_field')
         abscissa_group_by = cleaned_data['abscissa_group_by']
 
-        #TODO: use a better system to check compatible Field types (use ReportGraphHands)
+        # TODO: use a better system to check compatible Field types (use ReportGraphHands)
         if abscissa_group_by == RGT_FK:
             self._clean_field(model, abscissa_name, field_types=(ForeignKey,))
         elif abscissa_group_by == RGT_CUSTOM_FK:

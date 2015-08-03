@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-02 16:57+0200\n"
+"POT-Creation-Date: 2015-08-02 17:02+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -28,19 +28,19 @@ msgstr "Portail des rapports"
 msgid "All reports"
 msgstr "Liste des rapports"
 
-#: blocks.py:40 templates/reports/templatetags/block_report_fields.html:7
+#: blocks.py:39 templates/reports/templatetags/block_report_fields.html:7
 msgid "Columns of the report"
 msgstr "Colonnes du rapport"
 
-#: blocks.py:60
+#: blocks.py:59
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
 
-#: core/graph.py:114 core/graph.py:539
+#: core/graph.py:114 core/graph.py:544
 msgid "the custom field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
-#: core/graph.py:120 core/graph.py:253
+#: core/graph.py:120 core/graph.py:255
 msgid "the field does not exist any more."
 msgstr "le champ personnalisé n'existe plus."
 
@@ -48,52 +48,56 @@ msgstr "le champ personnalisé n'existe plus."
 msgid "Count"
 msgstr "Comptage"
 
-#: core/graph.py:308 core/graph.py:600
+#: core/graph.py:258
+msgid "this field should be hidden."
+msgstr "ce champ devrait être caché"
+
+#: core/graph.py:313 core/graph.py:605
 msgid "By days"
 msgstr "Par jours"
 
-#: core/graph.py:327 core/graph.py:614
+#: core/graph.py:332 core/graph.py:619
 msgid "By months"
 msgstr "Par mois"
 
-#: core/graph.py:344 core/graph.py:627
+#: core/graph.py:349 core/graph.py:632
 msgid "By years"
 msgstr "Par années"
 
-#: core/graph.py:384 core/graph.py:637
+#: core/graph.py:389 core/graph.py:642
 msgid "By X days"
 msgstr "Par X jours"
 
-#: core/graph.py:473
+#: core/graph.py:478
 msgid "By values"
 msgstr "Par valeurs"
 
-#: core/graph.py:492
+#: core/graph.py:497
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
 
-#: core/graph.py:501
+#: core/graph.py:506
 msgid "the relationship type does not exist any more."
 msgstr "le type de relation n'existe plus."
 
-#: core/graph.py:721
+#: core/graph.py:726
 msgid "By values (of custom choices)"
 msgstr "Par valeurs (de choix personnalisé)"
 
-#: core/graph.py:794 forms/blocks.py:79
+#: core/graph.py:754 forms/blocks.py:79
 msgctxt "reports-volatile_choice"
 msgid "None"
 msgstr "Aucune"
 
-#: core/graph.py:824
+#: core/graph.py:784
 msgid "The field is invalid."
 msgstr "Le champ est invalide."
 
-#: core/graph.py:834
+#: core/graph.py:794
 msgid "The field is invalid (not a foreign key)."
 msgstr "Le champ est invalide (pas une clé étrangère)."
 
-#: core/graph.py:865
+#: core/graph.py:825
 msgid "The relationship type is invalid."
 msgstr "Le type de relation est invalide."
 
@@ -139,11 +143,11 @@ msgstr ""
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique."
 
-#: forms/blocks.py:71 forms/graph.py:108 forms/graph.py:153
+#: forms/blocks.py:71 forms/graph.py:120 forms/graph.py:171
 msgid "Fields"
 msgstr "Champs"
 
-#: forms/blocks.py:74 forms/graph.py:109
+#: forms/blocks.py:74 forms/graph.py:121
 msgid "Relationships"
 msgstr "Relations"
 
@@ -182,48 +186,48 @@ msgstr ""
 "Le champ filtre ne peut être modifié que pour des rapport ciblant le même "
 "type de fiche (ex: seulement les contacts)."
 
-#: forms/graph.py:55 models/graph.py:48
+#: forms/graph.py:56 models/graph.py:47
 msgid "Chart type"
 msgstr "Type de graphique"
 
-#: forms/graph.py:56
+#: forms/graph.py:57
 msgid "Abscissa field"
 msgstr "Champ d'abscisse"
 
-#: forms/graph.py:59
+#: forms/graph.py:60
 msgid "Abscissa : Group by"
 msgstr "Abscisse : Grouper par"
 
-#: forms/graph.py:62
+#: forms/graph.py:63
 msgid "Ordinate aggregate"
 msgstr "Valeur calculée (Ordonnée)"
 
-#: forms/graph.py:65
+#: forms/graph.py:68
 msgid "Ordinate aggregate field"
 msgstr "Champ de valeur calculée (Ordonnée)"
 
-#: forms/graph.py:66
+#: forms/graph.py:69
 msgid "Entities count"
 msgstr "Comptage de fiches"
 
-#: forms/graph.py:67
+#: forms/graph.py:70
 msgid "Make a count instead of aggregate ?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: forms/graph.py:72
+#: forms/graph.py:75
 msgid "Abscissa informations"
 msgstr "Informations sur les abscisses"
 
-#: forms/graph.py:73
+#: forms/graph.py:76
 msgid "Ordinates informations"
 msgstr "Informations sur les ordonnées"
 
-#: forms/graph.py:121 forms/graph.py:154
+#: forms/graph.py:133 forms/graph.py:172
 #: templates/reports/reports_hands_widget.html:36
 msgid "Custom fields"
 msgstr "Champs personnalisés"
 
-#: forms/graph.py:147
+#: forms/graph.py:165
 #, python-format
 msgid ""
 "If you use a field related to money, the entities should use the same "
@@ -233,26 +237,26 @@ msgstr ""
 "utiliser la même monnaie, ou alors le résultat sera faux.  Les champs "
 "concernés sont : %s"
 
-#: forms/graph.py:158
+#: forms/graph.py:176
 msgid "No field is usable for aggregation"
 msgstr "Aucun n'est utilisable pour une agrégation"
 
-#: forms/graph.py:164
+#: forms/graph.py:182
 msgid "You must make a count because no field is usable for aggregation"
 msgstr ""
 "Vous devez effectuer un comptage parce qu'aucun champ n'est utilisable pour "
 "une agrégation"
 
-#: forms/graph.py:305 forms/graph.py:313
+#: forms/graph.py:321 forms/graph.py:329
 msgid "You have to specify a day range if you use 'by X days'"
 msgstr ""
 "Vous devez spécifier une échelle de jours si vous utilisez 'par X jours'"
 
-#: forms/graph.py:320
+#: forms/graph.py:336
 msgid "This field is required if you choose a field to aggregate."
 msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
 
-#: forms/graph.py:322
+#: forms/graph.py:338
 msgid ""
 "If you don't choose an ordinate field (or none available) you have to check "
 "'Make a count instead of aggregate ?'"
@@ -314,46 +318,46 @@ msgstr ""
 msgid "None"
 msgstr "Aucun"
 
-#: models/graph.py:40
+#: models/graph.py:39
 msgctxt "reports-graphs"
 msgid "Name of the graph"
 msgstr "Nom du graphique"
 
-#: models/graph.py:43
+#: models/graph.py:42
 msgid "Abscissa axis"
 msgstr "Axe des abscisses"
 
-#: models/graph.py:44
+#: models/graph.py:43
 msgid "Ordinate axis"
 msgstr "Axe des ordonnées"
 
-#: models/graph.py:45
+#: models/graph.py:44
 #: templates/reports/templatetags/block_report_fields.html:30
-#: templates/reports/templatetags/block_report_graphs.html:21
+#: templates/reports/templatetags/block_report_graphs.html:19
 msgid "Type"
 msgstr "Type"
 
-#: models/graph.py:46
+#: models/graph.py:45
 msgid "Days"
 msgstr "Jours"
 
-#: models/graph.py:47
+#: models/graph.py:46
 msgid "Make a count instead of aggregate?"
 msgstr "Effectuer un comptage à la place des valeurs calculées ?"
 
-#: models/graph.py:50
+#: models/graph.py:49
 msgid "Add a report's graph"
 msgstr "Ajouter un graphique de rapport"
 
-#: models/graph.py:57
+#: models/graph.py:56
 msgid "Report's graph"
 msgstr "Graphique de rapport"
 
-#: models/graph.py:58
+#: models/graph.py:57
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
-#: models/graph.py:159
+#: models/graph.py:158
 #, python-format
 msgid "The instance block for \"%s\" with these parameters already exists!"
 msgstr "Le bloc d'instance pour \"%s\" avec ces paramètres existe déjà !"
@@ -513,7 +517,7 @@ msgid "Edit the columns"
 msgstr "Modifier les colonnes"
 
 #: templates/reports/templatetags/block_report_fields.html:19
-#: templates/reports/templatetags/block_report_graphs.html:24
+#: templates/reports/templatetags/block_report_graphs.html:22
 msgid "Can't edit"
 msgstr "Modification interdite"
 
@@ -591,57 +595,57 @@ msgstr "Colonne volatile : %(vc)s"
 msgid "No values or graph is not applicable here"
 msgstr "Aucune valeur ou le graphique n'est pas utilisable ici"
 
-#: templates/reports/templatetags/block_report_graphs.html:7
+#: templates/reports/templatetags/block_report_graphs.html:5
 #, python-format
 msgid "%s Graph"
 msgstr "%s Graphique"
 
-#: templates/reports/templatetags/block_report_graphs.html:7
+#: templates/reports/templatetags/block_report_graphs.html:5
 #, python-format
 msgid "%s Graphs"
 msgstr "%s Graphiques"
 
-#: templates/reports/templatetags/block_report_graphs.html:10
+#: templates/reports/templatetags/block_report_graphs.html:8
 msgid "Add new graph"
 msgstr "Ajouter un nouveau graphique"
 
-#: templates/reports/templatetags/block_report_graphs.html:18
+#: templates/reports/templatetags/block_report_graphs.html:16
 msgid "Name"
 msgstr "Nom"
 
-#: templates/reports/templatetags/block_report_graphs.html:19
+#: templates/reports/templatetags/block_report_graphs.html:17
 msgid "Column abscissa"
 msgstr "Colonne abscisse"
 
-#: templates/reports/templatetags/block_report_graphs.html:20
+#: templates/reports/templatetags/block_report_graphs.html:18
 msgid "Column ordinate"
 msgstr "Colonne ordonnée"
 
-#: templates/reports/templatetags/block_report_graphs.html:22
+#: templates/reports/templatetags/block_report_graphs.html:20
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/reports/templatetags/block_report_graphs.html:24
+#: templates/reports/templatetags/block_report_graphs.html:22
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/reports/templatetags/block_report_graphs.html:25
+#: templates/reports/templatetags/block_report_graphs.html:23
 msgid "Expand"
 msgstr "Agrandir"
 
-#: templates/reports/templatetags/block_report_graphs.html:25
+#: templates/reports/templatetags/block_report_graphs.html:23
 msgid "Reduce"
 msgstr "Réduire"
 
-#: templates/reports/templatetags/block_report_graphs.html:26
+#: templates/reports/templatetags/block_report_graphs.html:24
 msgid "Create a block with this graph"
 msgstr "Créer un bloc à partir de ce graphe"
 
-#: templates/reports/templatetags/block_report_graphs.html:26
+#: templates/reports/templatetags/block_report_graphs.html:24
 msgid "Can't create block"
 msgstr "Création de bloc interdite"
 
-#: templates/reports/templatetags/block_report_graphs.html:98
+#: templates/reports/templatetags/block_report_graphs.html:96
 msgid "No graphs registered for the moment"
 msgstr "Aucun graphique enregistré pour le moment"
 
@@ -705,7 +709,7 @@ msgstr "Ajouter un graphique pour <%s>"
 msgid "Edit a graph for <%s>"
 msgstr "Modifier un graphique pour <%s>"
 
-#: views/graph.py:116
+#: views/graph.py:115
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 

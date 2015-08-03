@@ -12,7 +12,7 @@ try:
 
     from creme.creme_core.models import (RelationType, Relation,
             InstanceBlockConfigItem, BlockDetailviewLocation, BlockPortalLocation,
-            EntityFilter, EntityFilterCondition,
+            EntityFilter, EntityFilterCondition, FieldsConfig,
             CustomField, CustomFieldEnumValue, CustomFieldEnum, CustomFieldInteger)
 #    from creme.creme_core.tests.base import skipIfNotInstalled
     from creme.creme_core.tests.fake_constants import (
@@ -35,12 +35,12 @@ try:
     from .base import BaseReportsTestCase, skipIfCustomReport, skipIfCustomRGraph
     from .fake_models import FakeFolder as Folder, FakeDocument as Document
 
-    #from ..blocks import ReportGraphBlock
+    from ..blocks import ReportGraphBlock
     from ..core.graph import ListViewURLBuilder
-    from ..models import Field, Report, ReportGraph
     from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR,
             RGT_CUSTOM_RANGE, RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH,
             RGT_YEAR, RGT_RANGE, RGT_FK, RFT_FIELD, RFT_RELATION)
+    from ..models import Field, Report, ReportGraph
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -92,53 +92,45 @@ class ReportGraphTestCase(BaseReportsTestCase):
     def _build_graph_types_url(self, ct):
         return '/reports/graph/get_available_types/%s' % ct.id
 
-    def _create_invoice_report_n_graph(self):
+    def _create_invoice_report_n_graph(self, abscissa='issuing_date', ordinate='total_no_vat__sum'):
         self.report = report = Report.objects.create(user=self.user,
                                                      name=u"All invoices of the current year",
                                                      ct=self.ct_invoice,
                                                     )
-        rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
+#        rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
 
-        #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
-        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
-        create_field(name='name',                            order=1)
-        create_field(name=rtype.id,       type=RFT_RELATION, order=2)
-        create_field(name='total_no_vat',                    order=3)
-        create_field(name='issuing_date',                    order=4)
+#        create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
+#        create_field(name='name',                            order=1)
+#        create_field(name=rtype.id,       type=RFT_RELATION, order=2)
+#        create_field(name='total_no_vat',                    order=3)
+#        create_field(name='issuing_date',                    order=4)
 
-        #TODO: we need a helper ReportGraph.create() ??
-        rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                            name=u"Sum of current year invoices total without taxes / month",
-                                            abscissa='issuing_date',
-                                            ordinate='total_no_vat__sum',
-                                            type=RGT_MONTH, is_count=False,
-                                           )
-
-        return rgraph
+        # TODO: we need a helper ReportGraph.create() ??
+        return  ReportGraph.objects.create(user=self.user, report=report,
+                                           name=u"Sum of current year invoices total without taxes / month",
+#                                           abscissa='issuing_date',
+                                           abscissa=abscissa,
+#                                           ordinate='total_no_vat__sum',
+                                           ordinate=ordinate,
+                                           type=RGT_MONTH, is_count=False,
+                                          )
 
     def test_listview_URL_builder(self):
         builder = ListViewURLBuilder(Contact)
-        self.assertEqual(builder(None),
-                         Contact.get_lv_absolute_url() + '?q_filter='
-                        )
-        self.assertEqual(builder({'id': '1'}),
-                         Contact.get_lv_absolute_url() + '?q_filter={"id": "1"}'
-                        )
+        url = Contact.get_lv_absolute_url()
+        self.assertEqual(builder(None),        url + '?q_filter=')
+        self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}')
 
         efilter = EntityFilter.create('test-filter', 'Names', Contact, is_custom=True)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.IENDSWITH,
                                                                     name='last_name', values=['Stark'],
-                                                                   )
+                                                                   ),
                                ])
 
         builder = ListViewURLBuilder(Contact, efilter)
-        self.assertEqual(builder(None),
-                         Contact.get_lv_absolute_url() + '?q_filter=&filter=test-filter'
-                        )
-        self.assertEqual(builder({'id': '1'}),
-                         Contact.get_lv_absolute_url() + '?q_filter={"id": "1"}&filter=test-filter'
-                        )
+        self.assertEqual(builder(None),        url + '?q_filter=&filter=test-filter')
+        self.assertEqual(builder({'id': '1'}), url + '?q_filter={"id": "1"}&filter=test-filter')
 
     def test_createview01(self):
         "RGT_FK"
@@ -149,7 +141,6 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         url = self._build_add_graph_url(report)
         response = self.assertGET200(url)
-        self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -622,6 +613,34 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
+    def test_createview_fieldsconfig(self):
+        report = self._create_simple_organisations_report()
+
+        hidden_fname1 = 'sector'
+        FieldsConfig.create(Organisation,
+                            descriptions=[(hidden_fname1, {FieldsConfig.HIDDEN: True}),
+                                          ('capital',     {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        response = self.assertGET200(self._build_add_graph_url(report))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            abscissa_choices = fields['abscissa_field'].choices
+            aggrfields_choices = fields['aggregate_field'].choices
+
+        fields_choices = abscissa_choices[0]
+        self.assertEqual(_('Fields'), fields_choices[0])
+
+        choices_set = {c[0] for c in fields_choices[1]}
+        self.assertIn('created', choices_set)
+        self.assertNotIn(hidden_fname1, choices_set)
+
+        self.assertEqual([('', _('No field is usable for aggregation'))],
+                         aggrfields_choices
+                        )
+
     def test_editview01(self):
         report = self._create_simple_organisations_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
@@ -696,6 +715,95 @@ class ReportGraphTestCase(BaseReportsTestCase):
         self.assertEqual(gtype,            rgraph.type)
         self.assertIsNone(rgraph.days)
         self.assertFalse(rgraph.is_count)
+
+    def test_editview03(self):
+        "With FieldsConfig"
+        rgraph = self._create_invoice_report_n_graph(ordinate='total_vat__sum')
+
+        hidden_fname1 = 'expiration_date'
+        FieldsConfig.create(Invoice,
+                            descriptions=[(hidden_fname1,  {FieldsConfig.HIDDEN: True}),
+                                          ('total_no_vat', {FieldsConfig.HIDDEN: True}),
+                                         ]
+                           )
+
+        response = self.assertGET200(self._build_edit_url(rgraph))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            abscissa_choices = fields['abscissa_field'].choices
+            aggrfields_choices = fields['aggregate_field'].choices
+
+        fields_choices = abscissa_choices[0]
+        self.assertEqual(_('Fields'), fields_choices[0])
+
+        choices_set = {c[0] for c in fields_choices[1]}
+        self.assertIn('created', choices_set)
+        self.assertNotIn(hidden_fname1, choices_set)
+
+        self.assertEqual([('total_vat', _(u'Total with VAT'))],
+                         aggrfields_choices
+                        )
+
+    def test_editview04(self):
+        "With FieldsConfig: if fields are alreay selected => still proposed (abscissa)"
+        hidden_fname = 'expiration_date'
+        rgraph = self._create_invoice_report_n_graph(abscissa=hidden_fname)
+
+        FieldsConfig.create(Invoice,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        url = self._build_edit_url(rgraph)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            abscissa_choices = response.context['form'].fields['abscissa_field'].choices
+
+        fields_choices = abscissa_choices[0]
+        choices_set = {c[0] for c in fields_choices[1]}
+        self.assertIn('created', choices_set)
+        self.assertIn(hidden_fname, choices_set)
+
+        response = self.client.post(url, data={'user':              rgraph.user.pk,
+                                               'name':              rgraph.name,
+                                               'abscissa_field':    hidden_fname,
+                                               'abscissa_group_by': rgraph.type,
+                                               'aggregate_field':   'total_no_vat',
+                                               'aggregate':         'sum',
+                                               'chart':             'barchart',
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        rgraph = self.refresh(rgraph)
+        self.assertEqual(hidden_fname,         rgraph.abscissa)
+
+        hand = rgraph.hand
+        self.assertEqual(_(u"Expiration date"), hand.verbose_abscissa)
+        self.assertEqual(_('this field should be hidden.'),
+                         hand.abscissa_error
+                        )
+
+    def test_editview05(self):
+        "With FieldsConfig: if fields are alreay selected => still proposed (ordinate)"
+        hidden_fname = 'total_no_vat'
+        rgraph = self._create_invoice_report_n_graph(ordinate=hidden_fname + '__sum')
+
+        FieldsConfig.create(Invoice,
+                            descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
+                           )
+
+        response = self.assertGET200(self._build_edit_url(rgraph))
+
+        with self.assertNoException():
+            aggrfields_choices = response.context['form'].fields['aggregate_field'].choices
+
+        self.assertEqual([('total_vat',    _(u'Total with VAT')),
+                          ('total_no_vat', _(u'Total without VAT')),
+                         ],
+                         aggrfields_choices
+                        )
 
     def test_fetch_with_fk_01(self):
         "Count"
@@ -1690,7 +1798,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item01(self):
         "No link"
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
 
         ibci = rgraph.create_instance_block_config_item()
@@ -1711,7 +1819,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item02(self):
         "Link: regular field"
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
         create_ibci = rgraph.create_instance_block_config_item
 
@@ -1737,7 +1845,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_create_instance_block_config_item03(self):
         "Link: relation type"
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         report = self._create_simple_contacts_report()
         rgraph = ReportGraph.objects.create(user=self.user, report=report,
                                             name='Number of created contacts / year',
@@ -1768,7 +1876,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
 #    @skipIfNotInstalled('creme.billing')
     def test_add_graph_instance_block01(self):
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         rgraph = self._create_invoice_report_n_graph()
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
@@ -1861,7 +1969,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_add_graph_instance_block02(self):
         "Volatile column (RFT_FIELD)"
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         rgraph = self._create_documents_rgraph()
 
         url = self._build_add_block_url(rgraph)
@@ -1984,7 +2092,7 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
     def test_add_graph_instance_block03(self):
         "Volatile column (RFT_RELATION)"
-        from ..blocks import ReportGraphBlock
+        #from ..blocks import ReportGraphBlock
         user = self.user
         report = self._create_simple_contacts_report()
         rtype = RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY)

@@ -30,17 +30,17 @@ from creme.creme_core.views.generic import view_entity, add_to_entity, edit_rela
 from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType, CustomField
 from creme.creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
 
-from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE, RGT_CUSTOM_FK,
-                         RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK
-                        )
-
 from .. import get_rgraph_model
-from ..core.graph import RGRAPH_HANDS_MAP # fetch_graph_from_instance_block
+from ..constants import (RGT_CUSTOM_DAY, RGT_CUSTOM_MONTH, RGT_CUSTOM_YEAR, RGT_CUSTOM_RANGE,
+        RGT_CUSTOM_FK, RGT_RELATION, RGT_DAY, RGT_MONTH, RGT_YEAR, RGT_RANGE, RGT_FK)
+from ..core.graph import RGRAPH_HANDS_MAP
 from ..forms.graph import ReportGraphForm
 from ..models import ReportGraph
 from ..report_chart_registry import report_chart_registry
 
+
 logger = logging.getLogger(__name__)
+
 
 @login_required
 @permission_required('reports')
@@ -59,10 +59,9 @@ def edit(request, graph_id):
 @login_required
 @permission_required('reports')
 def detailview(request, graph_id):
-    return view_entity(request, graph_id, ReportGraph, '/reports/report', 'reports/view_graph.html',
-                       extra_template_dict={'report_charts': report_chart_registry}
-                       #extra_template_dict={'user_can_admin_report': request.user.has_perm('reports.can_admin'),
-                                           #}
+    return view_entity(request, graph_id, ReportGraph, '/reports/report',
+                       'reports/view_graph.html',
+                       extra_template_dict={'report_charts': report_chart_registry},
                       )
 
 #TODO: use prefix ?? (rfield-, ctield-, rtype-)

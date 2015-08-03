@@ -22,12 +22,12 @@ from datetime import timedelta, datetime
 from json import dumps as json_encode
 import logging
 
+from django.db import connection
 from django.db.models import Min, Max, Count, FieldDoesNotExist, Q, ForeignKey
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
-from django.db import connection
 
-from creme.creme_core.models import CremeEntity, RelationType, Relation, CustomField, CustomFieldEnumValue
-#from creme.creme_core.models.header_filter import RFT_RELATION, RFT_FIELD
+from creme.creme_core.models import (CremeEntity, RelationType, Relation,
+        CustomField, CustomFieldEnumValue)
 from creme.creme_core.utils.meta import FieldInfo
 
 from ..constants import *
@@ -106,13 +106,13 @@ class ReportGraphYCalculator(object):
             ordinate_col, sep, aggregation_name = ordinate.rpartition('__')
             aggregation = field_aggregation_registry.get(aggregation_name) #TODO: manage invalid aggregation ??
 
-            if ordinate_col.isdigit(): #CustomField
+            if ordinate_col.isdigit(): # CustomField
                 try:
                     calculator = RGYCCustomField(CustomField.objects.get(pk=ordinate_col), aggregation)
                 except CustomField.DoesNotExist:
                     calculator = ReportGraphYCalculator()
                     calculator.error = _('the custom field does not exist any more.')
-            else: #Regular Field
+            else: # Regular Field
                 try:
                     field = graph.report.ct.model_class()._meta.get_field(ordinate_col) #TODO: method model() in ReportGraph ??
                 except FieldDoesNotExist:
@@ -178,7 +178,7 @@ class RGYCCustomField(RGYCAggregation):
 class ReportGraphHand(object):
     "Class that computes abscissa & ordinate values of a ReportGraph"
     verbose_name = 'OVERLOADME'
-    hand_id = None #set by ReportGraphHandRegistry decorator
+    hand_id = None # Set by ReportGraphHandRegistry decorator
 
     def __init__(self, graph):
         self._graph = graph
@@ -245,12 +245,17 @@ class ReportGraphHand(object):
 class _RGHRegularField(ReportGraphHand):
     def __init__(self, graph):
         super(_RGHRegularField, self).__init__(graph)
+        report = graph.report
+        model = graph.report.ct.model_class() #TODO: method model() in ReportGraph ??
 
         try:
-            field = graph.report.ct.model_class()._meta.get_field(graph.abscissa) #TODO: method model() in ReportGraph ??
+            field = model._meta.get_field(graph.abscissa)
         except FieldDoesNotExist:
             field = None
             self.abscissa_error = _('the field does not exist any more.')
+        else:
+            if report._fields_configs.get_4_model(model).is_field_hidden(field):
+                self.abscissa_error = _('this field should be hidden.')
 
         self._field = field
 
@@ -735,53 +740,8 @@ class RGHCustomFK(_RGHCustomField):
             yield unicode(instance), [y_value_func(entities_filter(**kwargs)), build_url(kwargs)]
 
 
-#def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
-    #volatile_column = instance_block.data
-    #graph           = instance_block.entity.get_real_entity()
-    #ct_entity       = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
-
-    #columns = volatile_column.split('|')
-    #volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
-
-    #try:
-        #hfi_type = int(hfi_type)
-    #except ValueError:
-        #hfi_type = 0
-
-    #x = []
-    #y = []
-
-    #if hfi_type == RFT_FIELD:
-        #try:
-            #field = graph.report.ct.model_class()._meta.get_field(volatile_column)
-        #except FieldDoesNotExist:
-            #pass
-        #else:
-            #if field.get_internal_type() == 'ForeignKey' and field.rel.to == entity.__class__: #todo: use isinstance()
-                #x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}), #todo: str() ??
-                                   #order=order
-                                  #)
-    #elif hfi_type == RFT_RELATION:
-        #try:
-            #rtype = RelationType.objects.get(pk=volatile_column)
-        #except RelationType.DoesNotExist:
-            #pass
-        #else:
-            #obj_ctypes = rtype.object_ctypes.all()
-
-            #if not obj_ctypes or ct_entity in obj_ctypes: #todo: use RelationType.is_compatible
-                #x, y = graph.fetch(extra_q=Q(relations__type=rtype,
-                                             #relations__object_entity=entity.pk,
-                                            #),
-                                   #order=order
-                                  #)
-    #else:
-        #x, y = graph.fetch(order=order)
-
-    #return (x, y)
-
-#TODO: we use a map/registry of GraphFetcher classes, and use it in get_fetcher_from_instance_block()
-       #and in ReportGraph form to build choices.
+# TODO: we use a map/registry of GraphFetcher classes, and use it in get_fetcher_from_instance_block()
+#       and in ReportGraph form to build choices.
 class GraphFetcher(object):
     """A graph fetcher can fetch the result of a given ReportGraph, with or without
     a volatile link.

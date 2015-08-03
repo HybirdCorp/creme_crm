@@ -24,7 +24,6 @@ from creme.creme_core.models import InstanceBlockConfigItem
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
 from . import get_report_model, get_rgraph_model
-#from .core.graph import fetch_graph_from_instance_block
 #from .models import Report, Field, ReportGraph
 from .models import Field
 from .report_chart_registry import report_chart_registry
@@ -70,8 +69,6 @@ class ReportGraphsBlock(QuerysetBlock):
                                 ReportGraph.objects.filter(report=report),
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                 report_charts=report_chart_registry,
-                                #is_ajax=context['request'].is_ajax(),
-                                #user_can_admin_report=context['user'].has_perm('reports.can_admin'),
                                )
                            )
 
@@ -79,29 +76,23 @@ class ReportGraphsBlock(QuerysetBlock):
 class ReportGraphBlock(Block):
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
-    #verbose_name  = _(u"Report's graph")
-    verbose_name  = "Report's graph" #overloaded by __init__
+    verbose_name  = "Report's graph" # Overloaded by __init__()
     template_name = 'reports/templatetags/block_report_graph.html'
     #order_by      = 'name'
 
     def __init__(self, instance_block_config):
         super(ReportGraphBlock, self).__init__()
-        #self.graph                 = instance_block_config.entity.get_real_entity()
-        #self.block_id              = instance_block_config.block_id
-        #self.volatile_column       = instance_block_config.data
-        #self.verbose               = instance_block_config.verbose #TODO: delete 'verbose' field
-        self.instance_block_id     = instance_block_config.id
-        #self.instance_block_config = instance_block_config
+        #self.verbose = instance_block_config.verbose #TODO: delete 'verbose' field ?
+        self.instance_block_id = instance_block_config.id
         self.fetcher = fetcher = ReportGraph.get_fetcher_from_instance_block(instance_block_config)
-        #self.verbose_name          = instance_block_config.verbose
         self.verbose_name = fetcher.verbose_name
 
+        # Used by InstanceBlockConfigItem.errors, to display errors in creme_config
         error = fetcher.error
-        self.errors = [error] if error else None #Used by InstanceBlockConfigItem.errors, to display errors in creme_config
+        self.errors = [error] if error else None
 
     def detailview_display(self, context):
         entity = context['object']
-        #x, y = fetch_graph_from_instance_block(self.instance_block_config, entity, order='ASC')
         fetcher = self.fetcher
         x, y = fetcher.fetch_4_entity(entity)
 

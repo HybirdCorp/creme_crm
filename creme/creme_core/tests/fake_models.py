@@ -246,8 +246,9 @@ else:
                                          ).set_tags(optional=True)
         sector          = models.ForeignKey(FakeSector, verbose_name=_(u'Sector'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
-                                          )
-        capital         = models.PositiveIntegerField(_(u'Capital'), blank=True, null=True)
+                                          ).set_tags(optional=True)
+        capital         = models.PositiveIntegerField(_(u'Capital'), blank=True, null=True)\
+                                .set_tags(optional=True)
         subject_to_vat  = models.BooleanField(_(u'Subject to VAT'), default=True)
         legal_form      = models.ForeignKey(FakeLegalForm, verbose_name=_(u'Legal form'),
                                             blank=True, null=True, on_delete=models.SET_NULL,
@@ -386,7 +387,7 @@ else:
                                      )
         total_no_vat     = MoneyField(_(u'Total without VAT'), max_digits=14, decimal_places=2,
                                       blank=True, null=True, editable=False, default=0,
-                                     )
+                                     ).set_tags(optional=True)
 
         class Meta:
             app_label = 'creme_core'
