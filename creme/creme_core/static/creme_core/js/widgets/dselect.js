@@ -39,6 +39,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._context = {}
         this._backend = options.backend;
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
         this._url = new creme.utils.Template(options.url);
         this._filter = new creme.utils.Template(options.filter);
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
@@ -103,8 +104,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _updateDisabledState: function(element)
     {
-        var disabled = !($('option:not(:disabled)', element).length > 1 && this._enabled);
+        var active_option_count = $('option:not(:disabled)', element).length;
+        var disabled = !this._enabled || active_option_count < 1;
+        var readonly = active_option_count < 2 || this._readonly;
+
         element.prop('disabled', disabled);
+        element.toggleAttr('readonly', readonly);
     },
 
     _updateAutocomplete: function()
