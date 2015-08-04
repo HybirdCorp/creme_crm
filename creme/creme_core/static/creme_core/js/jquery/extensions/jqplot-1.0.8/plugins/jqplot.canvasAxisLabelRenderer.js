@@ -197,7 +197,7 @@
     };
     
     $.jqplot.CanvasAxisLabelRenderer.prototype.pack = function() {
-        this._textRenderer.draw(this._elem.get(0).getContext("2d"), this.label);
+        this._textRenderer.draw(this._elem.get(0).getContext("2d"), this.label.decodeHTMLEntities());
     };
     
 })(jQuery);

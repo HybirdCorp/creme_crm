@@ -322,6 +322,23 @@ String.prototype.format = function() {
         return this.match(/^[\s]+$/) !== null;
     });
 
+    __decodeEntity = function(x) {
+        if (x.charAt(2) == 'x') {
+            return String.fromCharCode(parseInt(x.substr(3, x.length - 4), 16));
+        } else {
+            return String.fromCharCode(x.substr(2, x.length - 3));
+        }
+    };
+
+    __decodeUnicode = function(x) {
+        return String.fromCharCode(parseInt(x.substr(2, x.length - 2), 16));
+    };
+
+    append('decodeHTMLEntities', function() {
+        return this.replace(/\\u[0-9A-F]{4,6}/gi, __decodeUnicode)
+                   .replace(/&(#([0-9]{2,4})|#x([0-9A-F]{2,6}));/gi, __decodeEntity);
+    });
+
     /**
      * Diacritics removal tool.
      * Derived from code found on http://stackoverflow.com/questions/990904/javascript-remove-accents-diacritics-in-strings (first answer).
