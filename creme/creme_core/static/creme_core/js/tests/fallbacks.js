@@ -665,3 +665,11 @@ test('fallbacks.String.removeDiacritics', function() {
     equal('Éé'.removeDiacritics(), 'Ee');
     equal('åkà ! çétÔwîÂrg.'.removeDiacritics(), 'aka ! cetOwiArg.');
 });
+
+test('fallbacks.String.decodeHTMLEntities', function() {
+    equal(''.decodeHTMLEntities(), '');
+    equal('&#x000C8;&&#x000C9;;'.decodeHTMLEntities(), 'È&É;');
+    equal('&#200;&&#201;;'.decodeHTMLEntities(),     'È&É;');
+    equal('\\u00C8&\\u00C9;'.decodeHTMLEntities(),     'È&É;');
+});
+
