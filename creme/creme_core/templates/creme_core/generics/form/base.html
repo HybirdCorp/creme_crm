@@ -60,11 +60,13 @@
             </table>
         {% endif %}
         {% block submit_buttons %}
-            {% if not hide_submit %}
+            {% if not is_inner_popup %}
                 <div class="submit_buttons">
                     <input type="submit" value="{{submit_label|default:_("Save")}}" />
                     {% if cancel_url %}<a href="{{cancel_url}}" >{% trans "Cancel" %}</a>{% endif %}
                 </div>
+            {% else %}
+                <input type="submit" value="{{submit_label|default:_("Save")}}" class="ui-creme-dialog-action"/>
             {% endif %}
         {% endblock %}
     </form>

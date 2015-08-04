@@ -35,7 +35,7 @@ def inner_popup(request, template, template_dict, is_valid=True, html=None,
     #debug("Inner_popup for: %s", request.path)
 
     context_instance = RequestContext(request)
-    template_dict['hide_submit'] = True
+    template_dict['is_inner_popup'] = True
 
     #REQUEST = request.REQUEST
     GET = request.GET

@@ -83,7 +83,9 @@
     function openConfirm(dialog, confirm)
     {
         if (confirm) {
-            new creme.dialog.ConfirmDialog(gettext('Are you sure ?')).onOk(function() {dialog.open();}).open();
+            new creme.dialog.ConfirmDialog(gettext('Are you sure ?'), {
+                defaultButtonLabels: {'ok': gettext('Confirm')}
+            }).onOk(function() {dialog.open();}).open();
         } else {
             dialog.open();
         }
@@ -95,7 +97,10 @@
         mockbackend.GET = {'mock/notfound':         mockbackend.response(404, 'HTTP - Not Found'),
                            'mock/forbidden':        mockbackend.response(403, 'HTTP - Forbidden'),
                            'mock/error':            mockbackend.response(500, 'HTTP - Internal Error'),
-                           'mock/form':             mockbackend.response(200, $('#mock-form').text().format('mock/form'))
+                           'mock/form':             mockbackend.response(200, $('#mock-form').text().format('mock/form')),
+                           'mock/wizard/A':         mockbackend.response(200, $('#mock-wizard-A').text()),
+                           'mock/wizard/B':         mockbackend.response(200, $('#mock-wizard-B').text()),
+                           'mock/wizard/C':         mockbackend.response(200, $('#mock-wizard-C').text())
                           };
 
         for(var index = 1; index <= 12; ++index) {
@@ -104,15 +109,22 @@
             }(index);
         }
 
-        mockbackend.POST = {'mock/form': function(url, form) {
-                                             var response = $('select[name="response"]', form).val() || '200';
-                                             var value = $('input[name="value"]', form).val() || '';
+        var mockPOST = function(name, redirect) {
+            return function(url, form) {
+                var response = $('select[name="response"]', form).val() || '200';
+                var value = $('input[name="' + name + '"]', form).val() || '';
 
-                                             if (response === '200' && Object.isEmpty(value))
-                                                 return mockbackend.GET['mock/form'];
+                if (response === '200' && (Object.isEmpty(value) || !name))
+                    return mockbackend.GET[redirect || url];
 
-                                             return mockbackend.response(parseInt(response), value);
-                                         }
+                return mockbackend.response(parseInt(response), value);
+            };
+        };
+
+        mockbackend.POST = {'mock/form': mockPOST('value'),
+                            'mock/wizard/A': mockPOST('', 'mock/wizard/B'),
+                            'mock/wizard/B': mockPOST('', 'mock/wizard/C'),
+                            'mock/wizard/C': mockPOST('value'),
                            };
 
         $('.ui-creme-frame').each(function() {
@@ -132,14 +144,14 @@
                 $(this).creme().widget().reload();
             });
         });
-        
+
         $('#dynamic-frame .redirect-frame').change(function() {
             var url = $(this).val() || '';
             $('#dynamic-frame .ui-creme-frame.widget-ready').each(function() {
                 $(this).creme().widget().reload('mock/' + url);
             });
         });
-        
+
         $('#dynamic-frame .reset-frame').click(function() {
             $('#dynamic-frame .ui-creme-frame.widget-ready').each(function() {
                 $(this).creme().widget().reset();
@@ -154,7 +166,8 @@
             var dialog = creme.dialogs.html(content, {
                 maxHeight: 480,
                 title: 'Static',
-                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame'
+                scroll: $('#popup input.popup-scroll-background').is(':checked') ? 'background' : 'frame',
+                defaultButtonLabels: {'close': '%d paragraph(s)'.format(count)}
             });
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
@@ -183,7 +196,9 @@
 
         $('#popup .popup-form button').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
-            var dialog = creme.dialogs.form('mock/form', {
+            var url = $(this).attr('data-url') || 'mock/form';
+
+            var dialog = creme.dialogs.form(url, {
                                            backend: mockbackend, 
                                            title:'Form', 
                                            compatible:false,
@@ -203,7 +218,7 @@
 
             openConfirm(dialog, $('#popup input.popup-confirm').is(':checked'));
         });
-        
+
         $('#popup button.popup-error-url').click(function() {
             var confirm = $('#popup input.popup-confirm').val();
             var url = '/test_http_response?status=' + ($('#popup .popup-error-status').val() || '');
@@ -246,6 +261,68 @@
             </div> 
         </form>
     </script>
+    <script type="text/html" id="mock-wizard-A">
+        <form class="popup-form" action="mock/wizard/A">
+            <div class="popup-form-field">
+                <label for="name">Name</label>
+                <input type="text" name="name" required></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="response">Response</label>
+                <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto" autocomplete>
+                    <options>
+                        <option value="200">Ok</option>
+                        <option value="404">Not Found</option>
+                        <option value="500">Internal Error</option>
+                        <option value="403">Forbidden</option>
+                    </options>
+                </select>
+            </div>
+            <input type="submit" class="ui-creme-dialog-action" value="Next"></input>
+        </form>
+    </script>
+    <script type="text/html" id="mock-wizard-B">
+        <form class="popup-form" action="mock/wizard/B">
+            <div class="popup-form-field">
+                <label for="value">Value</label>
+                <input type="number" name="value"></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="response">Response</label>
+                <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto" autocomplete>
+                    <options>
+                        <option value="200">Ok</option>
+                        <option value="404">Not Found</option>
+                        <option value="500">Internal Error</option>
+                        <option value="403">Forbidden</option>
+                    </options>
+                </select>
+            </div>
+            <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</button>
+            <input class="ui-creme-dialog-action" type="submit" value="Next"></input>
+        </form>
+    </script>
+    <script type="text/html" id="mock-wizard-C">
+        <form class="popup-form" action="mock/wizard/C">
+            <div class="popup-form-field">
+                <label for="value">Value</label>
+                <input type="number" name="value"></input>
+            </div>
+            <div class="popup-form-field">
+                <label for="response">Response</label>
+                <select name="response" widget="ui-creme-dselect" class="ui-creme-widget ui-creme-dselect widget-auto" autocomplete>
+                    <options>
+                        <option value="200">Ok</option>
+                        <option value="404">Not Found</option>
+                        <option value="500">Internal Error</option>
+                        <option value="403">Forbidden</option>
+                    </options>
+                </select>
+            </div>
+            <a class="ui-creme-dialog-action" href="mock/wizard/B">Step B</button>
+            <input class="ui-creme-dialog-action" type="submit" value="Finish"></input>
+        </form>
+    </script>
     <script type="text/html" id="mock-blocklist">
         <button class="block-refresh">Refresh</button>
         <input type="number" id="test-blocklist-min" value="1" min="1" max="100"></input>
@@ -284,7 +361,8 @@
                 <button type="button" class="popup-block">Static - Blocks</button>
             </div>
             <div class="popup-form">
-                <button type="button">Form</button>
+                <button type="button" data-url="mock/form">Form</button>
+                <button type="button" data-url="mock/wizard/A">Wizard</button>
                 <input type="checkbox" value="1" name="autofocus" checked>Auto focus</input>&nbsp;
                 <input type="checkbox" value="1" name="submitkey" checked>Submit on enter</input>
             </div>

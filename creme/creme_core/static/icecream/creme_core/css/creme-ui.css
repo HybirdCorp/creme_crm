@@ -612,6 +612,10 @@ span.ui-creme-datepicker-trigger {
     margin: 0;
 }
 
+.ui-dialog-content .ui-creme-dialog-action {
+    display: none;
+}
+
 /* Left-side menu overrides - until its removal */
 .fg-menu-container, .fg-menu, .fg-menu a {
     border-radius: 0;

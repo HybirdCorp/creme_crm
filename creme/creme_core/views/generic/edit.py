@@ -20,7 +20,7 @@
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render, redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
@@ -53,7 +53,7 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
                    'cancel_url': cancel_url,
                   })
 
-def edit_related_to_entity(request, pk, model, form_class, title_format):
+def edit_related_to_entity(request, pk, model, form_class, title_format, submit_label=_('Save the modifications')):
     """Edit a model related to a CremeEntity.
     @param model A django model class that implements the method get_related_entity().
     @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
@@ -76,6 +76,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  edit_form,
                         'title': title_format % entity,
+                        'submit_label': submit_label,
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,
@@ -84,7 +85,8 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
 
 def edit_model_with_popup(request, query_dict, model, form_class,
                           title_format=None, can_change=None,
-                          template='creme_core/generics/blockform/edit_popup.html'):
+                          template='creme_core/generics/blockform/edit_popup.html',
+                          submit_label=_('Save the modifications')):
     """
     @param query_dict A dictionary that represents the query to retrieve the edited instance (eg: {'pk': 12})
     @param model A django model class that implements the method get_related_entity().
@@ -113,6 +115,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
     return inner_popup(request, template,
                        {'form':  edit_form,
                         'title': title_format % instance,
+                        'submit_label': submit_label,
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,
