@@ -157,25 +157,21 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this._super_(creme.dialog.Dialog, '_onOpen', dialog, frame, options);
     },
 
-    _updateButtonState: function(name, enabled, focus)
+    _frameActionButtons: function(options)
     {
-        var button = this.button(name);
+        var self = this;
+        var buttons = this._super_(creme.dialog.Dialog, '_frameActionButtons', options);
 
-        // HACK : fix jquery ui < 1.8.1 bug that not reset ui-button state.
-        button.removeClass('ui-state-focus ui-state-hover ui-state-active');
+        $('.ui-creme-dialog-action[type="submit"]', this.content()).each(function() {
+            var name = $(this).attr('name') || 'send';
+            var label = $(this).val();
+            self._appendButton(buttons, name, label, self.submit);
+        }).toggleAttr('disabled', true);
 
-        button.toggleClass('ui-state-disabled', !enabled);
-        button.toggleAttr('disabled', !enabled);
-
-        if ((!this.options.autoFocus && focus === 'auto') || focus === true)
-            button.focus();
+        return buttons;
     },
 
-    _updateButtonLabel: function(name, label) {
-        $('.ui-button-text', this.button(name)).html(label);
-    },
-
-    _populateButtons: function(buttons, options)
+    _defaultButtons: function(buttons, options)
     {
         this._appendButton(buttons, 'send', gettext('Save'), this.submit);
         this._appendButton(buttons, 'cancel', gettext('Cancel'), this.close);

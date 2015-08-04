@@ -32,7 +32,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
             height:     350,
             scroll:     'frame',
             fitFrame:   true,
-            initWidget: true
+            initWidget: true,
+            useFrameActions: true
         }, options || {});
 
         this._initFrame(this.options);
@@ -64,6 +65,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     _onFrameUpdate: function()
     {
+        if (this.options.useFrameActions) {
+            var buttons = Object.values(this._frameActionButtons(this.options));
+            this.replaceButtons(buttons);
+        }
+
         if (this.options.fitFrame)
             this.fitToFrameSize();
 
@@ -130,25 +136,65 @@ creme.dialog.Dialog = creme.component.Component.sub({
         this._events.trigger('resize', [delegate.width(), delegate.height()], this);
     },
 
+    _frameActionLinkButtons: function(options)
+    {
+        var self = this;
+        var buttons = {};
+
+        $('a.ui-creme-dialog-action', this.content()).each(function(index, item) {
+            var name = $(this).attr('name') || "link-" + index;
+            var label = $(this).text();
+            var url = $(this).attr('href');
+            self._appendButton(buttons, name, label, function() {this.fetch(url);});
+        });
+
+        return buttons;
+    },
+
+    _frameActionButtons: function(options)
+    {
+        var buttons = this._defaultButtons({}, options);
+        return $.extend(buttons, this._frameActionLinkButtons(options));
+    },
+
     _appendButton: function(buttons, name, label, action)
     {
         var self = this;
+        var custom_labels = this.options.defaultButtonLabels || {};
 
-        buttons[label] = {'name': name,
-                          'text': label,
-                          'click': function(e) {
-                              action.apply(self, [$(this), e]);
-                              return false;
-                          }
-                         };
+        buttons[name] = {'name': name,
+                         'text': custom_labels[name] || label,
+                         'click': function(e) {
+                             action.apply(self, [$(this), e]);
+                             return false;
+                         }
+                        };
     },
 
-    _populateButtons: function(buttons, options)
+    _defaultButtons: function(buttons, options)
     {
         var self = this;
 
         this._appendButton(buttons, 'close', gettext('Close'), this.close);
         return buttons;
+    },
+
+    _updateButtonState: function(name, enabled, focus)
+    {
+        var button = this.button(name);
+
+        // HACK : fix jquery ui < 1.8.1 bug that not reset ui-button state.
+        button.removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+        button.toggleClass('ui-state-disabled', !enabled);
+        button.toggleAttr('disabled', !enabled);
+
+        if ((!this.options.autoFocus && focus === 'auto') || focus === true)
+            button.focus();
+    },
+
+    _updateButtonLabel: function(name, label) {
+        $('.ui-button-text', this.button(name)).html(label);
     },
 
     _resizeDialog: function(width, height)
@@ -246,6 +292,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return $('button[name="' + name + '"]', this.buttons());
     },
 
+    replaceButtons: function(buttons) {
+        this._dialog.dialog('option', 'buttons', buttons);
+    },
+
     resize: function(width, height) {
         this._resizeDialog(width, height);
     },
@@ -303,7 +353,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var frame = this._frame;
         var container = frame.delegate();
 
-        var buttons = this._populateButtons({}, options);
+        var buttons = $.extend(this._defaultButtons({}, options), options.buttons || {});
 
         var content = $('<div/>').append(container);
 
@@ -311,7 +361,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var resizable = options.scroll === 'frame' ? options.resizable : false;
         var draggable = options.scroll === 'frame' ? options.draggable : false;
 
-        this._dialog = content.dialog({buttons:   buttons,
+        this._dialog = content.dialog({buttons:   Object.values(buttons),
                                        title:     options.title,
                                        modal:     true,
                                        resizable: resizable,
