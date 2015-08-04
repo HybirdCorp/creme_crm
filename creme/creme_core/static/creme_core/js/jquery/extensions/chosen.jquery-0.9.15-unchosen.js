@@ -599,7 +599,7 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.search_field_disabled = function() {
-      this.is_disabled = this.form_field_jq[0].disabled;
+      this.is_disabled = this.form_field_jq[0].disabled || this.form_field_jq.is('[readonly]');
       if (this.is_disabled) {
         this.container.addClass('chzn-disabled');
         this.search_field[0].disabled = true;

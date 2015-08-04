@@ -566,3 +566,7 @@ span.ui-creme-datepicker-trigger {
     height: 100%;
 }
 
+/*----------------------------------*/
+select[readonly] {
+    color: gray;
+}
