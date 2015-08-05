@@ -26,7 +26,7 @@ from django.db.models import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
-from creme.creme_core.models import Relation, FieldsConfig #CremeEntity
+from creme.creme_core.models import Relation
 
 from creme.activities import get_activity_model
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
@@ -93,8 +93,7 @@ class ManagersBlock(QuerysetBlock):
     def detailview_display(self, context):
         orga = context['object']
 
-        # TODO: cache in context
-        is_field_hidden = FieldsConfig.get_4_model(Contact).is_field_hidden
+        is_field_hidden = context['fields_configs'].get_4_model(Contact).is_field_hidden
         get_field = Contact._meta.get_field
         hidden_fields = set()
 

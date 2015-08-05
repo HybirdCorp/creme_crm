@@ -29,17 +29,16 @@ from django.template import Library, Template, TemplateSyntaxError, Node as Temp
 from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
 #from django.utils.safestring import mark_safe
-#from django.utils.translation import ugettext_lazy as _
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
 from ..gui.field_printers import field_printers_registry
-from ..models import CremeEntity, Relation, FieldsConfig
+from ..models import CremeEntity, Relation
 from ..registry import export_backend_registry, import_backend_registry
 from ..utils import safe_unicode, bool_as_html
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
-from ..utils.meta import FieldInfo #get_verbose_field_name
+from ..utils.meta import FieldInfo
 from ..utils.unicode_collation import collator
 
 
@@ -49,15 +48,6 @@ register = Library()
 
 @register.filter(name="print_boolean")
 def print_boolean(x):
-    #if isinstance(x, bool):
-        #return mark_safe('<input type="checkbox" %s disabled/>%s' % (
-                                ##x, #escape(x),
-                                #'checked' if x else '',
-                                #_('Yes') if x else _('No')
-                            #)
-                        #) #Potentially double safe marked
-
-    #return x
     return bool_as_html(x)
 
 @register.filter
@@ -94,20 +84,20 @@ def get_fieldtag(field, tag):
 
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
-    #return get_verbose_field_name(model_or_entity, field_name) or field_name
     try:
         return FieldInfo(model_or_entity, field_name).verbose_name
     except FieldDoesNotExist as e:
         logger.debug('Exception in get_field_verbose_name(): %s', e)
         return 'INVALID FIELD'
 
-@register.filter
-def get_viewable_fields(instance):
-    is_field_hidden = FieldsConfig.get_4_model(instance.__class__).is_field_hidden
+@register.assignment_tag(takes_context=True)
+def get_viewable_fields(context, instance):
+    is_hidden = context['fields_configs'].get_4_model(instance.__class__).is_field_hidden
 
-    for field in instance._meta.fields:
-        if field.get_tag('viewable') and not is_field_hidden(field):
-            yield field
+    return [field
+                for field in instance._meta.fields
+                    if field.get_tag('viewable') and not is_hidden(field)
+           ]
 
 @register.filter
 def is_none(obj):
@@ -147,7 +137,6 @@ def sub(object1, object2):
 
 @register.filter
 def and_op(object1, object2):
-    #return bool(object1 and object2)
     return object1 and object2
 
 @register.filter
@@ -195,10 +184,6 @@ def isiterable(iterable):
 @register.filter(name="format")
 def format_string(ustring, format_str):
     return format_str % ustring
-
-#@register.filter(name="enumerate")
-#def enumerate_iterable(iterable):
-    #return enumerate(iterable)
 
 @register.filter
 def to_timestamp(date):

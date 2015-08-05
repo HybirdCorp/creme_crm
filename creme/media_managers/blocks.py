@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, SimpleBlock, list4url
-from creme.creme_core.models import EntityCredentials, FieldsConfig
+from creme.creme_core.models import EntityCredentials
 
 from .models import Image
 
@@ -33,11 +33,12 @@ class ImageBlock(Block):
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(
                     context,
-                    # TODO: templatetag isntead ??
-                    is_description_hidden=FieldsConfig.get_4_model(Image)
-                                                      .is_field_hidden(Image._meta
-                                                                            .get_field('description')
-                                                                      ),
+                    # TODO: templatetag instead ??
+                    is_description_hidden=context['fields_configs']
+                                                 .get_4_model(Image)
+                                                 .is_field_hidden(Image._meta
+                                                                       .get_field('description')
+                                                                 ),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (
                                         self.id_,
                                         context['object'].pk,

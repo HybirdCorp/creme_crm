@@ -241,6 +241,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme.creme_core.context_processors.get_today',
      'creme.creme_core.context_processors.get_css_theme',
      'creme.creme_core.context_processors.get_blocks_manager',
+     'creme.creme_core.context_processors.get_fields_configs',
 )
 
 #TRUE_DELETE = True
