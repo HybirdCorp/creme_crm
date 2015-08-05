@@ -6,9 +6,12 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.fake_models import FakeContact, FakeAddress, FakeCivility
-    from creme.creme_core.models import FieldsConfig
+    from creme.creme_core.tests.fake_models import (FakeContact, FakeAddress,
+            FakeCivility, FakeEmailCampaign)
+    from creme.creme_core.forms.widgets import Label
     from creme.creme_core.gui.fields_config import fields_config_registry
+    from creme.creme_core.models import FieldsConfig
+    from creme.creme_core.registry import creme_registry
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
@@ -23,7 +26,8 @@ class FieldsConfigTestCase(CremeTestCase):
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-        fields_config_registry.register(FakeAddress) # TODO: unregister in tearDownClass ??
+        # TODO: unregister in tearDownClass ?? move to fake app.ready() ?
+        fields_config_registry.register(FakeAddress)
 
     def setUp(self):
         self.login()
@@ -41,11 +45,19 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/fields_config_portal.html')
 
     def test_add01(self):
-        url = self.ADD_CTYPE_URL
-        self.assertGET200(url)
-
         ct = self.ct
         self.assertFalse(FieldsConfig.objects.filter(content_type=ct))
+
+        url = self.ADD_CTYPE_URL
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            ctypes = response.context['form'].fields['ctype'].ctypes
+
+        self.assertIn(ct, ctypes)
+
+        self.assertIn(FakeEmailCampaign, creme_registry.iter_entity_models())
+        self.assertNotIn(ContentType.objects.get_for_model(FakeEmailCampaign), ctypes)
 
         fconf = self._create_fconf()
         self.assertEqual([], jsonloads(fconf.raw_descriptions)) #TODO: bof bof
@@ -73,6 +85,22 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertNotIn(ct_civ, ctypes)
         self.assertIn(ct_addr, ctypes)
+
+    def test_add03(self):
+        "All CTypes are already configured"
+        used_ct_ids = set(FieldsConfig.objects.values_list('content_type', flat=True))
+        FieldsConfig.objects.bulk_create([FieldsConfig(content_type=ct)
+                                            for ct in fields_config_registry.ctypes
+                                                if ct.id not in used_ct_ids
+                                         ]
+                                        )
+
+        response = self.assertGET200(self.ADD_CTYPE_URL)
+
+        with self.assertNoException():
+            ctype_f = response.context['form'].fields['ctype']
+
+        self.assertIsInstance(ctype_f.widget, Label)
 
     def test_edit(self):
         get_field = FakeContact._meta.get_field

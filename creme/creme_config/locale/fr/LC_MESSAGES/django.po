@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-27 14:19+0200\n"
+"POT-Creation-Date: 2015-08-03 15:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -99,7 +99,8 @@ msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
 #: forms/blocks.py:116 forms/blocks.py:364 forms/button_menu.py:39
-#: forms/custom_fields.py:75 forms/fields_config.py:33
+#: forms/custom_fields.py:75 forms/fields_config.py:38
+#: forms/fields_config.py:58
 msgid "Related resource"
 msgstr "Ressource associée"
 
@@ -255,7 +256,17 @@ msgstr "Ajouter"
 msgid "Can't add"
 msgstr "Création interdite"
 
-#: forms/fields_config.py:54
+#: forms/fields_config.py:39
+msgid ""
+"The proposed types of resource have at least a field which can be hidden."
+msgstr ""
+"Les types de ressource proposés ont au moins un champ qui peut être caché."
+
+#: forms/fields_config.py:60
+msgid "All configurable types of resource are already configured."
+msgstr "Tous les types de ressource configurables sont déjà configurés."
+
+#: forms/fields_config.py:70
 #: templates/creme_config/templatetags/block_fields_configs.html:18
 msgid "Hidden fields"
 msgstr "Champs cachés"
