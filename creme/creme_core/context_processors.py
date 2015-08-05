@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.utils.timezone import now
 from creme import __version__
 
 from .gui.block import BlocksManager
+from .models import FieldsConfig
 from .utils.media import get_current_theme, get_current_theme_vb
 
 
@@ -43,6 +44,9 @@ def get_today(request):
 
 def get_blocks_manager(request):
     return {BlocksManager.var_name: BlocksManager()}
+
+def get_fields_configs(request):
+    return {'fields_configs': FieldsConfig.LocalCache()}
 
 def get_version(request):
     return {'creme_version': __version__}
