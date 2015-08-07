@@ -23,7 +23,7 @@
 {% block test_content %}
 
 <button id="test-blocklist-refresh">Refresh</button>
-<input type="number" id="test-blocklist-min" value="1" min="1" max="100"></input>
+<input type="number" id="test-blocklist-min" value="1" min="1" max="100" />
 {% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
 {% display_block_detailview 'test_dummy_list_block' %}
 

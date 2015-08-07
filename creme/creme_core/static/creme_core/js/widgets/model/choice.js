@@ -205,7 +205,7 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
     createItem: function(target, before, data, index)
     {
         var item = $(('<%s class="checkbox-field">' +
-                         '<input type="checkbox"></input>' +
+                         '<input type="checkbox" />' +
                          '<div class="checkbox-label">' +
                              '<span class="checkbox-label-text"></span>' +
                              '<span class="checkbox-label-help"></span>' +

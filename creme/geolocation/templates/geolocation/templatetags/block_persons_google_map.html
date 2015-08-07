@@ -15,7 +15,7 @@
                 <div class="block-geoaddress-items">
                 {% for address in addresses %}
                     <div class="block-geoaddress-item {% if address.is_billing %}item-selected{% endif %}" data-addressid="{{address.id}}">
-                        <input type="checkbox" value="{{address.id}}" {% if address.is_billing %}checked{% endif %}></input>
+                        <input type="checkbox" value="{{address.id}}" {% if address.is_billing %}checked{% endif %} />
                         <div class="block-geoaddress-label">
                         {% if address.content and address.title %}
                             <span class="block-geoaddress-title">{{address.title}}</span>
