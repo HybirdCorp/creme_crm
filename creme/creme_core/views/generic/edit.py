@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,9 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
                    'cancel_url': cancel_url,
                   })
 
-def edit_related_to_entity(request, pk, model, form_class, title_format, submit_label=_('Save the modifications')):
+def edit_related_to_entity(request, pk, model, form_class, title_format,
+                           submit_label=_('Save the modifications'),
+                          ):
     """Edit a model related to a CremeEntity.
     @param model A django model class that implements the method get_related_entity().
     @param form_class Form which __init__'s method MUST HAVE an argument caled 'entity' (the related CremeEntity).
@@ -103,14 +105,16 @@ def edit_model_with_popup(request, query_dict, model, form_class,
         user.has_perm_to_change_or_die(instance)
 
     if request.method == 'POST':
-        edit_form = form_class(user=user, data=request.POST, files=request.FILES or None, instance=instance)
+        edit_form = form_class(user=user, data=request.POST, instance=instance,
+                               files=request.FILES or None,
+                              )
 
         if edit_form.is_valid():
             edit_form.save()
     else: #return page on GET request
         edit_form = form_class(user=user, instance=instance)
 
-    title_format = title_format or _(u'Edit <%s>')
+    title_format = title_format or _(u'Edit «%s»')
 
     return inner_popup(request, template,
                        {'form':  edit_form,

@@ -71,9 +71,10 @@ def listview(request):
 @permission_required('sms')
 def add_messaging_list(request, campaign_id):
     return add_to_entity(request, campaign_id, CampaignAddListForm,
-                         ugettext(u'New messaging lists for <%s>'),
+                         ugettext(u'New messaging lists for «%s»'),
 #                         entity_class=SMSCampaign,
                          entity_class=get_smscampaign_model(),
+                         submit_label=_('Link the messaging lists'),
                         )
 
 @login_required

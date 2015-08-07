@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import RelationType, SemiFixedRelationType
@@ -38,12 +38,17 @@ def portal(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
-    return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'))
+    return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'),
+                                submit_label=_('Save the type'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_semi_fixed(request):
-    return add_model_with_popup(request, SemiFixedRelationTypeCreateForm, _(u'New semi-fixed type of relationship'))
+    return add_model_with_popup(request, SemiFixedRelationTypeCreateForm,
+                                _(u'New semi-fixed type of relationship'),
+                                submit_label=_('Save the type'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -64,7 +69,8 @@ def edit(request, relation_type_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
-                        'title': _(u'Edit the type "%s"') % relation_type,
+                        'title': ugettext(u'Edit the type «%s»') % relation_type, # TODO: lazy interpolation
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -86,7 +92,8 @@ def delete(request):
 @login_required
 @permission_required('creme_core.can_admin')
 def delete_semi_fixed(request):
-    semifixed_rtype = get_object_or_404(SemiFixedRelationType, pk=get_from_POST_or_404(request.POST, 'id'))
-    semifixed_rtype.delete()
+    get_object_or_404(SemiFixedRelationType,
+                      pk=get_from_POST_or_404(request.POST, 'id'),
+                     ).delete()
 
     return HttpResponse()

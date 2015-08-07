@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_to_entity # edit_entity
@@ -32,9 +32,10 @@ from ..forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVFor
 @permission_required('emails')
 def add(request, ml_id):
     return add_to_entity(request, ml_id, MailingListAddRecipientsForm,
-                         _(u'New recipients for <%s>'),
+                         _(u'New recipients for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Save the recipients'),
                         )
 
 @login_required
@@ -42,8 +43,9 @@ def add(request, ml_id):
 def add_from_csv(request, ml_id):
     #TODO: fix the problem with inner popup + file input
     return add_to_entity(request, ml_id, MailingListAddCSVForm,
-                         _(u'New recipients for <%s>'),
+                         _(u'New recipients for «%s»'),
 #                         entity_class=MailingList,
                          entity_class=get_mailinglist_model(),
+                         submit_label=_('Save the recipients'),
                         )
 #    return edit_entity(request, ml_id, MailingList, MailingListAddCSVForm)

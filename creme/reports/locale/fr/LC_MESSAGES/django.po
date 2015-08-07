@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-02 17:02+0200\n"
+"POT-Creation-Date: 2015-08-07 11:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -691,25 +691,38 @@ msgstr "Télécharger «%(object)s»"
 
 #: views/blocks.py:50
 #, python-format
-msgid "Add an instance block for <%s>"
-msgstr "Ajouter un bloc d'instance pour : <%s>"
+msgid "Add an instance block for «%s»"
+msgstr "Ajouter un bloc d'instance pour «%s»"
+
+#: views/blocks.py:51
+msgid "Save the block"
+msgstr "Enregistrer le bloc"
 
 #: views/export.py:85
 #, python-format
-msgid "Export <%s>"
-msgstr "Exporter <%s>"
+msgid "Export «%s»"
+msgstr "Exporter «%s»"
+
+#: views/export.py:88
+msgid "Export"
+msgstr "Exporter"
 
 #: views/graph.py:49
 #, python-format
-msgid "Add a graph for <%s>"
-msgstr "Ajouter un graphique pour <%s>"
+msgid "Add a graph for «%s»"
+msgstr "Ajouter un graphique pour «%s»"
 
-#: views/graph.py:56
+#: views/graph.py:50
+msgctxt "reports-graphs"
+msgid "Save the graph"
+msgstr "Enregistrer le graphique"
+
+#: views/graph.py:57
 #, python-format
-msgid "Edit a graph for <%s>"
-msgstr "Modifier un graphique pour <%s>"
+msgid "Edit a graph for «%s»"
+msgstr "Modifier un graphique pour «%s»"
 
-#: views/graph.py:115
+#: views/graph.py:116
 msgid "Choose an abscissa field"
 msgstr "Choisir un champ d'abscisse"
 
@@ -723,13 +736,22 @@ msgstr "Enregistrer le rapport"
 
 #: views/report.py:117
 #, python-format
-msgid "Link of the column <%s>"
-msgstr "Liaison de la colonne <%s>"
+msgid "Link of the column «%s»"
+msgstr "Liaison de la colonne «%s»"
 
-#: views/report.py:128
+#: views/report.py:118
+msgid "Link"
+msgstr "Lier"
+
+#: views/report.py:129
 #, python-format
-msgid "Edit columns of <%s>"
-msgstr "Modifier les colonnes de <%s>"
+msgid "Edit columns of «%s»"
+msgstr "Modifier les colonnes de «%s»"
+
+# Already in creme_core
+#: views/report.py:131
+msgid "Save the modifications"
+msgstr ""
 
 #~ msgid "Download"
 #~ msgstr "Télécharger CSV"
@@ -739,9 +761,6 @@ msgstr "Modifier les colonnes de <%s>"
 
 #~ msgid "Download '%(object)s' as CSV file"
 #~ msgstr "Télécharger '%(object)s' sous forme de fichier CSV"
-
-#~ msgid "Temporal filters for <%s>"
-#~ msgstr "Filtres temporels pour <%s>"
 
 #~ msgid "Calculated value"
 #~ msgstr "Valeur calculée"

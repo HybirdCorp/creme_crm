@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,26 +21,34 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CustomField
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-from ..forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
 from ..blocks import custom_fields_block
+from ..forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
 
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add_ct(request):
-    return add_model_with_popup(request, CustomFieldsCTAddForm)
+    return add_model_with_popup(request, CustomFieldsCTAddForm,
+                                _(u'New custom field configuration'),
+                                submit_label=_(u'Save the configuration'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request, ct_id):
+    ct = get_ct_or_404(ct_id)
+
     return add_model_with_popup(request, CustomFieldsAddForm,
-                                initial={'ct': get_ct_or_404(ct_id)}
+                                _(u'New custom field for «%s»') % ct,
+                                initial={'ct': ct},
+                                submit_label=_(u'Save the custom field'),
                                )
 
 @login_required

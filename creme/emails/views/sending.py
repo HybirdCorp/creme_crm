@@ -36,9 +36,10 @@ from ..models import EmailSending #EmailCampaign
 @permission_required('emails')
 def add(request, campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _('New sending for <%s>'),
+                         _(u'New sending for «%s»'),
 #                         entity_class=EmailCampaign,
                          entity_class=get_emailcampaign_model(),
+                         submit_label=_('Save the sending'),
                         )
 
 def _get_sending(request, sending_id):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,26 +18,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from datetime import datetime
-
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from ..models import Action
 from ..forms.action import ActionForm
+from ..models import Action
 
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ActionForm, _(u'New action for <%s>'))
+    return add_to_entity(request, entity_id, ActionForm, _(u'New action for «%s»'),
+                         submit_label=_('Save the action'),
+                        )
 
 @login_required
 def edit(request, action_id):
-    return edit_related_to_entity(request, action_id, Action, ActionForm, _(u"Action for <%s>"))
+    return edit_related_to_entity(request, action_id, Action, ActionForm, _(u'Action for «%s»'))
 
 @login_required
 def validate(request, action_id):
@@ -47,7 +47,6 @@ def validate(request, action_id):
     request.user.has_perm_to_change_or_die(entity)
 
     action.is_ok = True
-    #action.validation_date = datetime.today()
     action.validation_date = now()
     action.save()
 

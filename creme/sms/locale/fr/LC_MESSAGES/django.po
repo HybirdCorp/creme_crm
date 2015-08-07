@@ -9,67 +9,55 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-17 18:10+0100\n"
+"POT-Creation-Date: 2015-08-07 11:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:55 forms/campaign.py:50
-msgid "Messaging lists"
-msgstr "Listes de diffusion"
-
-#: blocks.py:66
-msgid "Unlinked recipients"
-msgstr "Destinataires manuels"
-
-#: blocks.py:81 forms/messaging_list.py:43 forms/messaging_list.py:87
-#: models/messaging_list.py:31
-msgid "Contacts recipients"
-msgstr "Contacts destinataires"
-
-#: blocks.py:94
-msgid "Sent messages"
-msgstr "Messages envoyés"
-
-#: blocks.py:118 models/message.py:61
-msgid "Sendings"
-msgstr "Envois"
-
-#: creme_core_register.py:31 templates/sms/portal.html:4
+#: apps.py:28 apps.py:40 templates/sms/portal.html:4
 msgid "SMS"
 msgstr "SMS"
 
-#: creme_core_register.py:34
+#: apps.py:58
 msgid "Portal of SMS"
 msgstr "Portail des SMS"
 
-#: creme_core_register.py:35
+#: apps.py:59
 msgid "All campaigns"
 msgstr "Lister les campagnes"
 
-#: creme_core_register.py:37
+#: apps.py:61
 msgid "All messaging lists"
 msgstr "Lister les listes de diffusion"
 
-#: creme_core_register.py:39
+#: apps.py:63
 msgid "All message templates"
 msgstr "Lister les patrons de message"
 
-#: populate.py:44
-msgid "Messaging list view"
-msgstr "Vue de Liste de Diffusion"
+#: blocks.py:61 forms/campaign.py:50
+msgid "Messaging lists"
+msgstr "Listes de diffusion"
 
-#: populate.py:47
-msgid "Campaign view"
-msgstr "Vue de Campagne"
+#: blocks.py:72
+msgid "Unlinked recipients"
+msgstr "Destinataires manuels"
 
-#: populate.py:50
-msgid "Message template view"
-msgstr "Vue de patron de message"
+#: blocks.py:87 forms/messaging_list.py:43 forms/messaging_list.py:87
+#: models/messaging_list.py:34
+msgid "Contacts recipients"
+msgstr "Contacts destinataires"
 
-#: forms/campaign.py:31 models/campaign.py:32
+#: blocks.py:100
+msgid "Sent messages"
+msgstr "Messages envoyés"
+
+#: blocks.py:124 models/message.py:64
+msgid "Sendings"
+msgstr "Envois"
+
+#: forms/campaign.py:31 models/campaign.py:36
 msgid "Related messaging lists"
 msgstr "Listes de diffusion associées"
 
@@ -83,7 +71,7 @@ msgid "Following lists are already related to this campaign: %(lists)s"
 msgstr ""
 "La(es) liste(s) suivante(s) est déja présente dans la campagne: %(lists)s"
 
-#: forms/message.py:32 models/message.py:55 models/template.py:36
+#: forms/message.py:32 models/message.py:58 models/template.py:39
 msgid "Message template"
 msgstr "Patron de message"
 
@@ -100,7 +88,7 @@ msgid "All"
 msgstr "Tout"
 
 #: forms/recipient.py:36 forms/recipient.py:38 forms/recipient.py:60
-#: models/recipient.py:37
+#: models/recipient.py:39
 msgid "Recipients"
 msgstr "Destinataires"
 
@@ -131,7 +119,7 @@ msgstr ""
 " Attention, l'en-tête compte (+ 3 caractères) et les caractères suivant "
 "comptent double: %s"
 
-#: forms/template.py:38 models/message.py:92
+#: forms/template.py:38 models/message.py:95
 msgid "Message"
 msgstr "Message"
 
@@ -140,7 +128,7 @@ msgstr "Message"
 msgid "Message is too long (%(length)s > %(max_length)s)"
 msgstr "Message trop long (%(length)s > %(max_length)s)"
 
-#: models/account.py:31 models/template.py:28
+#: models/account.py:31 models/template.py:30
 msgid "Name"
 msgstr "Nom"
 
@@ -160,155 +148,167 @@ msgstr "Compte plateforme SMS"
 msgid "SMS accounts"
 msgstr "Comptes plateforme SMS"
 
-#: models/campaign.py:31
+#: models/campaign.py:34
 msgid "Name of the campaign"
 msgstr "Nom de la campagne"
 
-#: models/campaign.py:34
+#: models/campaign.py:38
 msgid "Add a campaign"
 msgstr "Ajouter une campagne"
 
-#: models/campaign.py:38
+#: models/campaign.py:43
 msgid "SMS campaign"
 msgstr "Campagne de SMS"
 
-#: models/campaign.py:39
+#: models/campaign.py:44
 msgid "SMS campaigns"
 msgstr "Campagnes de SMS"
 
-#: models/message.py:44
+#: models/message.py:45
 msgctxt "sms"
 msgid "Not sent"
 msgstr "Non envoyé"
 
-#: models/message.py:44
+#: models/message.py:45
 msgctxt "sms-plural"
 msgid "Not sent"
 msgstr "Non envoyés"
 
-#: models/message.py:45
+#: models/message.py:46
 msgctxt "sms"
 msgid "Waiting"
 msgstr "En attente"
 
-#: models/message.py:45
+#: models/message.py:46
 msgctxt "sms-plural"
 msgid "Waiting"
 msgstr "En attente"
 
-#: models/message.py:46
+#: models/message.py:47
 msgctxt "sms"
 msgid "Accepted"
 msgstr "Accepté"
 
-#: models/message.py:46
+#: models/message.py:47
 msgctxt "sms-plural"
 msgid "Accepted"
 msgstr "Acceptés"
 
-#: models/message.py:47
+#: models/message.py:48
 msgctxt "sms"
 msgid "Sent"
 msgstr "Envoyé"
 
-#: models/message.py:47
+#: models/message.py:48
 msgctxt "sms-plural"
 msgid "Sent"
 msgstr "Envoyés"
 
-#: models/message.py:48
+#: models/message.py:49
 msgid "Error"
 msgstr "Erreur"
 
-#: models/message.py:48
+#: models/message.py:49
 msgid "Errors"
 msgstr "Erreurs"
 
-#: models/message.py:53
+#: models/message.py:54
 msgid "Date"
 msgstr "Date"
 
-#: models/message.py:54
+#: models/message.py:56
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: models/message.py:56
+#: models/message.py:59
 msgid "Generated message"
 msgstr "Message généré"
 
-#: models/message.py:60 models/message.py:82
+#: models/message.py:63 models/message.py:85
 #: templates/sms/templatetags/block_sendings.html:16
 msgid "Sending"
 msgstr "Envoi"
 
-#: models/message.py:83 models/recipient.py:32
+#: models/message.py:86 models/recipient.py:34
 #: templates/sms/templatetags/block_contacts.html:18
 #: templates/sms/templatetags/block_messages.html:64
 #: templates/sms/templatetags/block_recipients.html:27
 msgid "Number"
 msgstr "Numéro"
 
-#: models/message.py:84
+#: models/message.py:87
 msgid "State"
 msgstr "État"
 
-#: models/message.py:85
+#: models/message.py:88
 msgid "Full state"
 msgstr "État détaillé"
 
-#: models/message.py:93 templates/sms/templatetags/block_messages.html:40
+#: models/message.py:96 templates/sms/templatetags/block_messages.html:40
 msgid "Messages"
 msgstr "Messages"
 
-#: models/message.py:97
+#: models/message.py:100
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: models/messaging_list.py:30
+#: models/messaging_list.py:33
 msgid "Name of the messaging list"
 msgstr "Nom de la liste de diffusion"
 
-#: models/messaging_list.py:34
+#: models/messaging_list.py:36
 msgid "Add a messaging list"
 msgstr "Ajouter une liste de diffusion"
 
-#: models/messaging_list.py:38
+#: models/messaging_list.py:41
 msgid "SMS messaging list"
 msgstr "Liste de diffusion SMS"
 
-#: models/messaging_list.py:39
+#: models/messaging_list.py:42
 msgid "SMS messaging lists"
 msgstr "Listes de diffusion SMS"
 
-#: models/recipient.py:31
+#: models/recipient.py:33
 msgid "Related messaging list"
 msgstr "Liste de diffusion associée"
 
-#: models/recipient.py:36
+#: models/recipient.py:38
 msgid "Recipient"
 msgstr "Destinataire"
 
-#: models/template.py:29
+#: models/template.py:31
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/template.py:30
+#: models/template.py:32
 msgid "Body"
 msgstr "Corps"
 
-#: models/template.py:32
+#: models/template.py:34
 msgid "Add a message template"
 msgstr "Ajouter un patron de message"
 
-#: models/template.py:37
+#: models/template.py:40
 msgid "Messages templates"
 msgstr "Patrons de message"
+
+#: populate.py:50
+msgid "Messaging list view"
+msgstr "Vue de Liste de Diffusion"
+
+#: populate.py:53
+msgid "Campaign view"
+msgstr "Vue de Campagne"
+
+#: populate.py:56
+msgid "Message template view"
+msgstr "Vue de patron de message"
 
 #: templates/sms/portal.html:5
 msgid "SMS Campaigns portal"
 msgstr "Portail Campagnes de SMS"
 
-#: templates/sms/portal.html:7
+#: templates/sms/portal.html:9
 msgid "List of campaigns"
 msgstr "Liste des campagnes"
 
@@ -479,41 +479,57 @@ msgstr "Aucun envoi pour le moment"
 msgid "Save the SMS campaign"
 msgstr "Enregistrer la campagne de SMS"
 
-#: views/campaign.py:73
+#: views/campaign.py:74
 #, python-format
-msgid "New messaging lists for <%s>"
-msgstr "Nouvelles listes de diffusion pour <%s>"
+msgid "New messaging lists for «%s»"
+msgstr "Nouvelles listes de diffusion pour «%s»"
+
+#: views/campaign.py:77
+msgid "Link the messaging lists"
+msgstr "Lier les listes de diffusion"
 
 #: views/messaging_list.py:39
 msgid "Save the messaging list"
 msgstr "Enregistrer la liste de diffusion"
 
-#: views/messaging_list.py:61 views/messaging_list.py:69
+#: views/messaging_list.py:63 views/messaging_list.py:73
 #, python-format
-msgid "New contacts for <%s>"
-msgstr "Nouveaux contacts pour <%s>"
+msgid "New contacts for «%s»"
+msgstr "Nouveaux contacts pour «%s»"
 
-#: views/portal.py:29
+#: views/messaging_list.py:66 views/messaging_list.py:76
+msgid "Link the contacts"
+msgstr "Lier les contacts"
+
+#: views/portal.py:33
 msgid "Number of campaigns"
 msgstr "Nombre de campagne(s)"
 
-#: views/portal.py:30
+#: views/portal.py:34
 msgid "Number of messaging lists"
 msgstr "Nombre de liste(s) de diffusion"
 
-#: views/portal.py:31
+#: views/portal.py:35
 msgid "Number of sendings"
 msgstr "Nombre d'envoi(s)"
 
-#: views/recipient.py:34 views/recipient.py:41
+#: views/recipient.py:35 views/recipient.py:45
 #, python-format
-msgid "New recipients for <%s>"
-msgstr "Nouveaux destinataires pour <%s>"
+msgid "New recipients for «%s»"
+msgstr "Nouveaux destinataires pour «%s»"
+
+#: views/recipient.py:38 views/recipient.py:48
+msgid "Save the recipients"
+msgstr "Enregistrer les destinataires"
 
 #: views/sending.py:41
 #, python-format
-msgid "New sending for <%s>"
-msgstr "Nouvel envoi pour <%s>"
+msgid "New sending for «%s»"
+msgstr "Nouvel envoi pour «%s»"
+
+#: views/sending.py:42
+msgid "Save the sending"
+msgstr "Enregistrer l'envoi"
 
 #~ msgid "Campaign"
 #~ msgstr "Campagne"

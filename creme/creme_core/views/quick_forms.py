@@ -51,7 +51,7 @@ def add(request, ct_id, count):
     if base_form_class is None:
         raise Http404('No form registered for model: %s' % model)
 
-    #we had the mandatory 'user' argument
+    # We had the mandatory 'user' argument
     class _QuickForm(base_form_class):
         def __init__(self, *args, **kwargs):
             super(_QuickForm, self).__init__(user=user, *args, **kwargs)
@@ -73,7 +73,7 @@ def add(request, ct_id, count):
 
     return inner_popup(request, 'creme_core/generics/blockformset/add_popup.html',
                        {'formset': qformset,
-                        'title':   _('Quick creation of <%s>') % model_name,
+                        'title':   _(u'Quick creation of «%s»') % model_name,
                        },
                        is_valid=qformset.is_valid(),
                        reload=False,
@@ -81,8 +81,8 @@ def add(request, ct_id, count):
                       )
 
 def json_quickform_response(instance):
-    response = {'value':instance.id,
-                'added':[(instance.id, unicode(instance))],
+    response = {'value': instance.id,
+                'added': [(instance.id, unicode(instance))],
                }
 
     return HttpResponse(u'<json>%s</json>' % json_dump(response),
@@ -114,6 +114,7 @@ def add_from_widget(request, ct_id, count):
                            {'form':   form,
                             #'title':  _('New value'),
                             'title':  model.creation_label,
+                            #'submit_label': model.save_label, TODO ?
                            },
                            is_valid=form.is_valid(),
                            reload=False,

@@ -58,7 +58,8 @@ def listview(request):
 @permission_required('products')
 def add_images(request, service_id):
     return add_to_entity(request, service_id, AddImagesForm,
-                         ugettext('New images for <%s>'),
+                         ugettext(u'New images for «%s»'),
 #                         entity_class=Service,
                          entity_class=get_service_model(),
+                         submit_label=_('Link the images'),
                         )

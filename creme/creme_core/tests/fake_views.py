@@ -69,6 +69,7 @@ def organisation_listview(request):
 def address_add(request, entity_id):
     return generic.add_to_entity(request, entity_id, fake_forms.FakeAddressForm,
                                  _(u'Adding address to <%s>'),
+                                 submit_label=_('Save the address'),
                                 )
 
 @login_required

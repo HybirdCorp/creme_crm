@@ -9,16 +9,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-29 17:14+0200\n"
+"POT-Creation-Date: 2015-08-07 10:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:7 creme_core_register.py:36 models/project.py:51
+#: apps.py:28 apps.py:39 models/project.py:51
 msgid "Projects"
 msgstr "Projets"
+
+#: apps.py:64
+msgid "Portal of projects"
+msgstr "Portail des projets"
+
+#: apps.py:65
+msgid "All projects"
+msgstr "Lister les projets"
 
 #: blocks.py:43
 msgid "Extra project information"
@@ -84,14 +92,6 @@ msgstr "Terminée"
 msgid "The task is finished"
 msgstr "La tâche est terminée"
 
-#: creme_core_register.py:40
-msgid "Portal of projects"
-msgstr "Portail des projets"
-
-#: creme_core_register.py:43
-msgid "All projects"
-msgstr "Lister les projets"
-
 #: forms/project.py:40
 msgid "Start date"
 msgstr "Date de début"
@@ -108,7 +108,7 @@ msgstr "Responsable(s) du projet"
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/resource.py:66 forms/task.py:200
+#: forms/resource.py:72 forms/task.py:200
 msgid ""
 "If the contact changes, the old one keeps participating to the activities."
 msgstr ""
@@ -206,6 +206,7 @@ msgid "Task"
 msgstr "Tâche"
 
 #: models/resource.py:42
+#: templates/projects/templatetags/block_resources.html:10
 msgid "Add a resource"
 msgstr "Ajouter une ressource"
 
@@ -466,10 +467,6 @@ msgstr "%s Ressources affectées à la Tâche"
 msgid "Resource"
 msgstr "Ressource"
 
-#: templates/projects/templatetags/block_resources.html:10
-msgid "Add a resource from an existing contact"
-msgstr "Ajouter une ressource à partir d'un contact existant"
-
 #: templates/projects/templatetags/block_resources.html:19
 #, python-format
 msgid "You can't add a resource because this task is %(status)s"
@@ -572,35 +569,51 @@ msgstr ""
 
 #: views/task.py:50
 #, python-format
-msgid "Add a task to <%s>"
-msgstr "Ajouter une tâche à <%s>"
+msgid "Add a task to «%s»"
+msgstr "Ajouter une tâche à «%s»"
 
-#: views/task.py:125
+#: views/task.py:53
+msgid "Save the task"
+msgstr "Enregistrer la tâche"
+
+#: views/task.py:126
 #, python-format
-msgid "New activity related to <%s>"
-msgstr "Nouvelle activité liée à <%s>"
+msgid "New activity related to «%s»"
+msgstr "Nouvelle activité liée à «%s»"
 
-#: views/task.py:158
+#: views/task.py:129
+msgid "Save the activity"
+msgstr "Enregistrer l'activité"
+
+#: views/task.py:160
 msgid "Can not be deleted because of its dependencies."
 msgstr "Ne peut pas être supprimé à cause des ses dépendances."
 
-#: views/task.py:161
+#: views/task.py:163
 #, python-format
 msgid "The deletion caused an unexpected error [%s]."
 msgstr "La suppression a provoqué une erreur inattendue [%s]."
 
 # Already in creme_core
-#: views/task.py:163
+#: views/task.py:165
 msgid "Operation successfully completed"
 msgstr ""
 
 #: views/utils.py:51
 #, python-format
 msgid ""
-"You can't add a resources or a working period to a task which has status <%s>"
+"You can't add a resources or a working period to a task which has status «%s»"
 msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
-"tâche en statut <%s>"
+"tâche en statut «%s»"
+
+# Already in creme_core
+#: views/utils.py:95
+msgid "Save the modifications"
+msgstr ""
+
+#~ msgid "Add a resource from an existing contact"
+#~ msgstr "Ajouter une ressource à partir d'un contact existant"
 
 #~ msgid "%s Working period"
 #~ msgstr "%s Période travaillée"
@@ -643,9 +656,6 @@ msgstr ""
 
 #~ msgid "Estimated duration (in hours)"
 #~ msgstr "Durée prévue (en heures)"
-
-#~ msgid "Name of the task"
-#~ msgstr "Nom de la tâche"
 
 #~ msgid "Description of the task"
 #~ msgstr "Description de la tâche"

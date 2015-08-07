@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.shortcuts import get_object_or_404
 
 from creme.creme_core.views.generic import inner_popup
@@ -48,7 +48,10 @@ def _add_generic(request, form, task_id, title):
     if not task.is_alive():
         state = task.tstatus.name
         return error_popup(request,
-                           _(u"You can't add a resources or a working period to a task which has status <%s>") % state)
+                           ugettext(u"You can't add a resources or a working "
+                                    u"period to a task which has status «%s»"
+                                   ) % state
+                          )
 
     if request.method == 'POST':
         form_obj = form(task, user=user, data=request.POST)
@@ -59,8 +62,9 @@ def _add_generic(request, form, task_id, title):
         form_obj = form(task, user=user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {'form':   form_obj,
-                        'title':  title,
+                       {'form':  form_obj,
+                        'title': title,
+                        # TODO 'submit_label': _('Save the ...'),
                        },
                        is_valid=form_obj.is_valid(),
                        reload=False,
@@ -88,6 +92,7 @@ def _edit_generic(request, form, obj_id, model, title):
                        {'form':   form_obj,
                         'object': task, #TODO: useful ???
                         'title':  title,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=form_obj.is_valid(),
                        reload=False,

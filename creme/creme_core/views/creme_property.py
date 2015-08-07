@@ -22,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
 from django.template import RequestContext
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext
 
 #TODO: move them to creme_core ?
 from creme.creme_config.forms.creme_property_type import CremePropertyTypeAddForm, CremePropertyTypeEditForm
@@ -69,6 +69,7 @@ def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':  form,
                         'title': _(u'Multiple adding of properties'),
+                        'submit_label': _('Add the properties'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -77,7 +78,10 @@ def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk
 
 @login_required
 def add_to_entity(request, entity_id):
-    return generic_add_to_entity(request, entity_id, AddPropertiesForm, _('New properties for <%s>'))
+    return generic_add_to_entity(request, entity_id, AddPropertiesForm,
+                                 _(u'New properties for «%s»'),
+                                 submit_label=_('Add the properties'),
+                                )
 
 @login_required
 @permission_required('creme_core.can_admin')

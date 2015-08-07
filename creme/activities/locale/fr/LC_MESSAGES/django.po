@@ -9,17 +9,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-26 11:02+0200\n"
+"POT-Creation-Date: 2015-08-06 23:11+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps.py:10 creme_core_register.py:42 models/activity.py:74
+#: apps.py:28 apps.py:40 models/activity.py:74
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
+
+#: apps.py:84
+msgid "Portal of activities"
+msgstr "Portail des activités"
+
+#: apps.py:85 forms/calendar.py:63 models/calendar.py:44
+#: templates/activities/portal.html:11
+msgid "Calendar"
+msgstr "Calendrier"
+
+#: apps.py:87 buttons.py:48 constants.py:23
+msgid "Add a meeting"
+msgstr "Ajouter un rendez-vous"
+
+#: apps.py:88 buttons.py:54
+msgid "Add a phone call"
+msgstr "Ajouter un appel téléphonique"
+
+#: apps.py:89 buttons.py:60 constants.py:22
+msgid "Add a task"
+msgstr "Ajouter une tâche"
+
+#: apps.py:90 constants.py:28
+msgid "Add an indisponibility"
+msgstr "Ajouter une indisponibilité"
+
+#: apps.py:91
+msgid "All activities"
+msgstr "Lister les activités"
+
+#: apps.py:92
+msgid "All phone calls"
+msgstr "Lister les appels téléphoniques"
+
+#: apps.py:93
+msgid "All meetings"
+msgstr "Lister les rendez-vous"
 
 #: blocks.py:49 forms/activity.py:297 forms/activity.py:479 forms/blocks.py:60
 #: forms/lv_import.py:585
@@ -46,18 +83,6 @@ msgstr "Activités passées"
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
-#: buttons.py:48 constants.py:23 creme_core_register.py:58
-msgid "Add a meeting"
-msgstr "Ajouter un rendez-vous"
-
-#: buttons.py:54 creme_core_register.py:59
-msgid "Add a phone call"
-msgstr "Ajouter un appel téléphonique"
-
-#: buttons.py:60 constants.py:22 creme_core_register.py:60
-msgid "Add a task"
-msgstr "Ajouter une tâche"
-
 #: constants.py:24
 msgid "Add a phonecall"
 msgstr "Ajouter un appel téléphonique"
@@ -73,31 +98,6 @@ msgstr "Ajouter un salon"
 #: constants.py:27
 msgid "Add a demo"
 msgstr "Ajouter une démo"
-
-#: constants.py:28 creme_core_register.py:61
-msgid "Add an indisponibility"
-msgstr "Ajouter une indisponibilité"
-
-#: creme_core_register.py:47
-msgid "Portal of activities"
-msgstr "Portail des activités"
-
-#: creme_core_register.py:48 forms/calendar.py:63 models/calendar.py:44
-#: templates/activities/portal.html:11
-msgid "Calendar"
-msgstr "Calendrier"
-
-#: creme_core_register.py:62
-msgid "All activities"
-msgstr "Lister les activités"
-
-#: creme_core_register.py:63
-msgid "All phone calls"
-msgstr "Lister les appels téléphoniques"
-
-#: creme_core_register.py:64
-msgid "All meetings"
-msgstr "Lister les rendez-vous"
 
 #: forms/activity.py:58 forms/activity_type.py:151 forms/lv_import.py:569
 msgid "Type"
@@ -889,7 +889,7 @@ msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: views/activity.py:71
+#: views/activity.py:71 views/activity.py:165
 msgid "Save the activity"
 msgstr "Enregistrer l'activité"
 
@@ -899,15 +899,23 @@ msgstr "Nouvelle activité"
 
 #: views/blocks.py:43
 #, python-format
-msgid "Adding participants to activity <%s>"
-msgstr "Ajout de participants pour l'activité <%s>"
+msgid "Adding participants to activity «%s»"
+msgstr "Ajout de participants pour l'activité «%s»"
 
-#: views/blocks.py:69
+#: views/blocks.py:45
+msgid "Add the participants"
+msgstr "Ajouter les participants"
+
+#: views/blocks.py:70
 #, python-format
-msgid "Adding subjects to activity <%s>"
-msgstr "Ajout de sujets pour l'activité <%s>"
+msgid "Adding subjects to activity «%s»"
+msgstr "Ajout de sujets pour l'activité «%s»"
 
-#: views/blocks.py:82
+#: views/blocks.py:72
+msgid "Add the subjects"
+msgstr "Ajouter les sujets"
+
+#: views/blocks.py:84
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
 
@@ -915,14 +923,18 @@ msgstr "Une fiche n'existe plus."
 msgid "Add a calendar"
 msgstr "Ajouter un calendrier"
 
-#: views/calendar.py:270
+#: views/calendar.py:251
+msgid "Save the calendar"
+msgstr "Enregistrer le calendrier"
+
+#: views/calendar.py:272
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
-#: views/calendar.py:284
+#: views/calendar.py:286
 #, python-format
-msgid "Change calendar of <%s>"
-msgstr "Changer le calendrier de <%s>"
+msgid "Change calendar of «%s»"
+msgstr "Changer le calendrier de «%s»"
 
 #: views/portal.py:35
 msgid "Activities count"

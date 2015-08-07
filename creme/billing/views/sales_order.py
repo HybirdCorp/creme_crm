@@ -45,7 +45,8 @@ def add(request):
 @permission_required(('billing', 'billing.add_salesorder'))
 def add_related(request, target_id):
     return generic_add_related(request, target_id, form=SalesOrderCreateForm,
-                               title=_(u"Add a sales order for «%s»"), status_id=1,
+                               title=_(u'Add a sales order for «%s»'), status_id=1,
+                               submit_label=_('Save the sales order'),
                               )
 
 @login_required

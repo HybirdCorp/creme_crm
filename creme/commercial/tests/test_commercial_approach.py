@@ -342,7 +342,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(_(u"[CremeCRM] The organisation <%s> seems neglected") % customer,
+        self.assertEqual(_(u"[CremeCRM] The organisation «%s» seems neglected") % customer,
                          message.subject
                         )
         self.assertEqual(_(u"It seems you haven't created a commercial approach "

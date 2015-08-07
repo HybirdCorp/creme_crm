@@ -23,7 +23,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
 from django.template.context import RequestContext
-from django.utils.translation import ugettext as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremeEntity
@@ -54,7 +54,7 @@ def get_lightweight_mail_body(request, mail_id):
 def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
 
-    #TODO: disable the link in the template if view is not allowed
+    # TODO: disable the link in the template if view is not allowed
     request.user.has_perm_to_view_or_die(email.sending.campaign)
 
     template = "emails/view_email.html"
@@ -67,12 +67,12 @@ def view_lightweight_mail(request, mail_id):
 
     return render(request, template, ctx_dict)
 
-#TODO: credentials (don't forget templates)
+# TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
 @login_required
 @permission_required('emails')
 def synchronisation(request):
-    #TODO: Apply permissions?
+    # TODO: Apply permissions?
     return fetch(request, template="emails/synchronize.html",
                  ajax_template="emails/frags/ajax/synchronize.html",
                  extra_tpl_ctx={
@@ -99,7 +99,7 @@ def set_emails_status(request, status):
         status  = 400
     else:
         status = 200
-        message = _(u"Operation successfully completed")
+        message = ugettext(u"Operation successfully completed")
 
     return HttpResponse(message, content_type="text/javascript", status=status)
 
@@ -146,11 +146,12 @@ def listview(request):
 @permission_required(('emails', 'emails.add_entityemail'))
 def create_n_send(request, entity_id):
     return generic.add_to_entity(request, entity_id, EntityEmailForm,
-                                 title=_(u'Sending an email to <%s>'),
+                                 title=_(u'Sending an email to «%s»'),
                                  link_perm=True,
+                                 submit_label=_('Send the email'),
                                 )
 
-#TODO: use a wizard
+# TODO: use a wizard
 #      it seems hackish to work with inner popup & django.contrib.formtools.wizard.FormWizard
 @login_required
 @permission_required(('emails', 'emails.add_entityemail'))
@@ -161,6 +162,7 @@ def create_from_template_n_send(request, entity_id):
     user.has_perm_to_link_or_die(entity)
 
     entity = entity.get_real_entity()
+    submit_label = _('Next step')
 
     if request.method == 'POST':
         POST = request.POST
@@ -181,6 +183,7 @@ def create_from_template_n_send(request, entity_id):
                                                             'attachments': list(email_template.attachments.values_list('id', flat=True)),
                                                            }
                                                   )
+                submit_label = _('Send the email')
         else:
             assert step == 2
             form = EntityEmailFromTemplateForm(user=user, entity=entity, data=POST)
@@ -193,10 +196,11 @@ def create_from_template_n_send(request, entity_id):
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                                {'form':   form,
-                                'title':  ugettext(u'Sending an email to <%(entity)s> (step %(step)s/2)') % {
+                                'title':  ugettext(u'Sending an email to «%(entity)s» (step %(step)s/2)') % {
                                                 'entity': entity,
                                                 'step':   step,
                                             },
+                                'submit_label': submit_label,
                                },
                                is_valid=form.is_valid(),
                                reload=False,

@@ -81,10 +81,11 @@ def filter(request, report_id):
         form = ReportExportFilterForm(report=report, user=user)
 
     return inner_popup(request, 'reports/frags/report_export_filter.html',
-                       {'form':            form,
-                        'title':           _(u'Export <%s>' % report),
-                        'inner_popup':     True,
-                        'report_id':       report_id,
+                       {'form':         form,
+                        'title':        _(u'Export «%s»' % report),
+                        'inner_popup':  True,
+                        'report_id':    report_id,
+                        'submit_label': _('Export'),
                        },
                        is_valid=form.is_valid(),
                        reload=True,

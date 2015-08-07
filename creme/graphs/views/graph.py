@@ -21,7 +21,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext as _, pgettext_lazy
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
@@ -37,7 +37,7 @@ from ..models import Graph
 @permission_required(('graphs', 'graphs.add_graph'))
 def add(request):
     return add_entity(request, GraphForm,
-                      extra_template_dict={'submit_label': _('Save the graph')},
+                      extra_template_dict={'submit_label': pgettext_lazy('graphs', 'Save the graph')},
                      )
 
 @login_required
@@ -53,7 +53,7 @@ def dl_png(request, graph_id):
         return graph.generate_png(user)
     except Graph.GraphException:
         return render(request, 'graphs/graph_error.html',
-                      {'error_message': ugettext(u"This graph is too big!")},
+                      {'error_message': _(u"This graph is too big!")},
                      )
 
 @login_required
@@ -75,7 +75,7 @@ def listview(request):
 @permission_required('graphs')
 def add_relation_types(request, graph_id):
     return add_to_entity(request, graph_id, AddRelationTypesForm,
-                         ugettext(u'Add relation types to <%s>'),
+                         _(u'Add relation types to «%s»'),
 #                         entity_class=Graph,
                          entity_class=get_graph_model(),
                         )

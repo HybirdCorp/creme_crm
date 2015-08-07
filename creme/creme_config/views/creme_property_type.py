@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2014  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,12 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.models import CremePropertyType
-from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 
 from ..forms.creme_property_type import CremePropertyTypeEditForm, CremePropertyTypeAddForm
 
@@ -33,7 +33,10 @@ from ..forms.creme_property_type import CremePropertyTypeEditForm, CremeProperty
 @login_required
 @permission_required('creme_core.can_admin')
 def add(request):
-    return add_model_with_popup(request, CremePropertyTypeAddForm, _(u'New custom type of property'))
+    return add_model_with_popup(request, CremePropertyTypeAddForm,
+                                _(u'New custom type of property'),
+                                submit_label=_('Save the type of property'),
+                               )
 
 @login_required
 @permission_required('creme_core.can_admin')
@@ -54,7 +57,8 @@ def edit(request, property_type_id):
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {'form':  property_type_form,
-                        'title': _(u'Edit the type "%s"') % property_type,
+                        'title': _(u'Edit the type «%s»') % property_type,
+                        'submit_label': _('Save the modifications'),
                        },
                        is_valid=property_type_form.is_valid(),
                        reload=False,

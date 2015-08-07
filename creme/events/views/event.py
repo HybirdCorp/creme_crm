@@ -212,7 +212,7 @@ def list_contacts(request, event_id):
 
     return list_view(request, Contact,
                      #template='events/list_events.html',
-                     extra_dict={'list_title': _(u'List of contacts related to <%s>') % event,
+                     extra_dict={'list_title': _(u'List of contacts related to «%s»') % event,
                                  'add_url':    '/events/event/%s/link_contacts' % event_id,
                                 },
                      extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES),

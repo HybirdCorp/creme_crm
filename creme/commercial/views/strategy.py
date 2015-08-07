@@ -24,17 +24,17 @@ from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.auth.decorators import login_required, permission_required
-from creme.creme_core.views import generic
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.views import generic
 
 from creme.persons import get_organisation_model
 #from creme.persons.models import Organisation
 
 from .. import get_strategy_model
+from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+from ..forms import strategy as forms
 from ..models import (Strategy, MarketSegmentDescription,
         CommercialAsset, CommercialAssetScore, MarketSegmentCharm, MarketSegmentCharmScore)
-from ..forms import strategy as forms
-from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
 @login_required
@@ -65,66 +65,71 @@ def listview(request):
 @permission_required('commercial')
 def add_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentCreateForm,
-                                 ugettext(u"New market segment for <%s>"),
+                                 ugettext(u"New market segment for «%s»"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
+                                 submit_label=_('Save the market segment'),
                                 )
 
 @login_required
 @permission_required('commercial')
 def link_segment(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.SegmentLinkForm,
-                                 ugettext(u"New market segment for <%s>"),
+                                 ugettext(u"New market segment for «%s»"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
+                                 submit_label=_('Save the market segment'),
                                 )
 
 @login_required
 @permission_required('commercial')
 def add_asset(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AssetForm,
-                                 ugettext(u"New commercial asset for <%s>"),
+                                 ugettext(u"New commercial asset for «%s»"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
+                                 submit_label=_('Save the commercial asset'),
                                 )
 
 @login_required
 @permission_required('commercial')
 def add_charm(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.CharmForm,
-                                 ugettext(u"New segment charm for <%s>"),
+                                 ugettext(u"New segment charm for «%s»"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
+                                 submit_label=_('Save the segment charm'),
                                 )
 
 @login_required
 @permission_required('commercial')
 def add_evalorga(request, strategy_id):
     return generic.add_to_entity(request, strategy_id, forms.AddOrganisationForm,
-                                 ugettext(u"New organisation(s) for <%s>"),
+                                 ugettext(u"New organisation(s) for «%s»"),
 #                                 entity_class=Strategy
                                  entity_class=get_strategy_model(),
+                                 submit_label=_('Link the organisation(s)'),
                                 )
 
 @login_required
 @permission_required('commercial')
 def edit_segment(request, strategy_id, seginfo_id):
     return generic.edit_related_to_entity(request, seginfo_id, MarketSegmentDescription,
-                                          forms.SegmentEditForm, ugettext(u"Segment for <%s>")
+                                          forms.SegmentEditForm, ugettext(u"Segment for «%s»")
                                          )
 
 @login_required
 @permission_required('commercial')
 def edit_asset(request, asset_id):
     return generic.edit_related_to_entity(request, asset_id, CommercialAsset,
-                                          forms.AssetForm, ugettext(u"Asset for <%s>")
+                                          forms.AssetForm, ugettext(u"Asset for «%s»")
                                          )
 
 @login_required
 @permission_required('commercial')
 def edit_charm(request, charm_id):
     return generic.edit_related_to_entity(request, charm_id, MarketSegmentCharm,
-                                          forms.CharmForm, ugettext(u"Charm for <%s>")
+                                          forms.CharmForm, ugettext(u"Charm for «%s»")
                                          )
 
 @login_required
@@ -162,7 +167,7 @@ def _orga_view(request, strategy_id, orga_id, template):
     strategy, orga = _get_strategy_n_orga(request, strategy_id, orga_id)
 
     if not strategy.evaluated_orgas.filter(pk=orga_id).exists():
-        raise Http404(ugettext(u'This organisation <%(orga)s> is not (no more ?) evaluated by the strategy %(strategy)s') % {
+        raise Http404(ugettext(u'This organisation «%(orga)s» is not (no more ?) evaluated by the strategy %(strategy)s') % {
                             'orga': orga, 'strategy': strategy}
                      )
 

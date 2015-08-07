@@ -38,7 +38,10 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('commercial')
 def add(request):
-    return add_model_with_popup(request, MarketSegmentForm, title=_(u'New market segment'))
+    return add_model_with_popup(request, MarketSegmentForm,
+                                title=_(u'New market segment'),
+                                submit_label=_('Save the market segment'),
+                               )
 
 @login_required
 @permission_required('commercial')
@@ -64,6 +67,7 @@ def delete(request, segment_id):
         return add_model_with_popup(request, SegmentReplacementForm,
                                     _(u'Delete and replace «%s»') % segment,
                                     initial={'segment_to_delete': segment},
+                                    submit_label=_('Replace'),
                                    )
     except Exception:
         logger.exception('Error in MarketSegment deletion view')

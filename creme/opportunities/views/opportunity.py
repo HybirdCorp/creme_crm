@@ -55,9 +55,10 @@ def add_to(request, ce_id, inner_popup=False):
 
     if inner_popup:
         response = add_model_with_popup(request, OpportunityCreateForm,
-                                        title=_(u'New opportunity related to <%s>') %
+                                        title=_(u'New opportunity related to «%s»') %
                                                     centity.allowed_unicode(user),
                                         initial=initial,
+                                        submit_label=_('Save the opportunity'),
                                        )
     else:
         response = add_entity(request, OpportunityCreateForm, extra_initial=initial,

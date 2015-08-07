@@ -46,6 +46,7 @@ def add(request):
 def add_related(request, target_id):
     return generic_add_related(request, target_id, form=QuoteCreateForm,
                                title=_(u"Add a quote for «%s»"), status_id=1,
+                               submit_label=_(u'Save the quote'),
                               )
 
 @login_required

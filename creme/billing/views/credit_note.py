@@ -68,7 +68,8 @@ def listview(request):
 @permission_required('billing')
 def add_related_credit_note(request, base_id):
     return add_to_entity(request, base_id, CreditNoteRelatedForm,
-                         _(u"Credit notes for <%s>"), link_perm=True,
+                         _(u'Credit notes for «%s»'), link_perm=True,
+                         submit_label=_('Save the credit notes'),
                         )
 
 @login_required

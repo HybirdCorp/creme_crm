@@ -52,9 +52,10 @@ def add_child(request, folder_id):
 
     # TODO: improve generic view for submit_label=_('Save the folder')
     return add_model_with_popup(request, ChildFolderForm,
-                                title=_(u'New child folder for <%s>') %
-                                    parent_folder.allowed_unicode(user),
+                                title=_(u'New child folder for «%s»') %
+                                        parent_folder.allowed_unicode(user),
                                 initial={'parent': parent_folder},
+                                submit_label=_('Save the folder'),
                                )
 
 @login_required

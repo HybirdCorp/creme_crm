@@ -20,22 +20,24 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.auth.decorators import login_required # permission_required
-from creme.creme_core.auth.decorators import superuser_required
+from creme.creme_core.auth.decorators import login_required, superuser_required # permission_required
 from creme.creme_core.models import UserRole, SetCredentials
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme.creme_core.views.decorators import POST_only
-from creme.creme_core.utils import get_from_POST_or_404
 
-from ..forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
+from ..forms.user_role import (UserRoleCreateForm, UserRoleEditForm,
+        AddCredentialsForm, UserRoleDeleteForm)
 
 
 @login_required
 @superuser_required
 def add(request):
-    return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'))
+    return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'),
+                                submit_label=_('Save the role'),
+                               )
 
 @login_required
 @superuser_required
@@ -57,7 +59,8 @@ def add_credentials(request, role_id):
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  add_form,
-                        'title': _(u'Add creddentials to <%s>') % role,
+                        'title': _(u'Add creddentials to «%s»') % role,
+                        'submit_label': _('Add the creddentials'),
                        },
                        is_valid=add_form.is_valid(),
                        reload=False,
@@ -82,6 +85,7 @@ def delete(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
     return add_model_with_popup(request, UserRoleDeleteForm,
-                                _(u'Delete role <%s>') % role,
+                                _(u'Delete role «%s»') % role,
                                 initial={'role_to_delete': role},
+                                submit_label=_('Delete the role'),
                                )
