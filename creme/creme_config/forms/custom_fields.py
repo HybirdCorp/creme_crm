@@ -35,9 +35,9 @@ class CustomFieldsBaseForm(CremeModelForm):
     field_type  = TypedChoiceField(label=_(u'Type of field'), coerce=int,
                                    choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()],
                                   )
-    enum_values = CharField(widget=Textarea(), label=_(u'List content'), required=False,
-                            help_text=_(u'Give the possible  choices (one per line) '
-                                        u'if you choose the type "Choices list".'
+    enum_values = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
+                            help_text=_(u'Give the possible choices (one per line) '
+                                        u'if you choose the type "Choice list".'
                                        ),
                            )
 
@@ -50,7 +50,7 @@ class CustomFieldsBaseForm(CremeModelForm):
         if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) \
            and not cdata['enum_values'].strip():
             raise ValidationError(ugettext(u'The choices list must not be empty '
-                                           u'if you choose the type "Choices list".'
+                                           u'if you choose the type "Choice list".'
                                           ),
                                   code='empty_list',
                                  )

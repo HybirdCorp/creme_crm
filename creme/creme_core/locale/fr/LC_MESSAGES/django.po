@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-29 18:47+0200\n"
+"POT-Creation-Date: 2015-08-06 22:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -187,7 +187,7 @@ msgstr "Actions"
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:260 forms/list_view_import.py:1208 models/base.py:129
+#: forms/base.py:261 forms/list_view_import.py:1208 models/base.py:129
 #: models/entity_filter.py:115 models/header_filter.py:75
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
@@ -1228,12 +1228,12 @@ msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
 
 #: models/custom_field.py:302
-msgid "List of choices"
-msgstr "Liste des choix"
+msgid "Choice list"
+msgstr "Liste de choix"
 
 #: models/custom_field.py:334
-msgid "List of choices (multi sélection)"
-msgstr "Liste de choix (multi sélection)"
+msgid "Multiple choice list"
+msgstr "Liste de choix multiples"
 
 #: models/entity.py:70
 msgid "Add an entity"
@@ -1487,7 +1487,7 @@ msgstr "Est vide"
 msgid "Range"
 msgstr "Intervalle"
 
-#: models/fields_config.py:65
+#: models/fields_config.py:81
 #, python-format
 msgid "Configuration of %s"
 msgstr "Configuration de %s"
@@ -1948,7 +1948,7 @@ msgid "Forbidden"
 msgstr "Interdit"
 
 #: templates/creme_core/frags/list_view_content.html:37
-#: views/generic/add.py:122
+#: views/generic/add.py:123
 msgid "New"
 msgstr "Nouveau"
 
@@ -2036,8 +2036,12 @@ msgstr "Étape suivante"
 
 #: templates/creme_core/generics/blockform/add_wizard.html:98
 #: templates/creme_core/generics/blockform/base.html:70
+#: templates/creme_core/generics/blockform/base.html:74
 #: templates/creme_core/generics/blockformset/base.html:63
+#: templates/creme_core/generics/blockformset/base.html:67
 #: templates/creme_core/generics/form/base.html:66
+#: templates/creme_core/generics/form/base.html:70 views/generic/add.py:70
+#: views/generic/add.py:107
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -2054,6 +2058,7 @@ msgstr "Modifier «%(object)s»"
 
 #: templates/creme_core/generics/blockform/edit.html:14
 #: views/creme_property.py:135 views/generic/edit.py:52
+#: views/generic/edit.py:56 views/generic/edit.py:89
 msgid "Save the modifications"
 msgstr "Enregistrer les modifications"
 
@@ -2186,8 +2191,8 @@ msgid ""
 "It seems that all fields are hidden. Ask your administrator to fix the "
 "configuration."
 msgstr ""
-"Il semble que tous les champs soient cachés. Demandez à votre "
-"administrateur de corriger la configuration."
+"Il semble que tous les champs soient cachés. Demandez à votre administrateur "
+"de corriger la configuration."
 
 #: templates/creme_core/templatetags/block_found_entities.html:23
 msgid "Action"
@@ -2876,11 +2881,11 @@ msgstr "Fichier invalide"
 msgid "Save the entity"
 msgstr "Enregistrer la fiche"
 
-#: views/generic/edit.py:99
+#: views/generic/edit.py:101
 msgid "You can not edit this model"
 msgstr "Vous ne pouvez pas modifier ce modèle"
 
-#: views/generic/edit.py:111
+#: views/generic/edit.py:113
 #, python-format
 msgid "Edit <%s>"
 msgstr "Modifier <%s>"

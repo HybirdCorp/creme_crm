@@ -101,8 +101,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
     upper_bound = IntegerField(label=_(u'Upper bound'), required=False,
                                help_text=_(u'For integer type only.')
                               )
-    choices     = CharField(widget=Textarea(), label=_(u'List of choices'), required=False,
-                            help_text=_(u'Give the possible choices (one per line) if you choose the type "Choices list".')
+    choices     = CharField(widget=Textarea(), label=_(u'Available choices'), required=False,
+                            help_text=_(u'Give the possible choices (one per line) if you choose the type "Choice list".')
                            )
 
     def __init__(self, *args, **kwargs):

@@ -299,7 +299,7 @@ class CustomFieldEnumValue(CremeModel):
 class CustomFieldEnum(CustomFieldValue):
     value = ForeignKey(CustomFieldEnumValue)
 
-    verbose_name = _(u'List of choices')
+    verbose_name = _(u'Choice list')
 
     class Meta:
         app_label = 'creme_core'
@@ -331,7 +331,7 @@ class CustomFieldEnum(CustomFieldValue):
 class CustomFieldMultiEnum(CustomFieldValue):
     value = ManyToManyField(CustomFieldEnumValue)
 
-    verbose_name = _(u'List of choices (multi sélection)')
+    verbose_name = _(u'Multiple choice list')
 
     _enumvalues = None
 
