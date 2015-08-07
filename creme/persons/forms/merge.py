@@ -23,6 +23,7 @@ from itertools import chain
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
+from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model, get_contact_model
 #from ..models import Address, Contact
@@ -37,7 +38,7 @@ _SHIP_PREFIX = 'shipaddr_'
 
 
 class _PersonMergeForm(MergeEntitiesBaseForm):
-    _address_field_names = () # overload by get_merge_form_builder()
+    _address_field_names = () # Overloaded by get_merge_form_builder()
 
     def __init__(self, entity1, entity2, *args, **kwargs):
         if isinstance(entity1, Contact): #TODO: create a ContactMergeForm ?
@@ -67,7 +68,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
         return initial
 
     def _save_address(self, entity1, entity2, attr_name, cleaned_data, prefix):
-        address = getattr(entity1, attr_name)
+#        address = getattr(entity1, attr_name)
+        address = getattr(entity1, attr_name, None)
         was_none = False
 
         if address is None:
@@ -77,7 +79,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
 #        for fname in _FIELD_NAMES:
         for fname in self._address_field_names:
-            setattr(address, fname, cleaned_data[prefix + fname])
+#            setattr(address, fname, cleaned_data[prefix + fname])
+            setattr(address, fname, cleaned_data.get(prefix + fname))
 
         if address:
             address.save()
@@ -105,29 +108,33 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
 #TODO: can we build the form once instead of build it each time ??
 #TODO: factorise with csv_import.py ?
-def get_merge_form_builder():
+#def get_merge_form_builder():
+def get_merge_form_builder(model):
+    address_field_names = Address.info_field_names() # _FIELD_NAMES
+    attrs = {'_address_field_names': address_field_names}
+
     get_field = Address._meta.get_field
-    attrs = {}
-    billing_address_fnames = []
-    shipping_address_fnames = []
-    address_field_names = Address.info_field_names()
+    fields = [get_field(field_name) for field_name in address_field_names]
 
-#    for field_name in _FIELD_NAMES:
-    for field_name in address_field_names:
-        field = get_field(field_name)
+    is_hidden = FieldsConfig.get_4_model(model).is_fieldname_hidden
 
-        form_fieldname = _BILL_PREFIX + field_name
-        attrs[form_fieldname] = mergefield_factory(field)
-        billing_address_fnames.append(form_fieldname)
+    def add_fields(attr_name, prefix):
+        fnames = []
 
-        form_fieldname = _SHIP_PREFIX + field_name
-        attrs[form_fieldname] = mergefield_factory(field)
-        shipping_address_fnames.append(form_fieldname)
+        if not is_hidden(attr_name):
+            for field in fields:
+                form_fieldname = prefix + field.name
+                attrs[form_fieldname] = mergefield_factory(field)
+                fnames.append(form_fieldname)
+
+        return fnames
+
+    billing_address_fnames  = add_fields('billing_address', _BILL_PREFIX)
+    shipping_address_fnames = add_fields('shipping_address', _SHIP_PREFIX)
 
     attrs['blocks'] = MergeEntitiesBaseForm.blocks.new(
                             ('billing_address',  _(u'Billing address'),  billing_address_fnames),
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames),
                         )
-    attrs['_address_field_names'] = address_field_names
 
     return type('PersonMergeForm', (_PersonMergeForm,), attrs)

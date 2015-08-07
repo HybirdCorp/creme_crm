@@ -148,7 +148,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_createview03(self):
-        "FieldsConfig on Address"
+        "FieldsConfig on Address sub-fields"
         user = self.login()
         fconf = FieldsConfig.create(Address,
                                     descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -199,6 +199,23 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(b_country,    billing_address.country)
 
         self.assertFalse(billing_address.po_box)
+
+    @skipIfCustomAddress
+    def test_createview04(self):
+        "FieldsConfig on 'billing_address' FK field"
+        user = self.login()
+        fconf = FieldsConfig.create(Organisation,
+                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        response = self.assertGET200(reverse('persons__create_organisation'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('name', fields)
+        self.assertNotIn('billing_address-address', fields)
+        self.assertNotIn('billing_address-po_box',  fields)
 
     @skipIfCustomAddress
     def test_editview01(self):
@@ -715,7 +732,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_merge04(self):
-        "FieldsConfig on Address"
+        "FieldsConfig on Address sub-field"
         user = self.login()
         fconf = FieldsConfig.create(Address,
                                     descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -733,6 +750,63 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn('billaddr_name', fields)
         self.assertIn('billaddr_city', fields)
         self.assertNotIn('billaddr_po_box', fields)
+
+    @skipIfCustomAddress
+    def test_merge05(self):
+        "FieldsConfig on 'billing_address' FK field"
+        user = self.login()
+
+        fconf = FieldsConfig.create(Organisation,
+                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv')
+
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('billaddr_name',   fields)
+        self.assertNotIn('billaddr_city',   fields)
+        self.assertNotIn('billaddr_po_box', fields)
+
+        response = self.client.post(self.build_merge_url(orga01, orga02),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+    @skipIfCustomAddress
+    def test_merge06(self):
+        "FieldsConfig on 'shipping_address' FK field"
+        user = self.login()
+
+        fconf = FieldsConfig.create(Organisation,
+                                    descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv')
+
+        response = self.assertGET200(self.build_merge_url(orga01, orga02))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('shipaddr_name',   fields)
+        self.assertNotIn('shipaddr_city',   fields)
+        self.assertNotIn('shipaddr_po_box', fields)
 
     def test_delete_sector(self):
         "Set to null"
@@ -861,7 +935,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_csv_import03(self):
-        "FieldsConfig on Address"
+        "FieldsConfig on Address sub-field"
         user = self.login()
         fconf = FieldsConfig.create(Address,
                                     descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -886,3 +960,32 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsNotNone(billing_address)
         self.assertEqual(city, billing_address.city)
         self.assertFalse(billing_address.po_box)
+
+    @skipIfCustomAddress
+    def test_csv_import04(self):
+        "FieldsConfig on 'billing_address' FK field"
+        user = self.login()
+        fconf = FieldsConfig.create(Organisation,
+                                    descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                                   )
+
+        name = 'Nerv'
+        doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])
+        response = self.client.post(self._build_import_url(Organisation),
+                                    data=dict(self.lv_import_data,
+                                              document=doc.id,
+                                              user=user.id,
+
+                                              billaddr_city_colselect=2,   # should not be used
+                                              billaddr_po_box_colselect=3, # should not be used
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        orga = self.get_object_or_fail(Organisation, name=name)
+        self.assertIsNone(orga.billing_address)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertFalse(list(form.import_errors))

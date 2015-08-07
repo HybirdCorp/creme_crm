@@ -40,20 +40,31 @@ def _get_address_field_names(addr_fieldname):
 
 
 class _BasePersonForm(CremeEntityForm):
-    blocks = CremeEntityForm.blocks.new(('billing_address',  _(u'Billing address'),  _get_address_field_names(_BILLING_ADDRESS_FIELD)),
-                                        ('shipping_address', _(u'Shipping address'), _get_address_field_names(_SHIPPING_ADDRESS_FIELD)),
-                                       )
+    blocks = CremeEntityForm.blocks.new(
+                ('billing_address',  _(u'Billing address'),  _get_address_field_names(_BILLING_ADDRESS_FIELD)),
+                ('shipping_address', _(u'Shipping address'), _get_address_field_names(_SHIPPING_ADDRESS_FIELD)),
+             )
 
     class Meta(CremeEntityForm.Meta):
         model = CremeEntity # Overload me
 
+    # Used by template (address blocks have a special layout + buttons to copy addresses)
+    # See _init_address_fields()
+    hide_billing_address  = False
+    hide_shipping_address = False
+
     def __init__(self, *args, **kwargs):
         super(_BasePersonForm, self).__init__(*args, **kwargs)
 
-        self._init_address_fields(_BILLING_ADDRESS_FIELD)
-        self._init_address_fields(_SHIPPING_ADDRESS_FIELD)
+        fconfig = self.fields_configs.get_4_model(self.instance.__class__)
+        self._init_address_fields(fconfig, _BILLING_ADDRESS_FIELD)
+        self._init_address_fields(fconfig, _SHIPPING_ADDRESS_FIELD)
 
-    def _init_address_fields(self, addr_fieldname):
+    def _init_address_fields(self, fconfig, addr_fieldname):
+        if fconfig.is_fieldname_hidden(addr_fieldname):
+            setattr(self, 'hide_' + addr_fieldname, True)
+            return
+
         fields = self.fields
         instance = self.instance
         address_form = AddressForm(entity=instance, user=self.user, prefix=addr_fieldname,
@@ -88,8 +99,8 @@ class _BasePersonForm(CremeEntityForm):
 
         return save_instance
 
-    def save(self):
-        instance = super(_BasePersonForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(_BasePersonForm, self).save(*args, **kwargs)
         change4billing  = self._save_address(_BILLING_ADDRESS_FIELD)
         change4shipping = self._save_address(_SHIPPING_ADDRESS_FIELD)
 

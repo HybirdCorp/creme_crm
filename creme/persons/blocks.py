@@ -22,7 +22,6 @@ from future_builtins import filter
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.db.models import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
@@ -92,25 +91,7 @@ class ManagersBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         orga = context['object']
-
-        is_field_hidden = context['fields_configs'].get_4_model(Contact).is_field_hidden
-        get_field = Contact._meta.get_field
-        hidden_fields = set()
-
-        def _is_hidden(fname): # TODO: in FieldsConfig ??
-            try:
-                field = get_field(fname)
-            except FieldDoesNotExist:
-                pass
-            else:
-                if not is_field_hidden(field):
-                    return
-
-            hidden_fields.add(fname)
-
-        _is_hidden('phone')
-        _is_hidden('mobile')
-        _is_hidden('email')
+        is_hidden = context['fields_configs'].get_4_model(Contact).is_fieldname_hidden
 
         return self._render(self.get_block_template_context(context,
                                 self._get_people_qs(orga).select_related('civility'),
@@ -118,7 +99,10 @@ class ManagersBlock(QuerysetBlock):
                                 rtype_id=self.relation_type_deps[0],
                                 ct=ContentType.objects.get_for_model(Contact),
                                 add_title=self._get_add_title(),
-                                hidden_fields=hidden_fields,
+                                hidden_fields={fname
+                                                for fname in ('phone', 'mobile', 'email')
+                                                    if is_hidden(fname)
+                                              },
                                )
                            )
 
@@ -231,14 +215,52 @@ class AddressBlock(Block):
     target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
+        person = context['object']
+        model = person.__class__
+        is_hidden = context['fields_configs'].get_4_model(model)\
+                                             .is_field_hidden
+
+        def prepare_address(attr_name):
+            display_button = display_content = False
+
+            try:
+                addr = getattr(person, attr_name)
+            except AttributeError:
+                addr = Address()
+            else:
+                if is_hidden(model._meta.get_field(attr_name)):
+                    if addr is None:
+                        addr = Address()
+                elif addr is None:
+                    addr = Address()
+                    display_button  = True
+                else:
+                    display_content = True
+
+            addr.display_button  = display_button
+            addr.display_content = display_content
+
+            return addr
+
+        b_address = prepare_address('billing_address')
+        s_address = prepare_address('shipping_address')
+
+        colspan = 0
+        if b_address.display_content: colspan += 3
+        if s_address.display_content: colspan += 3
+        if not colspan: colspan = 1
+
         return self._render(self.get_block_template_context(
                                 context,
                                 update_url='/creme_core/blocks/reload/%s/%s/' % (
-                                                self.id_, context['object'].pk,
+                                                self.id_, person.pk,
                                             ),
+                                b_address=b_address,
+                                s_address=s_address,
 #                                field_names=_ADDRESS_FIELD_NAMES,
                                 field_names=_get_address_field_names(), #TODO: cache in context ??
                                 address_model=Address, #for fields' verbose name
+                                colspan=colspan,
                                )
                            )
 
