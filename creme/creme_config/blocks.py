@@ -193,10 +193,18 @@ class FieldsConfigsBlock(PaginatedBlock):
         sort_key = collator.sort_key
         fconfigs.sort(key=lambda fconf: sort_key(unicode(fconf.content_type)))
 
-        return self._render(self.get_block_template_context(
-                                context, fconfigs,
-                                update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                           ))
+        btc = self.get_block_template_context(
+                    context, fconfigs,
+                    update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                )
+
+        for fconf in btc['page'].object_list:
+            vnames = [unicode(f.verbose_name) for f in fconf.hidden_fields]
+            vnames.sort(key=sort_key)
+
+            fconf.fields_vnames = vnames
+
+        return self._render(btc)
 
 
 class CustomFieldsPortalBlock(_ConfigAdminBlock):
