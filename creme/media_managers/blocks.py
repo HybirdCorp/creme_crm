@@ -36,9 +36,10 @@ class ImageBlock(Block):
                     # TODO: templatetag instead ??
                     is_description_hidden=context['fields_configs']
                                                  .get_4_model(Image)
-                                                 .is_field_hidden(Image._meta
-                                                                       .get_field('description')
-                                                                 ),
+                                                 .is_fieldname_hidden('description'),
+                                                 #.is_field_hidden(Image._meta
+                                                                       #.get_field('description')
+                                                                 #),
                     update_url='/creme_core/blocks/reload/%s/%s/' % (
                                         self.id_,
                                         context['object'].pk,

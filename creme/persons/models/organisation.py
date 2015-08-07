@@ -78,13 +78,13 @@ class AbstractOrganisation(CremeEntity):
                                   verbose_name=_(u'Billing address'),
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                   related_name='billing_address_orga_set',
-                                 ).set_tags(enumerable=False) #clonable=False useless
+                                 ).set_tags(enumerable=False, optional=True) #clonable=False useless
 #    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'),
     shipping_address = ForeignKey(settings.PERSONS_ADDRESS_MODEL,
                                   verbose_name=_(u'Shipping address'),
                                   blank=True, null=True, editable=False, on_delete=SET_NULL,
                                   related_name='shipping_address_orga_set',
-                                 ).set_tags(enumerable=False)
+                                 ).set_tags(enumerable=False, optional=True)
     annual_revenue = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)\
                               .set_tags(optional=True)
     description    = TextField(_(u'Description'), blank=True, null=True).set_tags(optional=True)

@@ -7,11 +7,13 @@
 {% endblock table_attrs %}
 
 {% block extra_buttons %}
-    <tr>
-        <td class="{% cycle "block_line_dark" "block_line_light" %}" colspan="2" align="right">
-            <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">{% trans "Copy the address to right side" %}</button>
-        </td>
-    </tr>
+    {% if not form.hide_shipping_address %}
+        <tr>
+            <td class="{% cycle "block_line_dark" "block_line_light" %}" colspan="2" align="right">
+                <button type="button" onclick="creme.persons.copyTo('billing_table', 'shipping_table');">{% trans "Copy the address to right side" %}</button>
+            </td>
+        </tr>
+    {% endif %}
 {% endblock extra_buttons %}
 
-{% block table_classes %}dual_column{% endblock %}
+{% block table_classes %}{% if not form.hide_shipping_address %}dual_column{% endif %}{% endblock %}

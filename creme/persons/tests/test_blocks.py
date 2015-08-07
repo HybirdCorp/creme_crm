@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import  timedelta #datetime
+    from datetime import timedelta
     from functools import partial
 
+    from django.core.urlresolvers import reverse
+    from django.test.html import parse_html, Element
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.models import RelationType, Relation, CremeProperty
+    from creme.creme_core.models import RelationType, Relation, CremeProperty, FieldsConfig
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -19,12 +22,28 @@ try:
     from .base import skipIfCustomOrganisation, skipIfCustomContact
     from ..models import *
     from ..constants import *
-    from ..blocks import NeglectedOrganisationsBlock
+    from ..blocks import NeglectedOrganisationsBlock, address_block
 except Exception as e:
     print('Error in <%s>: %s' % (__name__, e))
 
 
 __all__ = ('BlocksTestCase',)
+
+
+def find_node_by_attr(node, tag, name, value):
+    if not isinstance(node, Element):
+        return
+
+    if node.name == tag:
+        for attr_name, attr_value in node.attributes:
+            if attr_name == name and attr_value == value:
+                return node
+
+    for child in node.children:
+        node = find_node_by_attr(child, tag, name, value)
+
+        if node is not None:
+            return node
 
 
 @skipIfCustomOrganisation
@@ -239,3 +258,171 @@ class BlocksTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Konoha')
         self._build_customer_orga(mng_orga, 'Suna', is_deleted=True)
         self.assertEqual([customer], list(self._get_neglected_orgas()))
+
+    def _get_address_block_content(self, entity, no_titles=False):
+        response = self.assertGET200(entity.get_absolute_url())
+        content = response.content
+        #content = content.decode(response._charset)
+
+        try:
+            html = parse_html(content)
+        except Exception as e:
+            self.fail('%s\n----\n%s' % (e, content))
+
+        block_node = find_node_by_attr(html, 'table', 'id', address_block.id_)
+        self.assertIsNotNone(block_node, 'Block content not found')
+
+        header_node = find_node_by_attr(block_node, 'th', 'class', 'collapser')
+        self.assertIsNotNone(header_node, 'Block header not found')
+
+        buttons_node = find_node_by_attr(block_node, 'div', 'class', 'buttons')
+        self.assertIsNotNone(buttons_node, 'Block buttons not found')
+
+        body_node = find_node_by_attr(block_node, 'tbody', 'class', 'collapsable')
+        self.assertIsNotNone(body_node, 'Block body not found')
+
+        titles_node = find_node_by_attr(block_node, 'tr', 'class', 'header')
+        if no_titles:
+            self.assertIsNone(titles_node, 'Block titles found !')
+        else:
+            self.assertIsNotNone(titles_node, 'Block titles not found')
+
+        return {
+            'header':  header_node,
+            'buttons': unicode(buttons_node),
+            'body':    unicode(body_node),
+            'titles':  unicode(titles_node),
+        }
+
+    def _assertAddressIn(self, block_content, address, title, country_in=True):
+        self.assertIn(title, block_content['titles'])
+
+        block_body = block_content['body']
+        self.assertIn(address.address, block_body)
+        self.assertIn(address.city,    block_body)
+
+        if country_in:
+            self.assertIn(address.country, block_body)
+        else:
+            self.assertNotIn(address.country, block_body)
+
+    def _assertAddressNotIn(self, block_body, address):
+        self.assertNotIn(address.address, block_body)
+        self.assertNotIn(address.city,    block_body)
+
+    def _assertButtonIn(self, block_content, url_name, entity):
+        self.assertIn(reverse(url_name, args=(entity.id,)), block_content['buttons'])
+
+    def _assertButtonNotIn(self, block_content, url_name, entity):
+        self.assertNotIn(reverse(url_name, args=(entity.id,)), block_content['buttons'])
+
+    def _assertColspanEqual(self, block_content, colspan):
+        for attr_name, attr_value in block_content['header'].attributes:
+            if attr_name == 'colspan':
+                found_colspan = int(attr_value)
+                break
+        else:
+            self.fail('"colspan" attribute not found.')
+
+        self.assertEqual(colspan, found_colspan)
+
+    def _create_contact_n_addresses(self, billing_address=True, shipping_address=True):
+        c = Contact.objects.create(user=self.user, first_name='Lawrence', last_name='?')
+
+        create_address = partial(Address.objects.create, owner=c)
+
+        if billing_address:
+            c.billing_address = create_address(name='Billing address',
+                                               address='Main square',
+                                               city='Lenos', country='North',
+                                              )
+
+        if shipping_address:
+            c.shipping_address = create_address(name='Shipping address',
+                                                address='Market',
+                                                city='Yorentz', country='South',
+                                               )
+
+        c.save()
+
+        return c
+
+    def test_addresses_block01(self):
+        c = self._create_contact_n_addresses()
+        content = self._get_address_block_content(c)
+
+        self._assertAddressIn(content, c.billing_address,  _('Billing address'))
+        self._assertAddressIn(content, c.shipping_address, _('Shipping address'))
+
+        self._assertButtonNotIn(content, 'persons__create_billing_address', c)
+        self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
+
+        self._assertColspanEqual(content, 6)
+
+    def test_addresses_block02(self):
+        "No shipping address set"
+        c = self._create_contact_n_addresses(shipping_address=False)
+        content = self._get_address_block_content(c)
+
+        self._assertAddressIn(content, c.billing_address, _('Billing address'))
+        self.assertNotIn(_('Shipping address'), content['titles'])
+
+        self._assertButtonNotIn(content, 'persons__create_billing_address', c)
+        self._assertButtonIn(content, 'persons__create_shipping_address', c)
+
+        self._assertColspanEqual(content, 3)
+
+    def test_addresses_block03(self):
+        "No billing address set"
+        c = self._create_contact_n_addresses(billing_address=False)
+        content = self._get_address_block_content(c)
+
+        self._assertAddressIn(content, c.shipping_address, _('Shipping address'))
+        self.assertNotIn(_('Billing address'), content['titles'])
+
+        self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
+        self._assertButtonIn(content, 'persons__create_billing_address', c)
+
+        self._assertColspanEqual(content, 3)
+
+    def test_addresses_block04(self):
+        "No address set"
+        c = self._create_contact_n_addresses(billing_address=False, shipping_address=False)
+        content = self._get_address_block_content(c, no_titles=True)
+        self._assertColspanEqual(content, 1)
+
+    def test_addresses_block05(self):
+        "With field config on sub-field"
+        FieldsConfig.create(Address,
+                            descriptions=[('country', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        c = self._create_contact_n_addresses()
+        content = self._get_address_block_content(c)
+        self._assertAddressIn(content, c.billing_address,  _('Billing address'),  country_in=False)
+        self._assertAddressIn(content, c.shipping_address, _('Shipping address'), country_in=False)
+
+    def test_addresses_block06(self):
+        "With field config on 'billing_address' FK field"
+        FieldsConfig.create(Contact,
+                            descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        c = self._create_contact_n_addresses()
+        content = self._get_address_block_content(c)
+        self._assertAddressIn(content, c.shipping_address, _('Shipping address'))
+        self._assertAddressNotIn(content, c.billing_address)
+
+        self._assertButtonNotIn(content, 'persons__create_billing_address', c)
+        self._assertButtonNotIn(content, 'persons__create_shipping_address', c)
+
+    def test_addresses_block07(self):
+        "With field config on 'shipping_address' FK field"
+        FieldsConfig.create(Contact,
+                            descriptions=[('shipping_address', {FieldsConfig.HIDDEN: True})],
+                           )
+
+        c = self._create_contact_n_addresses()
+        content = self._get_address_block_content(c)
+        self._assertAddressIn(content, c.billing_address, _('Billing address'))
+        self._assertAddressNotIn(content, c.shipping_address)

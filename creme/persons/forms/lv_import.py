@@ -21,6 +21,7 @@
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, extractorfield_factory
+from creme.creme_core.models import FieldsConfig
 
 from .. import get_address_model
 #from ..models import Address
@@ -44,9 +45,15 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
-    _address_field_names = () # overload by get_csv_form_builder()
+    # Overload by get_csv_form_builder()
+    _address_field_names = ()
+    _billing_address_hidden = False
+    _shipping_address_hidden = False
 
     def _save_address(self, attr_name, prefix, person, data, line, name):
+        if getattr(self, '_%s_hidden' % attr_name):
+            return False
+
         address_dict = {}
         save = False
 
@@ -85,34 +92,40 @@ class _PersonCSVImportForm(ImportForm4CremeEntity):
             instance.save()
 
 
-def get_csv_form_builder(header_dict, choices):
-    get_field = Address._meta.get_field
-    attrs = {}
-    billing_address_fnames = []
-    shipping_address_fnames = []
-
-    address_field_names = list(Address.info_field_names()) # TODO: remove not-editable fields ??
+def get_csv_form_builder(header_dict, choices, model):
+    address_field_names = list(Address.info_field_names()) # _FIELD_NAMES TODO: remove not-editable fields ??
     try:
        address_field_names.remove('name')
     except ValueError:
        pass
 
-#    for field_name in _FIELD_NAMES:
-    for field_name in address_field_names:
-        field = get_field(field_name)
+    attrs = {'_address_field_names': address_field_names}
 
-        form_fieldname = _BILL_PREFIX + field_name
-        attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
-        billing_address_fnames.append(form_fieldname)
+    get_field = Address._meta.get_field
+    fields = [get_field(field_name) for field_name in address_field_names]
 
-        form_fieldname = _SHIP_PREFIX + field_name
-        attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
-        shipping_address_fnames.append(form_fieldname)
+    is_hidden = FieldsConfig.get_4_model(model).is_fieldname_hidden
+
+    def add_fields(attr_name, prefix):
+        fnames = []
+        hidden = is_hidden(attr_name)
+
+        if not hidden:
+            for field in fields:
+                form_fieldname = prefix + field.name
+                attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
+                fnames.append(form_fieldname)
+
+        attrs['_%s_hidden' % attr_name] = hidden
+
+        return fnames
+
+    billing_address_fnames  = add_fields('billing_address', _BILL_PREFIX)
+    shipping_address_fnames = add_fields('shipping_address', _SHIP_PREFIX)
 
     attrs['blocks'] = ImportForm4CremeEntity.blocks.new(
                             ('billing_address',  _(u'Billing address'),  billing_address_fnames),
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )
-    attrs['_address_field_names'] = address_field_names
 
     return type('PersonCSVImportForm', (_PersonCSVImportForm,), attrs)

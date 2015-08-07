@@ -145,6 +145,17 @@ class FieldsConfig(CremeModel):
                 self._check_descriptions(self.content_type.model_class(), value)[1]
             )
 
+    def _get_hidden_field_names(self):
+        excluded = self._excluded_fnames
+
+        if excluded is None:
+            HIDDEN = self.HIDDEN
+            self._excluded_fnames = excluded = {
+                fname for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
+            }
+
+        return excluded
+
     @classmethod
     def filter_cells(cls, model, cells):
         """Yields not hidden cells.
@@ -169,28 +180,22 @@ class FieldsConfig(CremeModel):
     @property
     def hidden_fields(self):
         get_field = self.content_type.model_class()._meta.get_field
-        HIDDEN = self.HIDDEN
 
-        for field_name, field_conf in self.descriptions:
-            if field_conf.get(HIDDEN, False):
-                yield get_field(field_name)
+        for field_name in self._get_hidden_field_names():
+            yield get_field(field_name)
 
     def is_field_hidden(self, field):
-        excluded = self._excluded_fnames
+        return field.name in self._get_hidden_field_names()
 
-        if excluded is None:
-            # TODO: factorise with hidden_fields() ?
-            HIDDEN = self.HIDDEN
-            self._excluded_fnames = excluded = {
-                fname for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
-            }
+    def is_fieldname_hidden(self, field_name):
+        "NB: if the field does not exist, it is considered as hidden."
+        try:
+            field = self.content_type.model_class()._meta.get_field(field_name)
+        except FieldDoesNotExist:
+            return True
 
-        return field.name in excluded
+        return self.is_field_hidden(field)
 
-    @classmethod
-    def update_form_fields(cls, instance, form_fields):
-        fields_conf = FieldsConfig.get_4_model(instance.__class__)
-
-        for field_name, field_conf in fields_conf.descriptions:
-            if field_conf.get(cls.HIDDEN, False):
-                form_fields.pop(field_name, None)
+    def update_form_fields(self, form_fields):
+        for field_name in self._get_hidden_field_names():
+            form_fields.pop(field_name, None)

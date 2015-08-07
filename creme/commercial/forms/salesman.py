@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2013  Hybird
+#    Copyright (C) 2009-2015  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,8 @@ from ..constants import PROP_IS_A_SALESMAN
 
 
 class SalesManCreateForm(ContactForm):
-    def save(self):
-        instance = super(SalesManCreateForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(SalesManCreateForm, self).save(*args, **kwargs)
 
         CremeProperty.objects.create(type_id=PROP_IS_A_SALESMAN, creme_entity=instance)
 
