@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 1.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-30 22:34+0100\n"
+"POT-Creation-Date: 2015-08-06 22:16+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -84,51 +84,50 @@ msgstr "Date"
 msgid "Hour"
 msgstr "Heure"
 
-#: core.py:262 forms/poll_form.py:104
-msgid "List of choices"
-msgstr "Liste des choix"
+#: core.py:262
+msgid "Choice list"
+msgstr "Liste de choix"
 
 #: core.py:263
 #, python-format
-msgid "List of choices (%s)"
+msgid "Choice list (%s)"
 msgstr "Liste de choix (%s)"
 
 #: core.py:264
 #, python-format
-msgid "List of choices (%(choices)s) (deleted: %(del_choices)s)"
-msgstr "Liste de choix  (%(choices)s) (supprimé: %(del_choices)s)"
+msgid "Choice list (%(choices)s) (deleted: %(del_choices)s)"
+msgstr "Liste de choix (%(choices)s) (supprimé: %(del_choices)s)"
 
 #: core.py:271
 msgid "Give 2 choices at least."
 msgstr "Donnez au moins 2 choix."
 
 #: core.py:323
-msgid "List of multiple choices"
+msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
 
 #: core.py:324
 #, python-format
-msgid "List of multiple choices (%s)"
+msgid "Multiple choice list (%s)"
 msgstr "Liste de choix multiples (%s)"
 
 #: core.py:325
 #, python-format
-msgid "List of multiple choices (%(choices)s) (deleted: %(del_choices)s)"
+msgid "Multiple choice list (%(choices)s) (deleted: %(del_choices)s)"
 msgstr "Liste de choix multiples (%(choices)s) (supprimé: %(del_choices)s)"
 
 #: core.py:351
-msgid "List of choices with free choice"
+msgid "Choice list with free choice"
 msgstr "Liste de choix avec choix libre"
 
 #: core.py:352
 #, python-format
-msgid "List of choices with free choice (%s)"
+msgid "Choice list with free choice (%s)"
 msgstr "Liste de choix avec choix libre (%s)"
 
 #: core.py:353
 #, python-format
-msgid ""
-"List of choices with free choice (%(choices)s) (deleted: %(del_choices)s)"
+msgid "Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)"
 msgstr ""
 "Liste de choix avec choix libre (%(choices)s) (supprimé: %(del_choices)s)"
 
@@ -136,27 +135,27 @@ msgstr ""
 msgid "Other"
 msgstr "Autre"
 
-#: core.py:412 forms/poll_reply.py:183
+#: core.py:412 forms/poll_reply.py:202
 msgid "Comment"
 msgstr "Remarques"
 
-#: creme_core_register.py:30 templates/polls/portal.html:4
+#: creme_core_register.py:31 templates/polls/portal.html:4
 msgid "Polls"
 msgstr "Sondages"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "Portal of polls"
 msgstr "Portail des sondages"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All forms"
 msgstr "Lister les formulaires"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "All replies"
 msgstr "Lister les réponses"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:40
 msgid "All campaigns"
 msgstr "Lister les campagnes"
 
@@ -209,10 +208,14 @@ msgstr "Pour les nombres entiers uniquement."
 msgid "Upper bound"
 msgstr "Borne supérieure"
 
+#: forms/poll_form.py:104
+msgid "Available choices"
+msgstr "Choix disponibles"
+
 #: forms/poll_form.py:105
 msgid ""
-"Give the possible choices (one per line) if you choose the type \"Choices "
-"list\"."
+"Give the possible choices (one per line) if you choose the type \"Choice list"
+"\"."
 msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
@@ -281,30 +284,30 @@ msgid "Conditions"
 msgstr "Conditions"
 
 # in creme_core
-#: forms/poll_reply.py:41
+#: forms/poll_reply.py:42
 msgid "User"
 msgstr ""
 
-#: forms/poll_reply.py:42 models/campaign.py:31 models/poll_form.py:35
+#: forms/poll_reply.py:43 models/campaign.py:31 models/poll_form.py:35
 #: models/poll_form.py:136 models/poll_reply.py:34 models/poll_reply.py:79
 #: models/poll_type.py:28 templates/polls/templatetags/block_preplies.html:22
 msgid "Name"
 msgstr "Nom"
 
-#: forms/poll_reply.py:43 models/poll_reply.py:38
+#: forms/poll_reply.py:44 forms/poll_reply.py:140 models/poll_reply.py:38
 msgctxt "polls"
 msgid "Related campaign"
 msgstr "Campagne associée"
 
-#: forms/poll_reply.py:44 views/portal.py:32
+#: forms/poll_reply.py:45 views/portal.py:32
 msgid "Number of replies"
 msgstr "Nombre de réponses"
 
-#: forms/poll_reply.py:45
+#: forms/poll_reply.py:46
 msgid "Persons who filled"
 msgstr "Personnes qui ont rempli"
 
-#: forms/poll_reply.py:47
+#: forms/poll_reply.py:48
 msgid ""
 "Each reply will be linked to a person (and \"Number of replies\" will be "
 "ignored)"
@@ -312,30 +315,34 @@ msgstr ""
 "Chaque réponse sera liée à une personne (et \"Nombre de réponses\" sera "
 "ignoré)"
 
-#: forms/poll_reply.py:51 models/poll_reply.py:35
+#: forms/poll_reply.py:52 models/poll_reply.py:35
 msgid "Related form"
 msgstr "Formulaire lié"
 
-#: forms/poll_reply.py:100
+#: forms/poll_reply.py:101
 msgid "The form must contain one line at least."
 msgstr "Le formulaire doit contenir au moins une ligne."
 
-#: forms/poll_reply.py:144
+#: forms/poll_reply.py:144 forms/poll_reply.py:241 models/poll_reply.py:41
+msgid "Person who filled"
+msgstr "Personne qui a rempli"
+
+#: forms/poll_reply.py:163
 msgid "Replies"
 msgstr "Réponses"
 
-#: forms/poll_reply.py:164 models/poll_form.py:180 models/poll_form.py:184
+#: forms/poll_reply.py:183 models/poll_form.py:180 models/poll_form.py:184
 #: models/poll_reply.py:101
 #: templates/polls/templatetags/block_pollform_lines.html:7
 #: views/poll_reply.py:166
 msgid "Question"
 msgstr "Question"
 
-#: forms/poll_reply.py:178
+#: forms/poll_reply.py:197
 msgid "Not applicable"
 msgstr "Sans objet"
 
-#: forms/poll_reply.py:197
+#: forms/poll_reply.py:216
 msgid "The answer is required."
 msgstr "La réponse est obligatoire."
 
@@ -413,10 +420,6 @@ msgstr "Il y a au moins une autre question qui dépend de celle-ci."
 #: models/poll_form.py:210
 msgid "This question is already disabled."
 msgstr "Cette question est déjà désactivée."
-
-#: models/poll_reply.py:41
-msgid "Person who filled"
-msgstr "Personne qui a rempli"
 
 #: models/poll_reply.py:49
 msgid "Is complete"

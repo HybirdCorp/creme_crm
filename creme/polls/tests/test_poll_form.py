@@ -607,8 +607,8 @@ class PollFormsTestCase(_PollsTestCase):
         plt = line.poll_line_type
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
-        self.assertEqual(_(u'List of choices'), plt.verbose_name)
-        self.assertEqual(_(u'List of choices (%s)') % 'White / Black / Green',
+        self.assertEqual(_(u'Choice list'), plt.verbose_name)
+        self.assertEqual(_(u'Choice list (%s)') % 'White / Black / Green',
                          plt.description
                         )
 
@@ -636,8 +636,8 @@ class PollFormsTestCase(_PollsTestCase):
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
         self.assertEqual(choices, plt.get_choices())
         self.assertEqual(choices, plt.get_editable_choices())
-        self.assertEqual(_(u'List of multiple choices'), plt.verbose_name)
-        self.assertEqual(_(u'List of multiple choices (%s)') % 'White / Black / Green / Purple',
+        self.assertEqual(_(u'Multiple choice list'), plt.verbose_name)
+        self.assertEqual(_(u'Multiple choice list (%s)') % 'White / Black / Green / Purple',
                          plt.description
                         )
 
@@ -667,8 +667,8 @@ class PollFormsTestCase(_PollsTestCase):
         self.assertEqual(choices,                     plt.get_editable_choices())
 
         self.assertFalse(plt.get_deleted_choices())
-        self.assertEqual(_(u'List of choices with free choice'), plt.verbose_name)
-        self.assertEqual(_(u'List of choices with free choice (%s)') % 'White / Black / Green / Orange',
+        self.assertEqual(_(u'Choice list with free choice'), plt.verbose_name)
+        self.assertEqual(_(u'Choice list with free choice (%s)') % 'White / Black / Green / Orange',
                          plt.description
                         )
 
@@ -980,7 +980,7 @@ class PollFormsTestCase(_PollsTestCase):
                          },
                          plt._args
                         )
-        self.assertEqual(_(u'List of choices (%(choices)s) (deleted: %(del_choices)s)') % {
+        self.assertEqual(_(u'Choice list (%(choices)s) (deleted: %(del_choices)s)') % {
                                 'choices':     'Yellow / Cyan',
                                 'del_choices': 'White / Red',
                             },
@@ -1064,7 +1064,7 @@ class PollFormsTestCase(_PollsTestCase):
                                       del_choices=[[1, 'White'], [4, 'Blue']],
                                       qtype=PollLineType.MULTI_ENUM
                                      )
-        self.assertEqual(_(u'List of multiple choices (%(choices)s) (deleted: %(del_choices)s)') % {
+        self.assertEqual(_(u'Multiple choice list (%(choices)s) (deleted: %(del_choices)s)') % {
                                 'choices':     'Black / Red',
                                 'del_choices': 'White / Blue',
                             },
@@ -1077,7 +1077,7 @@ class PollFormsTestCase(_PollsTestCase):
                                       del_choices=[[1, 'Grey'], [4, 'Blue']],
                                       qtype=PollLineType.ENUM_OR_STRING
                                      )
-        self.assertEqual(_(u'List of choices with free choice (%(choices)s) (deleted: %(del_choices)s)') % {
+        self.assertEqual(_(u'Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)') % {
                                 'choices':     'Brown / Red',
                                 'del_choices': 'Grey / Blue',
                             },

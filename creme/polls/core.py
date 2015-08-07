@@ -261,9 +261,9 @@ class HourPollLineType(PollLineType):
 
 
 class EnumPollLineType(PollLineType):
-    verbose_name     = _(u'List of choices')
-    _description     = _(u'List of choices (%s)')
-    _description_del = _(u'List of choices (%(choices)s) (deleted: %(del_choices)s)')
+    verbose_name     = _(u'Choice list')
+    _description     = _(u'Choice list (%s)')
+    _description_del = _(u'Choice list (%(choices)s) (deleted: %(del_choices)s)')
 
     def __init__(self, **kwargs):
         super(EnumPollLineType, self).__init__(**kwargs)
@@ -322,9 +322,9 @@ class EnumPollLineType(PollLineType):
 
 
 class MultiEnumPollLineType(EnumPollLineType):
-    verbose_name     = _(u'List of multiple choices')
-    _description     = _(u'List of multiple choices (%s)')
-    _description_del = _(u'List of multiple choices (%(choices)s) (deleted: %(del_choices)s)')
+    verbose_name     = _(u'Multiple choice list')
+    _description     = _(u'Multiple choice list (%s)')
+    _description_del = _(u'Multiple choice list (%(choices)s) (deleted: %(del_choices)s)')
 
     def _cast_answer_4_decoding(self, answer):
         indices = set(answer)
@@ -350,9 +350,9 @@ class MultiEnumPollLineType(EnumPollLineType):
 
 
 class EnumOrStringPollLineType(EnumPollLineType):
-    verbose_name     = _(u'List of choices with free choice')
-    _description     = _(u'List of choices with free choice (%s)')
-    _description_del = _(u'List of choices with free choice (%(choices)s) (deleted: %(del_choices)s)')
+    verbose_name     = _(u'Choice list with free choice')
+    _description     = _(u'Choice list with free choice (%s)')
+    _description_del = _(u'Choice list with free choice (%(choices)s) (deleted: %(del_choices)s)')
 
     def _cast_answer_4_decoding(self, answer):
         if len(answer) == 1:
