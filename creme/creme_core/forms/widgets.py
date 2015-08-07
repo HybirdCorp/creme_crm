@@ -324,8 +324,8 @@ class DateRangeSelect(TextInput):
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['select'] = '\n'.join(date_range)
-        context['start'] = '<input type="text" class="daterange-input date-start"></input>'
-        context['end']   = '<input type="text" class="daterange-input date-end"></input>'
+        context['start'] = '<input type="text" class="daterange-input date-start" />'
+        context['end']   = '<input type="text" class="daterange-input date-end" />'
         context['from']  = _(u'From')
         context['to']    = _(u'To')
         context['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)

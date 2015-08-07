@@ -51,7 +51,7 @@
                             {% endfor %}
                             <li class="pager-input">
                                 <a title="{% trans "To another page" %}">…</a>
-                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page" />
                             </li>
                             <li class="pager-link">
                                 <a data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a>
@@ -62,7 +62,7 @@
                             </li>
                             <li class="pager-input">
                                 <a title="{% trans "To another page" %}">…</a>
-                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page" />
                             </li>
                             {% for p in num_pages|add:1|sub:page.previous_page_number|xrange:page.previous_page_number %}
                                 <li class="pager-link">
@@ -75,7 +75,7 @@
                             </li>
                             <li class="pager-input">
                                 <a title="{% trans "To another page" %}">…</a>
-                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.previous_page_number|add:-1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page" />
                             </li>
                             {% for p in 3|xrange:page.previous_page_number %}
                                 <li class="pager-link">
@@ -84,7 +84,7 @@
                             {% endfor %}
                             <li class="pager-input">
                                 <a title="{% trans "To another page" %}">…</a>
-                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page"></input>
+                                <input type="text" min="1" max="{{num_pages}}" value="{{page.next_page_number|add:1}}" data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page=' + page" />
                             </li>
                             <li class="pager-link">
                                 <a data-page-uri="{% get_block_reload_uri %} + '&{{block_name}}_page={{num_pages}}'" title="{% blocktrans %}To page {{num_pages}}{% endblocktrans %}">{{num_pages}}</a>
