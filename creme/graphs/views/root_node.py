@@ -26,15 +26,18 @@ from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
+from .. import get_graph_model
 from ..forms.root_node import AddRootNodesForm, EditRootNodeForm
-from ..models import Graph, RootNode
+from ..models import RootNode #Graph
 
 
 @login_required
 @permission_required('graphs')
 def add(request, graph_id):
     return add_to_entity(request, graph_id, AddRootNodesForm,
-                         _(u'Add root nodes to <%s>'), entity_class=Graph,
+                         _(u'Add root nodes to <%s>'),
+                         #entity_class=Graph,
+                         entity_class=get_graph_model(),
                         )
 
 @login_required
